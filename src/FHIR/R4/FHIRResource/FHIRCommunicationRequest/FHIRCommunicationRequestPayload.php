@@ -90,7 +90,8 @@ class FHIRCommunicationRequestPayload extends FHIRBackboneElement implements \Js
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getContentString() {
+    public function getContentString()
+    {
         return $this->contentString;
     }
 
@@ -98,7 +99,8 @@ class FHIRCommunicationRequestPayload extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $contentString
      * @return $this
      */
-    public function setContentString($contentString) {
+    public function setContentString($contentString)
+    {
         $this->contentString = $contentString;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRCommunicationRequestPayload extends FHIRBackboneElement implements \Js
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getContentAttachment() {
+    public function getContentAttachment()
+    {
         return $this->contentAttachment;
     }
 
@@ -114,7 +117,8 @@ class FHIRCommunicationRequestPayload extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $contentAttachment
      * @return $this
      */
-    public function setContentAttachment($contentAttachment) {
+    public function setContentAttachment($contentAttachment)
+    {
         $this->contentAttachment = $contentAttachment;
         return $this;
     }
@@ -122,7 +126,8 @@ class FHIRCommunicationRequestPayload extends FHIRBackboneElement implements \Js
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getContentReference() {
+    public function getContentReference()
+    {
         return $this->contentReference;
     }
 
@@ -130,7 +135,8 @@ class FHIRCommunicationRequestPayload extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $contentReference
      * @return $this
      */
-    public function setContentReference($contentReference) {
+    public function setContentReference($contentReference)
+    {
         $this->contentReference = $contentReference;
         return $this;
     }
@@ -138,14 +144,16 @@ class FHIRCommunicationRequestPayload extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['contentString'])) {
                 $this->setContentString($data['contentString']);
@@ -165,18 +173,26 @@ class FHIRCommunicationRequestPayload extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->contentString)) $json['contentString'] = $this->contentString;
-        if (isset($this->contentAttachment)) $json['contentAttachment'] = $this->contentAttachment;
-        if (isset($this->contentReference)) $json['contentReference'] = $this->contentReference;
+        if (isset($this->contentString)) {
+            $json['contentString'] = $this->contentString;
+        }
+        if (isset($this->contentAttachment)) {
+            $json['contentAttachment'] = $this->contentAttachment;
+        }
+        if (isset($this->contentReference)) {
+            $json['contentReference'] = $this->contentReference;
+        }
         return $json;
     }
 
@@ -185,15 +201,24 @@ class FHIRCommunicationRequestPayload extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CommunicationRequestPayload xmlns="http://hl7.org/fhir"></CommunicationRequestPayload>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CommunicationRequestPayload xmlns="http://hl7.org/fhir"></CommunicationRequestPayload>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->contentString)) $this->contentString->xmlSerialize(true, $sxe->addChild('contentString'));
-        if (isset($this->contentAttachment)) $this->contentAttachment->xmlSerialize(true, $sxe->addChild('contentAttachment'));
-        if (isset($this->contentReference)) $this->contentReference->xmlSerialize(true, $sxe->addChild('contentReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->contentString)) {
+            $this->contentString->xmlSerialize(true, $sxe->addChild('contentString'));
+        }
+        if (isset($this->contentAttachment)) {
+            $this->contentAttachment->xmlSerialize(true, $sxe->addChild('contentAttachment'));
+        }
+        if (isset($this->contentReference)) {
+            $this->contentReference->xmlSerialize(true, $sxe->addChild('contentReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

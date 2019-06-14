@@ -88,7 +88,8 @@ class FHIRConsentData extends FHIRBackboneElement implements \JsonSerializable
      * How the resource reference is interpreted when testing consent restrictions.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRConsentDataMeaning
      */
-    public function getMeaning() {
+    public function getMeaning()
+    {
         return $this->meaning;
     }
 
@@ -97,7 +98,8 @@ class FHIRConsentData extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRConsentDataMeaning $meaning
      * @return $this
      */
-    public function setMeaning($meaning) {
+    public function setMeaning($meaning)
+    {
         $this->meaning = $meaning;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRConsentData extends FHIRBackboneElement implements \JsonSerializable
      * A reference to a specific resource that defines which resources are covered by this consent.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -115,7 +118,8 @@ class FHIRConsentData extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reference
      * @return $this
      */
-    public function setReference($reference) {
+    public function setReference($reference)
+    {
         $this->reference = $reference;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRConsentData extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['meaning'])) {
                 $this->setMeaning($data['meaning']);
@@ -147,17 +153,23 @@ class FHIRConsentData extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->meaning)) $json['meaning'] = $this->meaning;
-        if (isset($this->reference)) $json['reference'] = $this->reference;
+        if (isset($this->meaning)) {
+            $json['meaning'] = $this->meaning;
+        }
+        if (isset($this->reference)) {
+            $json['reference'] = $this->reference;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRConsentData extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ConsentData xmlns="http://hl7.org/fhir"></ConsentData>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ConsentData xmlns="http://hl7.org/fhir"></ConsentData>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->meaning)) $this->meaning->xmlSerialize(true, $sxe->addChild('meaning'));
-        if (isset($this->reference)) $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->meaning)) {
+            $this->meaning->xmlSerialize(true, $sxe->addChild('meaning'));
+        }
+        if (isset($this->reference)) {
+            $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

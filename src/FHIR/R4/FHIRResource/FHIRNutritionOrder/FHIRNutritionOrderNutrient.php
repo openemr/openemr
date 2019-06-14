@@ -88,7 +88,8 @@ class FHIRNutritionOrderNutrient extends FHIRBackboneElement implements \JsonSer
      * The nutrient that is being modified such as carbohydrate or sodium.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getModifier() {
+    public function getModifier()
+    {
         return $this->modifier;
     }
 
@@ -97,7 +98,8 @@ class FHIRNutritionOrderNutrient extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $modifier
      * @return $this
      */
-    public function setModifier($modifier) {
+    public function setModifier($modifier)
+    {
         $this->modifier = $modifier;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRNutritionOrderNutrient extends FHIRBackboneElement implements \JsonSer
      * The quantity of the specified nutrient to include in diet.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -115,7 +118,8 @@ class FHIRNutritionOrderNutrient extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRNutritionOrderNutrient extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['modifier'])) {
                 $this->setModifier($data['modifier']);
@@ -147,17 +153,23 @@ class FHIRNutritionOrderNutrient extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->modifier)) $json['modifier'] = $this->modifier;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
+        if (isset($this->modifier)) {
+            $json['modifier'] = $this->modifier;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRNutritionOrderNutrient extends FHIRBackboneElement implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<NutritionOrderNutrient xmlns="http://hl7.org/fhir"></NutritionOrderNutrient>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<NutritionOrderNutrient xmlns="http://hl7.org/fhir"></NutritionOrderNutrient>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->modifier)) $this->modifier->xmlSerialize(true, $sxe->addChild('modifier'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->modifier)) {
+            $this->modifier->xmlSerialize(true, $sxe->addChild('modifier'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

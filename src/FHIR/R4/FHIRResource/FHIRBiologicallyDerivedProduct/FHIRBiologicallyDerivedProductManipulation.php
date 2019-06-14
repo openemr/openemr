@@ -93,7 +93,8 @@ class FHIRBiologicallyDerivedProductManipulation extends FHIRBackboneElement imp
      * Description of manipulation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -102,7 +103,8 @@ class FHIRBiologicallyDerivedProductManipulation extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -110,7 +112,8 @@ class FHIRBiologicallyDerivedProductManipulation extends FHIRBackboneElement imp
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getTimeDateTime() {
+    public function getTimeDateTime()
+    {
         return $this->timeDateTime;
     }
 
@@ -118,7 +121,8 @@ class FHIRBiologicallyDerivedProductManipulation extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $timeDateTime
      * @return $this
      */
-    public function setTimeDateTime($timeDateTime) {
+    public function setTimeDateTime($timeDateTime)
+    {
         $this->timeDateTime = $timeDateTime;
         return $this;
     }
@@ -126,7 +130,8 @@ class FHIRBiologicallyDerivedProductManipulation extends FHIRBackboneElement imp
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getTimePeriod() {
+    public function getTimePeriod()
+    {
         return $this->timePeriod;
     }
 
@@ -134,7 +139,8 @@ class FHIRBiologicallyDerivedProductManipulation extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $timePeriod
      * @return $this
      */
-    public function setTimePeriod($timePeriod) {
+    public function setTimePeriod($timePeriod)
+    {
         $this->timePeriod = $timePeriod;
         return $this;
     }
@@ -142,14 +148,16 @@ class FHIRBiologicallyDerivedProductManipulation extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -169,18 +177,26 @@ class FHIRBiologicallyDerivedProductManipulation extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->timeDateTime)) $json['timeDateTime'] = $this->timeDateTime;
-        if (isset($this->timePeriod)) $json['timePeriod'] = $this->timePeriod;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->timeDateTime)) {
+            $json['timeDateTime'] = $this->timeDateTime;
+        }
+        if (isset($this->timePeriod)) {
+            $json['timePeriod'] = $this->timePeriod;
+        }
         return $json;
     }
 
@@ -189,15 +205,24 @@ class FHIRBiologicallyDerivedProductManipulation extends FHIRBackboneElement imp
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<BiologicallyDerivedProductManipulation xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductManipulation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<BiologicallyDerivedProductManipulation xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductManipulation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->timeDateTime)) $this->timeDateTime->xmlSerialize(true, $sxe->addChild('timeDateTime'));
-        if (isset($this->timePeriod)) $this->timePeriod->xmlSerialize(true, $sxe->addChild('timePeriod'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->timeDateTime)) {
+            $this->timeDateTime->xmlSerialize(true, $sxe->addChild('timeDateTime'));
+        }
+        if (isset($this->timePeriod)) {
+            $this->timePeriod->xmlSerialize(true, $sxe->addChild('timePeriod'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

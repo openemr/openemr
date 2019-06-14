@@ -106,7 +106,8 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * The item from the Questionnaire that corresponds to this item in the QuestionnaireResponse resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getLinkId() {
+    public function getLinkId()
+    {
         return $this->linkId;
     }
 
@@ -115,7 +116,8 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $linkId
      * @return $this
      */
-    public function setLinkId($linkId) {
+    public function setLinkId($linkId)
+    {
         $this->linkId = $linkId;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * A reference to an [[[ElementDefinition]]] that provides the details for the item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getDefinition() {
+    public function getDefinition()
+    {
         return $this->definition;
     }
 
@@ -133,7 +136,8 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $definition
      * @return $this
      */
-    public function setDefinition($definition) {
+    public function setDefinition($definition)
+    {
         $this->definition = $definition;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * Text that is displayed above the contents of the group or as the text of the question being answered.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -151,7 +156,8 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * The respondent's answer(s) to the question.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaireResponse\FHIRQuestionnaireResponseAnswer[]
      */
-    public function getAnswer() {
+    public function getAnswer()
+    {
         return $this->answer;
     }
 
@@ -169,7 +176,8 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaireResponse\FHIRQuestionnaireResponseAnswer $answer
      * @return $this
      */
-    public function addAnswer($answer) {
+    public function addAnswer($answer)
+    {
         $this->answer[] = $answer;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * Questions or sub-groups nested beneath a question or group.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaireResponse\FHIRQuestionnaireResponseItem[]
      */
-    public function getItem() {
+    public function getItem()
+    {
         return $this->item;
     }
 
@@ -187,7 +196,8 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaireResponse\FHIRQuestionnaireResponseItem $item
      * @return $this
      */
-    public function addItem($item) {
+    public function addItem($item)
+    {
         $this->item[] = $item;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['linkId'])) {
                 $this->setLinkId($data['linkId']);
@@ -215,7 +227,7 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
             }
             if (isset($data['answer'])) {
                 if (is_array($data['answer'])) {
-                    foreach($data['answer'] as $d) {
+                    foreach ($data['answer'] as $d) {
                         $this->addAnswer($d);
                     }
                 } else {
@@ -224,7 +236,7 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
             }
             if (isset($data['item'])) {
                 if (is_array($data['item'])) {
-                    foreach($data['item'] as $d) {
+                    foreach ($data['item'] as $d) {
                         $this->addItem($d);
                     }
                 } else {
@@ -240,27 +252,35 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->linkId)) $json['linkId'] = $this->linkId;
-        if (isset($this->definition)) $json['definition'] = $this->definition;
-        if (isset($this->text)) $json['text'] = $this->text;
+        if (isset($this->linkId)) {
+            $json['linkId'] = $this->linkId;
+        }
+        if (isset($this->definition)) {
+            $json['definition'] = $this->definition;
+        }
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
         if (0 < count($this->answer)) {
             $json['answer'] = [];
-            foreach($this->answer as $answer) {
+            foreach ($this->answer as $answer) {
                 $json['answer'][] = $answer;
             }
         }
         if (0 < count($this->item)) {
             $json['item'] = [];
-            foreach($this->item as $item) {
+            foreach ($this->item as $item) {
                 $json['item'][] = $item;
             }
         }
@@ -272,25 +292,34 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<QuestionnaireResponseItem xmlns="http://hl7.org/fhir"></QuestionnaireResponseItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<QuestionnaireResponseItem xmlns="http://hl7.org/fhir"></QuestionnaireResponseItem>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->linkId)) $this->linkId->xmlSerialize(true, $sxe->addChild('linkId'));
-        if (isset($this->definition)) $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        if (isset($this->linkId)) {
+            $this->linkId->xmlSerialize(true, $sxe->addChild('linkId'));
+        }
+        if (isset($this->definition)) {
+            $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        }
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
         if (0 < count($this->answer)) {
-            foreach($this->answer as $answer) {
+            foreach ($this->answer as $answer) {
                 $answer->xmlSerialize(true, $sxe->addChild('answer'));
             }
         }
         if (0 < count($this->item)) {
-            foreach($this->item as $item) {
+            foreach ($this->item as $item) {
                 $item->xmlSerialize(true, $sxe->addChild('item'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

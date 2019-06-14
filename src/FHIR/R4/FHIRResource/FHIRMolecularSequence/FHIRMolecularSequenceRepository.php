@@ -112,7 +112,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * Click and see / RESTful API / Need login to see / RESTful API with authentication / Other ways to see resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRepositoryType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -121,7 +122,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRepositoryType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * URI of an external repository which contains further details about the genetics data.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -139,7 +142,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * URI of an external repository which contains further details about the genetics data.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -157,7 +162,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * Id of the variant in this external repository. The server will understand how to use this id to call for more info about datasets in external repository.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDatasetId() {
+    public function getDatasetId()
+    {
         return $this->datasetId;
     }
 
@@ -175,7 +182,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $datasetId
      * @return $this
      */
-    public function setDatasetId($datasetId) {
+    public function setDatasetId($datasetId)
+    {
         $this->datasetId = $datasetId;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * Id of the variantset in this external repository. The server will understand how to use this id to call for more info about variantsets in external repository.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVariantsetId() {
+    public function getVariantsetId()
+    {
         return $this->variantsetId;
     }
 
@@ -193,7 +202,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $variantsetId
      * @return $this
      */
-    public function setVariantsetId($variantsetId) {
+    public function setVariantsetId($variantsetId)
+    {
         $this->variantsetId = $variantsetId;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * Id of the read in this external repository.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getReadsetId() {
+    public function getReadsetId()
+    {
         return $this->readsetId;
     }
 
@@ -211,7 +222,8 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $readsetId
      * @return $this
      */
-    public function setReadsetId($readsetId) {
+    public function setReadsetId($readsetId)
+    {
         $this->readsetId = $readsetId;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -255,21 +269,35 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->url)) $json['url'] = $this->url;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->datasetId)) $json['datasetId'] = $this->datasetId;
-        if (isset($this->variantsetId)) $json['variantsetId'] = $this->variantsetId;
-        if (isset($this->readsetId)) $json['readsetId'] = $this->readsetId;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->datasetId)) {
+            $json['datasetId'] = $this->datasetId;
+        }
+        if (isset($this->variantsetId)) {
+            $json['variantsetId'] = $this->variantsetId;
+        }
+        if (isset($this->readsetId)) {
+            $json['readsetId'] = $this->readsetId;
+        }
         return $json;
     }
 
@@ -278,18 +306,33 @@ class FHIRMolecularSequenceRepository extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MolecularSequenceRepository xmlns="http://hl7.org/fhir"></MolecularSequenceRepository>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MolecularSequenceRepository xmlns="http://hl7.org/fhir"></MolecularSequenceRepository>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->datasetId)) $this->datasetId->xmlSerialize(true, $sxe->addChild('datasetId'));
-        if (isset($this->variantsetId)) $this->variantsetId->xmlSerialize(true, $sxe->addChild('variantsetId'));
-        if (isset($this->readsetId)) $this->readsetId->xmlSerialize(true, $sxe->addChild('readsetId'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->datasetId)) {
+            $this->datasetId->xmlSerialize(true, $sxe->addChild('datasetId'));
+        }
+        if (isset($this->variantsetId)) {
+            $this->variantsetId->xmlSerialize(true, $sxe->addChild('variantsetId'));
+        }
+        if (isset($this->readsetId)) {
+            $this->readsetId->xmlSerialize(true, $sxe->addChild('readsetId'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

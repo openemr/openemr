@@ -101,7 +101,8 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
      * The SubstanceProtein descriptive elements will only be used when a complete or partial amino acid sequence is available or derivable from a nucleic acid sequence.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSequenceType() {
+    public function getSequenceType()
+    {
         return $this->sequenceType;
     }
 
@@ -110,7 +111,8 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $sequenceType
      * @return $this
      */
-    public function setSequenceType($sequenceType) {
+    public function setSequenceType($sequenceType)
+    {
         $this->sequenceType = $sequenceType;
         return $this;
     }
@@ -119,7 +121,8 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
      * Number of linear sequences of amino acids linked through peptide bonds. The number of subunits constituting the SubstanceProtein shall be described. It is possible that the number of subunits can be variable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getNumberOfSubunits() {
+    public function getNumberOfSubunits()
+    {
         return $this->numberOfSubunits;
     }
 
@@ -128,7 +131,8 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $numberOfSubunits
      * @return $this
      */
-    public function setNumberOfSubunits($numberOfSubunits) {
+    public function setNumberOfSubunits($numberOfSubunits)
+    {
         $this->numberOfSubunits = $numberOfSubunits;
         return $this;
     }
@@ -137,7 +141,8 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
      * The disulphide bond between two cysteine residues either on the same subunit or on two different subunits shall be described. The position of the disulfide bonds in the SubstanceProtein shall be listed in increasing order of subunit number and position within subunit followed by the abbreviation of the amino acids involved. The disulfide linkage positions shall actually contain the amino acid Cysteine at the respective positions.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getDisulfideLinkage() {
+    public function getDisulfideLinkage()
+    {
         return $this->disulfideLinkage;
     }
 
@@ -146,7 +151,8 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $disulfideLinkage
      * @return $this
      */
-    public function addDisulfideLinkage($disulfideLinkage) {
+    public function addDisulfideLinkage($disulfideLinkage)
+    {
         $this->disulfideLinkage[] = $disulfideLinkage;
         return $this;
     }
@@ -155,7 +161,8 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
      * This subclause refers to the description of each subunit constituting the SubstanceProtein. A subunit is a linear sequence of amino acids linked through peptide bonds. The Subunit information shall be provided when the finished SubstanceProtein is a complex of multiple sequences; subunits are not used to delineate domains within a single sequence. Subunits are listed in order of decreasing length; sequences of the same length will be ordered by decreasing molecular weight; subunits that have identical sequences will be repeated multiple times.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceProtein\FHIRSubstanceProteinSubunit[]
      */
-    public function getSubunit() {
+    public function getSubunit()
+    {
         return $this->subunit;
     }
 
@@ -164,7 +171,8 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceProtein\FHIRSubstanceProteinSubunit $subunit
      * @return $this
      */
-    public function addSubunit($subunit) {
+    public function addSubunit($subunit)
+    {
         $this->subunit[] = $subunit;
         return $this;
     }
@@ -172,14 +180,16 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequenceType'])) {
                 $this->setSequenceType($data['sequenceType']);
@@ -189,7 +199,7 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['disulfideLinkage'])) {
                 if (is_array($data['disulfideLinkage'])) {
-                    foreach($data['disulfideLinkage'] as $d) {
+                    foreach ($data['disulfideLinkage'] as $d) {
                         $this->addDisulfideLinkage($d);
                     }
                 } else {
@@ -198,7 +208,7 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['subunit'])) {
                 if (is_array($data['subunit'])) {
-                    foreach($data['subunit'] as $d) {
+                    foreach ($data['subunit'] as $d) {
                         $this->addSubunit($d);
                     }
                 } else {
@@ -214,27 +224,33 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->sequenceType)) $json['sequenceType'] = $this->sequenceType;
-        if (isset($this->numberOfSubunits)) $json['numberOfSubunits'] = $this->numberOfSubunits;
+        if (isset($this->sequenceType)) {
+            $json['sequenceType'] = $this->sequenceType;
+        }
+        if (isset($this->numberOfSubunits)) {
+            $json['numberOfSubunits'] = $this->numberOfSubunits;
+        }
         if (0 < count($this->disulfideLinkage)) {
             $json['disulfideLinkage'] = [];
-            foreach($this->disulfideLinkage as $disulfideLinkage) {
+            foreach ($this->disulfideLinkage as $disulfideLinkage) {
                 $json['disulfideLinkage'][] = $disulfideLinkage;
             }
         }
         if (0 < count($this->subunit)) {
             $json['subunit'] = [];
-            foreach($this->subunit as $subunit) {
+            foreach ($this->subunit as $subunit) {
                 $json['subunit'][] = $subunit;
             }
         }
@@ -246,24 +262,31 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceProtein xmlns="http://hl7.org/fhir"></SubstanceProtein>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceProtein xmlns="http://hl7.org/fhir"></SubstanceProtein>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequenceType)) $this->sequenceType->xmlSerialize(true, $sxe->addChild('sequenceType'));
-        if (isset($this->numberOfSubunits)) $this->numberOfSubunits->xmlSerialize(true, $sxe->addChild('numberOfSubunits'));
+        if (isset($this->sequenceType)) {
+            $this->sequenceType->xmlSerialize(true, $sxe->addChild('sequenceType'));
+        }
+        if (isset($this->numberOfSubunits)) {
+            $this->numberOfSubunits->xmlSerialize(true, $sxe->addChild('numberOfSubunits'));
+        }
         if (0 < count($this->disulfideLinkage)) {
-            foreach($this->disulfideLinkage as $disulfideLinkage) {
+            foreach ($this->disulfideLinkage as $disulfideLinkage) {
                 $disulfideLinkage->xmlSerialize(true, $sxe->addChild('disulfideLinkage'));
             }
         }
         if (0 < count($this->subunit)) {
-            foreach($this->subunit as $subunit) {
+            foreach ($this->subunit as $subunit) {
                 $subunit->xmlSerialize(true, $sxe->addChild('subunit'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

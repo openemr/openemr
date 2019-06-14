@@ -94,7 +94,8 @@ class FHIRSubstanceSpecificationMolecularWeight extends FHIRBackboneElement impl
      * The method by which the molecular weight was determined.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method;
     }
 
@@ -103,7 +104,8 @@ class FHIRSubstanceSpecificationMolecularWeight extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $method
      * @return $this
      */
-    public function setMethod($method) {
+    public function setMethod($method)
+    {
         $this->method = $method;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRSubstanceSpecificationMolecularWeight extends FHIRBackboneElement impl
      * Type of molecular weight such as exact, average (also known as. number average), weight average.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -121,7 +124,8 @@ class FHIRSubstanceSpecificationMolecularWeight extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRSubstanceSpecificationMolecularWeight extends FHIRBackboneElement impl
      * Used to capture quantitative values for a variety of elements. If only limits are given, the arithmetic mean would be the average. If only a single definite value for a given element is given, it would be captured in this field.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -139,7 +144,8 @@ class FHIRSubstanceSpecificationMolecularWeight extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRSubstanceSpecificationMolecularWeight extends FHIRBackboneElement impl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['method'])) {
                 $this->setMethod($data['method']);
@@ -174,18 +182,26 @@ class FHIRSubstanceSpecificationMolecularWeight extends FHIRBackboneElement impl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->method)) $json['method'] = $this->method;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
+        if (isset($this->method)) {
+            $json['method'] = $this->method;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRSubstanceSpecificationMolecularWeight extends FHIRBackboneElement impl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecificationMolecularWeight xmlns="http://hl7.org/fhir"></SubstanceSpecificationMolecularWeight>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecificationMolecularWeight xmlns="http://hl7.org/fhir"></SubstanceSpecificationMolecularWeight>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->method)) $this->method->xmlSerialize(true, $sxe->addChild('method'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->method)) {
+            $this->method->xmlSerialize(true, $sxe->addChild('method'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

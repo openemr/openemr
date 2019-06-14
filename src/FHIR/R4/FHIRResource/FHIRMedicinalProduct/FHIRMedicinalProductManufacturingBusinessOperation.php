@@ -112,7 +112,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * The type of manufacturing operation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getOperationType() {
+    public function getOperationType()
+    {
         return $this->operationType;
     }
 
@@ -121,7 +122,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $operationType
      * @return $this
      */
-    public function setOperationType($operationType) {
+    public function setOperationType($operationType)
+    {
         $this->operationType = $operationType;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * Regulatory authorization reference number.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getAuthorisationReferenceNumber() {
+    public function getAuthorisationReferenceNumber()
+    {
         return $this->authorisationReferenceNumber;
     }
 
@@ -139,7 +142,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $authorisationReferenceNumber
      * @return $this
      */
-    public function setAuthorisationReferenceNumber($authorisationReferenceNumber) {
+    public function setAuthorisationReferenceNumber($authorisationReferenceNumber)
+    {
         $this->authorisationReferenceNumber = $authorisationReferenceNumber;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * Regulatory authorization date.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getEffectiveDate() {
+    public function getEffectiveDate()
+    {
         return $this->effectiveDate;
     }
 
@@ -157,7 +162,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $effectiveDate
      * @return $this
      */
-    public function setEffectiveDate($effectiveDate) {
+    public function setEffectiveDate($effectiveDate)
+    {
         $this->effectiveDate = $effectiveDate;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * To indicate if this proces is commercially confidential.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getConfidentialityIndicator() {
+    public function getConfidentialityIndicator()
+    {
         return $this->confidentialityIndicator;
     }
 
@@ -175,7 +182,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $confidentialityIndicator
      * @return $this
      */
-    public function setConfidentialityIndicator($confidentialityIndicator) {
+    public function setConfidentialityIndicator($confidentialityIndicator)
+    {
         $this->confidentialityIndicator = $confidentialityIndicator;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * The manufacturer or establishment associated with the process.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getManufacturer() {
+    public function getManufacturer()
+    {
         return $this->manufacturer;
     }
 
@@ -193,7 +202,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $manufacturer
      * @return $this
      */
-    public function addManufacturer($manufacturer) {
+    public function addManufacturer($manufacturer)
+    {
         $this->manufacturer[] = $manufacturer;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * A regulator which oversees the operation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRegulator() {
+    public function getRegulator()
+    {
         return $this->regulator;
     }
 
@@ -211,7 +222,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $regulator
      * @return $this
      */
-    public function setRegulator($regulator) {
+    public function setRegulator($regulator)
+    {
         $this->regulator = $regulator;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['operationType'])) {
                 $this->setOperationType($data['operationType']);
@@ -242,7 +256,7 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
             }
             if (isset($data['manufacturer'])) {
                 if (is_array($data['manufacturer'])) {
-                    foreach($data['manufacturer'] as $d) {
+                    foreach ($data['manufacturer'] as $d) {
                         $this->addManufacturer($d);
                     }
                 } else {
@@ -261,26 +275,38 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->operationType)) $json['operationType'] = $this->operationType;
-        if (isset($this->authorisationReferenceNumber)) $json['authorisationReferenceNumber'] = $this->authorisationReferenceNumber;
-        if (isset($this->effectiveDate)) $json['effectiveDate'] = $this->effectiveDate;
-        if (isset($this->confidentialityIndicator)) $json['confidentialityIndicator'] = $this->confidentialityIndicator;
+        if (isset($this->operationType)) {
+            $json['operationType'] = $this->operationType;
+        }
+        if (isset($this->authorisationReferenceNumber)) {
+            $json['authorisationReferenceNumber'] = $this->authorisationReferenceNumber;
+        }
+        if (isset($this->effectiveDate)) {
+            $json['effectiveDate'] = $this->effectiveDate;
+        }
+        if (isset($this->confidentialityIndicator)) {
+            $json['confidentialityIndicator'] = $this->confidentialityIndicator;
+        }
         if (0 < count($this->manufacturer)) {
             $json['manufacturer'] = [];
-            foreach($this->manufacturer as $manufacturer) {
+            foreach ($this->manufacturer as $manufacturer) {
                 $json['manufacturer'][] = $manufacturer;
             }
         }
-        if (isset($this->regulator)) $json['regulator'] = $this->regulator;
+        if (isset($this->regulator)) {
+            $json['regulator'] = $this->regulator;
+        }
         return $json;
     }
 
@@ -289,22 +315,35 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductManufacturingBusinessOperation xmlns="http://hl7.org/fhir"></MedicinalProductManufacturingBusinessOperation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductManufacturingBusinessOperation xmlns="http://hl7.org/fhir"></MedicinalProductManufacturingBusinessOperation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->operationType)) $this->operationType->xmlSerialize(true, $sxe->addChild('operationType'));
-        if (isset($this->authorisationReferenceNumber)) $this->authorisationReferenceNumber->xmlSerialize(true, $sxe->addChild('authorisationReferenceNumber'));
-        if (isset($this->effectiveDate)) $this->effectiveDate->xmlSerialize(true, $sxe->addChild('effectiveDate'));
-        if (isset($this->confidentialityIndicator)) $this->confidentialityIndicator->xmlSerialize(true, $sxe->addChild('confidentialityIndicator'));
+        if (isset($this->operationType)) {
+            $this->operationType->xmlSerialize(true, $sxe->addChild('operationType'));
+        }
+        if (isset($this->authorisationReferenceNumber)) {
+            $this->authorisationReferenceNumber->xmlSerialize(true, $sxe->addChild('authorisationReferenceNumber'));
+        }
+        if (isset($this->effectiveDate)) {
+            $this->effectiveDate->xmlSerialize(true, $sxe->addChild('effectiveDate'));
+        }
+        if (isset($this->confidentialityIndicator)) {
+            $this->confidentialityIndicator->xmlSerialize(true, $sxe->addChild('confidentialityIndicator'));
+        }
         if (0 < count($this->manufacturer)) {
-            foreach($this->manufacturer as $manufacturer) {
+            foreach ($this->manufacturer as $manufacturer) {
                 $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
             }
         }
-        if (isset($this->regulator)) $this->regulator->xmlSerialize(true, $sxe->addChild('regulator'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->regulator)) {
+            $this->regulator->xmlSerialize(true, $sxe->addChild('regulator'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

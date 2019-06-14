@@ -100,7 +100,8 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
      * The value for this stratum, expressed as a CodeableConcept. When defining stratifiers on complex values, the value must be rendered such that the value for each stratum within the stratifier is unique.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -109,7 +110,8 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
      * A stratifier component value.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMeasureReport\FHIRMeasureReportComponent[]
      */
-    public function getComponent() {
+    public function getComponent()
+    {
         return $this->component;
     }
 
@@ -127,7 +130,8 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMeasureReport\FHIRMeasureReportComponent $component
      * @return $this
      */
-    public function addComponent($component) {
+    public function addComponent($component)
+    {
         $this->component[] = $component;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
      * The populations that make up the stratum, one for each type of population appropriate to the measure.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMeasureReport\FHIRMeasureReportPopulation1[]
      */
-    public function getPopulation() {
+    public function getPopulation()
+    {
         return $this->population;
     }
 
@@ -145,7 +150,8 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMeasureReport\FHIRMeasureReportPopulation1 $population
      * @return $this
      */
-    public function addPopulation($population) {
+    public function addPopulation($population)
+    {
         $this->population[] = $population;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
      * The measure score for this stratum, calculated as appropriate for the measure type and scoring method, and based on only the members of this stratum.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getMeasureScore() {
+    public function getMeasureScore()
+    {
         return $this->measureScore;
     }
 
@@ -163,7 +170,8 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $measureScore
      * @return $this
      */
-    public function setMeasureScore($measureScore) {
+    public function setMeasureScore($measureScore)
+    {
         $this->measureScore = $measureScore;
         return $this;
     }
@@ -171,21 +179,23 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['value'])) {
                 $this->setValue($data['value']);
             }
             if (isset($data['component'])) {
                 if (is_array($data['component'])) {
-                    foreach($data['component'] as $d) {
+                    foreach ($data['component'] as $d) {
                         $this->addComponent($d);
                     }
                 } else {
@@ -194,7 +204,7 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['population'])) {
                 if (is_array($data['population'])) {
-                    foreach($data['population'] as $d) {
+                    foreach ($data['population'] as $d) {
                         $this->addPopulation($d);
                     }
                 } else {
@@ -213,29 +223,35 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->value)) $json['value'] = $this->value;
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
         if (0 < count($this->component)) {
             $json['component'] = [];
-            foreach($this->component as $component) {
+            foreach ($this->component as $component) {
                 $json['component'][] = $component;
             }
         }
         if (0 < count($this->population)) {
             $json['population'] = [];
-            foreach($this->population as $population) {
+            foreach ($this->population as $population) {
                 $json['population'][] = $population;
             }
         }
-        if (isset($this->measureScore)) $json['measureScore'] = $this->measureScore;
+        if (isset($this->measureScore)) {
+            $json['measureScore'] = $this->measureScore;
+        }
         return $json;
     }
 
@@ -244,24 +260,31 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MeasureReportStratum xmlns="http://hl7.org/fhir"></MeasureReportStratum>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MeasureReportStratum xmlns="http://hl7.org/fhir"></MeasureReportStratum>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
         if (0 < count($this->component)) {
-            foreach($this->component as $component) {
+            foreach ($this->component as $component) {
                 $component->xmlSerialize(true, $sxe->addChild('component'));
             }
         }
         if (0 < count($this->population)) {
-            foreach($this->population as $population) {
+            foreach ($this->population as $population) {
                 $population->xmlSerialize(true, $sxe->addChild('population'));
             }
         }
-        if (isset($this->measureScore)) $this->measureScore->xmlSerialize(true, $sxe->addChild('measureScore'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->measureScore)) {
+            $this->measureScore->xmlSerialize(true, $sxe->addChild('measureScore'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

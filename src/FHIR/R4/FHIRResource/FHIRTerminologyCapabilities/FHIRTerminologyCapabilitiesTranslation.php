@@ -82,7 +82,8 @@ class FHIRTerminologyCapabilitiesTranslation extends FHIRBackboneElement impleme
      * Whether the client must identify the map.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getNeedsMap() {
+    public function getNeedsMap()
+    {
         return $this->needsMap;
     }
 
@@ -91,7 +92,8 @@ class FHIRTerminologyCapabilitiesTranslation extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $needsMap
      * @return $this
      */
-    public function setNeedsMap($needsMap) {
+    public function setNeedsMap($needsMap)
+    {
         $this->needsMap = $needsMap;
         return $this;
     }
@@ -99,14 +101,16 @@ class FHIRTerminologyCapabilitiesTranslation extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['needsMap'])) {
                 $this->setNeedsMap($data['needsMap']);
@@ -120,16 +124,20 @@ class FHIRTerminologyCapabilitiesTranslation extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->needsMap)) $json['needsMap'] = $this->needsMap;
+        if (isset($this->needsMap)) {
+            $json['needsMap'] = $this->needsMap;
+        }
         return $json;
     }
 
@@ -138,13 +146,18 @@ class FHIRTerminologyCapabilitiesTranslation extends FHIRBackboneElement impleme
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesTranslation xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesTranslation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesTranslation xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesTranslation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->needsMap)) $this->needsMap->xmlSerialize(true, $sxe->addChild('needsMap'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->needsMap)) {
+            $this->needsMap->xmlSerialize(true, $sxe->addChild('needsMap'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

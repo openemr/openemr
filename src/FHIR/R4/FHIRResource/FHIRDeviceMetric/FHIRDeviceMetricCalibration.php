@@ -94,7 +94,8 @@ class FHIRDeviceMetricCalibration extends FHIRBackboneElement implements \JsonSe
      * Describes the type of the calibration method.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceMetricCalibrationType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -103,7 +104,8 @@ class FHIRDeviceMetricCalibration extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceMetricCalibrationType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRDeviceMetricCalibration extends FHIRBackboneElement implements \JsonSe
      * Describes the state of the calibration.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceMetricCalibrationState
      */
-    public function getState() {
+    public function getState()
+    {
         return $this->state;
     }
 
@@ -121,7 +124,8 @@ class FHIRDeviceMetricCalibration extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceMetricCalibrationState $state
      * @return $this
      */
-    public function setState($state) {
+    public function setState($state)
+    {
         $this->state = $state;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRDeviceMetricCalibration extends FHIRBackboneElement implements \JsonSe
      * Describes the time last calibration has been performed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getTime() {
+    public function getTime()
+    {
         return $this->time;
     }
 
@@ -139,7 +144,8 @@ class FHIRDeviceMetricCalibration extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $time
      * @return $this
      */
-    public function setTime($time) {
+    public function setTime($time)
+    {
         $this->time = $time;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRDeviceMetricCalibration extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -174,18 +182,26 @@ class FHIRDeviceMetricCalibration extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->state)) $json['state'] = $this->state;
-        if (isset($this->time)) $json['time'] = $this->time;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->state)) {
+            $json['state'] = $this->state;
+        }
+        if (isset($this->time)) {
+            $json['time'] = $this->time;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRDeviceMetricCalibration extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DeviceMetricCalibration xmlns="http://hl7.org/fhir"></DeviceMetricCalibration>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DeviceMetricCalibration xmlns="http://hl7.org/fhir"></DeviceMetricCalibration>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->state)) $this->state->xmlSerialize(true, $sxe->addChild('state'));
-        if (isset($this->time)) $this->time->xmlSerialize(true, $sxe->addChild('time'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->state)) {
+            $this->state->xmlSerialize(true, $sxe->addChild('state'));
+        }
+        if (isset($this->time)) {
+            $this->time->xmlSerialize(true, $sxe->addChild('time'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIRSubstanceSourceMaterialPartDescription extends FHIRBackboneElement imp
      * Entity of anatomical origin of source material within an organism.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPart() {
+    public function getPart()
+    {
         return $this->part;
     }
 
@@ -97,7 +98,8 @@ class FHIRSubstanceSourceMaterialPartDescription extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $part
      * @return $this
      */
-    public function setPart($part) {
+    public function setPart($part)
+    {
         $this->part = $part;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRSubstanceSourceMaterialPartDescription extends FHIRBackboneElement imp
      * The detailed anatomic location when the part can be extracted from different anatomical locations of the organism. Multiple alternative locations may apply.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPartLocation() {
+    public function getPartLocation()
+    {
         return $this->partLocation;
     }
 
@@ -115,7 +118,8 @@ class FHIRSubstanceSourceMaterialPartDescription extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $partLocation
      * @return $this
      */
-    public function setPartLocation($partLocation) {
+    public function setPartLocation($partLocation)
+    {
         $this->partLocation = $partLocation;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRSubstanceSourceMaterialPartDescription extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['part'])) {
                 $this->setPart($data['part']);
@@ -147,17 +153,23 @@ class FHIRSubstanceSourceMaterialPartDescription extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->part)) $json['part'] = $this->part;
-        if (isset($this->partLocation)) $json['partLocation'] = $this->partLocation;
+        if (isset($this->part)) {
+            $json['part'] = $this->part;
+        }
+        if (isset($this->partLocation)) {
+            $json['partLocation'] = $this->partLocation;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRSubstanceSourceMaterialPartDescription extends FHIRBackboneElement imp
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialPartDescription xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialPartDescription>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialPartDescription xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialPartDescription>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->part)) $this->part->xmlSerialize(true, $sxe->addChild('part'));
-        if (isset($this->partLocation)) $this->partLocation->xmlSerialize(true, $sxe->addChild('partLocation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->part)) {
+            $this->part->xmlSerialize(true, $sxe->addChild('part'));
+        }
+        if (isset($this->partLocation)) {
+            $this->partLocation->xmlSerialize(true, $sxe->addChild('partLocation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

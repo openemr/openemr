@@ -136,7 +136,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * The sequential number of the interaction, e.g. 1.2.5.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getNumber() {
+    public function getNumber()
+    {
         return $this->number;
     }
 
@@ -145,7 +146,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $number
      * @return $this
      */
-    public function setNumber($number) {
+    public function setNumber($number)
+    {
         $this->number = $number;
         return $this;
     }
@@ -154,7 +156,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * The type of operation - CRUD.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -163,7 +166,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -172,7 +176,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * The human-friendly name of the interaction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -181,7 +186,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -190,7 +196,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * Who starts the transaction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getInitiator() {
+    public function getInitiator()
+    {
         return $this->initiator;
     }
 
@@ -199,7 +206,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $initiator
      * @return $this
      */
-    public function setInitiator($initiator) {
+    public function setInitiator($initiator)
+    {
         $this->initiator = $initiator;
         return $this;
     }
@@ -208,7 +216,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * Who receives the transaction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getReceiver() {
+    public function getReceiver()
+    {
         return $this->receiver;
     }
 
@@ -217,7 +226,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $receiver
      * @return $this
      */
-    public function setReceiver($receiver) {
+    public function setReceiver($receiver)
+    {
         $this->receiver = $receiver;
         return $this;
     }
@@ -226,7 +236,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * A comment to be inserted in the diagram.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -235,7 +246,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -244,7 +256,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * Whether the initiator is deactivated right after the transaction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getInitiatorActive() {
+    public function getInitiatorActive()
+    {
         return $this->initiatorActive;
     }
 
@@ -253,7 +266,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $initiatorActive
      * @return $this
      */
-    public function setInitiatorActive($initiatorActive) {
+    public function setInitiatorActive($initiatorActive)
+    {
         $this->initiatorActive = $initiatorActive;
         return $this;
     }
@@ -262,7 +276,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * Whether the receiver is deactivated right after the transaction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getReceiverActive() {
+    public function getReceiverActive()
+    {
         return $this->receiverActive;
     }
 
@@ -271,7 +286,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $receiverActive
      * @return $this
      */
-    public function setReceiverActive($receiverActive) {
+    public function setReceiverActive($receiverActive)
+    {
         $this->receiverActive = $receiverActive;
         return $this;
     }
@@ -280,7 +296,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * Each resource instance used by the initiator.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioContainedInstance
      */
-    public function getRequest() {
+    public function getRequest()
+    {
         return $this->request;
     }
 
@@ -289,7 +306,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioContainedInstance $request
      * @return $this
      */
-    public function setRequest($request) {
+    public function setRequest($request)
+    {
         $this->request = $request;
         return $this;
     }
@@ -298,7 +316,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * Each resource instance used by the responder.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioContainedInstance
      */
-    public function getResponse() {
+    public function getResponse()
+    {
         return $this->response;
     }
 
@@ -307,7 +326,8 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioContainedInstance $response
      * @return $this
      */
-    public function setResponse($response) {
+    public function setResponse($response)
+    {
         $this->response = $response;
         return $this;
     }
@@ -315,14 +335,16 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['number'])) {
                 $this->setNumber($data['number']);
@@ -363,25 +385,47 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->number)) $json['number'] = $this->number;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->initiator)) $json['initiator'] = $this->initiator;
-        if (isset($this->receiver)) $json['receiver'] = $this->receiver;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->initiatorActive)) $json['initiatorActive'] = $this->initiatorActive;
-        if (isset($this->receiverActive)) $json['receiverActive'] = $this->receiverActive;
-        if (isset($this->request)) $json['request'] = $this->request;
-        if (isset($this->response)) $json['response'] = $this->response;
+        if (isset($this->number)) {
+            $json['number'] = $this->number;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->initiator)) {
+            $json['initiator'] = $this->initiator;
+        }
+        if (isset($this->receiver)) {
+            $json['receiver'] = $this->receiver;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->initiatorActive)) {
+            $json['initiatorActive'] = $this->initiatorActive;
+        }
+        if (isset($this->receiverActive)) {
+            $json['receiverActive'] = $this->receiverActive;
+        }
+        if (isset($this->request)) {
+            $json['request'] = $this->request;
+        }
+        if (isset($this->response)) {
+            $json['response'] = $this->response;
+        }
         return $json;
     }
 
@@ -390,22 +434,45 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExampleScenarioOperation xmlns="http://hl7.org/fhir"></ExampleScenarioOperation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExampleScenarioOperation xmlns="http://hl7.org/fhir"></ExampleScenarioOperation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->number)) $this->number->xmlSerialize(true, $sxe->addChild('number'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->initiator)) $this->initiator->xmlSerialize(true, $sxe->addChild('initiator'));
-        if (isset($this->receiver)) $this->receiver->xmlSerialize(true, $sxe->addChild('receiver'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->initiatorActive)) $this->initiatorActive->xmlSerialize(true, $sxe->addChild('initiatorActive'));
-        if (isset($this->receiverActive)) $this->receiverActive->xmlSerialize(true, $sxe->addChild('receiverActive'));
-        if (isset($this->request)) $this->request->xmlSerialize(true, $sxe->addChild('request'));
-        if (isset($this->response)) $this->response->xmlSerialize(true, $sxe->addChild('response'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->number)) {
+            $this->number->xmlSerialize(true, $sxe->addChild('number'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->initiator)) {
+            $this->initiator->xmlSerialize(true, $sxe->addChild('initiator'));
+        }
+        if (isset($this->receiver)) {
+            $this->receiver->xmlSerialize(true, $sxe->addChild('receiver'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->initiatorActive)) {
+            $this->initiatorActive->xmlSerialize(true, $sxe->addChild('initiatorActive'));
+        }
+        if (isset($this->receiverActive)) {
+            $this->receiverActive->xmlSerialize(true, $sxe->addChild('receiverActive'));
+        }
+        if (isset($this->request)) {
+            $this->request->xmlSerialize(true, $sxe->addChild('request'));
+        }
+        if (isset($this->response)) {
+            $this->response->xmlSerialize(true, $sxe->addChild('response'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

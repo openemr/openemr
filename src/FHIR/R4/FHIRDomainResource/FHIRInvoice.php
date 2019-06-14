@@ -173,7 +173,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * Identifier of this Invoice, often used for reference in correspondence about this invoice or for tracking of payments.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -182,7 +183,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -191,7 +193,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * The current state of the Invoice.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInvoiceStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -200,7 +203,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInvoiceStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -209,7 +213,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * In case of Invoice cancellation a reason must be given (entered in error, superseded by corrected invoice etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getCancelledReason() {
+    public function getCancelledReason()
+    {
         return $this->cancelledReason;
     }
 
@@ -218,7 +223,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $cancelledReason
      * @return $this
      */
-    public function setCancelledReason($cancelledReason) {
+    public function setCancelledReason($cancelledReason)
+    {
         $this->cancelledReason = $cancelledReason;
         return $this;
     }
@@ -227,7 +233,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * Type of Invoice depending on domain, realm an usage (e.g. internal/external, dental, preliminary).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -236,7 +243,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -245,7 +253,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * The individual or set of individuals receiving the goods and services billed in this invoice.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -254,7 +263,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -263,7 +273,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * The individual or Organization responsible for balancing of this invoice.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRecipient() {
+    public function getRecipient()
+    {
         return $this->recipient;
     }
 
@@ -272,7 +283,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $recipient
      * @return $this
      */
-    public function setRecipient($recipient) {
+    public function setRecipient($recipient)
+    {
         $this->recipient = $recipient;
         return $this;
     }
@@ -281,7 +293,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * Date/time(s) of when this Invoice was posted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -290,7 +303,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -299,7 +313,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * Indicates who or what performed or participated in the charged service.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInvoice\FHIRInvoiceParticipant[]
      */
-    public function getParticipant() {
+    public function getParticipant()
+    {
         return $this->participant;
     }
 
@@ -308,7 +323,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInvoice\FHIRInvoiceParticipant $participant
      * @return $this
      */
-    public function addParticipant($participant) {
+    public function addParticipant($participant)
+    {
         $this->participant[] = $participant;
         return $this;
     }
@@ -317,7 +333,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * The organizationissuing the Invoice.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getIssuer() {
+    public function getIssuer()
+    {
         return $this->issuer;
     }
 
@@ -326,7 +343,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $issuer
      * @return $this
      */
-    public function setIssuer($issuer) {
+    public function setIssuer($issuer)
+    {
         $this->issuer = $issuer;
         return $this;
     }
@@ -335,7 +353,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * Account which is supposed to be balanced with this Invoice.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAccount() {
+    public function getAccount()
+    {
         return $this->account;
     }
 
@@ -344,7 +363,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $account
      * @return $this
      */
-    public function setAccount($account) {
+    public function setAccount($account)
+    {
         $this->account = $account;
         return $this;
     }
@@ -353,7 +373,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * Each line item represents one charge for goods and services rendered. Details such as date, code and amount are found in the referenced ChargeItem resource.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInvoice\FHIRInvoiceLineItem[]
      */
-    public function getLineItem() {
+    public function getLineItem()
+    {
         return $this->lineItem;
     }
 
@@ -362,7 +383,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInvoice\FHIRInvoiceLineItem $lineItem
      * @return $this
      */
-    public function addLineItem($lineItem) {
+    public function addLineItem($lineItem)
+    {
         $this->lineItem[] = $lineItem;
         return $this;
     }
@@ -371,7 +393,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * The total amount for the Invoice may be calculated as the sum of the line items with surcharges/deductions that apply in certain conditions.  The priceComponent element can be used to offer transparency to the recipient of the Invoice of how the total price was calculated.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInvoice\FHIRInvoicePriceComponent[]
      */
-    public function getTotalPriceComponent() {
+    public function getTotalPriceComponent()
+    {
         return $this->totalPriceComponent;
     }
 
@@ -380,7 +403,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInvoice\FHIRInvoicePriceComponent $totalPriceComponent
      * @return $this
      */
-    public function addTotalPriceComponent($totalPriceComponent) {
+    public function addTotalPriceComponent($totalPriceComponent)
+    {
         $this->totalPriceComponent[] = $totalPriceComponent;
         return $this;
     }
@@ -389,7 +413,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * Invoice total , taxes excluded.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getTotalNet() {
+    public function getTotalNet()
+    {
         return $this->totalNet;
     }
 
@@ -398,7 +423,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $totalNet
      * @return $this
      */
-    public function setTotalNet($totalNet) {
+    public function setTotalNet($totalNet)
+    {
         $this->totalNet = $totalNet;
         return $this;
     }
@@ -407,7 +433,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * Invoice total, tax included.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getTotalGross() {
+    public function getTotalGross()
+    {
         return $this->totalGross;
     }
 
@@ -416,7 +443,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $totalGross
      * @return $this
      */
-    public function setTotalGross($totalGross) {
+    public function setTotalGross($totalGross)
+    {
         $this->totalGross = $totalGross;
         return $this;
     }
@@ -425,7 +453,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * Payment details such as banking details, period of payment, deductibles, methods of payment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getPaymentTerms() {
+    public function getPaymentTerms()
+    {
         return $this->paymentTerms;
     }
 
@@ -434,7 +463,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $paymentTerms
      * @return $this
      */
-    public function setPaymentTerms($paymentTerms) {
+    public function setPaymentTerms($paymentTerms)
+    {
         $this->paymentTerms = $paymentTerms;
         return $this;
     }
@@ -443,7 +473,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * Comments made about the invoice by the issuer, subject, or other participants.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -452,7 +483,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -460,18 +492,20 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -498,7 +532,7 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['participant'])) {
                 if (is_array($data['participant'])) {
-                    foreach($data['participant'] as $d) {
+                    foreach ($data['participant'] as $d) {
                         $this->addParticipant($d);
                     }
                 } else {
@@ -513,7 +547,7 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['lineItem'])) {
                 if (is_array($data['lineItem'])) {
-                    foreach($data['lineItem'] as $d) {
+                    foreach ($data['lineItem'] as $d) {
                         $this->addLineItem($d);
                     }
                 } else {
@@ -522,7 +556,7 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['totalPriceComponent'])) {
                 if (is_array($data['totalPriceComponent'])) {
-                    foreach($data['totalPriceComponent'] as $d) {
+                    foreach ($data['totalPriceComponent'] as $d) {
                         $this->addTotalPriceComponent($d);
                     }
                 } else {
@@ -540,7 +574,7 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -556,54 +590,78 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->cancelledReason)) $json['cancelledReason'] = $this->cancelledReason;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->subject)) $json['subject'] = $this->subject;
-        if (isset($this->recipient)) $json['recipient'] = $this->recipient;
-        if (isset($this->date)) $json['date'] = $this->date;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->cancelledReason)) {
+            $json['cancelledReason'] = $this->cancelledReason;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
+        if (isset($this->recipient)) {
+            $json['recipient'] = $this->recipient;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
         if (0 < count($this->participant)) {
             $json['participant'] = [];
-            foreach($this->participant as $participant) {
+            foreach ($this->participant as $participant) {
                 $json['participant'][] = $participant;
             }
         }
-        if (isset($this->issuer)) $json['issuer'] = $this->issuer;
-        if (isset($this->account)) $json['account'] = $this->account;
+        if (isset($this->issuer)) {
+            $json['issuer'] = $this->issuer;
+        }
+        if (isset($this->account)) {
+            $json['account'] = $this->account;
+        }
         if (0 < count($this->lineItem)) {
             $json['lineItem'] = [];
-            foreach($this->lineItem as $lineItem) {
+            foreach ($this->lineItem as $lineItem) {
                 $json['lineItem'][] = $lineItem;
             }
         }
         if (0 < count($this->totalPriceComponent)) {
             $json['totalPriceComponent'] = [];
-            foreach($this->totalPriceComponent as $totalPriceComponent) {
+            foreach ($this->totalPriceComponent as $totalPriceComponent) {
                 $json['totalPriceComponent'][] = $totalPriceComponent;
             }
         }
-        if (isset($this->totalNet)) $json['totalNet'] = $this->totalNet;
-        if (isset($this->totalGross)) $json['totalGross'] = $this->totalGross;
-        if (isset($this->paymentTerms)) $json['paymentTerms'] = $this->paymentTerms;
+        if (isset($this->totalNet)) {
+            $json['totalNet'] = $this->totalNet;
+        }
+        if (isset($this->totalGross)) {
+            $json['totalGross'] = $this->totalGross;
+        }
+        if (isset($this->paymentTerms)) {
+            $json['paymentTerms'] = $this->paymentTerms;
+        }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
@@ -615,48 +673,73 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Invoice xmlns="http://hl7.org/fhir"></Invoice>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Invoice xmlns="http://hl7.org/fhir"></Invoice>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->cancelledReason)) $this->cancelledReason->xmlSerialize(true, $sxe->addChild('cancelledReason'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
-        if (isset($this->recipient)) $this->recipient->xmlSerialize(true, $sxe->addChild('recipient'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->cancelledReason)) {
+            $this->cancelledReason->xmlSerialize(true, $sxe->addChild('cancelledReason'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
+        if (isset($this->recipient)) {
+            $this->recipient->xmlSerialize(true, $sxe->addChild('recipient'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
         if (0 < count($this->participant)) {
-            foreach($this->participant as $participant) {
+            foreach ($this->participant as $participant) {
                 $participant->xmlSerialize(true, $sxe->addChild('participant'));
             }
         }
-        if (isset($this->issuer)) $this->issuer->xmlSerialize(true, $sxe->addChild('issuer'));
-        if (isset($this->account)) $this->account->xmlSerialize(true, $sxe->addChild('account'));
+        if (isset($this->issuer)) {
+            $this->issuer->xmlSerialize(true, $sxe->addChild('issuer'));
+        }
+        if (isset($this->account)) {
+            $this->account->xmlSerialize(true, $sxe->addChild('account'));
+        }
         if (0 < count($this->lineItem)) {
-            foreach($this->lineItem as $lineItem) {
+            foreach ($this->lineItem as $lineItem) {
                 $lineItem->xmlSerialize(true, $sxe->addChild('lineItem'));
             }
         }
         if (0 < count($this->totalPriceComponent)) {
-            foreach($this->totalPriceComponent as $totalPriceComponent) {
+            foreach ($this->totalPriceComponent as $totalPriceComponent) {
                 $totalPriceComponent->xmlSerialize(true, $sxe->addChild('totalPriceComponent'));
             }
         }
-        if (isset($this->totalNet)) $this->totalNet->xmlSerialize(true, $sxe->addChild('totalNet'));
-        if (isset($this->totalGross)) $this->totalGross->xmlSerialize(true, $sxe->addChild('totalGross'));
-        if (isset($this->paymentTerms)) $this->paymentTerms->xmlSerialize(true, $sxe->addChild('paymentTerms'));
+        if (isset($this->totalNet)) {
+            $this->totalNet->xmlSerialize(true, $sxe->addChild('totalNet'));
+        }
+        if (isset($this->totalGross)) {
+            $this->totalGross->xmlSerialize(true, $sxe->addChild('totalGross'));
+        }
+        if (isset($this->paymentTerms)) {
+            $this->paymentTerms->xmlSerialize(true, $sxe->addChild('paymentTerms'));
+        }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

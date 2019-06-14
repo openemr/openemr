@@ -173,7 +173,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * A unique identifier for this particular sequence instance. This is a FHIR-defined id.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -182,7 +183,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -191,7 +193,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * Amino Acid Sequence/ DNA Sequence / RNA Sequence.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSequenceType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -200,7 +203,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSequenceType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -209,7 +213,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * Whether the sequence is numbered starting at 0 (0-based numbering or coordinates, inclusive start, exclusive end) or starting at 1 (1-based numbering, inclusive start and inclusive end).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getCoordinateSystem() {
+    public function getCoordinateSystem()
+    {
         return $this->coordinateSystem;
     }
 
@@ -218,7 +223,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $coordinateSystem
      * @return $this
      */
-    public function setCoordinateSystem($coordinateSystem) {
+    public function setCoordinateSystem($coordinateSystem)
+    {
         $this->coordinateSystem = $coordinateSystem;
         return $this;
     }
@@ -227,7 +233,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * The patient whose sequencing results are described by this resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -236,7 +243,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -245,7 +253,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * Specimen used for sequencing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSpecimen() {
+    public function getSpecimen()
+    {
         return $this->specimen;
     }
 
@@ -254,7 +263,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $specimen
      * @return $this
      */
-    public function setSpecimen($specimen) {
+    public function setSpecimen($specimen)
+    {
         $this->specimen = $specimen;
         return $this;
     }
@@ -263,7 +273,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * The method for sequencing, for example, chip information.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDevice() {
+    public function getDevice()
+    {
         return $this->device;
     }
 
@@ -272,7 +283,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $device
      * @return $this
      */
-    public function setDevice($device) {
+    public function setDevice($device)
+    {
         $this->device = $device;
         return $this;
     }
@@ -281,7 +293,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * The organization or lab that should be responsible for this result.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPerformer() {
+    public function getPerformer()
+    {
         return $this->performer;
     }
 
@@ -290,7 +303,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $performer
      * @return $this
      */
-    public function setPerformer($performer) {
+    public function setPerformer($performer)
+    {
         $this->performer = $performer;
         return $this;
     }
@@ -299,7 +313,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * The number of copies of the sequence of interest. (RNASeq).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -308,7 +323,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -317,7 +333,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * A sequence that is used as a reference to describe variants that are present in a sequence analyzed.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceReferenceSeq
      */
-    public function getReferenceSeq() {
+    public function getReferenceSeq()
+    {
         return $this->referenceSeq;
     }
 
@@ -326,7 +343,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceReferenceSeq $referenceSeq
      * @return $this
      */
-    public function setReferenceSeq($referenceSeq) {
+    public function setReferenceSeq($referenceSeq)
+    {
         $this->referenceSeq = $referenceSeq;
         return $this;
     }
@@ -335,7 +353,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * The definition of variant here originates from Sequence ontology ([variant_of](http://www.sequenceontology.org/browser/current_svn/term/variant_of)). This element can represent amino acid or nucleic sequence change(including insertion,deletion,SNP,etc.)  It can represent some complex mutation or segment variation with the assist of CIGAR string.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceVariant[]
      */
-    public function getVariant() {
+    public function getVariant()
+    {
         return $this->variant;
     }
 
@@ -344,7 +363,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceVariant $variant
      * @return $this
      */
-    public function addVariant($variant) {
+    public function addVariant($variant)
+    {
         $this->variant[] = $variant;
         return $this;
     }
@@ -353,7 +373,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * Sequence that was observed. It is the result marked by referenceSeq along with variant records on referenceSeq. This shall start from referenceSeq.windowStart and end by referenceSeq.windowEnd.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getObservedSeq() {
+    public function getObservedSeq()
+    {
         return $this->observedSeq;
     }
 
@@ -362,7 +383,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $observedSeq
      * @return $this
      */
-    public function setObservedSeq($observedSeq) {
+    public function setObservedSeq($observedSeq)
+    {
         $this->observedSeq = $observedSeq;
         return $this;
     }
@@ -371,7 +393,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * An experimental feature attribute that defines the quality of the feature in a quantitative way, such as a phred quality score ([SO:0001686](http://www.sequenceontology.org/browser/current_svn/term/SO:0001686)).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceQuality[]
      */
-    public function getQuality() {
+    public function getQuality()
+    {
         return $this->quality;
     }
 
@@ -380,7 +403,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceQuality $quality
      * @return $this
      */
-    public function addQuality($quality) {
+    public function addQuality($quality)
+    {
         $this->quality[] = $quality;
         return $this;
     }
@@ -389,7 +413,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * Coverage (read depth or depth) is the average number of reads representing a given nucleotide in the reconstructed sequence.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getReadCoverage() {
+    public function getReadCoverage()
+    {
         return $this->readCoverage;
     }
 
@@ -398,7 +423,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $readCoverage
      * @return $this
      */
-    public function setReadCoverage($readCoverage) {
+    public function setReadCoverage($readCoverage)
+    {
         $this->readCoverage = $readCoverage;
         return $this;
     }
@@ -407,7 +433,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * Configurations of the external repository. The repository shall store target's observedSeq or records related with target's observedSeq.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceRepository[]
      */
-    public function getRepository() {
+    public function getRepository()
+    {
         return $this->repository;
     }
 
@@ -416,7 +443,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceRepository $repository
      * @return $this
      */
-    public function addRepository($repository) {
+    public function addRepository($repository)
+    {
         $this->repository[] = $repository;
         return $this;
     }
@@ -425,7 +453,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * Pointer to next atomic sequence which at most contains one variant.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPointer() {
+    public function getPointer()
+    {
         return $this->pointer;
     }
 
@@ -434,7 +463,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $pointer
      * @return $this
      */
-    public function addPointer($pointer) {
+    public function addPointer($pointer)
+    {
         $this->pointer[] = $pointer;
         return $this;
     }
@@ -443,7 +473,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * Information about chromosome structure variation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceStructureVariant[]
      */
-    public function getStructureVariant() {
+    public function getStructureVariant()
+    {
         return $this->structureVariant;
     }
 
@@ -452,7 +483,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceStructureVariant $structureVariant
      * @return $this
      */
-    public function addStructureVariant($structureVariant) {
+    public function addStructureVariant($structureVariant)
+    {
         $this->structureVariant[] = $structureVariant;
         return $this;
     }
@@ -460,18 +492,20 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -504,7 +538,7 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
             }
             if (isset($data['variant'])) {
                 if (is_array($data['variant'])) {
-                    foreach($data['variant'] as $d) {
+                    foreach ($data['variant'] as $d) {
                         $this->addVariant($d);
                     }
                 } else {
@@ -516,7 +550,7 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
             }
             if (isset($data['quality'])) {
                 if (is_array($data['quality'])) {
-                    foreach($data['quality'] as $d) {
+                    foreach ($data['quality'] as $d) {
                         $this->addQuality($d);
                     }
                 } else {
@@ -528,7 +562,7 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
             }
             if (isset($data['repository'])) {
                 if (is_array($data['repository'])) {
-                    foreach($data['repository'] as $d) {
+                    foreach ($data['repository'] as $d) {
                         $this->addRepository($d);
                     }
                 } else {
@@ -537,7 +571,7 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
             }
             if (isset($data['pointer'])) {
                 if (is_array($data['pointer'])) {
-                    foreach($data['pointer'] as $d) {
+                    foreach ($data['pointer'] as $d) {
                         $this->addPointer($d);
                     }
                 } else {
@@ -546,7 +580,7 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
             }
             if (isset($data['structureVariant'])) {
                 if (is_array($data['structureVariant'])) {
-                    foreach($data['structureVariant'] as $d) {
+                    foreach ($data['structureVariant'] as $d) {
                         $this->addStructureVariant($d);
                     }
                 } else {
@@ -562,59 +596,81 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->coordinateSystem)) $json['coordinateSystem'] = $this->coordinateSystem;
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->specimen)) $json['specimen'] = $this->specimen;
-        if (isset($this->device)) $json['device'] = $this->device;
-        if (isset($this->performer)) $json['performer'] = $this->performer;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->referenceSeq)) $json['referenceSeq'] = $this->referenceSeq;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->coordinateSystem)) {
+            $json['coordinateSystem'] = $this->coordinateSystem;
+        }
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->specimen)) {
+            $json['specimen'] = $this->specimen;
+        }
+        if (isset($this->device)) {
+            $json['device'] = $this->device;
+        }
+        if (isset($this->performer)) {
+            $json['performer'] = $this->performer;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->referenceSeq)) {
+            $json['referenceSeq'] = $this->referenceSeq;
+        }
         if (0 < count($this->variant)) {
             $json['variant'] = [];
-            foreach($this->variant as $variant) {
+            foreach ($this->variant as $variant) {
                 $json['variant'][] = $variant;
             }
         }
-        if (isset($this->observedSeq)) $json['observedSeq'] = $this->observedSeq;
+        if (isset($this->observedSeq)) {
+            $json['observedSeq'] = $this->observedSeq;
+        }
         if (0 < count($this->quality)) {
             $json['quality'] = [];
-            foreach($this->quality as $quality) {
+            foreach ($this->quality as $quality) {
                 $json['quality'][] = $quality;
             }
         }
-        if (isset($this->readCoverage)) $json['readCoverage'] = $this->readCoverage;
+        if (isset($this->readCoverage)) {
+            $json['readCoverage'] = $this->readCoverage;
+        }
         if (0 < count($this->repository)) {
             $json['repository'] = [];
-            foreach($this->repository as $repository) {
+            foreach ($this->repository as $repository) {
                 $json['repository'][] = $repository;
             }
         }
         if (0 < count($this->pointer)) {
             $json['pointer'] = [];
-            foreach($this->pointer as $pointer) {
+            foreach ($this->pointer as $pointer) {
                 $json['pointer'][] = $pointer;
             }
         }
         if (0 < count($this->structureVariant)) {
             $json['structureVariant'] = [];
-            foreach($this->structureVariant as $structureVariant) {
+            foreach ($this->structureVariant as $structureVariant) {
                 $json['structureVariant'][] = $structureVariant;
             }
         }
@@ -626,52 +682,75 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MolecularSequence xmlns="http://hl7.org/fhir"></MolecularSequence>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MolecularSequence xmlns="http://hl7.org/fhir"></MolecularSequence>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->coordinateSystem)) $this->coordinateSystem->xmlSerialize(true, $sxe->addChild('coordinateSystem'));
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->specimen)) $this->specimen->xmlSerialize(true, $sxe->addChild('specimen'));
-        if (isset($this->device)) $this->device->xmlSerialize(true, $sxe->addChild('device'));
-        if (isset($this->performer)) $this->performer->xmlSerialize(true, $sxe->addChild('performer'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->referenceSeq)) $this->referenceSeq->xmlSerialize(true, $sxe->addChild('referenceSeq'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->coordinateSystem)) {
+            $this->coordinateSystem->xmlSerialize(true, $sxe->addChild('coordinateSystem'));
+        }
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->specimen)) {
+            $this->specimen->xmlSerialize(true, $sxe->addChild('specimen'));
+        }
+        if (isset($this->device)) {
+            $this->device->xmlSerialize(true, $sxe->addChild('device'));
+        }
+        if (isset($this->performer)) {
+            $this->performer->xmlSerialize(true, $sxe->addChild('performer'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->referenceSeq)) {
+            $this->referenceSeq->xmlSerialize(true, $sxe->addChild('referenceSeq'));
+        }
         if (0 < count($this->variant)) {
-            foreach($this->variant as $variant) {
+            foreach ($this->variant as $variant) {
                 $variant->xmlSerialize(true, $sxe->addChild('variant'));
             }
         }
-        if (isset($this->observedSeq)) $this->observedSeq->xmlSerialize(true, $sxe->addChild('observedSeq'));
+        if (isset($this->observedSeq)) {
+            $this->observedSeq->xmlSerialize(true, $sxe->addChild('observedSeq'));
+        }
         if (0 < count($this->quality)) {
-            foreach($this->quality as $quality) {
+            foreach ($this->quality as $quality) {
                 $quality->xmlSerialize(true, $sxe->addChild('quality'));
             }
         }
-        if (isset($this->readCoverage)) $this->readCoverage->xmlSerialize(true, $sxe->addChild('readCoverage'));
+        if (isset($this->readCoverage)) {
+            $this->readCoverage->xmlSerialize(true, $sxe->addChild('readCoverage'));
+        }
         if (0 < count($this->repository)) {
-            foreach($this->repository as $repository) {
+            foreach ($this->repository as $repository) {
                 $repository->xmlSerialize(true, $sxe->addChild('repository'));
             }
         }
         if (0 < count($this->pointer)) {
-            foreach($this->pointer as $pointer) {
+            foreach ($this->pointer as $pointer) {
                 $pointer->xmlSerialize(true, $sxe->addChild('pointer'));
             }
         }
         if (0 < count($this->structureVariant)) {
-            foreach($this->structureVariant as $structureVariant) {
+            foreach ($this->structureVariant as $structureVariant) {
                 $structureVariant->xmlSerialize(true, $sxe->addChild('structureVariant'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

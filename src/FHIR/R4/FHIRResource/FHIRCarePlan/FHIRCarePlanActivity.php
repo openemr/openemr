@@ -106,7 +106,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * Identifies the outcome at the point when the status of the activity is assessed.  For example, the outcome of an education activity could be patient understands (or not).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getOutcomeCodeableConcept() {
+    public function getOutcomeCodeableConcept()
+    {
         return $this->outcomeCodeableConcept;
     }
 
@@ -115,7 +116,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $outcomeCodeableConcept
      * @return $this
      */
-    public function addOutcomeCodeableConcept($outcomeCodeableConcept) {
+    public function addOutcomeCodeableConcept($outcomeCodeableConcept)
+    {
         $this->outcomeCodeableConcept[] = $outcomeCodeableConcept;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * Details of the outcome or action resulting from the activity.  The reference to an "event" resource, such as Procedure or Encounter or Observation, is the result/outcome of the activity itself.  The activity can be conveyed using CarePlan.activity.detail OR using the CarePlan.activity.reference (a reference to a “request” resource).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getOutcomeReference() {
+    public function getOutcomeReference()
+    {
         return $this->outcomeReference;
     }
 
@@ -133,7 +136,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $outcomeReference
      * @return $this
      */
-    public function addOutcomeReference($outcomeReference) {
+    public function addOutcomeReference($outcomeReference)
+    {
         $this->outcomeReference[] = $outcomeReference;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * Notes about the adherence/status/progress of the activity.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getProgress() {
+    public function getProgress()
+    {
         return $this->progress;
     }
 
@@ -151,7 +156,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $progress
      * @return $this
      */
-    public function addProgress($progress) {
+    public function addProgress($progress)
+    {
         $this->progress[] = $progress;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * The details of the proposed activity represented in a specific resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -169,7 +176,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reference
      * @return $this
      */
-    public function setReference($reference) {
+    public function setReference($reference)
+    {
         $this->reference = $reference;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * A simple summary of a planned activity suitable for a general care plan system (e.g. form driven) that doesn't know about specific resources such as procedure etc.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanDetail
      */
-    public function getDetail() {
+    public function getDetail()
+    {
         return $this->detail;
     }
 
@@ -187,7 +196,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanDetail $detail
      * @return $this
      */
-    public function setDetail($detail) {
+    public function setDetail($detail)
+    {
         $this->detail = $detail;
         return $this;
     }
@@ -195,18 +205,20 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['outcomeCodeableConcept'])) {
                 if (is_array($data['outcomeCodeableConcept'])) {
-                    foreach($data['outcomeCodeableConcept'] as $d) {
+                    foreach ($data['outcomeCodeableConcept'] as $d) {
                         $this->addOutcomeCodeableConcept($d);
                     }
                 } else {
@@ -215,7 +227,7 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['outcomeReference'])) {
                 if (is_array($data['outcomeReference'])) {
-                    foreach($data['outcomeReference'] as $d) {
+                    foreach ($data['outcomeReference'] as $d) {
                         $this->addOutcomeReference($d);
                     }
                 } else {
@@ -224,7 +236,7 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['progress'])) {
                 if (is_array($data['progress'])) {
-                    foreach($data['progress'] as $d) {
+                    foreach ($data['progress'] as $d) {
                         $this->addProgress($d);
                     }
                 } else {
@@ -246,35 +258,41 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->outcomeCodeableConcept)) {
             $json['outcomeCodeableConcept'] = [];
-            foreach($this->outcomeCodeableConcept as $outcomeCodeableConcept) {
+            foreach ($this->outcomeCodeableConcept as $outcomeCodeableConcept) {
                 $json['outcomeCodeableConcept'][] = $outcomeCodeableConcept;
             }
         }
         if (0 < count($this->outcomeReference)) {
             $json['outcomeReference'] = [];
-            foreach($this->outcomeReference as $outcomeReference) {
+            foreach ($this->outcomeReference as $outcomeReference) {
                 $json['outcomeReference'][] = $outcomeReference;
             }
         }
         if (0 < count($this->progress)) {
             $json['progress'] = [];
-            foreach($this->progress as $progress) {
+            foreach ($this->progress as $progress) {
                 $json['progress'][] = $progress;
             }
         }
-        if (isset($this->reference)) $json['reference'] = $this->reference;
-        if (isset($this->detail)) $json['detail'] = $this->detail;
+        if (isset($this->reference)) {
+            $json['reference'] = $this->reference;
+        }
+        if (isset($this->detail)) {
+            $json['detail'] = $this->detail;
+        }
         return $json;
     }
 
@@ -283,29 +301,36 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CarePlanActivity xmlns="http://hl7.org/fhir"></CarePlanActivity>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CarePlanActivity xmlns="http://hl7.org/fhir"></CarePlanActivity>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->outcomeCodeableConcept)) {
-            foreach($this->outcomeCodeableConcept as $outcomeCodeableConcept) {
+            foreach ($this->outcomeCodeableConcept as $outcomeCodeableConcept) {
                 $outcomeCodeableConcept->xmlSerialize(true, $sxe->addChild('outcomeCodeableConcept'));
             }
         }
         if (0 < count($this->outcomeReference)) {
-            foreach($this->outcomeReference as $outcomeReference) {
+            foreach ($this->outcomeReference as $outcomeReference) {
                 $outcomeReference->xmlSerialize(true, $sxe->addChild('outcomeReference'));
             }
         }
         if (0 < count($this->progress)) {
-            foreach($this->progress as $progress) {
+            foreach ($this->progress as $progress) {
                 $progress->xmlSerialize(true, $sxe->addChild('progress'));
             }
         }
-        if (isset($this->reference)) $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
-        if (isset($this->detail)) $this->detail->xmlSerialize(true, $sxe->addChild('detail'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->reference)) {
+            $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        }
+        if (isset($this->detail)) {
+            $this->detail->xmlSerialize(true, $sxe->addChild('detail'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

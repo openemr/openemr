@@ -94,7 +94,8 @@ class FHIRImmunizationReaction extends FHIRBackboneElement implements \JsonSeria
      * Date of reaction to the immunization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -103,7 +104,8 @@ class FHIRImmunizationReaction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRImmunizationReaction extends FHIRBackboneElement implements \JsonSeria
      * Details of the reaction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDetail() {
+    public function getDetail()
+    {
         return $this->detail;
     }
 
@@ -121,7 +124,8 @@ class FHIRImmunizationReaction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $detail
      * @return $this
      */
-    public function setDetail($detail) {
+    public function setDetail($detail)
+    {
         $this->detail = $detail;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRImmunizationReaction extends FHIRBackboneElement implements \JsonSeria
      * Self-reported indicator.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getReported() {
+    public function getReported()
+    {
         return $this->reported;
     }
 
@@ -139,7 +144,8 @@ class FHIRImmunizationReaction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $reported
      * @return $this
      */
-    public function setReported($reported) {
+    public function setReported($reported)
+    {
         $this->reported = $reported;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRImmunizationReaction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['date'])) {
                 $this->setDate($data['date']);
@@ -174,18 +182,26 @@ class FHIRImmunizationReaction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->detail)) $json['detail'] = $this->detail;
-        if (isset($this->reported)) $json['reported'] = $this->reported;
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->detail)) {
+            $json['detail'] = $this->detail;
+        }
+        if (isset($this->reported)) {
+            $json['reported'] = $this->reported;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRImmunizationReaction extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImmunizationReaction xmlns="http://hl7.org/fhir"></ImmunizationReaction>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImmunizationReaction xmlns="http://hl7.org/fhir"></ImmunizationReaction>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->detail)) $this->detail->xmlSerialize(true, $sxe->addChild('detail'));
-        if (isset($this->reported)) $this->reported->xmlSerialize(true, $sxe->addChild('reported'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->detail)) {
+            $this->detail->xmlSerialize(true, $sxe->addChild('detail'));
+        }
+        if (isset($this->reported)) {
+            $this->reported->xmlSerialize(true, $sxe->addChild('reported'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIREpisodeOfCareStatusHistory extends FHIRBackboneElement implements \Jso
      * planned | waitlist | active | onhold | finished | cancelled.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIREpisodeOfCareStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -97,7 +98,8 @@ class FHIREpisodeOfCareStatusHistory extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIREpisodeOfCareStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIREpisodeOfCareStatusHistory extends FHIRBackboneElement implements \Jso
      * The period during this EpisodeOfCare that the specific status applied.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -115,7 +118,8 @@ class FHIREpisodeOfCareStatusHistory extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIREpisodeOfCareStatusHistory extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['status'])) {
                 $this->setStatus($data['status']);
@@ -147,17 +153,23 @@ class FHIREpisodeOfCareStatusHistory extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIREpisodeOfCareStatusHistory extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<EpisodeOfCareStatusHistory xmlns="http://hl7.org/fhir"></EpisodeOfCareStatusHistory>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<EpisodeOfCareStatusHistory xmlns="http://hl7.org/fhir"></EpisodeOfCareStatusHistory>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -98,7 +98,8 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
      * The category of patient centric costs associated with treatment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -107,7 +108,8 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -115,7 +117,8 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValueQuantity() {
+    public function getValueQuantity()
+    {
         return $this->valueQuantity;
     }
 
@@ -123,7 +126,8 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
      * @return $this
      */
-    public function setValueQuantity($valueQuantity) {
+    public function setValueQuantity($valueQuantity)
+    {
         $this->valueQuantity = $valueQuantity;
         return $this;
     }
@@ -131,7 +135,8 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getValueMoney() {
+    public function getValueMoney()
+    {
         return $this->valueMoney;
     }
 
@@ -139,7 +144,8 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $valueMoney
      * @return $this
      */
-    public function setValueMoney($valueMoney) {
+    public function setValueMoney($valueMoney)
+    {
         $this->valueMoney = $valueMoney;
         return $this;
     }
@@ -148,7 +154,8 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
      * A suite of codes indicating exceptions or reductions to patient costs and their effective periods.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageException[]
      */
-    public function getException() {
+    public function getException()
+    {
         return $this->exception;
     }
 
@@ -157,7 +164,8 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageException $exception
      * @return $this
      */
-    public function addException($exception) {
+    public function addException($exception)
+    {
         $this->exception[] = $exception;
         return $this;
     }
@@ -165,14 +173,16 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -185,7 +195,7 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
             }
             if (isset($data['exception'])) {
                 if (is_array($data['exception'])) {
-                    foreach($data['exception'] as $d) {
+                    foreach ($data['exception'] as $d) {
                         $this->addException($d);
                     }
                 } else {
@@ -201,21 +211,29 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->valueQuantity)) $json['valueQuantity'] = $this->valueQuantity;
-        if (isset($this->valueMoney)) $json['valueMoney'] = $this->valueMoney;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->valueQuantity)) {
+            $json['valueQuantity'] = $this->valueQuantity;
+        }
+        if (isset($this->valueMoney)) {
+            $json['valueMoney'] = $this->valueMoney;
+        }
         if (0 < count($this->exception)) {
             $json['exception'] = [];
-            foreach($this->exception as $exception) {
+            foreach ($this->exception as $exception) {
                 $json['exception'][] = $exception;
             }
         }
@@ -227,20 +245,29 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CoverageCostToBeneficiary xmlns="http://hl7.org/fhir"></CoverageCostToBeneficiary>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CoverageCostToBeneficiary xmlns="http://hl7.org/fhir"></CoverageCostToBeneficiary>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->valueQuantity)) $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
-        if (isset($this->valueMoney)) $this->valueMoney->xmlSerialize(true, $sxe->addChild('valueMoney'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->valueQuantity)) {
+            $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
+        }
+        if (isset($this->valueMoney)) {
+            $this->valueMoney->xmlSerialize(true, $sxe->addChild('valueMoney'));
+        }
         if (0 < count($this->exception)) {
-            foreach($this->exception as $exception) {
+            foreach ($this->exception as $exception) {
                 $exception->xmlSerialize(true, $sxe->addChild('exception'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -106,7 +106,8 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * Human-readable name for the source system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -115,7 +116,8 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * May include configuration or other information useful in debugging.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSoftware() {
+    public function getSoftware()
+    {
         return $this->software;
     }
 
@@ -133,7 +136,8 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $software
      * @return $this
      */
-    public function setSoftware($software) {
+    public function setSoftware($software)
+    {
         $this->software = $software;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * Can convey versions of multiple systems in situations where a message passes through multiple hands.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -151,7 +156,8 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * An e-mail, phone, website or other contact point to use to resolve issues with message communications.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint
      */
-    public function getContact() {
+    public function getContact()
+    {
         return $this->contact;
     }
 
@@ -169,7 +176,8 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $contact
      * @return $this
      */
-    public function setContact($contact) {
+    public function setContact($contact)
+    {
         $this->contact = $contact;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * Identifies the routing target to send acknowledgements to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getEndpoint() {
+    public function getEndpoint()
+    {
         return $this->endpoint;
     }
 
@@ -187,7 +196,8 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $endpoint
      * @return $this
      */
-    public function setEndpoint($endpoint) {
+    public function setEndpoint($endpoint)
+    {
         $this->endpoint = $endpoint;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -228,20 +240,32 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->software)) $json['software'] = $this->software;
-        if (isset($this->version)) $json['version'] = $this->version;
-        if (isset($this->contact)) $json['contact'] = $this->contact;
-        if (isset($this->endpoint)) $json['endpoint'] = $this->endpoint;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->software)) {
+            $json['software'] = $this->software;
+        }
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
+        if (isset($this->contact)) {
+            $json['contact'] = $this->contact;
+        }
+        if (isset($this->endpoint)) {
+            $json['endpoint'] = $this->endpoint;
+        }
         return $json;
     }
 
@@ -250,17 +274,30 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MessageHeaderSource xmlns="http://hl7.org/fhir"></MessageHeaderSource>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MessageHeaderSource xmlns="http://hl7.org/fhir"></MessageHeaderSource>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->software)) $this->software->xmlSerialize(true, $sxe->addChild('software'));
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if (isset($this->contact)) $this->contact->xmlSerialize(true, $sxe->addChild('contact'));
-        if (isset($this->endpoint)) $this->endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->software)) {
+            $this->software->xmlSerialize(true, $sxe->addChild('software'));
+        }
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if (isset($this->contact)) {
+            $this->contact->xmlSerialize(true, $sxe->addChild('contact'));
+        }
+        if (isset($this->endpoint)) {
+            $this->endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

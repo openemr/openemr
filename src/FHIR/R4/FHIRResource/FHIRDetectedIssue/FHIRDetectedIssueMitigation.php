@@ -94,7 +94,8 @@ class FHIRDetectedIssueMitigation extends FHIRBackboneElement implements \JsonSe
      * Describes the action that was taken or the observation that was made that reduces/eliminates the risk associated with the identified issue.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAction() {
+    public function getAction()
+    {
         return $this->action;
     }
 
@@ -103,7 +104,8 @@ class FHIRDetectedIssueMitigation extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $action
      * @return $this
      */
-    public function setAction($action) {
+    public function setAction($action)
+    {
         $this->action = $action;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRDetectedIssueMitigation extends FHIRBackboneElement implements \JsonSe
      * Indicates when the mitigating action was documented.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -121,7 +124,8 @@ class FHIRDetectedIssueMitigation extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRDetectedIssueMitigation extends FHIRBackboneElement implements \JsonSe
      * Identifies the practitioner who determined the mitigation and takes responsibility for the mitigation step occurring.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
@@ -139,7 +144,8 @@ class FHIRDetectedIssueMitigation extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $author
      * @return $this
      */
-    public function setAuthor($author) {
+    public function setAuthor($author)
+    {
         $this->author = $author;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRDetectedIssueMitigation extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['action'])) {
                 $this->setAction($data['action']);
@@ -174,18 +182,26 @@ class FHIRDetectedIssueMitigation extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->action)) $json['action'] = $this->action;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->author)) $json['author'] = $this->author;
+        if (isset($this->action)) {
+            $json['action'] = $this->action;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->author)) {
+            $json['author'] = $this->author;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRDetectedIssueMitigation extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DetectedIssueMitigation xmlns="http://hl7.org/fhir"></DetectedIssueMitigation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DetectedIssueMitigation xmlns="http://hl7.org/fhir"></DetectedIssueMitigation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->action)) $this->action->xmlSerialize(true, $sxe->addChild('action'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->author)) $this->author->xmlSerialize(true, $sxe->addChild('author'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->action)) {
+            $this->action->xmlSerialize(true, $sxe->addChild('action'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->author)) {
+            $this->author->xmlSerialize(true, $sxe->addChild('author'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

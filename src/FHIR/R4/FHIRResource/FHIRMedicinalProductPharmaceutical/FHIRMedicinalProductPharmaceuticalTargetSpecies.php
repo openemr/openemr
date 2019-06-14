@@ -88,7 +88,8 @@ class FHIRMedicinalProductPharmaceuticalTargetSpecies extends FHIRBackboneElemen
      * Coded expression for the species.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -97,7 +98,8 @@ class FHIRMedicinalProductPharmaceuticalTargetSpecies extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMedicinalProductPharmaceuticalTargetSpecies extends FHIRBackboneElemen
      * A species specific time during which consumption of animal product is not appropriate.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPharmaceutical\FHIRMedicinalProductPharmaceuticalWithdrawalPeriod[]
      */
-    public function getWithdrawalPeriod() {
+    public function getWithdrawalPeriod()
+    {
         return $this->withdrawalPeriod;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicinalProductPharmaceuticalTargetSpecies extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPharmaceutical\FHIRMedicinalProductPharmaceuticalWithdrawalPeriod $withdrawalPeriod
      * @return $this
      */
-    public function addWithdrawalPeriod($withdrawalPeriod) {
+    public function addWithdrawalPeriod($withdrawalPeriod)
+    {
         $this->withdrawalPeriod[] = $withdrawalPeriod;
         return $this;
     }
@@ -123,21 +127,23 @@ class FHIRMedicinalProductPharmaceuticalTargetSpecies extends FHIRBackboneElemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
             }
             if (isset($data['withdrawalPeriod'])) {
                 if (is_array($data['withdrawalPeriod'])) {
-                    foreach($data['withdrawalPeriod'] as $d) {
+                    foreach ($data['withdrawalPeriod'] as $d) {
                         $this->addWithdrawalPeriod($d);
                     }
                 } else {
@@ -153,19 +159,23 @@ class FHIRMedicinalProductPharmaceuticalTargetSpecies extends FHIRBackboneElemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
         if (0 < count($this->withdrawalPeriod)) {
             $json['withdrawalPeriod'] = [];
-            foreach($this->withdrawalPeriod as $withdrawalPeriod) {
+            foreach ($this->withdrawalPeriod as $withdrawalPeriod) {
                 $json['withdrawalPeriod'][] = $withdrawalPeriod;
             }
         }
@@ -177,18 +187,23 @@ class FHIRMedicinalProductPharmaceuticalTargetSpecies extends FHIRBackboneElemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalTargetSpecies xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalTargetSpecies>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalTargetSpecies xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalTargetSpecies>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
         if (0 < count($this->withdrawalPeriod)) {
-            foreach($this->withdrawalPeriod as $withdrawalPeriod) {
+            foreach ($this->withdrawalPeriod as $withdrawalPeriod) {
                 $withdrawalPeriod->xmlSerialize(true, $sxe->addChild('withdrawalPeriod'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

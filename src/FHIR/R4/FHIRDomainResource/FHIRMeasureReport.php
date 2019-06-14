@@ -143,7 +143,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * A formal identifier that is used to identify this MeasureReport when it is represented in other formats or referenced in a specification, model, design or an instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -152,7 +153,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -161,7 +163,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * The MeasureReport status. No data will be available until the MeasureReport status is complete.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMeasureReportStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -170,7 +173,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMeasureReportStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -179,7 +183,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * The type of measure report. This may be an individual report, which provides the score for the measure for an individual member of the population; a subject-listing, which returns the list of members that meet the various criteria in the measure; a summary report, which returns a population count for each of the criteria in the measure; or a data-collection, which enables the MeasureReport to be used to exchange the data-of-interest for a quality measure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMeasureReportType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -188,7 +193,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMeasureReportType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -197,7 +203,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * A reference to the Measure that was calculated to produce this report.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getMeasure() {
+    public function getMeasure()
+    {
         return $this->measure;
     }
 
@@ -206,7 +213,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $measure
      * @return $this
      */
-    public function setMeasure($measure) {
+    public function setMeasure($measure)
+    {
         $this->measure = $measure;
         return $this;
     }
@@ -215,7 +223,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * Optional subject identifying the individual or individuals the report is for.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -224,7 +233,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -233,7 +243,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * The date this measure report was generated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -242,7 +253,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -251,7 +263,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * The individual, location, or organization that is reporting the data.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReporter() {
+    public function getReporter()
+    {
         return $this->reporter;
     }
 
@@ -260,7 +273,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reporter
      * @return $this
      */
-    public function setReporter($reporter) {
+    public function setReporter($reporter)
+    {
         $this->reporter = $reporter;
         return $this;
     }
@@ -269,7 +283,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * The reporting period for which the report was calculated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -278,7 +293,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -287,7 +303,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * Whether improvement in the measure is noted by an increase or decrease in the measure score.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getImprovementNotation() {
+    public function getImprovementNotation()
+    {
         return $this->improvementNotation;
     }
 
@@ -296,7 +313,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $improvementNotation
      * @return $this
      */
-    public function setImprovementNotation($improvementNotation) {
+    public function setImprovementNotation($improvementNotation)
+    {
         $this->improvementNotation = $improvementNotation;
         return $this;
     }
@@ -305,7 +323,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * The results of the calculation, one for each population group in the measure.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMeasureReport\FHIRMeasureReportGroup[]
      */
-    public function getGroup() {
+    public function getGroup()
+    {
         return $this->group;
     }
 
@@ -314,7 +333,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMeasureReport\FHIRMeasureReportGroup $group
      * @return $this
      */
-    public function addGroup($group) {
+    public function addGroup($group)
+    {
         $this->group[] = $group;
         return $this;
     }
@@ -323,7 +343,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * A reference to a Bundle containing the Resources that were used in the calculation of this measure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getEvaluatedResource() {
+    public function getEvaluatedResource()
+    {
         return $this->evaluatedResource;
     }
 
@@ -332,7 +353,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $evaluatedResource
      * @return $this
      */
-    public function addEvaluatedResource($evaluatedResource) {
+    public function addEvaluatedResource($evaluatedResource)
+    {
         $this->evaluatedResource[] = $evaluatedResource;
         return $this;
     }
@@ -340,18 +362,20 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -384,7 +408,7 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['group'])) {
                 if (is_array($data['group'])) {
-                    foreach($data['group'] as $d) {
+                    foreach ($data['group'] as $d) {
                         $this->addGroup($d);
                     }
                 } else {
@@ -393,7 +417,7 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['evaluatedResource'])) {
                 if (is_array($data['evaluatedResource'])) {
-                    foreach($data['evaluatedResource'] as $d) {
+                    foreach ($data['evaluatedResource'] as $d) {
                         $this->addEvaluatedResource($d);
                     }
                 } else {
@@ -409,39 +433,57 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->measure)) $json['measure'] = $this->measure;
-        if (isset($this->subject)) $json['subject'] = $this->subject;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->reporter)) $json['reporter'] = $this->reporter;
-        if (isset($this->period)) $json['period'] = $this->period;
-        if (isset($this->improvementNotation)) $json['improvementNotation'] = $this->improvementNotation;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->measure)) {
+            $json['measure'] = $this->measure;
+        }
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->reporter)) {
+            $json['reporter'] = $this->reporter;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
+        if (isset($this->improvementNotation)) {
+            $json['improvementNotation'] = $this->improvementNotation;
+        }
         if (0 < count($this->group)) {
             $json['group'] = [];
-            foreach($this->group as $group) {
+            foreach ($this->group as $group) {
                 $json['group'][] = $group;
             }
         }
         if (0 < count($this->evaluatedResource)) {
             $json['evaluatedResource'] = [];
-            foreach($this->evaluatedResource as $evaluatedResource) {
+            foreach ($this->evaluatedResource as $evaluatedResource) {
                 $json['evaluatedResource'][] = $evaluatedResource;
             }
         }
@@ -453,35 +495,54 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MeasureReport xmlns="http://hl7.org/fhir"></MeasureReport>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MeasureReport xmlns="http://hl7.org/fhir"></MeasureReport>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->measure)) $this->measure->xmlSerialize(true, $sxe->addChild('measure'));
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->reporter)) $this->reporter->xmlSerialize(true, $sxe->addChild('reporter'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if (isset($this->improvementNotation)) $this->improvementNotation->xmlSerialize(true, $sxe->addChild('improvementNotation'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->measure)) {
+            $this->measure->xmlSerialize(true, $sxe->addChild('measure'));
+        }
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->reporter)) {
+            $this->reporter->xmlSerialize(true, $sxe->addChild('reporter'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if (isset($this->improvementNotation)) {
+            $this->improvementNotation->xmlSerialize(true, $sxe->addChild('improvementNotation'));
+        }
         if (0 < count($this->group)) {
-            foreach($this->group as $group) {
+            foreach ($this->group as $group) {
                 $group->xmlSerialize(true, $sxe->addChild('group'));
             }
         }
         if (0 < count($this->evaluatedResource)) {
-            foreach($this->evaluatedResource as $evaluatedResource) {
+            foreach ($this->evaluatedResource as $evaluatedResource) {
                 $evaluatedResource->xmlSerialize(true, $sxe->addChild('evaluatedResource'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

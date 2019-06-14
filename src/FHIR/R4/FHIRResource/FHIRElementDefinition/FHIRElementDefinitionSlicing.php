@@ -101,7 +101,8 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
      * Designates which child elements are used to discriminate between the slices when processing an instance. If one or more discriminators are provided, the value of the child elements in the instance data SHALL completely distinguish which slice the element in the resource matches based on the allowed values for those elements in each of the slices.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionDiscriminator[]
      */
-    public function getDiscriminator() {
+    public function getDiscriminator()
+    {
         return $this->discriminator;
     }
 
@@ -110,7 +111,8 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionDiscriminator $discriminator
      * @return $this
      */
-    public function addDiscriminator($discriminator) {
+    public function addDiscriminator($discriminator)
+    {
         $this->discriminator[] = $discriminator;
         return $this;
     }
@@ -119,7 +121,8 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
      * A human-readable text description of how the slicing works. If there is no discriminator, this is required to be present to provide whatever information is possible about how the slices can be differentiated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -128,7 +131,8 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -137,7 +141,8 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
      * If the matching elements have to occur in the same order as defined in the profile.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getOrdered() {
+    public function getOrdered()
+    {
         return $this->ordered;
     }
 
@@ -146,7 +151,8 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $ordered
      * @return $this
      */
-    public function setOrdered($ordered) {
+    public function setOrdered($ordered)
+    {
         $this->ordered = $ordered;
         return $this;
     }
@@ -155,7 +161,8 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
      * Whether additional slices are allowed or not. When the slices are ordered, profile authors can also say that additional slices are only allowed at the end.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSlicingRules
      */
-    public function getRules() {
+    public function getRules()
+    {
         return $this->rules;
     }
 
@@ -164,7 +171,8 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSlicingRules $rules
      * @return $this
      */
-    public function setRules($rules) {
+    public function setRules($rules)
+    {
         $this->rules = $rules;
         return $this;
     }
@@ -172,18 +180,20 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['discriminator'])) {
                 if (is_array($data['discriminator'])) {
-                    foreach($data['discriminator'] as $d) {
+                    foreach ($data['discriminator'] as $d) {
                         $this->addDiscriminator($d);
                     }
                 } else {
@@ -208,24 +218,32 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->discriminator)) {
             $json['discriminator'] = [];
-            foreach($this->discriminator as $discriminator) {
+            foreach ($this->discriminator as $discriminator) {
                 $json['discriminator'][] = $discriminator;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->ordered)) $json['ordered'] = $this->ordered;
-        if (isset($this->rules)) $json['rules'] = $this->rules;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->ordered)) {
+            $json['ordered'] = $this->ordered;
+        }
+        if (isset($this->rules)) {
+            $json['rules'] = $this->rules;
+        }
         return $json;
     }
 
@@ -234,20 +252,29 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ElementDefinitionSlicing xmlns="http://hl7.org/fhir"></ElementDefinitionSlicing>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ElementDefinitionSlicing xmlns="http://hl7.org/fhir"></ElementDefinitionSlicing>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->discriminator)) {
-            foreach($this->discriminator as $discriminator) {
+            foreach ($this->discriminator as $discriminator) {
                 $discriminator->xmlSerialize(true, $sxe->addChild('discriminator'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->ordered)) $this->ordered->xmlSerialize(true, $sxe->addChild('ordered'));
-        if (isset($this->rules)) $this->rules->xmlSerialize(true, $sxe->addChild('rules'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->ordered)) {
+            $this->ordered->xmlSerialize(true, $sxe->addChild('ordered'));
+        }
+        if (isset($this->rules)) {
+            $this->rules->xmlSerialize(true, $sxe->addChild('rules'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

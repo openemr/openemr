@@ -137,7 +137,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * Unique instance identifiers assigned to a device by the device or gateway software, manufacturers, other organizations or owners. For example: handle ID.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -146,7 +147,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -155,7 +157,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * Describes the type of the metric. For example: Heart Rate, PEEP Setting, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -164,7 +167,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -173,7 +177,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * Describes the unit that an observed value determined for this metric will have. For example: Percent, Seconds, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getUnit() {
+    public function getUnit()
+    {
         return $this->unit;
     }
 
@@ -182,7 +187,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $unit
      * @return $this
      */
-    public function setUnit($unit) {
+    public function setUnit($unit)
+    {
         $this->unit = $unit;
         return $this;
     }
@@ -191,7 +197,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * Describes the link to the  Device that this DeviceMetric belongs to and that contains administrative device information such as manufacturer, serial number, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -200,7 +207,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function setSource($source) {
+    public function setSource($source)
+    {
         $this->source = $source;
         return $this;
     }
@@ -209,7 +217,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * Describes the link to the  Device that this DeviceMetric belongs to and that provide information about the location of this DeviceMetric in the containment structure of the parent Device. An example would be a Device that represents a Channel. This reference can be used by a client application to distinguish DeviceMetrics that have the same type, but should be interpreted based on their containment location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getParent() {
+    public function getParent()
+    {
         return $this->parent;
     }
 
@@ -218,7 +227,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $parent
      * @return $this
      */
-    public function setParent($parent) {
+    public function setParent($parent)
+    {
         $this->parent = $parent;
         return $this;
     }
@@ -227,7 +237,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * Indicates current operational state of the device. For example: On, Off, Standby, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceMetricOperationalStatus
      */
-    public function getOperationalStatus() {
+    public function getOperationalStatus()
+    {
         return $this->operationalStatus;
     }
 
@@ -236,7 +247,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceMetricOperationalStatus $operationalStatus
      * @return $this
      */
-    public function setOperationalStatus($operationalStatus) {
+    public function setOperationalStatus($operationalStatus)
+    {
         $this->operationalStatus = $operationalStatus;
         return $this;
     }
@@ -245,7 +257,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * Describes the color representation for the metric. This is often used to aid clinicians to track and identify parameter types by color. In practice, consider a Patient Monitor that has ECG/HR and Pleth for example; the parameters are displayed in different characteristic colors, such as HR-blue, BP-green, and PR and SpO2- magenta.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceMetricColor
      */
-    public function getColor() {
+    public function getColor()
+    {
         return $this->color;
     }
 
@@ -254,7 +267,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceMetricColor $color
      * @return $this
      */
-    public function setColor($color) {
+    public function setColor($color)
+    {
         $this->color = $color;
         return $this;
     }
@@ -263,7 +277,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * Indicates the category of the observation generation process. A DeviceMetric can be for example a setting, measurement, or calculation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceMetricCategory
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -272,7 +287,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceMetricCategory $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -281,7 +297,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * Describes the measurement repetition time. This is not necessarily the same as the update period. The measurement repetition time can range from milliseconds up to hours. An example for a measurement repetition time in the range of milliseconds is the sampling rate of an ECG. An example for a measurement repetition time in the range of hours is a NIBP that is triggered automatically every hour. The update period may be different than the measurement repetition time, if the device does not update the published observed value with the same frequency as it was measured.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getMeasurementPeriod() {
+    public function getMeasurementPeriod()
+    {
         return $this->measurementPeriod;
     }
 
@@ -290,7 +307,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $measurementPeriod
      * @return $this
      */
-    public function setMeasurementPeriod($measurementPeriod) {
+    public function setMeasurementPeriod($measurementPeriod)
+    {
         $this->measurementPeriod = $measurementPeriod;
         return $this;
     }
@@ -299,7 +317,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * Describes the calibrations that have been performed or that are required to be performed.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDeviceMetric\FHIRDeviceMetricCalibration[]
      */
-    public function getCalibration() {
+    public function getCalibration()
+    {
         return $this->calibration;
     }
 
@@ -308,7 +327,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDeviceMetric\FHIRDeviceMetricCalibration $calibration
      * @return $this
      */
-    public function addCalibration($calibration) {
+    public function addCalibration($calibration)
+    {
         $this->calibration[] = $calibration;
         return $this;
     }
@@ -316,18 +336,20 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -360,7 +382,7 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['calibration'])) {
                 if (is_array($data['calibration'])) {
-                    foreach($data['calibration'] as $d) {
+                    foreach ($data['calibration'] as $d) {
                         $this->addCalibration($d);
                     }
                 } else {
@@ -376,33 +398,51 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->unit)) $json['unit'] = $this->unit;
-        if (isset($this->source)) $json['source'] = $this->source;
-        if (isset($this->parent)) $json['parent'] = $this->parent;
-        if (isset($this->operationalStatus)) $json['operationalStatus'] = $this->operationalStatus;
-        if (isset($this->color)) $json['color'] = $this->color;
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->measurementPeriod)) $json['measurementPeriod'] = $this->measurementPeriod;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->unit)) {
+            $json['unit'] = $this->unit;
+        }
+        if (isset($this->source)) {
+            $json['source'] = $this->source;
+        }
+        if (isset($this->parent)) {
+            $json['parent'] = $this->parent;
+        }
+        if (isset($this->operationalStatus)) {
+            $json['operationalStatus'] = $this->operationalStatus;
+        }
+        if (isset($this->color)) {
+            $json['color'] = $this->color;
+        }
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->measurementPeriod)) {
+            $json['measurementPeriod'] = $this->measurementPeriod;
+        }
         if (0 < count($this->calibration)) {
             $json['calibration'] = [];
-            foreach($this->calibration as $calibration) {
+            foreach ($this->calibration as $calibration) {
                 $json['calibration'][] = $calibration;
             }
         }
@@ -414,30 +454,49 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DeviceMetric xmlns="http://hl7.org/fhir"></DeviceMetric>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DeviceMetric xmlns="http://hl7.org/fhir"></DeviceMetric>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->unit)) $this->unit->xmlSerialize(true, $sxe->addChild('unit'));
-        if (isset($this->source)) $this->source->xmlSerialize(true, $sxe->addChild('source'));
-        if (isset($this->parent)) $this->parent->xmlSerialize(true, $sxe->addChild('parent'));
-        if (isset($this->operationalStatus)) $this->operationalStatus->xmlSerialize(true, $sxe->addChild('operationalStatus'));
-        if (isset($this->color)) $this->color->xmlSerialize(true, $sxe->addChild('color'));
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->measurementPeriod)) $this->measurementPeriod->xmlSerialize(true, $sxe->addChild('measurementPeriod'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->unit)) {
+            $this->unit->xmlSerialize(true, $sxe->addChild('unit'));
+        }
+        if (isset($this->source)) {
+            $this->source->xmlSerialize(true, $sxe->addChild('source'));
+        }
+        if (isset($this->parent)) {
+            $this->parent->xmlSerialize(true, $sxe->addChild('parent'));
+        }
+        if (isset($this->operationalStatus)) {
+            $this->operationalStatus->xmlSerialize(true, $sxe->addChild('operationalStatus'));
+        }
+        if (isset($this->color)) {
+            $this->color->xmlSerialize(true, $sxe->addChild('color'));
+        }
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->measurementPeriod)) {
+            $this->measurementPeriod->xmlSerialize(true, $sxe->addChild('measurementPeriod'));
+        }
         if (0 < count($this->calibration)) {
-            foreach($this->calibration as $calibration) {
+            foreach ($this->calibration as $calibration) {
                 $calibration->xmlSerialize(true, $sxe->addChild('calibration'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -179,7 +179,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * Identifiers assigned to this order by the order sender or by the order receiver.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -188,7 +189,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -197,7 +199,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this NutritionOrder.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical[]
      */
-    public function getInstantiatesCanonical() {
+    public function getInstantiatesCanonical()
+    {
         return $this->instantiatesCanonical;
     }
 
@@ -206,7 +209,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $instantiatesCanonical
      * @return $this
      */
-    public function addInstantiatesCanonical($instantiatesCanonical) {
+    public function addInstantiatesCanonical($instantiatesCanonical)
+    {
         $this->instantiatesCanonical[] = $instantiatesCanonical;
         return $this;
     }
@@ -215,7 +219,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this NutritionOrder.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getInstantiatesUri() {
+    public function getInstantiatesUri()
+    {
         return $this->instantiatesUri;
     }
 
@@ -224,7 +229,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $instantiatesUri
      * @return $this
      */
-    public function addInstantiatesUri($instantiatesUri) {
+    public function addInstantiatesUri($instantiatesUri)
+    {
         $this->instantiatesUri[] = $instantiatesUri;
         return $this;
     }
@@ -233,7 +239,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * The URL pointing to a protocol, guideline, orderset or other definition that is adhered to in whole or in part by this NutritionOrder.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getInstantiates() {
+    public function getInstantiates()
+    {
         return $this->instantiates;
     }
 
@@ -242,7 +249,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $instantiates
      * @return $this
      */
-    public function addInstantiates($instantiates) {
+    public function addInstantiates($instantiates)
+    {
         $this->instantiates[] = $instantiates;
         return $this;
     }
@@ -251,7 +259,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * The workflow status of the nutrition order/request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -260,7 +269,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -269,7 +279,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * Indicates the level of authority/intentionality associated with the NutrionOrder and where the request fits into the workflow chain.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestIntent
      */
-    public function getIntent() {
+    public function getIntent()
+    {
         return $this->intent;
     }
 
@@ -278,7 +289,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestIntent $intent
      * @return $this
      */
-    public function setIntent($intent) {
+    public function setIntent($intent)
+    {
         $this->intent = $intent;
         return $this;
     }
@@ -287,7 +299,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * The person (patient) who needs the nutrition order for an oral diet, nutritional supplement and/or enteral or formula feeding.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -296,7 +309,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -305,7 +319,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * An encounter that provides additional information about the healthcare context in which this request is made.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEncounter() {
+    public function getEncounter()
+    {
         return $this->encounter;
     }
 
@@ -314,7 +329,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $encounter
      * @return $this
      */
-    public function setEncounter($encounter) {
+    public function setEncounter($encounter)
+    {
         $this->encounter = $encounter;
         return $this;
     }
@@ -323,7 +339,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * The date and time that this nutrition order was requested.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDateTime() {
+    public function getDateTime()
+    {
         return $this->dateTime;
     }
 
@@ -332,7 +349,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $dateTime
      * @return $this
      */
-    public function setDateTime($dateTime) {
+    public function setDateTime($dateTime)
+    {
         $this->dateTime = $dateTime;
         return $this;
     }
@@ -341,7 +359,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * The practitioner that holds legal responsibility for ordering the diet, nutritional supplement, or formula feedings.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOrderer() {
+    public function getOrderer()
+    {
         return $this->orderer;
     }
 
@@ -350,7 +369,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $orderer
      * @return $this
      */
-    public function setOrderer($orderer) {
+    public function setOrderer($orderer)
+    {
         $this->orderer = $orderer;
         return $this;
     }
@@ -359,7 +379,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * A link to a record of allergies or intolerances  which should be included in the nutrition order.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getAllergyIntolerance() {
+    public function getAllergyIntolerance()
+    {
         return $this->allergyIntolerance;
     }
 
@@ -368,7 +389,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $allergyIntolerance
      * @return $this
      */
-    public function addAllergyIntolerance($allergyIntolerance) {
+    public function addAllergyIntolerance($allergyIntolerance)
+    {
         $this->allergyIntolerance[] = $allergyIntolerance;
         return $this;
     }
@@ -377,7 +399,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * This modifier is used to convey order-specific modifiers about the type of food that should be given. These can be derived from patient allergies, intolerances, or preferences such as Halal, Vegan or Kosher. This modifier applies to the entire nutrition order inclusive of the oral diet, nutritional supplements and enteral formula feedings.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getFoodPreferenceModifier() {
+    public function getFoodPreferenceModifier()
+    {
         return $this->foodPreferenceModifier;
     }
 
@@ -386,7 +409,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $foodPreferenceModifier
      * @return $this
      */
-    public function addFoodPreferenceModifier($foodPreferenceModifier) {
+    public function addFoodPreferenceModifier($foodPreferenceModifier)
+    {
         $this->foodPreferenceModifier[] = $foodPreferenceModifier;
         return $this;
     }
@@ -395,7 +419,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * This modifier is used to convey Order-specific modifier about the type of oral food or oral fluids that should not be given. These can be derived from patient allergies, intolerances, or preferences such as No Red Meat, No Soy or No Wheat or  Gluten-Free.  While it should not be necessary to repeat allergy or intolerance information captured in the referenced AllergyIntolerance resource in the excludeFoodModifier, this element may be used to convey additional specificity related to foods that should be eliminated from the patient’s diet for any reason.  This modifier applies to the entire nutrition order inclusive of the oral diet, nutritional supplements and enteral formula feedings.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getExcludeFoodModifier() {
+    public function getExcludeFoodModifier()
+    {
         return $this->excludeFoodModifier;
     }
 
@@ -404,7 +429,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $excludeFoodModifier
      * @return $this
      */
-    public function addExcludeFoodModifier($excludeFoodModifier) {
+    public function addExcludeFoodModifier($excludeFoodModifier)
+    {
         $this->excludeFoodModifier[] = $excludeFoodModifier;
         return $this;
     }
@@ -413,7 +439,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * Diet given orally in contrast to enteral (tube) feeding.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderOralDiet
      */
-    public function getOralDiet() {
+    public function getOralDiet()
+    {
         return $this->oralDiet;
     }
 
@@ -422,7 +449,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderOralDiet $oralDiet
      * @return $this
      */
-    public function setOralDiet($oralDiet) {
+    public function setOralDiet($oralDiet)
+    {
         $this->oralDiet = $oralDiet;
         return $this;
     }
@@ -431,7 +459,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * Oral nutritional products given in order to add further nutritional value to the patient's diet.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderSupplement[]
      */
-    public function getSupplement() {
+    public function getSupplement()
+    {
         return $this->supplement;
     }
 
@@ -440,7 +469,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderSupplement $supplement
      * @return $this
      */
-    public function addSupplement($supplement) {
+    public function addSupplement($supplement)
+    {
         $this->supplement[] = $supplement;
         return $this;
     }
@@ -449,7 +479,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * Feeding provided through the gastrointestinal tract via a tube, catheter, or stoma that delivers nutrition distal to the oral cavity.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderEnteralFormula
      */
-    public function getEnteralFormula() {
+    public function getEnteralFormula()
+    {
         return $this->enteralFormula;
     }
 
@@ -458,7 +489,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderEnteralFormula $enteralFormula
      * @return $this
      */
-    public function setEnteralFormula($enteralFormula) {
+    public function setEnteralFormula($enteralFormula)
+    {
         $this->enteralFormula = $enteralFormula;
         return $this;
     }
@@ -467,7 +499,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * Comments made about the {{title}} by the requester, performer, subject or other participants.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -476,7 +509,8 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -484,18 +518,20 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -504,7 +540,7 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['instantiatesCanonical'])) {
                 if (is_array($data['instantiatesCanonical'])) {
-                    foreach($data['instantiatesCanonical'] as $d) {
+                    foreach ($data['instantiatesCanonical'] as $d) {
                         $this->addInstantiatesCanonical($d);
                     }
                 } else {
@@ -513,7 +549,7 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['instantiatesUri'])) {
                 if (is_array($data['instantiatesUri'])) {
-                    foreach($data['instantiatesUri'] as $d) {
+                    foreach ($data['instantiatesUri'] as $d) {
                         $this->addInstantiatesUri($d);
                     }
                 } else {
@@ -522,7 +558,7 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['instantiates'])) {
                 if (is_array($data['instantiates'])) {
-                    foreach($data['instantiates'] as $d) {
+                    foreach ($data['instantiates'] as $d) {
                         $this->addInstantiates($d);
                     }
                 } else {
@@ -549,7 +585,7 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['allergyIntolerance'])) {
                 if (is_array($data['allergyIntolerance'])) {
-                    foreach($data['allergyIntolerance'] as $d) {
+                    foreach ($data['allergyIntolerance'] as $d) {
                         $this->addAllergyIntolerance($d);
                     }
                 } else {
@@ -558,7 +594,7 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['foodPreferenceModifier'])) {
                 if (is_array($data['foodPreferenceModifier'])) {
-                    foreach($data['foodPreferenceModifier'] as $d) {
+                    foreach ($data['foodPreferenceModifier'] as $d) {
                         $this->addFoodPreferenceModifier($d);
                     }
                 } else {
@@ -567,7 +603,7 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['excludeFoodModifier'])) {
                 if (is_array($data['excludeFoodModifier'])) {
-                    foreach($data['excludeFoodModifier'] as $d) {
+                    foreach ($data['excludeFoodModifier'] as $d) {
                         $this->addExcludeFoodModifier($d);
                     }
                 } else {
@@ -579,7 +615,7 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['supplement'])) {
                 if (is_array($data['supplement'])) {
-                    foreach($data['supplement'] as $d) {
+                    foreach ($data['supplement'] as $d) {
                         $this->addSupplement($d);
                     }
                 } else {
@@ -591,7 +627,7 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -607,75 +643,93 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->instantiatesCanonical)) {
             $json['instantiatesCanonical'] = [];
-            foreach($this->instantiatesCanonical as $instantiatesCanonical) {
+            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
                 $json['instantiatesCanonical'][] = $instantiatesCanonical;
             }
         }
         if (0 < count($this->instantiatesUri)) {
             $json['instantiatesUri'] = [];
-            foreach($this->instantiatesUri as $instantiatesUri) {
+            foreach ($this->instantiatesUri as $instantiatesUri) {
                 $json['instantiatesUri'][] = $instantiatesUri;
             }
         }
         if (0 < count($this->instantiates)) {
             $json['instantiates'] = [];
-            foreach($this->instantiates as $instantiates) {
+            foreach ($this->instantiates as $instantiates) {
                 $json['instantiates'][] = $instantiates;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->intent)) $json['intent'] = $this->intent;
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->encounter)) $json['encounter'] = $this->encounter;
-        if (isset($this->dateTime)) $json['dateTime'] = $this->dateTime;
-        if (isset($this->orderer)) $json['orderer'] = $this->orderer;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->intent)) {
+            $json['intent'] = $this->intent;
+        }
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->encounter)) {
+            $json['encounter'] = $this->encounter;
+        }
+        if (isset($this->dateTime)) {
+            $json['dateTime'] = $this->dateTime;
+        }
+        if (isset($this->orderer)) {
+            $json['orderer'] = $this->orderer;
+        }
         if (0 < count($this->allergyIntolerance)) {
             $json['allergyIntolerance'] = [];
-            foreach($this->allergyIntolerance as $allergyIntolerance) {
+            foreach ($this->allergyIntolerance as $allergyIntolerance) {
                 $json['allergyIntolerance'][] = $allergyIntolerance;
             }
         }
         if (0 < count($this->foodPreferenceModifier)) {
             $json['foodPreferenceModifier'] = [];
-            foreach($this->foodPreferenceModifier as $foodPreferenceModifier) {
+            foreach ($this->foodPreferenceModifier as $foodPreferenceModifier) {
                 $json['foodPreferenceModifier'][] = $foodPreferenceModifier;
             }
         }
         if (0 < count($this->excludeFoodModifier)) {
             $json['excludeFoodModifier'] = [];
-            foreach($this->excludeFoodModifier as $excludeFoodModifier) {
+            foreach ($this->excludeFoodModifier as $excludeFoodModifier) {
                 $json['excludeFoodModifier'][] = $excludeFoodModifier;
             }
         }
-        if (isset($this->oralDiet)) $json['oralDiet'] = $this->oralDiet;
+        if (isset($this->oralDiet)) {
+            $json['oralDiet'] = $this->oralDiet;
+        }
         if (0 < count($this->supplement)) {
             $json['supplement'] = [];
-            foreach($this->supplement as $supplement) {
+            foreach ($this->supplement as $supplement) {
                 $json['supplement'][] = $supplement;
             }
         }
-        if (isset($this->enteralFormula)) $json['enteralFormula'] = $this->enteralFormula;
+        if (isset($this->enteralFormula)) {
+            $json['enteralFormula'] = $this->enteralFormula;
+        }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
@@ -687,65 +741,84 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<NutritionOrder xmlns="http://hl7.org/fhir"></NutritionOrder>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<NutritionOrder xmlns="http://hl7.org/fhir"></NutritionOrder>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->instantiatesCanonical)) {
-            foreach($this->instantiatesCanonical as $instantiatesCanonical) {
+            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
                 $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
             }
         }
         if (0 < count($this->instantiatesUri)) {
-            foreach($this->instantiatesUri as $instantiatesUri) {
+            foreach ($this->instantiatesUri as $instantiatesUri) {
                 $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
             }
         }
         if (0 < count($this->instantiates)) {
-            foreach($this->instantiates as $instantiates) {
+            foreach ($this->instantiates as $instantiates) {
                 $instantiates->xmlSerialize(true, $sxe->addChild('instantiates'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->intent)) $this->intent->xmlSerialize(true, $sxe->addChild('intent'));
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->encounter)) $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
-        if (isset($this->dateTime)) $this->dateTime->xmlSerialize(true, $sxe->addChild('dateTime'));
-        if (isset($this->orderer)) $this->orderer->xmlSerialize(true, $sxe->addChild('orderer'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->intent)) {
+            $this->intent->xmlSerialize(true, $sxe->addChild('intent'));
+        }
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->encounter)) {
+            $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
+        }
+        if (isset($this->dateTime)) {
+            $this->dateTime->xmlSerialize(true, $sxe->addChild('dateTime'));
+        }
+        if (isset($this->orderer)) {
+            $this->orderer->xmlSerialize(true, $sxe->addChild('orderer'));
+        }
         if (0 < count($this->allergyIntolerance)) {
-            foreach($this->allergyIntolerance as $allergyIntolerance) {
+            foreach ($this->allergyIntolerance as $allergyIntolerance) {
                 $allergyIntolerance->xmlSerialize(true, $sxe->addChild('allergyIntolerance'));
             }
         }
         if (0 < count($this->foodPreferenceModifier)) {
-            foreach($this->foodPreferenceModifier as $foodPreferenceModifier) {
+            foreach ($this->foodPreferenceModifier as $foodPreferenceModifier) {
                 $foodPreferenceModifier->xmlSerialize(true, $sxe->addChild('foodPreferenceModifier'));
             }
         }
         if (0 < count($this->excludeFoodModifier)) {
-            foreach($this->excludeFoodModifier as $excludeFoodModifier) {
+            foreach ($this->excludeFoodModifier as $excludeFoodModifier) {
                 $excludeFoodModifier->xmlSerialize(true, $sxe->addChild('excludeFoodModifier'));
             }
         }
-        if (isset($this->oralDiet)) $this->oralDiet->xmlSerialize(true, $sxe->addChild('oralDiet'));
+        if (isset($this->oralDiet)) {
+            $this->oralDiet->xmlSerialize(true, $sxe->addChild('oralDiet'));
+        }
         if (0 < count($this->supplement)) {
-            foreach($this->supplement as $supplement) {
+            foreach ($this->supplement as $supplement) {
                 $supplement->xmlSerialize(true, $sxe->addChild('supplement'));
             }
         }
-        if (isset($this->enteralFormula)) $this->enteralFormula->xmlSerialize(true, $sxe->addChild('enteralFormula'));
+        if (isset($this->enteralFormula)) {
+            $this->enteralFormula->xmlSerialize(true, $sxe->addChild('enteralFormula'));
+        }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

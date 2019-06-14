@@ -100,7 +100,8 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDomain() {
+    public function getDomain()
+    {
         return $this->domain;
     }
 
@@ -109,7 +110,8 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $domain
      * @return $this
      */
-    public function setDomain($domain) {
+    public function setDomain($domain)
+    {
         $this->domain = $domain;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getClassification() {
+    public function getClassification()
+    {
         return $this->classification;
     }
 
@@ -127,7 +130,8 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $classification
      * @return $this
      */
-    public function setClassification($classification) {
+    public function setClassification($classification)
+    {
         $this->classification = $classification;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getSubtype() {
+    public function getSubtype()
+    {
         return $this->subtype;
     }
 
@@ -145,7 +150,8 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $subtype
      * @return $this
      */
-    public function addSubtype($subtype) {
+    public function addSubtype($subtype)
+    {
         $this->subtype[] = $subtype;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -163,7 +170,8 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function addSource($source) {
+    public function addSource($source)
+    {
         $this->source[] = $source;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['domain'])) {
                 $this->setDomain($data['domain']);
@@ -188,7 +198,7 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
             }
             if (isset($data['subtype'])) {
                 if (is_array($data['subtype'])) {
-                    foreach($data['subtype'] as $d) {
+                    foreach ($data['subtype'] as $d) {
                         $this->addSubtype($d);
                     }
                 } else {
@@ -197,7 +207,7 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
             }
             if (isset($data['source'])) {
                 if (is_array($data['source'])) {
-                    foreach($data['source'] as $d) {
+                    foreach ($data['source'] as $d) {
                         $this->addSource($d);
                     }
                 } else {
@@ -213,26 +223,32 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->domain)) $json['domain'] = $this->domain;
-        if (isset($this->classification)) $json['classification'] = $this->classification;
+        if (isset($this->domain)) {
+            $json['domain'] = $this->domain;
+        }
+        if (isset($this->classification)) {
+            $json['classification'] = $this->classification;
+        }
         if (0 < count($this->subtype)) {
             $json['subtype'] = [];
-            foreach($this->subtype as $subtype) {
+            foreach ($this->subtype as $subtype) {
                 $json['subtype'][] = $subtype;
             }
         }
         if (0 < count($this->source)) {
             $json['source'] = [];
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $json['source'][] = $source;
             }
         }
@@ -244,24 +260,31 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationClassification xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationClassification>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationClassification xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationClassification>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->domain)) $this->domain->xmlSerialize(true, $sxe->addChild('domain'));
-        if (isset($this->classification)) $this->classification->xmlSerialize(true, $sxe->addChild('classification'));
+        if (isset($this->domain)) {
+            $this->domain->xmlSerialize(true, $sxe->addChild('domain'));
+        }
+        if (isset($this->classification)) {
+            $this->classification->xmlSerialize(true, $sxe->addChild('classification'));
+        }
         if (0 < count($this->subtype)) {
-            foreach($this->subtype as $subtype) {
+            foreach ($this->subtype as $subtype) {
                 $subtype->xmlSerialize(true, $sxe->addChild('subtype'));
             }
         }
         if (0 < count($this->source)) {
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $source->xmlSerialize(true, $sxe->addChild('source'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

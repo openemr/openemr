@@ -108,7 +108,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
      * The kind of dose or rate specified, for example, ordered or calculated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -117,7 +118,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -125,7 +127,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getDoseRange() {
+    public function getDoseRange()
+    {
         return $this->doseRange;
     }
 
@@ -133,7 +136,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $doseRange
      * @return $this
      */
-    public function setDoseRange($doseRange) {
+    public function setDoseRange($doseRange)
+    {
         $this->doseRange = $doseRange;
         return $this;
     }
@@ -141,7 +145,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getDoseQuantity() {
+    public function getDoseQuantity()
+    {
         return $this->doseQuantity;
     }
 
@@ -149,7 +154,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $doseQuantity
      * @return $this
      */
-    public function setDoseQuantity($doseQuantity) {
+    public function setDoseQuantity($doseQuantity)
+    {
         $this->doseQuantity = $doseQuantity;
         return $this;
     }
@@ -157,7 +163,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getRateRatio() {
+    public function getRateRatio()
+    {
         return $this->rateRatio;
     }
 
@@ -165,7 +172,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $rateRatio
      * @return $this
      */
-    public function setRateRatio($rateRatio) {
+    public function setRateRatio($rateRatio)
+    {
         $this->rateRatio = $rateRatio;
         return $this;
     }
@@ -173,7 +181,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getRateRange() {
+    public function getRateRange()
+    {
         return $this->rateRange;
     }
 
@@ -181,7 +190,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $rateRange
      * @return $this
      */
-    public function setRateRange($rateRange) {
+    public function setRateRange($rateRange)
+    {
         $this->rateRange = $rateRange;
         return $this;
     }
@@ -189,7 +199,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getRateQuantity() {
+    public function getRateQuantity()
+    {
         return $this->rateQuantity;
     }
 
@@ -197,7 +208,8 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $rateQuantity
      * @return $this
      */
-    public function setRateQuantity($rateQuantity) {
+    public function setRateQuantity($rateQuantity)
+    {
         $this->rateQuantity = $rateQuantity;
         return $this;
     }
@@ -205,14 +217,16 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -241,21 +255,35 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->doseRange)) $json['doseRange'] = $this->doseRange;
-        if (isset($this->doseQuantity)) $json['doseQuantity'] = $this->doseQuantity;
-        if (isset($this->rateRatio)) $json['rateRatio'] = $this->rateRatio;
-        if (isset($this->rateRange)) $json['rateRange'] = $this->rateRange;
-        if (isset($this->rateQuantity)) $json['rateQuantity'] = $this->rateQuantity;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->doseRange)) {
+            $json['doseRange'] = $this->doseRange;
+        }
+        if (isset($this->doseQuantity)) {
+            $json['doseQuantity'] = $this->doseQuantity;
+        }
+        if (isset($this->rateRatio)) {
+            $json['rateRatio'] = $this->rateRatio;
+        }
+        if (isset($this->rateRange)) {
+            $json['rateRange'] = $this->rateRange;
+        }
+        if (isset($this->rateQuantity)) {
+            $json['rateQuantity'] = $this->rateQuantity;
+        }
         return $json;
     }
 
@@ -264,18 +292,33 @@ class FHIRDosageDoseAndRate extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DosageDoseAndRate xmlns="http://hl7.org/fhir"></DosageDoseAndRate>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DosageDoseAndRate xmlns="http://hl7.org/fhir"></DosageDoseAndRate>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->doseRange)) $this->doseRange->xmlSerialize(true, $sxe->addChild('doseRange'));
-        if (isset($this->doseQuantity)) $this->doseQuantity->xmlSerialize(true, $sxe->addChild('doseQuantity'));
-        if (isset($this->rateRatio)) $this->rateRatio->xmlSerialize(true, $sxe->addChild('rateRatio'));
-        if (isset($this->rateRange)) $this->rateRange->xmlSerialize(true, $sxe->addChild('rateRange'));
-        if (isset($this->rateQuantity)) $this->rateQuantity->xmlSerialize(true, $sxe->addChild('rateQuantity'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->doseRange)) {
+            $this->doseRange->xmlSerialize(true, $sxe->addChild('doseRange'));
+        }
+        if (isset($this->doseQuantity)) {
+            $this->doseQuantity->xmlSerialize(true, $sxe->addChild('doseQuantity'));
+        }
+        if (isset($this->rateRatio)) {
+            $this->rateRatio->xmlSerialize(true, $sxe->addChild('rateRatio'));
+        }
+        if (isset($this->rateRange)) {
+            $this->rateRange->xmlSerialize(true, $sxe->addChild('rateRange'));
+        }
+        if (isset($this->rateQuantity)) {
+            $this->rateQuantity->xmlSerialize(true, $sxe->addChild('rateQuantity'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -100,7 +100,8 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
      * Indicates a meaning for the stratifier. This can be as simple as a unique identifier, or it can establish meaning in a broader context by drawing from a terminology, allowing stratifiers to be correlated across measures.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -109,7 +110,8 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
      * The human readable description of this stratifier criteria.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -127,7 +130,8 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
      * An expression that specifies the criteria for the stratifier. This is typically the name of an expression defined within a referenced library, but it may also be a path to a stratifier element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getCriteria() {
+    public function getCriteria()
+    {
         return $this->criteria;
     }
 
@@ -145,7 +150,8 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $criteria
      * @return $this
      */
-    public function setCriteria($criteria) {
+    public function setCriteria($criteria)
+    {
         $this->criteria = $criteria;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
      * A component of the stratifier criteria for the measure report, specified as either the name of a valid CQL expression defined within a referenced library or a valid FHIR Resource Path.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMeasure\FHIRMeasureComponent[]
      */
-    public function getComponent() {
+    public function getComponent()
+    {
         return $this->component;
     }
 
@@ -163,7 +170,8 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMeasure\FHIRMeasureComponent $component
      * @return $this
      */
-    public function addComponent($component) {
+    public function addComponent($component)
+    {
         $this->component[] = $component;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -191,7 +201,7 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['component'])) {
                 if (is_array($data['component'])) {
-                    foreach($data['component'] as $d) {
+                    foreach ($data['component'] as $d) {
                         $this->addComponent($d);
                     }
                 } else {
@@ -207,21 +217,29 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->criteria)) $json['criteria'] = $this->criteria;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->criteria)) {
+            $json['criteria'] = $this->criteria;
+        }
         if (0 < count($this->component)) {
             $json['component'] = [];
-            foreach($this->component as $component) {
+            foreach ($this->component as $component) {
                 $json['component'][] = $component;
             }
         }
@@ -233,20 +251,29 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MeasureStratifier xmlns="http://hl7.org/fhir"></MeasureStratifier>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MeasureStratifier xmlns="http://hl7.org/fhir"></MeasureStratifier>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->criteria)) $this->criteria->xmlSerialize(true, $sxe->addChild('criteria'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->criteria)) {
+            $this->criteria->xmlSerialize(true, $sxe->addChild('criteria'));
+        }
         if (0 < count($this->component)) {
-            foreach($this->component as $component) {
+            foreach ($this->component as $component) {
                 $component->xmlSerialize(true, $sxe->addChild('component'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

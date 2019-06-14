@@ -148,7 +148,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * Including possibly Data Carrier Identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -157,7 +158,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -166,7 +168,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * The physical type of the container of the medicine.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -175,7 +178,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -184,7 +188,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * The quantity of this package in the medicinal product, at the current level of packaging. The outermost is always 1.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -193,7 +198,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -202,7 +208,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * Material type of the package item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getMaterial() {
+    public function getMaterial()
+    {
         return $this->material;
     }
 
@@ -211,7 +218,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $material
      * @return $this
      */
-    public function addMaterial($material) {
+    public function addMaterial($material)
+    {
         $this->material[] = $material;
         return $this;
     }
@@ -220,7 +228,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * A possible alternate material for the packaging.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getAlternateMaterial() {
+    public function getAlternateMaterial()
+    {
         return $this->alternateMaterial;
     }
 
@@ -229,7 +238,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $alternateMaterial
      * @return $this
      */
-    public function addAlternateMaterial($alternateMaterial) {
+    public function addAlternateMaterial($alternateMaterial)
+    {
         $this->alternateMaterial[] = $alternateMaterial;
         return $this;
     }
@@ -238,7 +248,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * A device accompanying a medicinal product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getDevice() {
+    public function getDevice()
+    {
         return $this->device;
     }
 
@@ -247,7 +258,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $device
      * @return $this
      */
-    public function addDevice($device) {
+    public function addDevice($device)
+    {
         $this->device[] = $device;
         return $this;
     }
@@ -256,7 +268,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * The manufactured item as contained in the packaged medicinal product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getManufacturedItem() {
+    public function getManufacturedItem()
+    {
         return $this->manufacturedItem;
     }
 
@@ -265,7 +278,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $manufacturedItem
      * @return $this
      */
-    public function addManufacturedItem($manufacturedItem) {
+    public function addManufacturedItem($manufacturedItem)
+    {
         $this->manufacturedItem[] = $manufacturedItem;
         return $this;
     }
@@ -274,7 +288,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * Allows containers within containers.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPackaged\FHIRMedicinalProductPackagedPackageItem[]
      */
-    public function getPackageItem() {
+    public function getPackageItem()
+    {
         return $this->packageItem;
     }
 
@@ -283,7 +298,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPackaged\FHIRMedicinalProductPackagedPackageItem $packageItem
      * @return $this
      */
-    public function addPackageItem($packageItem) {
+    public function addPackageItem($packageItem)
+    {
         $this->packageItem[] = $packageItem;
         return $this;
     }
@@ -292,7 +308,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * Dimensions, color etc.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRProdCharacteristic
      */
-    public function getPhysicalCharacteristics() {
+    public function getPhysicalCharacteristics()
+    {
         return $this->physicalCharacteristics;
     }
 
@@ -301,7 +318,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRProdCharacteristic $physicalCharacteristics
      * @return $this
      */
-    public function setPhysicalCharacteristics($physicalCharacteristics) {
+    public function setPhysicalCharacteristics($physicalCharacteristics)
+    {
         $this->physicalCharacteristics = $physicalCharacteristics;
         return $this;
     }
@@ -310,7 +328,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * Other codeable characteristics.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getOtherCharacteristics() {
+    public function getOtherCharacteristics()
+    {
         return $this->otherCharacteristics;
     }
 
@@ -319,7 +338,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $otherCharacteristics
      * @return $this
      */
-    public function addOtherCharacteristics($otherCharacteristics) {
+    public function addOtherCharacteristics($otherCharacteristics)
+    {
         $this->otherCharacteristics[] = $otherCharacteristics;
         return $this;
     }
@@ -328,7 +348,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * Shelf Life and storage information.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRProductShelfLife[]
      */
-    public function getShelfLifeStorage() {
+    public function getShelfLifeStorage()
+    {
         return $this->shelfLifeStorage;
     }
 
@@ -337,7 +358,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRProductShelfLife $shelfLifeStorage
      * @return $this
      */
-    public function addShelfLifeStorage($shelfLifeStorage) {
+    public function addShelfLifeStorage($shelfLifeStorage)
+    {
         $this->shelfLifeStorage[] = $shelfLifeStorage;
         return $this;
     }
@@ -346,7 +368,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * Manufacturer of this Package Item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getManufacturer() {
+    public function getManufacturer()
+    {
         return $this->manufacturer;
     }
 
@@ -355,7 +378,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $manufacturer
      * @return $this
      */
-    public function addManufacturer($manufacturer) {
+    public function addManufacturer($manufacturer)
+    {
         $this->manufacturer[] = $manufacturer;
         return $this;
     }
@@ -363,18 +387,20 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -389,7 +415,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
             }
             if (isset($data['material'])) {
                 if (is_array($data['material'])) {
-                    foreach($data['material'] as $d) {
+                    foreach ($data['material'] as $d) {
                         $this->addMaterial($d);
                     }
                 } else {
@@ -398,7 +424,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
             }
             if (isset($data['alternateMaterial'])) {
                 if (is_array($data['alternateMaterial'])) {
-                    foreach($data['alternateMaterial'] as $d) {
+                    foreach ($data['alternateMaterial'] as $d) {
                         $this->addAlternateMaterial($d);
                     }
                 } else {
@@ -407,7 +433,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
             }
             if (isset($data['device'])) {
                 if (is_array($data['device'])) {
-                    foreach($data['device'] as $d) {
+                    foreach ($data['device'] as $d) {
                         $this->addDevice($d);
                     }
                 } else {
@@ -416,7 +442,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
             }
             if (isset($data['manufacturedItem'])) {
                 if (is_array($data['manufacturedItem'])) {
-                    foreach($data['manufacturedItem'] as $d) {
+                    foreach ($data['manufacturedItem'] as $d) {
                         $this->addManufacturedItem($d);
                     }
                 } else {
@@ -425,7 +451,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
             }
             if (isset($data['packageItem'])) {
                 if (is_array($data['packageItem'])) {
-                    foreach($data['packageItem'] as $d) {
+                    foreach ($data['packageItem'] as $d) {
                         $this->addPackageItem($d);
                     }
                 } else {
@@ -437,7 +463,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
             }
             if (isset($data['otherCharacteristics'])) {
                 if (is_array($data['otherCharacteristics'])) {
-                    foreach($data['otherCharacteristics'] as $d) {
+                    foreach ($data['otherCharacteristics'] as $d) {
                         $this->addOtherCharacteristics($d);
                     }
                 } else {
@@ -446,7 +472,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
             }
             if (isset($data['shelfLifeStorage'])) {
                 if (is_array($data['shelfLifeStorage'])) {
-                    foreach($data['shelfLifeStorage'] as $d) {
+                    foreach ($data['shelfLifeStorage'] as $d) {
                         $this->addShelfLifeStorage($d);
                     }
                 } else {
@@ -455,7 +481,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
             }
             if (isset($data['manufacturer'])) {
                 if (is_array($data['manufacturer'])) {
-                    foreach($data['manufacturer'] as $d) {
+                    foreach ($data['manufacturer'] as $d) {
                         $this->addManufacturer($d);
                     }
                 } else {
@@ -471,69 +497,77 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
         if (0 < count($this->material)) {
             $json['material'] = [];
-            foreach($this->material as $material) {
+            foreach ($this->material as $material) {
                 $json['material'][] = $material;
             }
         }
         if (0 < count($this->alternateMaterial)) {
             $json['alternateMaterial'] = [];
-            foreach($this->alternateMaterial as $alternateMaterial) {
+            foreach ($this->alternateMaterial as $alternateMaterial) {
                 $json['alternateMaterial'][] = $alternateMaterial;
             }
         }
         if (0 < count($this->device)) {
             $json['device'] = [];
-            foreach($this->device as $device) {
+            foreach ($this->device as $device) {
                 $json['device'][] = $device;
             }
         }
         if (0 < count($this->manufacturedItem)) {
             $json['manufacturedItem'] = [];
-            foreach($this->manufacturedItem as $manufacturedItem) {
+            foreach ($this->manufacturedItem as $manufacturedItem) {
                 $json['manufacturedItem'][] = $manufacturedItem;
             }
         }
         if (0 < count($this->packageItem)) {
             $json['packageItem'] = [];
-            foreach($this->packageItem as $packageItem) {
+            foreach ($this->packageItem as $packageItem) {
                 $json['packageItem'][] = $packageItem;
             }
         }
-        if (isset($this->physicalCharacteristics)) $json['physicalCharacteristics'] = $this->physicalCharacteristics;
+        if (isset($this->physicalCharacteristics)) {
+            $json['physicalCharacteristics'] = $this->physicalCharacteristics;
+        }
         if (0 < count($this->otherCharacteristics)) {
             $json['otherCharacteristics'] = [];
-            foreach($this->otherCharacteristics as $otherCharacteristics) {
+            foreach ($this->otherCharacteristics as $otherCharacteristics) {
                 $json['otherCharacteristics'][] = $otherCharacteristics;
             }
         }
         if (0 < count($this->shelfLifeStorage)) {
             $json['shelfLifeStorage'] = [];
-            foreach($this->shelfLifeStorage as $shelfLifeStorage) {
+            foreach ($this->shelfLifeStorage as $shelfLifeStorage) {
                 $json['shelfLifeStorage'][] = $shelfLifeStorage;
             }
         }
         if (0 < count($this->manufacturer)) {
             $json['manufacturer'] = [];
-            foreach($this->manufacturer as $manufacturer) {
+            foreach ($this->manufacturer as $manufacturer) {
                 $json['manufacturer'][] = $manufacturer;
             }
         }
@@ -545,60 +579,69 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductPackagedPackageItem xmlns="http://hl7.org/fhir"></MedicinalProductPackagedPackageItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductPackagedPackageItem xmlns="http://hl7.org/fhir"></MedicinalProductPackagedPackageItem>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
         if (0 < count($this->material)) {
-            foreach($this->material as $material) {
+            foreach ($this->material as $material) {
                 $material->xmlSerialize(true, $sxe->addChild('material'));
             }
         }
         if (0 < count($this->alternateMaterial)) {
-            foreach($this->alternateMaterial as $alternateMaterial) {
+            foreach ($this->alternateMaterial as $alternateMaterial) {
                 $alternateMaterial->xmlSerialize(true, $sxe->addChild('alternateMaterial'));
             }
         }
         if (0 < count($this->device)) {
-            foreach($this->device as $device) {
+            foreach ($this->device as $device) {
                 $device->xmlSerialize(true, $sxe->addChild('device'));
             }
         }
         if (0 < count($this->manufacturedItem)) {
-            foreach($this->manufacturedItem as $manufacturedItem) {
+            foreach ($this->manufacturedItem as $manufacturedItem) {
                 $manufacturedItem->xmlSerialize(true, $sxe->addChild('manufacturedItem'));
             }
         }
         if (0 < count($this->packageItem)) {
-            foreach($this->packageItem as $packageItem) {
+            foreach ($this->packageItem as $packageItem) {
                 $packageItem->xmlSerialize(true, $sxe->addChild('packageItem'));
             }
         }
-        if (isset($this->physicalCharacteristics)) $this->physicalCharacteristics->xmlSerialize(true, $sxe->addChild('physicalCharacteristics'));
+        if (isset($this->physicalCharacteristics)) {
+            $this->physicalCharacteristics->xmlSerialize(true, $sxe->addChild('physicalCharacteristics'));
+        }
         if (0 < count($this->otherCharacteristics)) {
-            foreach($this->otherCharacteristics as $otherCharacteristics) {
+            foreach ($this->otherCharacteristics as $otherCharacteristics) {
                 $otherCharacteristics->xmlSerialize(true, $sxe->addChild('otherCharacteristics'));
             }
         }
         if (0 < count($this->shelfLifeStorage)) {
-            foreach($this->shelfLifeStorage as $shelfLifeStorage) {
+            foreach ($this->shelfLifeStorage as $shelfLifeStorage) {
                 $shelfLifeStorage->xmlSerialize(true, $sxe->addChild('shelfLifeStorage'));
             }
         }
         if (0 < count($this->manufacturer)) {
-            foreach($this->manufacturer as $manufacturer) {
+            foreach ($this->manufacturer as $manufacturer) {
                 $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

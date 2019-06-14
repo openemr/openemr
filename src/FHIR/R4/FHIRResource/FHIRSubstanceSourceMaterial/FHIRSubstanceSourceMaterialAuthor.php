@@ -88,7 +88,8 @@ class FHIRSubstanceSourceMaterialAuthor extends FHIRBackboneElement implements \
      * The type of author of an organism species shall be specified. The parenthetical author of an organism species refers to the first author who published the plant/animal name (of any rank). The primary author of an organism species refers to the first author(s), who validly published the plant/animal name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAuthorType() {
+    public function getAuthorType()
+    {
         return $this->authorType;
     }
 
@@ -97,7 +98,8 @@ class FHIRSubstanceSourceMaterialAuthor extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $authorType
      * @return $this
      */
-    public function setAuthorType($authorType) {
+    public function setAuthorType($authorType)
+    {
         $this->authorType = $authorType;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRSubstanceSourceMaterialAuthor extends FHIRBackboneElement implements \
      * The author of an organism species shall be specified. The author year of an organism shall also be specified when applicable; refers to the year in which the first author(s) published the infraspecific plant/animal name (of any rank).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAuthorDescription() {
+    public function getAuthorDescription()
+    {
         return $this->authorDescription;
     }
 
@@ -115,7 +118,8 @@ class FHIRSubstanceSourceMaterialAuthor extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $authorDescription
      * @return $this
      */
-    public function setAuthorDescription($authorDescription) {
+    public function setAuthorDescription($authorDescription)
+    {
         $this->authorDescription = $authorDescription;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRSubstanceSourceMaterialAuthor extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['authorType'])) {
                 $this->setAuthorType($data['authorType']);
@@ -147,17 +153,23 @@ class FHIRSubstanceSourceMaterialAuthor extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->authorType)) $json['authorType'] = $this->authorType;
-        if (isset($this->authorDescription)) $json['authorDescription'] = $this->authorDescription;
+        if (isset($this->authorType)) {
+            $json['authorType'] = $this->authorType;
+        }
+        if (isset($this->authorDescription)) {
+            $json['authorDescription'] = $this->authorDescription;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRSubstanceSourceMaterialAuthor extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialAuthor xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialAuthor>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialAuthor xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialAuthor>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->authorType)) $this->authorType->xmlSerialize(true, $sxe->addChild('authorType'));
-        if (isset($this->authorDescription)) $this->authorDescription->xmlSerialize(true, $sxe->addChild('authorDescription'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->authorType)) {
+            $this->authorType->xmlSerialize(true, $sxe->addChild('authorType'));
+        }
+        if (isset($this->authorDescription)) {
+            $this->authorDescription->xmlSerialize(true, $sxe->addChild('authorDescription'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

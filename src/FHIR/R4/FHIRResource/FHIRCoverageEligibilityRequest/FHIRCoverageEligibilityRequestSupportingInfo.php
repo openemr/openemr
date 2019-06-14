@@ -94,7 +94,8 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
      * A number to uniquely identify supporting information entries.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -103,7 +104,8 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
      * Additional data or information such as resources, documents, images etc. including references to the data or the actual inclusion of the data.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getInformation() {
+    public function getInformation()
+    {
         return $this->information;
     }
 
@@ -121,7 +124,8 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $information
      * @return $this
      */
-    public function setInformation($information) {
+    public function setInformation($information)
+    {
         $this->information = $information;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
      * The supporting materials are applicable for all detail items, product/servce categories and specific billing codes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getAppliesToAll() {
+    public function getAppliesToAll()
+    {
         return $this->appliesToAll;
     }
 
@@ -139,7 +144,8 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $appliesToAll
      * @return $this
      */
-    public function setAppliesToAll($appliesToAll) {
+    public function setAppliesToAll($appliesToAll)
+    {
         $this->appliesToAll = $appliesToAll;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequence'])) {
                 $this->setSequence($data['sequence']);
@@ -174,18 +182,26 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
-        if (isset($this->information)) $json['information'] = $this->information;
-        if (isset($this->appliesToAll)) $json['appliesToAll'] = $this->appliesToAll;
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
+        if (isset($this->information)) {
+            $json['information'] = $this->information;
+        }
+        if (isset($this->appliesToAll)) {
+            $json['appliesToAll'] = $this->appliesToAll;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRCoverageEligibilityRequestSupportingInfo extends FHIRBackboneElement i
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CoverageEligibilityRequestSupportingInfo xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestSupportingInfo>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CoverageEligibilityRequestSupportingInfo xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestSupportingInfo>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
-        if (isset($this->information)) $this->information->xmlSerialize(true, $sxe->addChild('information'));
-        if (isset($this->appliesToAll)) $this->appliesToAll->xmlSerialize(true, $sxe->addChild('appliesToAll'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
+        if (isset($this->information)) {
+            $this->information->xmlSerialize(true, $sxe->addChild('information'));
+        }
+        if (isset($this->appliesToAll)) {
+            $this->appliesToAll->xmlSerialize(true, $sxe->addChild('appliesToAll'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -100,7 +100,8 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
      * Indicates a purpose for which the contact can be reached.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPurpose() {
+    public function getPurpose()
+    {
         return $this->purpose;
     }
 
@@ -109,7 +110,8 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $purpose
      * @return $this
      */
-    public function setPurpose($purpose) {
+    public function setPurpose($purpose)
+    {
         $this->purpose = $purpose;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
      * A name associated with the contact.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -127,7 +130,8 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
      * A contact detail (e.g. a telephone number or an email address) by which the party may be contacted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint[]
      */
-    public function getTelecom() {
+    public function getTelecom()
+    {
         return $this->telecom;
     }
 
@@ -145,7 +150,8 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $telecom
      * @return $this
      */
-    public function addTelecom($telecom) {
+    public function addTelecom($telecom)
+    {
         $this->telecom[] = $telecom;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
      * Visiting or postal addresses for the contact.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress
      */
-    public function getAddress() {
+    public function getAddress()
+    {
         return $this->address;
     }
 
@@ -163,7 +170,8 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $address
      * @return $this
      */
-    public function setAddress($address) {
+    public function setAddress($address)
+    {
         $this->address = $address;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['purpose'])) {
                 $this->setPurpose($data['purpose']);
@@ -188,7 +198,7 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
             }
             if (isset($data['telecom'])) {
                 if (is_array($data['telecom'])) {
-                    foreach($data['telecom'] as $d) {
+                    foreach ($data['telecom'] as $d) {
                         $this->addTelecom($d);
                     }
                 } else {
@@ -207,24 +217,32 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->purpose)) $json['purpose'] = $this->purpose;
-        if (isset($this->name)) $json['name'] = $this->name;
+        if (isset($this->purpose)) {
+            $json['purpose'] = $this->purpose;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
         if (0 < count($this->telecom)) {
             $json['telecom'] = [];
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $json['telecom'][] = $telecom;
             }
         }
-        if (isset($this->address)) $json['address'] = $this->address;
+        if (isset($this->address)) {
+            $json['address'] = $this->address;
+        }
         return $json;
     }
 
@@ -233,20 +251,29 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<OrganizationContact xmlns="http://hl7.org/fhir"></OrganizationContact>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<OrganizationContact xmlns="http://hl7.org/fhir"></OrganizationContact>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->purpose)) $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        if (isset($this->purpose)) {
+            $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
         if (0 < count($this->telecom)) {
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
             }
         }
-        if (isset($this->address)) $this->address->xmlSerialize(true, $sxe->addChild('address'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->address)) {
+            $this->address->xmlSerialize(true, $sxe->addChild('address'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

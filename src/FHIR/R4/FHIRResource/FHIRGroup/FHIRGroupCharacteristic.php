@@ -119,7 +119,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * A code that identifies the kind of trait being asserted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -128,7 +129,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -136,7 +138,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getValueCodeableConcept() {
+    public function getValueCodeableConcept()
+    {
         return $this->valueCodeableConcept;
     }
 
@@ -144,7 +147,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $valueCodeableConcept
      * @return $this
      */
-    public function setValueCodeableConcept($valueCodeableConcept) {
+    public function setValueCodeableConcept($valueCodeableConcept)
+    {
         $this->valueCodeableConcept = $valueCodeableConcept;
         return $this;
     }
@@ -152,7 +156,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getValueBoolean() {
+    public function getValueBoolean()
+    {
         return $this->valueBoolean;
     }
 
@@ -160,7 +165,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $valueBoolean
      * @return $this
      */
-    public function setValueBoolean($valueBoolean) {
+    public function setValueBoolean($valueBoolean)
+    {
         $this->valueBoolean = $valueBoolean;
         return $this;
     }
@@ -168,7 +174,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValueQuantity() {
+    public function getValueQuantity()
+    {
         return $this->valueQuantity;
     }
 
@@ -176,7 +183,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
      * @return $this
      */
-    public function setValueQuantity($valueQuantity) {
+    public function setValueQuantity($valueQuantity)
+    {
         $this->valueQuantity = $valueQuantity;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getValueRange() {
+    public function getValueRange()
+    {
         return $this->valueRange;
     }
 
@@ -192,7 +201,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $valueRange
      * @return $this
      */
-    public function setValueRange($valueRange) {
+    public function setValueRange($valueRange)
+    {
         $this->valueRange = $valueRange;
         return $this;
     }
@@ -200,7 +210,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getValueReference() {
+    public function getValueReference()
+    {
         return $this->valueReference;
     }
 
@@ -208,7 +219,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $valueReference
      * @return $this
      */
-    public function setValueReference($valueReference) {
+    public function setValueReference($valueReference)
+    {
         $this->valueReference = $valueReference;
         return $this;
     }
@@ -217,7 +229,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * If true, indicates the characteristic is one that is NOT held by members of the group.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExclude() {
+    public function getExclude()
+    {
         return $this->exclude;
     }
 
@@ -226,7 +239,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $exclude
      * @return $this
      */
-    public function setExclude($exclude) {
+    public function setExclude($exclude)
+    {
         $this->exclude = $exclude;
         return $this;
     }
@@ -235,7 +249,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * The period over which the characteristic is tested; e.g. the patient had an operation during the month of June.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -244,7 +259,8 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -252,14 +268,16 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -294,23 +312,41 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->valueCodeableConcept)) $json['valueCodeableConcept'] = $this->valueCodeableConcept;
-        if (isset($this->valueBoolean)) $json['valueBoolean'] = $this->valueBoolean;
-        if (isset($this->valueQuantity)) $json['valueQuantity'] = $this->valueQuantity;
-        if (isset($this->valueRange)) $json['valueRange'] = $this->valueRange;
-        if (isset($this->valueReference)) $json['valueReference'] = $this->valueReference;
-        if (isset($this->exclude)) $json['exclude'] = $this->exclude;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $json['valueCodeableConcept'] = $this->valueCodeableConcept;
+        }
+        if (isset($this->valueBoolean)) {
+            $json['valueBoolean'] = $this->valueBoolean;
+        }
+        if (isset($this->valueQuantity)) {
+            $json['valueQuantity'] = $this->valueQuantity;
+        }
+        if (isset($this->valueRange)) {
+            $json['valueRange'] = $this->valueRange;
+        }
+        if (isset($this->valueReference)) {
+            $json['valueReference'] = $this->valueReference;
+        }
+        if (isset($this->exclude)) {
+            $json['exclude'] = $this->exclude;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         return $json;
     }
 
@@ -319,20 +355,39 @@ class FHIRGroupCharacteristic extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<GroupCharacteristic xmlns="http://hl7.org/fhir"></GroupCharacteristic>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<GroupCharacteristic xmlns="http://hl7.org/fhir"></GroupCharacteristic>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->valueCodeableConcept)) $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
-        if (isset($this->valueBoolean)) $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
-        if (isset($this->valueQuantity)) $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
-        if (isset($this->valueRange)) $this->valueRange->xmlSerialize(true, $sxe->addChild('valueRange'));
-        if (isset($this->valueReference)) $this->valueReference->xmlSerialize(true, $sxe->addChild('valueReference'));
-        if (isset($this->exclude)) $this->exclude->xmlSerialize(true, $sxe->addChild('exclude'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
+        }
+        if (isset($this->valueBoolean)) {
+            $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
+        }
+        if (isset($this->valueQuantity)) {
+            $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
+        }
+        if (isset($this->valueRange)) {
+            $this->valueRange->xmlSerialize(true, $sxe->addChild('valueRange'));
+        }
+        if (isset($this->valueReference)) {
+            $this->valueReference->xmlSerialize(true, $sxe->addChild('valueReference'));
+        }
+        if (isset($this->exclude)) {
+            $this->exclude->xmlSerialize(true, $sxe->addChild('exclude'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

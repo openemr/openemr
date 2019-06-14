@@ -94,7 +94,8 @@ class FHIRVerificationResultValidator extends FHIRBackboneElement implements \Js
      * Reference to the organization validating information.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOrganization() {
+    public function getOrganization()
+    {
         return $this->organization;
     }
 
@@ -103,7 +104,8 @@ class FHIRVerificationResultValidator extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $organization
      * @return $this
      */
-    public function setOrganization($organization) {
+    public function setOrganization($organization)
+    {
         $this->organization = $organization;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRVerificationResultValidator extends FHIRBackboneElement implements \Js
      * A digital identity certificate associated with the validator.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getIdentityCertificate() {
+    public function getIdentityCertificate()
+    {
         return $this->identityCertificate;
     }
 
@@ -121,7 +124,8 @@ class FHIRVerificationResultValidator extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $identityCertificate
      * @return $this
      */
-    public function setIdentityCertificate($identityCertificate) {
+    public function setIdentityCertificate($identityCertificate)
+    {
         $this->identityCertificate = $identityCertificate;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRVerificationResultValidator extends FHIRBackboneElement implements \Js
      * Signed assertion by the validator that they have validated the information.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature
      */
-    public function getAttestationSignature() {
+    public function getAttestationSignature()
+    {
         return $this->attestationSignature;
     }
 
@@ -139,7 +144,8 @@ class FHIRVerificationResultValidator extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature $attestationSignature
      * @return $this
      */
-    public function setAttestationSignature($attestationSignature) {
+    public function setAttestationSignature($attestationSignature)
+    {
         $this->attestationSignature = $attestationSignature;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRVerificationResultValidator extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['organization'])) {
                 $this->setOrganization($data['organization']);
@@ -174,18 +182,26 @@ class FHIRVerificationResultValidator extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->organization)) $json['organization'] = $this->organization;
-        if (isset($this->identityCertificate)) $json['identityCertificate'] = $this->identityCertificate;
-        if (isset($this->attestationSignature)) $json['attestationSignature'] = $this->attestationSignature;
+        if (isset($this->organization)) {
+            $json['organization'] = $this->organization;
+        }
+        if (isset($this->identityCertificate)) {
+            $json['identityCertificate'] = $this->identityCertificate;
+        }
+        if (isset($this->attestationSignature)) {
+            $json['attestationSignature'] = $this->attestationSignature;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRVerificationResultValidator extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<VerificationResultValidator xmlns="http://hl7.org/fhir"></VerificationResultValidator>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<VerificationResultValidator xmlns="http://hl7.org/fhir"></VerificationResultValidator>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->organization)) $this->organization->xmlSerialize(true, $sxe->addChild('organization'));
-        if (isset($this->identityCertificate)) $this->identityCertificate->xmlSerialize(true, $sxe->addChild('identityCertificate'));
-        if (isset($this->attestationSignature)) $this->attestationSignature->xmlSerialize(true, $sxe->addChild('attestationSignature'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->organization)) {
+            $this->organization->xmlSerialize(true, $sxe->addChild('organization'));
+        }
+        if (isset($this->identityCertificate)) {
+            $this->identityCertificate->xmlSerialize(true, $sxe->addChild('identityCertificate'));
+        }
+        if (isset($this->attestationSignature)) {
+            $this->attestationSignature->xmlSerialize(true, $sxe->addChild('attestationSignature'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

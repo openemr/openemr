@@ -88,7 +88,8 @@ class FHIRSubstancePolymerDegreeOfPolymerisation extends FHIRBackboneElement imp
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDegree() {
+    public function getDegree()
+    {
         return $this->degree;
     }
 
@@ -97,7 +98,8 @@ class FHIRSubstancePolymerDegreeOfPolymerisation extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $degree
      * @return $this
      */
-    public function setDegree($degree) {
+    public function setDegree($degree)
+    {
         $this->degree = $degree;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRSubstancePolymerDegreeOfPolymerisation extends FHIRBackboneElement imp
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceAmount
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -115,7 +118,8 @@ class FHIRSubstancePolymerDegreeOfPolymerisation extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceAmount $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRSubstancePolymerDegreeOfPolymerisation extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['degree'])) {
                 $this->setDegree($data['degree']);
@@ -147,17 +153,23 @@ class FHIRSubstancePolymerDegreeOfPolymerisation extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->degree)) $json['degree'] = $this->degree;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
+        if (isset($this->degree)) {
+            $json['degree'] = $this->degree;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRSubstancePolymerDegreeOfPolymerisation extends FHIRBackboneElement imp
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstancePolymerDegreeOfPolymerisation xmlns="http://hl7.org/fhir"></SubstancePolymerDegreeOfPolymerisation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstancePolymerDegreeOfPolymerisation xmlns="http://hl7.org/fhir"></SubstancePolymerDegreeOfPolymerisation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->degree)) $this->degree->xmlSerialize(true, $sxe->addChild('degree'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->degree)) {
+            $this->degree->xmlSerialize(true, $sxe->addChild('degree'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

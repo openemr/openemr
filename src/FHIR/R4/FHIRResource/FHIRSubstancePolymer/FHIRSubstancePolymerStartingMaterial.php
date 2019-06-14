@@ -100,7 +100,8 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMaterial() {
+    public function getMaterial()
+    {
         return $this->material;
     }
 
@@ -109,7 +110,8 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $material
      * @return $this
      */
-    public function setMaterial($material) {
+    public function setMaterial($material)
+    {
         $this->material = $material;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -127,7 +130,8 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getIsDefining() {
+    public function getIsDefining()
+    {
         return $this->isDefining;
     }
 
@@ -145,7 +150,8 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $isDefining
      * @return $this
      */
-    public function setIsDefining($isDefining) {
+    public function setIsDefining($isDefining)
+    {
         $this->isDefining = $isDefining;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceAmount
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -163,7 +170,8 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceAmount $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['material'])) {
                 $this->setMaterial($data['material']);
@@ -201,19 +211,29 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->material)) $json['material'] = $this->material;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->isDefining)) $json['isDefining'] = $this->isDefining;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
+        if (isset($this->material)) {
+            $json['material'] = $this->material;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->isDefining)) {
+            $json['isDefining'] = $this->isDefining;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstancePolymerStartingMaterial xmlns="http://hl7.org/fhir"></SubstancePolymerStartingMaterial>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstancePolymerStartingMaterial xmlns="http://hl7.org/fhir"></SubstancePolymerStartingMaterial>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->material)) $this->material->xmlSerialize(true, $sxe->addChild('material'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->isDefining)) $this->isDefining->xmlSerialize(true, $sxe->addChild('isDefining'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->material)) {
+            $this->material->xmlSerialize(true, $sxe->addChild('material'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->isDefining)) {
+            $this->isDefining->xmlSerialize(true, $sxe->addChild('isDefining'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

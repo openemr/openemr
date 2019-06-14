@@ -100,7 +100,8 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
      * ID or acronym of actor.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getActorId() {
+    public function getActorId()
+    {
         return $this->actorId;
     }
 
@@ -109,7 +110,8 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $actorId
      * @return $this
      */
-    public function setActorId($actorId) {
+    public function setActorId($actorId)
+    {
         $this->actorId = $actorId;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
      * The type of actor - person or system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExampleScenarioActorType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -127,7 +130,8 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExampleScenarioActorType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
      * The name of the actor as shown in the page.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -145,7 +150,8 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
      * The description of the actor.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -163,7 +170,8 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['actorId'])) {
                 $this->setActorId($data['actorId']);
@@ -201,19 +211,29 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->actorId)) $json['actorId'] = $this->actorId;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->actorId)) {
+            $json['actorId'] = $this->actorId;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRExampleScenarioActor extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExampleScenarioActor xmlns="http://hl7.org/fhir"></ExampleScenarioActor>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExampleScenarioActor xmlns="http://hl7.org/fhir"></ExampleScenarioActor>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->actorId)) $this->actorId->xmlSerialize(true, $sxe->addChild('actorId'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->actorId)) {
+            $this->actorId->xmlSerialize(true, $sxe->addChild('actorId'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

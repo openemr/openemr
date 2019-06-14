@@ -83,7 +83,8 @@ class FHIROperationOutcome extends FHIRDomainResource implements \JsonSerializab
      * An error, warning, or information message that results from a system action.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue[]
      */
-    public function getIssue() {
+    public function getIssue()
+    {
         return $this->issue;
     }
 
@@ -92,7 +93,8 @@ class FHIROperationOutcome extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue $issue
      * @return $this
      */
-    public function addIssue($issue) {
+    public function addIssue($issue)
+    {
         $this->issue[] = $issue;
         return $this;
     }
@@ -100,18 +102,20 @@ class FHIROperationOutcome extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['issue'])) {
                 if (is_array($data['issue'])) {
-                    foreach($data['issue'] as $d) {
+                    foreach ($data['issue'] as $d) {
                         $this->addIssue($d);
                     }
                 } else {
@@ -127,19 +131,21 @@ class FHIROperationOutcome extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->issue)) {
             $json['issue'] = [];
-            foreach($this->issue as $issue) {
+            foreach ($this->issue as $issue) {
                 $json['issue'][] = $issue;
             }
         }
@@ -151,17 +157,20 @@ class FHIROperationOutcome extends FHIRDomainResource implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<OperationOutcome xmlns="http://hl7.org/fhir"></OperationOutcome>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<OperationOutcome xmlns="http://hl7.org/fhir"></OperationOutcome>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->issue)) {
-            foreach($this->issue as $issue) {
+            foreach ($this->issue as $issue) {
                 $issue->xmlSerialize(true, $sxe->addChild('issue'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -94,7 +94,8 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
      * A flag to indicate that this Coverage is to be used for adjudication of this claim when set to true.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getFocal() {
+    public function getFocal()
+    {
         return $this->focal;
     }
 
@@ -103,7 +104,8 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $focal
      * @return $this
      */
-    public function setFocal($focal) {
+    public function setFocal($focal)
+    {
         $this->focal = $focal;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
      * Reference to the insurance card level information contained in the Coverage resource. The coverage issuing insurer will use these details to locate the patient's actual coverage within the insurer's information system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCoverage() {
+    public function getCoverage()
+    {
         return $this->coverage;
     }
 
@@ -121,7 +124,8 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $coverage
      * @return $this
      */
-    public function setCoverage($coverage) {
+    public function setCoverage($coverage)
+    {
         $this->coverage = $coverage;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
      * Reference numbers previously provided by the insurer to the provider to be quoted on subsequent claims containing services or products related to the prior authorization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getPreAuthRef() {
+    public function getPreAuthRef()
+    {
         return $this->preAuthRef;
     }
 
@@ -139,7 +144,8 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $preAuthRef
      * @return $this
      */
-    public function addPreAuthRef($preAuthRef) {
+    public function addPreAuthRef($preAuthRef)
+    {
         $this->preAuthRef[] = $preAuthRef;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['focal'])) {
                 $this->setFocal($data['focal']);
@@ -164,7 +172,7 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
             }
             if (isset($data['preAuthRef'])) {
                 if (is_array($data['preAuthRef'])) {
-                    foreach($data['preAuthRef'] as $d) {
+                    foreach ($data['preAuthRef'] as $d) {
                         $this->addPreAuthRef($d);
                     }
                 } else {
@@ -180,20 +188,26 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->focal)) $json['focal'] = $this->focal;
-        if (isset($this->coverage)) $json['coverage'] = $this->coverage;
+        if (isset($this->focal)) {
+            $json['focal'] = $this->focal;
+        }
+        if (isset($this->coverage)) {
+            $json['coverage'] = $this->coverage;
+        }
         if (0 < count($this->preAuthRef)) {
             $json['preAuthRef'] = [];
-            foreach($this->preAuthRef as $preAuthRef) {
+            foreach ($this->preAuthRef as $preAuthRef) {
                 $json['preAuthRef'][] = $preAuthRef;
             }
         }
@@ -205,19 +219,26 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExplanationOfBenefitInsurance xmlns="http://hl7.org/fhir"></ExplanationOfBenefitInsurance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitInsurance xmlns="http://hl7.org/fhir"></ExplanationOfBenefitInsurance>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->focal)) $this->focal->xmlSerialize(true, $sxe->addChild('focal'));
-        if (isset($this->coverage)) $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
+        if (isset($this->focal)) {
+            $this->focal->xmlSerialize(true, $sxe->addChild('focal'));
+        }
+        if (isset($this->coverage)) {
+            $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
+        }
         if (0 < count($this->preAuthRef)) {
-            foreach($this->preAuthRef as $preAuthRef) {
+            foreach ($this->preAuthRef as $preAuthRef) {
                 $preAuthRef->xmlSerialize(true, $sxe->addChild('preAuthRef'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

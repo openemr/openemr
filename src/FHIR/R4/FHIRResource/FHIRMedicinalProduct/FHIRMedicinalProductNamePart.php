@@ -88,7 +88,8 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
      * A fragment of a product name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPart() {
+    public function getPart()
+    {
         return $this->part;
     }
 
@@ -97,7 +98,8 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $part
      * @return $this
      */
-    public function setPart($part) {
+    public function setPart($part)
+    {
         $this->part = $part;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
      * Idenifying type for this part of the name (e.g. strength part).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['part'])) {
                 $this->setPart($data['part']);
@@ -147,17 +153,23 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->part)) $json['part'] = $this->part;
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->part)) {
+            $json['part'] = $this->part;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductNamePart xmlns="http://hl7.org/fhir"></MedicinalProductNamePart>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductNamePart xmlns="http://hl7.org/fhir"></MedicinalProductNamePart>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->part)) $this->part->xmlSerialize(true, $sxe->addChild('part'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->part)) {
+            $this->part->xmlSerialize(true, $sxe->addChild('part'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

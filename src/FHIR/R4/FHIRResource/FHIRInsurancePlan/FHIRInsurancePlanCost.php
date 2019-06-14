@@ -100,7 +100,8 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
      * Type of cost (copay; individual cap; family cap; coinsurance; deductible).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -109,7 +110,8 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
      * Whether the cost applies to in-network or out-of-network providers (in-network; out-of-network; other).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getApplicability() {
+    public function getApplicability()
+    {
         return $this->applicability;
     }
 
@@ -127,7 +130,8 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $applicability
      * @return $this
      */
-    public function setApplicability($applicability) {
+    public function setApplicability($applicability)
+    {
         $this->applicability = $applicability;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
      * Additional information about the cost, such as information about funding sources (e.g. HSA, HRA, FSA, RRA).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getQualifiers() {
+    public function getQualifiers()
+    {
         return $this->qualifiers;
     }
 
@@ -145,7 +150,8 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $qualifiers
      * @return $this
      */
-    public function addQualifiers($qualifiers) {
+    public function addQualifiers($qualifiers)
+    {
         $this->qualifiers[] = $qualifiers;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
      * The actual cost value. (some of the costs may be represented as percentages rather than currency, e.g. 10% coinsurance).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -163,7 +170,8 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -188,7 +198,7 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['qualifiers'])) {
                 if (is_array($data['qualifiers'])) {
-                    foreach($data['qualifiers'] as $d) {
+                    foreach ($data['qualifiers'] as $d) {
                         $this->addQualifiers($d);
                     }
                 } else {
@@ -207,24 +217,32 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->applicability)) $json['applicability'] = $this->applicability;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->applicability)) {
+            $json['applicability'] = $this->applicability;
+        }
         if (0 < count($this->qualifiers)) {
             $json['qualifiers'] = [];
-            foreach($this->qualifiers as $qualifiers) {
+            foreach ($this->qualifiers as $qualifiers) {
                 $json['qualifiers'][] = $qualifiers;
             }
         }
-        if (isset($this->value)) $json['value'] = $this->value;
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
         return $json;
     }
 
@@ -233,20 +251,29 @@ class FHIRInsurancePlanCost extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InsurancePlanCost xmlns="http://hl7.org/fhir"></InsurancePlanCost>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InsurancePlanCost xmlns="http://hl7.org/fhir"></InsurancePlanCost>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->applicability)) $this->applicability->xmlSerialize(true, $sxe->addChild('applicability'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->applicability)) {
+            $this->applicability->xmlSerialize(true, $sxe->addChild('applicability'));
+        }
         if (0 < count($this->qualifiers)) {
-            foreach($this->qualifiers as $qualifiers) {
+            foreach ($this->qualifiers as $qualifiers) {
                 $qualifiers->xmlSerialize(true, $sxe->addChild('qualifiers'));
             }
         }
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

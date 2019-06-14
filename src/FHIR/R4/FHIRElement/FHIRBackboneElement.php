@@ -87,7 +87,8 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
 Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExtension[]
      */
-    public function getModifierExtension() {
+    public function getModifierExtension()
+    {
         return $this->modifierExtension;
     }
 
@@ -98,7 +99,8 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExtension $modifierExtension
      * @return $this
      */
-    public function addModifierExtension($modifierExtension) {
+    public function addModifierExtension($modifierExtension)
+    {
         $this->modifierExtension[] = $modifierExtension;
         return $this;
     }
@@ -106,18 +108,20 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['modifierExtension'])) {
                 if (is_array($data['modifierExtension'])) {
-                    foreach($data['modifierExtension'] as $d) {
+                    foreach ($data['modifierExtension'] as $d) {
                         $this->addModifierExtension($d);
                     }
                 } else {
@@ -133,18 +137,20 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->modifierExtension)) {
             $json['modifierExtension'] = [];
-            foreach($this->modifierExtension as $modifierExtension) {
+            foreach ($this->modifierExtension as $modifierExtension) {
                 $json['modifierExtension'][] = $modifierExtension;
             }
         }
@@ -156,17 +162,20 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<BackboneElement xmlns="http://hl7.org/fhir"></BackboneElement>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<BackboneElement xmlns="http://hl7.org/fhir"></BackboneElement>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->modifierExtension)) {
-            foreach($this->modifierExtension as $modifierExtension) {
+            foreach ($this->modifierExtension as $modifierExtension) {
                 $modifierExtension->xmlSerialize(true, $sxe->addChild('modifierExtension'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

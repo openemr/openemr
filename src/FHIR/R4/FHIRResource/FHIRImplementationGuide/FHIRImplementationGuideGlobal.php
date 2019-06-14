@@ -88,7 +88,8 @@ class FHIRImplementationGuideGlobal extends FHIRBackboneElement implements \Json
      * The type of resource that all instances must conform to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -97,7 +98,8 @@ class FHIRImplementationGuideGlobal extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRImplementationGuideGlobal extends FHIRBackboneElement implements \Json
      * A reference to the profile that all instances must conform to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getProfile() {
+    public function getProfile()
+    {
         return $this->profile;
     }
 
@@ -115,7 +118,8 @@ class FHIRImplementationGuideGlobal extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $profile
      * @return $this
      */
-    public function setProfile($profile) {
+    public function setProfile($profile)
+    {
         $this->profile = $profile;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRImplementationGuideGlobal extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -147,17 +153,23 @@ class FHIRImplementationGuideGlobal extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->profile)) $json['profile'] = $this->profile;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->profile)) {
+            $json['profile'] = $this->profile;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRImplementationGuideGlobal extends FHIRBackboneElement implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImplementationGuideGlobal xmlns="http://hl7.org/fhir"></ImplementationGuideGlobal>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImplementationGuideGlobal xmlns="http://hl7.org/fhir"></ImplementationGuideGlobal>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->profile)) $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->profile)) {
+            $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

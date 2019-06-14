@@ -124,7 +124,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * Index of linear sequences of nucleic acids in order of decreasing length. Sequences of the same length will be ordered by molecular weight. Subunits that have identical sequences will be repeated and have sequential subscripts.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getSubunit() {
+    public function getSubunit()
+    {
         return $this->subunit;
     }
 
@@ -133,7 +134,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $subunit
      * @return $this
      */
-    public function setSubunit($subunit) {
+    public function setSubunit($subunit)
+    {
         $this->subunit = $subunit;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * Actual nucleotide sequence notation from 5' to 3' end using standard single letter codes. In addition to the base sequence, sugar and type of phosphate or non-phosphate linkage should also be captured.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -151,7 +154,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * The length of the sequence shall be captured.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getLength() {
+    public function getLength()
+    {
         return $this->length;
     }
 
@@ -169,7 +174,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $length
      * @return $this
      */
-    public function setLength($length) {
+    public function setLength($length)
+    {
         $this->length = $length;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * (TBC).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getSequenceAttachment() {
+    public function getSequenceAttachment()
+    {
         return $this->sequenceAttachment;
     }
 
@@ -187,7 +194,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $sequenceAttachment
      * @return $this
      */
-    public function setSequenceAttachment($sequenceAttachment) {
+    public function setSequenceAttachment($sequenceAttachment)
+    {
         $this->sequenceAttachment = $sequenceAttachment;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * The nucleotide present at the 5’ terminal shall be specified based on a controlled vocabulary. Since the sequence is represented from the 5' to the 3' end, the 5’ prime nucleotide is the letter at the first position in the sequence. A separate representation would be redundant.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getFivePrime() {
+    public function getFivePrime()
+    {
         return $this->fivePrime;
     }
 
@@ -205,7 +214,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $fivePrime
      * @return $this
      */
-    public function setFivePrime($fivePrime) {
+    public function setFivePrime($fivePrime)
+    {
         $this->fivePrime = $fivePrime;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * The nucleotide present at the 3’ terminal shall be specified based on a controlled vocabulary. Since the sequence is represented from the 5' to the 3' end, the 5’ prime nucleotide is the letter at the last position in the sequence. A separate representation would be redundant.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getThreePrime() {
+    public function getThreePrime()
+    {
         return $this->threePrime;
     }
 
@@ -223,7 +234,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $threePrime
      * @return $this
      */
-    public function setThreePrime($threePrime) {
+    public function setThreePrime($threePrime)
+    {
         $this->threePrime = $threePrime;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * The linkages between sugar residues will also be captured.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceNucleicAcid\FHIRSubstanceNucleicAcidLinkage[]
      */
-    public function getLinkage() {
+    public function getLinkage()
+    {
         return $this->linkage;
     }
 
@@ -241,7 +254,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceNucleicAcid\FHIRSubstanceNucleicAcidLinkage $linkage
      * @return $this
      */
-    public function addLinkage($linkage) {
+    public function addLinkage($linkage)
+    {
         $this->linkage[] = $linkage;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * 5.3.6.8.1 Sugar ID (Mandatory).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceNucleicAcid\FHIRSubstanceNucleicAcidSugar[]
      */
-    public function getSugar() {
+    public function getSugar()
+    {
         return $this->sugar;
     }
 
@@ -259,7 +274,8 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceNucleicAcid\FHIRSubstanceNucleicAcidSugar $sugar
      * @return $this
      */
-    public function addSugar($sugar) {
+    public function addSugar($sugar)
+    {
         $this->sugar[] = $sugar;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['subunit'])) {
                 $this->setSubunit($data['subunit']);
@@ -296,7 +314,7 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
             }
             if (isset($data['linkage'])) {
                 if (is_array($data['linkage'])) {
-                    foreach($data['linkage'] as $d) {
+                    foreach ($data['linkage'] as $d) {
                         $this->addLinkage($d);
                     }
                 } else {
@@ -305,7 +323,7 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
             }
             if (isset($data['sugar'])) {
                 if (is_array($data['sugar'])) {
-                    foreach($data['sugar'] as $d) {
+                    foreach ($data['sugar'] as $d) {
                         $this->addSugar($d);
                     }
                 } else {
@@ -321,30 +339,44 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->subunit)) $json['subunit'] = $this->subunit;
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
-        if (isset($this->length)) $json['length'] = $this->length;
-        if (isset($this->sequenceAttachment)) $json['sequenceAttachment'] = $this->sequenceAttachment;
-        if (isset($this->fivePrime)) $json['fivePrime'] = $this->fivePrime;
-        if (isset($this->threePrime)) $json['threePrime'] = $this->threePrime;
+        if (isset($this->subunit)) {
+            $json['subunit'] = $this->subunit;
+        }
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
+        if (isset($this->length)) {
+            $json['length'] = $this->length;
+        }
+        if (isset($this->sequenceAttachment)) {
+            $json['sequenceAttachment'] = $this->sequenceAttachment;
+        }
+        if (isset($this->fivePrime)) {
+            $json['fivePrime'] = $this->fivePrime;
+        }
+        if (isset($this->threePrime)) {
+            $json['threePrime'] = $this->threePrime;
+        }
         if (0 < count($this->linkage)) {
             $json['linkage'] = [];
-            foreach($this->linkage as $linkage) {
+            foreach ($this->linkage as $linkage) {
                 $json['linkage'][] = $linkage;
             }
         }
         if (0 < count($this->sugar)) {
             $json['sugar'] = [];
-            foreach($this->sugar as $sugar) {
+            foreach ($this->sugar as $sugar) {
                 $json['sugar'][] = $sugar;
             }
         }
@@ -356,28 +388,43 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceNucleicAcidSubunit xmlns="http://hl7.org/fhir"></SubstanceNucleicAcidSubunit>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceNucleicAcidSubunit xmlns="http://hl7.org/fhir"></SubstanceNucleicAcidSubunit>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->subunit)) $this->subunit->xmlSerialize(true, $sxe->addChild('subunit'));
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
-        if (isset($this->length)) $this->length->xmlSerialize(true, $sxe->addChild('length'));
-        if (isset($this->sequenceAttachment)) $this->sequenceAttachment->xmlSerialize(true, $sxe->addChild('sequenceAttachment'));
-        if (isset($this->fivePrime)) $this->fivePrime->xmlSerialize(true, $sxe->addChild('fivePrime'));
-        if (isset($this->threePrime)) $this->threePrime->xmlSerialize(true, $sxe->addChild('threePrime'));
+        if (isset($this->subunit)) {
+            $this->subunit->xmlSerialize(true, $sxe->addChild('subunit'));
+        }
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
+        if (isset($this->length)) {
+            $this->length->xmlSerialize(true, $sxe->addChild('length'));
+        }
+        if (isset($this->sequenceAttachment)) {
+            $this->sequenceAttachment->xmlSerialize(true, $sxe->addChild('sequenceAttachment'));
+        }
+        if (isset($this->fivePrime)) {
+            $this->fivePrime->xmlSerialize(true, $sxe->addChild('fivePrime'));
+        }
+        if (isset($this->threePrime)) {
+            $this->threePrime->xmlSerialize(true, $sxe->addChild('threePrime'));
+        }
         if (0 < count($this->linkage)) {
-            foreach($this->linkage as $linkage) {
+            foreach ($this->linkage as $linkage) {
                 $linkage->xmlSerialize(true, $sxe->addChild('linkage'));
             }
         }
         if (0 < count($this->sugar)) {
-            foreach($this->sugar as $sugar) {
+            foreach ($this->sugar as $sugar) {
                 $sugar->xmlSerialize(true, $sxe->addChild('sugar'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

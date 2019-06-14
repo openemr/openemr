@@ -88,7 +88,8 @@ class FHIRExplanationOfBenefitTotal extends FHIRBackboneElement implements \Json
      * A code to indicate the information type of this adjudication record. Information types may include: the value submitted, maximum values or percentages allowed or payable under the plan, amounts that the patient is responsible for in aggregate or pertaining to this item, amounts paid by other coverages, and the benefit payable for this item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -97,7 +98,8 @@ class FHIRExplanationOfBenefitTotal extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRExplanationOfBenefitTotal extends FHIRBackboneElement implements \Json
      * Monetary total amount associated with the category.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -115,7 +118,8 @@ class FHIRExplanationOfBenefitTotal extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRExplanationOfBenefitTotal extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['category'])) {
                 $this->setCategory($data['category']);
@@ -147,17 +153,23 @@ class FHIRExplanationOfBenefitTotal extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRExplanationOfBenefitTotal extends FHIRBackboneElement implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExplanationOfBenefitTotal xmlns="http://hl7.org/fhir"></ExplanationOfBenefitTotal>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitTotal xmlns="http://hl7.org/fhir"></ExplanationOfBenefitTotal>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

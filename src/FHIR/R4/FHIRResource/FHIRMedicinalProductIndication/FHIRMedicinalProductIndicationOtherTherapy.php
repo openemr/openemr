@@ -92,7 +92,8 @@ class FHIRMedicinalProductIndicationOtherTherapy extends FHIRBackboneElement imp
      * The type of relationship between the medicinal product indication or contraindication and another therapy.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getTherapyRelationshipType() {
+    public function getTherapyRelationshipType()
+    {
         return $this->therapyRelationshipType;
     }
 
@@ -101,7 +102,8 @@ class FHIRMedicinalProductIndicationOtherTherapy extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $therapyRelationshipType
      * @return $this
      */
-    public function setTherapyRelationshipType($therapyRelationshipType) {
+    public function setTherapyRelationshipType($therapyRelationshipType)
+    {
         $this->therapyRelationshipType = $therapyRelationshipType;
         return $this;
     }
@@ -109,7 +111,8 @@ class FHIRMedicinalProductIndicationOtherTherapy extends FHIRBackboneElement imp
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMedicationCodeableConcept() {
+    public function getMedicationCodeableConcept()
+    {
         return $this->medicationCodeableConcept;
     }
 
@@ -117,7 +120,8 @@ class FHIRMedicinalProductIndicationOtherTherapy extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $medicationCodeableConcept
      * @return $this
      */
-    public function setMedicationCodeableConcept($medicationCodeableConcept) {
+    public function setMedicationCodeableConcept($medicationCodeableConcept)
+    {
         $this->medicationCodeableConcept = $medicationCodeableConcept;
         return $this;
     }
@@ -125,7 +129,8 @@ class FHIRMedicinalProductIndicationOtherTherapy extends FHIRBackboneElement imp
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getMedicationReference() {
+    public function getMedicationReference()
+    {
         return $this->medicationReference;
     }
 
@@ -133,7 +138,8 @@ class FHIRMedicinalProductIndicationOtherTherapy extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $medicationReference
      * @return $this
      */
-    public function setMedicationReference($medicationReference) {
+    public function setMedicationReference($medicationReference)
+    {
         $this->medicationReference = $medicationReference;
         return $this;
     }
@@ -141,14 +147,16 @@ class FHIRMedicinalProductIndicationOtherTherapy extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['therapyRelationshipType'])) {
                 $this->setTherapyRelationshipType($data['therapyRelationshipType']);
@@ -168,18 +176,26 @@ class FHIRMedicinalProductIndicationOtherTherapy extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->therapyRelationshipType)) $json['therapyRelationshipType'] = $this->therapyRelationshipType;
-        if (isset($this->medicationCodeableConcept)) $json['medicationCodeableConcept'] = $this->medicationCodeableConcept;
-        if (isset($this->medicationReference)) $json['medicationReference'] = $this->medicationReference;
+        if (isset($this->therapyRelationshipType)) {
+            $json['therapyRelationshipType'] = $this->therapyRelationshipType;
+        }
+        if (isset($this->medicationCodeableConcept)) {
+            $json['medicationCodeableConcept'] = $this->medicationCodeableConcept;
+        }
+        if (isset($this->medicationReference)) {
+            $json['medicationReference'] = $this->medicationReference;
+        }
         return $json;
     }
 
@@ -188,15 +204,24 @@ class FHIRMedicinalProductIndicationOtherTherapy extends FHIRBackboneElement imp
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductIndicationOtherTherapy xmlns="http://hl7.org/fhir"></MedicinalProductIndicationOtherTherapy>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductIndicationOtherTherapy xmlns="http://hl7.org/fhir"></MedicinalProductIndicationOtherTherapy>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->therapyRelationshipType)) $this->therapyRelationshipType->xmlSerialize(true, $sxe->addChild('therapyRelationshipType'));
-        if (isset($this->medicationCodeableConcept)) $this->medicationCodeableConcept->xmlSerialize(true, $sxe->addChild('medicationCodeableConcept'));
-        if (isset($this->medicationReference)) $this->medicationReference->xmlSerialize(true, $sxe->addChild('medicationReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->therapyRelationshipType)) {
+            $this->therapyRelationshipType->xmlSerialize(true, $sxe->addChild('therapyRelationshipType'));
+        }
+        if (isset($this->medicationCodeableConcept)) {
+            $this->medicationCodeableConcept->xmlSerialize(true, $sxe->addChild('medicationCodeableConcept'));
+        }
+        if (isset($this->medicationReference)) {
+            $this->medicationReference->xmlSerialize(true, $sxe->addChild('medicationReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

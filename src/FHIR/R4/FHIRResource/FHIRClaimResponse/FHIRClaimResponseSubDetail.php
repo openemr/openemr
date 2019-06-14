@@ -94,7 +94,8 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
      * A number to uniquely reference the claim sub-detail entry.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSubDetailSequence() {
+    public function getSubDetailSequence()
+    {
         return $this->subDetailSequence;
     }
 
@@ -103,7 +104,8 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $subDetailSequence
      * @return $this
      */
-    public function setSubDetailSequence($subDetailSequence) {
+    public function setSubDetailSequence($subDetailSequence)
+    {
         $this->subDetailSequence = $subDetailSequence;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
      * The numbers associated with notes below which apply to the adjudication of this item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
-    public function getNoteNumber() {
+    public function getNoteNumber()
+    {
         return $this->noteNumber;
     }
 
@@ -121,7 +124,8 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $noteNumber
      * @return $this
      */
-    public function addNoteNumber($noteNumber) {
+    public function addNoteNumber($noteNumber)
+    {
         $this->noteNumber[] = $noteNumber;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
      * The adjudication results.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseAdjudication[]
      */
-    public function getAdjudication() {
+    public function getAdjudication()
+    {
         return $this->adjudication;
     }
 
@@ -139,7 +144,8 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseAdjudication $adjudication
      * @return $this
      */
-    public function addAdjudication($adjudication) {
+    public function addAdjudication($adjudication)
+    {
         $this->adjudication[] = $adjudication;
         return $this;
     }
@@ -147,21 +153,23 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['subDetailSequence'])) {
                 $this->setSubDetailSequence($data['subDetailSequence']);
             }
             if (isset($data['noteNumber'])) {
                 if (is_array($data['noteNumber'])) {
-                    foreach($data['noteNumber'] as $d) {
+                    foreach ($data['noteNumber'] as $d) {
                         $this->addNoteNumber($d);
                     }
                 } else {
@@ -170,7 +178,7 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
             }
             if (isset($data['adjudication'])) {
                 if (is_array($data['adjudication'])) {
-                    foreach($data['adjudication'] as $d) {
+                    foreach ($data['adjudication'] as $d) {
                         $this->addAdjudication($d);
                     }
                 } else {
@@ -186,25 +194,29 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->subDetailSequence)) $json['subDetailSequence'] = $this->subDetailSequence;
+        if (isset($this->subDetailSequence)) {
+            $json['subDetailSequence'] = $this->subDetailSequence;
+        }
         if (0 < count($this->noteNumber)) {
             $json['noteNumber'] = [];
-            foreach($this->noteNumber as $noteNumber) {
+            foreach ($this->noteNumber as $noteNumber) {
                 $json['noteNumber'][] = $noteNumber;
             }
         }
         if (0 < count($this->adjudication)) {
             $json['adjudication'] = [];
-            foreach($this->adjudication as $adjudication) {
+            foreach ($this->adjudication as $adjudication) {
                 $json['adjudication'][] = $adjudication;
             }
         }
@@ -216,23 +228,28 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimResponseSubDetail xmlns="http://hl7.org/fhir"></ClaimResponseSubDetail>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimResponseSubDetail xmlns="http://hl7.org/fhir"></ClaimResponseSubDetail>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->subDetailSequence)) $this->subDetailSequence->xmlSerialize(true, $sxe->addChild('subDetailSequence'));
+        if (isset($this->subDetailSequence)) {
+            $this->subDetailSequence->xmlSerialize(true, $sxe->addChild('subDetailSequence'));
+        }
         if (0 < count($this->noteNumber)) {
-            foreach($this->noteNumber as $noteNumber) {
+            foreach ($this->noteNumber as $noteNumber) {
                 $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
             }
         }
         if (0 < count($this->adjudication)) {
-            foreach($this->adjudication as $adjudication) {
+            foreach ($this->adjudication as $adjudication) {
                 $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

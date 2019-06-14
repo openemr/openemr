@@ -246,7 +246,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Identifiers assigned to this event performer or other systems.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -255,7 +256,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -264,7 +266,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * References the (external) source of pricing information, rules of application for the code this ChargeItem uses.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getDefinitionUri() {
+    public function getDefinitionUri()
+    {
         return $this->definitionUri;
     }
 
@@ -273,7 +276,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $definitionUri
      * @return $this
      */
-    public function addDefinitionUri($definitionUri) {
+    public function addDefinitionUri($definitionUri)
+    {
         $this->definitionUri[] = $definitionUri;
         return $this;
     }
@@ -282,7 +286,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * References the source of pricing information, rules of application for the code this ChargeItem uses.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical[]
      */
-    public function getDefinitionCanonical() {
+    public function getDefinitionCanonical()
+    {
         return $this->definitionCanonical;
     }
 
@@ -291,7 +296,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $definitionCanonical
      * @return $this
      */
-    public function addDefinitionCanonical($definitionCanonical) {
+    public function addDefinitionCanonical($definitionCanonical)
+    {
         $this->definitionCanonical[] = $definitionCanonical;
         return $this;
     }
@@ -300,7 +306,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * The current state of the ChargeItem.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRChargeItemStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -309,7 +316,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRChargeItemStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -318,7 +326,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * ChargeItems can be grouped to larger ChargeItems covering the whole set.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPartOf() {
+    public function getPartOf()
+    {
         return $this->partOf;
     }
 
@@ -327,7 +336,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $partOf
      * @return $this
      */
-    public function addPartOf($partOf) {
+    public function addPartOf($partOf)
+    {
         $this->partOf[] = $partOf;
         return $this;
     }
@@ -336,7 +346,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * A code that identifies the charge, like a billing code.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -345,7 +356,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -354,7 +366,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * The individual or set of individuals the action is being or was performed on.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -363,7 +376,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -372,7 +386,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * The encounter or episode of care that establishes the context for this event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getContext() {
+    public function getContext()
+    {
         return $this->context;
     }
 
@@ -381,7 +396,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $context
      * @return $this
      */
-    public function setContext($context) {
+    public function setContext($context)
+    {
         $this->context = $context;
         return $this;
     }
@@ -389,7 +405,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getOccurrenceDateTime() {
+    public function getOccurrenceDateTime()
+    {
         return $this->occurrenceDateTime;
     }
 
@@ -397,7 +414,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $occurrenceDateTime
      * @return $this
      */
-    public function setOccurrenceDateTime($occurrenceDateTime) {
+    public function setOccurrenceDateTime($occurrenceDateTime)
+    {
         $this->occurrenceDateTime = $occurrenceDateTime;
         return $this;
     }
@@ -405,7 +423,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getOccurrencePeriod() {
+    public function getOccurrencePeriod()
+    {
         return $this->occurrencePeriod;
     }
 
@@ -413,7 +432,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $occurrencePeriod
      * @return $this
      */
-    public function setOccurrencePeriod($occurrencePeriod) {
+    public function setOccurrencePeriod($occurrencePeriod)
+    {
         $this->occurrencePeriod = $occurrencePeriod;
         return $this;
     }
@@ -421,7 +441,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getOccurrenceTiming() {
+    public function getOccurrenceTiming()
+    {
         return $this->occurrenceTiming;
     }
 
@@ -429,7 +450,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $occurrenceTiming
      * @return $this
      */
-    public function setOccurrenceTiming($occurrenceTiming) {
+    public function setOccurrenceTiming($occurrenceTiming)
+    {
         $this->occurrenceTiming = $occurrenceTiming;
         return $this;
     }
@@ -438,7 +460,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Indicates who or what performed or participated in the charged service.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRChargeItem\FHIRChargeItemPerformer[]
      */
-    public function getPerformer() {
+    public function getPerformer()
+    {
         return $this->performer;
     }
 
@@ -447,7 +470,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRChargeItem\FHIRChargeItemPerformer $performer
      * @return $this
      */
-    public function addPerformer($performer) {
+    public function addPerformer($performer)
+    {
         $this->performer[] = $performer;
         return $this;
     }
@@ -456,7 +480,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * The organization requesting the service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPerformingOrganization() {
+    public function getPerformingOrganization()
+    {
         return $this->performingOrganization;
     }
 
@@ -465,7 +490,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $performingOrganization
      * @return $this
      */
-    public function setPerformingOrganization($performingOrganization) {
+    public function setPerformingOrganization($performingOrganization)
+    {
         $this->performingOrganization = $performingOrganization;
         return $this;
     }
@@ -474,7 +500,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * The organization performing the service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequestingOrganization() {
+    public function getRequestingOrganization()
+    {
         return $this->requestingOrganization;
     }
 
@@ -483,7 +510,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $requestingOrganization
      * @return $this
      */
-    public function setRequestingOrganization($requestingOrganization) {
+    public function setRequestingOrganization($requestingOrganization)
+    {
         $this->requestingOrganization = $requestingOrganization;
         return $this;
     }
@@ -492,7 +520,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * The financial cost center permits the tracking of charge attribution.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCostCenter() {
+    public function getCostCenter()
+    {
         return $this->costCenter;
     }
 
@@ -501,7 +530,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $costCenter
      * @return $this
      */
-    public function setCostCenter($costCenter) {
+    public function setCostCenter($costCenter)
+    {
         $this->costCenter = $costCenter;
         return $this;
     }
@@ -510,7 +540,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Quantity of which the charge item has been serviced.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -519,7 +550,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -528,7 +560,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * The anatomical location where the related service has been applied.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getBodysite() {
+    public function getBodysite()
+    {
         return $this->bodysite;
     }
 
@@ -537,7 +570,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $bodysite
      * @return $this
      */
-    public function addBodysite($bodysite) {
+    public function addBodysite($bodysite)
+    {
         $this->bodysite[] = $bodysite;
         return $this;
     }
@@ -546,7 +580,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Factor overriding the factor determined by the rules associated with the code.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getFactorOverride() {
+    public function getFactorOverride()
+    {
         return $this->factorOverride;
     }
 
@@ -555,7 +590,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $factorOverride
      * @return $this
      */
-    public function setFactorOverride($factorOverride) {
+    public function setFactorOverride($factorOverride)
+    {
         $this->factorOverride = $factorOverride;
         return $this;
     }
@@ -564,7 +600,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Total price of the charge overriding the list price associated with the code.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getPriceOverride() {
+    public function getPriceOverride()
+    {
         return $this->priceOverride;
     }
 
@@ -573,7 +610,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $priceOverride
      * @return $this
      */
-    public function setPriceOverride($priceOverride) {
+    public function setPriceOverride($priceOverride)
+    {
         $this->priceOverride = $priceOverride;
         return $this;
     }
@@ -582,7 +620,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * If the list price or the rule-based factor associated with the code is overridden, this attribute can capture a text to indicate the  reason for this action.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getOverrideReason() {
+    public function getOverrideReason()
+    {
         return $this->overrideReason;
     }
 
@@ -591,7 +630,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $overrideReason
      * @return $this
      */
-    public function setOverrideReason($overrideReason) {
+    public function setOverrideReason($overrideReason)
+    {
         $this->overrideReason = $overrideReason;
         return $this;
     }
@@ -600,7 +640,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * The device, practitioner, etc. who entered the charge item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEnterer() {
+    public function getEnterer()
+    {
         return $this->enterer;
     }
 
@@ -609,7 +650,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $enterer
      * @return $this
      */
-    public function setEnterer($enterer) {
+    public function setEnterer($enterer)
+    {
         $this->enterer = $enterer;
         return $this;
     }
@@ -618,7 +660,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Date the charge item was entered.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getEnteredDate() {
+    public function getEnteredDate()
+    {
         return $this->enteredDate;
     }
 
@@ -627,7 +670,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $enteredDate
      * @return $this
      */
-    public function setEnteredDate($enteredDate) {
+    public function setEnteredDate($enteredDate)
+    {
         $this->enteredDate = $enteredDate;
         return $this;
     }
@@ -636,7 +680,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Describes why the event occurred in coded or textual form.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getReason() {
+    public function getReason()
+    {
         return $this->reason;
     }
 
@@ -645,7 +690,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reason
      * @return $this
      */
-    public function addReason($reason) {
+    public function addReason($reason)
+    {
         $this->reason[] = $reason;
         return $this;
     }
@@ -654,7 +700,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Indicated the rendered service that caused this charge.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getService() {
+    public function getService()
+    {
         return $this->service;
     }
 
@@ -663,7 +710,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $service
      * @return $this
      */
-    public function addService($service) {
+    public function addService($service)
+    {
         $this->service[] = $service;
         return $this;
     }
@@ -671,7 +719,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getProductReference() {
+    public function getProductReference()
+    {
         return $this->productReference;
     }
 
@@ -679,7 +728,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $productReference
      * @return $this
      */
-    public function setProductReference($productReference) {
+    public function setProductReference($productReference)
+    {
         $this->productReference = $productReference;
         return $this;
     }
@@ -687,7 +737,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getProductCodeableConcept() {
+    public function getProductCodeableConcept()
+    {
         return $this->productCodeableConcept;
     }
 
@@ -695,7 +746,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $productCodeableConcept
      * @return $this
      */
-    public function setProductCodeableConcept($productCodeableConcept) {
+    public function setProductCodeableConcept($productCodeableConcept)
+    {
         $this->productCodeableConcept = $productCodeableConcept;
         return $this;
     }
@@ -704,7 +756,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Account into which this ChargeItems belongs.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getAccount() {
+    public function getAccount()
+    {
         return $this->account;
     }
 
@@ -713,7 +766,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $account
      * @return $this
      */
-    public function addAccount($account) {
+    public function addAccount($account)
+    {
         $this->account[] = $account;
         return $this;
     }
@@ -722,7 +776,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Comments made about the event by the performer, subject or other participants.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -731,7 +786,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -740,7 +796,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * Further information supporting this charge.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSupportingInformation() {
+    public function getSupportingInformation()
+    {
         return $this->supportingInformation;
     }
 
@@ -749,7 +806,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $supportingInformation
      * @return $this
      */
-    public function addSupportingInformation($supportingInformation) {
+    public function addSupportingInformation($supportingInformation)
+    {
         $this->supportingInformation[] = $supportingInformation;
         return $this;
     }
@@ -757,18 +815,20 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -777,7 +837,7 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['definitionUri'])) {
                 if (is_array($data['definitionUri'])) {
-                    foreach($data['definitionUri'] as $d) {
+                    foreach ($data['definitionUri'] as $d) {
                         $this->addDefinitionUri($d);
                     }
                 } else {
@@ -786,7 +846,7 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['definitionCanonical'])) {
                 if (is_array($data['definitionCanonical'])) {
-                    foreach($data['definitionCanonical'] as $d) {
+                    foreach ($data['definitionCanonical'] as $d) {
                         $this->addDefinitionCanonical($d);
                     }
                 } else {
@@ -798,7 +858,7 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['partOf'])) {
                 if (is_array($data['partOf'])) {
-                    foreach($data['partOf'] as $d) {
+                    foreach ($data['partOf'] as $d) {
                         $this->addPartOf($d);
                     }
                 } else {
@@ -825,7 +885,7 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['performer'])) {
                 if (is_array($data['performer'])) {
-                    foreach($data['performer'] as $d) {
+                    foreach ($data['performer'] as $d) {
                         $this->addPerformer($d);
                     }
                 } else {
@@ -846,7 +906,7 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['bodysite'])) {
                 if (is_array($data['bodysite'])) {
-                    foreach($data['bodysite'] as $d) {
+                    foreach ($data['bodysite'] as $d) {
                         $this->addBodysite($d);
                     }
                 } else {
@@ -870,7 +930,7 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['reason'])) {
                 if (is_array($data['reason'])) {
-                    foreach($data['reason'] as $d) {
+                    foreach ($data['reason'] as $d) {
                         $this->addReason($d);
                     }
                 } else {
@@ -879,7 +939,7 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['service'])) {
                 if (is_array($data['service'])) {
-                    foreach($data['service'] as $d) {
+                    foreach ($data['service'] as $d) {
                         $this->addService($d);
                     }
                 } else {
@@ -894,7 +954,7 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['account'])) {
                 if (is_array($data['account'])) {
-                    foreach($data['account'] as $d) {
+                    foreach ($data['account'] as $d) {
                         $this->addAccount($d);
                     }
                 } else {
@@ -903,7 +963,7 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -912,7 +972,7 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['supportingInformation'])) {
                 if (is_array($data['supportingInformation'])) {
-                    foreach($data['supportingInformation'] as $d) {
+                    foreach ($data['supportingInformation'] as $d) {
                         $this->addSupportingInformation($d);
                     }
                 } else {
@@ -928,97 +988,135 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->definitionUri)) {
             $json['definitionUri'] = [];
-            foreach($this->definitionUri as $definitionUri) {
+            foreach ($this->definitionUri as $definitionUri) {
                 $json['definitionUri'][] = $definitionUri;
             }
         }
         if (0 < count($this->definitionCanonical)) {
             $json['definitionCanonical'] = [];
-            foreach($this->definitionCanonical as $definitionCanonical) {
+            foreach ($this->definitionCanonical as $definitionCanonical) {
                 $json['definitionCanonical'][] = $definitionCanonical;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
         if (0 < count($this->partOf)) {
             $json['partOf'] = [];
-            foreach($this->partOf as $partOf) {
+            foreach ($this->partOf as $partOf) {
                 $json['partOf'][] = $partOf;
             }
         }
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->subject)) $json['subject'] = $this->subject;
-        if (isset($this->context)) $json['context'] = $this->context;
-        if (isset($this->occurrenceDateTime)) $json['occurrenceDateTime'] = $this->occurrenceDateTime;
-        if (isset($this->occurrencePeriod)) $json['occurrencePeriod'] = $this->occurrencePeriod;
-        if (isset($this->occurrenceTiming)) $json['occurrenceTiming'] = $this->occurrenceTiming;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
+        if (isset($this->context)) {
+            $json['context'] = $this->context;
+        }
+        if (isset($this->occurrenceDateTime)) {
+            $json['occurrenceDateTime'] = $this->occurrenceDateTime;
+        }
+        if (isset($this->occurrencePeriod)) {
+            $json['occurrencePeriod'] = $this->occurrencePeriod;
+        }
+        if (isset($this->occurrenceTiming)) {
+            $json['occurrenceTiming'] = $this->occurrenceTiming;
+        }
         if (0 < count($this->performer)) {
             $json['performer'] = [];
-            foreach($this->performer as $performer) {
+            foreach ($this->performer as $performer) {
                 $json['performer'][] = $performer;
             }
         }
-        if (isset($this->performingOrganization)) $json['performingOrganization'] = $this->performingOrganization;
-        if (isset($this->requestingOrganization)) $json['requestingOrganization'] = $this->requestingOrganization;
-        if (isset($this->costCenter)) $json['costCenter'] = $this->costCenter;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
+        if (isset($this->performingOrganization)) {
+            $json['performingOrganization'] = $this->performingOrganization;
+        }
+        if (isset($this->requestingOrganization)) {
+            $json['requestingOrganization'] = $this->requestingOrganization;
+        }
+        if (isset($this->costCenter)) {
+            $json['costCenter'] = $this->costCenter;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
         if (0 < count($this->bodysite)) {
             $json['bodysite'] = [];
-            foreach($this->bodysite as $bodysite) {
+            foreach ($this->bodysite as $bodysite) {
                 $json['bodysite'][] = $bodysite;
             }
         }
-        if (isset($this->factorOverride)) $json['factorOverride'] = $this->factorOverride;
-        if (isset($this->priceOverride)) $json['priceOverride'] = $this->priceOverride;
-        if (isset($this->overrideReason)) $json['overrideReason'] = $this->overrideReason;
-        if (isset($this->enterer)) $json['enterer'] = $this->enterer;
-        if (isset($this->enteredDate)) $json['enteredDate'] = $this->enteredDate;
+        if (isset($this->factorOverride)) {
+            $json['factorOverride'] = $this->factorOverride;
+        }
+        if (isset($this->priceOverride)) {
+            $json['priceOverride'] = $this->priceOverride;
+        }
+        if (isset($this->overrideReason)) {
+            $json['overrideReason'] = $this->overrideReason;
+        }
+        if (isset($this->enterer)) {
+            $json['enterer'] = $this->enterer;
+        }
+        if (isset($this->enteredDate)) {
+            $json['enteredDate'] = $this->enteredDate;
+        }
         if (0 < count($this->reason)) {
             $json['reason'] = [];
-            foreach($this->reason as $reason) {
+            foreach ($this->reason as $reason) {
                 $json['reason'][] = $reason;
             }
         }
         if (0 < count($this->service)) {
             $json['service'] = [];
-            foreach($this->service as $service) {
+            foreach ($this->service as $service) {
                 $json['service'][] = $service;
             }
         }
-        if (isset($this->productReference)) $json['productReference'] = $this->productReference;
-        if (isset($this->productCodeableConcept)) $json['productCodeableConcept'] = $this->productCodeableConcept;
+        if (isset($this->productReference)) {
+            $json['productReference'] = $this->productReference;
+        }
+        if (isset($this->productCodeableConcept)) {
+            $json['productCodeableConcept'] = $this->productCodeableConcept;
+        }
         if (0 < count($this->account)) {
             $json['account'] = [];
-            foreach($this->account as $account) {
+            foreach ($this->account as $account) {
                 $json['account'][] = $account;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
         if (0 < count($this->supportingInformation)) {
             $json['supportingInformation'] = [];
-            foreach($this->supportingInformation as $supportingInformation) {
+            foreach ($this->supportingInformation as $supportingInformation) {
                 $json['supportingInformation'][] = $supportingInformation;
             }
         }
@@ -1030,85 +1128,124 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ChargeItem xmlns="http://hl7.org/fhir"></ChargeItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ChargeItem xmlns="http://hl7.org/fhir"></ChargeItem>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->definitionUri)) {
-            foreach($this->definitionUri as $definitionUri) {
+            foreach ($this->definitionUri as $definitionUri) {
                 $definitionUri->xmlSerialize(true, $sxe->addChild('definitionUri'));
             }
         }
         if (0 < count($this->definitionCanonical)) {
-            foreach($this->definitionCanonical as $definitionCanonical) {
+            foreach ($this->definitionCanonical as $definitionCanonical) {
                 $definitionCanonical->xmlSerialize(true, $sxe->addChild('definitionCanonical'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
         if (0 < count($this->partOf)) {
-            foreach($this->partOf as $partOf) {
+            foreach ($this->partOf as $partOf) {
                 $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
             }
         }
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
-        if (isset($this->context)) $this->context->xmlSerialize(true, $sxe->addChild('context'));
-        if (isset($this->occurrenceDateTime)) $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
-        if (isset($this->occurrencePeriod)) $this->occurrencePeriod->xmlSerialize(true, $sxe->addChild('occurrencePeriod'));
-        if (isset($this->occurrenceTiming)) $this->occurrenceTiming->xmlSerialize(true, $sxe->addChild('occurrenceTiming'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
+        if (isset($this->context)) {
+            $this->context->xmlSerialize(true, $sxe->addChild('context'));
+        }
+        if (isset($this->occurrenceDateTime)) {
+            $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
+        }
+        if (isset($this->occurrencePeriod)) {
+            $this->occurrencePeriod->xmlSerialize(true, $sxe->addChild('occurrencePeriod'));
+        }
+        if (isset($this->occurrenceTiming)) {
+            $this->occurrenceTiming->xmlSerialize(true, $sxe->addChild('occurrenceTiming'));
+        }
         if (0 < count($this->performer)) {
-            foreach($this->performer as $performer) {
+            foreach ($this->performer as $performer) {
                 $performer->xmlSerialize(true, $sxe->addChild('performer'));
             }
         }
-        if (isset($this->performingOrganization)) $this->performingOrganization->xmlSerialize(true, $sxe->addChild('performingOrganization'));
-        if (isset($this->requestingOrganization)) $this->requestingOrganization->xmlSerialize(true, $sxe->addChild('requestingOrganization'));
-        if (isset($this->costCenter)) $this->costCenter->xmlSerialize(true, $sxe->addChild('costCenter'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        if (isset($this->performingOrganization)) {
+            $this->performingOrganization->xmlSerialize(true, $sxe->addChild('performingOrganization'));
+        }
+        if (isset($this->requestingOrganization)) {
+            $this->requestingOrganization->xmlSerialize(true, $sxe->addChild('requestingOrganization'));
+        }
+        if (isset($this->costCenter)) {
+            $this->costCenter->xmlSerialize(true, $sxe->addChild('costCenter'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
         if (0 < count($this->bodysite)) {
-            foreach($this->bodysite as $bodysite) {
+            foreach ($this->bodysite as $bodysite) {
                 $bodysite->xmlSerialize(true, $sxe->addChild('bodysite'));
             }
         }
-        if (isset($this->factorOverride)) $this->factorOverride->xmlSerialize(true, $sxe->addChild('factorOverride'));
-        if (isset($this->priceOverride)) $this->priceOverride->xmlSerialize(true, $sxe->addChild('priceOverride'));
-        if (isset($this->overrideReason)) $this->overrideReason->xmlSerialize(true, $sxe->addChild('overrideReason'));
-        if (isset($this->enterer)) $this->enterer->xmlSerialize(true, $sxe->addChild('enterer'));
-        if (isset($this->enteredDate)) $this->enteredDate->xmlSerialize(true, $sxe->addChild('enteredDate'));
+        if (isset($this->factorOverride)) {
+            $this->factorOverride->xmlSerialize(true, $sxe->addChild('factorOverride'));
+        }
+        if (isset($this->priceOverride)) {
+            $this->priceOverride->xmlSerialize(true, $sxe->addChild('priceOverride'));
+        }
+        if (isset($this->overrideReason)) {
+            $this->overrideReason->xmlSerialize(true, $sxe->addChild('overrideReason'));
+        }
+        if (isset($this->enterer)) {
+            $this->enterer->xmlSerialize(true, $sxe->addChild('enterer'));
+        }
+        if (isset($this->enteredDate)) {
+            $this->enteredDate->xmlSerialize(true, $sxe->addChild('enteredDate'));
+        }
         if (0 < count($this->reason)) {
-            foreach($this->reason as $reason) {
+            foreach ($this->reason as $reason) {
                 $reason->xmlSerialize(true, $sxe->addChild('reason'));
             }
         }
         if (0 < count($this->service)) {
-            foreach($this->service as $service) {
+            foreach ($this->service as $service) {
                 $service->xmlSerialize(true, $sxe->addChild('service'));
             }
         }
-        if (isset($this->productReference)) $this->productReference->xmlSerialize(true, $sxe->addChild('productReference'));
-        if (isset($this->productCodeableConcept)) $this->productCodeableConcept->xmlSerialize(true, $sxe->addChild('productCodeableConcept'));
+        if (isset($this->productReference)) {
+            $this->productReference->xmlSerialize(true, $sxe->addChild('productReference'));
+        }
+        if (isset($this->productCodeableConcept)) {
+            $this->productCodeableConcept->xmlSerialize(true, $sxe->addChild('productCodeableConcept'));
+        }
         if (0 < count($this->account)) {
-            foreach($this->account as $account) {
+            foreach ($this->account as $account) {
                 $account->xmlSerialize(true, $sxe->addChild('account'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
         if (0 < count($this->supportingInformation)) {
-            foreach($this->supportingInformation as $supportingInformation) {
+            foreach ($this->supportingInformation as $supportingInformation) {
                 $supportingInformation->xmlSerialize(true, $sxe->addChild('supportingInformation'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

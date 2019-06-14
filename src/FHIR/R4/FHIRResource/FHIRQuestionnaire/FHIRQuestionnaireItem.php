@@ -76,11 +76,11 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
     /**
      * This element is a URI that refers to an [[[ElementDefinition]]] that provides information about this item, including information that might otherwise be included in the instance of the Questionnaire resource. A detailed description of the construction of the URI is shown in Comments, below. If this element is present then the following element values MAY be derived from the Element Definition if the corresponding elements of this Questionnaire resource instance have no value:
 
-* code (ElementDefinition.code) 
-* type (ElementDefinition.type) 
-* required (ElementDefinition.min) 
-* repeats (ElementDefinition.max) 
-* maxLength (ElementDefinition.maxLength) 
+* code (ElementDefinition.code)
+* type (ElementDefinition.type)
+* required (ElementDefinition.min)
+* repeats (ElementDefinition.max)
+* maxLength (ElementDefinition.maxLength)
 * answerValueSet (ElementDefinition.binding)
 * options (ElementDefinition.binding).
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
@@ -180,7 +180,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * An identifier that is unique within the Questionnaire allowing linkage to the equivalent item in a QuestionnaireResponse resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getLinkId() {
+    public function getLinkId()
+    {
         return $this->linkId;
     }
 
@@ -189,7 +190,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $linkId
      * @return $this
      */
-    public function setLinkId($linkId) {
+    public function setLinkId($linkId)
+    {
         $this->linkId = $linkId;
         return $this;
     }
@@ -197,33 +199,35 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
     /**
      * This element is a URI that refers to an [[[ElementDefinition]]] that provides information about this item, including information that might otherwise be included in the instance of the Questionnaire resource. A detailed description of the construction of the URI is shown in Comments, below. If this element is present then the following element values MAY be derived from the Element Definition if the corresponding elements of this Questionnaire resource instance have no value:
 
-* code (ElementDefinition.code) 
-* type (ElementDefinition.type) 
-* required (ElementDefinition.min) 
-* repeats (ElementDefinition.max) 
-* maxLength (ElementDefinition.maxLength) 
+* code (ElementDefinition.code)
+* type (ElementDefinition.type)
+* required (ElementDefinition.min)
+* repeats (ElementDefinition.max)
+* maxLength (ElementDefinition.maxLength)
 * answerValueSet (ElementDefinition.binding)
 * options (ElementDefinition.binding).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getDefinition() {
+    public function getDefinition()
+    {
         return $this->definition;
     }
 
     /**
      * This element is a URI that refers to an [[[ElementDefinition]]] that provides information about this item, including information that might otherwise be included in the instance of the Questionnaire resource. A detailed description of the construction of the URI is shown in Comments, below. If this element is present then the following element values MAY be derived from the Element Definition if the corresponding elements of this Questionnaire resource instance have no value:
 
-* code (ElementDefinition.code) 
-* type (ElementDefinition.type) 
-* required (ElementDefinition.min) 
-* repeats (ElementDefinition.max) 
-* maxLength (ElementDefinition.maxLength) 
+* code (ElementDefinition.code)
+* type (ElementDefinition.type)
+* required (ElementDefinition.min)
+* repeats (ElementDefinition.max)
+* maxLength (ElementDefinition.maxLength)
 * answerValueSet (ElementDefinition.binding)
 * options (ElementDefinition.binding).
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $definition
      * @return $this
      */
-    public function setDefinition($definition) {
+    public function setDefinition($definition)
+    {
         $this->definition = $definition;
         return $this;
     }
@@ -232,7 +236,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * A terminology code that corresponds to this group or question (e.g. a code from LOINC, which defines many questions and answers).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -241,7 +246,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -250,7 +256,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * A short label for a particular group, question or set of display text within the questionnaire used for reference by the individual completing the questionnaire.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPrefix() {
+    public function getPrefix()
+    {
         return $this->prefix;
     }
 
@@ -259,7 +266,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $prefix
      * @return $this
      */
-    public function setPrefix($prefix) {
+    public function setPrefix($prefix)
+    {
         $this->prefix = $prefix;
         return $this;
     }
@@ -268,7 +276,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * The name of a section, the text of a question or text content for a display item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -277,7 +286,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -286,7 +296,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * The type of questionnaire item this is - whether text for display, a grouping of other items or a particular type of data to be captured (string, integer, coded choice, etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuestionnaireItemType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -295,7 +306,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuestionnaireItemType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -304,7 +316,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * A constraint indicating that this item should only be enabled (displayed/allow answers to be captured) when the specified condition is true.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire\FHIRQuestionnaireEnableWhen[]
      */
-    public function getEnableWhen() {
+    public function getEnableWhen()
+    {
         return $this->enableWhen;
     }
 
@@ -313,7 +326,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire\FHIRQuestionnaireEnableWhen $enableWhen
      * @return $this
      */
-    public function addEnableWhen($enableWhen) {
+    public function addEnableWhen($enableWhen)
+    {
         $this->enableWhen[] = $enableWhen;
         return $this;
     }
@@ -322,7 +336,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * Controls how multiple enableWhen values are interpreted -  whether all or any must be true.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIREnableWhenBehavior
      */
-    public function getEnableBehavior() {
+    public function getEnableBehavior()
+    {
         return $this->enableBehavior;
     }
 
@@ -331,7 +346,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIREnableWhenBehavior $enableBehavior
      * @return $this
      */
-    public function setEnableBehavior($enableBehavior) {
+    public function setEnableBehavior($enableBehavior)
+    {
         $this->enableBehavior = $enableBehavior;
         return $this;
     }
@@ -340,7 +356,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * An indication, if true, that the item must be present in a "completed" QuestionnaireResponse.  If false, the item may be skipped when answering the questionnaire.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getRequired() {
+    public function getRequired()
+    {
         return $this->required;
     }
 
@@ -349,7 +366,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $required
      * @return $this
      */
-    public function setRequired($required) {
+    public function setRequired($required)
+    {
         $this->required = $required;
         return $this;
     }
@@ -358,7 +376,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * An indication, if true, that the item may occur multiple times in the response, collecting multiple answers for questions or multiple sets of answers for groups.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getRepeats() {
+    public function getRepeats()
+    {
         return $this->repeats;
     }
 
@@ -367,7 +386,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $repeats
      * @return $this
      */
-    public function setRepeats($repeats) {
+    public function setRepeats($repeats)
+    {
         $this->repeats = $repeats;
         return $this;
     }
@@ -376,7 +396,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * An indication, when true, that the value cannot be changed by a human respondent to the Questionnaire.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getReadOnly() {
+    public function getReadOnly()
+    {
         return $this->readOnly;
     }
 
@@ -385,7 +406,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $readOnly
      * @return $this
      */
-    public function setReadOnly($readOnly) {
+    public function setReadOnly($readOnly)
+    {
         $this->readOnly = $readOnly;
         return $this;
     }
@@ -394,7 +416,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * The maximum number of characters that are permitted in the answer to be considered a "valid" QuestionnaireResponse.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getMaxLength() {
+    public function getMaxLength()
+    {
         return $this->maxLength;
     }
 
@@ -403,7 +426,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $maxLength
      * @return $this
      */
-    public function setMaxLength($maxLength) {
+    public function setMaxLength($maxLength)
+    {
         $this->maxLength = $maxLength;
         return $this;
     }
@@ -412,7 +436,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * A reference to a value set containing a list of codes representing permitted answers for a "choice" or "open-choice" question.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getAnswerValueSet() {
+    public function getAnswerValueSet()
+    {
         return $this->answerValueSet;
     }
 
@@ -421,7 +446,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $answerValueSet
      * @return $this
      */
-    public function setAnswerValueSet($answerValueSet) {
+    public function setAnswerValueSet($answerValueSet)
+    {
         $this->answerValueSet = $answerValueSet;
         return $this;
     }
@@ -430,7 +456,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * One of the permitted answers for a "choice" or "open-choice" question.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire\FHIRQuestionnaireAnswerOption[]
      */
-    public function getAnswerOption() {
+    public function getAnswerOption()
+    {
         return $this->answerOption;
     }
 
@@ -439,7 +466,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire\FHIRQuestionnaireAnswerOption $answerOption
      * @return $this
      */
-    public function addAnswerOption($answerOption) {
+    public function addAnswerOption($answerOption)
+    {
         $this->answerOption[] = $answerOption;
         return $this;
     }
@@ -448,7 +476,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * One or more values that should be pre-populated in the answer when initially rendering the questionnaire for user input.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire\FHIRQuestionnaireInitial[]
      */
-    public function getInitial() {
+    public function getInitial()
+    {
         return $this->initial;
     }
 
@@ -457,7 +486,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire\FHIRQuestionnaireInitial $initial
      * @return $this
      */
-    public function addInitial($initial) {
+    public function addInitial($initial)
+    {
         $this->initial[] = $initial;
         return $this;
     }
@@ -466,7 +496,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * Text, questions and other groups to be nested beneath a question or group.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire\FHIRQuestionnaireItem[]
      */
-    public function getItem() {
+    public function getItem()
+    {
         return $this->item;
     }
 
@@ -475,7 +506,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire\FHIRQuestionnaireItem $item
      * @return $this
      */
-    public function addItem($item) {
+    public function addItem($item)
+    {
         $this->item[] = $item;
         return $this;
     }
@@ -483,14 +515,16 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['linkId'])) {
                 $this->setLinkId($data['linkId']);
@@ -500,7 +534,7 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -518,7 +552,7 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['enableWhen'])) {
                 if (is_array($data['enableWhen'])) {
-                    foreach($data['enableWhen'] as $d) {
+                    foreach ($data['enableWhen'] as $d) {
                         $this->addEnableWhen($d);
                     }
                 } else {
@@ -545,7 +579,7 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['answerOption'])) {
                 if (is_array($data['answerOption'])) {
-                    foreach($data['answerOption'] as $d) {
+                    foreach ($data['answerOption'] as $d) {
                         $this->addAnswerOption($d);
                     }
                 } else {
@@ -554,7 +588,7 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['initial'])) {
                 if (is_array($data['initial'])) {
-                    foreach($data['initial'] as $d) {
+                    foreach ($data['initial'] as $d) {
                         $this->addInitial($d);
                     }
                 } else {
@@ -563,7 +597,7 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['item'])) {
                 if (is_array($data['item'])) {
-                    foreach($data['item'] as $d) {
+                    foreach ($data['item'] as $d) {
                         $this->addItem($d);
                     }
                 } else {
@@ -579,53 +613,77 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->linkId)) $json['linkId'] = $this->linkId;
-        if (isset($this->definition)) $json['definition'] = $this->definition;
+        if (isset($this->linkId)) {
+            $json['linkId'] = $this->linkId;
+        }
+        if (isset($this->definition)) {
+            $json['definition'] = $this->definition;
+        }
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
-        if (isset($this->prefix)) $json['prefix'] = $this->prefix;
-        if (isset($this->text)) $json['text'] = $this->text;
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->prefix)) {
+            $json['prefix'] = $this->prefix;
+        }
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->enableWhen)) {
             $json['enableWhen'] = [];
-            foreach($this->enableWhen as $enableWhen) {
+            foreach ($this->enableWhen as $enableWhen) {
                 $json['enableWhen'][] = $enableWhen;
             }
         }
-        if (isset($this->enableBehavior)) $json['enableBehavior'] = $this->enableBehavior;
-        if (isset($this->required)) $json['required'] = $this->required;
-        if (isset($this->repeats)) $json['repeats'] = $this->repeats;
-        if (isset($this->readOnly)) $json['readOnly'] = $this->readOnly;
-        if (isset($this->maxLength)) $json['maxLength'] = $this->maxLength;
-        if (isset($this->answerValueSet)) $json['answerValueSet'] = $this->answerValueSet;
+        if (isset($this->enableBehavior)) {
+            $json['enableBehavior'] = $this->enableBehavior;
+        }
+        if (isset($this->required)) {
+            $json['required'] = $this->required;
+        }
+        if (isset($this->repeats)) {
+            $json['repeats'] = $this->repeats;
+        }
+        if (isset($this->readOnly)) {
+            $json['readOnly'] = $this->readOnly;
+        }
+        if (isset($this->maxLength)) {
+            $json['maxLength'] = $this->maxLength;
+        }
+        if (isset($this->answerValueSet)) {
+            $json['answerValueSet'] = $this->answerValueSet;
+        }
         if (0 < count($this->answerOption)) {
             $json['answerOption'] = [];
-            foreach($this->answerOption as $answerOption) {
+            foreach ($this->answerOption as $answerOption) {
                 $json['answerOption'][] = $answerOption;
             }
         }
         if (0 < count($this->initial)) {
             $json['initial'] = [];
-            foreach($this->initial as $initial) {
+            foreach ($this->initial as $initial) {
                 $json['initial'][] = $initial;
             }
         }
         if (0 < count($this->item)) {
             $json['item'] = [];
-            foreach($this->item as $item) {
+            foreach ($this->item as $item) {
                 $json['item'][] = $item;
             }
         }
@@ -637,48 +695,73 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<QuestionnaireItem xmlns="http://hl7.org/fhir"></QuestionnaireItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<QuestionnaireItem xmlns="http://hl7.org/fhir"></QuestionnaireItem>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->linkId)) $this->linkId->xmlSerialize(true, $sxe->addChild('linkId'));
-        if (isset($this->definition)) $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        if (isset($this->linkId)) {
+            $this->linkId->xmlSerialize(true, $sxe->addChild('linkId'));
+        }
+        if (isset($this->definition)) {
+            $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        }
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
-        if (isset($this->prefix)) $this->prefix->xmlSerialize(true, $sxe->addChild('prefix'));
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->prefix)) {
+            $this->prefix->xmlSerialize(true, $sxe->addChild('prefix'));
+        }
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->enableWhen)) {
-            foreach($this->enableWhen as $enableWhen) {
+            foreach ($this->enableWhen as $enableWhen) {
                 $enableWhen->xmlSerialize(true, $sxe->addChild('enableWhen'));
             }
         }
-        if (isset($this->enableBehavior)) $this->enableBehavior->xmlSerialize(true, $sxe->addChild('enableBehavior'));
-        if (isset($this->required)) $this->required->xmlSerialize(true, $sxe->addChild('required'));
-        if (isset($this->repeats)) $this->repeats->xmlSerialize(true, $sxe->addChild('repeats'));
-        if (isset($this->readOnly)) $this->readOnly->xmlSerialize(true, $sxe->addChild('readOnly'));
-        if (isset($this->maxLength)) $this->maxLength->xmlSerialize(true, $sxe->addChild('maxLength'));
-        if (isset($this->answerValueSet)) $this->answerValueSet->xmlSerialize(true, $sxe->addChild('answerValueSet'));
+        if (isset($this->enableBehavior)) {
+            $this->enableBehavior->xmlSerialize(true, $sxe->addChild('enableBehavior'));
+        }
+        if (isset($this->required)) {
+            $this->required->xmlSerialize(true, $sxe->addChild('required'));
+        }
+        if (isset($this->repeats)) {
+            $this->repeats->xmlSerialize(true, $sxe->addChild('repeats'));
+        }
+        if (isset($this->readOnly)) {
+            $this->readOnly->xmlSerialize(true, $sxe->addChild('readOnly'));
+        }
+        if (isset($this->maxLength)) {
+            $this->maxLength->xmlSerialize(true, $sxe->addChild('maxLength'));
+        }
+        if (isset($this->answerValueSet)) {
+            $this->answerValueSet->xmlSerialize(true, $sxe->addChild('answerValueSet'));
+        }
         if (0 < count($this->answerOption)) {
-            foreach($this->answerOption as $answerOption) {
+            foreach ($this->answerOption as $answerOption) {
                 $answerOption->xmlSerialize(true, $sxe->addChild('answerOption'));
             }
         }
         if (0 < count($this->initial)) {
-            foreach($this->initial as $initial) {
+            foreach ($this->initial as $initial) {
                 $initial->xmlSerialize(true, $sxe->addChild('initial'));
             }
         }
         if (0 < count($this->item)) {
-            foreach($this->item as $item) {
+            foreach ($this->item as $item) {
                 $item->xmlSerialize(true, $sxe->addChild('item'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

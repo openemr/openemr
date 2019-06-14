@@ -94,7 +94,8 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
      * The name of the operation or query. For an operation, this is the name  prefixed with $ and used in the URL. For a query, this is the name used in the _query parameter when the query is called.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -103,7 +104,8 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
      * Where the formal definition can be found. If a server references the base definition of an Operation (i.e. from the specification itself such as ```http://hl7.org/fhir/OperationDefinition/ValueSet-expand```), that means it supports the full capabilities of the operation - e.g. both GET and POST invocation.  If it only supports a subset, it must define its own custom [[[OperationDefinition]]] with a 'base' of the original OperationDefinition.  The custom definition would describe the specific subset of functionality supported.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getDefinition() {
+    public function getDefinition()
+    {
         return $this->definition;
     }
 
@@ -121,7 +124,8 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $definition
      * @return $this
      */
-    public function setDefinition($definition) {
+    public function setDefinition($definition)
+    {
         $this->definition = $definition;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
      * Documentation that describes anything special about the operation behavior, possibly detailing different behavior for system, type and instance-level invocation of the operation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDocumentation() {
+    public function getDocumentation()
+    {
         return $this->documentation;
     }
 
@@ -139,7 +144,8 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $documentation
      * @return $this
      */
-    public function setDocumentation($documentation) {
+    public function setDocumentation($documentation)
+    {
         $this->documentation = $documentation;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -174,18 +182,26 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->definition)) $json['definition'] = $this->definition;
-        if (isset($this->documentation)) $json['documentation'] = $this->documentation;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->definition)) {
+            $json['definition'] = $this->definition;
+        }
+        if (isset($this->documentation)) {
+            $json['documentation'] = $this->documentation;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CapabilityStatementOperation xmlns="http://hl7.org/fhir"></CapabilityStatementOperation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CapabilityStatementOperation xmlns="http://hl7.org/fhir"></CapabilityStatementOperation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->definition)) $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
-        if (isset($this->documentation)) $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->definition)) {
+            $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        }
+        if (isset($this->documentation)) {
+            $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

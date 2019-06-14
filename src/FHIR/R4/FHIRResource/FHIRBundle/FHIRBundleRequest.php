@@ -112,7 +112,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * In a transaction or batch, this is the HTTP action to be executed for this entry. In a history bundle, this indicates the HTTP action that occurred.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRHTTPVerb
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method;
     }
 
@@ -121,7 +122,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRHTTPVerb $method
      * @return $this
      */
-    public function setMethod($method) {
+    public function setMethod($method)
+    {
         $this->method = $method;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * The URL for this entry, relative to the root (the address to which the request is posted).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -139,7 +142,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * If the ETag values match, return a 304 Not Modified status. See the API documentation for ["Conditional Read"](http.html#cread).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getIfNoneMatch() {
+    public function getIfNoneMatch()
+    {
         return $this->ifNoneMatch;
     }
 
@@ -157,7 +162,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $ifNoneMatch
      * @return $this
      */
-    public function setIfNoneMatch($ifNoneMatch) {
+    public function setIfNoneMatch($ifNoneMatch)
+    {
         $this->ifNoneMatch = $ifNoneMatch;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * Only perform the operation if the last updated date matches. See the API documentation for ["Conditional Read"](http.html#cread).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getIfModifiedSince() {
+    public function getIfModifiedSince()
+    {
         return $this->ifModifiedSince;
     }
 
@@ -175,7 +182,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $ifModifiedSince
      * @return $this
      */
-    public function setIfModifiedSince($ifModifiedSince) {
+    public function setIfModifiedSince($ifModifiedSince)
+    {
         $this->ifModifiedSince = $ifModifiedSince;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * Only perform the operation if the Etag value matches. For more information, see the API section ["Managing Resource Contention"](http.html#concurrency).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getIfMatch() {
+    public function getIfMatch()
+    {
         return $this->ifMatch;
     }
 
@@ -193,7 +202,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $ifMatch
      * @return $this
      */
-    public function setIfMatch($ifMatch) {
+    public function setIfMatch($ifMatch)
+    {
         $this->ifMatch = $ifMatch;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * Instruct the server not to perform the create if a specified resource already exists. For further information, see the API documentation for ["Conditional Create"](http.html#ccreate). This is just the query portion of the URL - what follows the "?" (not including the "?").
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getIfNoneExist() {
+    public function getIfNoneExist()
+    {
         return $this->ifNoneExist;
     }
 
@@ -211,7 +222,8 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $ifNoneExist
      * @return $this
      */
-    public function setIfNoneExist($ifNoneExist) {
+    public function setIfNoneExist($ifNoneExist)
+    {
         $this->ifNoneExist = $ifNoneExist;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['method'])) {
                 $this->setMethod($data['method']);
@@ -255,21 +269,35 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->method)) $json['method'] = $this->method;
-        if (isset($this->url)) $json['url'] = $this->url;
-        if (isset($this->ifNoneMatch)) $json['ifNoneMatch'] = $this->ifNoneMatch;
-        if (isset($this->ifModifiedSince)) $json['ifModifiedSince'] = $this->ifModifiedSince;
-        if (isset($this->ifMatch)) $json['ifMatch'] = $this->ifMatch;
-        if (isset($this->ifNoneExist)) $json['ifNoneExist'] = $this->ifNoneExist;
+        if (isset($this->method)) {
+            $json['method'] = $this->method;
+        }
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
+        if (isset($this->ifNoneMatch)) {
+            $json['ifNoneMatch'] = $this->ifNoneMatch;
+        }
+        if (isset($this->ifModifiedSince)) {
+            $json['ifModifiedSince'] = $this->ifModifiedSince;
+        }
+        if (isset($this->ifMatch)) {
+            $json['ifMatch'] = $this->ifMatch;
+        }
+        if (isset($this->ifNoneExist)) {
+            $json['ifNoneExist'] = $this->ifNoneExist;
+        }
         return $json;
     }
 
@@ -278,18 +306,33 @@ class FHIRBundleRequest extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<BundleRequest xmlns="http://hl7.org/fhir"></BundleRequest>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<BundleRequest xmlns="http://hl7.org/fhir"></BundleRequest>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->method)) $this->method->xmlSerialize(true, $sxe->addChild('method'));
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
-        if (isset($this->ifNoneMatch)) $this->ifNoneMatch->xmlSerialize(true, $sxe->addChild('ifNoneMatch'));
-        if (isset($this->ifModifiedSince)) $this->ifModifiedSince->xmlSerialize(true, $sxe->addChild('ifModifiedSince'));
-        if (isset($this->ifMatch)) $this->ifMatch->xmlSerialize(true, $sxe->addChild('ifMatch'));
-        if (isset($this->ifNoneExist)) $this->ifNoneExist->xmlSerialize(true, $sxe->addChild('ifNoneExist'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->method)) {
+            $this->method->xmlSerialize(true, $sxe->addChild('method'));
+        }
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
+        if (isset($this->ifNoneMatch)) {
+            $this->ifNoneMatch->xmlSerialize(true, $sxe->addChild('ifNoneMatch'));
+        }
+        if (isset($this->ifModifiedSince)) {
+            $this->ifModifiedSince->xmlSerialize(true, $sxe->addChild('ifModifiedSince'));
+        }
+        if (isset($this->ifMatch)) {
+            $this->ifMatch->xmlSerialize(true, $sxe->addChild('ifMatch'));
+        }
+        if (isset($this->ifNoneExist)) {
+            $this->ifNoneExist->xmlSerialize(true, $sxe->addChild('ifNoneExist'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

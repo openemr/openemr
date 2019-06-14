@@ -112,7 +112,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * Human-readable summary of effect estimate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -121,7 +122,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * Examples include relative risk and mean difference.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -139,7 +142,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * Used to define variant exposure states such as low-risk state.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getVariantState() {
+    public function getVariantState()
+    {
         return $this->variantState;
     }
 
@@ -157,7 +162,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $variantState
      * @return $this
      */
-    public function setVariantState($variantState) {
+    public function setVariantState($variantState)
+    {
         $this->variantState = $variantState;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * The point estimate of the effect estimate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -175,7 +182,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * Specifies the UCUM unit for the outcome.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getUnitOfMeasure() {
+    public function getUnitOfMeasure()
+    {
         return $this->unitOfMeasure;
     }
 
@@ -193,7 +202,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $unitOfMeasure
      * @return $this
      */
-    public function setUnitOfMeasure($unitOfMeasure) {
+    public function setUnitOfMeasure($unitOfMeasure)
+    {
         $this->unitOfMeasure = $unitOfMeasure;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * A description of the precision of the estimate for the effect.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIREffectEvidenceSynthesis\FHIREffectEvidenceSynthesisPrecisionEstimate[]
      */
-    public function getPrecisionEstimate() {
+    public function getPrecisionEstimate()
+    {
         return $this->precisionEstimate;
     }
 
@@ -211,7 +222,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIREffectEvidenceSynthesis\FHIREffectEvidenceSynthesisPrecisionEstimate $precisionEstimate
      * @return $this
      */
-    public function addPrecisionEstimate($precisionEstimate) {
+    public function addPrecisionEstimate($precisionEstimate)
+    {
         $this->precisionEstimate[] = $precisionEstimate;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -245,7 +259,7 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
             }
             if (isset($data['precisionEstimate'])) {
                 if (is_array($data['precisionEstimate'])) {
-                    foreach($data['precisionEstimate'] as $d) {
+                    foreach ($data['precisionEstimate'] as $d) {
                         $this->addPrecisionEstimate($d);
                     }
                 } else {
@@ -261,23 +275,35 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->variantState)) $json['variantState'] = $this->variantState;
-        if (isset($this->value)) $json['value'] = $this->value;
-        if (isset($this->unitOfMeasure)) $json['unitOfMeasure'] = $this->unitOfMeasure;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->variantState)) {
+            $json['variantState'] = $this->variantState;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
+        if (isset($this->unitOfMeasure)) {
+            $json['unitOfMeasure'] = $this->unitOfMeasure;
+        }
         if (0 < count($this->precisionEstimate)) {
             $json['precisionEstimate'] = [];
-            foreach($this->precisionEstimate as $precisionEstimate) {
+            foreach ($this->precisionEstimate as $precisionEstimate) {
                 $json['precisionEstimate'][] = $precisionEstimate;
             }
         }
@@ -289,22 +315,35 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesisEffectEstimate xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisEffectEstimate>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesisEffectEstimate xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisEffectEstimate>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->variantState)) $this->variantState->xmlSerialize(true, $sxe->addChild('variantState'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if (isset($this->unitOfMeasure)) $this->unitOfMeasure->xmlSerialize(true, $sxe->addChild('unitOfMeasure'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->variantState)) {
+            $this->variantState->xmlSerialize(true, $sxe->addChild('variantState'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if (isset($this->unitOfMeasure)) {
+            $this->unitOfMeasure->xmlSerialize(true, $sxe->addChild('unitOfMeasure'));
+        }
         if (0 < count($this->precisionEstimate)) {
-            foreach($this->precisionEstimate as $precisionEstimate) {
+            foreach ($this->precisionEstimate as $precisionEstimate) {
                 $precisionEstimate->xmlSerialize(true, $sxe->addChild('precisionEstimate'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -197,7 +197,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * An absolute URI that is used to identify this implementation guide when it is referenced in a specification, model, design or an instance; also called its canonical identifier. This SHOULD be globally unique and SHOULD be a literal address at which at which an authoritative instance of this implementation guide is (or will be) published. This URL can be the target of a canonical reference. It SHALL remain the same when the implementation guide is stored on different servers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -206,7 +207,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -215,7 +217,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * The identifier that is used to identify this version of the implementation guide when it is referenced in a specification, model, design or instance. This is an arbitrary value managed by the implementation guide author and is not expected to be globally unique. For example, it might be a timestamp (e.g. yyyymmdd) if a managed version is not available. There is also no expectation that versions can be placed in a lexicographical sequence.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -224,7 +227,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -233,7 +237,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * A natural language name identifying the implementation guide. This name should be usable as an identifier for the module by machine processing applications such as code generation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -242,7 +247,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -251,7 +257,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * A short, descriptive, user-friendly title for the implementation guide.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -260,7 +267,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -269,7 +277,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * The status of this implementation guide. Enables tracking the life-cycle of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -278,7 +287,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -287,7 +297,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * A Boolean value to indicate that this implementation guide is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExperimental() {
+    public function getExperimental()
+    {
         return $this->experimental;
     }
 
@@ -296,7 +307,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $experimental
      * @return $this
      */
-    public function setExperimental($experimental) {
+    public function setExperimental($experimental)
+    {
         $this->experimental = $experimental;
         return $this;
     }
@@ -305,7 +317,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * The date  (and optionally time) when the implementation guide was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the implementation guide changes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -314,7 +327,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -323,7 +337,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * The name of the organization or individual that published the implementation guide.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPublisher() {
+    public function getPublisher()
+    {
         return $this->publisher;
     }
 
@@ -332,7 +347,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $publisher
      * @return $this
      */
-    public function setPublisher($publisher) {
+    public function setPublisher($publisher)
+    {
         $this->publisher = $publisher;
         return $this;
     }
@@ -341,7 +357,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * Contact details to assist a user in finding and communicating with the publisher.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getContact() {
+    public function getContact()
+    {
         return $this->contact;
     }
 
@@ -350,7 +367,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $contact
      * @return $this
      */
-    public function addContact($contact) {
+    public function addContact($contact)
+    {
         $this->contact[] = $contact;
         return $this;
     }
@@ -359,7 +377,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * A free text natural language description of the implementation guide from a consumer's perspective.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -368,7 +387,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -377,7 +397,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * The content was developed with a focus and intent of supporting the contexts that are listed. These contexts may be general categories (gender, age, ...) or may be references to specific programs (insurance plans, studies, ...) and may be used to assist with indexing and searching for appropriate implementation guide instances.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext[]
      */
-    public function getUseContext() {
+    public function getUseContext()
+    {
         return $this->useContext;
     }
 
@@ -386,7 +407,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $useContext
      * @return $this
      */
-    public function addUseContext($useContext) {
+    public function addUseContext($useContext)
+    {
         $this->useContext[] = $useContext;
         return $this;
     }
@@ -395,7 +417,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * A legal or geographic region in which the implementation guide is intended to be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getJurisdiction() {
+    public function getJurisdiction()
+    {
         return $this->jurisdiction;
     }
 
@@ -404,7 +427,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $jurisdiction
      * @return $this
      */
-    public function addJurisdiction($jurisdiction) {
+    public function addJurisdiction($jurisdiction)
+    {
         $this->jurisdiction[] = $jurisdiction;
         return $this;
     }
@@ -413,7 +437,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * A copyright statement relating to the implementation guide and/or its contents. Copyright statements are generally legal restrictions on the use and publishing of the implementation guide.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getCopyright() {
+    public function getCopyright()
+    {
         return $this->copyright;
     }
 
@@ -422,7 +447,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $copyright
      * @return $this
      */
-    public function setCopyright($copyright) {
+    public function setCopyright($copyright)
+    {
         $this->copyright = $copyright;
         return $this;
     }
@@ -431,7 +457,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * The NPM package name for this Implementation Guide, used in the NPM package distribution, which is the primary mechanism by which FHIR based tooling manages IG dependencies. This value must be globally unique, and should be assigned with care.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getPackageId() {
+    public function getPackageId()
+    {
         return $this->packageId;
     }
 
@@ -440,7 +467,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $packageId
      * @return $this
      */
-    public function setPackageId($packageId) {
+    public function setPackageId($packageId)
+    {
         $this->packageId = $packageId;
         return $this;
     }
@@ -449,7 +477,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * The license that applies to this Implementation Guide, using an SPDX license code, or 'not-open-source'.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSPDXLicense
      */
-    public function getLicense() {
+    public function getLicense()
+    {
         return $this->license;
     }
 
@@ -458,7 +487,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSPDXLicense $license
      * @return $this
      */
-    public function setLicense($license) {
+    public function setLicense($license)
+    {
         $this->license = $license;
         return $this;
     }
@@ -467,7 +497,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * The version(s) of the FHIR specification that this ImplementationGuide targets - e.g. describes how to use. The value of this element is the formal version of the specification, without the revision number, e.g. [publication].[major].[minor], which is 4.0.0. for this version.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRVersion[]
      */
-    public function getFhirVersion() {
+    public function getFhirVersion()
+    {
         return $this->fhirVersion;
     }
 
@@ -476,7 +507,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRVersion $fhirVersion
      * @return $this
      */
-    public function addFhirVersion($fhirVersion) {
+    public function addFhirVersion($fhirVersion)
+    {
         $this->fhirVersion[] = $fhirVersion;
         return $this;
     }
@@ -485,7 +517,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * Another implementation guide that this implementation depends on. Typically, an implementation guide uses value sets, profiles etc.defined in other implementation guides.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideDependsOn[]
      */
-    public function getDependsOn() {
+    public function getDependsOn()
+    {
         return $this->dependsOn;
     }
 
@@ -494,7 +527,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideDependsOn $dependsOn
      * @return $this
      */
-    public function addDependsOn($dependsOn) {
+    public function addDependsOn($dependsOn)
+    {
         $this->dependsOn[] = $dependsOn;
         return $this;
     }
@@ -503,7 +537,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * A set of profiles that all resources covered by this implementation guide must conform to.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideGlobal[]
      */
-    public function getGlobal() {
+    public function getGlobal()
+    {
         return $this->global;
     }
 
@@ -512,7 +547,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideGlobal $global
      * @return $this
      */
-    public function addGlobal($global) {
+    public function addGlobal($global)
+    {
         $this->global[] = $global;
         return $this;
     }
@@ -521,7 +557,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * The information needed by an IG publisher tool to publish the whole implementation guide.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideDefinition
      */
-    public function getDefinition() {
+    public function getDefinition()
+    {
         return $this->definition;
     }
 
@@ -530,7 +567,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideDefinition $definition
      * @return $this
      */
-    public function setDefinition($definition) {
+    public function setDefinition($definition)
+    {
         $this->definition = $definition;
         return $this;
     }
@@ -539,7 +577,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * Information about an assembled implementation guide, created by the publication tooling.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideManifest
      */
-    public function getManifest() {
+    public function getManifest()
+    {
         return $this->manifest;
     }
 
@@ -548,7 +587,8 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideManifest $manifest
      * @return $this
      */
-    public function setManifest($manifest) {
+    public function setManifest($manifest)
+    {
         $this->manifest = $manifest;
         return $this;
     }
@@ -556,14 +596,16 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['url'])) {
                 $this->setUrl($data['url']);
@@ -591,7 +633,7 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['contact'])) {
                 if (is_array($data['contact'])) {
-                    foreach($data['contact'] as $d) {
+                    foreach ($data['contact'] as $d) {
                         $this->addContact($d);
                     }
                 } else {
@@ -603,7 +645,7 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['useContext'])) {
                 if (is_array($data['useContext'])) {
-                    foreach($data['useContext'] as $d) {
+                    foreach ($data['useContext'] as $d) {
                         $this->addUseContext($d);
                     }
                 } else {
@@ -612,7 +654,7 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['jurisdiction'])) {
                 if (is_array($data['jurisdiction'])) {
-                    foreach($data['jurisdiction'] as $d) {
+                    foreach ($data['jurisdiction'] as $d) {
                         $this->addJurisdiction($d);
                     }
                 } else {
@@ -630,7 +672,7 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['fhirVersion'])) {
                 if (is_array($data['fhirVersion'])) {
-                    foreach($data['fhirVersion'] as $d) {
+                    foreach ($data['fhirVersion'] as $d) {
                         $this->addFhirVersion($d);
                     }
                 } else {
@@ -639,7 +681,7 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['dependsOn'])) {
                 if (is_array($data['dependsOn'])) {
-                    foreach($data['dependsOn'] as $d) {
+                    foreach ($data['dependsOn'] as $d) {
                         $this->addDependsOn($d);
                     }
                 } else {
@@ -648,7 +690,7 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['global'])) {
                 if (is_array($data['global'])) {
-                    foreach($data['global'] as $d) {
+                    foreach ($data['global'] as $d) {
                         $this->addGlobal($d);
                     }
                 } else {
@@ -670,66 +712,96 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->url)) $json['url'] = $this->url;
-        if (isset($this->version)) $json['version'] = $this->version;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->experimental)) $json['experimental'] = $this->experimental;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->publisher)) $json['publisher'] = $this->publisher;
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->experimental)) {
+            $json['experimental'] = $this->experimental;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->publisher)) {
+            $json['publisher'] = $this->publisher;
+        }
         if (0 < count($this->contact)) {
             $json['contact'] = [];
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $json['contact'][] = $contact;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->useContext)) {
             $json['useContext'] = [];
-            foreach($this->useContext as $useContext) {
+            foreach ($this->useContext as $useContext) {
                 $json['useContext'][] = $useContext;
             }
         }
         if (0 < count($this->jurisdiction)) {
             $json['jurisdiction'] = [];
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $json['jurisdiction'][] = $jurisdiction;
             }
         }
-        if (isset($this->copyright)) $json['copyright'] = $this->copyright;
-        if (isset($this->packageId)) $json['packageId'] = $this->packageId;
-        if (isset($this->license)) $json['license'] = $this->license;
+        if (isset($this->copyright)) {
+            $json['copyright'] = $this->copyright;
+        }
+        if (isset($this->packageId)) {
+            $json['packageId'] = $this->packageId;
+        }
+        if (isset($this->license)) {
+            $json['license'] = $this->license;
+        }
         if (0 < count($this->fhirVersion)) {
             $json['fhirVersion'] = [];
-            foreach($this->fhirVersion as $fhirVersion) {
+            foreach ($this->fhirVersion as $fhirVersion) {
                 $json['fhirVersion'][] = $fhirVersion;
             }
         }
         if (0 < count($this->dependsOn)) {
             $json['dependsOn'] = [];
-            foreach($this->dependsOn as $dependsOn) {
+            foreach ($this->dependsOn as $dependsOn) {
                 $json['dependsOn'][] = $dependsOn;
             }
         }
         if (0 < count($this->global)) {
             $json['global'] = [];
-            foreach($this->global as $global) {
+            foreach ($this->global as $global) {
                 $json['global'][] = $global;
             }
         }
-        if (isset($this->definition)) $json['definition'] = $this->definition;
-        if (isset($this->manifest)) $json['manifest'] = $this->manifest;
+        if (isset($this->definition)) {
+            $json['definition'] = $this->definition;
+        }
+        if (isset($this->manifest)) {
+            $json['manifest'] = $this->manifest;
+        }
         return $json;
     }
 
@@ -738,56 +810,87 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImplementationGuide xmlns="http://hl7.org/fhir"></ImplementationGuide>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImplementationGuide xmlns="http://hl7.org/fhir"></ImplementationGuide>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->experimental)) $this->experimental->xmlSerialize(true, $sxe->addChild('experimental'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->publisher)) $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->experimental)) {
+            $this->experimental->xmlSerialize(true, $sxe->addChild('experimental'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->publisher)) {
+            $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        }
         if (0 < count($this->contact)) {
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $contact->xmlSerialize(true, $sxe->addChild('contact'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->useContext)) {
-            foreach($this->useContext as $useContext) {
+            foreach ($this->useContext as $useContext) {
                 $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
             }
         }
         if (0 < count($this->jurisdiction)) {
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
             }
         }
-        if (isset($this->copyright)) $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
-        if (isset($this->packageId)) $this->packageId->xmlSerialize(true, $sxe->addChild('packageId'));
-        if (isset($this->license)) $this->license->xmlSerialize(true, $sxe->addChild('license'));
+        if (isset($this->copyright)) {
+            $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
+        }
+        if (isset($this->packageId)) {
+            $this->packageId->xmlSerialize(true, $sxe->addChild('packageId'));
+        }
+        if (isset($this->license)) {
+            $this->license->xmlSerialize(true, $sxe->addChild('license'));
+        }
         if (0 < count($this->fhirVersion)) {
-            foreach($this->fhirVersion as $fhirVersion) {
+            foreach ($this->fhirVersion as $fhirVersion) {
                 $fhirVersion->xmlSerialize(true, $sxe->addChild('fhirVersion'));
             }
         }
         if (0 < count($this->dependsOn)) {
-            foreach($this->dependsOn as $dependsOn) {
+            foreach ($this->dependsOn as $dependsOn) {
                 $dependsOn->xmlSerialize(true, $sxe->addChild('dependsOn'));
             }
         }
         if (0 < count($this->global)) {
-            foreach($this->global as $global) {
+            foreach ($this->global as $global) {
                 $global->xmlSerialize(true, $sxe->addChild('global'));
             }
         }
-        if (isset($this->definition)) $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
-        if (isset($this->manifest)) $this->manifest->xmlSerialize(true, $sxe->addChild('manifest'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->definition)) {
+            $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        }
+        if (isset($this->manifest)) {
+            $this->manifest->xmlSerialize(true, $sxe->addChild('manifest'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

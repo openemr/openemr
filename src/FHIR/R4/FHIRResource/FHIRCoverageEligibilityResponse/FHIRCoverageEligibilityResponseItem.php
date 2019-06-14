@@ -160,7 +160,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * Code to identify the general type of benefits under which products and services are provided.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -169,7 +170,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -178,7 +180,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * This contains the product, service, drug or other billing code for the item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getProductOrService() {
+    public function getProductOrService()
+    {
         return $this->productOrService;
     }
 
@@ -187,7 +190,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $productOrService
      * @return $this
      */
-    public function setProductOrService($productOrService) {
+    public function setProductOrService($productOrService)
+    {
         $this->productOrService = $productOrService;
         return $this;
     }
@@ -196,7 +200,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * Item typification or modifiers codes to convey additional context for the product or service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getModifier() {
+    public function getModifier()
+    {
         return $this->modifier;
     }
 
@@ -205,7 +210,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $modifier
      * @return $this
      */
-    public function addModifier($modifier) {
+    public function addModifier($modifier)
+    {
         $this->modifier[] = $modifier;
         return $this;
     }
@@ -214,7 +220,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * The practitioner who is eligible for the provision of the product or service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getProvider() {
+    public function getProvider()
+    {
         return $this->provider;
     }
 
@@ -223,7 +230,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $provider
      * @return $this
      */
-    public function setProvider($provider) {
+    public function setProvider($provider)
+    {
         $this->provider = $provider;
         return $this;
     }
@@ -232,7 +240,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * True if the indicated class of service is excluded from the plan, missing or False indicates the product or service is included in the coverage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExcluded() {
+    public function getExcluded()
+    {
         return $this->excluded;
     }
 
@@ -241,7 +250,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $excluded
      * @return $this
      */
-    public function setExcluded($excluded) {
+    public function setExcluded($excluded)
+    {
         $this->excluded = $excluded;
         return $this;
     }
@@ -250,7 +260,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * A short name or tag for the benefit.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -259,7 +270,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -268,7 +280,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * A richer description of the benefit or services covered.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -277,7 +290,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -286,7 +300,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * Is a flag to indicate whether the benefits refer to in-network providers or out-of-network providers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getNetwork() {
+    public function getNetwork()
+    {
         return $this->network;
     }
 
@@ -295,7 +310,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $network
      * @return $this
      */
-    public function setNetwork($network) {
+    public function setNetwork($network)
+    {
         $this->network = $network;
         return $this;
     }
@@ -304,7 +320,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * Indicates if the benefits apply to an individual or to the family.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getUnit() {
+    public function getUnit()
+    {
         return $this->unit;
     }
 
@@ -313,7 +330,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $unit
      * @return $this
      */
-    public function setUnit($unit) {
+    public function setUnit($unit)
+    {
         $this->unit = $unit;
         return $this;
     }
@@ -322,7 +340,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * The term or period of the values such as 'maximum lifetime benefit' or 'maximum annual visits'.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getTerm() {
+    public function getTerm()
+    {
         return $this->term;
     }
 
@@ -331,7 +350,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $term
      * @return $this
      */
-    public function setTerm($term) {
+    public function setTerm($term)
+    {
         $this->term = $term;
         return $this;
     }
@@ -340,7 +360,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * Benefits used to date.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityResponse\FHIRCoverageEligibilityResponseBenefit[]
      */
-    public function getBenefit() {
+    public function getBenefit()
+    {
         return $this->benefit;
     }
 
@@ -349,7 +370,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityResponse\FHIRCoverageEligibilityResponseBenefit $benefit
      * @return $this
      */
-    public function addBenefit($benefit) {
+    public function addBenefit($benefit)
+    {
         $this->benefit[] = $benefit;
         return $this;
     }
@@ -358,7 +380,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * A boolean flag indicating whether a preauthorization is required prior to actual service delivery.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getAuthorizationRequired() {
+    public function getAuthorizationRequired()
+    {
         return $this->authorizationRequired;
     }
 
@@ -367,7 +390,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $authorizationRequired
      * @return $this
      */
-    public function setAuthorizationRequired($authorizationRequired) {
+    public function setAuthorizationRequired($authorizationRequired)
+    {
         $this->authorizationRequired = $authorizationRequired;
         return $this;
     }
@@ -376,7 +400,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * Codes or comments regarding information or actions associated with the preauthorization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getAuthorizationSupporting() {
+    public function getAuthorizationSupporting()
+    {
         return $this->authorizationSupporting;
     }
 
@@ -385,7 +410,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $authorizationSupporting
      * @return $this
      */
-    public function addAuthorizationSupporting($authorizationSupporting) {
+    public function addAuthorizationSupporting($authorizationSupporting)
+    {
         $this->authorizationSupporting[] = $authorizationSupporting;
         return $this;
     }
@@ -394,7 +420,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * A web location for obtaining requirements or descriptive information regarding the preauthorization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getAuthorizationUrl() {
+    public function getAuthorizationUrl()
+    {
         return $this->authorizationUrl;
     }
 
@@ -403,7 +430,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $authorizationUrl
      * @return $this
      */
-    public function setAuthorizationUrl($authorizationUrl) {
+    public function setAuthorizationUrl($authorizationUrl)
+    {
         $this->authorizationUrl = $authorizationUrl;
         return $this;
     }
@@ -411,14 +439,16 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['category'])) {
                 $this->setCategory($data['category']);
@@ -428,7 +458,7 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
             }
             if (isset($data['modifier'])) {
                 if (is_array($data['modifier'])) {
-                    foreach($data['modifier'] as $d) {
+                    foreach ($data['modifier'] as $d) {
                         $this->addModifier($d);
                     }
                 } else {
@@ -458,7 +488,7 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
             }
             if (isset($data['benefit'])) {
                 if (is_array($data['benefit'])) {
-                    foreach($data['benefit'] as $d) {
+                    foreach ($data['benefit'] as $d) {
                         $this->addBenefit($d);
                     }
                 } else {
@@ -470,7 +500,7 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
             }
             if (isset($data['authorizationSupporting'])) {
                 if (is_array($data['authorizationSupporting'])) {
-                    foreach($data['authorizationSupporting'] as $d) {
+                    foreach ($data['authorizationSupporting'] as $d) {
                         $this->addAuthorizationSupporting($d);
                     }
                 } else {
@@ -489,44 +519,68 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->productOrService)) $json['productOrService'] = $this->productOrService;
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->productOrService)) {
+            $json['productOrService'] = $this->productOrService;
+        }
         if (0 < count($this->modifier)) {
             $json['modifier'] = [];
-            foreach($this->modifier as $modifier) {
+            foreach ($this->modifier as $modifier) {
                 $json['modifier'][] = $modifier;
             }
         }
-        if (isset($this->provider)) $json['provider'] = $this->provider;
-        if (isset($this->excluded)) $json['excluded'] = $this->excluded;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->network)) $json['network'] = $this->network;
-        if (isset($this->unit)) $json['unit'] = $this->unit;
-        if (isset($this->term)) $json['term'] = $this->term;
+        if (isset($this->provider)) {
+            $json['provider'] = $this->provider;
+        }
+        if (isset($this->excluded)) {
+            $json['excluded'] = $this->excluded;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->network)) {
+            $json['network'] = $this->network;
+        }
+        if (isset($this->unit)) {
+            $json['unit'] = $this->unit;
+        }
+        if (isset($this->term)) {
+            $json['term'] = $this->term;
+        }
         if (0 < count($this->benefit)) {
             $json['benefit'] = [];
-            foreach($this->benefit as $benefit) {
+            foreach ($this->benefit as $benefit) {
                 $json['benefit'][] = $benefit;
             }
         }
-        if (isset($this->authorizationRequired)) $json['authorizationRequired'] = $this->authorizationRequired;
+        if (isset($this->authorizationRequired)) {
+            $json['authorizationRequired'] = $this->authorizationRequired;
+        }
         if (0 < count($this->authorizationSupporting)) {
             $json['authorizationSupporting'] = [];
-            foreach($this->authorizationSupporting as $authorizationSupporting) {
+            foreach ($this->authorizationSupporting as $authorizationSupporting) {
                 $json['authorizationSupporting'][] = $authorizationSupporting;
             }
         }
-        if (isset($this->authorizationUrl)) $json['authorizationUrl'] = $this->authorizationUrl;
+        if (isset($this->authorizationUrl)) {
+            $json['authorizationUrl'] = $this->authorizationUrl;
+        }
         return $json;
     }
 
@@ -535,38 +589,63 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CoverageEligibilityResponseItem xmlns="http://hl7.org/fhir"></CoverageEligibilityResponseItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CoverageEligibilityResponseItem xmlns="http://hl7.org/fhir"></CoverageEligibilityResponseItem>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->productOrService)) $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->productOrService)) {
+            $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
+        }
         if (0 < count($this->modifier)) {
-            foreach($this->modifier as $modifier) {
+            foreach ($this->modifier as $modifier) {
                 $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
             }
         }
-        if (isset($this->provider)) $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
-        if (isset($this->excluded)) $this->excluded->xmlSerialize(true, $sxe->addChild('excluded'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->network)) $this->network->xmlSerialize(true, $sxe->addChild('network'));
-        if (isset($this->unit)) $this->unit->xmlSerialize(true, $sxe->addChild('unit'));
-        if (isset($this->term)) $this->term->xmlSerialize(true, $sxe->addChild('term'));
+        if (isset($this->provider)) {
+            $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
+        }
+        if (isset($this->excluded)) {
+            $this->excluded->xmlSerialize(true, $sxe->addChild('excluded'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->network)) {
+            $this->network->xmlSerialize(true, $sxe->addChild('network'));
+        }
+        if (isset($this->unit)) {
+            $this->unit->xmlSerialize(true, $sxe->addChild('unit'));
+        }
+        if (isset($this->term)) {
+            $this->term->xmlSerialize(true, $sxe->addChild('term'));
+        }
         if (0 < count($this->benefit)) {
-            foreach($this->benefit as $benefit) {
+            foreach ($this->benefit as $benefit) {
                 $benefit->xmlSerialize(true, $sxe->addChild('benefit'));
             }
         }
-        if (isset($this->authorizationRequired)) $this->authorizationRequired->xmlSerialize(true, $sxe->addChild('authorizationRequired'));
+        if (isset($this->authorizationRequired)) {
+            $this->authorizationRequired->xmlSerialize(true, $sxe->addChild('authorizationRequired'));
+        }
         if (0 < count($this->authorizationSupporting)) {
-            foreach($this->authorizationSupporting as $authorizationSupporting) {
+            foreach ($this->authorizationSupporting as $authorizationSupporting) {
                 $authorizationSupporting->xmlSerialize(true, $sxe->addChild('authorizationSupporting'));
             }
         }
-        if (isset($this->authorizationUrl)) $this->authorizationUrl->xmlSerialize(true, $sxe->addChild('authorizationUrl'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->authorizationUrl)) {
+            $this->authorizationUrl->xmlSerialize(true, $sxe->addChild('authorizationUrl'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

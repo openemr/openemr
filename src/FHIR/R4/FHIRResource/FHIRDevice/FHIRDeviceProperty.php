@@ -94,7 +94,8 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
      * Code that specifies the property DeviceDefinitionPropetyCode (Extensible).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -103,7 +104,8 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
      * Property value as a quantity.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity[]
      */
-    public function getValueQuantity() {
+    public function getValueQuantity()
+    {
         return $this->valueQuantity;
     }
 
@@ -121,7 +124,8 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
      * @return $this
      */
-    public function addValueQuantity($valueQuantity) {
+    public function addValueQuantity($valueQuantity)
+    {
         $this->valueQuantity[] = $valueQuantity;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
      * Property value as a code, e.g., NTP4 (synced to NTP).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getValueCode() {
+    public function getValueCode()
+    {
         return $this->valueCode;
     }
 
@@ -139,7 +144,8 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $valueCode
      * @return $this
      */
-    public function addValueCode($valueCode) {
+    public function addValueCode($valueCode)
+    {
         $this->valueCode[] = $valueCode;
         return $this;
     }
@@ -147,21 +153,23 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
             }
             if (isset($data['valueQuantity'])) {
                 if (is_array($data['valueQuantity'])) {
-                    foreach($data['valueQuantity'] as $d) {
+                    foreach ($data['valueQuantity'] as $d) {
                         $this->addValueQuantity($d);
                     }
                 } else {
@@ -170,7 +178,7 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
             }
             if (isset($data['valueCode'])) {
                 if (is_array($data['valueCode'])) {
-                    foreach($data['valueCode'] as $d) {
+                    foreach ($data['valueCode'] as $d) {
                         $this->addValueCode($d);
                     }
                 } else {
@@ -186,25 +194,29 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->valueQuantity)) {
             $json['valueQuantity'] = [];
-            foreach($this->valueQuantity as $valueQuantity) {
+            foreach ($this->valueQuantity as $valueQuantity) {
                 $json['valueQuantity'][] = $valueQuantity;
             }
         }
         if (0 < count($this->valueCode)) {
             $json['valueCode'] = [];
-            foreach($this->valueCode as $valueCode) {
+            foreach ($this->valueCode as $valueCode) {
                 $json['valueCode'][] = $valueCode;
             }
         }
@@ -216,23 +228,28 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DeviceProperty xmlns="http://hl7.org/fhir"></DeviceProperty>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DeviceProperty xmlns="http://hl7.org/fhir"></DeviceProperty>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->valueQuantity)) {
-            foreach($this->valueQuantity as $valueQuantity) {
+            foreach ($this->valueQuantity as $valueQuantity) {
                 $valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
             }
         }
         if (0 < count($this->valueCode)) {
-            foreach($this->valueCode as $valueCode) {
+            foreach ($this->valueCode as $valueCode) {
                 $valueCode->xmlSerialize(true, $sxe->addChild('valueCode'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

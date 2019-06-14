@@ -100,7 +100,8 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
      * The DICOM SOP Instance UID for this image or other DICOM content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getUid() {
+    public function getUid()
+    {
         return $this->uid;
     }
 
@@ -109,7 +110,8 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $uid
      * @return $this
      */
-    public function setUid($uid) {
+    public function setUid($uid)
+    {
         $this->uid = $uid;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
      * DICOM instance  type.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getSopClass() {
+    public function getSopClass()
+    {
         return $this->sopClass;
     }
 
@@ -127,7 +130,8 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $sopClass
      * @return $this
      */
-    public function setSopClass($sopClass) {
+    public function setSopClass($sopClass)
+    {
         $this->sopClass = $sopClass;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
      * The number of instance in the series.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getNumber() {
+    public function getNumber()
+    {
         return $this->number;
     }
 
@@ -145,7 +150,8 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $number
      * @return $this
      */
-    public function setNumber($number) {
+    public function setNumber($number)
+    {
         $this->number = $number;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
      * The description of the instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -163,7 +170,8 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['uid'])) {
                 $this->setUid($data['uid']);
@@ -201,19 +211,29 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->uid)) $json['uid'] = $this->uid;
-        if (isset($this->sopClass)) $json['sopClass'] = $this->sopClass;
-        if (isset($this->number)) $json['number'] = $this->number;
-        if (isset($this->title)) $json['title'] = $this->title;
+        if (isset($this->uid)) {
+            $json['uid'] = $this->uid;
+        }
+        if (isset($this->sopClass)) {
+            $json['sopClass'] = $this->sopClass;
+        }
+        if (isset($this->number)) {
+            $json['number'] = $this->number;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRImagingStudyInstance extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImagingStudyInstance xmlns="http://hl7.org/fhir"></ImagingStudyInstance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImagingStudyInstance xmlns="http://hl7.org/fhir"></ImagingStudyInstance>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->uid)) $this->uid->xmlSerialize(true, $sxe->addChild('uid'));
-        if (isset($this->sopClass)) $this->sopClass->xmlSerialize(true, $sxe->addChild('sopClass'));
-        if (isset($this->number)) $this->number->xmlSerialize(true, $sxe->addChild('number'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->uid)) {
+            $this->uid->xmlSerialize(true, $sxe->addChild('uid'));
+        }
+        if (isset($this->sopClass)) {
+            $this->sopClass->xmlSerialize(true, $sxe->addChild('sopClass'));
+        }
+        if (isset($this->number)) {
+            $this->number->xmlSerialize(true, $sxe->addChild('number'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

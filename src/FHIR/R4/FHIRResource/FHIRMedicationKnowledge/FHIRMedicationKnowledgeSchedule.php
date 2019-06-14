@@ -82,7 +82,8 @@ class FHIRMedicationKnowledgeSchedule extends FHIRBackboneElement implements \Js
      * Specifies the specific drug schedule.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSchedule() {
+    public function getSchedule()
+    {
         return $this->schedule;
     }
 
@@ -91,7 +92,8 @@ class FHIRMedicationKnowledgeSchedule extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $schedule
      * @return $this
      */
-    public function setSchedule($schedule) {
+    public function setSchedule($schedule)
+    {
         $this->schedule = $schedule;
         return $this;
     }
@@ -99,14 +101,16 @@ class FHIRMedicationKnowledgeSchedule extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['schedule'])) {
                 $this->setSchedule($data['schedule']);
@@ -120,16 +124,20 @@ class FHIRMedicationKnowledgeSchedule extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->schedule)) $json['schedule'] = $this->schedule;
+        if (isset($this->schedule)) {
+            $json['schedule'] = $this->schedule;
+        }
         return $json;
     }
 
@@ -138,13 +146,18 @@ class FHIRMedicationKnowledgeSchedule extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationKnowledgeSchedule xmlns="http://hl7.org/fhir"></MedicationKnowledgeSchedule>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationKnowledgeSchedule xmlns="http://hl7.org/fhir"></MedicationKnowledgeSchedule>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->schedule)) $this->schedule->xmlSerialize(true, $sxe->addChild('schedule'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->schedule)) {
+            $this->schedule->xmlSerialize(true, $sxe->addChild('schedule'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

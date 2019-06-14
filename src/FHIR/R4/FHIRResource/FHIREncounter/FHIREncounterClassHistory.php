@@ -88,7 +88,8 @@ class FHIREncounterClassHistory extends FHIRBackboneElement implements \JsonSeri
      * inpatient | outpatient | ambulatory | emergency +.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getClass() {
+    public function getClass()
+    {
         return $this->class;
     }
 
@@ -97,7 +98,8 @@ class FHIREncounterClassHistory extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $class
      * @return $this
      */
-    public function setClass($class) {
+    public function setClass($class)
+    {
         $this->class = $class;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIREncounterClassHistory extends FHIRBackboneElement implements \JsonSeri
      * The time that the episode was in the specified class.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -115,7 +118,8 @@ class FHIREncounterClassHistory extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIREncounterClassHistory extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['class'])) {
                 $this->setClass($data['class']);
@@ -147,17 +153,23 @@ class FHIREncounterClassHistory extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->class)) $json['class'] = $this->class;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->class)) {
+            $json['class'] = $this->class;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIREncounterClassHistory extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<EncounterClassHistory xmlns="http://hl7.org/fhir"></EncounterClassHistory>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<EncounterClassHistory xmlns="http://hl7.org/fhir"></EncounterClassHistory>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->class)) $this->class->xmlSerialize(true, $sxe->addChild('class'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->class)) {
+            $this->class->xmlSerialize(true, $sxe->addChild('class'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

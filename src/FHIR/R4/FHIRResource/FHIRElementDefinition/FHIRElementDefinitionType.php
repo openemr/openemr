@@ -107,7 +107,8 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * URL of Data type or Resource that is a(or the) type used for this element. References are URLs that are relative to http://hl7.org/fhir/StructureDefinition e.g. "string" is a reference to http://hl7.org/fhir/StructureDefinition/string. Absolute URLs are only allowed in logical models.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -116,7 +117,8 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -125,7 +127,8 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * Identifies a profile structure or implementation Guide that applies to the datatype this element refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the type SHALL conform to at least one profile defined in the implementation guide.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical[]
      */
-    public function getProfile() {
+    public function getProfile()
+    {
         return $this->profile;
     }
 
@@ -134,7 +137,8 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $profile
      * @return $this
      */
-    public function addProfile($profile) {
+    public function addProfile($profile)
+    {
         $this->profile[] = $profile;
         return $this;
     }
@@ -143,7 +147,8 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * Used when the type is "Reference" or "canonical", and identifies a profile structure or implementation Guide that applies to the target of the reference this element refers to. If any profiles are specified, then the content must conform to at least one of them. The URL can be a local reference - to a contained StructureDefinition, or a reference to another StructureDefinition or Implementation Guide by a canonical URL. When an implementation guide is specified, the target resource SHALL conform to at least one profile defined in the implementation guide.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical[]
      */
-    public function getTargetProfile() {
+    public function getTargetProfile()
+    {
         return $this->targetProfile;
     }
 
@@ -152,7 +157,8 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $targetProfile
      * @return $this
      */
-    public function addTargetProfile($targetProfile) {
+    public function addTargetProfile($targetProfile)
+    {
         $this->targetProfile[] = $targetProfile;
         return $this;
     }
@@ -161,7 +167,8 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * If the type is a reference to another resource, how the resource is or can be aggregated - is it a contained resource, or a reference, and if the context is a bundle, is it included in the bundle.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAggregationMode[]
      */
-    public function getAggregation() {
+    public function getAggregation()
+    {
         return $this->aggregation;
     }
 
@@ -170,7 +177,8 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAggregationMode $aggregation
      * @return $this
      */
-    public function addAggregation($aggregation) {
+    public function addAggregation($aggregation)
+    {
         $this->aggregation[] = $aggregation;
         return $this;
     }
@@ -179,7 +187,8 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * Whether this reference needs to be version specific or version independent, or whether either can be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReferenceVersionRules
      */
-    public function getVersioning() {
+    public function getVersioning()
+    {
         return $this->versioning;
     }
 
@@ -188,7 +197,8 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReferenceVersionRules $versioning
      * @return $this
      */
-    public function setVersioning($versioning) {
+    public function setVersioning($versioning)
+    {
         $this->versioning = $versioning;
         return $this;
     }
@@ -196,21 +206,23 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
             }
             if (isset($data['profile'])) {
                 if (is_array($data['profile'])) {
-                    foreach($data['profile'] as $d) {
+                    foreach ($data['profile'] as $d) {
                         $this->addProfile($d);
                     }
                 } else {
@@ -219,7 +231,7 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
             }
             if (isset($data['targetProfile'])) {
                 if (is_array($data['targetProfile'])) {
-                    foreach($data['targetProfile'] as $d) {
+                    foreach ($data['targetProfile'] as $d) {
                         $this->addTargetProfile($d);
                     }
                 } else {
@@ -228,7 +240,7 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
             }
             if (isset($data['aggregation'])) {
                 if (is_array($data['aggregation'])) {
-                    foreach($data['aggregation'] as $d) {
+                    foreach ($data['aggregation'] as $d) {
                         $this->addAggregation($d);
                     }
                 } else {
@@ -247,35 +259,41 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
         if (0 < count($this->profile)) {
             $json['profile'] = [];
-            foreach($this->profile as $profile) {
+            foreach ($this->profile as $profile) {
                 $json['profile'][] = $profile;
             }
         }
         if (0 < count($this->targetProfile)) {
             $json['targetProfile'] = [];
-            foreach($this->targetProfile as $targetProfile) {
+            foreach ($this->targetProfile as $targetProfile) {
                 $json['targetProfile'][] = $targetProfile;
             }
         }
         if (0 < count($this->aggregation)) {
             $json['aggregation'] = [];
-            foreach($this->aggregation as $aggregation) {
+            foreach ($this->aggregation as $aggregation) {
                 $json['aggregation'][] = $aggregation;
             }
         }
-        if (isset($this->versioning)) $json['versioning'] = $this->versioning;
+        if (isset($this->versioning)) {
+            $json['versioning'] = $this->versioning;
+        }
         return $json;
     }
 
@@ -284,29 +302,36 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ElementDefinitionType xmlns="http://hl7.org/fhir"></ElementDefinitionType>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ElementDefinitionType xmlns="http://hl7.org/fhir"></ElementDefinitionType>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
         if (0 < count($this->profile)) {
-            foreach($this->profile as $profile) {
+            foreach ($this->profile as $profile) {
                 $profile->xmlSerialize(true, $sxe->addChild('profile'));
             }
         }
         if (0 < count($this->targetProfile)) {
-            foreach($this->targetProfile as $targetProfile) {
+            foreach ($this->targetProfile as $targetProfile) {
                 $targetProfile->xmlSerialize(true, $sxe->addChild('targetProfile'));
             }
         }
         if (0 < count($this->aggregation)) {
-            foreach($this->aggregation as $aggregation) {
+            foreach ($this->aggregation as $aggregation) {
                 $aggregation->xmlSerialize(true, $sxe->addChild('aggregation'));
             }
         }
-        if (isset($this->versioning)) $this->versioning->xmlSerialize(true, $sxe->addChild('versioning'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->versioning)) {
+            $this->versioning->xmlSerialize(true, $sxe->addChild('versioning'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

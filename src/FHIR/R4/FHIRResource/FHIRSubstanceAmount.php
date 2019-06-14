@@ -109,7 +109,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getAmountQuantity() {
+    public function getAmountQuantity()
+    {
         return $this->amountQuantity;
     }
 
@@ -117,7 +118,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $amountQuantity
      * @return $this
      */
-    public function setAmountQuantity($amountQuantity) {
+    public function setAmountQuantity($amountQuantity)
+    {
         $this->amountQuantity = $amountQuantity;
         return $this;
     }
@@ -125,7 +127,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getAmountRange() {
+    public function getAmountRange()
+    {
         return $this->amountRange;
     }
 
@@ -133,7 +136,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $amountRange
      * @return $this
      */
-    public function setAmountRange($amountRange) {
+    public function setAmountRange($amountRange)
+    {
         $this->amountRange = $amountRange;
         return $this;
     }
@@ -141,7 +145,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAmountString() {
+    public function getAmountString()
+    {
         return $this->amountString;
     }
 
@@ -149,7 +154,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $amountString
      * @return $this
      */
-    public function setAmountString($amountString) {
+    public function setAmountString($amountString)
+    {
         $this->amountString = $amountString;
         return $this;
     }
@@ -158,7 +164,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      * Most elements that require a quantitative value will also have a field called amount type. Amount type should always be specified because the actual value of the amount is often dependent on it. EXAMPLE: In capturing the actual relative amounts of substances or molecular fragments it is essential to indicate whether the amount refers to a mole ratio or weight ratio. For any given element an effort should be made to use same the amount type for all related definitional elements.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAmountType() {
+    public function getAmountType()
+    {
         return $this->amountType;
     }
 
@@ -167,7 +174,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $amountType
      * @return $this
      */
-    public function setAmountType($amountType) {
+    public function setAmountType($amountType)
+    {
         $this->amountType = $amountType;
         return $this;
     }
@@ -176,7 +184,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      * A textual comment on a numeric value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAmountText() {
+    public function getAmountText()
+    {
         return $this->amountText;
     }
 
@@ -185,7 +194,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $amountText
      * @return $this
      */
-    public function setAmountText($amountText) {
+    public function setAmountText($amountText)
+    {
         $this->amountText = $amountText;
         return $this;
     }
@@ -194,7 +204,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      * Reference range of possible or expected values.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceAmount\FHIRSubstanceAmountReferenceRange
      */
-    public function getReferenceRange() {
+    public function getReferenceRange()
+    {
         return $this->referenceRange;
     }
 
@@ -203,7 +214,8 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceAmount\FHIRSubstanceAmountReferenceRange $referenceRange
      * @return $this
      */
-    public function setReferenceRange($referenceRange) {
+    public function setReferenceRange($referenceRange)
+    {
         $this->referenceRange = $referenceRange;
         return $this;
     }
@@ -211,14 +223,16 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['amountQuantity'])) {
                 $this->setAmountQuantity($data['amountQuantity']);
@@ -247,22 +261,36 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->amountQuantity)) $json['amountQuantity'] = $this->amountQuantity;
-        if (isset($this->amountRange)) $json['amountRange'] = $this->amountRange;
-        if (isset($this->amountString)) $json['amountString'] = $this->amountString;
-        if (isset($this->amountType)) $json['amountType'] = $this->amountType;
-        if (isset($this->amountText)) $json['amountText'] = $this->amountText;
-        if (isset($this->referenceRange)) $json['referenceRange'] = $this->referenceRange;
+        if (isset($this->amountQuantity)) {
+            $json['amountQuantity'] = $this->amountQuantity;
+        }
+        if (isset($this->amountRange)) {
+            $json['amountRange'] = $this->amountRange;
+        }
+        if (isset($this->amountString)) {
+            $json['amountString'] = $this->amountString;
+        }
+        if (isset($this->amountType)) {
+            $json['amountType'] = $this->amountType;
+        }
+        if (isset($this->amountText)) {
+            $json['amountText'] = $this->amountText;
+        }
+        if (isset($this->referenceRange)) {
+            $json['referenceRange'] = $this->referenceRange;
+        }
         return $json;
     }
 
@@ -271,18 +299,33 @@ class FHIRSubstanceAmount extends FHIRBackboneElement implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceAmount xmlns="http://hl7.org/fhir"></SubstanceAmount>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceAmount xmlns="http://hl7.org/fhir"></SubstanceAmount>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->amountQuantity)) $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));
-        if (isset($this->amountRange)) $this->amountRange->xmlSerialize(true, $sxe->addChild('amountRange'));
-        if (isset($this->amountString)) $this->amountString->xmlSerialize(true, $sxe->addChild('amountString'));
-        if (isset($this->amountType)) $this->amountType->xmlSerialize(true, $sxe->addChild('amountType'));
-        if (isset($this->amountText)) $this->amountText->xmlSerialize(true, $sxe->addChild('amountText'));
-        if (isset($this->referenceRange)) $this->referenceRange->xmlSerialize(true, $sxe->addChild('referenceRange'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->amountQuantity)) {
+            $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));
+        }
+        if (isset($this->amountRange)) {
+            $this->amountRange->xmlSerialize(true, $sxe->addChild('amountRange'));
+        }
+        if (isset($this->amountString)) {
+            $this->amountString->xmlSerialize(true, $sxe->addChild('amountString'));
+        }
+        if (isset($this->amountType)) {
+            $this->amountType->xmlSerialize(true, $sxe->addChild('amountType'));
+        }
+        if (isset($this->amountText)) {
+            $this->amountText->xmlSerialize(true, $sxe->addChild('amountText'));
+        }
+        if (isset($this->referenceRange)) {
+            $this->referenceRange->xmlSerialize(true, $sxe->addChild('referenceRange'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

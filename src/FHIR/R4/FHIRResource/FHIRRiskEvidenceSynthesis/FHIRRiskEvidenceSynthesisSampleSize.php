@@ -94,7 +94,8 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
      * Human-readable summary of sample size.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -103,7 +104,8 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
      * Number of studies included in this evidence synthesis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getNumberOfStudies() {
+    public function getNumberOfStudies()
+    {
         return $this->numberOfStudies;
     }
 
@@ -121,7 +124,8 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $numberOfStudies
      * @return $this
      */
-    public function setNumberOfStudies($numberOfStudies) {
+    public function setNumberOfStudies($numberOfStudies)
+    {
         $this->numberOfStudies = $numberOfStudies;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
      * Number of participants included in this evidence synthesis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getNumberOfParticipants() {
+    public function getNumberOfParticipants()
+    {
         return $this->numberOfParticipants;
     }
 
@@ -139,7 +144,8 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $numberOfParticipants
      * @return $this
      */
-    public function setNumberOfParticipants($numberOfParticipants) {
+    public function setNumberOfParticipants($numberOfParticipants)
+    {
         $this->numberOfParticipants = $numberOfParticipants;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -174,18 +182,26 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->numberOfStudies)) $json['numberOfStudies'] = $this->numberOfStudies;
-        if (isset($this->numberOfParticipants)) $json['numberOfParticipants'] = $this->numberOfParticipants;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->numberOfStudies)) {
+            $json['numberOfStudies'] = $this->numberOfStudies;
+        }
+        if (isset($this->numberOfParticipants)) {
+            $json['numberOfParticipants'] = $this->numberOfParticipants;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRRiskEvidenceSynthesisSampleSize extends FHIRBackboneElement implements
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesisSampleSize xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisSampleSize>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesisSampleSize xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisSampleSize>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->numberOfStudies)) $this->numberOfStudies->xmlSerialize(true, $sxe->addChild('numberOfStudies'));
-        if (isset($this->numberOfParticipants)) $this->numberOfParticipants->xmlSerialize(true, $sxe->addChild('numberOfParticipants'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->numberOfStudies)) {
+            $this->numberOfStudies->xmlSerialize(true, $sxe->addChild('numberOfStudies'));
+        }
+        if (isset($this->numberOfParticipants)) {
+            $this->numberOfParticipants->xmlSerialize(true, $sxe->addChild('numberOfParticipants'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -103,7 +103,8 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
      * A code that identifies the type of context being specified by this usage context.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -112,7 +113,8 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -120,7 +122,8 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getValueCodeableConcept() {
+    public function getValueCodeableConcept()
+    {
         return $this->valueCodeableConcept;
     }
 
@@ -128,7 +131,8 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $valueCodeableConcept
      * @return $this
      */
-    public function setValueCodeableConcept($valueCodeableConcept) {
+    public function setValueCodeableConcept($valueCodeableConcept)
+    {
         $this->valueCodeableConcept = $valueCodeableConcept;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValueQuantity() {
+    public function getValueQuantity()
+    {
         return $this->valueQuantity;
     }
 
@@ -144,7 +149,8 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
      * @return $this
      */
-    public function setValueQuantity($valueQuantity) {
+    public function setValueQuantity($valueQuantity)
+    {
         $this->valueQuantity = $valueQuantity;
         return $this;
     }
@@ -152,7 +158,8 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getValueRange() {
+    public function getValueRange()
+    {
         return $this->valueRange;
     }
 
@@ -160,7 +167,8 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $valueRange
      * @return $this
      */
-    public function setValueRange($valueRange) {
+    public function setValueRange($valueRange)
+    {
         $this->valueRange = $valueRange;
         return $this;
     }
@@ -168,7 +176,8 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getValueReference() {
+    public function getValueReference()
+    {
         return $this->valueReference;
     }
 
@@ -176,7 +185,8 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $valueReference
      * @return $this
      */
-    public function setValueReference($valueReference) {
+    public function setValueReference($valueReference)
+    {
         $this->valueReference = $valueReference;
         return $this;
     }
@@ -184,14 +194,16 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -217,20 +229,32 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->valueCodeableConcept)) $json['valueCodeableConcept'] = $this->valueCodeableConcept;
-        if (isset($this->valueQuantity)) $json['valueQuantity'] = $this->valueQuantity;
-        if (isset($this->valueRange)) $json['valueRange'] = $this->valueRange;
-        if (isset($this->valueReference)) $json['valueReference'] = $this->valueReference;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $json['valueCodeableConcept'] = $this->valueCodeableConcept;
+        }
+        if (isset($this->valueQuantity)) {
+            $json['valueQuantity'] = $this->valueQuantity;
+        }
+        if (isset($this->valueRange)) {
+            $json['valueRange'] = $this->valueRange;
+        }
+        if (isset($this->valueReference)) {
+            $json['valueReference'] = $this->valueReference;
+        }
         return $json;
     }
 
@@ -239,17 +263,30 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<UsageContext xmlns="http://hl7.org/fhir"></UsageContext>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<UsageContext xmlns="http://hl7.org/fhir"></UsageContext>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->valueCodeableConcept)) $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
-        if (isset($this->valueQuantity)) $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
-        if (isset($this->valueRange)) $this->valueRange->xmlSerialize(true, $sxe->addChild('valueRange'));
-        if (isset($this->valueReference)) $this->valueReference->xmlSerialize(true, $sxe->addChild('valueReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
+        }
+        if (isset($this->valueQuantity)) {
+            $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
+        }
+        if (isset($this->valueRange)) {
+            $this->valueRange->xmlSerialize(true, $sxe->addChild('valueRange'));
+        }
+        if (isset($this->valueReference)) {
+            $this->valueReference->xmlSerialize(true, $sxe->addChild('valueReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

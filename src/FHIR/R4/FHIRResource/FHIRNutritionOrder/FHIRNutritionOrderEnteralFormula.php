@@ -130,7 +130,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * The type of enteral or infant formula such as an adult standard formula with fiber or a soy-based infant formula.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getBaseFormulaType() {
+    public function getBaseFormulaType()
+    {
         return $this->baseFormulaType;
     }
 
@@ -139,7 +140,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $baseFormulaType
      * @return $this
      */
-    public function setBaseFormulaType($baseFormulaType) {
+    public function setBaseFormulaType($baseFormulaType)
+    {
         $this->baseFormulaType = $baseFormulaType;
         return $this;
     }
@@ -148,7 +150,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * The product or brand name of the enteral or infant formula product such as "ACME Adult Standard Formula".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getBaseFormulaProductName() {
+    public function getBaseFormulaProductName()
+    {
         return $this->baseFormulaProductName;
     }
 
@@ -157,7 +160,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $baseFormulaProductName
      * @return $this
      */
-    public function setBaseFormulaProductName($baseFormulaProductName) {
+    public function setBaseFormulaProductName($baseFormulaProductName)
+    {
         $this->baseFormulaProductName = $baseFormulaProductName;
         return $this;
     }
@@ -166,7 +170,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * Indicates the type of modular component such as protein, carbohydrate, fat or fiber to be provided in addition to or mixed with the base formula.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAdditiveType() {
+    public function getAdditiveType()
+    {
         return $this->additiveType;
     }
 
@@ -175,7 +180,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $additiveType
      * @return $this
      */
-    public function setAdditiveType($additiveType) {
+    public function setAdditiveType($additiveType)
+    {
         $this->additiveType = $additiveType;
         return $this;
     }
@@ -184,7 +190,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * The product or brand name of the type of modular component to be added to the formula.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAdditiveProductName() {
+    public function getAdditiveProductName()
+    {
         return $this->additiveProductName;
     }
 
@@ -193,7 +200,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $additiveProductName
      * @return $this
      */
-    public function setAdditiveProductName($additiveProductName) {
+    public function setAdditiveProductName($additiveProductName)
+    {
         $this->additiveProductName = $additiveProductName;
         return $this;
     }
@@ -202,7 +210,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * The amount of energy (calories) that the formula should provide per specified volume, typically per mL or fluid oz.  For example, an infant may require a formula that provides 24 calories per fluid ounce or an adult may require an enteral formula that provides 1.5 calorie/mL.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getCaloricDensity() {
+    public function getCaloricDensity()
+    {
         return $this->caloricDensity;
     }
 
@@ -211,7 +220,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $caloricDensity
      * @return $this
      */
-    public function setCaloricDensity($caloricDensity) {
+    public function setCaloricDensity($caloricDensity)
+    {
         $this->caloricDensity = $caloricDensity;
         return $this;
     }
@@ -220,7 +230,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * The route or physiological path of administration into the patient's gastrointestinal  tract for purposes of providing the formula feeding, e.g. nasogastric tube.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRouteofAdministration() {
+    public function getRouteofAdministration()
+    {
         return $this->routeofAdministration;
     }
 
@@ -229,7 +240,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $routeofAdministration
      * @return $this
      */
-    public function setRouteofAdministration($routeofAdministration) {
+    public function setRouteofAdministration($routeofAdministration)
+    {
         $this->routeofAdministration = $routeofAdministration;
         return $this;
     }
@@ -238,7 +250,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * Formula administration instructions as structured data.  This repeating structure allows for changing the administration rate or volume over time for both bolus and continuous feeding.  An example of this would be an instruction to increase the rate of continuous feeding every 2 hours.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderAdministration[]
      */
-    public function getAdministration() {
+    public function getAdministration()
+    {
         return $this->administration;
     }
 
@@ -247,7 +260,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderAdministration $administration
      * @return $this
      */
-    public function addAdministration($administration) {
+    public function addAdministration($administration)
+    {
         $this->administration[] = $administration;
         return $this;
     }
@@ -256,7 +270,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * The maximum total quantity of formula that may be administered to a subject over the period of time, e.g. 1440 mL over 24 hours.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getMaxVolumeToDeliver() {
+    public function getMaxVolumeToDeliver()
+    {
         return $this->maxVolumeToDeliver;
     }
 
@@ -265,7 +280,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $maxVolumeToDeliver
      * @return $this
      */
-    public function setMaxVolumeToDeliver($maxVolumeToDeliver) {
+    public function setMaxVolumeToDeliver($maxVolumeToDeliver)
+    {
         $this->maxVolumeToDeliver = $maxVolumeToDeliver;
         return $this;
     }
@@ -274,7 +290,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * Free text formula administration, feeding instructions or additional instructions or information.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAdministrationInstruction() {
+    public function getAdministrationInstruction()
+    {
         return $this->administrationInstruction;
     }
 
@@ -283,7 +300,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $administrationInstruction
      * @return $this
      */
-    public function setAdministrationInstruction($administrationInstruction) {
+    public function setAdministrationInstruction($administrationInstruction)
+    {
         $this->administrationInstruction = $administrationInstruction;
         return $this;
     }
@@ -291,14 +309,16 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['baseFormulaType'])) {
                 $this->setBaseFormulaType($data['baseFormulaType']);
@@ -320,7 +340,7 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
             }
             if (isset($data['administration'])) {
                 if (is_array($data['administration'])) {
-                    foreach($data['administration'] as $d) {
+                    foreach ($data['administration'] as $d) {
                         $this->addAdministration($d);
                     }
                 } else {
@@ -342,29 +362,47 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->baseFormulaType)) $json['baseFormulaType'] = $this->baseFormulaType;
-        if (isset($this->baseFormulaProductName)) $json['baseFormulaProductName'] = $this->baseFormulaProductName;
-        if (isset($this->additiveType)) $json['additiveType'] = $this->additiveType;
-        if (isset($this->additiveProductName)) $json['additiveProductName'] = $this->additiveProductName;
-        if (isset($this->caloricDensity)) $json['caloricDensity'] = $this->caloricDensity;
-        if (isset($this->routeofAdministration)) $json['routeofAdministration'] = $this->routeofAdministration;
+        if (isset($this->baseFormulaType)) {
+            $json['baseFormulaType'] = $this->baseFormulaType;
+        }
+        if (isset($this->baseFormulaProductName)) {
+            $json['baseFormulaProductName'] = $this->baseFormulaProductName;
+        }
+        if (isset($this->additiveType)) {
+            $json['additiveType'] = $this->additiveType;
+        }
+        if (isset($this->additiveProductName)) {
+            $json['additiveProductName'] = $this->additiveProductName;
+        }
+        if (isset($this->caloricDensity)) {
+            $json['caloricDensity'] = $this->caloricDensity;
+        }
+        if (isset($this->routeofAdministration)) {
+            $json['routeofAdministration'] = $this->routeofAdministration;
+        }
         if (0 < count($this->administration)) {
             $json['administration'] = [];
-            foreach($this->administration as $administration) {
+            foreach ($this->administration as $administration) {
                 $json['administration'][] = $administration;
             }
         }
-        if (isset($this->maxVolumeToDeliver)) $json['maxVolumeToDeliver'] = $this->maxVolumeToDeliver;
-        if (isset($this->administrationInstruction)) $json['administrationInstruction'] = $this->administrationInstruction;
+        if (isset($this->maxVolumeToDeliver)) {
+            $json['maxVolumeToDeliver'] = $this->maxVolumeToDeliver;
+        }
+        if (isset($this->administrationInstruction)) {
+            $json['administrationInstruction'] = $this->administrationInstruction;
+        }
         return $json;
     }
 
@@ -373,25 +411,44 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<NutritionOrderEnteralFormula xmlns="http://hl7.org/fhir"></NutritionOrderEnteralFormula>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<NutritionOrderEnteralFormula xmlns="http://hl7.org/fhir"></NutritionOrderEnteralFormula>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->baseFormulaType)) $this->baseFormulaType->xmlSerialize(true, $sxe->addChild('baseFormulaType'));
-        if (isset($this->baseFormulaProductName)) $this->baseFormulaProductName->xmlSerialize(true, $sxe->addChild('baseFormulaProductName'));
-        if (isset($this->additiveType)) $this->additiveType->xmlSerialize(true, $sxe->addChild('additiveType'));
-        if (isset($this->additiveProductName)) $this->additiveProductName->xmlSerialize(true, $sxe->addChild('additiveProductName'));
-        if (isset($this->caloricDensity)) $this->caloricDensity->xmlSerialize(true, $sxe->addChild('caloricDensity'));
-        if (isset($this->routeofAdministration)) $this->routeofAdministration->xmlSerialize(true, $sxe->addChild('routeofAdministration'));
+        if (isset($this->baseFormulaType)) {
+            $this->baseFormulaType->xmlSerialize(true, $sxe->addChild('baseFormulaType'));
+        }
+        if (isset($this->baseFormulaProductName)) {
+            $this->baseFormulaProductName->xmlSerialize(true, $sxe->addChild('baseFormulaProductName'));
+        }
+        if (isset($this->additiveType)) {
+            $this->additiveType->xmlSerialize(true, $sxe->addChild('additiveType'));
+        }
+        if (isset($this->additiveProductName)) {
+            $this->additiveProductName->xmlSerialize(true, $sxe->addChild('additiveProductName'));
+        }
+        if (isset($this->caloricDensity)) {
+            $this->caloricDensity->xmlSerialize(true, $sxe->addChild('caloricDensity'));
+        }
+        if (isset($this->routeofAdministration)) {
+            $this->routeofAdministration->xmlSerialize(true, $sxe->addChild('routeofAdministration'));
+        }
         if (0 < count($this->administration)) {
-            foreach($this->administration as $administration) {
+            foreach ($this->administration as $administration) {
                 $administration->xmlSerialize(true, $sxe->addChild('administration'));
             }
         }
-        if (isset($this->maxVolumeToDeliver)) $this->maxVolumeToDeliver->xmlSerialize(true, $sxe->addChild('maxVolumeToDeliver'));
-        if (isset($this->administrationInstruction)) $this->administrationInstruction->xmlSerialize(true, $sxe->addChild('administrationInstruction'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->maxVolumeToDeliver)) {
+            $this->maxVolumeToDeliver->xmlSerialize(true, $sxe->addChild('maxVolumeToDeliver'));
+        }
+        if (isset($this->administrationInstruction)) {
+            $this->administrationInstruction->xmlSerialize(true, $sxe->addChild('administrationInstruction'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

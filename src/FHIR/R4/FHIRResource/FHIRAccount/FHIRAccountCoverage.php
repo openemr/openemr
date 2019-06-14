@@ -92,7 +92,8 @@ A coverage may only be responsible for specific types of charges, and the sequen
 A coverage may only be responsible for specific types of charges, and the sequence of the coverages in the account could be important when processing billing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCoverage() {
+    public function getCoverage()
+    {
         return $this->coverage;
     }
 
@@ -103,7 +104,8 @@ A coverage may only be responsible for specific types of charges, and the sequen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $coverage
      * @return $this
      */
-    public function setCoverage($coverage) {
+    public function setCoverage($coverage)
+    {
         $this->coverage = $coverage;
         return $this;
     }
@@ -112,7 +114,8 @@ A coverage may only be responsible for specific types of charges, and the sequen
      * The priority of the coverage in the context of this account.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getPriority() {
+    public function getPriority()
+    {
         return $this->priority;
     }
 
@@ -121,7 +124,8 @@ A coverage may only be responsible for specific types of charges, and the sequen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $priority
      * @return $this
      */
-    public function setPriority($priority) {
+    public function setPriority($priority)
+    {
         $this->priority = $priority;
         return $this;
     }
@@ -129,14 +133,16 @@ A coverage may only be responsible for specific types of charges, and the sequen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['coverage'])) {
                 $this->setCoverage($data['coverage']);
@@ -153,17 +159,23 @@ A coverage may only be responsible for specific types of charges, and the sequen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->coverage)) $json['coverage'] = $this->coverage;
-        if (isset($this->priority)) $json['priority'] = $this->priority;
+        if (isset($this->coverage)) {
+            $json['coverage'] = $this->coverage;
+        }
+        if (isset($this->priority)) {
+            $json['priority'] = $this->priority;
+        }
         return $json;
     }
 
@@ -172,14 +184,21 @@ A coverage may only be responsible for specific types of charges, and the sequen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<AccountCoverage xmlns="http://hl7.org/fhir"></AccountCoverage>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<AccountCoverage xmlns="http://hl7.org/fhir"></AccountCoverage>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->coverage)) $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
-        if (isset($this->priority)) $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->coverage)) {
+            $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
+        }
+        if (isset($this->priority)) {
+            $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

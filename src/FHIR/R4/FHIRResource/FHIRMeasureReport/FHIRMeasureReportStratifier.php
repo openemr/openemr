@@ -88,7 +88,8 @@ class FHIRMeasureReportStratifier extends FHIRBackboneElement implements \JsonSe
      * The meaning of this stratifier, as defined in the measure definition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -97,7 +98,8 @@ class FHIRMeasureReportStratifier extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMeasureReportStratifier extends FHIRBackboneElement implements \JsonSe
      * This element contains the results for a single stratum within the stratifier. For example, when stratifying on administrative gender, there will be four strata, one for each possible gender value.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMeasureReport\FHIRMeasureReportStratum[]
      */
-    public function getStratum() {
+    public function getStratum()
+    {
         return $this->stratum;
     }
 
@@ -115,7 +118,8 @@ class FHIRMeasureReportStratifier extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMeasureReport\FHIRMeasureReportStratum $stratum
      * @return $this
      */
-    public function addStratum($stratum) {
+    public function addStratum($stratum)
+    {
         $this->stratum[] = $stratum;
         return $this;
     }
@@ -123,18 +127,20 @@ class FHIRMeasureReportStratifier extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -143,7 +149,7 @@ class FHIRMeasureReportStratifier extends FHIRBackboneElement implements \JsonSe
             }
             if (isset($data['stratum'])) {
                 if (is_array($data['stratum'])) {
-                    foreach($data['stratum'] as $d) {
+                    foreach ($data['stratum'] as $d) {
                         $this->addStratum($d);
                     }
                 } else {
@@ -159,24 +165,26 @@ class FHIRMeasureReportStratifier extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
         if (0 < count($this->stratum)) {
             $json['stratum'] = [];
-            foreach($this->stratum as $stratum) {
+            foreach ($this->stratum as $stratum) {
                 $json['stratum'][] = $stratum;
             }
         }
@@ -188,22 +196,25 @@ class FHIRMeasureReportStratifier extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MeasureReportStratifier xmlns="http://hl7.org/fhir"></MeasureReportStratifier>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MeasureReportStratifier xmlns="http://hl7.org/fhir"></MeasureReportStratifier>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
         if (0 < count($this->stratum)) {
-            foreach($this->stratum as $stratum) {
+            foreach ($this->stratum as $stratum) {
                 $stratum->xmlSerialize(true, $sxe->addChild('stratum'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

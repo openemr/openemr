@@ -283,7 +283,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Unique identifier for this Contract or a derivative that references a Source Contract.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -292,7 +293,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -301,7 +303,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Canonical identifier for this contract, represented as a URI (globally unique).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -310,7 +313,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -319,7 +323,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * An edition identifier used for business purposes to label business significant variants.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -328,7 +333,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -337,7 +343,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * The status of the resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContractResourceStatusCodes
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -346,7 +353,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContractResourceStatusCodes $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -355,7 +363,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Legal states of the formation of a legal instrument, which is a formally executed written document that can be formally attributed to its author, records and formally expresses a legally enforceable act, process, or contractual duty, obligation, or right, and therefore evidences that act, process, or agreement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getLegalState() {
+    public function getLegalState()
+    {
         return $this->legalState;
     }
 
@@ -364,7 +373,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $legalState
      * @return $this
      */
-    public function setLegalState($legalState) {
+    public function setLegalState($legalState)
+    {
         $this->legalState = $legalState;
         return $this;
     }
@@ -373,7 +383,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * The URL pointing to a FHIR-defined Contract Definition that is adhered to in whole or part by this Contract.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getInstantiatesCanonical() {
+    public function getInstantiatesCanonical()
+    {
         return $this->instantiatesCanonical;
     }
 
@@ -382,7 +393,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $instantiatesCanonical
      * @return $this
      */
-    public function setInstantiatesCanonical($instantiatesCanonical) {
+    public function setInstantiatesCanonical($instantiatesCanonical)
+    {
         $this->instantiatesCanonical = $instantiatesCanonical;
         return $this;
     }
@@ -391,7 +403,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * The URL pointing to an externally maintained definition that is adhered to in whole or in part by this Contract.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getInstantiatesUri() {
+    public function getInstantiatesUri()
+    {
         return $this->instantiatesUri;
     }
 
@@ -400,7 +413,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $instantiatesUri
      * @return $this
      */
-    public function setInstantiatesUri($instantiatesUri) {
+    public function setInstantiatesUri($instantiatesUri)
+    {
         $this->instantiatesUri = $instantiatesUri;
         return $this;
     }
@@ -409,7 +423,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * The minimal content derived from the basal information source at a specific stage in its lifecycle.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getContentDerivative() {
+    public function getContentDerivative()
+    {
         return $this->contentDerivative;
     }
 
@@ -418,7 +433,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $contentDerivative
      * @return $this
      */
-    public function setContentDerivative($contentDerivative) {
+    public function setContentDerivative($contentDerivative)
+    {
         $this->contentDerivative = $contentDerivative;
         return $this;
     }
@@ -427,7 +443,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * When this  Contract was issued.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getIssued() {
+    public function getIssued()
+    {
         return $this->issued;
     }
 
@@ -436,7 +453,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $issued
      * @return $this
      */
-    public function setIssued($issued) {
+    public function setIssued($issued)
+    {
         $this->issued = $issued;
         return $this;
     }
@@ -445,7 +463,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Relevant time or time-period when this Contract is applicable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getApplies() {
+    public function getApplies()
+    {
         return $this->applies;
     }
 
@@ -454,7 +473,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $applies
      * @return $this
      */
-    public function setApplies($applies) {
+    public function setApplies($applies)
+    {
         $this->applies = $applies;
         return $this;
     }
@@ -463,7 +483,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Event resulting in discontinuation or termination of this Contract instance by one or more parties to the contract.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getExpirationType() {
+    public function getExpirationType()
+    {
         return $this->expirationType;
     }
 
@@ -472,7 +493,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $expirationType
      * @return $this
      */
-    public function setExpirationType($expirationType) {
+    public function setExpirationType($expirationType)
+    {
         $this->expirationType = $expirationType;
         return $this;
     }
@@ -481,7 +503,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * The target entity impacted by or of interest to parties to the agreement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -490,7 +513,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function addSubject($subject) {
+    public function addSubject($subject)
+    {
         $this->subject[] = $subject;
         return $this;
     }
@@ -499,7 +523,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * A formally or informally recognized grouping of people, principals, organizations, or jurisdictions formed for the purpose of achieving some form of collective action such as the promulgation, administration and enforcement of contracts and policies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getAuthority() {
+    public function getAuthority()
+    {
         return $this->authority;
     }
 
@@ -508,7 +533,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $authority
      * @return $this
      */
-    public function addAuthority($authority) {
+    public function addAuthority($authority)
+    {
         $this->authority[] = $authority;
         return $this;
     }
@@ -517,7 +543,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Recognized governance framework or system operating with a circumscribed scope in accordance with specified principles, policies, processes or procedures for managing rights, actions, or behaviors of parties or principals relative to resources.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getDomain() {
+    public function getDomain()
+    {
         return $this->domain;
     }
 
@@ -526,7 +553,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $domain
      * @return $this
      */
-    public function addDomain($domain) {
+    public function addDomain($domain)
+    {
         $this->domain[] = $domain;
         return $this;
     }
@@ -535,7 +563,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Sites in which the contract is complied with,  exercised, or in force.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSite() {
+    public function getSite()
+    {
         return $this->site;
     }
 
@@ -544,7 +573,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $site
      * @return $this
      */
-    public function addSite($site) {
+    public function addSite($site)
+    {
         $this->site[] = $site;
         return $this;
     }
@@ -553,7 +583,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * A natural language name identifying this Contract definition, derivative, or instance in any legal state. Provides additional information about its content. This name should be usable as an identifier for the module by machine processing applications such as code generation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -562,7 +593,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -571,7 +603,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * A short, descriptive, user-friendly title for this Contract definition, derivative, or instance in any legal state.t giving additional information about its content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -580,7 +613,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -589,7 +623,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * An explanatory or alternate user-friendly title for this Contract definition, derivative, or instance in any legal state.t giving additional information about its content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSubtitle() {
+    public function getSubtitle()
+    {
         return $this->subtitle;
     }
 
@@ -598,7 +633,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $subtitle
      * @return $this
      */
-    public function setSubtitle($subtitle) {
+    public function setSubtitle($subtitle)
+    {
         $this->subtitle = $subtitle;
         return $this;
     }
@@ -607,7 +643,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Alternative representation of the title for this Contract definition, derivative, or instance in any legal state., e.g., a domain specific contract number related to legislation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getAlias() {
+    public function getAlias()
+    {
         return $this->alias;
     }
 
@@ -616,7 +653,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $alias
      * @return $this
      */
-    public function addAlias($alias) {
+    public function addAlias($alias)
+    {
         $this->alias[] = $alias;
         return $this;
     }
@@ -625,7 +663,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * The individual or organization that authored the Contract definition, derivative, or instance in any legal state.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
@@ -634,7 +673,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $author
      * @return $this
      */
-    public function setAuthor($author) {
+    public function setAuthor($author)
+    {
         $this->author = $author;
         return $this;
     }
@@ -643,7 +683,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * A selector of legal concerns for this Contract definition, derivative, or instance in any legal state.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getScope() {
+    public function getScope()
+    {
         return $this->scope;
     }
 
@@ -652,7 +693,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $scope
      * @return $this
      */
-    public function setScope($scope) {
+    public function setScope($scope)
+    {
         $this->scope = $scope;
         return $this;
     }
@@ -660,7 +702,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getTopicCodeableConcept() {
+    public function getTopicCodeableConcept()
+    {
         return $this->topicCodeableConcept;
     }
 
@@ -668,7 +711,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $topicCodeableConcept
      * @return $this
      */
-    public function setTopicCodeableConcept($topicCodeableConcept) {
+    public function setTopicCodeableConcept($topicCodeableConcept)
+    {
         $this->topicCodeableConcept = $topicCodeableConcept;
         return $this;
     }
@@ -676,7 +720,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getTopicReference() {
+    public function getTopicReference()
+    {
         return $this->topicReference;
     }
 
@@ -684,7 +729,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $topicReference
      * @return $this
      */
-    public function setTopicReference($topicReference) {
+    public function setTopicReference($topicReference)
+    {
         $this->topicReference = $topicReference;
         return $this;
     }
@@ -693,7 +739,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * A high-level category for the legal instrument, whether constructed as a Contract definition, derivative, or instance in any legal state.  Provides additional information about its content within the context of the Contract's scope to distinguish the kinds of systems that would be interested in the contract.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -702,7 +749,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -711,7 +759,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Sub-category for the Contract that distinguishes the kinds of systems that would be interested in the Contract within the context of the Contract's scope.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getSubType() {
+    public function getSubType()
+    {
         return $this->subType;
     }
 
@@ -720,7 +769,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $subType
      * @return $this
      */
-    public function addSubType($subType) {
+    public function addSubType($subType)
+    {
         $this->subType[] = $subType;
         return $this;
     }
@@ -729,7 +779,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Precusory content developed with a focus and intent of supporting the formation a Contract instance, which may be associated with and transformable into a Contract.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractContentDefinition
      */
-    public function getContentDefinition() {
+    public function getContentDefinition()
+    {
         return $this->contentDefinition;
     }
 
@@ -738,7 +789,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractContentDefinition $contentDefinition
      * @return $this
      */
-    public function setContentDefinition($contentDefinition) {
+    public function setContentDefinition($contentDefinition)
+    {
         $this->contentDefinition = $contentDefinition;
         return $this;
     }
@@ -747,7 +799,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * One or more Contract Provisions, which may be related and conveyed as a group, and may contain nested groups.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractTerm[]
      */
-    public function getTerm() {
+    public function getTerm()
+    {
         return $this->term;
     }
 
@@ -756,7 +809,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractTerm $term
      * @return $this
      */
-    public function addTerm($term) {
+    public function addTerm($term)
+    {
         $this->term[] = $term;
         return $this;
     }
@@ -765,7 +819,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Information that may be needed by/relevant to the performer in their execution of this term action.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSupportingInfo() {
+    public function getSupportingInfo()
+    {
         return $this->supportingInfo;
     }
 
@@ -774,7 +829,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $supportingInfo
      * @return $this
      */
-    public function addSupportingInfo($supportingInfo) {
+    public function addSupportingInfo($supportingInfo)
+    {
         $this->supportingInfo[] = $supportingInfo;
         return $this;
     }
@@ -783,7 +839,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Links to Provenance records for past versions of this Contract definition, derivative, or instance, which identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the Contract.  The Provence.entity indicates the target that was changed in the update. http://build.fhir.org/provenance-definitions.html#Provenance.entity.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getRelevantHistory() {
+    public function getRelevantHistory()
+    {
         return $this->relevantHistory;
     }
 
@@ -792,7 +849,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $relevantHistory
      * @return $this
      */
-    public function addRelevantHistory($relevantHistory) {
+    public function addRelevantHistory($relevantHistory)
+    {
         $this->relevantHistory[] = $relevantHistory;
         return $this;
     }
@@ -801,7 +859,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * Parties with legal standing in the Contract, including the principal parties, the grantor(s) and grantee(s), which are any person or organization bound by the contract, and any ancillary parties, which facilitate the execution of the contract such as a notary or witness.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractSigner[]
      */
-    public function getSigner() {
+    public function getSigner()
+    {
         return $this->signer;
     }
 
@@ -810,7 +869,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractSigner $signer
      * @return $this
      */
-    public function addSigner($signer) {
+    public function addSigner($signer)
+    {
         $this->signer[] = $signer;
         return $this;
     }
@@ -819,7 +879,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * The "patient friendly language" versionof the Contract in whole or in parts. "Patient friendly language" means the representation of the Contract and Contract Provisions in a manner that is readily accessible and understandable by a layperson in accordance with best practices for communication styles that ensure that those agreeing to or signing the Contract understand the roles, actions, obligations, responsibilities, and implication of the agreement.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractFriendly[]
      */
-    public function getFriendly() {
+    public function getFriendly()
+    {
         return $this->friendly;
     }
 
@@ -828,7 +889,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractFriendly $friendly
      * @return $this
      */
-    public function addFriendly($friendly) {
+    public function addFriendly($friendly)
+    {
         $this->friendly[] = $friendly;
         return $this;
     }
@@ -837,7 +899,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * List of Legal expressions or representations of this Contract.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractLegal[]
      */
-    public function getLegal() {
+    public function getLegal()
+    {
         return $this->legal;
     }
 
@@ -846,7 +909,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractLegal $legal
      * @return $this
      */
-    public function addLegal($legal) {
+    public function addLegal($legal)
+    {
         $this->legal[] = $legal;
         return $this;
     }
@@ -855,7 +919,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * List of Computable Policy Rule Language Representations of this Contract.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractRule[]
      */
-    public function getRule() {
+    public function getRule()
+    {
         return $this->rule;
     }
 
@@ -864,7 +929,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractRule $rule
      * @return $this
      */
-    public function addRule($rule) {
+    public function addRule($rule)
+    {
         $this->rule[] = $rule;
         return $this;
     }
@@ -872,7 +938,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getLegallyBindingAttachment() {
+    public function getLegallyBindingAttachment()
+    {
         return $this->legallyBindingAttachment;
     }
 
@@ -880,7 +947,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $legallyBindingAttachment
      * @return $this
      */
-    public function setLegallyBindingAttachment($legallyBindingAttachment) {
+    public function setLegallyBindingAttachment($legallyBindingAttachment)
+    {
         $this->legallyBindingAttachment = $legallyBindingAttachment;
         return $this;
     }
@@ -888,7 +956,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getLegallyBindingReference() {
+    public function getLegallyBindingReference()
+    {
         return $this->legallyBindingReference;
     }
 
@@ -896,7 +965,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $legallyBindingReference
      * @return $this
      */
-    public function setLegallyBindingReference($legallyBindingReference) {
+    public function setLegallyBindingReference($legallyBindingReference)
+    {
         $this->legallyBindingReference = $legallyBindingReference;
         return $this;
     }
@@ -904,18 +974,20 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -954,7 +1026,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['subject'])) {
                 if (is_array($data['subject'])) {
-                    foreach($data['subject'] as $d) {
+                    foreach ($data['subject'] as $d) {
                         $this->addSubject($d);
                     }
                 } else {
@@ -963,7 +1035,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['authority'])) {
                 if (is_array($data['authority'])) {
-                    foreach($data['authority'] as $d) {
+                    foreach ($data['authority'] as $d) {
                         $this->addAuthority($d);
                     }
                 } else {
@@ -972,7 +1044,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['domain'])) {
                 if (is_array($data['domain'])) {
-                    foreach($data['domain'] as $d) {
+                    foreach ($data['domain'] as $d) {
                         $this->addDomain($d);
                     }
                 } else {
@@ -981,7 +1053,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['site'])) {
                 if (is_array($data['site'])) {
-                    foreach($data['site'] as $d) {
+                    foreach ($data['site'] as $d) {
                         $this->addSite($d);
                     }
                 } else {
@@ -999,7 +1071,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['alias'])) {
                 if (is_array($data['alias'])) {
-                    foreach($data['alias'] as $d) {
+                    foreach ($data['alias'] as $d) {
                         $this->addAlias($d);
                     }
                 } else {
@@ -1023,7 +1095,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['subType'])) {
                 if (is_array($data['subType'])) {
-                    foreach($data['subType'] as $d) {
+                    foreach ($data['subType'] as $d) {
                         $this->addSubType($d);
                     }
                 } else {
@@ -1035,7 +1107,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['term'])) {
                 if (is_array($data['term'])) {
-                    foreach($data['term'] as $d) {
+                    foreach ($data['term'] as $d) {
                         $this->addTerm($d);
                     }
                 } else {
@@ -1044,7 +1116,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['supportingInfo'])) {
                 if (is_array($data['supportingInfo'])) {
-                    foreach($data['supportingInfo'] as $d) {
+                    foreach ($data['supportingInfo'] as $d) {
                         $this->addSupportingInfo($d);
                     }
                 } else {
@@ -1053,7 +1125,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['relevantHistory'])) {
                 if (is_array($data['relevantHistory'])) {
-                    foreach($data['relevantHistory'] as $d) {
+                    foreach ($data['relevantHistory'] as $d) {
                         $this->addRelevantHistory($d);
                     }
                 } else {
@@ -1062,7 +1134,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['signer'])) {
                 if (is_array($data['signer'])) {
-                    foreach($data['signer'] as $d) {
+                    foreach ($data['signer'] as $d) {
                         $this->addSigner($d);
                     }
                 } else {
@@ -1071,7 +1143,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['friendly'])) {
                 if (is_array($data['friendly'])) {
-                    foreach($data['friendly'] as $d) {
+                    foreach ($data['friendly'] as $d) {
                         $this->addFriendly($d);
                     }
                 } else {
@@ -1080,7 +1152,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['legal'])) {
                 if (is_array($data['legal'])) {
-                    foreach($data['legal'] as $d) {
+                    foreach ($data['legal'] as $d) {
                         $this->addLegal($d);
                     }
                 } else {
@@ -1089,7 +1161,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['rule'])) {
                 if (is_array($data['rule'])) {
-                    foreach($data['rule'] as $d) {
+                    foreach ($data['rule'] as $d) {
                         $this->addRule($d);
                     }
                 } else {
@@ -1111,121 +1183,165 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->url)) $json['url'] = $this->url;
-        if (isset($this->version)) $json['version'] = $this->version;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->legalState)) $json['legalState'] = $this->legalState;
-        if (isset($this->instantiatesCanonical)) $json['instantiatesCanonical'] = $this->instantiatesCanonical;
-        if (isset($this->instantiatesUri)) $json['instantiatesUri'] = $this->instantiatesUri;
-        if (isset($this->contentDerivative)) $json['contentDerivative'] = $this->contentDerivative;
-        if (isset($this->issued)) $json['issued'] = $this->issued;
-        if (isset($this->applies)) $json['applies'] = $this->applies;
-        if (isset($this->expirationType)) $json['expirationType'] = $this->expirationType;
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->legalState)) {
+            $json['legalState'] = $this->legalState;
+        }
+        if (isset($this->instantiatesCanonical)) {
+            $json['instantiatesCanonical'] = $this->instantiatesCanonical;
+        }
+        if (isset($this->instantiatesUri)) {
+            $json['instantiatesUri'] = $this->instantiatesUri;
+        }
+        if (isset($this->contentDerivative)) {
+            $json['contentDerivative'] = $this->contentDerivative;
+        }
+        if (isset($this->issued)) {
+            $json['issued'] = $this->issued;
+        }
+        if (isset($this->applies)) {
+            $json['applies'] = $this->applies;
+        }
+        if (isset($this->expirationType)) {
+            $json['expirationType'] = $this->expirationType;
+        }
         if (0 < count($this->subject)) {
             $json['subject'] = [];
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $json['subject'][] = $subject;
             }
         }
         if (0 < count($this->authority)) {
             $json['authority'] = [];
-            foreach($this->authority as $authority) {
+            foreach ($this->authority as $authority) {
                 $json['authority'][] = $authority;
             }
         }
         if (0 < count($this->domain)) {
             $json['domain'] = [];
-            foreach($this->domain as $domain) {
+            foreach ($this->domain as $domain) {
                 $json['domain'][] = $domain;
             }
         }
         if (0 < count($this->site)) {
             $json['site'] = [];
-            foreach($this->site as $site) {
+            foreach ($this->site as $site) {
                 $json['site'][] = $site;
             }
         }
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->subtitle)) $json['subtitle'] = $this->subtitle;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->subtitle)) {
+            $json['subtitle'] = $this->subtitle;
+        }
         if (0 < count($this->alias)) {
             $json['alias'] = [];
-            foreach($this->alias as $alias) {
+            foreach ($this->alias as $alias) {
                 $json['alias'][] = $alias;
             }
         }
-        if (isset($this->author)) $json['author'] = $this->author;
-        if (isset($this->scope)) $json['scope'] = $this->scope;
-        if (isset($this->topicCodeableConcept)) $json['topicCodeableConcept'] = $this->topicCodeableConcept;
-        if (isset($this->topicReference)) $json['topicReference'] = $this->topicReference;
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->author)) {
+            $json['author'] = $this->author;
+        }
+        if (isset($this->scope)) {
+            $json['scope'] = $this->scope;
+        }
+        if (isset($this->topicCodeableConcept)) {
+            $json['topicCodeableConcept'] = $this->topicCodeableConcept;
+        }
+        if (isset($this->topicReference)) {
+            $json['topicReference'] = $this->topicReference;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->subType)) {
             $json['subType'] = [];
-            foreach($this->subType as $subType) {
+            foreach ($this->subType as $subType) {
                 $json['subType'][] = $subType;
             }
         }
-        if (isset($this->contentDefinition)) $json['contentDefinition'] = $this->contentDefinition;
+        if (isset($this->contentDefinition)) {
+            $json['contentDefinition'] = $this->contentDefinition;
+        }
         if (0 < count($this->term)) {
             $json['term'] = [];
-            foreach($this->term as $term) {
+            foreach ($this->term as $term) {
                 $json['term'][] = $term;
             }
         }
         if (0 < count($this->supportingInfo)) {
             $json['supportingInfo'] = [];
-            foreach($this->supportingInfo as $supportingInfo) {
+            foreach ($this->supportingInfo as $supportingInfo) {
                 $json['supportingInfo'][] = $supportingInfo;
             }
         }
         if (0 < count($this->relevantHistory)) {
             $json['relevantHistory'] = [];
-            foreach($this->relevantHistory as $relevantHistory) {
+            foreach ($this->relevantHistory as $relevantHistory) {
                 $json['relevantHistory'][] = $relevantHistory;
             }
         }
         if (0 < count($this->signer)) {
             $json['signer'] = [];
-            foreach($this->signer as $signer) {
+            foreach ($this->signer as $signer) {
                 $json['signer'][] = $signer;
             }
         }
         if (0 < count($this->friendly)) {
             $json['friendly'] = [];
-            foreach($this->friendly as $friendly) {
+            foreach ($this->friendly as $friendly) {
                 $json['friendly'][] = $friendly;
             }
         }
         if (0 < count($this->legal)) {
             $json['legal'] = [];
-            foreach($this->legal as $legal) {
+            foreach ($this->legal as $legal) {
                 $json['legal'][] = $legal;
             }
         }
         if (0 < count($this->rule)) {
             $json['rule'] = [];
-            foreach($this->rule as $rule) {
+            foreach ($this->rule as $rule) {
                 $json['rule'][] = $rule;
             }
         }
-        if (isset($this->legallyBindingAttachment)) $json['legallyBindingAttachment'] = $this->legallyBindingAttachment;
-        if (isset($this->legallyBindingReference)) $json['legallyBindingReference'] = $this->legallyBindingReference;
+        if (isset($this->legallyBindingAttachment)) {
+            $json['legallyBindingAttachment'] = $this->legallyBindingAttachment;
+        }
+        if (isset($this->legallyBindingReference)) {
+            $json['legallyBindingReference'] = $this->legallyBindingReference;
+        }
         return $json;
     }
 
@@ -1234,103 +1350,148 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Contract xmlns="http://hl7.org/fhir"></Contract>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Contract xmlns="http://hl7.org/fhir"></Contract>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->legalState)) $this->legalState->xmlSerialize(true, $sxe->addChild('legalState'));
-        if (isset($this->instantiatesCanonical)) $this->instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
-        if (isset($this->instantiatesUri)) $this->instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
-        if (isset($this->contentDerivative)) $this->contentDerivative->xmlSerialize(true, $sxe->addChild('contentDerivative'));
-        if (isset($this->issued)) $this->issued->xmlSerialize(true, $sxe->addChild('issued'));
-        if (isset($this->applies)) $this->applies->xmlSerialize(true, $sxe->addChild('applies'));
-        if (isset($this->expirationType)) $this->expirationType->xmlSerialize(true, $sxe->addChild('expirationType'));
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->legalState)) {
+            $this->legalState->xmlSerialize(true, $sxe->addChild('legalState'));
+        }
+        if (isset($this->instantiatesCanonical)) {
+            $this->instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
+        }
+        if (isset($this->instantiatesUri)) {
+            $this->instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
+        }
+        if (isset($this->contentDerivative)) {
+            $this->contentDerivative->xmlSerialize(true, $sxe->addChild('contentDerivative'));
+        }
+        if (isset($this->issued)) {
+            $this->issued->xmlSerialize(true, $sxe->addChild('issued'));
+        }
+        if (isset($this->applies)) {
+            $this->applies->xmlSerialize(true, $sxe->addChild('applies'));
+        }
+        if (isset($this->expirationType)) {
+            $this->expirationType->xmlSerialize(true, $sxe->addChild('expirationType'));
+        }
         if (0 < count($this->subject)) {
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $subject->xmlSerialize(true, $sxe->addChild('subject'));
             }
         }
         if (0 < count($this->authority)) {
-            foreach($this->authority as $authority) {
+            foreach ($this->authority as $authority) {
                 $authority->xmlSerialize(true, $sxe->addChild('authority'));
             }
         }
         if (0 < count($this->domain)) {
-            foreach($this->domain as $domain) {
+            foreach ($this->domain as $domain) {
                 $domain->xmlSerialize(true, $sxe->addChild('domain'));
             }
         }
         if (0 < count($this->site)) {
-            foreach($this->site as $site) {
+            foreach ($this->site as $site) {
                 $site->xmlSerialize(true, $sxe->addChild('site'));
             }
         }
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->subtitle)) $this->subtitle->xmlSerialize(true, $sxe->addChild('subtitle'));
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->subtitle)) {
+            $this->subtitle->xmlSerialize(true, $sxe->addChild('subtitle'));
+        }
         if (0 < count($this->alias)) {
-            foreach($this->alias as $alias) {
+            foreach ($this->alias as $alias) {
                 $alias->xmlSerialize(true, $sxe->addChild('alias'));
             }
         }
-        if (isset($this->author)) $this->author->xmlSerialize(true, $sxe->addChild('author'));
-        if (isset($this->scope)) $this->scope->xmlSerialize(true, $sxe->addChild('scope'));
-        if (isset($this->topicCodeableConcept)) $this->topicCodeableConcept->xmlSerialize(true, $sxe->addChild('topicCodeableConcept'));
-        if (isset($this->topicReference)) $this->topicReference->xmlSerialize(true, $sxe->addChild('topicReference'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->author)) {
+            $this->author->xmlSerialize(true, $sxe->addChild('author'));
+        }
+        if (isset($this->scope)) {
+            $this->scope->xmlSerialize(true, $sxe->addChild('scope'));
+        }
+        if (isset($this->topicCodeableConcept)) {
+            $this->topicCodeableConcept->xmlSerialize(true, $sxe->addChild('topicCodeableConcept'));
+        }
+        if (isset($this->topicReference)) {
+            $this->topicReference->xmlSerialize(true, $sxe->addChild('topicReference'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->subType)) {
-            foreach($this->subType as $subType) {
+            foreach ($this->subType as $subType) {
                 $subType->xmlSerialize(true, $sxe->addChild('subType'));
             }
         }
-        if (isset($this->contentDefinition)) $this->contentDefinition->xmlSerialize(true, $sxe->addChild('contentDefinition'));
+        if (isset($this->contentDefinition)) {
+            $this->contentDefinition->xmlSerialize(true, $sxe->addChild('contentDefinition'));
+        }
         if (0 < count($this->term)) {
-            foreach($this->term as $term) {
+            foreach ($this->term as $term) {
                 $term->xmlSerialize(true, $sxe->addChild('term'));
             }
         }
         if (0 < count($this->supportingInfo)) {
-            foreach($this->supportingInfo as $supportingInfo) {
+            foreach ($this->supportingInfo as $supportingInfo) {
                 $supportingInfo->xmlSerialize(true, $sxe->addChild('supportingInfo'));
             }
         }
         if (0 < count($this->relevantHistory)) {
-            foreach($this->relevantHistory as $relevantHistory) {
+            foreach ($this->relevantHistory as $relevantHistory) {
                 $relevantHistory->xmlSerialize(true, $sxe->addChild('relevantHistory'));
             }
         }
         if (0 < count($this->signer)) {
-            foreach($this->signer as $signer) {
+            foreach ($this->signer as $signer) {
                 $signer->xmlSerialize(true, $sxe->addChild('signer'));
             }
         }
         if (0 < count($this->friendly)) {
-            foreach($this->friendly as $friendly) {
+            foreach ($this->friendly as $friendly) {
                 $friendly->xmlSerialize(true, $sxe->addChild('friendly'));
             }
         }
         if (0 < count($this->legal)) {
-            foreach($this->legal as $legal) {
+            foreach ($this->legal as $legal) {
                 $legal->xmlSerialize(true, $sxe->addChild('legal'));
             }
         }
         if (0 < count($this->rule)) {
-            foreach($this->rule as $rule) {
+            foreach ($this->rule as $rule) {
                 $rule->xmlSerialize(true, $sxe->addChild('rule'));
             }
         }
-        if (isset($this->legallyBindingAttachment)) $this->legallyBindingAttachment->xmlSerialize(true, $sxe->addChild('legallyBindingAttachment'));
-        if (isset($this->legallyBindingReference)) $this->legallyBindingReference->xmlSerialize(true, $sxe->addChild('legallyBindingReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->legallyBindingAttachment)) {
+            $this->legallyBindingAttachment->xmlSerialize(true, $sxe->addChild('legallyBindingAttachment'));
+        }
+        if (isset($this->legallyBindingReference)) {
+            $this->legallyBindingReference->xmlSerialize(true, $sxe->addChild('legallyBindingReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

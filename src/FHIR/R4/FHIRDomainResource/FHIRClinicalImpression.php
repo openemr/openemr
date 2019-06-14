@@ -201,7 +201,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * Business identifiers assigned to this clinical impression by the performer or other systems which remain constant as the resource is updated and propagates from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -210,7 +211,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -219,7 +221,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * Identifies the workflow status of the assessment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRClinicalImpressionStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -228,7 +231,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRClinicalImpressionStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -237,7 +241,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * Captures the reason for the current state of the ClinicalImpression.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatusReason() {
+    public function getStatusReason()
+    {
         return $this->statusReason;
     }
 
@@ -246,7 +251,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $statusReason
      * @return $this
      */
-    public function setStatusReason($statusReason) {
+    public function setStatusReason($statusReason)
+    {
         $this->statusReason = $statusReason;
         return $this;
     }
@@ -255,7 +261,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * Categorizes the type of clinical assessment performed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -264,7 +271,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -273,7 +281,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * A summary of the context and/or cause of the assessment - why / where it was performed, and what patient events/status prompted it.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -282,7 +291,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -291,7 +301,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * The patient or group of individuals assessed as part of this record.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -300,7 +311,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -309,7 +321,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * The Encounter during which this ClinicalImpression was created or to which the creation of this record is tightly associated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEncounter() {
+    public function getEncounter()
+    {
         return $this->encounter;
     }
 
@@ -318,7 +331,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $encounter
      * @return $this
      */
-    public function setEncounter($encounter) {
+    public function setEncounter($encounter)
+    {
         $this->encounter = $encounter;
         return $this;
     }
@@ -326,7 +340,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getEffectiveDateTime() {
+    public function getEffectiveDateTime()
+    {
         return $this->effectiveDateTime;
     }
 
@@ -334,7 +349,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $effectiveDateTime
      * @return $this
      */
-    public function setEffectiveDateTime($effectiveDateTime) {
+    public function setEffectiveDateTime($effectiveDateTime)
+    {
         $this->effectiveDateTime = $effectiveDateTime;
         return $this;
     }
@@ -342,7 +358,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getEffectivePeriod() {
+    public function getEffectivePeriod()
+    {
         return $this->effectivePeriod;
     }
 
@@ -350,7 +367,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $effectivePeriod
      * @return $this
      */
-    public function setEffectivePeriod($effectivePeriod) {
+    public function setEffectivePeriod($effectivePeriod)
+    {
         $this->effectivePeriod = $effectivePeriod;
         return $this;
     }
@@ -359,7 +377,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * Indicates when the documentation of the assessment was complete.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -368,7 +387,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -377,7 +397,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * The clinician performing the assessment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAssessor() {
+    public function getAssessor()
+    {
         return $this->assessor;
     }
 
@@ -386,7 +407,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $assessor
      * @return $this
      */
-    public function setAssessor($assessor) {
+    public function setAssessor($assessor)
+    {
         $this->assessor = $assessor;
         return $this;
     }
@@ -395,7 +417,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * A reference to the last assessment that was conducted on this patient. Assessments are often/usually ongoing in nature; a care provider (practitioner or team) will make new assessments on an ongoing basis as new data arises or the patient's conditions changes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPrevious() {
+    public function getPrevious()
+    {
         return $this->previous;
     }
 
@@ -404,7 +427,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $previous
      * @return $this
      */
-    public function setPrevious($previous) {
+    public function setPrevious($previous)
+    {
         $this->previous = $previous;
         return $this;
     }
@@ -413,7 +437,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * A list of the relevant problems/conditions for a patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getProblem() {
+    public function getProblem()
+    {
         return $this->problem;
     }
 
@@ -422,7 +447,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $problem
      * @return $this
      */
-    public function addProblem($problem) {
+    public function addProblem($problem)
+    {
         $this->problem[] = $problem;
         return $this;
     }
@@ -431,7 +457,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * One or more sets of investigations (signs, symptoms, etc.). The actual grouping of investigations varies greatly depending on the type and context of the assessment. These investigations may include data generated during the assessment process, or data previously generated and recorded that is pertinent to the outcomes.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClinicalImpression\FHIRClinicalImpressionInvestigation[]
      */
-    public function getInvestigation() {
+    public function getInvestigation()
+    {
         return $this->investigation;
     }
 
@@ -440,7 +467,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClinicalImpression\FHIRClinicalImpressionInvestigation $investigation
      * @return $this
      */
-    public function addInvestigation($investigation) {
+    public function addInvestigation($investigation)
+    {
         $this->investigation[] = $investigation;
         return $this;
     }
@@ -449,7 +477,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * Reference to a specific published clinical protocol that was followed during this assessment, and/or that provides evidence in support of the diagnosis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getProtocol() {
+    public function getProtocol()
+    {
         return $this->protocol;
     }
 
@@ -458,7 +487,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $protocol
      * @return $this
      */
-    public function addProtocol($protocol) {
+    public function addProtocol($protocol)
+    {
         $this->protocol[] = $protocol;
         return $this;
     }
@@ -467,7 +497,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * A text summary of the investigations and the diagnosis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSummary() {
+    public function getSummary()
+    {
         return $this->summary;
     }
 
@@ -476,7 +507,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $summary
      * @return $this
      */
-    public function setSummary($summary) {
+    public function setSummary($summary)
+    {
         $this->summary = $summary;
         return $this;
     }
@@ -485,7 +517,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * Specific findings or diagnoses that were considered likely or relevant to ongoing treatment.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClinicalImpression\FHIRClinicalImpressionFinding[]
      */
-    public function getFinding() {
+    public function getFinding()
+    {
         return $this->finding;
     }
 
@@ -494,7 +527,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClinicalImpression\FHIRClinicalImpressionFinding $finding
      * @return $this
      */
-    public function addFinding($finding) {
+    public function addFinding($finding)
+    {
         $this->finding[] = $finding;
         return $this;
     }
@@ -503,7 +537,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * Estimate of likely outcome.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getPrognosisCodeableConcept() {
+    public function getPrognosisCodeableConcept()
+    {
         return $this->prognosisCodeableConcept;
     }
 
@@ -512,7 +547,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $prognosisCodeableConcept
      * @return $this
      */
-    public function addPrognosisCodeableConcept($prognosisCodeableConcept) {
+    public function addPrognosisCodeableConcept($prognosisCodeableConcept)
+    {
         $this->prognosisCodeableConcept[] = $prognosisCodeableConcept;
         return $this;
     }
@@ -521,7 +557,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * RiskAssessment expressing likely outcome.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPrognosisReference() {
+    public function getPrognosisReference()
+    {
         return $this->prognosisReference;
     }
 
@@ -530,7 +567,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $prognosisReference
      * @return $this
      */
-    public function addPrognosisReference($prognosisReference) {
+    public function addPrognosisReference($prognosisReference)
+    {
         $this->prognosisReference[] = $prognosisReference;
         return $this;
     }
@@ -539,7 +577,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * Information supporting the clinical impression.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSupportingInfo() {
+    public function getSupportingInfo()
+    {
         return $this->supportingInfo;
     }
 
@@ -548,7 +587,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $supportingInfo
      * @return $this
      */
-    public function addSupportingInfo($supportingInfo) {
+    public function addSupportingInfo($supportingInfo)
+    {
         $this->supportingInfo[] = $supportingInfo;
         return $this;
     }
@@ -557,7 +597,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * Commentary about the impression, typically recorded after the impression itself was made, though supplemental notes by the original author could also appear.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -566,7 +607,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -574,18 +616,20 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -627,7 +671,7 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['problem'])) {
                 if (is_array($data['problem'])) {
-                    foreach($data['problem'] as $d) {
+                    foreach ($data['problem'] as $d) {
                         $this->addProblem($d);
                     }
                 } else {
@@ -636,7 +680,7 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['investigation'])) {
                 if (is_array($data['investigation'])) {
-                    foreach($data['investigation'] as $d) {
+                    foreach ($data['investigation'] as $d) {
                         $this->addInvestigation($d);
                     }
                 } else {
@@ -645,7 +689,7 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['protocol'])) {
                 if (is_array($data['protocol'])) {
-                    foreach($data['protocol'] as $d) {
+                    foreach ($data['protocol'] as $d) {
                         $this->addProtocol($d);
                     }
                 } else {
@@ -657,7 +701,7 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['finding'])) {
                 if (is_array($data['finding'])) {
-                    foreach($data['finding'] as $d) {
+                    foreach ($data['finding'] as $d) {
                         $this->addFinding($d);
                     }
                 } else {
@@ -666,7 +710,7 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['prognosisCodeableConcept'])) {
                 if (is_array($data['prognosisCodeableConcept'])) {
-                    foreach($data['prognosisCodeableConcept'] as $d) {
+                    foreach ($data['prognosisCodeableConcept'] as $d) {
                         $this->addPrognosisCodeableConcept($d);
                     }
                 } else {
@@ -675,7 +719,7 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['prognosisReference'])) {
                 if (is_array($data['prognosisReference'])) {
-                    foreach($data['prognosisReference'] as $d) {
+                    foreach ($data['prognosisReference'] as $d) {
                         $this->addPrognosisReference($d);
                     }
                 } else {
@@ -684,7 +728,7 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['supportingInfo'])) {
                 if (is_array($data['supportingInfo'])) {
-                    foreach($data['supportingInfo'] as $d) {
+                    foreach ($data['supportingInfo'] as $d) {
                         $this->addSupportingInfo($d);
                     }
                 } else {
@@ -693,7 +737,7 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -709,79 +753,105 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->statusReason)) $json['statusReason'] = $this->statusReason;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->subject)) $json['subject'] = $this->subject;
-        if (isset($this->encounter)) $json['encounter'] = $this->encounter;
-        if (isset($this->effectiveDateTime)) $json['effectiveDateTime'] = $this->effectiveDateTime;
-        if (isset($this->effectivePeriod)) $json['effectivePeriod'] = $this->effectivePeriod;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->assessor)) $json['assessor'] = $this->assessor;
-        if (isset($this->previous)) $json['previous'] = $this->previous;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->statusReason)) {
+            $json['statusReason'] = $this->statusReason;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
+        if (isset($this->encounter)) {
+            $json['encounter'] = $this->encounter;
+        }
+        if (isset($this->effectiveDateTime)) {
+            $json['effectiveDateTime'] = $this->effectiveDateTime;
+        }
+        if (isset($this->effectivePeriod)) {
+            $json['effectivePeriod'] = $this->effectivePeriod;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->assessor)) {
+            $json['assessor'] = $this->assessor;
+        }
+        if (isset($this->previous)) {
+            $json['previous'] = $this->previous;
+        }
         if (0 < count($this->problem)) {
             $json['problem'] = [];
-            foreach($this->problem as $problem) {
+            foreach ($this->problem as $problem) {
                 $json['problem'][] = $problem;
             }
         }
         if (0 < count($this->investigation)) {
             $json['investigation'] = [];
-            foreach($this->investigation as $investigation) {
+            foreach ($this->investigation as $investigation) {
                 $json['investigation'][] = $investigation;
             }
         }
         if (0 < count($this->protocol)) {
             $json['protocol'] = [];
-            foreach($this->protocol as $protocol) {
+            foreach ($this->protocol as $protocol) {
                 $json['protocol'][] = $protocol;
             }
         }
-        if (isset($this->summary)) $json['summary'] = $this->summary;
+        if (isset($this->summary)) {
+            $json['summary'] = $this->summary;
+        }
         if (0 < count($this->finding)) {
             $json['finding'] = [];
-            foreach($this->finding as $finding) {
+            foreach ($this->finding as $finding) {
                 $json['finding'][] = $finding;
             }
         }
         if (0 < count($this->prognosisCodeableConcept)) {
             $json['prognosisCodeableConcept'] = [];
-            foreach($this->prognosisCodeableConcept as $prognosisCodeableConcept) {
+            foreach ($this->prognosisCodeableConcept as $prognosisCodeableConcept) {
                 $json['prognosisCodeableConcept'][] = $prognosisCodeableConcept;
             }
         }
         if (0 < count($this->prognosisReference)) {
             $json['prognosisReference'] = [];
-            foreach($this->prognosisReference as $prognosisReference) {
+            foreach ($this->prognosisReference as $prognosisReference) {
                 $json['prognosisReference'][] = $prognosisReference;
             }
         }
         if (0 < count($this->supportingInfo)) {
             $json['supportingInfo'] = [];
-            foreach($this->supportingInfo as $supportingInfo) {
+            foreach ($this->supportingInfo as $supportingInfo) {
                 $json['supportingInfo'][] = $supportingInfo;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
@@ -793,69 +863,96 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClinicalImpression xmlns="http://hl7.org/fhir"></ClinicalImpression>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClinicalImpression xmlns="http://hl7.org/fhir"></ClinicalImpression>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->statusReason)) $this->statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
-        if (isset($this->encounter)) $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
-        if (isset($this->effectiveDateTime)) $this->effectiveDateTime->xmlSerialize(true, $sxe->addChild('effectiveDateTime'));
-        if (isset($this->effectivePeriod)) $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->assessor)) $this->assessor->xmlSerialize(true, $sxe->addChild('assessor'));
-        if (isset($this->previous)) $this->previous->xmlSerialize(true, $sxe->addChild('previous'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->statusReason)) {
+            $this->statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
+        if (isset($this->encounter)) {
+            $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
+        }
+        if (isset($this->effectiveDateTime)) {
+            $this->effectiveDateTime->xmlSerialize(true, $sxe->addChild('effectiveDateTime'));
+        }
+        if (isset($this->effectivePeriod)) {
+            $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->assessor)) {
+            $this->assessor->xmlSerialize(true, $sxe->addChild('assessor'));
+        }
+        if (isset($this->previous)) {
+            $this->previous->xmlSerialize(true, $sxe->addChild('previous'));
+        }
         if (0 < count($this->problem)) {
-            foreach($this->problem as $problem) {
+            foreach ($this->problem as $problem) {
                 $problem->xmlSerialize(true, $sxe->addChild('problem'));
             }
         }
         if (0 < count($this->investigation)) {
-            foreach($this->investigation as $investigation) {
+            foreach ($this->investigation as $investigation) {
                 $investigation->xmlSerialize(true, $sxe->addChild('investigation'));
             }
         }
         if (0 < count($this->protocol)) {
-            foreach($this->protocol as $protocol) {
+            foreach ($this->protocol as $protocol) {
                 $protocol->xmlSerialize(true, $sxe->addChild('protocol'));
             }
         }
-        if (isset($this->summary)) $this->summary->xmlSerialize(true, $sxe->addChild('summary'));
+        if (isset($this->summary)) {
+            $this->summary->xmlSerialize(true, $sxe->addChild('summary'));
+        }
         if (0 < count($this->finding)) {
-            foreach($this->finding as $finding) {
+            foreach ($this->finding as $finding) {
                 $finding->xmlSerialize(true, $sxe->addChild('finding'));
             }
         }
         if (0 < count($this->prognosisCodeableConcept)) {
-            foreach($this->prognosisCodeableConcept as $prognosisCodeableConcept) {
+            foreach ($this->prognosisCodeableConcept as $prognosisCodeableConcept) {
                 $prognosisCodeableConcept->xmlSerialize(true, $sxe->addChild('prognosisCodeableConcept'));
             }
         }
         if (0 < count($this->prognosisReference)) {
-            foreach($this->prognosisReference as $prognosisReference) {
+            foreach ($this->prognosisReference as $prognosisReference) {
                 $prognosisReference->xmlSerialize(true, $sxe->addChild('prognosisReference'));
             }
         }
         if (0 < count($this->supportingInfo)) {
-            foreach($this->supportingInfo as $supportingInfo) {
+            foreach ($this->supportingInfo as $supportingInfo) {
                 $supportingInfo->xmlSerialize(true, $sxe->addChild('supportingInfo'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

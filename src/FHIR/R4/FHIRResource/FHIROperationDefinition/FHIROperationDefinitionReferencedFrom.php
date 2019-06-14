@@ -88,7 +88,8 @@ class FHIROperationDefinitionReferencedFrom extends FHIRBackboneElement implemen
      * The name of the parameter or dot-separated path of parameter names pointing to the resource parameter that is expected to contain a reference to this resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -97,7 +98,8 @@ class FHIROperationDefinitionReferencedFrom extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $source
      * @return $this
      */
-    public function setSource($source) {
+    public function setSource($source)
+    {
         $this->source = $source;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIROperationDefinitionReferencedFrom extends FHIRBackboneElement implemen
      * The id of the element in the referencing resource that is expected to resolve to this resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSourceId() {
+    public function getSourceId()
+    {
         return $this->sourceId;
     }
 
@@ -115,7 +118,8 @@ class FHIROperationDefinitionReferencedFrom extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $sourceId
      * @return $this
      */
-    public function setSourceId($sourceId) {
+    public function setSourceId($sourceId)
+    {
         $this->sourceId = $sourceId;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIROperationDefinitionReferencedFrom extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['source'])) {
                 $this->setSource($data['source']);
@@ -147,17 +153,23 @@ class FHIROperationDefinitionReferencedFrom extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->source)) $json['source'] = $this->source;
-        if (isset($this->sourceId)) $json['sourceId'] = $this->sourceId;
+        if (isset($this->source)) {
+            $json['source'] = $this->source;
+        }
+        if (isset($this->sourceId)) {
+            $json['sourceId'] = $this->sourceId;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIROperationDefinitionReferencedFrom extends FHIRBackboneElement implemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<OperationDefinitionReferencedFrom xmlns="http://hl7.org/fhir"></OperationDefinitionReferencedFrom>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<OperationDefinitionReferencedFrom xmlns="http://hl7.org/fhir"></OperationDefinitionReferencedFrom>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->source)) $this->source->xmlSerialize(true, $sxe->addChild('source'));
-        if (isset($this->sourceId)) $this->sourceId->xmlSerialize(true, $sxe->addChild('sourceId'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->source)) {
+            $this->source->xmlSerialize(true, $sxe->addChild('source'));
+        }
+        if (isset($this->sourceId)) {
+            $this->sourceId->xmlSerialize(true, $sxe->addChild('sourceId'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

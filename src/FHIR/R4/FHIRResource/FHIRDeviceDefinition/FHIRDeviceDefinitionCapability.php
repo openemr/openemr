@@ -88,7 +88,8 @@ class FHIRDeviceDefinitionCapability extends FHIRBackboneElement implements \Jso
      * Type of capability.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -97,7 +98,8 @@ class FHIRDeviceDefinitionCapability extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRDeviceDefinitionCapability extends FHIRBackboneElement implements \Jso
      * Description of capability.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -115,7 +118,8 @@ class FHIRDeviceDefinitionCapability extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $description
      * @return $this
      */
-    public function addDescription($description) {
+    public function addDescription($description)
+    {
         $this->description[] = $description;
         return $this;
     }
@@ -123,21 +127,23 @@ class FHIRDeviceDefinitionCapability extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
             }
             if (isset($data['description'])) {
                 if (is_array($data['description'])) {
-                    foreach($data['description'] as $d) {
+                    foreach ($data['description'] as $d) {
                         $this->addDescription($d);
                     }
                 } else {
@@ -153,19 +159,23 @@ class FHIRDeviceDefinitionCapability extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->description)) {
             $json['description'] = [];
-            foreach($this->description as $description) {
+            foreach ($this->description as $description) {
                 $json['description'][] = $description;
             }
         }
@@ -177,18 +187,23 @@ class FHIRDeviceDefinitionCapability extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DeviceDefinitionCapability xmlns="http://hl7.org/fhir"></DeviceDefinitionCapability>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DeviceDefinitionCapability xmlns="http://hl7.org/fhir"></DeviceDefinitionCapability>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->description)) {
-            foreach($this->description as $description) {
+            foreach ($this->description as $description) {
                 $description->xmlSerialize(true, $sxe->addChild('description'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

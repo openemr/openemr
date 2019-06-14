@@ -107,7 +107,8 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * A brief, natural language description of the condition that effectively communicates the intended semantics.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -116,7 +117,8 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -125,7 +127,8 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * A short name assigned to the expression to allow for multiple reuse of the expression in the context where it is defined.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -134,7 +137,8 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -143,7 +147,8 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * The media type of the language for the expression.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpressionLanguage
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -152,7 +157,8 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpressionLanguage $language
      * @return $this
      */
-    public function setLanguage($language) {
+    public function setLanguage($language)
+    {
         $this->language = $language;
         return $this;
     }
@@ -161,7 +167,8 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * An expression in the specified language that returns a value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getExpression() {
+    public function getExpression()
+    {
         return $this->expression;
     }
 
@@ -170,7 +177,8 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $expression
      * @return $this
      */
-    public function setExpression($expression) {
+    public function setExpression($expression)
+    {
         $this->expression = $expression;
         return $this;
     }
@@ -179,7 +187,8 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * A URI that defines where the expression is found.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -188,7 +197,8 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $reference
      * @return $this
      */
-    public function setReference($reference) {
+    public function setReference($reference)
+    {
         $this->reference = $reference;
         return $this;
     }
@@ -196,14 +206,16 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -229,20 +241,32 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->language)) $json['language'] = $this->language;
-        if (isset($this->expression)) $json['expression'] = $this->expression;
-        if (isset($this->reference)) $json['reference'] = $this->reference;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->language)) {
+            $json['language'] = $this->language;
+        }
+        if (isset($this->expression)) {
+            $json['expression'] = $this->expression;
+        }
+        if (isset($this->reference)) {
+            $json['reference'] = $this->reference;
+        }
         return $json;
     }
 
@@ -251,17 +275,30 @@ class FHIRExpression extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Expression xmlns="http://hl7.org/fhir"></Expression>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Expression xmlns="http://hl7.org/fhir"></Expression>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->language)) $this->language->xmlSerialize(true, $sxe->addChild('language'));
-        if (isset($this->expression)) $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
-        if (isset($this->reference)) $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->language)) {
+            $this->language->xmlSerialize(true, $sxe->addChild('language'));
+        }
+        if (isset($this->expression)) {
+            $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
+        }
+        if (isset($this->reference)) {
+            $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

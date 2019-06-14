@@ -131,7 +131,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * Unique identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -140,7 +141,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -149,7 +151,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * The product with this is a pack for.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -158,7 +161,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function addSubject($subject) {
+    public function addSubject($subject)
+    {
         $this->subject[] = $subject;
         return $this;
     }
@@ -167,7 +171,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * Textual description.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -176,7 +181,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -185,7 +191,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * The legal status of supply of the medicinal product as classified by the regulator.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getLegalStatusOfSupply() {
+    public function getLegalStatusOfSupply()
+    {
         return $this->legalStatusOfSupply;
     }
 
@@ -194,7 +201,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $legalStatusOfSupply
      * @return $this
      */
-    public function setLegalStatusOfSupply($legalStatusOfSupply) {
+    public function setLegalStatusOfSupply($legalStatusOfSupply)
+    {
         $this->legalStatusOfSupply = $legalStatusOfSupply;
         return $this;
     }
@@ -203,7 +211,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * Marketing information.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMarketingStatus[]
      */
-    public function getMarketingStatus() {
+    public function getMarketingStatus()
+    {
         return $this->marketingStatus;
     }
 
@@ -212,7 +221,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMarketingStatus $marketingStatus
      * @return $this
      */
-    public function addMarketingStatus($marketingStatus) {
+    public function addMarketingStatus($marketingStatus)
+    {
         $this->marketingStatus[] = $marketingStatus;
         return $this;
     }
@@ -221,7 +231,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * Manufacturer of this Package Item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getMarketingAuthorization() {
+    public function getMarketingAuthorization()
+    {
         return $this->marketingAuthorization;
     }
 
@@ -230,7 +241,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $marketingAuthorization
      * @return $this
      */
-    public function setMarketingAuthorization($marketingAuthorization) {
+    public function setMarketingAuthorization($marketingAuthorization)
+    {
         $this->marketingAuthorization = $marketingAuthorization;
         return $this;
     }
@@ -239,7 +251,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * Manufacturer of this Package Item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getManufacturer() {
+    public function getManufacturer()
+    {
         return $this->manufacturer;
     }
 
@@ -248,7 +261,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $manufacturer
      * @return $this
      */
-    public function addManufacturer($manufacturer) {
+    public function addManufacturer($manufacturer)
+    {
         $this->manufacturer[] = $manufacturer;
         return $this;
     }
@@ -257,7 +271,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * Batch numbering.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPackaged\FHIRMedicinalProductPackagedBatchIdentifier[]
      */
-    public function getBatchIdentifier() {
+    public function getBatchIdentifier()
+    {
         return $this->batchIdentifier;
     }
 
@@ -266,7 +281,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPackaged\FHIRMedicinalProductPackagedBatchIdentifier $batchIdentifier
      * @return $this
      */
-    public function addBatchIdentifier($batchIdentifier) {
+    public function addBatchIdentifier($batchIdentifier)
+    {
         $this->batchIdentifier[] = $batchIdentifier;
         return $this;
     }
@@ -275,7 +291,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * A packaging item, as a contained for medicine, possibly with other packaging items within.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPackaged\FHIRMedicinalProductPackagedPackageItem[]
      */
-    public function getPackageItem() {
+    public function getPackageItem()
+    {
         return $this->packageItem;
     }
 
@@ -284,7 +301,8 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPackaged\FHIRMedicinalProductPackagedPackageItem $packageItem
      * @return $this
      */
-    public function addPackageItem($packageItem) {
+    public function addPackageItem($packageItem)
+    {
         $this->packageItem[] = $packageItem;
         return $this;
     }
@@ -292,18 +310,20 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -312,7 +332,7 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['subject'])) {
                 if (is_array($data['subject'])) {
-                    foreach($data['subject'] as $d) {
+                    foreach ($data['subject'] as $d) {
                         $this->addSubject($d);
                     }
                 } else {
@@ -327,7 +347,7 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['marketingStatus'])) {
                 if (is_array($data['marketingStatus'])) {
-                    foreach($data['marketingStatus'] as $d) {
+                    foreach ($data['marketingStatus'] as $d) {
                         $this->addMarketingStatus($d);
                     }
                 } else {
@@ -339,7 +359,7 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['manufacturer'])) {
                 if (is_array($data['manufacturer'])) {
-                    foreach($data['manufacturer'] as $d) {
+                    foreach ($data['manufacturer'] as $d) {
                         $this->addManufacturer($d);
                     }
                 } else {
@@ -348,7 +368,7 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['batchIdentifier'])) {
                 if (is_array($data['batchIdentifier'])) {
-                    foreach($data['batchIdentifier'] as $d) {
+                    foreach ($data['batchIdentifier'] as $d) {
                         $this->addBatchIdentifier($d);
                     }
                 } else {
@@ -357,7 +377,7 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['packageItem'])) {
                 if (is_array($data['packageItem'])) {
-                    foreach($data['packageItem'] as $d) {
+                    foreach ($data['packageItem'] as $d) {
                         $this->addPackageItem($d);
                     }
                 } else {
@@ -373,52 +393,60 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->subject)) {
             $json['subject'] = [];
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $json['subject'][] = $subject;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->legalStatusOfSupply)) $json['legalStatusOfSupply'] = $this->legalStatusOfSupply;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->legalStatusOfSupply)) {
+            $json['legalStatusOfSupply'] = $this->legalStatusOfSupply;
+        }
         if (0 < count($this->marketingStatus)) {
             $json['marketingStatus'] = [];
-            foreach($this->marketingStatus as $marketingStatus) {
+            foreach ($this->marketingStatus as $marketingStatus) {
                 $json['marketingStatus'][] = $marketingStatus;
             }
         }
-        if (isset($this->marketingAuthorization)) $json['marketingAuthorization'] = $this->marketingAuthorization;
+        if (isset($this->marketingAuthorization)) {
+            $json['marketingAuthorization'] = $this->marketingAuthorization;
+        }
         if (0 < count($this->manufacturer)) {
             $json['manufacturer'] = [];
-            foreach($this->manufacturer as $manufacturer) {
+            foreach ($this->manufacturer as $manufacturer) {
                 $json['manufacturer'][] = $manufacturer;
             }
         }
         if (0 < count($this->batchIdentifier)) {
             $json['batchIdentifier'] = [];
-            foreach($this->batchIdentifier as $batchIdentifier) {
+            foreach ($this->batchIdentifier as $batchIdentifier) {
                 $json['batchIdentifier'][] = $batchIdentifier;
             }
         }
         if (0 < count($this->packageItem)) {
             $json['packageItem'] = [];
-            foreach($this->packageItem as $packageItem) {
+            foreach ($this->packageItem as $packageItem) {
                 $json['packageItem'][] = $packageItem;
             }
         }
@@ -430,45 +458,54 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductPackaged xmlns="http://hl7.org/fhir"></MedicinalProductPackaged>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductPackaged xmlns="http://hl7.org/fhir"></MedicinalProductPackaged>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->subject)) {
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $subject->xmlSerialize(true, $sxe->addChild('subject'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->legalStatusOfSupply)) $this->legalStatusOfSupply->xmlSerialize(true, $sxe->addChild('legalStatusOfSupply'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->legalStatusOfSupply)) {
+            $this->legalStatusOfSupply->xmlSerialize(true, $sxe->addChild('legalStatusOfSupply'));
+        }
         if (0 < count($this->marketingStatus)) {
-            foreach($this->marketingStatus as $marketingStatus) {
+            foreach ($this->marketingStatus as $marketingStatus) {
                 $marketingStatus->xmlSerialize(true, $sxe->addChild('marketingStatus'));
             }
         }
-        if (isset($this->marketingAuthorization)) $this->marketingAuthorization->xmlSerialize(true, $sxe->addChild('marketingAuthorization'));
+        if (isset($this->marketingAuthorization)) {
+            $this->marketingAuthorization->xmlSerialize(true, $sxe->addChild('marketingAuthorization'));
+        }
         if (0 < count($this->manufacturer)) {
-            foreach($this->manufacturer as $manufacturer) {
+            foreach ($this->manufacturer as $manufacturer) {
                 $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
             }
         }
         if (0 < count($this->batchIdentifier)) {
-            foreach($this->batchIdentifier as $batchIdentifier) {
+            foreach ($this->batchIdentifier as $batchIdentifier) {
                 $batchIdentifier->xmlSerialize(true, $sxe->addChild('batchIdentifier'));
             }
         }
         if (0 < count($this->packageItem)) {
-            foreach($this->packageItem as $packageItem) {
+            foreach ($this->packageItem as $packageItem) {
                 $packageItem->xmlSerialize(true, $sxe->addChild('packageItem'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

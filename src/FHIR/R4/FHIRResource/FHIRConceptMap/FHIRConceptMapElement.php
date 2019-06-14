@@ -94,7 +94,8 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
      * Identity (code or path) or the element/item being mapped.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -103,7 +104,8 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
      * The display for the code. The display is only provided to help editors when editing the concept map.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDisplay() {
+    public function getDisplay()
+    {
         return $this->display;
     }
 
@@ -121,7 +124,8 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $display
      * @return $this
      */
-    public function setDisplay($display) {
+    public function setDisplay($display)
+    {
         $this->display = $display;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
      * A concept from the target value set that this concept maps to.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRConceptMap\FHIRConceptMapTarget[]
      */
-    public function getTarget() {
+    public function getTarget()
+    {
         return $this->target;
     }
 
@@ -139,7 +144,8 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRConceptMap\FHIRConceptMapTarget $target
      * @return $this
      */
-    public function addTarget($target) {
+    public function addTarget($target)
+    {
         $this->target[] = $target;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -164,7 +172,7 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['target'])) {
                 if (is_array($data['target'])) {
-                    foreach($data['target'] as $d) {
+                    foreach ($data['target'] as $d) {
                         $this->addTarget($d);
                     }
                 } else {
@@ -180,20 +188,26 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->display)) $json['display'] = $this->display;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->display)) {
+            $json['display'] = $this->display;
+        }
         if (0 < count($this->target)) {
             $json['target'] = [];
-            foreach($this->target as $target) {
+            foreach ($this->target as $target) {
                 $json['target'][] = $target;
             }
         }
@@ -205,19 +219,26 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ConceptMapElement xmlns="http://hl7.org/fhir"></ConceptMapElement>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ConceptMapElement xmlns="http://hl7.org/fhir"></ConceptMapElement>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->display)) $this->display->xmlSerialize(true, $sxe->addChild('display'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->display)) {
+            $this->display->xmlSerialize(true, $sxe->addChild('display'));
+        }
         if (0 < count($this->target)) {
-            foreach($this->target as $target) {
+            foreach ($this->target as $target) {
                 $target->xmlSerialize(true, $sxe->addChild('target'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

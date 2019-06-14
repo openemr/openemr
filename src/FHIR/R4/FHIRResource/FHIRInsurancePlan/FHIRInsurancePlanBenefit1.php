@@ -88,7 +88,8 @@ class FHIRInsurancePlanBenefit1 extends FHIRBackboneElement implements \JsonSeri
      * Type of specific benefit (preventative; primary care office visit; speciality office visit; hospitalization; emergency room; urgent care).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -97,7 +98,8 @@ class FHIRInsurancePlanBenefit1 extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRInsurancePlanBenefit1 extends FHIRBackboneElement implements \JsonSeri
      * List of the costs associated with a specific benefit.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanCost[]
      */
-    public function getCost() {
+    public function getCost()
+    {
         return $this->cost;
     }
 
@@ -115,7 +118,8 @@ class FHIRInsurancePlanBenefit1 extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanCost $cost
      * @return $this
      */
-    public function addCost($cost) {
+    public function addCost($cost)
+    {
         $this->cost[] = $cost;
         return $this;
     }
@@ -123,21 +127,23 @@ class FHIRInsurancePlanBenefit1 extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
             }
             if (isset($data['cost'])) {
                 if (is_array($data['cost'])) {
-                    foreach($data['cost'] as $d) {
+                    foreach ($data['cost'] as $d) {
                         $this->addCost($d);
                     }
                 } else {
@@ -153,19 +159,23 @@ class FHIRInsurancePlanBenefit1 extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->cost)) {
             $json['cost'] = [];
-            foreach($this->cost as $cost) {
+            foreach ($this->cost as $cost) {
                 $json['cost'][] = $cost;
             }
         }
@@ -177,18 +187,23 @@ class FHIRInsurancePlanBenefit1 extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InsurancePlanBenefit1 xmlns="http://hl7.org/fhir"></InsurancePlanBenefit1>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InsurancePlanBenefit1 xmlns="http://hl7.org/fhir"></InsurancePlanBenefit1>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->cost)) {
-            foreach($this->cost as $cost) {
+            foreach ($this->cost as $cost) {
                 $cost->xmlSerialize(true, $sxe->addChild('cost'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

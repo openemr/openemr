@@ -106,7 +106,8 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * Information about chromosome structure variation DNA change type.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getVariantType() {
+    public function getVariantType()
+    {
         return $this->variantType;
     }
 
@@ -115,7 +116,8 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $variantType
      * @return $this
      */
-    public function setVariantType($variantType) {
+    public function setVariantType($variantType)
+    {
         $this->variantType = $variantType;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * Used to indicate if the outer and inner start-end values have the same meaning.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExact() {
+    public function getExact()
+    {
         return $this->exact;
     }
 
@@ -133,7 +136,8 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $exact
      * @return $this
      */
-    public function setExact($exact) {
+    public function setExact($exact)
+    {
         $this->exact = $exact;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * Length of the variant chromosome.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getLength() {
+    public function getLength()
+    {
         return $this->length;
     }
 
@@ -151,7 +156,8 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $length
      * @return $this
      */
-    public function setLength($length) {
+    public function setLength($length)
+    {
         $this->length = $length;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * Structural variant outer.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceOuter
      */
-    public function getOuter() {
+    public function getOuter()
+    {
         return $this->outer;
     }
 
@@ -169,7 +176,8 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceOuter $outer
      * @return $this
      */
-    public function setOuter($outer) {
+    public function setOuter($outer)
+    {
         $this->outer = $outer;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * Structural variant inner.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceInner
      */
-    public function getInner() {
+    public function getInner()
+    {
         return $this->inner;
     }
 
@@ -187,7 +196,8 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceInner $inner
      * @return $this
      */
-    public function setInner($inner) {
+    public function setInner($inner)
+    {
         $this->inner = $inner;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['variantType'])) {
                 $this->setVariantType($data['variantType']);
@@ -228,20 +240,32 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->variantType)) $json['variantType'] = $this->variantType;
-        if (isset($this->exact)) $json['exact'] = $this->exact;
-        if (isset($this->length)) $json['length'] = $this->length;
-        if (isset($this->outer)) $json['outer'] = $this->outer;
-        if (isset($this->inner)) $json['inner'] = $this->inner;
+        if (isset($this->variantType)) {
+            $json['variantType'] = $this->variantType;
+        }
+        if (isset($this->exact)) {
+            $json['exact'] = $this->exact;
+        }
+        if (isset($this->length)) {
+            $json['length'] = $this->length;
+        }
+        if (isset($this->outer)) {
+            $json['outer'] = $this->outer;
+        }
+        if (isset($this->inner)) {
+            $json['inner'] = $this->inner;
+        }
         return $json;
     }
 
@@ -250,17 +274,30 @@ class FHIRMolecularSequenceStructureVariant extends FHIRBackboneElement implemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MolecularSequenceStructureVariant xmlns="http://hl7.org/fhir"></MolecularSequenceStructureVariant>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MolecularSequenceStructureVariant xmlns="http://hl7.org/fhir"></MolecularSequenceStructureVariant>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->variantType)) $this->variantType->xmlSerialize(true, $sxe->addChild('variantType'));
-        if (isset($this->exact)) $this->exact->xmlSerialize(true, $sxe->addChild('exact'));
-        if (isset($this->length)) $this->length->xmlSerialize(true, $sxe->addChild('length'));
-        if (isset($this->outer)) $this->outer->xmlSerialize(true, $sxe->addChild('outer'));
-        if (isset($this->inner)) $this->inner->xmlSerialize(true, $sxe->addChild('inner'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->variantType)) {
+            $this->variantType->xmlSerialize(true, $sxe->addChild('variantType'));
+        }
+        if (isset($this->exact)) {
+            $this->exact->xmlSerialize(true, $sxe->addChild('exact'));
+        }
+        if (isset($this->length)) {
+            $this->length->xmlSerialize(true, $sxe->addChild('length'));
+        }
+        if (isset($this->outer)) {
+            $this->outer->xmlSerialize(true, $sxe->addChild('outer'));
+        }
+        if (isset($this->inner)) {
+            $this->inner->xmlSerialize(true, $sxe->addChild('inner'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

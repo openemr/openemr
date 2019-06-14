@@ -209,7 +209,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * A code that specifies this medication, or a textual description if no code is available. Usage note: This could be a standard medication code such as a code from RxNorm, SNOMED CT, IDMP etc. It could also be a national or local formulary code, optionally with translations to other code systems.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -218,7 +219,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -227,7 +229,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * A code to indicate if the medication is in active use.  The status refers to the validity about the information of the medication and not to its medicinal properties.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -236,7 +239,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -245,7 +249,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Describes the details of the manufacturer of the medication product.  This is not intended to represent the distributor of a medication product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getManufacturer() {
+    public function getManufacturer()
+    {
         return $this->manufacturer;
     }
 
@@ -254,7 +259,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $manufacturer
      * @return $this
      */
-    public function setManufacturer($manufacturer) {
+    public function setManufacturer($manufacturer)
+    {
         $this->manufacturer = $manufacturer;
         return $this;
     }
@@ -263,7 +269,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Describes the form of the item.  Powder; tablets; capsule.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDoseForm() {
+    public function getDoseForm()
+    {
         return $this->doseForm;
     }
 
@@ -272,7 +279,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $doseForm
      * @return $this
      */
-    public function setDoseForm($doseForm) {
+    public function setDoseForm($doseForm)
+    {
         $this->doseForm = $doseForm;
         return $this;
     }
@@ -281,7 +289,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Specific amount of the drug in the packaged product.  For example, when specifying a product that has the same strength (For example, Insulin glargine 100 unit per mL solution for injection), this attribute provides additional clarification of the package amount (For example, 3 mL, 10mL, etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -290,7 +299,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -299,7 +309,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Additional names for a medication, for example, the name(s) given to a medication in different countries.  For example, acetaminophen and paracetamol or salbutamol and albuterol.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getSynonym() {
+    public function getSynonym()
+    {
         return $this->synonym;
     }
 
@@ -308,7 +319,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $synonym
      * @return $this
      */
-    public function addSynonym($synonym) {
+    public function addSynonym($synonym)
+    {
         $this->synonym[] = $synonym;
         return $this;
     }
@@ -317,7 +329,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Associated or related knowledge about a medication.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeRelatedMedicationKnowledge[]
      */
-    public function getRelatedMedicationKnowledge() {
+    public function getRelatedMedicationKnowledge()
+    {
         return $this->relatedMedicationKnowledge;
     }
 
@@ -326,7 +339,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeRelatedMedicationKnowledge $relatedMedicationKnowledge
      * @return $this
      */
-    public function addRelatedMedicationKnowledge($relatedMedicationKnowledge) {
+    public function addRelatedMedicationKnowledge($relatedMedicationKnowledge)
+    {
         $this->relatedMedicationKnowledge[] = $relatedMedicationKnowledge;
         return $this;
     }
@@ -335,7 +349,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Associated or related medications.  For example, if the medication is a branded product (e.g. Crestor), this is the Therapeutic Moeity (e.g. Rosuvastatin) or if this is a generic medication (e.g. Rosuvastatin), this would link to a branded product (e.g. Crestor).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getAssociatedMedication() {
+    public function getAssociatedMedication()
+    {
         return $this->associatedMedication;
     }
 
@@ -344,7 +359,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $associatedMedication
      * @return $this
      */
-    public function addAssociatedMedication($associatedMedication) {
+    public function addAssociatedMedication($associatedMedication)
+    {
         $this->associatedMedication[] = $associatedMedication;
         return $this;
     }
@@ -353,7 +369,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Category of the medication or product (e.g. branded product, therapeutic moeity, generic product, innovator product, etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getProductType() {
+    public function getProductType()
+    {
         return $this->productType;
     }
 
@@ -362,7 +379,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $productType
      * @return $this
      */
-    public function addProductType($productType) {
+    public function addProductType($productType)
+    {
         $this->productType[] = $productType;
         return $this;
     }
@@ -371,7 +389,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Associated documentation about the medication.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeMonograph[]
      */
-    public function getMonograph() {
+    public function getMonograph()
+    {
         return $this->monograph;
     }
 
@@ -380,7 +399,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeMonograph $monograph
      * @return $this
      */
-    public function addMonograph($monograph) {
+    public function addMonograph($monograph)
+    {
         $this->monograph[] = $monograph;
         return $this;
     }
@@ -389,7 +409,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Identifies a particular constituent of interest in the product.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeIngredient[]
      */
-    public function getIngredient() {
+    public function getIngredient()
+    {
         return $this->ingredient;
     }
 
@@ -398,7 +419,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeIngredient $ingredient
      * @return $this
      */
-    public function addIngredient($ingredient) {
+    public function addIngredient($ingredient)
+    {
         $this->ingredient[] = $ingredient;
         return $this;
     }
@@ -407,7 +429,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * The instructions for preparing the medication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getPreparationInstruction() {
+    public function getPreparationInstruction()
+    {
         return $this->preparationInstruction;
     }
 
@@ -416,7 +439,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $preparationInstruction
      * @return $this
      */
-    public function setPreparationInstruction($preparationInstruction) {
+    public function setPreparationInstruction($preparationInstruction)
+    {
         $this->preparationInstruction = $preparationInstruction;
         return $this;
     }
@@ -425,7 +449,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * The intended or approved route of administration.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getIntendedRoute() {
+    public function getIntendedRoute()
+    {
         return $this->intendedRoute;
     }
 
@@ -434,7 +459,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $intendedRoute
      * @return $this
      */
-    public function addIntendedRoute($intendedRoute) {
+    public function addIntendedRoute($intendedRoute)
+    {
         $this->intendedRoute[] = $intendedRoute;
         return $this;
     }
@@ -443,7 +469,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * The price of the medication.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeCost[]
      */
-    public function getCost() {
+    public function getCost()
+    {
         return $this->cost;
     }
 
@@ -452,7 +479,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeCost $cost
      * @return $this
      */
-    public function addCost($cost) {
+    public function addCost($cost)
+    {
         $this->cost[] = $cost;
         return $this;
     }
@@ -461,7 +489,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * The program under which the medication is reviewed.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeMonitoringProgram[]
      */
-    public function getMonitoringProgram() {
+    public function getMonitoringProgram()
+    {
         return $this->monitoringProgram;
     }
 
@@ -470,7 +499,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeMonitoringProgram $monitoringProgram
      * @return $this
      */
-    public function addMonitoringProgram($monitoringProgram) {
+    public function addMonitoringProgram($monitoringProgram)
+    {
         $this->monitoringProgram[] = $monitoringProgram;
         return $this;
     }
@@ -479,7 +509,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Guidelines for the administration of the medication.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeAdministrationGuidelines[]
      */
-    public function getAdministrationGuidelines() {
+    public function getAdministrationGuidelines()
+    {
         return $this->administrationGuidelines;
     }
 
@@ -488,7 +519,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeAdministrationGuidelines $administrationGuidelines
      * @return $this
      */
-    public function addAdministrationGuidelines($administrationGuidelines) {
+    public function addAdministrationGuidelines($administrationGuidelines)
+    {
         $this->administrationGuidelines[] = $administrationGuidelines;
         return $this;
     }
@@ -497,7 +529,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Categorization of the medication within a formulary or classification system.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeMedicineClassification[]
      */
-    public function getMedicineClassification() {
+    public function getMedicineClassification()
+    {
         return $this->medicineClassification;
     }
 
@@ -506,7 +539,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeMedicineClassification $medicineClassification
      * @return $this
      */
-    public function addMedicineClassification($medicineClassification) {
+    public function addMedicineClassification($medicineClassification)
+    {
         $this->medicineClassification[] = $medicineClassification;
         return $this;
     }
@@ -515,7 +549,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Information that only applies to packages (not products).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgePackaging
      */
-    public function getPackaging() {
+    public function getPackaging()
+    {
         return $this->packaging;
     }
 
@@ -524,7 +559,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgePackaging $packaging
      * @return $this
      */
-    public function setPackaging($packaging) {
+    public function setPackaging($packaging)
+    {
         $this->packaging = $packaging;
         return $this;
     }
@@ -533,7 +569,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Specifies descriptive properties of the medicine, such as color, shape, imprints, etc.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeDrugCharacteristic[]
      */
-    public function getDrugCharacteristic() {
+    public function getDrugCharacteristic()
+    {
         return $this->drugCharacteristic;
     }
 
@@ -542,7 +579,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeDrugCharacteristic $drugCharacteristic
      * @return $this
      */
-    public function addDrugCharacteristic($drugCharacteristic) {
+    public function addDrugCharacteristic($drugCharacteristic)
+    {
         $this->drugCharacteristic[] = $drugCharacteristic;
         return $this;
     }
@@ -551,7 +589,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Potential clinical issue with or between medication(s) (for example, drug-drug interaction, drug-disease contraindication, drug-allergy interaction, etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getContraindication() {
+    public function getContraindication()
+    {
         return $this->contraindication;
     }
 
@@ -560,7 +599,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $contraindication
      * @return $this
      */
-    public function addContraindication($contraindication) {
+    public function addContraindication($contraindication)
+    {
         $this->contraindication[] = $contraindication;
         return $this;
     }
@@ -569,7 +609,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * Regulatory information about a medication.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeRegulatory[]
      */
-    public function getRegulatory() {
+    public function getRegulatory()
+    {
         return $this->regulatory;
     }
 
@@ -578,7 +619,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeRegulatory $regulatory
      * @return $this
      */
-    public function addRegulatory($regulatory) {
+    public function addRegulatory($regulatory)
+    {
         $this->regulatory[] = $regulatory;
         return $this;
     }
@@ -587,7 +629,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * The time course of drug absorption, distribution, metabolism and excretion of a medication from the body.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeKinetics[]
      */
-    public function getKinetics() {
+    public function getKinetics()
+    {
         return $this->kinetics;
     }
 
@@ -596,7 +639,8 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeKinetics $kinetics
      * @return $this
      */
-    public function addKinetics($kinetics) {
+    public function addKinetics($kinetics)
+    {
         $this->kinetics[] = $kinetics;
         return $this;
     }
@@ -604,14 +648,16 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -630,7 +676,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['synonym'])) {
                 if (is_array($data['synonym'])) {
-                    foreach($data['synonym'] as $d) {
+                    foreach ($data['synonym'] as $d) {
                         $this->addSynonym($d);
                     }
                 } else {
@@ -639,7 +685,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['relatedMedicationKnowledge'])) {
                 if (is_array($data['relatedMedicationKnowledge'])) {
-                    foreach($data['relatedMedicationKnowledge'] as $d) {
+                    foreach ($data['relatedMedicationKnowledge'] as $d) {
                         $this->addRelatedMedicationKnowledge($d);
                     }
                 } else {
@@ -648,7 +694,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['associatedMedication'])) {
                 if (is_array($data['associatedMedication'])) {
-                    foreach($data['associatedMedication'] as $d) {
+                    foreach ($data['associatedMedication'] as $d) {
                         $this->addAssociatedMedication($d);
                     }
                 } else {
@@ -657,7 +703,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['productType'])) {
                 if (is_array($data['productType'])) {
-                    foreach($data['productType'] as $d) {
+                    foreach ($data['productType'] as $d) {
                         $this->addProductType($d);
                     }
                 } else {
@@ -666,7 +712,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['monograph'])) {
                 if (is_array($data['monograph'])) {
-                    foreach($data['monograph'] as $d) {
+                    foreach ($data['monograph'] as $d) {
                         $this->addMonograph($d);
                     }
                 } else {
@@ -675,7 +721,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['ingredient'])) {
                 if (is_array($data['ingredient'])) {
-                    foreach($data['ingredient'] as $d) {
+                    foreach ($data['ingredient'] as $d) {
                         $this->addIngredient($d);
                     }
                 } else {
@@ -687,7 +733,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['intendedRoute'])) {
                 if (is_array($data['intendedRoute'])) {
-                    foreach($data['intendedRoute'] as $d) {
+                    foreach ($data['intendedRoute'] as $d) {
                         $this->addIntendedRoute($d);
                     }
                 } else {
@@ -696,7 +742,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['cost'])) {
                 if (is_array($data['cost'])) {
-                    foreach($data['cost'] as $d) {
+                    foreach ($data['cost'] as $d) {
                         $this->addCost($d);
                     }
                 } else {
@@ -705,7 +751,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['monitoringProgram'])) {
                 if (is_array($data['monitoringProgram'])) {
-                    foreach($data['monitoringProgram'] as $d) {
+                    foreach ($data['monitoringProgram'] as $d) {
                         $this->addMonitoringProgram($d);
                     }
                 } else {
@@ -714,7 +760,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['administrationGuidelines'])) {
                 if (is_array($data['administrationGuidelines'])) {
-                    foreach($data['administrationGuidelines'] as $d) {
+                    foreach ($data['administrationGuidelines'] as $d) {
                         $this->addAdministrationGuidelines($d);
                     }
                 } else {
@@ -723,7 +769,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['medicineClassification'])) {
                 if (is_array($data['medicineClassification'])) {
-                    foreach($data['medicineClassification'] as $d) {
+                    foreach ($data['medicineClassification'] as $d) {
                         $this->addMedicineClassification($d);
                     }
                 } else {
@@ -735,7 +781,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['drugCharacteristic'])) {
                 if (is_array($data['drugCharacteristic'])) {
-                    foreach($data['drugCharacteristic'] as $d) {
+                    foreach ($data['drugCharacteristic'] as $d) {
                         $this->addDrugCharacteristic($d);
                     }
                 } else {
@@ -744,7 +790,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['contraindication'])) {
                 if (is_array($data['contraindication'])) {
-                    foreach($data['contraindication'] as $d) {
+                    foreach ($data['contraindication'] as $d) {
                         $this->addContraindication($d);
                     }
                 } else {
@@ -753,7 +799,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['regulatory'])) {
                 if (is_array($data['regulatory'])) {
-                    foreach($data['regulatory'] as $d) {
+                    foreach ($data['regulatory'] as $d) {
                         $this->addRegulatory($d);
                     }
                 } else {
@@ -762,7 +808,7 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['kinetics'])) {
                 if (is_array($data['kinetics'])) {
-                    foreach($data['kinetics'] as $d) {
+                    foreach ($data['kinetics'] as $d) {
                         $this->addKinetics($d);
                     }
                 } else {
@@ -778,110 +824,126 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->manufacturer)) $json['manufacturer'] = $this->manufacturer;
-        if (isset($this->doseForm)) $json['doseForm'] = $this->doseForm;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->manufacturer)) {
+            $json['manufacturer'] = $this->manufacturer;
+        }
+        if (isset($this->doseForm)) {
+            $json['doseForm'] = $this->doseForm;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
         if (0 < count($this->synonym)) {
             $json['synonym'] = [];
-            foreach($this->synonym as $synonym) {
+            foreach ($this->synonym as $synonym) {
                 $json['synonym'][] = $synonym;
             }
         }
         if (0 < count($this->relatedMedicationKnowledge)) {
             $json['relatedMedicationKnowledge'] = [];
-            foreach($this->relatedMedicationKnowledge as $relatedMedicationKnowledge) {
+            foreach ($this->relatedMedicationKnowledge as $relatedMedicationKnowledge) {
                 $json['relatedMedicationKnowledge'][] = $relatedMedicationKnowledge;
             }
         }
         if (0 < count($this->associatedMedication)) {
             $json['associatedMedication'] = [];
-            foreach($this->associatedMedication as $associatedMedication) {
+            foreach ($this->associatedMedication as $associatedMedication) {
                 $json['associatedMedication'][] = $associatedMedication;
             }
         }
         if (0 < count($this->productType)) {
             $json['productType'] = [];
-            foreach($this->productType as $productType) {
+            foreach ($this->productType as $productType) {
                 $json['productType'][] = $productType;
             }
         }
         if (0 < count($this->monograph)) {
             $json['monograph'] = [];
-            foreach($this->monograph as $monograph) {
+            foreach ($this->monograph as $monograph) {
                 $json['monograph'][] = $monograph;
             }
         }
         if (0 < count($this->ingredient)) {
             $json['ingredient'] = [];
-            foreach($this->ingredient as $ingredient) {
+            foreach ($this->ingredient as $ingredient) {
                 $json['ingredient'][] = $ingredient;
             }
         }
-        if (isset($this->preparationInstruction)) $json['preparationInstruction'] = $this->preparationInstruction;
+        if (isset($this->preparationInstruction)) {
+            $json['preparationInstruction'] = $this->preparationInstruction;
+        }
         if (0 < count($this->intendedRoute)) {
             $json['intendedRoute'] = [];
-            foreach($this->intendedRoute as $intendedRoute) {
+            foreach ($this->intendedRoute as $intendedRoute) {
                 $json['intendedRoute'][] = $intendedRoute;
             }
         }
         if (0 < count($this->cost)) {
             $json['cost'] = [];
-            foreach($this->cost as $cost) {
+            foreach ($this->cost as $cost) {
                 $json['cost'][] = $cost;
             }
         }
         if (0 < count($this->monitoringProgram)) {
             $json['monitoringProgram'] = [];
-            foreach($this->monitoringProgram as $monitoringProgram) {
+            foreach ($this->monitoringProgram as $monitoringProgram) {
                 $json['monitoringProgram'][] = $monitoringProgram;
             }
         }
         if (0 < count($this->administrationGuidelines)) {
             $json['administrationGuidelines'] = [];
-            foreach($this->administrationGuidelines as $administrationGuidelines) {
+            foreach ($this->administrationGuidelines as $administrationGuidelines) {
                 $json['administrationGuidelines'][] = $administrationGuidelines;
             }
         }
         if (0 < count($this->medicineClassification)) {
             $json['medicineClassification'] = [];
-            foreach($this->medicineClassification as $medicineClassification) {
+            foreach ($this->medicineClassification as $medicineClassification) {
                 $json['medicineClassification'][] = $medicineClassification;
             }
         }
-        if (isset($this->packaging)) $json['packaging'] = $this->packaging;
+        if (isset($this->packaging)) {
+            $json['packaging'] = $this->packaging;
+        }
         if (0 < count($this->drugCharacteristic)) {
             $json['drugCharacteristic'] = [];
-            foreach($this->drugCharacteristic as $drugCharacteristic) {
+            foreach ($this->drugCharacteristic as $drugCharacteristic) {
                 $json['drugCharacteristic'][] = $drugCharacteristic;
             }
         }
         if (0 < count($this->contraindication)) {
             $json['contraindication'] = [];
-            foreach($this->contraindication as $contraindication) {
+            foreach ($this->contraindication as $contraindication) {
                 $json['contraindication'][] = $contraindication;
             }
         }
         if (0 < count($this->regulatory)) {
             $json['regulatory'] = [];
-            foreach($this->regulatory as $regulatory) {
+            foreach ($this->regulatory as $regulatory) {
                 $json['regulatory'][] = $regulatory;
             }
         }
         if (0 < count($this->kinetics)) {
             $json['kinetics'] = [];
-            foreach($this->kinetics as $kinetics) {
+            foreach ($this->kinetics as $kinetics) {
                 $json['kinetics'][] = $kinetics;
             }
         }
@@ -893,94 +955,111 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationKnowledge xmlns="http://hl7.org/fhir"></MedicationKnowledge>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationKnowledge xmlns="http://hl7.org/fhir"></MedicationKnowledge>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->manufacturer)) $this->manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
-        if (isset($this->doseForm)) $this->doseForm->xmlSerialize(true, $sxe->addChild('doseForm'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->manufacturer)) {
+            $this->manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
+        }
+        if (isset($this->doseForm)) {
+            $this->doseForm->xmlSerialize(true, $sxe->addChild('doseForm'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
         if (0 < count($this->synonym)) {
-            foreach($this->synonym as $synonym) {
+            foreach ($this->synonym as $synonym) {
                 $synonym->xmlSerialize(true, $sxe->addChild('synonym'));
             }
         }
         if (0 < count($this->relatedMedicationKnowledge)) {
-            foreach($this->relatedMedicationKnowledge as $relatedMedicationKnowledge) {
+            foreach ($this->relatedMedicationKnowledge as $relatedMedicationKnowledge) {
                 $relatedMedicationKnowledge->xmlSerialize(true, $sxe->addChild('relatedMedicationKnowledge'));
             }
         }
         if (0 < count($this->associatedMedication)) {
-            foreach($this->associatedMedication as $associatedMedication) {
+            foreach ($this->associatedMedication as $associatedMedication) {
                 $associatedMedication->xmlSerialize(true, $sxe->addChild('associatedMedication'));
             }
         }
         if (0 < count($this->productType)) {
-            foreach($this->productType as $productType) {
+            foreach ($this->productType as $productType) {
                 $productType->xmlSerialize(true, $sxe->addChild('productType'));
             }
         }
         if (0 < count($this->monograph)) {
-            foreach($this->monograph as $monograph) {
+            foreach ($this->monograph as $monograph) {
                 $monograph->xmlSerialize(true, $sxe->addChild('monograph'));
             }
         }
         if (0 < count($this->ingredient)) {
-            foreach($this->ingredient as $ingredient) {
+            foreach ($this->ingredient as $ingredient) {
                 $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
             }
         }
-        if (isset($this->preparationInstruction)) $this->preparationInstruction->xmlSerialize(true, $sxe->addChild('preparationInstruction'));
+        if (isset($this->preparationInstruction)) {
+            $this->preparationInstruction->xmlSerialize(true, $sxe->addChild('preparationInstruction'));
+        }
         if (0 < count($this->intendedRoute)) {
-            foreach($this->intendedRoute as $intendedRoute) {
+            foreach ($this->intendedRoute as $intendedRoute) {
                 $intendedRoute->xmlSerialize(true, $sxe->addChild('intendedRoute'));
             }
         }
         if (0 < count($this->cost)) {
-            foreach($this->cost as $cost) {
+            foreach ($this->cost as $cost) {
                 $cost->xmlSerialize(true, $sxe->addChild('cost'));
             }
         }
         if (0 < count($this->monitoringProgram)) {
-            foreach($this->monitoringProgram as $monitoringProgram) {
+            foreach ($this->monitoringProgram as $monitoringProgram) {
                 $monitoringProgram->xmlSerialize(true, $sxe->addChild('monitoringProgram'));
             }
         }
         if (0 < count($this->administrationGuidelines)) {
-            foreach($this->administrationGuidelines as $administrationGuidelines) {
+            foreach ($this->administrationGuidelines as $administrationGuidelines) {
                 $administrationGuidelines->xmlSerialize(true, $sxe->addChild('administrationGuidelines'));
             }
         }
         if (0 < count($this->medicineClassification)) {
-            foreach($this->medicineClassification as $medicineClassification) {
+            foreach ($this->medicineClassification as $medicineClassification) {
                 $medicineClassification->xmlSerialize(true, $sxe->addChild('medicineClassification'));
             }
         }
-        if (isset($this->packaging)) $this->packaging->xmlSerialize(true, $sxe->addChild('packaging'));
+        if (isset($this->packaging)) {
+            $this->packaging->xmlSerialize(true, $sxe->addChild('packaging'));
+        }
         if (0 < count($this->drugCharacteristic)) {
-            foreach($this->drugCharacteristic as $drugCharacteristic) {
+            foreach ($this->drugCharacteristic as $drugCharacteristic) {
                 $drugCharacteristic->xmlSerialize(true, $sxe->addChild('drugCharacteristic'));
             }
         }
         if (0 < count($this->contraindication)) {
-            foreach($this->contraindication as $contraindication) {
+            foreach ($this->contraindication as $contraindication) {
                 $contraindication->xmlSerialize(true, $sxe->addChild('contraindication'));
             }
         }
         if (0 < count($this->regulatory)) {
-            foreach($this->regulatory as $regulatory) {
+            foreach ($this->regulatory as $regulatory) {
                 $regulatory->xmlSerialize(true, $sxe->addChild('regulatory'));
             }
         }
         if (0 < count($this->kinetics)) {
-            foreach($this->kinetics as $kinetics) {
+            foreach ($this->kinetics as $kinetics) {
                 $kinetics->xmlSerialize(true, $sxe->addChild('kinetics'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

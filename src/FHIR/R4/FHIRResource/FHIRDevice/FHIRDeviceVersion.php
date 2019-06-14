@@ -94,7 +94,8 @@ class FHIRDeviceVersion extends FHIRBackboneElement implements \JsonSerializable
      * The type of the device version.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -103,7 +104,8 @@ class FHIRDeviceVersion extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRDeviceVersion extends FHIRBackboneElement implements \JsonSerializable
      * A single component of the device version.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getComponent() {
+    public function getComponent()
+    {
         return $this->component;
     }
 
@@ -121,7 +124,8 @@ class FHIRDeviceVersion extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $component
      * @return $this
      */
-    public function setComponent($component) {
+    public function setComponent($component)
+    {
         $this->component = $component;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRDeviceVersion extends FHIRBackboneElement implements \JsonSerializable
      * The version text.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -139,7 +144,8 @@ class FHIRDeviceVersion extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRDeviceVersion extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -174,18 +182,26 @@ class FHIRDeviceVersion extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->component)) $json['component'] = $this->component;
-        if (isset($this->value)) $json['value'] = $this->value;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->component)) {
+            $json['component'] = $this->component;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRDeviceVersion extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DeviceVersion xmlns="http://hl7.org/fhir"></DeviceVersion>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DeviceVersion xmlns="http://hl7.org/fhir"></DeviceVersion>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->component)) $this->component->xmlSerialize(true, $sxe->addChild('component'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->component)) {
+            $this->component->xmlSerialize(true, $sxe->addChild('component'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

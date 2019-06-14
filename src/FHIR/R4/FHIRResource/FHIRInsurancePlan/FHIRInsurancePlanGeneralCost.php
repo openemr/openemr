@@ -100,7 +100,8 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
      * Type of cost.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -109,7 +110,8 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
      * Number of participants enrolled in the plan.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getGroupSize() {
+    public function getGroupSize()
+    {
         return $this->groupSize;
     }
 
@@ -127,7 +130,8 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $groupSize
      * @return $this
      */
-    public function setGroupSize($groupSize) {
+    public function setGroupSize($groupSize)
+    {
         $this->groupSize = $groupSize;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
      * Value of the cost.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getCost() {
+    public function getCost()
+    {
         return $this->cost;
     }
 
@@ -145,7 +150,8 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $cost
      * @return $this
      */
-    public function setCost($cost) {
+    public function setCost($cost)
+    {
         $this->cost = $cost;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
      * Additional information about the general costs associated with this plan.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -163,7 +170,8 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -201,19 +211,29 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->groupSize)) $json['groupSize'] = $this->groupSize;
-        if (isset($this->cost)) $json['cost'] = $this->cost;
-        if (isset($this->comment)) $json['comment'] = $this->comment;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->groupSize)) {
+            $json['groupSize'] = $this->groupSize;
+        }
+        if (isset($this->cost)) {
+            $json['cost'] = $this->cost;
+        }
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InsurancePlanGeneralCost xmlns="http://hl7.org/fhir"></InsurancePlanGeneralCost>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InsurancePlanGeneralCost xmlns="http://hl7.org/fhir"></InsurancePlanGeneralCost>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->groupSize)) $this->groupSize->xmlSerialize(true, $sxe->addChild('groupSize'));
-        if (isset($this->cost)) $this->cost->xmlSerialize(true, $sxe->addChild('cost'));
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->groupSize)) {
+            $this->groupSize->xmlSerialize(true, $sxe->addChild('groupSize'));
+        }
+        if (isset($this->cost)) {
+            $this->cost->xmlSerialize(true, $sxe->addChild('cost'));
+        }
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

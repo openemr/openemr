@@ -100,7 +100,8 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
      * The authority that is specifying the regulations.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRegulatoryAuthority() {
+    public function getRegulatoryAuthority()
+    {
         return $this->regulatoryAuthority;
     }
 
@@ -109,7 +110,8 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $regulatoryAuthority
      * @return $this
      */
-    public function setRegulatoryAuthority($regulatoryAuthority) {
+    public function setRegulatoryAuthority($regulatoryAuthority)
+    {
         $this->regulatoryAuthority = $regulatoryAuthority;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
      * Specifies if changes are allowed when dispensing a medication from a regulatory perspective.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeSubstitution[]
      */
-    public function getSubstitution() {
+    public function getSubstitution()
+    {
         return $this->substitution;
     }
 
@@ -127,7 +130,8 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeSubstitution $substitution
      * @return $this
      */
-    public function addSubstitution($substitution) {
+    public function addSubstitution($substitution)
+    {
         $this->substitution[] = $substitution;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
      * Specifies the schedule of a medication in jurisdiction.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeSchedule[]
      */
-    public function getSchedule() {
+    public function getSchedule()
+    {
         return $this->schedule;
     }
 
@@ -145,7 +150,8 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeSchedule $schedule
      * @return $this
      */
-    public function addSchedule($schedule) {
+    public function addSchedule($schedule)
+    {
         $this->schedule[] = $schedule;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
      * The maximum number of units of the medication that can be dispensed in a period.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeMaxDispense
      */
-    public function getMaxDispense() {
+    public function getMaxDispense()
+    {
         return $this->maxDispense;
     }
 
@@ -163,7 +170,8 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeMaxDispense $maxDispense
      * @return $this
      */
-    public function setMaxDispense($maxDispense) {
+    public function setMaxDispense($maxDispense)
+    {
         $this->maxDispense = $maxDispense;
         return $this;
     }
@@ -171,21 +179,23 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['regulatoryAuthority'])) {
                 $this->setRegulatoryAuthority($data['regulatoryAuthority']);
             }
             if (isset($data['substitution'])) {
                 if (is_array($data['substitution'])) {
-                    foreach($data['substitution'] as $d) {
+                    foreach ($data['substitution'] as $d) {
                         $this->addSubstitution($d);
                     }
                 } else {
@@ -194,7 +204,7 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
             }
             if (isset($data['schedule'])) {
                 if (is_array($data['schedule'])) {
-                    foreach($data['schedule'] as $d) {
+                    foreach ($data['schedule'] as $d) {
                         $this->addSchedule($d);
                     }
                 } else {
@@ -213,29 +223,35 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->regulatoryAuthority)) $json['regulatoryAuthority'] = $this->regulatoryAuthority;
+        if (isset($this->regulatoryAuthority)) {
+            $json['regulatoryAuthority'] = $this->regulatoryAuthority;
+        }
         if (0 < count($this->substitution)) {
             $json['substitution'] = [];
-            foreach($this->substitution as $substitution) {
+            foreach ($this->substitution as $substitution) {
                 $json['substitution'][] = $substitution;
             }
         }
         if (0 < count($this->schedule)) {
             $json['schedule'] = [];
-            foreach($this->schedule as $schedule) {
+            foreach ($this->schedule as $schedule) {
                 $json['schedule'][] = $schedule;
             }
         }
-        if (isset($this->maxDispense)) $json['maxDispense'] = $this->maxDispense;
+        if (isset($this->maxDispense)) {
+            $json['maxDispense'] = $this->maxDispense;
+        }
         return $json;
     }
 
@@ -244,24 +260,31 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationKnowledgeRegulatory xmlns="http://hl7.org/fhir"></MedicationKnowledgeRegulatory>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationKnowledgeRegulatory xmlns="http://hl7.org/fhir"></MedicationKnowledgeRegulatory>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->regulatoryAuthority)) $this->regulatoryAuthority->xmlSerialize(true, $sxe->addChild('regulatoryAuthority'));
+        if (isset($this->regulatoryAuthority)) {
+            $this->regulatoryAuthority->xmlSerialize(true, $sxe->addChild('regulatoryAuthority'));
+        }
         if (0 < count($this->substitution)) {
-            foreach($this->substitution as $substitution) {
+            foreach ($this->substitution as $substitution) {
                 $substitution->xmlSerialize(true, $sxe->addChild('substitution'));
             }
         }
         if (0 < count($this->schedule)) {
-            foreach($this->schedule as $schedule) {
+            foreach ($this->schedule as $schedule) {
                 $schedule->xmlSerialize(true, $sxe->addChild('schedule'));
             }
         }
-        if (isset($this->maxDispense)) $this->maxDispense->xmlSerialize(true, $sxe->addChild('maxDispense'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->maxDispense)) {
+            $this->maxDispense->xmlSerialize(true, $sxe->addChild('maxDispense'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

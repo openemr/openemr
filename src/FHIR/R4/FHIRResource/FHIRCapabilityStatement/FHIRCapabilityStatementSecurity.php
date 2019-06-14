@@ -94,7 +94,8 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
      * Server adds CORS headers when responding to requests - this enables Javascript applications to use the server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getCors() {
+    public function getCors()
+    {
         return $this->cors;
     }
 
@@ -103,7 +104,8 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $cors
      * @return $this
      */
-    public function setCors($cors) {
+    public function setCors($cors)
+    {
         $this->cors = $cors;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
      * Types of security services that are supported/required by the system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getService() {
+    public function getService()
+    {
         return $this->service;
     }
 
@@ -121,7 +124,8 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $service
      * @return $this
      */
-    public function addService($service) {
+    public function addService($service)
+    {
         $this->service[] = $service;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
      * General description of how security works.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -139,7 +144,8 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -147,21 +153,23 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['cors'])) {
                 $this->setCors($data['cors']);
             }
             if (isset($data['service'])) {
                 if (is_array($data['service'])) {
-                    foreach($data['service'] as $d) {
+                    foreach ($data['service'] as $d) {
                         $this->addService($d);
                     }
                 } else {
@@ -180,23 +188,29 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->cors)) $json['cors'] = $this->cors;
+        if (isset($this->cors)) {
+            $json['cors'] = $this->cors;
+        }
         if (0 < count($this->service)) {
             $json['service'] = [];
-            foreach($this->service as $service) {
+            foreach ($this->service as $service) {
                 $json['service'][] = $service;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         return $json;
     }
 
@@ -205,19 +219,26 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CapabilityStatementSecurity xmlns="http://hl7.org/fhir"></CapabilityStatementSecurity>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CapabilityStatementSecurity xmlns="http://hl7.org/fhir"></CapabilityStatementSecurity>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->cors)) $this->cors->xmlSerialize(true, $sxe->addChild('cors'));
+        if (isset($this->cors)) {
+            $this->cors->xmlSerialize(true, $sxe->addChild('cors'));
+        }
         if (0 < count($this->service)) {
-            foreach($this->service as $service) {
+            foreach ($this->service as $service) {
                 $service->xmlSerialize(true, $sxe->addChild('service'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

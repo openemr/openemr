@@ -100,7 +100,8 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
      * An identifier that applies to this person's qualification in this role.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -109,7 +110,8 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
      * Coded representation of the qualification.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -127,7 +130,8 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
      * Period during which the qualification is valid.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -145,7 +150,8 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
      * Organization that regulates and issues the qualification.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getIssuer() {
+    public function getIssuer()
+    {
         return $this->issuer;
     }
 
@@ -163,7 +170,8 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $issuer
      * @return $this
      */
-    public function setIssuer($issuer) {
+    public function setIssuer($issuer)
+    {
         $this->issuer = $issuer;
         return $this;
     }
@@ -171,18 +179,20 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -207,24 +217,32 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->period)) $json['period'] = $this->period;
-        if (isset($this->issuer)) $json['issuer'] = $this->issuer;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
+        if (isset($this->issuer)) {
+            $json['issuer'] = $this->issuer;
+        }
         return $json;
     }
 
@@ -233,20 +251,29 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PractitionerQualification xmlns="http://hl7.org/fhir"></PractitionerQualification>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PractitionerQualification xmlns="http://hl7.org/fhir"></PractitionerQualification>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if (isset($this->issuer)) $this->issuer->xmlSerialize(true, $sxe->addChild('issuer'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if (isset($this->issuer)) {
+            $this->issuer->xmlSerialize(true, $sxe->addChild('issuer'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

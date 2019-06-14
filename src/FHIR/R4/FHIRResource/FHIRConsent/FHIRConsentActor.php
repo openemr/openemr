@@ -88,7 +88,8 @@ class FHIRConsentActor extends FHIRBackboneElement implements \JsonSerializable
      * How the individual is involved in the resources content that is described in the exception.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRole() {
+    public function getRole()
+    {
         return $this->role;
     }
 
@@ -97,7 +98,8 @@ class FHIRConsentActor extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $role
      * @return $this
      */
-    public function setRole($role) {
+    public function setRole($role)
+    {
         $this->role = $role;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRConsentActor extends FHIRBackboneElement implements \JsonSerializable
      * The resource that identifies the actor. To identify actors by type, use group to identify a set of actors by some property they share (e.g. 'admitting officers').
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -115,7 +118,8 @@ class FHIRConsentActor extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reference
      * @return $this
      */
-    public function setReference($reference) {
+    public function setReference($reference)
+    {
         $this->reference = $reference;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRConsentActor extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['role'])) {
                 $this->setRole($data['role']);
@@ -147,17 +153,23 @@ class FHIRConsentActor extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->role)) $json['role'] = $this->role;
-        if (isset($this->reference)) $json['reference'] = $this->reference;
+        if (isset($this->role)) {
+            $json['role'] = $this->role;
+        }
+        if (isset($this->reference)) {
+            $json['reference'] = $this->reference;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRConsentActor extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ConsentActor xmlns="http://hl7.org/fhir"></ConsentActor>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ConsentActor xmlns="http://hl7.org/fhir"></ConsentActor>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->role)) $this->role->xmlSerialize(true, $sxe->addChild('role'));
-        if (isset($this->reference)) $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->role)) {
+            $this->role->xmlSerialize(true, $sxe->addChild('role'));
+        }
+        if (isset($this->reference)) {
+            $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

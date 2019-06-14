@@ -100,7 +100,8 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
      * A reference to an element that holds a coded value that corresponds to a code system property. The idea is that the information model carries an element somewhere that is labeled to correspond with a code system property.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getProperty() {
+    public function getProperty()
+    {
         return $this->property;
     }
 
@@ -109,7 +110,8 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $property
      * @return $this
      */
-    public function setProperty($property) {
+    public function setProperty($property)
+    {
         $this->property = $property;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
      * An absolute URI that identifies the code system of the dependency code (if the source/dependency is a value set that crosses code systems).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getSystem() {
+    public function getSystem()
+    {
         return $this->system;
     }
 
@@ -127,7 +130,8 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $system
      * @return $this
      */
-    public function setSystem($system) {
+    public function setSystem($system)
+    {
         $this->system = $system;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
      * Identity (code or path) or the element/item/ValueSet/text that the map depends on / refers to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -145,7 +150,8 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
      * The display for the code. The display is only provided to help editors when editing the concept map.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDisplay() {
+    public function getDisplay()
+    {
         return $this->display;
     }
 
@@ -163,7 +170,8 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $display
      * @return $this
      */
-    public function setDisplay($display) {
+    public function setDisplay($display)
+    {
         $this->display = $display;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['property'])) {
                 $this->setProperty($data['property']);
@@ -201,19 +211,29 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->property)) $json['property'] = $this->property;
-        if (isset($this->system)) $json['system'] = $this->system;
-        if (isset($this->value)) $json['value'] = $this->value;
-        if (isset($this->display)) $json['display'] = $this->display;
+        if (isset($this->property)) {
+            $json['property'] = $this->property;
+        }
+        if (isset($this->system)) {
+            $json['system'] = $this->system;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
+        if (isset($this->display)) {
+            $json['display'] = $this->display;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ConceptMapDependsOn xmlns="http://hl7.org/fhir"></ConceptMapDependsOn>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ConceptMapDependsOn xmlns="http://hl7.org/fhir"></ConceptMapDependsOn>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->property)) $this->property->xmlSerialize(true, $sxe->addChild('property'));
-        if (isset($this->system)) $this->system->xmlSerialize(true, $sxe->addChild('system'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if (isset($this->display)) $this->display->xmlSerialize(true, $sxe->addChild('display'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->property)) {
+            $this->property->xmlSerialize(true, $sxe->addChild('property'));
+        }
+        if (isset($this->system)) {
+            $this->system->xmlSerialize(true, $sxe->addChild('system'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if (isset($this->display)) {
+            $this->display->xmlSerialize(true, $sxe->addChild('display'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

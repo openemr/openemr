@@ -106,7 +106,8 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * An absolute URI which is the code system from which the selected codes come from.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getSystem() {
+    public function getSystem()
+    {
         return $this->system;
     }
 
@@ -115,7 +116,8 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $system
      * @return $this
      */
-    public function setSystem($system) {
+    public function setSystem($system)
+    {
         $this->system = $system;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * The version of the code system that the codes are selected from, or the special version '*' for all versions.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -133,7 +136,8 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * Specifies a concept to be included or excluded.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetConcept[]
      */
-    public function getConcept() {
+    public function getConcept()
+    {
         return $this->concept;
     }
 
@@ -151,7 +156,8 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetConcept $concept
      * @return $this
      */
-    public function addConcept($concept) {
+    public function addConcept($concept)
+    {
         $this->concept[] = $concept;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * Select concepts by specify a matching criterion based on the properties (including relationships) defined by the system, or on filters defined by the system. If multiple filters are specified, they SHALL all be true.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetFilter[]
      */
-    public function getFilter() {
+    public function getFilter()
+    {
         return $this->filter;
     }
 
@@ -169,7 +176,8 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetFilter $filter
      * @return $this
      */
-    public function addFilter($filter) {
+    public function addFilter($filter)
+    {
         $this->filter[] = $filter;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * Selects the concepts found in this value set (based on its value set definition). This is an absolute URI that is a reference to ValueSet.url.  If multiple value sets are specified this includes the union of the contents of all of the referenced value sets.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical[]
      */
-    public function getValueSet() {
+    public function getValueSet()
+    {
         return $this->valueSet;
     }
 
@@ -187,7 +196,8 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $valueSet
      * @return $this
      */
-    public function addValueSet($valueSet) {
+    public function addValueSet($valueSet)
+    {
         $this->valueSet[] = $valueSet;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['system'])) {
                 $this->setSystem($data['system']);
@@ -212,7 +224,7 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
             }
             if (isset($data['concept'])) {
                 if (is_array($data['concept'])) {
-                    foreach($data['concept'] as $d) {
+                    foreach ($data['concept'] as $d) {
                         $this->addConcept($d);
                     }
                 } else {
@@ -221,7 +233,7 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
             }
             if (isset($data['filter'])) {
                 if (is_array($data['filter'])) {
-                    foreach($data['filter'] as $d) {
+                    foreach ($data['filter'] as $d) {
                         $this->addFilter($d);
                     }
                 } else {
@@ -230,7 +242,7 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
             }
             if (isset($data['valueSet'])) {
                 if (is_array($data['valueSet'])) {
-                    foreach($data['valueSet'] as $d) {
+                    foreach ($data['valueSet'] as $d) {
                         $this->addValueSet($d);
                     }
                 } else {
@@ -246,32 +258,38 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->system)) $json['system'] = $this->system;
-        if (isset($this->version)) $json['version'] = $this->version;
+        if (isset($this->system)) {
+            $json['system'] = $this->system;
+        }
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
         if (0 < count($this->concept)) {
             $json['concept'] = [];
-            foreach($this->concept as $concept) {
+            foreach ($this->concept as $concept) {
                 $json['concept'][] = $concept;
             }
         }
         if (0 < count($this->filter)) {
             $json['filter'] = [];
-            foreach($this->filter as $filter) {
+            foreach ($this->filter as $filter) {
                 $json['filter'][] = $filter;
             }
         }
         if (0 < count($this->valueSet)) {
             $json['valueSet'] = [];
-            foreach($this->valueSet as $valueSet) {
+            foreach ($this->valueSet as $valueSet) {
                 $json['valueSet'][] = $valueSet;
             }
         }
@@ -283,29 +301,36 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ValueSetInclude xmlns="http://hl7.org/fhir"></ValueSetInclude>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ValueSetInclude xmlns="http://hl7.org/fhir"></ValueSetInclude>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->system)) $this->system->xmlSerialize(true, $sxe->addChild('system'));
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        if (isset($this->system)) {
+            $this->system->xmlSerialize(true, $sxe->addChild('system'));
+        }
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
         if (0 < count($this->concept)) {
-            foreach($this->concept as $concept) {
+            foreach ($this->concept as $concept) {
                 $concept->xmlSerialize(true, $sxe->addChild('concept'));
             }
         }
         if (0 < count($this->filter)) {
-            foreach($this->filter as $filter) {
+            foreach ($this->filter as $filter) {
                 $filter->xmlSerialize(true, $sxe->addChild('filter'));
             }
         }
         if (0 < count($this->valueSet)) {
-            foreach($this->valueSet as $valueSet) {
+            foreach ($this->valueSet as $valueSet) {
                 $valueSet->xmlSerialize(true, $sxe->addChild('valueSet'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

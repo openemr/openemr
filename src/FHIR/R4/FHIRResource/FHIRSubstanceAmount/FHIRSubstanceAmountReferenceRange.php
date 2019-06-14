@@ -89,7 +89,8 @@ class FHIRSubstanceAmountReferenceRange extends FHIRBackboneElement implements \
      * Lower limit possible or expected.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getLowLimit() {
+    public function getLowLimit()
+    {
         return $this->lowLimit;
     }
 
@@ -98,7 +99,8 @@ class FHIRSubstanceAmountReferenceRange extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $lowLimit
      * @return $this
      */
-    public function setLowLimit($lowLimit) {
+    public function setLowLimit($lowLimit)
+    {
         $this->lowLimit = $lowLimit;
         return $this;
     }
@@ -107,7 +109,8 @@ class FHIRSubstanceAmountReferenceRange extends FHIRBackboneElement implements \
      * Upper limit possible or expected.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getHighLimit() {
+    public function getHighLimit()
+    {
         return $this->highLimit;
     }
 
@@ -116,7 +119,8 @@ class FHIRSubstanceAmountReferenceRange extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $highLimit
      * @return $this
      */
-    public function setHighLimit($highLimit) {
+    public function setHighLimit($highLimit)
+    {
         $this->highLimit = $highLimit;
         return $this;
     }
@@ -124,14 +128,16 @@ class FHIRSubstanceAmountReferenceRange extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['lowLimit'])) {
                 $this->setLowLimit($data['lowLimit']);
@@ -148,17 +154,23 @@ class FHIRSubstanceAmountReferenceRange extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->lowLimit)) $json['lowLimit'] = $this->lowLimit;
-        if (isset($this->highLimit)) $json['highLimit'] = $this->highLimit;
+        if (isset($this->lowLimit)) {
+            $json['lowLimit'] = $this->lowLimit;
+        }
+        if (isset($this->highLimit)) {
+            $json['highLimit'] = $this->highLimit;
+        }
         return $json;
     }
 
@@ -167,14 +179,21 @@ class FHIRSubstanceAmountReferenceRange extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceAmountReferenceRange xmlns="http://hl7.org/fhir"></SubstanceAmountReferenceRange>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceAmountReferenceRange xmlns="http://hl7.org/fhir"></SubstanceAmountReferenceRange>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->lowLimit)) $this->lowLimit->xmlSerialize(true, $sxe->addChild('lowLimit'));
-        if (isset($this->highLimit)) $this->highLimit->xmlSerialize(true, $sxe->addChild('highLimit'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->lowLimit)) {
+            $this->lowLimit->xmlSerialize(true, $sxe->addChild('lowLimit'));
+        }
+        if (isset($this->highLimit)) {
+            $this->highLimit->xmlSerialize(true, $sxe->addChild('highLimit'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

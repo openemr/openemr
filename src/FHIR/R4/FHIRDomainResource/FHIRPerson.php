@@ -137,7 +137,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * Identifier for a person within a particular scope.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -146,7 +147,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -155,7 +157,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * A name associated with the person.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName[]
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -164,7 +167,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName $name
      * @return $this
      */
-    public function addName($name) {
+    public function addName($name)
+    {
         $this->name[] = $name;
         return $this;
     }
@@ -173,7 +177,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * A contact detail for the person, e.g. a telephone number or an email address.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint[]
      */
-    public function getTelecom() {
+    public function getTelecom()
+    {
         return $this->telecom;
     }
 
@@ -182,7 +187,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $telecom
      * @return $this
      */
-    public function addTelecom($telecom) {
+    public function addTelecom($telecom)
+    {
         $this->telecom[] = $telecom;
         return $this;
     }
@@ -191,7 +197,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * Administrative Gender.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender
      */
-    public function getGender() {
+    public function getGender()
+    {
         return $this->gender;
     }
 
@@ -200,7 +207,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender $gender
      * @return $this
      */
-    public function setGender($gender) {
+    public function setGender($gender)
+    {
         $this->gender = $gender;
         return $this;
     }
@@ -209,7 +217,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * The birth date for the person.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getBirthDate() {
+    public function getBirthDate()
+    {
         return $this->birthDate;
     }
 
@@ -218,7 +227,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $birthDate
      * @return $this
      */
-    public function setBirthDate($birthDate) {
+    public function setBirthDate($birthDate)
+    {
         $this->birthDate = $birthDate;
         return $this;
     }
@@ -227,7 +237,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * One or more addresses for the person.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress[]
      */
-    public function getAddress() {
+    public function getAddress()
+    {
         return $this->address;
     }
 
@@ -236,7 +247,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $address
      * @return $this
      */
-    public function addAddress($address) {
+    public function addAddress($address)
+    {
         $this->address[] = $address;
         return $this;
     }
@@ -245,7 +257,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * An image that can be displayed as a thumbnail of the person to enhance the identification of the individual.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getPhoto() {
+    public function getPhoto()
+    {
         return $this->photo;
     }
 
@@ -254,7 +267,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $photo
      * @return $this
      */
-    public function setPhoto($photo) {
+    public function setPhoto($photo)
+    {
         $this->photo = $photo;
         return $this;
     }
@@ -263,7 +277,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * The organization that is the custodian of the person record.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getManagingOrganization() {
+    public function getManagingOrganization()
+    {
         return $this->managingOrganization;
     }
 
@@ -272,7 +287,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $managingOrganization
      * @return $this
      */
-    public function setManagingOrganization($managingOrganization) {
+    public function setManagingOrganization($managingOrganization)
+    {
         $this->managingOrganization = $managingOrganization;
         return $this;
     }
@@ -281,7 +297,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * Whether this person's record is in active use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getActive() {
+    public function getActive()
+    {
         return $this->active;
     }
 
@@ -290,7 +307,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $active
      * @return $this
      */
-    public function setActive($active) {
+    public function setActive($active)
+    {
         $this->active = $active;
         return $this;
     }
@@ -299,7 +317,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * Link to a resource that concerns the same actual person.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPerson\FHIRPersonLink[]
      */
-    public function getLink() {
+    public function getLink()
+    {
         return $this->link;
     }
 
@@ -308,7 +327,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPerson\FHIRPersonLink $link
      * @return $this
      */
-    public function addLink($link) {
+    public function addLink($link)
+    {
         $this->link[] = $link;
         return $this;
     }
@@ -316,18 +336,20 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -336,7 +358,7 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['name'])) {
                 if (is_array($data['name'])) {
-                    foreach($data['name'] as $d) {
+                    foreach ($data['name'] as $d) {
                         $this->addName($d);
                     }
                 } else {
@@ -345,7 +367,7 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['telecom'])) {
                 if (is_array($data['telecom'])) {
-                    foreach($data['telecom'] as $d) {
+                    foreach ($data['telecom'] as $d) {
                         $this->addTelecom($d);
                     }
                 } else {
@@ -360,7 +382,7 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['address'])) {
                 if (is_array($data['address'])) {
-                    foreach($data['address'] as $d) {
+                    foreach ($data['address'] as $d) {
                         $this->addAddress($d);
                     }
                 } else {
@@ -378,7 +400,7 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['link'])) {
                 if (is_array($data['link'])) {
-                    foreach($data['link'] as $d) {
+                    foreach ($data['link'] as $d) {
                         $this->addLink($d);
                     }
                 } else {
@@ -394,48 +416,60 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->name)) {
             $json['name'] = [];
-            foreach($this->name as $name) {
+            foreach ($this->name as $name) {
                 $json['name'][] = $name;
             }
         }
         if (0 < count($this->telecom)) {
             $json['telecom'] = [];
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $json['telecom'][] = $telecom;
             }
         }
-        if (isset($this->gender)) $json['gender'] = $this->gender;
-        if (isset($this->birthDate)) $json['birthDate'] = $this->birthDate;
+        if (isset($this->gender)) {
+            $json['gender'] = $this->gender;
+        }
+        if (isset($this->birthDate)) {
+            $json['birthDate'] = $this->birthDate;
+        }
         if (0 < count($this->address)) {
             $json['address'] = [];
-            foreach($this->address as $address) {
+            foreach ($this->address as $address) {
                 $json['address'][] = $address;
             }
         }
-        if (isset($this->photo)) $json['photo'] = $this->photo;
-        if (isset($this->managingOrganization)) $json['managingOrganization'] = $this->managingOrganization;
-        if (isset($this->active)) $json['active'] = $this->active;
+        if (isset($this->photo)) {
+            $json['photo'] = $this->photo;
+        }
+        if (isset($this->managingOrganization)) {
+            $json['managingOrganization'] = $this->managingOrganization;
+        }
+        if (isset($this->active)) {
+            $json['active'] = $this->active;
+        }
         if (0 < count($this->link)) {
             $json['link'] = [];
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $json['link'][] = $link;
             }
         }
@@ -447,42 +481,55 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Person xmlns="http://hl7.org/fhir"></Person>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Person xmlns="http://hl7.org/fhir"></Person>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->name)) {
-            foreach($this->name as $name) {
+            foreach ($this->name as $name) {
                 $name->xmlSerialize(true, $sxe->addChild('name'));
             }
         }
         if (0 < count($this->telecom)) {
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
             }
         }
-        if (isset($this->gender)) $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
-        if (isset($this->birthDate)) $this->birthDate->xmlSerialize(true, $sxe->addChild('birthDate'));
+        if (isset($this->gender)) {
+            $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
+        }
+        if (isset($this->birthDate)) {
+            $this->birthDate->xmlSerialize(true, $sxe->addChild('birthDate'));
+        }
         if (0 < count($this->address)) {
-            foreach($this->address as $address) {
+            foreach ($this->address as $address) {
                 $address->xmlSerialize(true, $sxe->addChild('address'));
             }
         }
-        if (isset($this->photo)) $this->photo->xmlSerialize(true, $sxe->addChild('photo'));
-        if (isset($this->managingOrganization)) $this->managingOrganization->xmlSerialize(true, $sxe->addChild('managingOrganization'));
-        if (isset($this->active)) $this->active->xmlSerialize(true, $sxe->addChild('active'));
+        if (isset($this->photo)) {
+            $this->photo->xmlSerialize(true, $sxe->addChild('photo'));
+        }
+        if (isset($this->managingOrganization)) {
+            $this->managingOrganization->xmlSerialize(true, $sxe->addChild('managingOrganization'));
+        }
+        if (isset($this->active)) {
+            $this->active->xmlSerialize(true, $sxe->addChild('active'));
+        }
         if (0 < count($this->link)) {
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $link->xmlSerialize(true, $sxe->addChild('link'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

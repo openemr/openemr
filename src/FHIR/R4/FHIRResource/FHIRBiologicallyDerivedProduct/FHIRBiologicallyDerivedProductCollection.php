@@ -99,7 +99,8 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
      * Healthcare professional who is performing the collection.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCollector() {
+    public function getCollector()
+    {
         return $this->collector;
     }
 
@@ -108,7 +109,8 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $collector
      * @return $this
      */
-    public function setCollector($collector) {
+    public function setCollector($collector)
+    {
         $this->collector = $collector;
         return $this;
     }
@@ -117,7 +119,8 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
      * The patient or entity, such as a hospital or vendor in the case of a processed/manipulated/manufactured product, providing the product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -126,7 +129,8 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function setSource($source) {
+    public function setSource($source)
+    {
         $this->source = $source;
         return $this;
     }
@@ -134,7 +138,8 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getCollectedDateTime() {
+    public function getCollectedDateTime()
+    {
         return $this->collectedDateTime;
     }
 
@@ -142,7 +147,8 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $collectedDateTime
      * @return $this
      */
-    public function setCollectedDateTime($collectedDateTime) {
+    public function setCollectedDateTime($collectedDateTime)
+    {
         $this->collectedDateTime = $collectedDateTime;
         return $this;
     }
@@ -150,7 +156,8 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getCollectedPeriod() {
+    public function getCollectedPeriod()
+    {
         return $this->collectedPeriod;
     }
 
@@ -158,7 +165,8 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $collectedPeriod
      * @return $this
      */
-    public function setCollectedPeriod($collectedPeriod) {
+    public function setCollectedPeriod($collectedPeriod)
+    {
         $this->collectedPeriod = $collectedPeriod;
         return $this;
     }
@@ -166,14 +174,16 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['collector'])) {
                 $this->setCollector($data['collector']);
@@ -196,19 +206,29 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->collector)) $json['collector'] = $this->collector;
-        if (isset($this->source)) $json['source'] = $this->source;
-        if (isset($this->collectedDateTime)) $json['collectedDateTime'] = $this->collectedDateTime;
-        if (isset($this->collectedPeriod)) $json['collectedPeriod'] = $this->collectedPeriod;
+        if (isset($this->collector)) {
+            $json['collector'] = $this->collector;
+        }
+        if (isset($this->source)) {
+            $json['source'] = $this->source;
+        }
+        if (isset($this->collectedDateTime)) {
+            $json['collectedDateTime'] = $this->collectedDateTime;
+        }
+        if (isset($this->collectedPeriod)) {
+            $json['collectedPeriod'] = $this->collectedPeriod;
+        }
         return $json;
     }
 
@@ -217,16 +237,27 @@ class FHIRBiologicallyDerivedProductCollection extends FHIRBackboneElement imple
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<BiologicallyDerivedProductCollection xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductCollection>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<BiologicallyDerivedProductCollection xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductCollection>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->collector)) $this->collector->xmlSerialize(true, $sxe->addChild('collector'));
-        if (isset($this->source)) $this->source->xmlSerialize(true, $sxe->addChild('source'));
-        if (isset($this->collectedDateTime)) $this->collectedDateTime->xmlSerialize(true, $sxe->addChild('collectedDateTime'));
-        if (isset($this->collectedPeriod)) $this->collectedPeriod->xmlSerialize(true, $sxe->addChild('collectedPeriod'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->collector)) {
+            $this->collector->xmlSerialize(true, $sxe->addChild('collector'));
+        }
+        if (isset($this->source)) {
+            $this->source->xmlSerialize(true, $sxe->addChild('source'));
+        }
+        if (isset($this->collectedDateTime)) {
+            $this->collectedDateTime->xmlSerialize(true, $sxe->addChild('collectedDateTime'));
+        }
+        if (isset($this->collectedPeriod)) {
+            $this->collectedPeriod->xmlSerialize(true, $sxe->addChild('collectedPeriod'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIRPlanDefinitionCondition extends FHIRBackboneElement implements \JsonSe
      * The kind of condition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRActionConditionKind
      */
-    public function getKind() {
+    public function getKind()
+    {
         return $this->kind;
     }
 
@@ -97,7 +98,8 @@ class FHIRPlanDefinitionCondition extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRActionConditionKind $kind
      * @return $this
      */
-    public function setKind($kind) {
+    public function setKind($kind)
+    {
         $this->kind = $kind;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRPlanDefinitionCondition extends FHIRBackboneElement implements \JsonSe
      * An expression that returns true or false, indicating whether the condition is satisfied.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getExpression() {
+    public function getExpression()
+    {
         return $this->expression;
     }
 
@@ -115,7 +118,8 @@ class FHIRPlanDefinitionCondition extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $expression
      * @return $this
      */
-    public function setExpression($expression) {
+    public function setExpression($expression)
+    {
         $this->expression = $expression;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRPlanDefinitionCondition extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['kind'])) {
                 $this->setKind($data['kind']);
@@ -147,17 +153,23 @@ class FHIRPlanDefinitionCondition extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->kind)) $json['kind'] = $this->kind;
-        if (isset($this->expression)) $json['expression'] = $this->expression;
+        if (isset($this->kind)) {
+            $json['kind'] = $this->kind;
+        }
+        if (isset($this->expression)) {
+            $json['expression'] = $this->expression;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRPlanDefinitionCondition extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PlanDefinitionCondition xmlns="http://hl7.org/fhir"></PlanDefinitionCondition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PlanDefinitionCondition xmlns="http://hl7.org/fhir"></PlanDefinitionCondition>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->kind)) $this->kind->xmlSerialize(true, $sxe->addChild('kind'));
-        if (isset($this->expression)) $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->kind)) {
+            $this->kind->xmlSerialize(true, $sxe->addChild('kind'));
+        }
+        if (isset($this->expression)) {
+            $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

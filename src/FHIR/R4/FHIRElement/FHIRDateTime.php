@@ -81,7 +81,8 @@ class FHIRDateTime extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -89,7 +90,8 @@ class FHIRDateTime extends FHIRElement implements \JsonSerializable
      * @param string $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -97,14 +99,16 @@ class FHIRDateTime extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_scalar($data)) {
             $this->setValue($data);
         } else {
@@ -115,14 +119,16 @@ class FHIRDateTime extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return mixed
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         return $this->value;
     }
 
@@ -131,12 +137,15 @@ class FHIRDateTime extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<dateTime xmlns="http://hl7.org/fhir"></dateTime>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<dateTime xmlns="http://hl7.org/fhir"></dateTime>');
+        }
         $sxe->addAttribute('value', $this->value);
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

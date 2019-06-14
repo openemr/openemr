@@ -124,7 +124,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * Descriptive name for this variable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -133,7 +134,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * A default, hard-coded, or user-defined value for this variable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDefaultValue() {
+    public function getDefaultValue()
+    {
         return $this->defaultValue;
     }
 
@@ -151,7 +154,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $defaultValue
      * @return $this
      */
-    public function setDefaultValue($defaultValue) {
+    public function setDefaultValue($defaultValue)
+    {
         $this->defaultValue = $defaultValue;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * A free text natural language description of the variable and its purpose.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -169,7 +174,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * The FHIRPath expression to evaluate against the fixture body. When variables are defined, only one of either expression, headerField or path must be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getExpression() {
+    public function getExpression()
+    {
         return $this->expression;
     }
 
@@ -187,7 +194,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $expression
      * @return $this
      */
-    public function setExpression($expression) {
+    public function setExpression($expression)
+    {
         $this->expression = $expression;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * Will be used to grab the HTTP header field value from the headers that sourceId is pointing to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getHeaderField() {
+    public function getHeaderField()
+    {
         return $this->headerField;
     }
 
@@ -205,7 +214,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $headerField
      * @return $this
      */
-    public function setHeaderField($headerField) {
+    public function setHeaderField($headerField)
+    {
         $this->headerField = $headerField;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * Displayable text string with hint help information to the user when entering a default value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getHint() {
+    public function getHint()
+    {
         return $this->hint;
     }
 
@@ -223,7 +234,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $hint
      * @return $this
      */
-    public function setHint($hint) {
+    public function setHint($hint)
+    {
         $this->hint = $hint;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * XPath or JSONPath to evaluate against the fixture body.  When variables are defined, only one of either expression, headerField or path must be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->path;
     }
 
@@ -241,7 +254,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $path
      * @return $this
      */
-    public function setPath($path) {
+    public function setPath($path)
+    {
         $this->path = $path;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * Fixture to evaluate the XPath/JSONPath expression or the headerField  against within this variable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getSourceId() {
+    public function getSourceId()
+    {
         return $this->sourceId;
     }
 
@@ -259,7 +274,8 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $sourceId
      * @return $this
      */
-    public function setSourceId($sourceId) {
+    public function setSourceId($sourceId)
+    {
         $this->sourceId = $sourceId;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -309,23 +327,41 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->defaultValue)) $json['defaultValue'] = $this->defaultValue;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->expression)) $json['expression'] = $this->expression;
-        if (isset($this->headerField)) $json['headerField'] = $this->headerField;
-        if (isset($this->hint)) $json['hint'] = $this->hint;
-        if (isset($this->path)) $json['path'] = $this->path;
-        if (isset($this->sourceId)) $json['sourceId'] = $this->sourceId;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->defaultValue)) {
+            $json['defaultValue'] = $this->defaultValue;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->expression)) {
+            $json['expression'] = $this->expression;
+        }
+        if (isset($this->headerField)) {
+            $json['headerField'] = $this->headerField;
+        }
+        if (isset($this->hint)) {
+            $json['hint'] = $this->hint;
+        }
+        if (isset($this->path)) {
+            $json['path'] = $this->path;
+        }
+        if (isset($this->sourceId)) {
+            $json['sourceId'] = $this->sourceId;
+        }
         return $json;
     }
 
@@ -334,20 +370,39 @@ class FHIRTestScriptVariable extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestScriptVariable xmlns="http://hl7.org/fhir"></TestScriptVariable>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestScriptVariable xmlns="http://hl7.org/fhir"></TestScriptVariable>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->defaultValue)) $this->defaultValue->xmlSerialize(true, $sxe->addChild('defaultValue'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->expression)) $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
-        if (isset($this->headerField)) $this->headerField->xmlSerialize(true, $sxe->addChild('headerField'));
-        if (isset($this->hint)) $this->hint->xmlSerialize(true, $sxe->addChild('hint'));
-        if (isset($this->path)) $this->path->xmlSerialize(true, $sxe->addChild('path'));
-        if (isset($this->sourceId)) $this->sourceId->xmlSerialize(true, $sxe->addChild('sourceId'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->defaultValue)) {
+            $this->defaultValue->xmlSerialize(true, $sxe->addChild('defaultValue'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->expression)) {
+            $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
+        }
+        if (isset($this->headerField)) {
+            $this->headerField->xmlSerialize(true, $sxe->addChild('headerField'));
+        }
+        if (isset($this->hint)) {
+            $this->hint->xmlSerialize(true, $sxe->addChild('hint'));
+        }
+        if (isset($this->path)) {
+            $this->path->xmlSerialize(true, $sxe->addChild('path'));
+        }
+        if (isset($this->sourceId)) {
+            $this->sourceId->xmlSerialize(true, $sxe->addChild('sourceId'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -166,7 +166,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * INDEL / SNP / Undefined variant.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQualityType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -175,7 +176,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQualityType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -184,7 +186,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * Gold standard sequence used for comparing against.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStandardSequence() {
+    public function getStandardSequence()
+    {
         return $this->standardSequence;
     }
 
@@ -193,7 +196,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $standardSequence
      * @return $this
      */
-    public function setStandardSequence($standardSequence) {
+    public function setStandardSequence($standardSequence)
+    {
         $this->standardSequence = $standardSequence;
         return $this;
     }
@@ -202,7 +206,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * Start position of the sequence. If the coordinate system is either 0-based or 1-based, then start position is inclusive.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getStart() {
+    public function getStart()
+    {
         return $this->start;
     }
 
@@ -211,7 +216,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $start
      * @return $this
      */
-    public function setStart($start) {
+    public function setStart($start)
+    {
         $this->start = $start;
         return $this;
     }
@@ -220,7 +226,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * End position of the sequence. If the coordinate system is 0-based then end is exclusive and does not include the last position. If the coordinate system is 1-base, then end is inclusive and includes the last position.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getEnd() {
+    public function getEnd()
+    {
         return $this->end;
     }
 
@@ -229,7 +236,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $end
      * @return $this
      */
-    public function setEnd($end) {
+    public function setEnd($end)
+    {
         $this->end = $end;
         return $this;
     }
@@ -238,7 +246,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * The score of an experimentally derived feature such as a p-value ([SO:0001685](http://www.sequenceontology.org/browser/current_svn/term/SO:0001685)).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getScore() {
+    public function getScore()
+    {
         return $this->score;
     }
 
@@ -247,7 +256,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $score
      * @return $this
      */
-    public function setScore($score) {
+    public function setScore($score)
+    {
         $this->score = $score;
         return $this;
     }
@@ -256,7 +266,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * Which method is used to get sequence quality.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method;
     }
 
@@ -265,7 +276,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $method
      * @return $this
      */
-    public function setMethod($method) {
+    public function setMethod($method)
+    {
         $this->method = $method;
         return $this;
     }
@@ -274,7 +286,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * True positives, from the perspective of the truth data, i.e. the number of sites in the Truth Call Set for which there are paths through the Query Call Set that are consistent with all of the alleles at this site, and for which there is an accurate genotype call for the event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getTruthTP() {
+    public function getTruthTP()
+    {
         return $this->truthTP;
     }
 
@@ -283,7 +296,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $truthTP
      * @return $this
      */
-    public function setTruthTP($truthTP) {
+    public function setTruthTP($truthTP)
+    {
         $this->truthTP = $truthTP;
         return $this;
     }
@@ -292,7 +306,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * True positives, from the perspective of the query data, i.e. the number of sites in the Query Call Set for which there are paths through the Truth Call Set that are consistent with all of the alleles at this site, and for which there is an accurate genotype call for the event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getQueryTP() {
+    public function getQueryTP()
+    {
         return $this->queryTP;
     }
 
@@ -301,7 +316,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $queryTP
      * @return $this
      */
-    public function setQueryTP($queryTP) {
+    public function setQueryTP($queryTP)
+    {
         $this->queryTP = $queryTP;
         return $this;
     }
@@ -310,7 +326,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * False negatives, i.e. the number of sites in the Truth Call Set for which there is no path through the Query Call Set that is consistent with all of the alleles at this site, or sites for which there is an inaccurate genotype call for the event. Sites with correct variant but incorrect genotype are counted here.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getTruthFN() {
+    public function getTruthFN()
+    {
         return $this->truthFN;
     }
 
@@ -319,7 +336,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $truthFN
      * @return $this
      */
-    public function setTruthFN($truthFN) {
+    public function setTruthFN($truthFN)
+    {
         $this->truthFN = $truthFN;
         return $this;
     }
@@ -328,7 +346,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * False positives, i.e. the number of sites in the Query Call Set for which there is no path through the Truth Call Set that is consistent with this site. Sites with correct variant but incorrect genotype are counted here.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getQueryFP() {
+    public function getQueryFP()
+    {
         return $this->queryFP;
     }
 
@@ -337,7 +356,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $queryFP
      * @return $this
      */
-    public function setQueryFP($queryFP) {
+    public function setQueryFP($queryFP)
+    {
         $this->queryFP = $queryFP;
         return $this;
     }
@@ -346,7 +366,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * The number of false positives where the non-REF alleles in the Truth and Query Call Sets match (i.e. cases where the truth is 1/1 and the query is 0/1 or similar).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getGtFP() {
+    public function getGtFP()
+    {
         return $this->gtFP;
     }
 
@@ -355,7 +376,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $gtFP
      * @return $this
      */
-    public function setGtFP($gtFP) {
+    public function setGtFP($gtFP)
+    {
         $this->gtFP = $gtFP;
         return $this;
     }
@@ -364,7 +386,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * QUERY.TP / (QUERY.TP + QUERY.FP).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getPrecision() {
+    public function getPrecision()
+    {
         return $this->precision;
     }
 
@@ -373,7 +396,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $precision
      * @return $this
      */
-    public function setPrecision($precision) {
+    public function setPrecision($precision)
+    {
         $this->precision = $precision;
         return $this;
     }
@@ -382,7 +406,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * TRUTH.TP / (TRUTH.TP + TRUTH.FN).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getRecall() {
+    public function getRecall()
+    {
         return $this->recall;
     }
 
@@ -391,7 +416,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $recall
      * @return $this
      */
-    public function setRecall($recall) {
+    public function setRecall($recall)
+    {
         $this->recall = $recall;
         return $this;
     }
@@ -400,7 +426,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * Harmonic mean of Recall and Precision, computed as: 2 * precision * recall / (precision + recall).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getFScore() {
+    public function getFScore()
+    {
         return $this->fScore;
     }
 
@@ -409,7 +436,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $fScore
      * @return $this
      */
-    public function setFScore($fScore) {
+    public function setFScore($fScore)
+    {
         $this->fScore = $fScore;
         return $this;
     }
@@ -418,7 +446,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * Receiver Operator Characteristic (ROC) Curve  to give sensitivity/specificity tradeoff.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceRoc
      */
-    public function getRoc() {
+    public function getRoc()
+    {
         return $this->roc;
     }
 
@@ -427,7 +456,8 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMolecularSequence\FHIRMolecularSequenceRoc $roc
      * @return $this
      */
-    public function setRoc($roc) {
+    public function setRoc($roc)
+    {
         $this->roc = $roc;
         return $this;
     }
@@ -435,14 +465,16 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -498,30 +530,62 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->standardSequence)) $json['standardSequence'] = $this->standardSequence;
-        if (isset($this->start)) $json['start'] = $this->start;
-        if (isset($this->end)) $json['end'] = $this->end;
-        if (isset($this->score)) $json['score'] = $this->score;
-        if (isset($this->method)) $json['method'] = $this->method;
-        if (isset($this->truthTP)) $json['truthTP'] = $this->truthTP;
-        if (isset($this->queryTP)) $json['queryTP'] = $this->queryTP;
-        if (isset($this->truthFN)) $json['truthFN'] = $this->truthFN;
-        if (isset($this->queryFP)) $json['queryFP'] = $this->queryFP;
-        if (isset($this->gtFP)) $json['gtFP'] = $this->gtFP;
-        if (isset($this->precision)) $json['precision'] = $this->precision;
-        if (isset($this->recall)) $json['recall'] = $this->recall;
-        if (isset($this->fScore)) $json['fScore'] = $this->fScore;
-        if (isset($this->roc)) $json['roc'] = $this->roc;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->standardSequence)) {
+            $json['standardSequence'] = $this->standardSequence;
+        }
+        if (isset($this->start)) {
+            $json['start'] = $this->start;
+        }
+        if (isset($this->end)) {
+            $json['end'] = $this->end;
+        }
+        if (isset($this->score)) {
+            $json['score'] = $this->score;
+        }
+        if (isset($this->method)) {
+            $json['method'] = $this->method;
+        }
+        if (isset($this->truthTP)) {
+            $json['truthTP'] = $this->truthTP;
+        }
+        if (isset($this->queryTP)) {
+            $json['queryTP'] = $this->queryTP;
+        }
+        if (isset($this->truthFN)) {
+            $json['truthFN'] = $this->truthFN;
+        }
+        if (isset($this->queryFP)) {
+            $json['queryFP'] = $this->queryFP;
+        }
+        if (isset($this->gtFP)) {
+            $json['gtFP'] = $this->gtFP;
+        }
+        if (isset($this->precision)) {
+            $json['precision'] = $this->precision;
+        }
+        if (isset($this->recall)) {
+            $json['recall'] = $this->recall;
+        }
+        if (isset($this->fScore)) {
+            $json['fScore'] = $this->fScore;
+        }
+        if (isset($this->roc)) {
+            $json['roc'] = $this->roc;
+        }
         return $json;
     }
 
@@ -530,27 +594,60 @@ class FHIRMolecularSequenceQuality extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MolecularSequenceQuality xmlns="http://hl7.org/fhir"></MolecularSequenceQuality>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MolecularSequenceQuality xmlns="http://hl7.org/fhir"></MolecularSequenceQuality>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->standardSequence)) $this->standardSequence->xmlSerialize(true, $sxe->addChild('standardSequence'));
-        if (isset($this->start)) $this->start->xmlSerialize(true, $sxe->addChild('start'));
-        if (isset($this->end)) $this->end->xmlSerialize(true, $sxe->addChild('end'));
-        if (isset($this->score)) $this->score->xmlSerialize(true, $sxe->addChild('score'));
-        if (isset($this->method)) $this->method->xmlSerialize(true, $sxe->addChild('method'));
-        if (isset($this->truthTP)) $this->truthTP->xmlSerialize(true, $sxe->addChild('truthTP'));
-        if (isset($this->queryTP)) $this->queryTP->xmlSerialize(true, $sxe->addChild('queryTP'));
-        if (isset($this->truthFN)) $this->truthFN->xmlSerialize(true, $sxe->addChild('truthFN'));
-        if (isset($this->queryFP)) $this->queryFP->xmlSerialize(true, $sxe->addChild('queryFP'));
-        if (isset($this->gtFP)) $this->gtFP->xmlSerialize(true, $sxe->addChild('gtFP'));
-        if (isset($this->precision)) $this->precision->xmlSerialize(true, $sxe->addChild('precision'));
-        if (isset($this->recall)) $this->recall->xmlSerialize(true, $sxe->addChild('recall'));
-        if (isset($this->fScore)) $this->fScore->xmlSerialize(true, $sxe->addChild('fScore'));
-        if (isset($this->roc)) $this->roc->xmlSerialize(true, $sxe->addChild('roc'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->standardSequence)) {
+            $this->standardSequence->xmlSerialize(true, $sxe->addChild('standardSequence'));
+        }
+        if (isset($this->start)) {
+            $this->start->xmlSerialize(true, $sxe->addChild('start'));
+        }
+        if (isset($this->end)) {
+            $this->end->xmlSerialize(true, $sxe->addChild('end'));
+        }
+        if (isset($this->score)) {
+            $this->score->xmlSerialize(true, $sxe->addChild('score'));
+        }
+        if (isset($this->method)) {
+            $this->method->xmlSerialize(true, $sxe->addChild('method'));
+        }
+        if (isset($this->truthTP)) {
+            $this->truthTP->xmlSerialize(true, $sxe->addChild('truthTP'));
+        }
+        if (isset($this->queryTP)) {
+            $this->queryTP->xmlSerialize(true, $sxe->addChild('queryTP'));
+        }
+        if (isset($this->truthFN)) {
+            $this->truthFN->xmlSerialize(true, $sxe->addChild('truthFN'));
+        }
+        if (isset($this->queryFP)) {
+            $this->queryFP->xmlSerialize(true, $sxe->addChild('queryFP'));
+        }
+        if (isset($this->gtFP)) {
+            $this->gtFP->xmlSerialize(true, $sxe->addChild('gtFP'));
+        }
+        if (isset($this->precision)) {
+            $this->precision->xmlSerialize(true, $sxe->addChild('precision'));
+        }
+        if (isset($this->recall)) {
+            $this->recall->xmlSerialize(true, $sxe->addChild('recall'));
+        }
+        if (isset($this->fScore)) {
+            $this->fScore->xmlSerialize(true, $sxe->addChild('fScore'));
+        }
+        if (isset($this->roc)) {
+            $this->roc->xmlSerialize(true, $sxe->addChild('roc'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

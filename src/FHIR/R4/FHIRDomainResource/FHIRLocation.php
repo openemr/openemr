@@ -179,7 +179,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * Unique code or number identifying the location to its users.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -188,7 +189,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -197,7 +199,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * The status property covers the general availability of the resource, not the current value which may be covered by the operationStatus, or by a schedule/slots if they are configured for the location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRLocationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -206,7 +209,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRLocationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -215,7 +219,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * The operational status covers operation values most relevant to beds (but can also apply to rooms/units/chairs/etc. such as an isolation unit/dialysis chair). This typically covers concepts such as contamination, housekeeping, and other activities like maintenance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getOperationalStatus() {
+    public function getOperationalStatus()
+    {
         return $this->operationalStatus;
     }
 
@@ -224,7 +229,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $operationalStatus
      * @return $this
      */
-    public function setOperationalStatus($operationalStatus) {
+    public function setOperationalStatus($operationalStatus)
+    {
         $this->operationalStatus = $operationalStatus;
         return $this;
     }
@@ -233,7 +239,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * Name of the location as used by humans. Does not need to be unique.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -242,7 +249,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -251,7 +259,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * A list of alternate names that the location is known as, or was known as, in the past.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getAlias() {
+    public function getAlias()
+    {
         return $this->alias;
     }
 
@@ -260,7 +269,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $alias
      * @return $this
      */
-    public function addAlias($alias) {
+    public function addAlias($alias)
+    {
         $this->alias[] = $alias;
         return $this;
     }
@@ -269,7 +279,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * Description of the Location, which helps in finding or referencing the place.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -278,7 +289,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -287,7 +299,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * Indicates whether a resource instance represents a specific location or a class of locations.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRLocationMode
      */
-    public function getMode() {
+    public function getMode()
+    {
         return $this->mode;
     }
 
@@ -296,7 +309,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRLocationMode $mode
      * @return $this
      */
-    public function setMode($mode) {
+    public function setMode($mode)
+    {
         $this->mode = $mode;
         return $this;
     }
@@ -305,7 +319,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * Indicates the type of function performed at the location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -314,7 +329,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function addType($type) {
+    public function addType($type)
+    {
         $this->type[] = $type;
         return $this;
     }
@@ -323,7 +339,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * The contact details of communication devices available at the location. This can include phone numbers, fax numbers, mobile numbers, email addresses and web sites.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint[]
      */
-    public function getTelecom() {
+    public function getTelecom()
+    {
         return $this->telecom;
     }
 
@@ -332,7 +349,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $telecom
      * @return $this
      */
-    public function addTelecom($telecom) {
+    public function addTelecom($telecom)
+    {
         $this->telecom[] = $telecom;
         return $this;
     }
@@ -341,7 +359,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * Physical location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress
      */
-    public function getAddress() {
+    public function getAddress()
+    {
         return $this->address;
     }
 
@@ -350,7 +369,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $address
      * @return $this
      */
-    public function setAddress($address) {
+    public function setAddress($address)
+    {
         $this->address = $address;
         return $this;
     }
@@ -359,7 +379,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * Physical form of the location, e.g. building, room, vehicle, road.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPhysicalType() {
+    public function getPhysicalType()
+    {
         return $this->physicalType;
     }
 
@@ -368,7 +389,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $physicalType
      * @return $this
      */
-    public function setPhysicalType($physicalType) {
+    public function setPhysicalType($physicalType)
+    {
         $this->physicalType = $physicalType;
         return $this;
     }
@@ -377,7 +399,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * The absolute geographic location of the Location, expressed using the WGS84 datum (This is the same co-ordinate system used in KML).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRLocation\FHIRLocationPosition
      */
-    public function getPosition() {
+    public function getPosition()
+    {
         return $this->position;
     }
 
@@ -386,7 +409,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRLocation\FHIRLocationPosition $position
      * @return $this
      */
-    public function setPosition($position) {
+    public function setPosition($position)
+    {
         $this->position = $position;
         return $this;
     }
@@ -395,7 +419,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * The organization responsible for the provisioning and upkeep of the location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getManagingOrganization() {
+    public function getManagingOrganization()
+    {
         return $this->managingOrganization;
     }
 
@@ -404,7 +429,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $managingOrganization
      * @return $this
      */
-    public function setManagingOrganization($managingOrganization) {
+    public function setManagingOrganization($managingOrganization)
+    {
         $this->managingOrganization = $managingOrganization;
         return $this;
     }
@@ -413,7 +439,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * Another Location of which this Location is physically a part of.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPartOf() {
+    public function getPartOf()
+    {
         return $this->partOf;
     }
 
@@ -422,7 +449,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $partOf
      * @return $this
      */
-    public function setPartOf($partOf) {
+    public function setPartOf($partOf)
+    {
         $this->partOf = $partOf;
         return $this;
     }
@@ -431,7 +459,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * What days/times during a week is this location usually open.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRLocation\FHIRLocationHoursOfOperation[]
      */
-    public function getHoursOfOperation() {
+    public function getHoursOfOperation()
+    {
         return $this->hoursOfOperation;
     }
 
@@ -440,7 +469,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRLocation\FHIRLocationHoursOfOperation $hoursOfOperation
      * @return $this
      */
-    public function addHoursOfOperation($hoursOfOperation) {
+    public function addHoursOfOperation($hoursOfOperation)
+    {
         $this->hoursOfOperation[] = $hoursOfOperation;
         return $this;
     }
@@ -449,7 +479,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * A description of when the locations opening ours are different to normal, e.g. public holiday availability. Succinctly describing all possible exceptions to normal site availability as detailed in the opening hours Times.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAvailabilityExceptions() {
+    public function getAvailabilityExceptions()
+    {
         return $this->availabilityExceptions;
     }
 
@@ -458,7 +489,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $availabilityExceptions
      * @return $this
      */
-    public function setAvailabilityExceptions($availabilityExceptions) {
+    public function setAvailabilityExceptions($availabilityExceptions)
+    {
         $this->availabilityExceptions = $availabilityExceptions;
         return $this;
     }
@@ -467,7 +499,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * Technical endpoints providing access to services operated for the location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getEndpoint() {
+    public function getEndpoint()
+    {
         return $this->endpoint;
     }
 
@@ -476,7 +509,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $endpoint
      * @return $this
      */
-    public function addEndpoint($endpoint) {
+    public function addEndpoint($endpoint)
+    {
         $this->endpoint[] = $endpoint;
         return $this;
     }
@@ -484,18 +518,20 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -513,7 +549,7 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['alias'])) {
                 if (is_array($data['alias'])) {
-                    foreach($data['alias'] as $d) {
+                    foreach ($data['alias'] as $d) {
                         $this->addAlias($d);
                     }
                 } else {
@@ -528,7 +564,7 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['type'])) {
                 if (is_array($data['type'])) {
-                    foreach($data['type'] as $d) {
+                    foreach ($data['type'] as $d) {
                         $this->addType($d);
                     }
                 } else {
@@ -537,7 +573,7 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['telecom'])) {
                 if (is_array($data['telecom'])) {
-                    foreach($data['telecom'] as $d) {
+                    foreach ($data['telecom'] as $d) {
                         $this->addTelecom($d);
                     }
                 } else {
@@ -561,7 +597,7 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['hoursOfOperation'])) {
                 if (is_array($data['hoursOfOperation'])) {
-                    foreach($data['hoursOfOperation'] as $d) {
+                    foreach ($data['hoursOfOperation'] as $d) {
                         $this->addHoursOfOperation($d);
                     }
                 } else {
@@ -573,7 +609,7 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['endpoint'])) {
                 if (is_array($data['endpoint'])) {
-                    foreach($data['endpoint'] as $d) {
+                    foreach ($data['endpoint'] as $d) {
                         $this->addEndpoint($d);
                     }
                 } else {
@@ -589,60 +625,84 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->operationalStatus)) $json['operationalStatus'] = $this->operationalStatus;
-        if (isset($this->name)) $json['name'] = $this->name;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->operationalStatus)) {
+            $json['operationalStatus'] = $this->operationalStatus;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
         if (0 < count($this->alias)) {
             $json['alias'] = [];
-            foreach($this->alias as $alias) {
+            foreach ($this->alias as $alias) {
                 $json['alias'][] = $alias;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->mode)) $json['mode'] = $this->mode;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->mode)) {
+            $json['mode'] = $this->mode;
+        }
         if (0 < count($this->type)) {
             $json['type'] = [];
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $json['type'][] = $type;
             }
         }
         if (0 < count($this->telecom)) {
             $json['telecom'] = [];
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $json['telecom'][] = $telecom;
             }
         }
-        if (isset($this->address)) $json['address'] = $this->address;
-        if (isset($this->physicalType)) $json['physicalType'] = $this->physicalType;
-        if (isset($this->position)) $json['position'] = $this->position;
-        if (isset($this->managingOrganization)) $json['managingOrganization'] = $this->managingOrganization;
-        if (isset($this->partOf)) $json['partOf'] = $this->partOf;
+        if (isset($this->address)) {
+            $json['address'] = $this->address;
+        }
+        if (isset($this->physicalType)) {
+            $json['physicalType'] = $this->physicalType;
+        }
+        if (isset($this->position)) {
+            $json['position'] = $this->position;
+        }
+        if (isset($this->managingOrganization)) {
+            $json['managingOrganization'] = $this->managingOrganization;
+        }
+        if (isset($this->partOf)) {
+            $json['partOf'] = $this->partOf;
+        }
         if (0 < count($this->hoursOfOperation)) {
             $json['hoursOfOperation'] = [];
-            foreach($this->hoursOfOperation as $hoursOfOperation) {
+            foreach ($this->hoursOfOperation as $hoursOfOperation) {
                 $json['hoursOfOperation'][] = $hoursOfOperation;
             }
         }
-        if (isset($this->availabilityExceptions)) $json['availabilityExceptions'] = $this->availabilityExceptions;
+        if (isset($this->availabilityExceptions)) {
+            $json['availabilityExceptions'] = $this->availabilityExceptions;
+        }
         if (0 < count($this->endpoint)) {
             $json['endpoint'] = [];
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $json['endpoint'][] = $endpoint;
             }
         }
@@ -654,53 +714,78 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Location xmlns="http://hl7.org/fhir"></Location>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Location xmlns="http://hl7.org/fhir"></Location>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->operationalStatus)) $this->operationalStatus->xmlSerialize(true, $sxe->addChild('operationalStatus'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->operationalStatus)) {
+            $this->operationalStatus->xmlSerialize(true, $sxe->addChild('operationalStatus'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
         if (0 < count($this->alias)) {
-            foreach($this->alias as $alias) {
+            foreach ($this->alias as $alias) {
                 $alias->xmlSerialize(true, $sxe->addChild('alias'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->mode)) $this->mode->xmlSerialize(true, $sxe->addChild('mode'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->mode)) {
+            $this->mode->xmlSerialize(true, $sxe->addChild('mode'));
+        }
         if (0 < count($this->type)) {
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $type->xmlSerialize(true, $sxe->addChild('type'));
             }
         }
         if (0 < count($this->telecom)) {
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
             }
         }
-        if (isset($this->address)) $this->address->xmlSerialize(true, $sxe->addChild('address'));
-        if (isset($this->physicalType)) $this->physicalType->xmlSerialize(true, $sxe->addChild('physicalType'));
-        if (isset($this->position)) $this->position->xmlSerialize(true, $sxe->addChild('position'));
-        if (isset($this->managingOrganization)) $this->managingOrganization->xmlSerialize(true, $sxe->addChild('managingOrganization'));
-        if (isset($this->partOf)) $this->partOf->xmlSerialize(true, $sxe->addChild('partOf'));
+        if (isset($this->address)) {
+            $this->address->xmlSerialize(true, $sxe->addChild('address'));
+        }
+        if (isset($this->physicalType)) {
+            $this->physicalType->xmlSerialize(true, $sxe->addChild('physicalType'));
+        }
+        if (isset($this->position)) {
+            $this->position->xmlSerialize(true, $sxe->addChild('position'));
+        }
+        if (isset($this->managingOrganization)) {
+            $this->managingOrganization->xmlSerialize(true, $sxe->addChild('managingOrganization'));
+        }
+        if (isset($this->partOf)) {
+            $this->partOf->xmlSerialize(true, $sxe->addChild('partOf'));
+        }
         if (0 < count($this->hoursOfOperation)) {
-            foreach($this->hoursOfOperation as $hoursOfOperation) {
+            foreach ($this->hoursOfOperation as $hoursOfOperation) {
                 $hoursOfOperation->xmlSerialize(true, $sxe->addChild('hoursOfOperation'));
             }
         }
-        if (isset($this->availabilityExceptions)) $this->availabilityExceptions->xmlSerialize(true, $sxe->addChild('availabilityExceptions'));
+        if (isset($this->availabilityExceptions)) {
+            $this->availabilityExceptions->xmlSerialize(true, $sxe->addChild('availabilityExceptions'));
+        }
         if (0 < count($this->endpoint)) {
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

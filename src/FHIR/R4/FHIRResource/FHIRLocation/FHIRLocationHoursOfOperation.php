@@ -100,7 +100,8 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
      * Indicates which days of the week are available between the start and end Times.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDaysOfWeek[]
      */
-    public function getDaysOfWeek() {
+    public function getDaysOfWeek()
+    {
         return $this->daysOfWeek;
     }
 
@@ -109,7 +110,8 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDaysOfWeek $daysOfWeek
      * @return $this
      */
-    public function addDaysOfWeek($daysOfWeek) {
+    public function addDaysOfWeek($daysOfWeek)
+    {
         $this->daysOfWeek[] = $daysOfWeek;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
      * The Location is open all day.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getAllDay() {
+    public function getAllDay()
+    {
         return $this->allDay;
     }
 
@@ -127,7 +130,8 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $allDay
      * @return $this
      */
-    public function setAllDay($allDay) {
+    public function setAllDay($allDay)
+    {
         $this->allDay = $allDay;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
      * Time that the Location opens.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getOpeningTime() {
+    public function getOpeningTime()
+    {
         return $this->openingTime;
     }
 
@@ -145,7 +150,8 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $openingTime
      * @return $this
      */
-    public function setOpeningTime($openingTime) {
+    public function setOpeningTime($openingTime)
+    {
         $this->openingTime = $openingTime;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
      * Time that the Location closes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getClosingTime() {
+    public function getClosingTime()
+    {
         return $this->closingTime;
     }
 
@@ -163,7 +170,8 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $closingTime
      * @return $this
      */
-    public function setClosingTime($closingTime) {
+    public function setClosingTime($closingTime)
+    {
         $this->closingTime = $closingTime;
         return $this;
     }
@@ -171,18 +179,20 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['daysOfWeek'])) {
                 if (is_array($data['daysOfWeek'])) {
-                    foreach($data['daysOfWeek'] as $d) {
+                    foreach ($data['daysOfWeek'] as $d) {
                         $this->addDaysOfWeek($d);
                     }
                 } else {
@@ -207,24 +217,32 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->daysOfWeek)) {
             $json['daysOfWeek'] = [];
-            foreach($this->daysOfWeek as $daysOfWeek) {
+            foreach ($this->daysOfWeek as $daysOfWeek) {
                 $json['daysOfWeek'][] = $daysOfWeek;
             }
         }
-        if (isset($this->allDay)) $json['allDay'] = $this->allDay;
-        if (isset($this->openingTime)) $json['openingTime'] = $this->openingTime;
-        if (isset($this->closingTime)) $json['closingTime'] = $this->closingTime;
+        if (isset($this->allDay)) {
+            $json['allDay'] = $this->allDay;
+        }
+        if (isset($this->openingTime)) {
+            $json['openingTime'] = $this->openingTime;
+        }
+        if (isset($this->closingTime)) {
+            $json['closingTime'] = $this->closingTime;
+        }
         return $json;
     }
 
@@ -233,20 +251,29 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<LocationHoursOfOperation xmlns="http://hl7.org/fhir"></LocationHoursOfOperation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<LocationHoursOfOperation xmlns="http://hl7.org/fhir"></LocationHoursOfOperation>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->daysOfWeek)) {
-            foreach($this->daysOfWeek as $daysOfWeek) {
+            foreach ($this->daysOfWeek as $daysOfWeek) {
                 $daysOfWeek->xmlSerialize(true, $sxe->addChild('daysOfWeek'));
             }
         }
-        if (isset($this->allDay)) $this->allDay->xmlSerialize(true, $sxe->addChild('allDay'));
-        if (isset($this->openingTime)) $this->openingTime->xmlSerialize(true, $sxe->addChild('openingTime'));
-        if (isset($this->closingTime)) $this->closingTime->xmlSerialize(true, $sxe->addChild('closingTime'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->allDay)) {
+            $this->allDay->xmlSerialize(true, $sxe->addChild('allDay'));
+        }
+        if (isset($this->openingTime)) {
+            $this->openingTime->xmlSerialize(true, $sxe->addChild('openingTime'));
+        }
+        if (isset($this->closingTime)) {
+            $this->closingTime->xmlSerialize(true, $sxe->addChild('closingTime'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

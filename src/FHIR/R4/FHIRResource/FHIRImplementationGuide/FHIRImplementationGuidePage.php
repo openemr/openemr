@@ -103,7 +103,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getNameUrl() {
+    public function getNameUrl()
+    {
         return $this->nameUrl;
     }
 
@@ -111,7 +112,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $nameUrl
      * @return $this
      */
-    public function setNameUrl($nameUrl) {
+    public function setNameUrl($nameUrl)
+    {
         $this->nameUrl = $nameUrl;
         return $this;
     }
@@ -119,7 +121,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getNameReference() {
+    public function getNameReference()
+    {
         return $this->nameReference;
     }
 
@@ -127,7 +130,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $nameReference
      * @return $this
      */
-    public function setNameReference($nameReference) {
+    public function setNameReference($nameReference)
+    {
         $this->nameReference = $nameReference;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
      * A short title used to represent this page in navigational structures such as table of contents, bread crumbs, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -145,7 +150,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
      * A code that indicates how the page is generated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRGuidePageGeneration
      */
-    public function getGeneration() {
+    public function getGeneration()
+    {
         return $this->generation;
     }
 
@@ -163,7 +170,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRGuidePageGeneration $generation
      * @return $this
      */
-    public function setGeneration($generation) {
+    public function setGeneration($generation)
+    {
         $this->generation = $generation;
         return $this;
     }
@@ -172,7 +180,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
      * Nested Pages/Sections under this page.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuidePage[]
      */
-    public function getPage() {
+    public function getPage()
+    {
         return $this->page;
     }
 
@@ -181,7 +190,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuidePage $page
      * @return $this
      */
-    public function addPage($page) {
+    public function addPage($page)
+    {
         $this->page[] = $page;
         return $this;
     }
@@ -189,14 +199,16 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['nameUrl'])) {
                 $this->setNameUrl($data['nameUrl']);
@@ -212,7 +224,7 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
             }
             if (isset($data['page'])) {
                 if (is_array($data['page'])) {
-                    foreach($data['page'] as $d) {
+                    foreach ($data['page'] as $d) {
                         $this->addPage($d);
                     }
                 } else {
@@ -228,22 +240,32 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->nameUrl)) $json['nameUrl'] = $this->nameUrl;
-        if (isset($this->nameReference)) $json['nameReference'] = $this->nameReference;
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->generation)) $json['generation'] = $this->generation;
+        if (isset($this->nameUrl)) {
+            $json['nameUrl'] = $this->nameUrl;
+        }
+        if (isset($this->nameReference)) {
+            $json['nameReference'] = $this->nameReference;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->generation)) {
+            $json['generation'] = $this->generation;
+        }
         if (0 < count($this->page)) {
             $json['page'] = [];
-            foreach($this->page as $page) {
+            foreach ($this->page as $page) {
                 $json['page'][] = $page;
             }
         }
@@ -255,21 +277,32 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImplementationGuidePage xmlns="http://hl7.org/fhir"></ImplementationGuidePage>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImplementationGuidePage xmlns="http://hl7.org/fhir"></ImplementationGuidePage>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->nameUrl)) $this->nameUrl->xmlSerialize(true, $sxe->addChild('nameUrl'));
-        if (isset($this->nameReference)) $this->nameReference->xmlSerialize(true, $sxe->addChild('nameReference'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->generation)) $this->generation->xmlSerialize(true, $sxe->addChild('generation'));
+        if (isset($this->nameUrl)) {
+            $this->nameUrl->xmlSerialize(true, $sxe->addChild('nameUrl'));
+        }
+        if (isset($this->nameReference)) {
+            $this->nameReference->xmlSerialize(true, $sxe->addChild('nameReference'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->generation)) {
+            $this->generation->xmlSerialize(true, $sxe->addChild('generation'));
+        }
         if (0 < count($this->page)) {
-            foreach($this->page as $page) {
+            foreach ($this->page as $page) {
                 $page->xmlSerialize(true, $sxe->addChild('page'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

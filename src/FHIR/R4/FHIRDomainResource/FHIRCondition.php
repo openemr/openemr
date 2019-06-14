@@ -217,7 +217,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * Business identifiers assigned to this condition by the performer or other systems which remain constant as the resource is updated and propagates from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -226,7 +227,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -235,7 +237,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * The clinical status of the condition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getClinicalStatus() {
+    public function getClinicalStatus()
+    {
         return $this->clinicalStatus;
     }
 
@@ -244,7 +247,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $clinicalStatus
      * @return $this
      */
-    public function setClinicalStatus($clinicalStatus) {
+    public function setClinicalStatus($clinicalStatus)
+    {
         $this->clinicalStatus = $clinicalStatus;
         return $this;
     }
@@ -253,7 +257,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * The verification status to support the clinical status of the condition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getVerificationStatus() {
+    public function getVerificationStatus()
+    {
         return $this->verificationStatus;
     }
 
@@ -262,7 +267,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $verificationStatus
      * @return $this
      */
-    public function setVerificationStatus($verificationStatus) {
+    public function setVerificationStatus($verificationStatus)
+    {
         $this->verificationStatus = $verificationStatus;
         return $this;
     }
@@ -271,7 +277,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * A category assigned to the condition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -280,7 +287,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function addCategory($category) {
+    public function addCategory($category)
+    {
         $this->category[] = $category;
         return $this;
     }
@@ -289,7 +297,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * A subjective assessment of the severity of the condition as evaluated by the clinician.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSeverity() {
+    public function getSeverity()
+    {
         return $this->severity;
     }
 
@@ -298,7 +307,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $severity
      * @return $this
      */
-    public function setSeverity($severity) {
+    public function setSeverity($severity)
+    {
         $this->severity = $severity;
         return $this;
     }
@@ -307,7 +317,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * Identification of the condition, problem or diagnosis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -316,7 +327,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -325,7 +337,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * The anatomical location where this condition manifests itself.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getBodySite() {
+    public function getBodySite()
+    {
         return $this->bodySite;
     }
 
@@ -334,7 +347,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $bodySite
      * @return $this
      */
-    public function addBodySite($bodySite) {
+    public function addBodySite($bodySite)
+    {
         $this->bodySite[] = $bodySite;
         return $this;
     }
@@ -343,7 +357,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * Indicates the patient or group who the condition record is associated with.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -352,7 +367,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -361,7 +377,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * The Encounter during which this Condition was created or to which the creation of this record is tightly associated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEncounter() {
+    public function getEncounter()
+    {
         return $this->encounter;
     }
 
@@ -370,7 +387,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $encounter
      * @return $this
      */
-    public function setEncounter($encounter) {
+    public function setEncounter($encounter)
+    {
         $this->encounter = $encounter;
         return $this;
     }
@@ -378,7 +396,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getOnsetDateTime() {
+    public function getOnsetDateTime()
+    {
         return $this->onsetDateTime;
     }
 
@@ -386,7 +405,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $onsetDateTime
      * @return $this
      */
-    public function setOnsetDateTime($onsetDateTime) {
+    public function setOnsetDateTime($onsetDateTime)
+    {
         $this->onsetDateTime = $onsetDateTime;
         return $this;
     }
@@ -394,7 +414,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getOnsetAge() {
+    public function getOnsetAge()
+    {
         return $this->onsetAge;
     }
 
@@ -402,7 +423,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $onsetAge
      * @return $this
      */
-    public function setOnsetAge($onsetAge) {
+    public function setOnsetAge($onsetAge)
+    {
         $this->onsetAge = $onsetAge;
         return $this;
     }
@@ -410,7 +432,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getOnsetPeriod() {
+    public function getOnsetPeriod()
+    {
         return $this->onsetPeriod;
     }
 
@@ -418,7 +441,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $onsetPeriod
      * @return $this
      */
-    public function setOnsetPeriod($onsetPeriod) {
+    public function setOnsetPeriod($onsetPeriod)
+    {
         $this->onsetPeriod = $onsetPeriod;
         return $this;
     }
@@ -426,7 +450,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getOnsetRange() {
+    public function getOnsetRange()
+    {
         return $this->onsetRange;
     }
 
@@ -434,7 +459,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $onsetRange
      * @return $this
      */
-    public function setOnsetRange($onsetRange) {
+    public function setOnsetRange($onsetRange)
+    {
         $this->onsetRange = $onsetRange;
         return $this;
     }
@@ -442,7 +468,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getOnsetString() {
+    public function getOnsetString()
+    {
         return $this->onsetString;
     }
 
@@ -450,7 +477,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $onsetString
      * @return $this
      */
-    public function setOnsetString($onsetString) {
+    public function setOnsetString($onsetString)
+    {
         $this->onsetString = $onsetString;
         return $this;
     }
@@ -458,7 +486,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getAbatementDateTime() {
+    public function getAbatementDateTime()
+    {
         return $this->abatementDateTime;
     }
 
@@ -466,7 +495,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $abatementDateTime
      * @return $this
      */
-    public function setAbatementDateTime($abatementDateTime) {
+    public function setAbatementDateTime($abatementDateTime)
+    {
         $this->abatementDateTime = $abatementDateTime;
         return $this;
     }
@@ -474,7 +504,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getAbatementAge() {
+    public function getAbatementAge()
+    {
         return $this->abatementAge;
     }
 
@@ -482,7 +513,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $abatementAge
      * @return $this
      */
-    public function setAbatementAge($abatementAge) {
+    public function setAbatementAge($abatementAge)
+    {
         $this->abatementAge = $abatementAge;
         return $this;
     }
@@ -490,7 +522,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getAbatementPeriod() {
+    public function getAbatementPeriod()
+    {
         return $this->abatementPeriod;
     }
 
@@ -498,7 +531,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $abatementPeriod
      * @return $this
      */
-    public function setAbatementPeriod($abatementPeriod) {
+    public function setAbatementPeriod($abatementPeriod)
+    {
         $this->abatementPeriod = $abatementPeriod;
         return $this;
     }
@@ -506,7 +540,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getAbatementRange() {
+    public function getAbatementRange()
+    {
         return $this->abatementRange;
     }
 
@@ -514,7 +549,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $abatementRange
      * @return $this
      */
-    public function setAbatementRange($abatementRange) {
+    public function setAbatementRange($abatementRange)
+    {
         $this->abatementRange = $abatementRange;
         return $this;
     }
@@ -522,7 +558,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAbatementString() {
+    public function getAbatementString()
+    {
         return $this->abatementString;
     }
 
@@ -530,7 +567,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $abatementString
      * @return $this
      */
-    public function setAbatementString($abatementString) {
+    public function setAbatementString($abatementString)
+    {
         $this->abatementString = $abatementString;
         return $this;
     }
@@ -539,7 +577,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * The recordedDate represents when this particular Condition record was created in the system, which is often a system-generated date.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getRecordedDate() {
+    public function getRecordedDate()
+    {
         return $this->recordedDate;
     }
 
@@ -548,7 +587,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $recordedDate
      * @return $this
      */
-    public function setRecordedDate($recordedDate) {
+    public function setRecordedDate($recordedDate)
+    {
         $this->recordedDate = $recordedDate;
         return $this;
     }
@@ -557,7 +597,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * Individual who recorded the record and takes responsibility for its content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRecorder() {
+    public function getRecorder()
+    {
         return $this->recorder;
     }
 
@@ -566,7 +607,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $recorder
      * @return $this
      */
-    public function setRecorder($recorder) {
+    public function setRecorder($recorder)
+    {
         $this->recorder = $recorder;
         return $this;
     }
@@ -575,7 +617,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * Individual who is making the condition statement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAsserter() {
+    public function getAsserter()
+    {
         return $this->asserter;
     }
 
@@ -584,7 +627,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $asserter
      * @return $this
      */
-    public function setAsserter($asserter) {
+    public function setAsserter($asserter)
+    {
         $this->asserter = $asserter;
         return $this;
     }
@@ -593,7 +637,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * Clinical stage or grade of a condition. May include formal severity assessments.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCondition\FHIRConditionStage[]
      */
-    public function getStage() {
+    public function getStage()
+    {
         return $this->stage;
     }
 
@@ -602,7 +647,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCondition\FHIRConditionStage $stage
      * @return $this
      */
-    public function addStage($stage) {
+    public function addStage($stage)
+    {
         $this->stage[] = $stage;
         return $this;
     }
@@ -611,7 +657,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * Supporting evidence / manifestations that are the basis of the Condition's verification status, such as evidence that confirmed or refuted the condition.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCondition\FHIRConditionEvidence[]
      */
-    public function getEvidence() {
+    public function getEvidence()
+    {
         return $this->evidence;
     }
 
@@ -620,7 +667,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCondition\FHIRConditionEvidence $evidence
      * @return $this
      */
-    public function addEvidence($evidence) {
+    public function addEvidence($evidence)
+    {
         $this->evidence[] = $evidence;
         return $this;
     }
@@ -629,7 +677,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * Additional information about the Condition. This is a general notes/comments entry  for description of the Condition, its diagnosis and prognosis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -638,7 +687,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -646,18 +696,20 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -672,7 +724,7 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['category'])) {
                 if (is_array($data['category'])) {
-                    foreach($data['category'] as $d) {
+                    foreach ($data['category'] as $d) {
                         $this->addCategory($d);
                     }
                 } else {
@@ -687,7 +739,7 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['bodySite'])) {
                 if (is_array($data['bodySite'])) {
-                    foreach($data['bodySite'] as $d) {
+                    foreach ($data['bodySite'] as $d) {
                         $this->addBodySite($d);
                     }
                 } else {
@@ -741,7 +793,7 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['stage'])) {
                 if (is_array($data['stage'])) {
-                    foreach($data['stage'] as $d) {
+                    foreach ($data['stage'] as $d) {
                         $this->addStage($d);
                     }
                 } else {
@@ -750,7 +802,7 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['evidence'])) {
                 if (is_array($data['evidence'])) {
-                    foreach($data['evidence'] as $d) {
+                    foreach ($data['evidence'] as $d) {
                         $this->addEvidence($d);
                     }
                 } else {
@@ -759,7 +811,7 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -775,68 +827,108 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->clinicalStatus)) $json['clinicalStatus'] = $this->clinicalStatus;
-        if (isset($this->verificationStatus)) $json['verificationStatus'] = $this->verificationStatus;
+        if (isset($this->clinicalStatus)) {
+            $json['clinicalStatus'] = $this->clinicalStatus;
+        }
+        if (isset($this->verificationStatus)) {
+            $json['verificationStatus'] = $this->verificationStatus;
+        }
         if (0 < count($this->category)) {
             $json['category'] = [];
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $json['category'][] = $category;
             }
         }
-        if (isset($this->severity)) $json['severity'] = $this->severity;
-        if (isset($this->code)) $json['code'] = $this->code;
+        if (isset($this->severity)) {
+            $json['severity'] = $this->severity;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
         if (0 < count($this->bodySite)) {
             $json['bodySite'] = [];
-            foreach($this->bodySite as $bodySite) {
+            foreach ($this->bodySite as $bodySite) {
                 $json['bodySite'][] = $bodySite;
             }
         }
-        if (isset($this->subject)) $json['subject'] = $this->subject;
-        if (isset($this->encounter)) $json['encounter'] = $this->encounter;
-        if (isset($this->onsetDateTime)) $json['onsetDateTime'] = $this->onsetDateTime;
-        if (isset($this->onsetAge)) $json['onsetAge'] = $this->onsetAge;
-        if (isset($this->onsetPeriod)) $json['onsetPeriod'] = $this->onsetPeriod;
-        if (isset($this->onsetRange)) $json['onsetRange'] = $this->onsetRange;
-        if (isset($this->onsetString)) $json['onsetString'] = $this->onsetString;
-        if (isset($this->abatementDateTime)) $json['abatementDateTime'] = $this->abatementDateTime;
-        if (isset($this->abatementAge)) $json['abatementAge'] = $this->abatementAge;
-        if (isset($this->abatementPeriod)) $json['abatementPeriod'] = $this->abatementPeriod;
-        if (isset($this->abatementRange)) $json['abatementRange'] = $this->abatementRange;
-        if (isset($this->abatementString)) $json['abatementString'] = $this->abatementString;
-        if (isset($this->recordedDate)) $json['recordedDate'] = $this->recordedDate;
-        if (isset($this->recorder)) $json['recorder'] = $this->recorder;
-        if (isset($this->asserter)) $json['asserter'] = $this->asserter;
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
+        if (isset($this->encounter)) {
+            $json['encounter'] = $this->encounter;
+        }
+        if (isset($this->onsetDateTime)) {
+            $json['onsetDateTime'] = $this->onsetDateTime;
+        }
+        if (isset($this->onsetAge)) {
+            $json['onsetAge'] = $this->onsetAge;
+        }
+        if (isset($this->onsetPeriod)) {
+            $json['onsetPeriod'] = $this->onsetPeriod;
+        }
+        if (isset($this->onsetRange)) {
+            $json['onsetRange'] = $this->onsetRange;
+        }
+        if (isset($this->onsetString)) {
+            $json['onsetString'] = $this->onsetString;
+        }
+        if (isset($this->abatementDateTime)) {
+            $json['abatementDateTime'] = $this->abatementDateTime;
+        }
+        if (isset($this->abatementAge)) {
+            $json['abatementAge'] = $this->abatementAge;
+        }
+        if (isset($this->abatementPeriod)) {
+            $json['abatementPeriod'] = $this->abatementPeriod;
+        }
+        if (isset($this->abatementRange)) {
+            $json['abatementRange'] = $this->abatementRange;
+        }
+        if (isset($this->abatementString)) {
+            $json['abatementString'] = $this->abatementString;
+        }
+        if (isset($this->recordedDate)) {
+            $json['recordedDate'] = $this->recordedDate;
+        }
+        if (isset($this->recorder)) {
+            $json['recorder'] = $this->recorder;
+        }
+        if (isset($this->asserter)) {
+            $json['asserter'] = $this->asserter;
+        }
         if (0 < count($this->stage)) {
             $json['stage'] = [];
-            foreach($this->stage as $stage) {
+            foreach ($this->stage as $stage) {
                 $json['stage'][] = $stage;
             }
         }
         if (0 < count($this->evidence)) {
             $json['evidence'] = [];
-            foreach($this->evidence as $evidence) {
+            foreach ($this->evidence as $evidence) {
                 $json['evidence'][] = $evidence;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
@@ -848,61 +940,102 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Condition xmlns="http://hl7.org/fhir"></Condition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Condition xmlns="http://hl7.org/fhir"></Condition>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->clinicalStatus)) $this->clinicalStatus->xmlSerialize(true, $sxe->addChild('clinicalStatus'));
-        if (isset($this->verificationStatus)) $this->verificationStatus->xmlSerialize(true, $sxe->addChild('verificationStatus'));
+        if (isset($this->clinicalStatus)) {
+            $this->clinicalStatus->xmlSerialize(true, $sxe->addChild('clinicalStatus'));
+        }
+        if (isset($this->verificationStatus)) {
+            $this->verificationStatus->xmlSerialize(true, $sxe->addChild('verificationStatus'));
+        }
         if (0 < count($this->category)) {
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $category->xmlSerialize(true, $sxe->addChild('category'));
             }
         }
-        if (isset($this->severity)) $this->severity->xmlSerialize(true, $sxe->addChild('severity'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        if (isset($this->severity)) {
+            $this->severity->xmlSerialize(true, $sxe->addChild('severity'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
         if (0 < count($this->bodySite)) {
-            foreach($this->bodySite as $bodySite) {
+            foreach ($this->bodySite as $bodySite) {
                 $bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
             }
         }
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
-        if (isset($this->encounter)) $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
-        if (isset($this->onsetDateTime)) $this->onsetDateTime->xmlSerialize(true, $sxe->addChild('onsetDateTime'));
-        if (isset($this->onsetAge)) $this->onsetAge->xmlSerialize(true, $sxe->addChild('onsetAge'));
-        if (isset($this->onsetPeriod)) $this->onsetPeriod->xmlSerialize(true, $sxe->addChild('onsetPeriod'));
-        if (isset($this->onsetRange)) $this->onsetRange->xmlSerialize(true, $sxe->addChild('onsetRange'));
-        if (isset($this->onsetString)) $this->onsetString->xmlSerialize(true, $sxe->addChild('onsetString'));
-        if (isset($this->abatementDateTime)) $this->abatementDateTime->xmlSerialize(true, $sxe->addChild('abatementDateTime'));
-        if (isset($this->abatementAge)) $this->abatementAge->xmlSerialize(true, $sxe->addChild('abatementAge'));
-        if (isset($this->abatementPeriod)) $this->abatementPeriod->xmlSerialize(true, $sxe->addChild('abatementPeriod'));
-        if (isset($this->abatementRange)) $this->abatementRange->xmlSerialize(true, $sxe->addChild('abatementRange'));
-        if (isset($this->abatementString)) $this->abatementString->xmlSerialize(true, $sxe->addChild('abatementString'));
-        if (isset($this->recordedDate)) $this->recordedDate->xmlSerialize(true, $sxe->addChild('recordedDate'));
-        if (isset($this->recorder)) $this->recorder->xmlSerialize(true, $sxe->addChild('recorder'));
-        if (isset($this->asserter)) $this->asserter->xmlSerialize(true, $sxe->addChild('asserter'));
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
+        if (isset($this->encounter)) {
+            $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
+        }
+        if (isset($this->onsetDateTime)) {
+            $this->onsetDateTime->xmlSerialize(true, $sxe->addChild('onsetDateTime'));
+        }
+        if (isset($this->onsetAge)) {
+            $this->onsetAge->xmlSerialize(true, $sxe->addChild('onsetAge'));
+        }
+        if (isset($this->onsetPeriod)) {
+            $this->onsetPeriod->xmlSerialize(true, $sxe->addChild('onsetPeriod'));
+        }
+        if (isset($this->onsetRange)) {
+            $this->onsetRange->xmlSerialize(true, $sxe->addChild('onsetRange'));
+        }
+        if (isset($this->onsetString)) {
+            $this->onsetString->xmlSerialize(true, $sxe->addChild('onsetString'));
+        }
+        if (isset($this->abatementDateTime)) {
+            $this->abatementDateTime->xmlSerialize(true, $sxe->addChild('abatementDateTime'));
+        }
+        if (isset($this->abatementAge)) {
+            $this->abatementAge->xmlSerialize(true, $sxe->addChild('abatementAge'));
+        }
+        if (isset($this->abatementPeriod)) {
+            $this->abatementPeriod->xmlSerialize(true, $sxe->addChild('abatementPeriod'));
+        }
+        if (isset($this->abatementRange)) {
+            $this->abatementRange->xmlSerialize(true, $sxe->addChild('abatementRange'));
+        }
+        if (isset($this->abatementString)) {
+            $this->abatementString->xmlSerialize(true, $sxe->addChild('abatementString'));
+        }
+        if (isset($this->recordedDate)) {
+            $this->recordedDate->xmlSerialize(true, $sxe->addChild('recordedDate'));
+        }
+        if (isset($this->recorder)) {
+            $this->recorder->xmlSerialize(true, $sxe->addChild('recorder'));
+        }
+        if (isset($this->asserter)) {
+            $this->asserter->xmlSerialize(true, $sxe->addChild('asserter'));
+        }
         if (0 < count($this->stage)) {
-            foreach($this->stage as $stage) {
+            foreach ($this->stage as $stage) {
                 $stage->xmlSerialize(true, $sxe->addChild('stage'));
             }
         }
         if (0 < count($this->evidence)) {
-            foreach($this->evidence as $evidence) {
+            foreach ($this->evidence as $evidence) {
                 $evidence->xmlSerialize(true, $sxe->addChild('evidence'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

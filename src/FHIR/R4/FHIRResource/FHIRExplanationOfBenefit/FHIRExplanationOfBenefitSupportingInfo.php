@@ -135,7 +135,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * A number to uniquely identify supporting information entries.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -144,7 +145,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -153,7 +155,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * The general class of the information supplied: information; exception; accident, employment; onset, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -162,7 +165,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -171,7 +175,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * System and code pertaining to the specific information regarding special conditions relating to the setting, treatment or patient  for which care is sought.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -180,7 +185,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -188,7 +194,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getTimingDate() {
+    public function getTimingDate()
+    {
         return $this->timingDate;
     }
 
@@ -196,7 +203,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $timingDate
      * @return $this
      */
-    public function setTimingDate($timingDate) {
+    public function setTimingDate($timingDate)
+    {
         $this->timingDate = $timingDate;
         return $this;
     }
@@ -204,7 +212,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getTimingPeriod() {
+    public function getTimingPeriod()
+    {
         return $this->timingPeriod;
     }
 
@@ -212,7 +221,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $timingPeriod
      * @return $this
      */
-    public function setTimingPeriod($timingPeriod) {
+    public function setTimingPeriod($timingPeriod)
+    {
         $this->timingPeriod = $timingPeriod;
         return $this;
     }
@@ -220,7 +230,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getValueBoolean() {
+    public function getValueBoolean()
+    {
         return $this->valueBoolean;
     }
 
@@ -228,7 +239,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $valueBoolean
      * @return $this
      */
-    public function setValueBoolean($valueBoolean) {
+    public function setValueBoolean($valueBoolean)
+    {
         $this->valueBoolean = $valueBoolean;
         return $this;
     }
@@ -236,7 +248,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValueString() {
+    public function getValueString()
+    {
         return $this->valueString;
     }
 
@@ -244,7 +257,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $valueString
      * @return $this
      */
-    public function setValueString($valueString) {
+    public function setValueString($valueString)
+    {
         $this->valueString = $valueString;
         return $this;
     }
@@ -252,7 +266,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValueQuantity() {
+    public function getValueQuantity()
+    {
         return $this->valueQuantity;
     }
 
@@ -260,7 +275,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
      * @return $this
      */
-    public function setValueQuantity($valueQuantity) {
+    public function setValueQuantity($valueQuantity)
+    {
         $this->valueQuantity = $valueQuantity;
         return $this;
     }
@@ -268,7 +284,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getValueAttachment() {
+    public function getValueAttachment()
+    {
         return $this->valueAttachment;
     }
 
@@ -276,7 +293,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $valueAttachment
      * @return $this
      */
-    public function setValueAttachment($valueAttachment) {
+    public function setValueAttachment($valueAttachment)
+    {
         $this->valueAttachment = $valueAttachment;
         return $this;
     }
@@ -284,7 +302,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getValueReference() {
+    public function getValueReference()
+    {
         return $this->valueReference;
     }
 
@@ -292,7 +311,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $valueReference
      * @return $this
      */
-    public function setValueReference($valueReference) {
+    public function setValueReference($valueReference)
+    {
         $this->valueReference = $valueReference;
         return $this;
     }
@@ -301,7 +321,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * Provides the reason in the situation where a reason code is required in addition to the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getReason() {
+    public function getReason()
+    {
         return $this->reason;
     }
 
@@ -310,7 +331,8 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $reason
      * @return $this
      */
-    public function setReason($reason) {
+    public function setReason($reason)
+    {
         $this->reason = $reason;
         return $this;
     }
@@ -318,14 +340,16 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequence'])) {
                 $this->setSequence($data['sequence']);
@@ -369,26 +393,50 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->timingDate)) $json['timingDate'] = $this->timingDate;
-        if (isset($this->timingPeriod)) $json['timingPeriod'] = $this->timingPeriod;
-        if (isset($this->valueBoolean)) $json['valueBoolean'] = $this->valueBoolean;
-        if (isset($this->valueString)) $json['valueString'] = $this->valueString;
-        if (isset($this->valueQuantity)) $json['valueQuantity'] = $this->valueQuantity;
-        if (isset($this->valueAttachment)) $json['valueAttachment'] = $this->valueAttachment;
-        if (isset($this->valueReference)) $json['valueReference'] = $this->valueReference;
-        if (isset($this->reason)) $json['reason'] = $this->reason;
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->timingDate)) {
+            $json['timingDate'] = $this->timingDate;
+        }
+        if (isset($this->timingPeriod)) {
+            $json['timingPeriod'] = $this->timingPeriod;
+        }
+        if (isset($this->valueBoolean)) {
+            $json['valueBoolean'] = $this->valueBoolean;
+        }
+        if (isset($this->valueString)) {
+            $json['valueString'] = $this->valueString;
+        }
+        if (isset($this->valueQuantity)) {
+            $json['valueQuantity'] = $this->valueQuantity;
+        }
+        if (isset($this->valueAttachment)) {
+            $json['valueAttachment'] = $this->valueAttachment;
+        }
+        if (isset($this->valueReference)) {
+            $json['valueReference'] = $this->valueReference;
+        }
+        if (isset($this->reason)) {
+            $json['reason'] = $this->reason;
+        }
         return $json;
     }
 
@@ -397,23 +445,48 @@ class FHIRExplanationOfBenefitSupportingInfo extends FHIRBackboneElement impleme
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExplanationOfBenefitSupportingInfo xmlns="http://hl7.org/fhir"></ExplanationOfBenefitSupportingInfo>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitSupportingInfo xmlns="http://hl7.org/fhir"></ExplanationOfBenefitSupportingInfo>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->timingDate)) $this->timingDate->xmlSerialize(true, $sxe->addChild('timingDate'));
-        if (isset($this->timingPeriod)) $this->timingPeriod->xmlSerialize(true, $sxe->addChild('timingPeriod'));
-        if (isset($this->valueBoolean)) $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
-        if (isset($this->valueString)) $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
-        if (isset($this->valueQuantity)) $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
-        if (isset($this->valueAttachment)) $this->valueAttachment->xmlSerialize(true, $sxe->addChild('valueAttachment'));
-        if (isset($this->valueReference)) $this->valueReference->xmlSerialize(true, $sxe->addChild('valueReference'));
-        if (isset($this->reason)) $this->reason->xmlSerialize(true, $sxe->addChild('reason'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->timingDate)) {
+            $this->timingDate->xmlSerialize(true, $sxe->addChild('timingDate'));
+        }
+        if (isset($this->timingPeriod)) {
+            $this->timingPeriod->xmlSerialize(true, $sxe->addChild('timingPeriod'));
+        }
+        if (isset($this->valueBoolean)) {
+            $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
+        }
+        if (isset($this->valueString)) {
+            $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
+        }
+        if (isset($this->valueQuantity)) {
+            $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
+        }
+        if (isset($this->valueAttachment)) {
+            $this->valueAttachment->xmlSerialize(true, $sxe->addChild('valueAttachment'));
+        }
+        if (isset($this->valueReference)) {
+            $this->valueReference->xmlSerialize(true, $sxe->addChild('valueReference'));
+        }
+        if (isset($this->reason)) {
+            $this->reason->xmlSerialize(true, $sxe->addChild('reason'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

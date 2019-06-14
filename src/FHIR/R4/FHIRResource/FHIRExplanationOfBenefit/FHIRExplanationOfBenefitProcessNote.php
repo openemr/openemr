@@ -100,7 +100,8 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
      * A number to uniquely identify a note entry.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getNumber() {
+    public function getNumber()
+    {
         return $this->number;
     }
 
@@ -109,7 +110,8 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $number
      * @return $this
      */
-    public function setNumber($number) {
+    public function setNumber($number)
+    {
         $this->number = $number;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
      * The business purpose of the note text.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRNoteType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -127,7 +130,8 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRNoteType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
      * The explanation or description associated with the processing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -145,7 +150,8 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
      * A code to define the language used in the text of the note.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -163,7 +170,8 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $language
      * @return $this
      */
-    public function setLanguage($language) {
+    public function setLanguage($language)
+    {
         $this->language = $language;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['number'])) {
                 $this->setNumber($data['number']);
@@ -201,19 +211,29 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->number)) $json['number'] = $this->number;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->text)) $json['text'] = $this->text;
-        if (isset($this->language)) $json['language'] = $this->language;
+        if (isset($this->number)) {
+            $json['number'] = $this->number;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
+        if (isset($this->language)) {
+            $json['language'] = $this->language;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRExplanationOfBenefitProcessNote extends FHIRBackboneElement implements
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExplanationOfBenefitProcessNote xmlns="http://hl7.org/fhir"></ExplanationOfBenefitProcessNote>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitProcessNote xmlns="http://hl7.org/fhir"></ExplanationOfBenefitProcessNote>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->number)) $this->number->xmlSerialize(true, $sxe->addChild('number'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
-        if (isset($this->language)) $this->language->xmlSerialize(true, $sxe->addChild('language'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->number)) {
+            $this->number->xmlSerialize(true, $sxe->addChild('number'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
+        if (isset($this->language)) {
+            $this->language->xmlSerialize(true, $sxe->addChild('language'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

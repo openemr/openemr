@@ -100,7 +100,8 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
      * The location where the encounter takes place.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
@@ -109,7 +110,8 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $location
      * @return $this
      */
-    public function setLocation($location) {
+    public function setLocation($location)
+    {
         $this->location = $location;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
      * The status of the participants' presence at the specified location during the period specified. If the participant is no longer at the location, then the period will have an end date/time.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIREncounterLocationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -127,7 +130,8 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIREncounterLocationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
      * This will be used to specify the required levels (bed/ward/room/etc.) desired to be recorded to simplify either messaging or query.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPhysicalType() {
+    public function getPhysicalType()
+    {
         return $this->physicalType;
     }
 
@@ -145,7 +150,8 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $physicalType
      * @return $this
      */
-    public function setPhysicalType($physicalType) {
+    public function setPhysicalType($physicalType)
+    {
         $this->physicalType = $physicalType;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
      * Time period during which the patient was present at the location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -163,7 +170,8 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['location'])) {
                 $this->setLocation($data['location']);
@@ -201,19 +211,29 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->location)) $json['location'] = $this->location;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->physicalType)) $json['physicalType'] = $this->physicalType;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->location)) {
+            $json['location'] = $this->location;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->physicalType)) {
+            $json['physicalType'] = $this->physicalType;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<EncounterLocation xmlns="http://hl7.org/fhir"></EncounterLocation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<EncounterLocation xmlns="http://hl7.org/fhir"></EncounterLocation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->location)) $this->location->xmlSerialize(true, $sxe->addChild('location'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->physicalType)) $this->physicalType->xmlSerialize(true, $sxe->addChild('physicalType'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->location)) {
+            $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->physicalType)) {
+            $this->physicalType->xmlSerialize(true, $sxe->addChild('physicalType'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

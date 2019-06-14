@@ -104,7 +104,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
      * Identifier for this procedure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -113,7 +114,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -122,7 +124,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
      * Type of procedure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -131,7 +134,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -139,7 +143,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getDatePeriod() {
+    public function getDatePeriod()
+    {
         return $this->datePeriod;
     }
 
@@ -147,7 +152,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $datePeriod
      * @return $this
      */
-    public function setDatePeriod($datePeriod) {
+    public function setDatePeriod($datePeriod)
+    {
         $this->datePeriod = $datePeriod;
         return $this;
     }
@@ -155,7 +161,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDateDateTime() {
+    public function getDateDateTime()
+    {
         return $this->dateDateTime;
     }
 
@@ -163,7 +170,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $dateDateTime
      * @return $this
      */
-    public function setDateDateTime($dateDateTime) {
+    public function setDateDateTime($dateDateTime)
+    {
         $this->dateDateTime = $dateDateTime;
         return $this;
     }
@@ -172,7 +180,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
      * Applcations submitted to obtain a marketing authorization.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationProcedure[]
      */
-    public function getApplication() {
+    public function getApplication()
+    {
         return $this->application;
     }
 
@@ -181,7 +190,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationProcedure $application
      * @return $this
      */
-    public function addApplication($application) {
+    public function addApplication($application)
+    {
         $this->application[] = $application;
         return $this;
     }
@@ -189,14 +199,16 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 $this->setIdentifier($data['identifier']);
@@ -212,7 +224,7 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
             }
             if (isset($data['application'])) {
                 if (is_array($data['application'])) {
-                    foreach($data['application'] as $d) {
+                    foreach ($data['application'] as $d) {
                         $this->addApplication($d);
                     }
                 } else {
@@ -228,22 +240,32 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->datePeriod)) $json['datePeriod'] = $this->datePeriod;
-        if (isset($this->dateDateTime)) $json['dateDateTime'] = $this->dateDateTime;
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->datePeriod)) {
+            $json['datePeriod'] = $this->datePeriod;
+        }
+        if (isset($this->dateDateTime)) {
+            $json['dateDateTime'] = $this->dateDateTime;
+        }
         if (0 < count($this->application)) {
             $json['application'] = [];
-            foreach($this->application as $application) {
+            foreach ($this->application as $application) {
                 $json['application'][] = $application;
             }
         }
@@ -255,21 +277,32 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductAuthorizationProcedure xmlns="http://hl7.org/fhir"></MedicinalProductAuthorizationProcedure>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductAuthorizationProcedure xmlns="http://hl7.org/fhir"></MedicinalProductAuthorizationProcedure>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->datePeriod)) $this->datePeriod->xmlSerialize(true, $sxe->addChild('datePeriod'));
-        if (isset($this->dateDateTime)) $this->dateDateTime->xmlSerialize(true, $sxe->addChild('dateDateTime'));
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->datePeriod)) {
+            $this->datePeriod->xmlSerialize(true, $sxe->addChild('datePeriod'));
+        }
+        if (isset($this->dateDateTime)) {
+            $this->dateDateTime->xmlSerialize(true, $sxe->addChild('dateDateTime'));
+        }
         if (0 < count($this->application)) {
-            foreach($this->application as $application) {
+            foreach ($this->application as $application) {
                 $application->xmlSerialize(true, $sxe->addChild('application'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

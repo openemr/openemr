@@ -114,7 +114,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * A category for this property, e.g. Physical, Chemical, Enzymatic.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -123,7 +124,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -132,7 +134,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * Property type e.g. viscosity, pH, isoelectric point.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -141,7 +144,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -150,7 +154,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * Parameters that were used in the measurement of a property (e.g. for viscosity: measured at 20C with a pH of 7.1).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getParameters() {
+    public function getParameters()
+    {
         return $this->parameters;
     }
 
@@ -159,7 +164,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $parameters
      * @return $this
      */
-    public function setParameters($parameters) {
+    public function setParameters($parameters)
+    {
         $this->parameters = $parameters;
         return $this;
     }
@@ -167,7 +173,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDefiningSubstanceReference() {
+    public function getDefiningSubstanceReference()
+    {
         return $this->definingSubstanceReference;
     }
 
@@ -175,7 +182,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $definingSubstanceReference
      * @return $this
      */
-    public function setDefiningSubstanceReference($definingSubstanceReference) {
+    public function setDefiningSubstanceReference($definingSubstanceReference)
+    {
         $this->definingSubstanceReference = $definingSubstanceReference;
         return $this;
     }
@@ -183,7 +191,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDefiningSubstanceCodeableConcept() {
+    public function getDefiningSubstanceCodeableConcept()
+    {
         return $this->definingSubstanceCodeableConcept;
     }
 
@@ -191,7 +200,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $definingSubstanceCodeableConcept
      * @return $this
      */
-    public function setDefiningSubstanceCodeableConcept($definingSubstanceCodeableConcept) {
+    public function setDefiningSubstanceCodeableConcept($definingSubstanceCodeableConcept)
+    {
         $this->definingSubstanceCodeableConcept = $definingSubstanceCodeableConcept;
         return $this;
     }
@@ -199,7 +209,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getAmountQuantity() {
+    public function getAmountQuantity()
+    {
         return $this->amountQuantity;
     }
 
@@ -207,7 +218,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $amountQuantity
      * @return $this
      */
-    public function setAmountQuantity($amountQuantity) {
+    public function setAmountQuantity($amountQuantity)
+    {
         $this->amountQuantity = $amountQuantity;
         return $this;
     }
@@ -215,7 +227,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAmountString() {
+    public function getAmountString()
+    {
         return $this->amountString;
     }
 
@@ -223,7 +236,8 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $amountString
      * @return $this
      */
-    public function setAmountString($amountString) {
+    public function setAmountString($amountString)
+    {
         $this->amountString = $amountString;
         return $this;
     }
@@ -231,14 +245,16 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['category'])) {
                 $this->setCategory($data['category']);
@@ -270,22 +286,38 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->parameters)) $json['parameters'] = $this->parameters;
-        if (isset($this->definingSubstanceReference)) $json['definingSubstanceReference'] = $this->definingSubstanceReference;
-        if (isset($this->definingSubstanceCodeableConcept)) $json['definingSubstanceCodeableConcept'] = $this->definingSubstanceCodeableConcept;
-        if (isset($this->amountQuantity)) $json['amountQuantity'] = $this->amountQuantity;
-        if (isset($this->amountString)) $json['amountString'] = $this->amountString;
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->parameters)) {
+            $json['parameters'] = $this->parameters;
+        }
+        if (isset($this->definingSubstanceReference)) {
+            $json['definingSubstanceReference'] = $this->definingSubstanceReference;
+        }
+        if (isset($this->definingSubstanceCodeableConcept)) {
+            $json['definingSubstanceCodeableConcept'] = $this->definingSubstanceCodeableConcept;
+        }
+        if (isset($this->amountQuantity)) {
+            $json['amountQuantity'] = $this->amountQuantity;
+        }
+        if (isset($this->amountString)) {
+            $json['amountString'] = $this->amountString;
+        }
         return $json;
     }
 
@@ -294,19 +326,36 @@ class FHIRSubstanceSpecificationProperty extends FHIRBackboneElement implements 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecificationProperty xmlns="http://hl7.org/fhir"></SubstanceSpecificationProperty>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecificationProperty xmlns="http://hl7.org/fhir"></SubstanceSpecificationProperty>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->parameters)) $this->parameters->xmlSerialize(true, $sxe->addChild('parameters'));
-        if (isset($this->definingSubstanceReference)) $this->definingSubstanceReference->xmlSerialize(true, $sxe->addChild('definingSubstanceReference'));
-        if (isset($this->definingSubstanceCodeableConcept)) $this->definingSubstanceCodeableConcept->xmlSerialize(true, $sxe->addChild('definingSubstanceCodeableConcept'));
-        if (isset($this->amountQuantity)) $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));
-        if (isset($this->amountString)) $this->amountString->xmlSerialize(true, $sxe->addChild('amountString'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->parameters)) {
+            $this->parameters->xmlSerialize(true, $sxe->addChild('parameters'));
+        }
+        if (isset($this->definingSubstanceReference)) {
+            $this->definingSubstanceReference->xmlSerialize(true, $sxe->addChild('definingSubstanceReference'));
+        }
+        if (isset($this->definingSubstanceCodeableConcept)) {
+            $this->definingSubstanceCodeableConcept->xmlSerialize(true, $sxe->addChild('definingSubstanceCodeableConcept'));
+        }
+        if (isset($this->amountQuantity)) {
+            $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));
+        }
+        if (isset($this->amountString)) {
+            $this->amountString->xmlSerialize(true, $sxe->addChild('amountString'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

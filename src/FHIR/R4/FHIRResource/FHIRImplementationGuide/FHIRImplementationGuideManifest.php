@@ -106,7 +106,8 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * A pointer to official web page, PDF or other rendering of the implementation guide.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getRendering() {
+    public function getRendering()
+    {
         return $this->rendering;
     }
 
@@ -115,7 +116,8 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $rendering
      * @return $this
      */
-    public function setRendering($rendering) {
+    public function setRendering($rendering)
+    {
         $this->rendering = $rendering;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * A resource that is part of the implementation guide. Conformance resources (value set, structure definition, capability statements etc.) are obvious candidates for inclusion, but any kind of resource can be included as an example resource.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideResource1[]
      */
-    public function getResource() {
+    public function getResource()
+    {
         return $this->resource;
     }
 
@@ -133,7 +136,8 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideResource1 $resource
      * @return $this
      */
-    public function addResource($resource) {
+    public function addResource($resource)
+    {
         $this->resource[] = $resource;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * Information about a page within the IG.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuidePage1[]
      */
-    public function getPage() {
+    public function getPage()
+    {
         return $this->page;
     }
 
@@ -151,7 +156,8 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuidePage1 $page
      * @return $this
      */
-    public function addPage($page) {
+    public function addPage($page)
+    {
         $this->page[] = $page;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * Indicates a relative path to an image that exists within the IG.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getImage() {
+    public function getImage()
+    {
         return $this->image;
     }
 
@@ -169,7 +176,8 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $image
      * @return $this
      */
-    public function addImage($image) {
+    public function addImage($image)
+    {
         $this->image[] = $image;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * Indicates the relative path of an additional non-page, non-image file that is part of the IG - e.g. zip, jar and similar files that could be the target of a hyperlink in a derived IG.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getOther() {
+    public function getOther()
+    {
         return $this->other;
     }
 
@@ -187,7 +196,8 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $other
      * @return $this
      */
-    public function addOther($other) {
+    public function addOther($other)
+    {
         $this->other[] = $other;
         return $this;
     }
@@ -195,21 +205,23 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['rendering'])) {
                 $this->setRendering($data['rendering']);
             }
             if (isset($data['resource'])) {
                 if (is_array($data['resource'])) {
-                    foreach($data['resource'] as $d) {
+                    foreach ($data['resource'] as $d) {
                         $this->addResource($d);
                     }
                 } else {
@@ -218,7 +230,7 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
             }
             if (isset($data['page'])) {
                 if (is_array($data['page'])) {
-                    foreach($data['page'] as $d) {
+                    foreach ($data['page'] as $d) {
                         $this->addPage($d);
                     }
                 } else {
@@ -227,7 +239,7 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
             }
             if (isset($data['image'])) {
                 if (is_array($data['image'])) {
-                    foreach($data['image'] as $d) {
+                    foreach ($data['image'] as $d) {
                         $this->addImage($d);
                     }
                 } else {
@@ -236,7 +248,7 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
             }
             if (isset($data['other'])) {
                 if (is_array($data['other'])) {
-                    foreach($data['other'] as $d) {
+                    foreach ($data['other'] as $d) {
                         $this->addOther($d);
                     }
                 } else {
@@ -252,37 +264,41 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->rendering)) $json['rendering'] = $this->rendering;
+        if (isset($this->rendering)) {
+            $json['rendering'] = $this->rendering;
+        }
         if (0 < count($this->resource)) {
             $json['resource'] = [];
-            foreach($this->resource as $resource) {
+            foreach ($this->resource as $resource) {
                 $json['resource'][] = $resource;
             }
         }
         if (0 < count($this->page)) {
             $json['page'] = [];
-            foreach($this->page as $page) {
+            foreach ($this->page as $page) {
                 $json['page'][] = $page;
             }
         }
         if (0 < count($this->image)) {
             $json['image'] = [];
-            foreach($this->image as $image) {
+            foreach ($this->image as $image) {
                 $json['image'][] = $image;
             }
         }
         if (0 < count($this->other)) {
             $json['other'] = [];
-            foreach($this->other as $other) {
+            foreach ($this->other as $other) {
                 $json['other'][] = $other;
             }
         }
@@ -294,33 +310,38 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImplementationGuideManifest xmlns="http://hl7.org/fhir"></ImplementationGuideManifest>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImplementationGuideManifest xmlns="http://hl7.org/fhir"></ImplementationGuideManifest>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->rendering)) $this->rendering->xmlSerialize(true, $sxe->addChild('rendering'));
+        if (isset($this->rendering)) {
+            $this->rendering->xmlSerialize(true, $sxe->addChild('rendering'));
+        }
         if (0 < count($this->resource)) {
-            foreach($this->resource as $resource) {
+            foreach ($this->resource as $resource) {
                 $resource->xmlSerialize(true, $sxe->addChild('resource'));
             }
         }
         if (0 < count($this->page)) {
-            foreach($this->page as $page) {
+            foreach ($this->page as $page) {
                 $page->xmlSerialize(true, $sxe->addChild('page'));
             }
         }
         if (0 < count($this->image)) {
-            foreach($this->image as $image) {
+            foreach ($this->image as $image) {
                 $image->xmlSerialize(true, $sxe->addChild('image'));
             }
         }
         if (0 < count($this->other)) {
-            foreach($this->other as $other) {
+            foreach ($this->other as $other) {
                 $other->xmlSerialize(true, $sxe->addChild('other'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

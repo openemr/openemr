@@ -142,7 +142,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * Action  to take - permit or deny - when the rule conditions are met.  Not permitted in root rule, required in all nested rules.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRConsentProvisionType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -151,7 +152,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRConsentProvisionType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -160,7 +162,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * The timeframe in this rule is valid.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -169,7 +172,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -178,7 +182,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * Who or what is controlled by this rule. Use group to identify a set of actors by some property they share (e.g. 'admitting officers').
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentActor[]
      */
-    public function getActor() {
+    public function getActor()
+    {
         return $this->actor;
     }
 
@@ -187,7 +192,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentActor $actor
      * @return $this
      */
-    public function addActor($actor) {
+    public function addActor($actor)
+    {
         $this->actor[] = $actor;
         return $this;
     }
@@ -196,7 +202,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * Actions controlled by this Rule.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getAction() {
+    public function getAction()
+    {
         return $this->action;
     }
 
@@ -205,7 +212,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $action
      * @return $this
      */
-    public function addAction($action) {
+    public function addAction($action)
+    {
         $this->action[] = $action;
         return $this;
     }
@@ -214,7 +222,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * A security label, comprised of 0..* security label fields (Privacy tags), which define which resources are controlled by this exception.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getSecurityLabel() {
+    public function getSecurityLabel()
+    {
         return $this->securityLabel;
     }
 
@@ -223,7 +232,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $securityLabel
      * @return $this
      */
-    public function addSecurityLabel($securityLabel) {
+    public function addSecurityLabel($securityLabel)
+    {
         $this->securityLabel[] = $securityLabel;
         return $this;
     }
@@ -232,7 +242,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * The context of the activities a user is taking - why the user is accessing the data - that are controlled by this rule.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getPurpose() {
+    public function getPurpose()
+    {
         return $this->purpose;
     }
 
@@ -241,7 +252,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $purpose
      * @return $this
      */
-    public function addPurpose($purpose) {
+    public function addPurpose($purpose)
+    {
         $this->purpose[] = $purpose;
         return $this;
     }
@@ -250,7 +262,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * The class of information covered by this rule. The type can be a FHIR resource type, a profile on a type, or a CDA document, or some other type that indicates what sort of information the consent relates to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getClass() {
+    public function getClass()
+    {
         return $this->class;
     }
 
@@ -259,7 +272,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $class
      * @return $this
      */
-    public function addClass($class) {
+    public function addClass($class)
+    {
         $this->class[] = $class;
         return $this;
     }
@@ -268,7 +282,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * If this code is found in an instance, then the rule applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -277,7 +292,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -286,7 +302,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * Clinical or Operational Relevant period of time that bounds the data controlled by this rule.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getDataPeriod() {
+    public function getDataPeriod()
+    {
         return $this->dataPeriod;
     }
 
@@ -295,7 +312,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $dataPeriod
      * @return $this
      */
-    public function setDataPeriod($dataPeriod) {
+    public function setDataPeriod($dataPeriod)
+    {
         $this->dataPeriod = $dataPeriod;
         return $this;
     }
@@ -304,7 +322,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * The resources controlled by this rule if specific resources are referenced.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentData[]
      */
-    public function getData() {
+    public function getData()
+    {
         return $this->data;
     }
 
@@ -313,7 +332,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentData $data
      * @return $this
      */
-    public function addData($data) {
+    public function addData($data)
+    {
         $this->data[] = $data;
         return $this;
     }
@@ -322,7 +342,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * Rules which provide exceptions to the base rule or subrules.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentProvision[]
      */
-    public function getProvision() {
+    public function getProvision()
+    {
         return $this->provision;
     }
 
@@ -331,7 +352,8 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentProvision $provision
      * @return $this
      */
-    public function addProvision($provision) {
+    public function addProvision($provision)
+    {
         $this->provision[] = $provision;
         return $this;
     }
@@ -339,14 +361,16 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -356,7 +380,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['actor'])) {
                 if (is_array($data['actor'])) {
-                    foreach($data['actor'] as $d) {
+                    foreach ($data['actor'] as $d) {
                         $this->addActor($d);
                     }
                 } else {
@@ -365,7 +389,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['action'])) {
                 if (is_array($data['action'])) {
-                    foreach($data['action'] as $d) {
+                    foreach ($data['action'] as $d) {
                         $this->addAction($d);
                     }
                 } else {
@@ -374,7 +398,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['securityLabel'])) {
                 if (is_array($data['securityLabel'])) {
-                    foreach($data['securityLabel'] as $d) {
+                    foreach ($data['securityLabel'] as $d) {
                         $this->addSecurityLabel($d);
                     }
                 } else {
@@ -383,7 +407,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['purpose'])) {
                 if (is_array($data['purpose'])) {
-                    foreach($data['purpose'] as $d) {
+                    foreach ($data['purpose'] as $d) {
                         $this->addPurpose($d);
                     }
                 } else {
@@ -392,7 +416,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['class'])) {
                 if (is_array($data['class'])) {
-                    foreach($data['class'] as $d) {
+                    foreach ($data['class'] as $d) {
                         $this->addClass($d);
                     }
                 } else {
@@ -401,7 +425,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -413,7 +437,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['data'])) {
                 if (is_array($data['data'])) {
-                    foreach($data['data'] as $d) {
+                    foreach ($data['data'] as $d) {
                         $this->addData($d);
                     }
                 } else {
@@ -422,7 +446,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['provision'])) {
                 if (is_array($data['provision'])) {
-                    foreach($data['provision'] as $d) {
+                    foreach ($data['provision'] as $d) {
                         $this->addProvision($d);
                     }
                 } else {
@@ -438,63 +462,71 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         if (0 < count($this->actor)) {
             $json['actor'] = [];
-            foreach($this->actor as $actor) {
+            foreach ($this->actor as $actor) {
                 $json['actor'][] = $actor;
             }
         }
         if (0 < count($this->action)) {
             $json['action'] = [];
-            foreach($this->action as $action) {
+            foreach ($this->action as $action) {
                 $json['action'][] = $action;
             }
         }
         if (0 < count($this->securityLabel)) {
             $json['securityLabel'] = [];
-            foreach($this->securityLabel as $securityLabel) {
+            foreach ($this->securityLabel as $securityLabel) {
                 $json['securityLabel'][] = $securityLabel;
             }
         }
         if (0 < count($this->purpose)) {
             $json['purpose'] = [];
-            foreach($this->purpose as $purpose) {
+            foreach ($this->purpose as $purpose) {
                 $json['purpose'][] = $purpose;
             }
         }
         if (0 < count($this->class)) {
             $json['class'] = [];
-            foreach($this->class as $class) {
+            foreach ($this->class as $class) {
                 $json['class'][] = $class;
             }
         }
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
-        if (isset($this->dataPeriod)) $json['dataPeriod'] = $this->dataPeriod;
+        if (isset($this->dataPeriod)) {
+            $json['dataPeriod'] = $this->dataPeriod;
+        }
         if (0 < count($this->data)) {
             $json['data'] = [];
-            foreach($this->data as $data) {
+            foreach ($this->data as $data) {
                 $json['data'][] = $data;
             }
         }
         if (0 < count($this->provision)) {
             $json['provision'] = [];
-            foreach($this->provision as $provision) {
+            foreach ($this->provision as $provision) {
                 $json['provision'][] = $provision;
             }
         }
@@ -506,55 +538,64 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ConsentProvision xmlns="http://hl7.org/fhir"></ConsentProvision>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ConsentProvision xmlns="http://hl7.org/fhir"></ConsentProvision>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
         if (0 < count($this->actor)) {
-            foreach($this->actor as $actor) {
+            foreach ($this->actor as $actor) {
                 $actor->xmlSerialize(true, $sxe->addChild('actor'));
             }
         }
         if (0 < count($this->action)) {
-            foreach($this->action as $action) {
+            foreach ($this->action as $action) {
                 $action->xmlSerialize(true, $sxe->addChild('action'));
             }
         }
         if (0 < count($this->securityLabel)) {
-            foreach($this->securityLabel as $securityLabel) {
+            foreach ($this->securityLabel as $securityLabel) {
                 $securityLabel->xmlSerialize(true, $sxe->addChild('securityLabel'));
             }
         }
         if (0 < count($this->purpose)) {
-            foreach($this->purpose as $purpose) {
+            foreach ($this->purpose as $purpose) {
                 $purpose->xmlSerialize(true, $sxe->addChild('purpose'));
             }
         }
         if (0 < count($this->class)) {
-            foreach($this->class as $class) {
+            foreach ($this->class as $class) {
                 $class->xmlSerialize(true, $sxe->addChild('class'));
             }
         }
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
-        if (isset($this->dataPeriod)) $this->dataPeriod->xmlSerialize(true, $sxe->addChild('dataPeriod'));
+        if (isset($this->dataPeriod)) {
+            $this->dataPeriod->xmlSerialize(true, $sxe->addChild('dataPeriod'));
+        }
         if (0 < count($this->data)) {
-            foreach($this->data as $data) {
+            foreach ($this->data as $data) {
                 $data->xmlSerialize(true, $sxe->addChild('data'));
             }
         }
         if (0 < count($this->provision)) {
-            foreach($this->provision as $provision) {
+            foreach ($this->provision as $provision) {
                 $provision->xmlSerialize(true, $sxe->addChild('provision'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

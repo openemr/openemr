@@ -88,7 +88,8 @@ class FHIRInsurancePlanSpecificCost extends FHIRBackboneElement implements \Json
      * General category of benefit (Medical; Dental; Vision; Drug; Mental Health; Substance Abuse; Hospice, Home Health).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -97,7 +98,8 @@ class FHIRInsurancePlanSpecificCost extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRInsurancePlanSpecificCost extends FHIRBackboneElement implements \Json
      * List of the specific benefits under this category of benefit.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanBenefit1[]
      */
-    public function getBenefit() {
+    public function getBenefit()
+    {
         return $this->benefit;
     }
 
@@ -115,7 +118,8 @@ class FHIRInsurancePlanSpecificCost extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanBenefit1 $benefit
      * @return $this
      */
-    public function addBenefit($benefit) {
+    public function addBenefit($benefit)
+    {
         $this->benefit[] = $benefit;
         return $this;
     }
@@ -123,21 +127,23 @@ class FHIRInsurancePlanSpecificCost extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['category'])) {
                 $this->setCategory($data['category']);
             }
             if (isset($data['benefit'])) {
                 if (is_array($data['benefit'])) {
-                    foreach($data['benefit'] as $d) {
+                    foreach ($data['benefit'] as $d) {
                         $this->addBenefit($d);
                     }
                 } else {
@@ -153,19 +159,23 @@ class FHIRInsurancePlanSpecificCost extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->category)) $json['category'] = $this->category;
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
         if (0 < count($this->benefit)) {
             $json['benefit'] = [];
-            foreach($this->benefit as $benefit) {
+            foreach ($this->benefit as $benefit) {
                 $json['benefit'][] = $benefit;
             }
         }
@@ -177,18 +187,23 @@ class FHIRInsurancePlanSpecificCost extends FHIRBackboneElement implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InsurancePlanSpecificCost xmlns="http://hl7.org/fhir"></InsurancePlanSpecificCost>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InsurancePlanSpecificCost xmlns="http://hl7.org/fhir"></InsurancePlanSpecificCost>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
         if (0 < count($this->benefit)) {
-            foreach($this->benefit as $benefit) {
+            foreach ($this->benefit as $benefit) {
                 $benefit->xmlSerialize(true, $sxe->addChild('benefit'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

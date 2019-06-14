@@ -92,7 +92,8 @@ class FHIRSubstanceIngredient extends FHIRBackboneElement implements \JsonSerial
      * The amount of the ingredient in the substance - a concentration ratio.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -101,7 +102,8 @@ class FHIRSubstanceIngredient extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -109,7 +111,8 @@ class FHIRSubstanceIngredient extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSubstanceCodeableConcept() {
+    public function getSubstanceCodeableConcept()
+    {
         return $this->substanceCodeableConcept;
     }
 
@@ -117,7 +120,8 @@ class FHIRSubstanceIngredient extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $substanceCodeableConcept
      * @return $this
      */
-    public function setSubstanceCodeableConcept($substanceCodeableConcept) {
+    public function setSubstanceCodeableConcept($substanceCodeableConcept)
+    {
         $this->substanceCodeableConcept = $substanceCodeableConcept;
         return $this;
     }
@@ -125,7 +129,8 @@ class FHIRSubstanceIngredient extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubstanceReference() {
+    public function getSubstanceReference()
+    {
         return $this->substanceReference;
     }
 
@@ -133,7 +138,8 @@ class FHIRSubstanceIngredient extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $substanceReference
      * @return $this
      */
-    public function setSubstanceReference($substanceReference) {
+    public function setSubstanceReference($substanceReference)
+    {
         $this->substanceReference = $substanceReference;
         return $this;
     }
@@ -141,14 +147,16 @@ class FHIRSubstanceIngredient extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['quantity'])) {
                 $this->setQuantity($data['quantity']);
@@ -168,18 +176,26 @@ class FHIRSubstanceIngredient extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->substanceCodeableConcept)) $json['substanceCodeableConcept'] = $this->substanceCodeableConcept;
-        if (isset($this->substanceReference)) $json['substanceReference'] = $this->substanceReference;
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->substanceCodeableConcept)) {
+            $json['substanceCodeableConcept'] = $this->substanceCodeableConcept;
+        }
+        if (isset($this->substanceReference)) {
+            $json['substanceReference'] = $this->substanceReference;
+        }
         return $json;
     }
 
@@ -188,15 +204,24 @@ class FHIRSubstanceIngredient extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceIngredient xmlns="http://hl7.org/fhir"></SubstanceIngredient>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceIngredient xmlns="http://hl7.org/fhir"></SubstanceIngredient>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->substanceCodeableConcept)) $this->substanceCodeableConcept->xmlSerialize(true, $sxe->addChild('substanceCodeableConcept'));
-        if (isset($this->substanceReference)) $this->substanceReference->xmlSerialize(true, $sxe->addChild('substanceReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->substanceCodeableConcept)) {
+            $this->substanceCodeableConcept->xmlSerialize(true, $sxe->addChild('substanceCodeableConcept'));
+        }
+        if (isset($this->substanceReference)) {
+            $this->substanceReference->xmlSerialize(true, $sxe->addChild('substanceReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

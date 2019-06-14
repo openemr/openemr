@@ -94,7 +94,8 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
      * Which authority uses this official name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAuthority() {
+    public function getAuthority()
+    {
         return $this->authority;
     }
 
@@ -103,7 +104,8 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $authority
      * @return $this
      */
-    public function setAuthority($authority) {
+    public function setAuthority($authority)
+    {
         $this->authority = $authority;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
      * The status of the official name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -121,7 +124,8 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
      * Date of official name change.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -139,7 +144,8 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['authority'])) {
                 $this->setAuthority($data['authority']);
@@ -174,18 +182,26 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->authority)) $json['authority'] = $this->authority;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->date)) $json['date'] = $this->date;
+        if (isset($this->authority)) {
+            $json['authority'] = $this->authority;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRSubstanceSpecificationOfficial extends FHIRBackboneElement implements 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecificationOfficial xmlns="http://hl7.org/fhir"></SubstanceSpecificationOfficial>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecificationOfficial xmlns="http://hl7.org/fhir"></SubstanceSpecificationOfficial>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->authority)) $this->authority->xmlSerialize(true, $sxe->addChild('authority'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->authority)) {
+            $this->authority->xmlSerialize(true, $sxe->addChild('authority'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

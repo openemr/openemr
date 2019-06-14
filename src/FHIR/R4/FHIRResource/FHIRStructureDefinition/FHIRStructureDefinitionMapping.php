@@ -100,7 +100,8 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
      * An Internal id that is used to identify this mapping set when specific mappings are made.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getIdentity() {
+    public function getIdentity()
+    {
         return $this->identity;
     }
 
@@ -109,7 +110,8 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $identity
      * @return $this
      */
-    public function setIdentity($identity) {
+    public function setIdentity($identity)
+    {
         $this->identity = $identity;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
      * An absolute URI that identifies the specification that this mapping is expressed to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUri() {
+    public function getUri()
+    {
         return $this->uri;
     }
 
@@ -127,7 +130,8 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $uri
      * @return $this
      */
-    public function setUri($uri) {
+    public function setUri($uri)
+    {
         $this->uri = $uri;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
      * A name for the specification that is being mapped to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -145,7 +150,8 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
      * Comments about this mapping, including version notes, issues, scope limitations, and other important notes for usage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -163,7 +170,8 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identity'])) {
                 $this->setIdentity($data['identity']);
@@ -201,19 +211,29 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->identity)) $json['identity'] = $this->identity;
-        if (isset($this->uri)) $json['uri'] = $this->uri;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->comment)) $json['comment'] = $this->comment;
+        if (isset($this->identity)) {
+            $json['identity'] = $this->identity;
+        }
+        if (isset($this->uri)) {
+            $json['uri'] = $this->uri;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRStructureDefinitionMapping extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<StructureDefinitionMapping xmlns="http://hl7.org/fhir"></StructureDefinitionMapping>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<StructureDefinitionMapping xmlns="http://hl7.org/fhir"></StructureDefinitionMapping>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identity)) $this->identity->xmlSerialize(true, $sxe->addChild('identity'));
-        if (isset($this->uri)) $this->uri->xmlSerialize(true, $sxe->addChild('uri'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->identity)) {
+            $this->identity->xmlSerialize(true, $sxe->addChild('identity'));
+        }
+        if (isset($this->uri)) {
+            $this->uri->xmlSerialize(true, $sxe->addChild('uri'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

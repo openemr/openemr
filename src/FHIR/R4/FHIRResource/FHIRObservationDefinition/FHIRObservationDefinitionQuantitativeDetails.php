@@ -100,7 +100,8 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
      * Customary unit used to report quantitative results of observations conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCustomaryUnit() {
+    public function getCustomaryUnit()
+    {
         return $this->customaryUnit;
     }
 
@@ -109,7 +110,8 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $customaryUnit
      * @return $this
      */
-    public function setCustomaryUnit($customaryUnit) {
+    public function setCustomaryUnit($customaryUnit)
+    {
         $this->customaryUnit = $customaryUnit;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
      * SI unit used to report quantitative results of observations conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getUnit() {
+    public function getUnit()
+    {
         return $this->unit;
     }
 
@@ -127,7 +130,8 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $unit
      * @return $this
      */
-    public function setUnit($unit) {
+    public function setUnit($unit)
+    {
         $this->unit = $unit;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
      * Factor for converting value expressed with SI unit to value expressed with customary unit.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getConversionFactor() {
+    public function getConversionFactor()
+    {
         return $this->conversionFactor;
     }
 
@@ -145,7 +150,8 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $conversionFactor
      * @return $this
      */
-    public function setConversionFactor($conversionFactor) {
+    public function setConversionFactor($conversionFactor)
+    {
         $this->conversionFactor = $conversionFactor;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
      * Number of digits after decimal separator when the results of such observations are of type Quantity.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getDecimalPrecision() {
+    public function getDecimalPrecision()
+    {
         return $this->decimalPrecision;
     }
 
@@ -163,7 +170,8 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $decimalPrecision
      * @return $this
      */
-    public function setDecimalPrecision($decimalPrecision) {
+    public function setDecimalPrecision($decimalPrecision)
+    {
         $this->decimalPrecision = $decimalPrecision;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['customaryUnit'])) {
                 $this->setCustomaryUnit($data['customaryUnit']);
@@ -201,19 +211,29 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->customaryUnit)) $json['customaryUnit'] = $this->customaryUnit;
-        if (isset($this->unit)) $json['unit'] = $this->unit;
-        if (isset($this->conversionFactor)) $json['conversionFactor'] = $this->conversionFactor;
-        if (isset($this->decimalPrecision)) $json['decimalPrecision'] = $this->decimalPrecision;
+        if (isset($this->customaryUnit)) {
+            $json['customaryUnit'] = $this->customaryUnit;
+        }
+        if (isset($this->unit)) {
+            $json['unit'] = $this->unit;
+        }
+        if (isset($this->conversionFactor)) {
+            $json['conversionFactor'] = $this->conversionFactor;
+        }
+        if (isset($this->decimalPrecision)) {
+            $json['decimalPrecision'] = $this->decimalPrecision;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRObservationDefinitionQuantitativeDetails extends FHIRBackboneElement i
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ObservationDefinitionQuantitativeDetails xmlns="http://hl7.org/fhir"></ObservationDefinitionQuantitativeDetails>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ObservationDefinitionQuantitativeDetails xmlns="http://hl7.org/fhir"></ObservationDefinitionQuantitativeDetails>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->customaryUnit)) $this->customaryUnit->xmlSerialize(true, $sxe->addChild('customaryUnit'));
-        if (isset($this->unit)) $this->unit->xmlSerialize(true, $sxe->addChild('unit'));
-        if (isset($this->conversionFactor)) $this->conversionFactor->xmlSerialize(true, $sxe->addChild('conversionFactor'));
-        if (isset($this->decimalPrecision)) $this->decimalPrecision->xmlSerialize(true, $sxe->addChild('decimalPrecision'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->customaryUnit)) {
+            $this->customaryUnit->xmlSerialize(true, $sxe->addChild('customaryUnit'));
+        }
+        if (isset($this->unit)) {
+            $this->unit->xmlSerialize(true, $sxe->addChild('unit'));
+        }
+        if (isset($this->conversionFactor)) {
+            $this->conversionFactor->xmlSerialize(true, $sxe->addChild('conversionFactor'));
+        }
+        if (isset($this->decimalPrecision)) {
+            $this->decimalPrecision->xmlSerialize(true, $sxe->addChild('decimalPrecision'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

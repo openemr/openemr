@@ -101,7 +101,8 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
      * Unique identifier for the packaged Medicinal Product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -110,7 +111,8 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -119,7 +121,8 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
      * This describes the shelf life, taking into account various scenarios such as shelf life of the packaged Medicinal Product itself, shelf life after transformation where necessary and shelf life after the first opening of a bottle, etc. The shelf life type shall be specified using an appropriate controlled vocabulary The controlled term and the controlled term identifier shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -128,7 +131,8 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -137,7 +141,8 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
      * The shelf life time period can be specified using a numerical value for the period of time and its unit of time measurement The unit of measurement shall be specified in accordance with ISO 11240 and the resulting terminology The symbol and the symbol identifier shall be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -146,7 +151,8 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -155,7 +161,8 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
      * Special precautions for storage, if any, can be specified using an appropriate controlled vocabulary The controlled term and the controlled term identifier shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getSpecialPrecautionsForStorage() {
+    public function getSpecialPrecautionsForStorage()
+    {
         return $this->specialPrecautionsForStorage;
     }
 
@@ -164,7 +171,8 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $specialPrecautionsForStorage
      * @return $this
      */
-    public function addSpecialPrecautionsForStorage($specialPrecautionsForStorage) {
+    public function addSpecialPrecautionsForStorage($specialPrecautionsForStorage)
+    {
         $this->specialPrecautionsForStorage[] = $specialPrecautionsForStorage;
         return $this;
     }
@@ -172,14 +180,16 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 $this->setIdentifier($data['identifier']);
@@ -192,7 +202,7 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['specialPrecautionsForStorage'])) {
                 if (is_array($data['specialPrecautionsForStorage'])) {
-                    foreach($data['specialPrecautionsForStorage'] as $d) {
+                    foreach ($data['specialPrecautionsForStorage'] as $d) {
                         $this->addSpecialPrecautionsForStorage($d);
                     }
                 } else {
@@ -208,22 +218,30 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         if (0 < count($this->specialPrecautionsForStorage)) {
             $json['specialPrecautionsForStorage'] = [];
-            foreach($this->specialPrecautionsForStorage as $specialPrecautionsForStorage) {
+            foreach ($this->specialPrecautionsForStorage as $specialPrecautionsForStorage) {
                 $json['specialPrecautionsForStorage'][] = $specialPrecautionsForStorage;
             }
         }
@@ -235,20 +253,29 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ProductShelfLife xmlns="http://hl7.org/fhir"></ProductShelfLife>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ProductShelfLife xmlns="http://hl7.org/fhir"></ProductShelfLife>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
         if (0 < count($this->specialPrecautionsForStorage)) {
-            foreach($this->specialPrecautionsForStorage as $specialPrecautionsForStorage) {
+            foreach ($this->specialPrecautionsForStorage as $specialPrecautionsForStorage) {
                 $specialPrecautionsForStorage->xmlSerialize(true, $sxe->addChild('specialPrecautionsForStorage'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

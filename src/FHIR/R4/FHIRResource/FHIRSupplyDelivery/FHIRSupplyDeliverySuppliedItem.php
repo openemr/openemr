@@ -92,7 +92,8 @@ class FHIRSupplyDeliverySuppliedItem extends FHIRBackboneElement implements \Jso
      * The amount of supply that has been dispensed. Includes unit of measure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -101,7 +102,8 @@ class FHIRSupplyDeliverySuppliedItem extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -109,7 +111,8 @@ class FHIRSupplyDeliverySuppliedItem extends FHIRBackboneElement implements \Jso
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getItemCodeableConcept() {
+    public function getItemCodeableConcept()
+    {
         return $this->itemCodeableConcept;
     }
 
@@ -117,7 +120,8 @@ class FHIRSupplyDeliverySuppliedItem extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $itemCodeableConcept
      * @return $this
      */
-    public function setItemCodeableConcept($itemCodeableConcept) {
+    public function setItemCodeableConcept($itemCodeableConcept)
+    {
         $this->itemCodeableConcept = $itemCodeableConcept;
         return $this;
     }
@@ -125,7 +129,8 @@ class FHIRSupplyDeliverySuppliedItem extends FHIRBackboneElement implements \Jso
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getItemReference() {
+    public function getItemReference()
+    {
         return $this->itemReference;
     }
 
@@ -133,7 +138,8 @@ class FHIRSupplyDeliverySuppliedItem extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $itemReference
      * @return $this
      */
-    public function setItemReference($itemReference) {
+    public function setItemReference($itemReference)
+    {
         $this->itemReference = $itemReference;
         return $this;
     }
@@ -141,14 +147,16 @@ class FHIRSupplyDeliverySuppliedItem extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['quantity'])) {
                 $this->setQuantity($data['quantity']);
@@ -168,18 +176,26 @@ class FHIRSupplyDeliverySuppliedItem extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->itemCodeableConcept)) $json['itemCodeableConcept'] = $this->itemCodeableConcept;
-        if (isset($this->itemReference)) $json['itemReference'] = $this->itemReference;
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->itemCodeableConcept)) {
+            $json['itemCodeableConcept'] = $this->itemCodeableConcept;
+        }
+        if (isset($this->itemReference)) {
+            $json['itemReference'] = $this->itemReference;
+        }
         return $json;
     }
 
@@ -188,15 +204,24 @@ class FHIRSupplyDeliverySuppliedItem extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SupplyDeliverySuppliedItem xmlns="http://hl7.org/fhir"></SupplyDeliverySuppliedItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SupplyDeliverySuppliedItem xmlns="http://hl7.org/fhir"></SupplyDeliverySuppliedItem>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->itemCodeableConcept)) $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));
-        if (isset($this->itemReference)) $this->itemReference->xmlSerialize(true, $sxe->addChild('itemReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->itemCodeableConcept)) {
+            $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));
+        }
+        if (isset($this->itemReference)) {
+            $this->itemReference->xmlSerialize(true, $sxe->addChild('itemReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

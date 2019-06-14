@@ -94,7 +94,8 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
      * The drug concentration measured at certain discrete points in time.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity[]
      */
-    public function getAreaUnderCurve() {
+    public function getAreaUnderCurve()
+    {
         return $this->areaUnderCurve;
     }
 
@@ -103,7 +104,8 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $areaUnderCurve
      * @return $this
      */
-    public function addAreaUnderCurve($areaUnderCurve) {
+    public function addAreaUnderCurve($areaUnderCurve)
+    {
         $this->areaUnderCurve[] = $areaUnderCurve;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
      * The median lethal dose of a drug.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity[]
      */
-    public function getLethalDose50() {
+    public function getLethalDose50()
+    {
         return $this->lethalDose50;
     }
 
@@ -121,7 +124,8 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $lethalDose50
      * @return $this
      */
-    public function addLethalDose50($lethalDose50) {
+    public function addLethalDose50($lethalDose50)
+    {
         $this->lethalDose50[] = $lethalDose50;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
      * The time required for any specified property (e.g., the concentration of a substance in the body) to decrease by half.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getHalfLifePeriod() {
+    public function getHalfLifePeriod()
+    {
         return $this->halfLifePeriod;
     }
 
@@ -139,7 +144,8 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $halfLifePeriod
      * @return $this
      */
-    public function setHalfLifePeriod($halfLifePeriod) {
+    public function setHalfLifePeriod($halfLifePeriod)
+    {
         $this->halfLifePeriod = $halfLifePeriod;
         return $this;
     }
@@ -147,18 +153,20 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['areaUnderCurve'])) {
                 if (is_array($data['areaUnderCurve'])) {
-                    foreach($data['areaUnderCurve'] as $d) {
+                    foreach ($data['areaUnderCurve'] as $d) {
                         $this->addAreaUnderCurve($d);
                     }
                 } else {
@@ -167,7 +175,7 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
             }
             if (isset($data['lethalDose50'])) {
                 if (is_array($data['lethalDose50'])) {
-                    foreach($data['lethalDose50'] as $d) {
+                    foreach ($data['lethalDose50'] as $d) {
                         $this->addLethalDose50($d);
                     }
                 } else {
@@ -186,28 +194,32 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->areaUnderCurve)) {
             $json['areaUnderCurve'] = [];
-            foreach($this->areaUnderCurve as $areaUnderCurve) {
+            foreach ($this->areaUnderCurve as $areaUnderCurve) {
                 $json['areaUnderCurve'][] = $areaUnderCurve;
             }
         }
         if (0 < count($this->lethalDose50)) {
             $json['lethalDose50'] = [];
-            foreach($this->lethalDose50 as $lethalDose50) {
+            foreach ($this->lethalDose50 as $lethalDose50) {
                 $json['lethalDose50'][] = $lethalDose50;
             }
         }
-        if (isset($this->halfLifePeriod)) $json['halfLifePeriod'] = $this->halfLifePeriod;
+        if (isset($this->halfLifePeriod)) {
+            $json['halfLifePeriod'] = $this->halfLifePeriod;
+        }
         return $json;
     }
 
@@ -216,23 +228,28 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationKnowledgeKinetics xmlns="http://hl7.org/fhir"></MedicationKnowledgeKinetics>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationKnowledgeKinetics xmlns="http://hl7.org/fhir"></MedicationKnowledgeKinetics>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->areaUnderCurve)) {
-            foreach($this->areaUnderCurve as $areaUnderCurve) {
+            foreach ($this->areaUnderCurve as $areaUnderCurve) {
                 $areaUnderCurve->xmlSerialize(true, $sxe->addChild('areaUnderCurve'));
             }
         }
         if (0 < count($this->lethalDose50)) {
-            foreach($this->lethalDose50 as $lethalDose50) {
+            foreach ($this->lethalDose50 as $lethalDose50) {
                 $lethalDose50->xmlSerialize(true, $sxe->addChild('lethalDose50'));
             }
         }
-        if (isset($this->halfLifePeriod)) $this->halfLifePeriod->xmlSerialize(true, $sxe->addChild('halfLifePeriod'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->halfLifePeriod)) {
+            $this->halfLifePeriod->xmlSerialize(true, $sxe->addChild('halfLifePeriod'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

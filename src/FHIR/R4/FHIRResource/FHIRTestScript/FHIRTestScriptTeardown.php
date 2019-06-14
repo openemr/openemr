@@ -82,7 +82,8 @@ class FHIRTestScriptTeardown extends FHIRBackboneElement implements \JsonSeriali
      * The teardown action will only contain an operation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript\FHIRTestScriptAction2[]
      */
-    public function getAction() {
+    public function getAction()
+    {
         return $this->action;
     }
 
@@ -91,7 +92,8 @@ class FHIRTestScriptTeardown extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript\FHIRTestScriptAction2 $action
      * @return $this
      */
-    public function addAction($action) {
+    public function addAction($action)
+    {
         $this->action[] = $action;
         return $this;
     }
@@ -99,18 +101,20 @@ class FHIRTestScriptTeardown extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['action'])) {
                 if (is_array($data['action'])) {
-                    foreach($data['action'] as $d) {
+                    foreach ($data['action'] as $d) {
                         $this->addAction($d);
                     }
                 } else {
@@ -126,18 +130,20 @@ class FHIRTestScriptTeardown extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->action)) {
             $json['action'] = [];
-            foreach($this->action as $action) {
+            foreach ($this->action as $action) {
                 $json['action'][] = $action;
             }
         }
@@ -149,17 +155,20 @@ class FHIRTestScriptTeardown extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestScriptTeardown xmlns="http://hl7.org/fhir"></TestScriptTeardown>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestScriptTeardown xmlns="http://hl7.org/fhir"></TestScriptTeardown>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->action)) {
-            foreach($this->action as $action) {
+            foreach ($this->action as $action) {
                 $action->xmlSerialize(true, $sxe->addChild('action'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -122,7 +122,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * Identifier for the designation, or procedure number.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -131,7 +132,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -140,7 +142,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * The type of special designation, e.g. orphan drug, minor use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -149,7 +152,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -158,7 +162,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * The intended use of the product, e.g. prevention, treatment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getIntendedUse() {
+    public function getIntendedUse()
+    {
         return $this->intendedUse;
     }
 
@@ -167,7 +172,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $intendedUse
      * @return $this
      */
-    public function setIntendedUse($intendedUse) {
+    public function setIntendedUse($intendedUse)
+    {
         $this->intendedUse = $intendedUse;
         return $this;
     }
@@ -175,7 +181,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getIndicationCodeableConcept() {
+    public function getIndicationCodeableConcept()
+    {
         return $this->indicationCodeableConcept;
     }
 
@@ -183,7 +190,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $indicationCodeableConcept
      * @return $this
      */
-    public function setIndicationCodeableConcept($indicationCodeableConcept) {
+    public function setIndicationCodeableConcept($indicationCodeableConcept)
+    {
         $this->indicationCodeableConcept = $indicationCodeableConcept;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getIndicationReference() {
+    public function getIndicationReference()
+    {
         return $this->indicationReference;
     }
 
@@ -199,7 +208,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $indicationReference
      * @return $this
      */
-    public function setIndicationReference($indicationReference) {
+    public function setIndicationReference($indicationReference)
+    {
         $this->indicationReference = $indicationReference;
         return $this;
     }
@@ -208,7 +218,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * For example granted, pending, expired or withdrawn.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -217,7 +228,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -226,7 +238,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * Date when the designation was granted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -235,7 +248,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -244,7 +258,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * Animal species for which this applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSpecies() {
+    public function getSpecies()
+    {
         return $this->species;
     }
 
@@ -253,7 +268,8 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $species
      * @return $this
      */
-    public function setSpecies($species) {
+    public function setSpecies($species)
+    {
         $this->species = $species;
         return $this;
     }
@@ -261,18 +277,20 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -309,28 +327,44 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->intendedUse)) $json['intendedUse'] = $this->intendedUse;
-        if (isset($this->indicationCodeableConcept)) $json['indicationCodeableConcept'] = $this->indicationCodeableConcept;
-        if (isset($this->indicationReference)) $json['indicationReference'] = $this->indicationReference;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->species)) $json['species'] = $this->species;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->intendedUse)) {
+            $json['intendedUse'] = $this->intendedUse;
+        }
+        if (isset($this->indicationCodeableConcept)) {
+            $json['indicationCodeableConcept'] = $this->indicationCodeableConcept;
+        }
+        if (isset($this->indicationReference)) {
+            $json['indicationReference'] = $this->indicationReference;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->species)) {
+            $json['species'] = $this->species;
+        }
         return $json;
     }
 
@@ -339,24 +373,41 @@ class FHIRMedicinalProductSpecialDesignation extends FHIRBackboneElement impleme
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductSpecialDesignation xmlns="http://hl7.org/fhir"></MedicinalProductSpecialDesignation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductSpecialDesignation xmlns="http://hl7.org/fhir"></MedicinalProductSpecialDesignation>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->intendedUse)) $this->intendedUse->xmlSerialize(true, $sxe->addChild('intendedUse'));
-        if (isset($this->indicationCodeableConcept)) $this->indicationCodeableConcept->xmlSerialize(true, $sxe->addChild('indicationCodeableConcept'));
-        if (isset($this->indicationReference)) $this->indicationReference->xmlSerialize(true, $sxe->addChild('indicationReference'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->species)) $this->species->xmlSerialize(true, $sxe->addChild('species'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->intendedUse)) {
+            $this->intendedUse->xmlSerialize(true, $sxe->addChild('intendedUse'));
+        }
+        if (isset($this->indicationCodeableConcept)) {
+            $this->indicationCodeableConcept->xmlSerialize(true, $sxe->addChild('indicationCodeableConcept'));
+        }
+        if (isset($this->indicationReference)) {
+            $this->indicationReference->xmlSerialize(true, $sxe->addChild('indicationReference'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->species)) {
+            $this->species->xmlSerialize(true, $sxe->addChild('species'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

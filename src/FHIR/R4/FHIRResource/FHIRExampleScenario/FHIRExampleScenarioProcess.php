@@ -106,7 +106,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * The diagram title of the group of operations.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -115,7 +116,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * A longer description of the group of operations.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -133,7 +136,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * Description of initial status before the process starts.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getPreConditions() {
+    public function getPreConditions()
+    {
         return $this->preConditions;
     }
 
@@ -151,7 +156,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $preConditions
      * @return $this
      */
-    public function setPreConditions($preConditions) {
+    public function setPreConditions($preConditions)
+    {
         $this->preConditions = $preConditions;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * Description of final status after the process ends.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getPostConditions() {
+    public function getPostConditions()
+    {
         return $this->postConditions;
     }
 
@@ -169,7 +176,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $postConditions
      * @return $this
      */
-    public function setPostConditions($postConditions) {
+    public function setPostConditions($postConditions)
+    {
         $this->postConditions = $postConditions;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * Each step of the process.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioStep[]
      */
-    public function getStep() {
+    public function getStep()
+    {
         return $this->step;
     }
 
@@ -187,7 +196,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioStep $step
      * @return $this
      */
-    public function addStep($step) {
+    public function addStep($step)
+    {
         $this->step[] = $step;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['title'])) {
                 $this->setTitle($data['title']);
@@ -218,7 +230,7 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
             }
             if (isset($data['step'])) {
                 if (is_array($data['step'])) {
-                    foreach($data['step'] as $d) {
+                    foreach ($data['step'] as $d) {
                         $this->addStep($d);
                     }
                 } else {
@@ -234,22 +246,32 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->preConditions)) $json['preConditions'] = $this->preConditions;
-        if (isset($this->postConditions)) $json['postConditions'] = $this->postConditions;
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->preConditions)) {
+            $json['preConditions'] = $this->preConditions;
+        }
+        if (isset($this->postConditions)) {
+            $json['postConditions'] = $this->postConditions;
+        }
         if (0 < count($this->step)) {
             $json['step'] = [];
-            foreach($this->step as $step) {
+            foreach ($this->step as $step) {
                 $json['step'][] = $step;
             }
         }
@@ -261,21 +283,32 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExampleScenarioProcess xmlns="http://hl7.org/fhir"></ExampleScenarioProcess>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExampleScenarioProcess xmlns="http://hl7.org/fhir"></ExampleScenarioProcess>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->preConditions)) $this->preConditions->xmlSerialize(true, $sxe->addChild('preConditions'));
-        if (isset($this->postConditions)) $this->postConditions->xmlSerialize(true, $sxe->addChild('postConditions'));
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->preConditions)) {
+            $this->preConditions->xmlSerialize(true, $sxe->addChild('preConditions'));
+        }
+        if (isset($this->postConditions)) {
+            $this->postConditions->xmlSerialize(true, $sxe->addChild('postConditions'));
+        }
         if (0 < count($this->step)) {
-            foreach($this->step as $step) {
+            foreach ($this->step as $step) {
                 $step->xmlSerialize(true, $sxe->addChild('step'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

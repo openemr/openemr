@@ -94,7 +94,8 @@ class FHIRTestReportAssert extends FHIRBackboneElement implements \JsonSerializa
      * The result of this assertion.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTestReportActionResult
      */
-    public function getResult() {
+    public function getResult()
+    {
         return $this->result;
     }
 
@@ -103,7 +104,8 @@ class FHIRTestReportAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTestReportActionResult $result
      * @return $this
      */
-    public function setResult($result) {
+    public function setResult($result)
+    {
         $this->result = $result;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRTestReportAssert extends FHIRBackboneElement implements \JsonSerializa
      * An explanatory message associated with the result.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getMessage() {
+    public function getMessage()
+    {
         return $this->message;
     }
 
@@ -121,7 +124,8 @@ class FHIRTestReportAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $message
      * @return $this
      */
-    public function setMessage($message) {
+    public function setMessage($message)
+    {
         $this->message = $message;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRTestReportAssert extends FHIRBackboneElement implements \JsonSerializa
      * A link to further details on the result.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDetail() {
+    public function getDetail()
+    {
         return $this->detail;
     }
 
@@ -139,7 +144,8 @@ class FHIRTestReportAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $detail
      * @return $this
      */
-    public function setDetail($detail) {
+    public function setDetail($detail)
+    {
         $this->detail = $detail;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRTestReportAssert extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['result'])) {
                 $this->setResult($data['result']);
@@ -174,18 +182,26 @@ class FHIRTestReportAssert extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->result)) $json['result'] = $this->result;
-        if (isset($this->message)) $json['message'] = $this->message;
-        if (isset($this->detail)) $json['detail'] = $this->detail;
+        if (isset($this->result)) {
+            $json['result'] = $this->result;
+        }
+        if (isset($this->message)) {
+            $json['message'] = $this->message;
+        }
+        if (isset($this->detail)) {
+            $json['detail'] = $this->detail;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRTestReportAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestReportAssert xmlns="http://hl7.org/fhir"></TestReportAssert>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestReportAssert xmlns="http://hl7.org/fhir"></TestReportAssert>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->result)) $this->result->xmlSerialize(true, $sxe->addChild('result'));
-        if (isset($this->message)) $this->message->xmlSerialize(true, $sxe->addChild('message'));
-        if (isset($this->detail)) $this->detail->xmlSerialize(true, $sxe->addChild('detail'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->result)) {
+            $this->result->xmlSerialize(true, $sxe->addChild('result'));
+        }
+        if (isset($this->message)) {
+            $this->message->xmlSerialize(true, $sxe->addChild('message'));
+        }
+        if (isset($this->detail)) {
+            $this->detail->xmlSerialize(true, $sxe->addChild('detail'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

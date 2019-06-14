@@ -94,7 +94,8 @@ class FHIRMeasurePopulation extends FHIRBackboneElement implements \JsonSerializ
      * The type of population criteria.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -103,7 +104,8 @@ class FHIRMeasurePopulation extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRMeasurePopulation extends FHIRBackboneElement implements \JsonSerializ
      * The human readable description of this population criteria.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -121,7 +124,8 @@ class FHIRMeasurePopulation extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRMeasurePopulation extends FHIRBackboneElement implements \JsonSerializ
      * An expression that specifies the criteria for the population, typically the name of an expression in a library.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getCriteria() {
+    public function getCriteria()
+    {
         return $this->criteria;
     }
 
@@ -139,7 +144,8 @@ class FHIRMeasurePopulation extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $criteria
      * @return $this
      */
-    public function setCriteria($criteria) {
+    public function setCriteria($criteria)
+    {
         $this->criteria = $criteria;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRMeasurePopulation extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -174,18 +182,26 @@ class FHIRMeasurePopulation extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->criteria)) $json['criteria'] = $this->criteria;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->criteria)) {
+            $json['criteria'] = $this->criteria;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRMeasurePopulation extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MeasurePopulation xmlns="http://hl7.org/fhir"></MeasurePopulation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MeasurePopulation xmlns="http://hl7.org/fhir"></MeasurePopulation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->criteria)) $this->criteria->xmlSerialize(true, $sxe->addChild('criteria'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->criteria)) {
+            $this->criteria->xmlSerialize(true, $sxe->addChild('criteria'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -100,7 +100,8 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
      * Human-readable summary of results by exposure state.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -109,7 +110,8 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
      * Whether these results are for the exposure state or alternative exposure state.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExposureState
      */
-    public function getExposureState() {
+    public function getExposureState()
+    {
         return $this->exposureState;
     }
 
@@ -127,7 +130,8 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExposureState $exposureState
      * @return $this
      */
-    public function setExposureState($exposureState) {
+    public function setExposureState($exposureState)
+    {
         $this->exposureState = $exposureState;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
      * Used to define variant exposure states such as low-risk state.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getVariantState() {
+    public function getVariantState()
+    {
         return $this->variantState;
     }
 
@@ -145,7 +150,8 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $variantState
      * @return $this
      */
-    public function setVariantState($variantState) {
+    public function setVariantState($variantState)
+    {
         $this->variantState = $variantState;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
      * Reference to a RiskEvidenceSynthesis resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRiskEvidenceSynthesis() {
+    public function getRiskEvidenceSynthesis()
+    {
         return $this->riskEvidenceSynthesis;
     }
 
@@ -163,7 +170,8 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $riskEvidenceSynthesis
      * @return $this
      */
-    public function setRiskEvidenceSynthesis($riskEvidenceSynthesis) {
+    public function setRiskEvidenceSynthesis($riskEvidenceSynthesis)
+    {
         $this->riskEvidenceSynthesis = $riskEvidenceSynthesis;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -201,19 +211,29 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->exposureState)) $json['exposureState'] = $this->exposureState;
-        if (isset($this->variantState)) $json['variantState'] = $this->variantState;
-        if (isset($this->riskEvidenceSynthesis)) $json['riskEvidenceSynthesis'] = $this->riskEvidenceSynthesis;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->exposureState)) {
+            $json['exposureState'] = $this->exposureState;
+        }
+        if (isset($this->variantState)) {
+            $json['variantState'] = $this->variantState;
+        }
+        if (isset($this->riskEvidenceSynthesis)) {
+            $json['riskEvidenceSynthesis'] = $this->riskEvidenceSynthesis;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIREffectEvidenceSynthesisResultsByExposure extends FHIRBackboneElement i
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesisResultsByExposure xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisResultsByExposure>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesisResultsByExposure xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisResultsByExposure>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->exposureState)) $this->exposureState->xmlSerialize(true, $sxe->addChild('exposureState'));
-        if (isset($this->variantState)) $this->variantState->xmlSerialize(true, $sxe->addChild('variantState'));
-        if (isset($this->riskEvidenceSynthesis)) $this->riskEvidenceSynthesis->xmlSerialize(true, $sxe->addChild('riskEvidenceSynthesis'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->exposureState)) {
+            $this->exposureState->xmlSerialize(true, $sxe->addChild('exposureState'));
+        }
+        if (isset($this->variantState)) {
+            $this->variantState->xmlSerialize(true, $sxe->addChild('variantState'));
+        }
+        if (isset($this->riskEvidenceSynthesis)) {
+            $this->riskEvidenceSynthesis->xmlSerialize(true, $sxe->addChild('riskEvidenceSynthesis'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

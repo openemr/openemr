@@ -100,7 +100,8 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getValueId() {
+    public function getValueId()
+    {
         return $this->valueId;
     }
 
@@ -108,7 +109,8 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $valueId
      * @return $this
      */
-    public function setValueId($valueId) {
+    public function setValueId($valueId)
+    {
         $this->valueId = $valueId;
         return $this;
     }
@@ -116,7 +118,8 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValueString() {
+    public function getValueString()
+    {
         return $this->valueString;
     }
 
@@ -124,7 +127,8 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $valueString
      * @return $this
      */
-    public function setValueString($valueString) {
+    public function setValueString($valueString)
+    {
         $this->valueString = $valueString;
         return $this;
     }
@@ -132,7 +136,8 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getValueBoolean() {
+    public function getValueBoolean()
+    {
         return $this->valueBoolean;
     }
 
@@ -140,7 +145,8 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $valueBoolean
      * @return $this
      */
-    public function setValueBoolean($valueBoolean) {
+    public function setValueBoolean($valueBoolean)
+    {
         $this->valueBoolean = $valueBoolean;
         return $this;
     }
@@ -148,7 +154,8 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getValueInteger() {
+    public function getValueInteger()
+    {
         return $this->valueInteger;
     }
 
@@ -156,7 +163,8 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $valueInteger
      * @return $this
      */
-    public function setValueInteger($valueInteger) {
+    public function setValueInteger($valueInteger)
+    {
         $this->valueInteger = $valueInteger;
         return $this;
     }
@@ -164,7 +172,8 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getValueDecimal() {
+    public function getValueDecimal()
+    {
         return $this->valueDecimal;
     }
 
@@ -172,7 +181,8 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $valueDecimal
      * @return $this
      */
-    public function setValueDecimal($valueDecimal) {
+    public function setValueDecimal($valueDecimal)
+    {
         $this->valueDecimal = $valueDecimal;
         return $this;
     }
@@ -180,14 +190,16 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['valueId'])) {
                 $this->setValueId($data['valueId']);
@@ -213,20 +225,32 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->valueId)) $json['valueId'] = $this->valueId;
-        if (isset($this->valueString)) $json['valueString'] = $this->valueString;
-        if (isset($this->valueBoolean)) $json['valueBoolean'] = $this->valueBoolean;
-        if (isset($this->valueInteger)) $json['valueInteger'] = $this->valueInteger;
-        if (isset($this->valueDecimal)) $json['valueDecimal'] = $this->valueDecimal;
+        if (isset($this->valueId)) {
+            $json['valueId'] = $this->valueId;
+        }
+        if (isset($this->valueString)) {
+            $json['valueString'] = $this->valueString;
+        }
+        if (isset($this->valueBoolean)) {
+            $json['valueBoolean'] = $this->valueBoolean;
+        }
+        if (isset($this->valueInteger)) {
+            $json['valueInteger'] = $this->valueInteger;
+        }
+        if (isset($this->valueDecimal)) {
+            $json['valueDecimal'] = $this->valueDecimal;
+        }
         return $json;
     }
 
@@ -235,17 +259,30 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<StructureMapParameter xmlns="http://hl7.org/fhir"></StructureMapParameter>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<StructureMapParameter xmlns="http://hl7.org/fhir"></StructureMapParameter>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->valueId)) $this->valueId->xmlSerialize(true, $sxe->addChild('valueId'));
-        if (isset($this->valueString)) $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
-        if (isset($this->valueBoolean)) $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
-        if (isset($this->valueInteger)) $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
-        if (isset($this->valueDecimal)) $this->valueDecimal->xmlSerialize(true, $sxe->addChild('valueDecimal'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->valueId)) {
+            $this->valueId->xmlSerialize(true, $sxe->addChild('valueId'));
+        }
+        if (isset($this->valueString)) {
+            $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
+        }
+        if (isset($this->valueBoolean)) {
+            $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
+        }
+        if (isset($this->valueInteger)) {
+            $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
+        }
+        if (isset($this->valueDecimal)) {
+            $this->valueDecimal->xmlSerialize(true, $sxe->addChild('valueDecimal'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

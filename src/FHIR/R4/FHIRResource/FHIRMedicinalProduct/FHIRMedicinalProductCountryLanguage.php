@@ -94,7 +94,8 @@ class FHIRMedicinalProductCountryLanguage extends FHIRBackboneElement implements
      * Country code for where this name applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCountry() {
+    public function getCountry()
+    {
         return $this->country;
     }
 
@@ -103,7 +104,8 @@ class FHIRMedicinalProductCountryLanguage extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $country
      * @return $this
      */
-    public function setCountry($country) {
+    public function setCountry($country)
+    {
         $this->country = $country;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRMedicinalProductCountryLanguage extends FHIRBackboneElement implements
      * Jurisdiction code for where this name applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getJurisdiction() {
+    public function getJurisdiction()
+    {
         return $this->jurisdiction;
     }
 
@@ -121,7 +124,8 @@ class FHIRMedicinalProductCountryLanguage extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $jurisdiction
      * @return $this
      */
-    public function setJurisdiction($jurisdiction) {
+    public function setJurisdiction($jurisdiction)
+    {
         $this->jurisdiction = $jurisdiction;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRMedicinalProductCountryLanguage extends FHIRBackboneElement implements
      * Language code for this name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -139,7 +144,8 @@ class FHIRMedicinalProductCountryLanguage extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $language
      * @return $this
      */
-    public function setLanguage($language) {
+    public function setLanguage($language)
+    {
         $this->language = $language;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRMedicinalProductCountryLanguage extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['country'])) {
                 $this->setCountry($data['country']);
@@ -174,18 +182,26 @@ class FHIRMedicinalProductCountryLanguage extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->country)) $json['country'] = $this->country;
-        if (isset($this->jurisdiction)) $json['jurisdiction'] = $this->jurisdiction;
-        if (isset($this->language)) $json['language'] = $this->language;
+        if (isset($this->country)) {
+            $json['country'] = $this->country;
+        }
+        if (isset($this->jurisdiction)) {
+            $json['jurisdiction'] = $this->jurisdiction;
+        }
+        if (isset($this->language)) {
+            $json['language'] = $this->language;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRMedicinalProductCountryLanguage extends FHIRBackboneElement implements
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductCountryLanguage xmlns="http://hl7.org/fhir"></MedicinalProductCountryLanguage>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductCountryLanguage xmlns="http://hl7.org/fhir"></MedicinalProductCountryLanguage>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->country)) $this->country->xmlSerialize(true, $sxe->addChild('country'));
-        if (isset($this->jurisdiction)) $this->jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-        if (isset($this->language)) $this->language->xmlSerialize(true, $sxe->addChild('language'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->country)) {
+            $this->country->xmlSerialize(true, $sxe->addChild('country'));
+        }
+        if (isset($this->jurisdiction)) {
+            $this->jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
+        }
+        if (isset($this->language)) {
+            $this->language->xmlSerialize(true, $sxe->addChild('language'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

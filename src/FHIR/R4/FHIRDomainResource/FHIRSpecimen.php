@@ -155,7 +155,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * Id for specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -164,7 +165,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -173,7 +175,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * The identifier assigned by the lab when accessioning specimen(s). This is not necessarily the same as the specimen identifier, depending on local lab procedures.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getAccessionIdentifier() {
+    public function getAccessionIdentifier()
+    {
         return $this->accessionIdentifier;
     }
 
@@ -182,7 +185,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $accessionIdentifier
      * @return $this
      */
-    public function setAccessionIdentifier($accessionIdentifier) {
+    public function setAccessionIdentifier($accessionIdentifier)
+    {
         $this->accessionIdentifier = $accessionIdentifier;
         return $this;
     }
@@ -191,7 +195,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * The availability of the specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSpecimenStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -200,7 +205,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSpecimenStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -209,7 +215,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * The kind of material that forms the specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -218,7 +225,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -227,7 +235,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * Where the specimen came from. This may be from patient(s), from a location (e.g., the source of an environmental sample), or a sampling of a substance or a device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -236,7 +245,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -245,7 +255,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * Time when specimen was received for processing or testing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getReceivedTime() {
+    public function getReceivedTime()
+    {
         return $this->receivedTime;
     }
 
@@ -254,7 +265,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $receivedTime
      * @return $this
      */
-    public function setReceivedTime($receivedTime) {
+    public function setReceivedTime($receivedTime)
+    {
         $this->receivedTime = $receivedTime;
         return $this;
     }
@@ -263,7 +275,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * Reference to the parent (source) specimen which is used when the specimen was either derived from or a component of another specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getParent() {
+    public function getParent()
+    {
         return $this->parent;
     }
 
@@ -272,7 +285,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $parent
      * @return $this
      */
-    public function addParent($parent) {
+    public function addParent($parent)
+    {
         $this->parent[] = $parent;
         return $this;
     }
@@ -281,7 +295,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * Details concerning a service request that required a specimen to be collected.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getRequest() {
+    public function getRequest()
+    {
         return $this->request;
     }
 
@@ -290,7 +305,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $request
      * @return $this
      */
-    public function addRequest($request) {
+    public function addRequest($request)
+    {
         $this->request[] = $request;
         return $this;
     }
@@ -299,7 +315,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * Details concerning the specimen collection.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenCollection
      */
-    public function getCollection() {
+    public function getCollection()
+    {
         return $this->collection;
     }
 
@@ -308,7 +325,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenCollection $collection
      * @return $this
      */
-    public function setCollection($collection) {
+    public function setCollection($collection)
+    {
         $this->collection = $collection;
         return $this;
     }
@@ -317,7 +335,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * Details concerning processing and processing steps for the specimen.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenProcessing[]
      */
-    public function getProcessing() {
+    public function getProcessing()
+    {
         return $this->processing;
     }
 
@@ -326,7 +345,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenProcessing $processing
      * @return $this
      */
-    public function addProcessing($processing) {
+    public function addProcessing($processing)
+    {
         $this->processing[] = $processing;
         return $this;
     }
@@ -335,7 +355,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * The container holding the specimen.  The recursive nature of containers; i.e. blood in tube in tray in rack is not addressed here.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenContainer[]
      */
-    public function getContainer() {
+    public function getContainer()
+    {
         return $this->container;
     }
 
@@ -344,7 +365,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenContainer $container
      * @return $this
      */
-    public function addContainer($container) {
+    public function addContainer($container)
+    {
         $this->container[] = $container;
         return $this;
     }
@@ -353,7 +375,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * A mode or state of being that describes the nature of the specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCondition() {
+    public function getCondition()
+    {
         return $this->condition;
     }
 
@@ -362,7 +385,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $condition
      * @return $this
      */
-    public function addCondition($condition) {
+    public function addCondition($condition)
+    {
         $this->condition[] = $condition;
         return $this;
     }
@@ -371,7 +395,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * To communicate any details or issues about the specimen or during the specimen collection. (for example: broken vial, sent with patient, frozen).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -380,7 +405,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -388,18 +414,20 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -423,7 +451,7 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['parent'])) {
                 if (is_array($data['parent'])) {
-                    foreach($data['parent'] as $d) {
+                    foreach ($data['parent'] as $d) {
                         $this->addParent($d);
                     }
                 } else {
@@ -432,7 +460,7 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['request'])) {
                 if (is_array($data['request'])) {
-                    foreach($data['request'] as $d) {
+                    foreach ($data['request'] as $d) {
                         $this->addRequest($d);
                     }
                 } else {
@@ -444,7 +472,7 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['processing'])) {
                 if (is_array($data['processing'])) {
-                    foreach($data['processing'] as $d) {
+                    foreach ($data['processing'] as $d) {
                         $this->addProcessing($d);
                     }
                 } else {
@@ -453,7 +481,7 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['container'])) {
                 if (is_array($data['container'])) {
-                    foreach($data['container'] as $d) {
+                    foreach ($data['container'] as $d) {
                         $this->addContainer($d);
                     }
                 } else {
@@ -462,7 +490,7 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['condition'])) {
                 if (is_array($data['condition'])) {
-                    foreach($data['condition'] as $d) {
+                    foreach ($data['condition'] as $d) {
                         $this->addCondition($d);
                     }
                 } else {
@@ -471,7 +499,7 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -487,61 +515,75 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->accessionIdentifier)) $json['accessionIdentifier'] = $this->accessionIdentifier;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->subject)) $json['subject'] = $this->subject;
-        if (isset($this->receivedTime)) $json['receivedTime'] = $this->receivedTime;
+        if (isset($this->accessionIdentifier)) {
+            $json['accessionIdentifier'] = $this->accessionIdentifier;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
+        if (isset($this->receivedTime)) {
+            $json['receivedTime'] = $this->receivedTime;
+        }
         if (0 < count($this->parent)) {
             $json['parent'] = [];
-            foreach($this->parent as $parent) {
+            foreach ($this->parent as $parent) {
                 $json['parent'][] = $parent;
             }
         }
         if (0 < count($this->request)) {
             $json['request'] = [];
-            foreach($this->request as $request) {
+            foreach ($this->request as $request) {
                 $json['request'][] = $request;
             }
         }
-        if (isset($this->collection)) $json['collection'] = $this->collection;
+        if (isset($this->collection)) {
+            $json['collection'] = $this->collection;
+        }
         if (0 < count($this->processing)) {
             $json['processing'] = [];
-            foreach($this->processing as $processing) {
+            foreach ($this->processing as $processing) {
                 $json['processing'][] = $processing;
             }
         }
         if (0 < count($this->container)) {
             $json['container'] = [];
-            foreach($this->container as $container) {
+            foreach ($this->container as $container) {
                 $json['container'][] = $container;
             }
         }
         if (0 < count($this->condition)) {
             $json['condition'] = [];
-            foreach($this->condition as $condition) {
+            foreach ($this->condition as $condition) {
                 $json['condition'][] = $condition;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
@@ -553,53 +595,68 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Specimen xmlns="http://hl7.org/fhir"></Specimen>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Specimen xmlns="http://hl7.org/fhir"></Specimen>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->accessionIdentifier)) $this->accessionIdentifier->xmlSerialize(true, $sxe->addChild('accessionIdentifier'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
-        if (isset($this->receivedTime)) $this->receivedTime->xmlSerialize(true, $sxe->addChild('receivedTime'));
+        if (isset($this->accessionIdentifier)) {
+            $this->accessionIdentifier->xmlSerialize(true, $sxe->addChild('accessionIdentifier'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
+        if (isset($this->receivedTime)) {
+            $this->receivedTime->xmlSerialize(true, $sxe->addChild('receivedTime'));
+        }
         if (0 < count($this->parent)) {
-            foreach($this->parent as $parent) {
+            foreach ($this->parent as $parent) {
                 $parent->xmlSerialize(true, $sxe->addChild('parent'));
             }
         }
         if (0 < count($this->request)) {
-            foreach($this->request as $request) {
+            foreach ($this->request as $request) {
                 $request->xmlSerialize(true, $sxe->addChild('request'));
             }
         }
-        if (isset($this->collection)) $this->collection->xmlSerialize(true, $sxe->addChild('collection'));
+        if (isset($this->collection)) {
+            $this->collection->xmlSerialize(true, $sxe->addChild('collection'));
+        }
         if (0 < count($this->processing)) {
-            foreach($this->processing as $processing) {
+            foreach ($this->processing as $processing) {
                 $processing->xmlSerialize(true, $sxe->addChild('processing'));
             }
         }
         if (0 < count($this->container)) {
-            foreach($this->container as $container) {
+            foreach ($this->container as $container) {
                 $container->xmlSerialize(true, $sxe->addChild('container'));
             }
         }
         if (0 < count($this->condition)) {
-            foreach($this->condition as $condition) {
+            foreach ($this->condition as $condition) {
                 $condition->xmlSerialize(true, $sxe->addChild('condition'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

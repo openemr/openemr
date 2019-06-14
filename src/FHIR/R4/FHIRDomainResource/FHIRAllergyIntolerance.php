@@ -192,7 +192,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * Business identifiers assigned to this AllergyIntolerance by the performer or other systems which remain constant as the resource is updated and propagates from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -201,7 +202,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -210,7 +212,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * The clinical status of the allergy or intolerance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getClinicalStatus() {
+    public function getClinicalStatus()
+    {
         return $this->clinicalStatus;
     }
 
@@ -219,7 +222,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $clinicalStatus
      * @return $this
      */
-    public function setClinicalStatus($clinicalStatus) {
+    public function setClinicalStatus($clinicalStatus)
+    {
         $this->clinicalStatus = $clinicalStatus;
         return $this;
     }
@@ -228,7 +232,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * Assertion about certainty associated with the propensity, or potential risk, of a reaction to the identified substance (including pharmaceutical product).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getVerificationStatus() {
+    public function getVerificationStatus()
+    {
         return $this->verificationStatus;
     }
 
@@ -237,7 +242,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $verificationStatus
      * @return $this
      */
-    public function setVerificationStatus($verificationStatus) {
+    public function setVerificationStatus($verificationStatus)
+    {
         $this->verificationStatus = $verificationStatus;
         return $this;
     }
@@ -246,7 +252,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * Identification of the underlying physiological mechanism for the reaction risk.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -255,7 +262,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -264,7 +272,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * Category of the identified substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory[]
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -273,7 +282,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory $category
      * @return $this
      */
-    public function addCategory($category) {
+    public function addCategory($category)
+    {
         $this->category[] = $category;
         return $this;
     }
@@ -282,7 +292,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * Estimate of the potential clinical harm, or seriousness, of the reaction to the identified substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality
      */
-    public function getCriticality() {
+    public function getCriticality()
+    {
         return $this->criticality;
     }
 
@@ -291,7 +302,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality $criticality
      * @return $this
      */
-    public function setCriticality($criticality) {
+    public function setCriticality($criticality)
+    {
         $this->criticality = $criticality;
         return $this;
     }
@@ -300,7 +312,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * Code for an allergy or intolerance statement (either a positive or a negated/excluded statement).  This may be a code for a substance or pharmaceutical product that is considered to be responsible for the adverse reaction risk (e.g., "Latex"), an allergy or intolerance condition (e.g., "Latex allergy"), or a negated/excluded code for a specific substance or class (e.g., "No latex allergy") or a general or categorical negated statement (e.g.,  "No known allergy", "No known drug allergies").  Note: the substance for a specific reaction may be different from the substance identified as the cause of the risk, but it must be consistent with it. For instance, it may be a more specific substance (e.g. a brand medication) or a composite product that includes the identified substance. It must be clinically safe to only process the 'code' and ignore the 'reaction.substance'.  If a receiving system is unable to confirm that AllergyIntolerance.reaction.substance falls within the semantic scope of AllergyIntolerance.code, then the receiving system should ignore AllergyIntolerance.reaction.substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -309,7 +322,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -318,7 +332,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * The patient who has the allergy or intolerance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -327,7 +342,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -336,7 +352,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * The encounter when the allergy or intolerance was asserted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEncounter() {
+    public function getEncounter()
+    {
         return $this->encounter;
     }
 
@@ -345,7 +362,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $encounter
      * @return $this
      */
-    public function setEncounter($encounter) {
+    public function setEncounter($encounter)
+    {
         $this->encounter = $encounter;
         return $this;
     }
@@ -353,7 +371,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getOnsetDateTime() {
+    public function getOnsetDateTime()
+    {
         return $this->onsetDateTime;
     }
 
@@ -361,7 +380,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $onsetDateTime
      * @return $this
      */
-    public function setOnsetDateTime($onsetDateTime) {
+    public function setOnsetDateTime($onsetDateTime)
+    {
         $this->onsetDateTime = $onsetDateTime;
         return $this;
     }
@@ -369,7 +389,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getOnsetAge() {
+    public function getOnsetAge()
+    {
         return $this->onsetAge;
     }
 
@@ -377,7 +398,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $onsetAge
      * @return $this
      */
-    public function setOnsetAge($onsetAge) {
+    public function setOnsetAge($onsetAge)
+    {
         $this->onsetAge = $onsetAge;
         return $this;
     }
@@ -385,7 +407,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getOnsetPeriod() {
+    public function getOnsetPeriod()
+    {
         return $this->onsetPeriod;
     }
 
@@ -393,7 +416,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $onsetPeriod
      * @return $this
      */
-    public function setOnsetPeriod($onsetPeriod) {
+    public function setOnsetPeriod($onsetPeriod)
+    {
         $this->onsetPeriod = $onsetPeriod;
         return $this;
     }
@@ -401,7 +425,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getOnsetRange() {
+    public function getOnsetRange()
+    {
         return $this->onsetRange;
     }
 
@@ -409,7 +434,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $onsetRange
      * @return $this
      */
-    public function setOnsetRange($onsetRange) {
+    public function setOnsetRange($onsetRange)
+    {
         $this->onsetRange = $onsetRange;
         return $this;
     }
@@ -417,7 +443,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getOnsetString() {
+    public function getOnsetString()
+    {
         return $this->onsetString;
     }
 
@@ -425,7 +452,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $onsetString
      * @return $this
      */
-    public function setOnsetString($onsetString) {
+    public function setOnsetString($onsetString)
+    {
         $this->onsetString = $onsetString;
         return $this;
     }
@@ -434,7 +462,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * The recordedDate represents when this particular AllergyIntolerance record was created in the system, which is often a system-generated date.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getRecordedDate() {
+    public function getRecordedDate()
+    {
         return $this->recordedDate;
     }
 
@@ -443,7 +472,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $recordedDate
      * @return $this
      */
-    public function setRecordedDate($recordedDate) {
+    public function setRecordedDate($recordedDate)
+    {
         $this->recordedDate = $recordedDate;
         return $this;
     }
@@ -452,7 +482,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * Individual who recorded the record and takes responsibility for its content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRecorder() {
+    public function getRecorder()
+    {
         return $this->recorder;
     }
 
@@ -461,7 +492,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $recorder
      * @return $this
      */
-    public function setRecorder($recorder) {
+    public function setRecorder($recorder)
+    {
         $this->recorder = $recorder;
         return $this;
     }
@@ -470,7 +502,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * The source of the information about the allergy that is recorded.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAsserter() {
+    public function getAsserter()
+    {
         return $this->asserter;
     }
 
@@ -479,7 +512,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $asserter
      * @return $this
      */
-    public function setAsserter($asserter) {
+    public function setAsserter($asserter)
+    {
         $this->asserter = $asserter;
         return $this;
     }
@@ -488,7 +522,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * Represents the date and/or time of the last known occurrence of a reaction event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getLastOccurrence() {
+    public function getLastOccurrence()
+    {
         return $this->lastOccurrence;
     }
 
@@ -497,7 +532,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $lastOccurrence
      * @return $this
      */
-    public function setLastOccurrence($lastOccurrence) {
+    public function setLastOccurrence($lastOccurrence)
+    {
         $this->lastOccurrence = $lastOccurrence;
         return $this;
     }
@@ -506,7 +542,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * Additional narrative about the propensity for the Adverse Reaction, not captured in other fields.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -515,7 +552,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -524,7 +562,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * Details about each adverse reaction event linked to exposure to the identified substance.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction[]
      */
-    public function getReaction() {
+    public function getReaction()
+    {
         return $this->reaction;
     }
 
@@ -533,7 +572,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction $reaction
      * @return $this
      */
-    public function addReaction($reaction) {
+    public function addReaction($reaction)
+    {
         $this->reaction[] = $reaction;
         return $this;
     }
@@ -541,18 +581,20 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -570,7 +612,7 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['category'])) {
                 if (is_array($data['category'])) {
-                    foreach($data['category'] as $d) {
+                    foreach ($data['category'] as $d) {
                         $this->addCategory($d);
                     }
                 } else {
@@ -618,7 +660,7 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -627,7 +669,7 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['reaction'])) {
                 if (is_array($data['reaction'])) {
-                    foreach($data['reaction'] as $d) {
+                    foreach ($data['reaction'] as $d) {
                         $this->addReaction($d);
                     }
                 } else {
@@ -643,53 +685,87 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->clinicalStatus)) $json['clinicalStatus'] = $this->clinicalStatus;
-        if (isset($this->verificationStatus)) $json['verificationStatus'] = $this->verificationStatus;
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->clinicalStatus)) {
+            $json['clinicalStatus'] = $this->clinicalStatus;
+        }
+        if (isset($this->verificationStatus)) {
+            $json['verificationStatus'] = $this->verificationStatus;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->category)) {
             $json['category'] = [];
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $json['category'][] = $category;
             }
         }
-        if (isset($this->criticality)) $json['criticality'] = $this->criticality;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->encounter)) $json['encounter'] = $this->encounter;
-        if (isset($this->onsetDateTime)) $json['onsetDateTime'] = $this->onsetDateTime;
-        if (isset($this->onsetAge)) $json['onsetAge'] = $this->onsetAge;
-        if (isset($this->onsetPeriod)) $json['onsetPeriod'] = $this->onsetPeriod;
-        if (isset($this->onsetRange)) $json['onsetRange'] = $this->onsetRange;
-        if (isset($this->onsetString)) $json['onsetString'] = $this->onsetString;
-        if (isset($this->recordedDate)) $json['recordedDate'] = $this->recordedDate;
-        if (isset($this->recorder)) $json['recorder'] = $this->recorder;
-        if (isset($this->asserter)) $json['asserter'] = $this->asserter;
-        if (isset($this->lastOccurrence)) $json['lastOccurrence'] = $this->lastOccurrence;
+        if (isset($this->criticality)) {
+            $json['criticality'] = $this->criticality;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->encounter)) {
+            $json['encounter'] = $this->encounter;
+        }
+        if (isset($this->onsetDateTime)) {
+            $json['onsetDateTime'] = $this->onsetDateTime;
+        }
+        if (isset($this->onsetAge)) {
+            $json['onsetAge'] = $this->onsetAge;
+        }
+        if (isset($this->onsetPeriod)) {
+            $json['onsetPeriod'] = $this->onsetPeriod;
+        }
+        if (isset($this->onsetRange)) {
+            $json['onsetRange'] = $this->onsetRange;
+        }
+        if (isset($this->onsetString)) {
+            $json['onsetString'] = $this->onsetString;
+        }
+        if (isset($this->recordedDate)) {
+            $json['recordedDate'] = $this->recordedDate;
+        }
+        if (isset($this->recorder)) {
+            $json['recorder'] = $this->recorder;
+        }
+        if (isset($this->asserter)) {
+            $json['asserter'] = $this->asserter;
+        }
+        if (isset($this->lastOccurrence)) {
+            $json['lastOccurrence'] = $this->lastOccurrence;
+        }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
         if (0 < count($this->reaction)) {
             $json['reaction'] = [];
-            foreach($this->reaction as $reaction) {
+            foreach ($this->reaction as $reaction) {
                 $json['reaction'][] = $reaction;
             }
         }
@@ -701,48 +777,83 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<AllergyIntolerance xmlns="http://hl7.org/fhir"></AllergyIntolerance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<AllergyIntolerance xmlns="http://hl7.org/fhir"></AllergyIntolerance>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->clinicalStatus)) $this->clinicalStatus->xmlSerialize(true, $sxe->addChild('clinicalStatus'));
-        if (isset($this->verificationStatus)) $this->verificationStatus->xmlSerialize(true, $sxe->addChild('verificationStatus'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->clinicalStatus)) {
+            $this->clinicalStatus->xmlSerialize(true, $sxe->addChild('clinicalStatus'));
+        }
+        if (isset($this->verificationStatus)) {
+            $this->verificationStatus->xmlSerialize(true, $sxe->addChild('verificationStatus'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->category)) {
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $category->xmlSerialize(true, $sxe->addChild('category'));
             }
         }
-        if (isset($this->criticality)) $this->criticality->xmlSerialize(true, $sxe->addChild('criticality'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->encounter)) $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
-        if (isset($this->onsetDateTime)) $this->onsetDateTime->xmlSerialize(true, $sxe->addChild('onsetDateTime'));
-        if (isset($this->onsetAge)) $this->onsetAge->xmlSerialize(true, $sxe->addChild('onsetAge'));
-        if (isset($this->onsetPeriod)) $this->onsetPeriod->xmlSerialize(true, $sxe->addChild('onsetPeriod'));
-        if (isset($this->onsetRange)) $this->onsetRange->xmlSerialize(true, $sxe->addChild('onsetRange'));
-        if (isset($this->onsetString)) $this->onsetString->xmlSerialize(true, $sxe->addChild('onsetString'));
-        if (isset($this->recordedDate)) $this->recordedDate->xmlSerialize(true, $sxe->addChild('recordedDate'));
-        if (isset($this->recorder)) $this->recorder->xmlSerialize(true, $sxe->addChild('recorder'));
-        if (isset($this->asserter)) $this->asserter->xmlSerialize(true, $sxe->addChild('asserter'));
-        if (isset($this->lastOccurrence)) $this->lastOccurrence->xmlSerialize(true, $sxe->addChild('lastOccurrence'));
+        if (isset($this->criticality)) {
+            $this->criticality->xmlSerialize(true, $sxe->addChild('criticality'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->encounter)) {
+            $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
+        }
+        if (isset($this->onsetDateTime)) {
+            $this->onsetDateTime->xmlSerialize(true, $sxe->addChild('onsetDateTime'));
+        }
+        if (isset($this->onsetAge)) {
+            $this->onsetAge->xmlSerialize(true, $sxe->addChild('onsetAge'));
+        }
+        if (isset($this->onsetPeriod)) {
+            $this->onsetPeriod->xmlSerialize(true, $sxe->addChild('onsetPeriod'));
+        }
+        if (isset($this->onsetRange)) {
+            $this->onsetRange->xmlSerialize(true, $sxe->addChild('onsetRange'));
+        }
+        if (isset($this->onsetString)) {
+            $this->onsetString->xmlSerialize(true, $sxe->addChild('onsetString'));
+        }
+        if (isset($this->recordedDate)) {
+            $this->recordedDate->xmlSerialize(true, $sxe->addChild('recordedDate'));
+        }
+        if (isset($this->recorder)) {
+            $this->recorder->xmlSerialize(true, $sxe->addChild('recorder'));
+        }
+        if (isset($this->asserter)) {
+            $this->asserter->xmlSerialize(true, $sxe->addChild('asserter'));
+        }
+        if (isset($this->lastOccurrence)) {
+            $this->lastOccurrence->xmlSerialize(true, $sxe->addChild('lastOccurrence'));
+        }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
         if (0 < count($this->reaction)) {
-            foreach($this->reaction as $reaction) {
+            foreach ($this->reaction as $reaction) {
                 $reaction->xmlSerialize(true, $sxe->addChild('reaction'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

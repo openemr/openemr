@@ -98,7 +98,8 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
      * The element id of the related action.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getActionId() {
+    public function getActionId()
+    {
         return $this->actionId;
     }
 
@@ -107,7 +108,8 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $actionId
      * @return $this
      */
-    public function setActionId($actionId) {
+    public function setActionId($actionId)
+    {
         $this->actionId = $actionId;
         return $this;
     }
@@ -116,7 +118,8 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
      * The relationship of this action to the related action.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRActionRelationshipType
      */
-    public function getRelationship() {
+    public function getRelationship()
+    {
         return $this->relationship;
     }
 
@@ -125,7 +128,8 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRActionRelationshipType $relationship
      * @return $this
      */
-    public function setRelationship($relationship) {
+    public function setRelationship($relationship)
+    {
         $this->relationship = $relationship;
         return $this;
     }
@@ -133,7 +137,8 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getOffsetDuration() {
+    public function getOffsetDuration()
+    {
         return $this->offsetDuration;
     }
 
@@ -141,7 +146,8 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $offsetDuration
      * @return $this
      */
-    public function setOffsetDuration($offsetDuration) {
+    public function setOffsetDuration($offsetDuration)
+    {
         $this->offsetDuration = $offsetDuration;
         return $this;
     }
@@ -149,7 +155,8 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getOffsetRange() {
+    public function getOffsetRange()
+    {
         return $this->offsetRange;
     }
 
@@ -157,7 +164,8 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $offsetRange
      * @return $this
      */
-    public function setOffsetRange($offsetRange) {
+    public function setOffsetRange($offsetRange)
+    {
         $this->offsetRange = $offsetRange;
         return $this;
     }
@@ -165,14 +173,16 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['actionId'])) {
                 $this->setActionId($data['actionId']);
@@ -195,19 +205,29 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->actionId)) $json['actionId'] = $this->actionId;
-        if (isset($this->relationship)) $json['relationship'] = $this->relationship;
-        if (isset($this->offsetDuration)) $json['offsetDuration'] = $this->offsetDuration;
-        if (isset($this->offsetRange)) $json['offsetRange'] = $this->offsetRange;
+        if (isset($this->actionId)) {
+            $json['actionId'] = $this->actionId;
+        }
+        if (isset($this->relationship)) {
+            $json['relationship'] = $this->relationship;
+        }
+        if (isset($this->offsetDuration)) {
+            $json['offsetDuration'] = $this->offsetDuration;
+        }
+        if (isset($this->offsetRange)) {
+            $json['offsetRange'] = $this->offsetRange;
+        }
         return $json;
     }
 
@@ -216,16 +236,27 @@ class FHIRPlanDefinitionRelatedAction extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PlanDefinitionRelatedAction xmlns="http://hl7.org/fhir"></PlanDefinitionRelatedAction>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PlanDefinitionRelatedAction xmlns="http://hl7.org/fhir"></PlanDefinitionRelatedAction>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->actionId)) $this->actionId->xmlSerialize(true, $sxe->addChild('actionId'));
-        if (isset($this->relationship)) $this->relationship->xmlSerialize(true, $sxe->addChild('relationship'));
-        if (isset($this->offsetDuration)) $this->offsetDuration->xmlSerialize(true, $sxe->addChild('offsetDuration'));
-        if (isset($this->offsetRange)) $this->offsetRange->xmlSerialize(true, $sxe->addChild('offsetRange'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->actionId)) {
+            $this->actionId->xmlSerialize(true, $sxe->addChild('actionId'));
+        }
+        if (isset($this->relationship)) {
+            $this->relationship->xmlSerialize(true, $sxe->addChild('relationship'));
+        }
+        if (isset($this->offsetDuration)) {
+            $this->offsetDuration->xmlSerialize(true, $sxe->addChild('offsetDuration'));
+        }
+        if (isset($this->offsetRange)) {
+            $this->offsetRange->xmlSerialize(true, $sxe->addChild('offsetRange'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

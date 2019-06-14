@@ -88,7 +88,8 @@ class FHIRDetectedIssueEvidence extends FHIRBackboneElement implements \JsonSeri
      * A manifestation that led to the recording of this detected issue.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -97,7 +98,8 @@ class FHIRDetectedIssueEvidence extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRDetectedIssueEvidence extends FHIRBackboneElement implements \JsonSeri
      * Links to resources that constitute evidence for the detected issue such as a GuidanceResponse or MeasureReport.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getDetail() {
+    public function getDetail()
+    {
         return $this->detail;
     }
 
@@ -115,7 +118,8 @@ class FHIRDetectedIssueEvidence extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $detail
      * @return $this
      */
-    public function addDetail($detail) {
+    public function addDetail($detail)
+    {
         $this->detail[] = $detail;
         return $this;
     }
@@ -123,18 +127,20 @@ class FHIRDetectedIssueEvidence extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -143,7 +149,7 @@ class FHIRDetectedIssueEvidence extends FHIRBackboneElement implements \JsonSeri
             }
             if (isset($data['detail'])) {
                 if (is_array($data['detail'])) {
-                    foreach($data['detail'] as $d) {
+                    foreach ($data['detail'] as $d) {
                         $this->addDetail($d);
                     }
                 } else {
@@ -159,24 +165,26 @@ class FHIRDetectedIssueEvidence extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
         if (0 < count($this->detail)) {
             $json['detail'] = [];
-            foreach($this->detail as $detail) {
+            foreach ($this->detail as $detail) {
                 $json['detail'][] = $detail;
             }
         }
@@ -188,22 +196,25 @@ class FHIRDetectedIssueEvidence extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DetectedIssueEvidence xmlns="http://hl7.org/fhir"></DetectedIssueEvidence>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DetectedIssueEvidence xmlns="http://hl7.org/fhir"></DetectedIssueEvidence>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
         if (0 < count($this->detail)) {
-            foreach($this->detail as $detail) {
+            foreach ($this->detail as $detail) {
                 $detail->xmlSerialize(true, $sxe->addChild('detail'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

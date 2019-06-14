@@ -112,7 +112,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * A code - a text symbol - that uniquely identifies the concept within the code system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -121,7 +122,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * A human readable string that is the recommended default way to present this concept to a user.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDisplay() {
+    public function getDisplay()
+    {
         return $this->display;
     }
 
@@ -139,7 +142,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $display
      * @return $this
      */
-    public function setDisplay($display) {
+    public function setDisplay($display)
+    {
         $this->display = $display;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * The formal definition of the concept. The code system resource does not make formal definitions required, because of the prevalence of legacy systems. However, they are highly recommended, as without them there is no formal meaning associated with the concept.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDefinition() {
+    public function getDefinition()
+    {
         return $this->definition;
     }
 
@@ -157,7 +162,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $definition
      * @return $this
      */
-    public function setDefinition($definition) {
+    public function setDefinition($definition)
+    {
         $this->definition = $definition;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * Additional representations for the concept - other languages, aliases, specialized purposes, used for particular purposes, etc.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemDesignation[]
      */
-    public function getDesignation() {
+    public function getDesignation()
+    {
         return $this->designation;
     }
 
@@ -175,7 +182,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemDesignation $designation
      * @return $this
      */
-    public function addDesignation($designation) {
+    public function addDesignation($designation)
+    {
         $this->designation[] = $designation;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * A property value for this concept.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemProperty1[]
      */
-    public function getProperty() {
+    public function getProperty()
+    {
         return $this->property;
     }
 
@@ -193,7 +202,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemProperty1 $property
      * @return $this
      */
-    public function addProperty($property) {
+    public function addProperty($property)
+    {
         $this->property[] = $property;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * Defines children of a concept to produce a hierarchy of concepts. The nature of the relationships is variable (is-a/contains/categorizes) - see hierarchyMeaning.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemConcept[]
      */
-    public function getConcept() {
+    public function getConcept()
+    {
         return $this->concept;
     }
 
@@ -211,7 +222,8 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemConcept $concept
      * @return $this
      */
-    public function addConcept($concept) {
+    public function addConcept($concept)
+    {
         $this->concept[] = $concept;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -239,7 +253,7 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['designation'])) {
                 if (is_array($data['designation'])) {
-                    foreach($data['designation'] as $d) {
+                    foreach ($data['designation'] as $d) {
                         $this->addDesignation($d);
                     }
                 } else {
@@ -248,7 +262,7 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['property'])) {
                 if (is_array($data['property'])) {
-                    foreach($data['property'] as $d) {
+                    foreach ($data['property'] as $d) {
                         $this->addProperty($d);
                     }
                 } else {
@@ -257,7 +271,7 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['concept'])) {
                 if (is_array($data['concept'])) {
-                    foreach($data['concept'] as $d) {
+                    foreach ($data['concept'] as $d) {
                         $this->addConcept($d);
                     }
                 } else {
@@ -273,33 +287,41 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->display)) $json['display'] = $this->display;
-        if (isset($this->definition)) $json['definition'] = $this->definition;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->display)) {
+            $json['display'] = $this->display;
+        }
+        if (isset($this->definition)) {
+            $json['definition'] = $this->definition;
+        }
         if (0 < count($this->designation)) {
             $json['designation'] = [];
-            foreach($this->designation as $designation) {
+            foreach ($this->designation as $designation) {
                 $json['designation'][] = $designation;
             }
         }
         if (0 < count($this->property)) {
             $json['property'] = [];
-            foreach($this->property as $property) {
+            foreach ($this->property as $property) {
                 $json['property'][] = $property;
             }
         }
         if (0 < count($this->concept)) {
             $json['concept'] = [];
-            foreach($this->concept as $concept) {
+            foreach ($this->concept as $concept) {
                 $json['concept'][] = $concept;
             }
         }
@@ -311,30 +333,39 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CodeSystemConcept xmlns="http://hl7.org/fhir"></CodeSystemConcept>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CodeSystemConcept xmlns="http://hl7.org/fhir"></CodeSystemConcept>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->display)) $this->display->xmlSerialize(true, $sxe->addChild('display'));
-        if (isset($this->definition)) $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->display)) {
+            $this->display->xmlSerialize(true, $sxe->addChild('display'));
+        }
+        if (isset($this->definition)) {
+            $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        }
         if (0 < count($this->designation)) {
-            foreach($this->designation as $designation) {
+            foreach ($this->designation as $designation) {
                 $designation->xmlSerialize(true, $sxe->addChild('designation'));
             }
         }
         if (0 < count($this->property)) {
-            foreach($this->property as $property) {
+            foreach ($this->property as $property) {
                 $property->xmlSerialize(true, $sxe->addChild('property'));
             }
         }
         if (0 < count($this->concept)) {
-            foreach($this->concept as $concept) {
+            foreach ($this->concept as $concept) {
                 $concept->xmlSerialize(true, $sxe->addChild('concept'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -94,7 +94,8 @@ class FHIREncounterDiagnosis extends FHIRBackboneElement implements \JsonSeriali
      * Reason the encounter takes place, as specified using information from another resource. For admissions, this is the admission diagnosis. The indication will typically be a Condition (with other resources referenced in the evidence.detail), or a Procedure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCondition() {
+    public function getCondition()
+    {
         return $this->condition;
     }
 
@@ -103,7 +104,8 @@ class FHIREncounterDiagnosis extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $condition
      * @return $this
      */
-    public function setCondition($condition) {
+    public function setCondition($condition)
+    {
         $this->condition = $condition;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIREncounterDiagnosis extends FHIRBackboneElement implements \JsonSeriali
      * Role that this diagnosis has within the encounter (e.g. admission, billing, discharge …).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getUse() {
+    public function getUse()
+    {
         return $this->use;
     }
 
@@ -121,7 +124,8 @@ class FHIREncounterDiagnosis extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $use
      * @return $this
      */
-    public function setUse($use) {
+    public function setUse($use)
+    {
         $this->use = $use;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIREncounterDiagnosis extends FHIRBackboneElement implements \JsonSeriali
      * Ranking of the diagnosis (for each role type).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getRank() {
+    public function getRank()
+    {
         return $this->rank;
     }
 
@@ -139,7 +144,8 @@ class FHIREncounterDiagnosis extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $rank
      * @return $this
      */
-    public function setRank($rank) {
+    public function setRank($rank)
+    {
         $this->rank = $rank;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIREncounterDiagnosis extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['condition'])) {
                 $this->setCondition($data['condition']);
@@ -174,18 +182,26 @@ class FHIREncounterDiagnosis extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->condition)) $json['condition'] = $this->condition;
-        if (isset($this->use)) $json['use'] = $this->use;
-        if (isset($this->rank)) $json['rank'] = $this->rank;
+        if (isset($this->condition)) {
+            $json['condition'] = $this->condition;
+        }
+        if (isset($this->use)) {
+            $json['use'] = $this->use;
+        }
+        if (isset($this->rank)) {
+            $json['rank'] = $this->rank;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIREncounterDiagnosis extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<EncounterDiagnosis xmlns="http://hl7.org/fhir"></EncounterDiagnosis>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<EncounterDiagnosis xmlns="http://hl7.org/fhir"></EncounterDiagnosis>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->condition)) $this->condition->xmlSerialize(true, $sxe->addChild('condition'));
-        if (isset($this->use)) $this->use->xmlSerialize(true, $sxe->addChild('use'));
-        if (isset($this->rank)) $this->rank->xmlSerialize(true, $sxe->addChild('rank'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->condition)) {
+            $this->condition->xmlSerialize(true, $sxe->addChild('condition'));
+        }
+        if (isset($this->use)) {
+            $this->use->xmlSerialize(true, $sxe->addChild('use'));
+        }
+        if (isset($this->rank)) {
+            $this->rank->xmlSerialize(true, $sxe->addChild('rank'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

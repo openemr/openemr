@@ -127,7 +127,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * The parameter whose value is being tracked, e.g. body weight, blood pressure, or hemoglobin A1c level.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMeasure() {
+    public function getMeasure()
+    {
         return $this->measure;
     }
 
@@ -136,7 +137,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $measure
      * @return $this
      */
-    public function setMeasure($measure) {
+    public function setMeasure($measure)
+    {
         $this->measure = $measure;
         return $this;
     }
@@ -144,7 +146,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getDetailQuantity() {
+    public function getDetailQuantity()
+    {
         return $this->detailQuantity;
     }
 
@@ -152,7 +155,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $detailQuantity
      * @return $this
      */
-    public function setDetailQuantity($detailQuantity) {
+    public function setDetailQuantity($detailQuantity)
+    {
         $this->detailQuantity = $detailQuantity;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getDetailRange() {
+    public function getDetailRange()
+    {
         return $this->detailRange;
     }
 
@@ -168,7 +173,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $detailRange
      * @return $this
      */
-    public function setDetailRange($detailRange) {
+    public function setDetailRange($detailRange)
+    {
         $this->detailRange = $detailRange;
         return $this;
     }
@@ -176,7 +182,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDetailCodeableConcept() {
+    public function getDetailCodeableConcept()
+    {
         return $this->detailCodeableConcept;
     }
 
@@ -184,7 +191,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $detailCodeableConcept
      * @return $this
      */
-    public function setDetailCodeableConcept($detailCodeableConcept) {
+    public function setDetailCodeableConcept($detailCodeableConcept)
+    {
         $this->detailCodeableConcept = $detailCodeableConcept;
         return $this;
     }
@@ -192,7 +200,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDetailString() {
+    public function getDetailString()
+    {
         return $this->detailString;
     }
 
@@ -200,7 +209,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $detailString
      * @return $this
      */
-    public function setDetailString($detailString) {
+    public function setDetailString($detailString)
+    {
         $this->detailString = $detailString;
         return $this;
     }
@@ -208,7 +218,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getDetailBoolean() {
+    public function getDetailBoolean()
+    {
         return $this->detailBoolean;
     }
 
@@ -216,7 +227,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $detailBoolean
      * @return $this
      */
-    public function setDetailBoolean($detailBoolean) {
+    public function setDetailBoolean($detailBoolean)
+    {
         $this->detailBoolean = $detailBoolean;
         return $this;
     }
@@ -224,7 +236,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getDetailInteger() {
+    public function getDetailInteger()
+    {
         return $this->detailInteger;
     }
 
@@ -232,7 +245,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $detailInteger
      * @return $this
      */
-    public function setDetailInteger($detailInteger) {
+    public function setDetailInteger($detailInteger)
+    {
         $this->detailInteger = $detailInteger;
         return $this;
     }
@@ -240,7 +254,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getDetailRatio() {
+    public function getDetailRatio()
+    {
         return $this->detailRatio;
     }
 
@@ -248,7 +263,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $detailRatio
      * @return $this
      */
-    public function setDetailRatio($detailRatio) {
+    public function setDetailRatio($detailRatio)
+    {
         $this->detailRatio = $detailRatio;
         return $this;
     }
@@ -256,7 +272,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getDueDate() {
+    public function getDueDate()
+    {
         return $this->dueDate;
     }
 
@@ -264,7 +281,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $dueDate
      * @return $this
      */
-    public function setDueDate($dueDate) {
+    public function setDueDate($dueDate)
+    {
         $this->dueDate = $dueDate;
         return $this;
     }
@@ -272,7 +290,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getDueDuration() {
+    public function getDueDuration()
+    {
         return $this->dueDuration;
     }
 
@@ -280,7 +299,8 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $dueDuration
      * @return $this
      */
-    public function setDueDuration($dueDuration) {
+    public function setDueDuration($dueDuration)
+    {
         $this->dueDuration = $dueDuration;
         return $this;
     }
@@ -288,14 +308,16 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['measure'])) {
                 $this->setMeasure($data['measure']);
@@ -336,25 +358,47 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->measure)) $json['measure'] = $this->measure;
-        if (isset($this->detailQuantity)) $json['detailQuantity'] = $this->detailQuantity;
-        if (isset($this->detailRange)) $json['detailRange'] = $this->detailRange;
-        if (isset($this->detailCodeableConcept)) $json['detailCodeableConcept'] = $this->detailCodeableConcept;
-        if (isset($this->detailString)) $json['detailString'] = $this->detailString;
-        if (isset($this->detailBoolean)) $json['detailBoolean'] = $this->detailBoolean;
-        if (isset($this->detailInteger)) $json['detailInteger'] = $this->detailInteger;
-        if (isset($this->detailRatio)) $json['detailRatio'] = $this->detailRatio;
-        if (isset($this->dueDate)) $json['dueDate'] = $this->dueDate;
-        if (isset($this->dueDuration)) $json['dueDuration'] = $this->dueDuration;
+        if (isset($this->measure)) {
+            $json['measure'] = $this->measure;
+        }
+        if (isset($this->detailQuantity)) {
+            $json['detailQuantity'] = $this->detailQuantity;
+        }
+        if (isset($this->detailRange)) {
+            $json['detailRange'] = $this->detailRange;
+        }
+        if (isset($this->detailCodeableConcept)) {
+            $json['detailCodeableConcept'] = $this->detailCodeableConcept;
+        }
+        if (isset($this->detailString)) {
+            $json['detailString'] = $this->detailString;
+        }
+        if (isset($this->detailBoolean)) {
+            $json['detailBoolean'] = $this->detailBoolean;
+        }
+        if (isset($this->detailInteger)) {
+            $json['detailInteger'] = $this->detailInteger;
+        }
+        if (isset($this->detailRatio)) {
+            $json['detailRatio'] = $this->detailRatio;
+        }
+        if (isset($this->dueDate)) {
+            $json['dueDate'] = $this->dueDate;
+        }
+        if (isset($this->dueDuration)) {
+            $json['dueDuration'] = $this->dueDuration;
+        }
         return $json;
     }
 
@@ -363,22 +407,45 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<GoalTarget xmlns="http://hl7.org/fhir"></GoalTarget>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<GoalTarget xmlns="http://hl7.org/fhir"></GoalTarget>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->measure)) $this->measure->xmlSerialize(true, $sxe->addChild('measure'));
-        if (isset($this->detailQuantity)) $this->detailQuantity->xmlSerialize(true, $sxe->addChild('detailQuantity'));
-        if (isset($this->detailRange)) $this->detailRange->xmlSerialize(true, $sxe->addChild('detailRange'));
-        if (isset($this->detailCodeableConcept)) $this->detailCodeableConcept->xmlSerialize(true, $sxe->addChild('detailCodeableConcept'));
-        if (isset($this->detailString)) $this->detailString->xmlSerialize(true, $sxe->addChild('detailString'));
-        if (isset($this->detailBoolean)) $this->detailBoolean->xmlSerialize(true, $sxe->addChild('detailBoolean'));
-        if (isset($this->detailInteger)) $this->detailInteger->xmlSerialize(true, $sxe->addChild('detailInteger'));
-        if (isset($this->detailRatio)) $this->detailRatio->xmlSerialize(true, $sxe->addChild('detailRatio'));
-        if (isset($this->dueDate)) $this->dueDate->xmlSerialize(true, $sxe->addChild('dueDate'));
-        if (isset($this->dueDuration)) $this->dueDuration->xmlSerialize(true, $sxe->addChild('dueDuration'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->measure)) {
+            $this->measure->xmlSerialize(true, $sxe->addChild('measure'));
+        }
+        if (isset($this->detailQuantity)) {
+            $this->detailQuantity->xmlSerialize(true, $sxe->addChild('detailQuantity'));
+        }
+        if (isset($this->detailRange)) {
+            $this->detailRange->xmlSerialize(true, $sxe->addChild('detailRange'));
+        }
+        if (isset($this->detailCodeableConcept)) {
+            $this->detailCodeableConcept->xmlSerialize(true, $sxe->addChild('detailCodeableConcept'));
+        }
+        if (isset($this->detailString)) {
+            $this->detailString->xmlSerialize(true, $sxe->addChild('detailString'));
+        }
+        if (isset($this->detailBoolean)) {
+            $this->detailBoolean->xmlSerialize(true, $sxe->addChild('detailBoolean'));
+        }
+        if (isset($this->detailInteger)) {
+            $this->detailInteger->xmlSerialize(true, $sxe->addChild('detailInteger'));
+        }
+        if (isset($this->detailRatio)) {
+            $this->detailRatio->xmlSerialize(true, $sxe->addChild('detailRatio'));
+        }
+        if (isset($this->dueDate)) {
+            $this->dueDate->xmlSerialize(true, $sxe->addChild('dueDate'));
+        }
+        if (isset($this->dueDuration)) {
+            $this->dueDuration->xmlSerialize(true, $sxe->addChild('dueDuration'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

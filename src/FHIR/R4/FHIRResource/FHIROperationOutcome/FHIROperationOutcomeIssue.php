@@ -92,7 +92,7 @@ class FHIROperationOutcomeIssue extends FHIRBackboneElement implements \JsonSeri
     public $diagnostics = null;
 
     /**
-     * This element is deprecated because it is XML specific. It is replaced by issue.expression, which is format independent, and simpler to parse. 
+     * This element is deprecated because it is XML specific. It is replaced by issue.expression, which is format independent, and simpler to parse.
 
 For resource issues, this will be a simple XPath limited to element names, repetition indicators and the default child accessor that identifies one of the elements in the resource that caused this issue to be raised.  For HTTP errors, will be "http." + the parameter name.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
@@ -114,7 +114,8 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * Indicates whether the issue indicates a variation from successful processing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity
      */
-    public function getSeverity() {
+    public function getSeverity()
+    {
         return $this->severity;
     }
 
@@ -123,7 +124,8 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity $severity
      * @return $this
      */
-    public function setSeverity($severity) {
+    public function setSeverity($severity)
+    {
         $this->severity = $severity;
         return $this;
     }
@@ -132,7 +134,8 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * Describes the type of the issue. The system that creates an OperationOutcome SHALL choose the most applicable code from the IssueType value set, and may additional provide its own code for the error in the details element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -141,7 +144,8 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -150,7 +154,8 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * Additional details about the error. This may be a text description of the error or a system code that identifies the error.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDetails() {
+    public function getDetails()
+    {
         return $this->details;
     }
 
@@ -159,7 +164,8 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $details
      * @return $this
      */
-    public function setDetails($details) {
+    public function setDetails($details)
+    {
         $this->details = $details;
         return $this;
     }
@@ -168,7 +174,8 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * Additional diagnostic information about the issue.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDiagnostics() {
+    public function getDiagnostics()
+    {
         return $this->diagnostics;
     }
 
@@ -177,29 +184,32 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $diagnostics
      * @return $this
      */
-    public function setDiagnostics($diagnostics) {
+    public function setDiagnostics($diagnostics)
+    {
         $this->diagnostics = $diagnostics;
         return $this;
     }
 
     /**
-     * This element is deprecated because it is XML specific. It is replaced by issue.expression, which is format independent, and simpler to parse. 
+     * This element is deprecated because it is XML specific. It is replaced by issue.expression, which is format independent, and simpler to parse.
 
 For resource issues, this will be a simple XPath limited to element names, repetition indicators and the default child accessor that identifies one of the elements in the resource that caused this issue to be raised.  For HTTP errors, will be "http." + the parameter name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
     /**
-     * This element is deprecated because it is XML specific. It is replaced by issue.expression, which is format independent, and simpler to parse. 
+     * This element is deprecated because it is XML specific. It is replaced by issue.expression, which is format independent, and simpler to parse.
 
 For resource issues, this will be a simple XPath limited to element names, repetition indicators and the default child accessor that identifies one of the elements in the resource that caused this issue to be raised.  For HTTP errors, will be "http." + the parameter name.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $location
      * @return $this
      */
-    public function addLocation($location) {
+    public function addLocation($location)
+    {
         $this->location[] = $location;
         return $this;
     }
@@ -208,7 +218,8 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * A [simple subset of FHIRPath](fhirpath.html#simple) limited to element names, repetition indicators and the default child accessor that identifies one of the elements in the resource that caused this issue to be raised.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getExpression() {
+    public function getExpression()
+    {
         return $this->expression;
     }
 
@@ -217,7 +228,8 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $expression
      * @return $this
      */
-    public function addExpression($expression) {
+    public function addExpression($expression)
+    {
         $this->expression[] = $expression;
         return $this;
     }
@@ -225,14 +237,16 @@ For resource issues, this will be a simple XPath limited to element names, repet
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['severity'])) {
                 $this->setSeverity($data['severity']);
@@ -248,7 +262,7 @@ For resource issues, this will be a simple XPath limited to element names, repet
             }
             if (isset($data['location'])) {
                 if (is_array($data['location'])) {
-                    foreach($data['location'] as $d) {
+                    foreach ($data['location'] as $d) {
                         $this->addLocation($d);
                     }
                 } else {
@@ -257,7 +271,7 @@ For resource issues, this will be a simple XPath limited to element names, repet
             }
             if (isset($data['expression'])) {
                 if (is_array($data['expression'])) {
-                    foreach($data['expression'] as $d) {
+                    foreach ($data['expression'] as $d) {
                         $this->addExpression($d);
                     }
                 } else {
@@ -273,28 +287,38 @@ For resource issues, this will be a simple XPath limited to element names, repet
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->severity)) $json['severity'] = $this->severity;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->details)) $json['details'] = $this->details;
-        if (isset($this->diagnostics)) $json['diagnostics'] = $this->diagnostics;
+        if (isset($this->severity)) {
+            $json['severity'] = $this->severity;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->details)) {
+            $json['details'] = $this->details;
+        }
+        if (isset($this->diagnostics)) {
+            $json['diagnostics'] = $this->diagnostics;
+        }
         if (0 < count($this->location)) {
             $json['location'] = [];
-            foreach($this->location as $location) {
+            foreach ($this->location as $location) {
                 $json['location'][] = $location;
             }
         }
         if (0 < count($this->expression)) {
             $json['expression'] = [];
-            foreach($this->expression as $expression) {
+            foreach ($this->expression as $expression) {
                 $json['expression'][] = $expression;
             }
         }
@@ -306,26 +330,37 @@ For resource issues, this will be a simple XPath limited to element names, repet
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<OperationOutcomeIssue xmlns="http://hl7.org/fhir"></OperationOutcomeIssue>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<OperationOutcomeIssue xmlns="http://hl7.org/fhir"></OperationOutcomeIssue>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->severity)) $this->severity->xmlSerialize(true, $sxe->addChild('severity'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->details)) $this->details->xmlSerialize(true, $sxe->addChild('details'));
-        if (isset($this->diagnostics)) $this->diagnostics->xmlSerialize(true, $sxe->addChild('diagnostics'));
+        if (isset($this->severity)) {
+            $this->severity->xmlSerialize(true, $sxe->addChild('severity'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->details)) {
+            $this->details->xmlSerialize(true, $sxe->addChild('details'));
+        }
+        if (isset($this->diagnostics)) {
+            $this->diagnostics->xmlSerialize(true, $sxe->addChild('diagnostics'));
+        }
         if (0 < count($this->location)) {
-            foreach($this->location as $location) {
+            foreach ($this->location as $location) {
                 $location->xmlSerialize(true, $sxe->addChild('location'));
             }
         }
         if (0 < count($this->expression)) {
-            foreach($this->expression as $expression) {
+            foreach ($this->expression as $expression) {
                 $expression->xmlSerialize(true, $sxe->addChild('expression'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

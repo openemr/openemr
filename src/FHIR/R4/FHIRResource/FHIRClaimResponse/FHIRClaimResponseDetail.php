@@ -100,7 +100,8 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
      * A number to uniquely reference the claim detail entry.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getDetailSequence() {
+    public function getDetailSequence()
+    {
         return $this->detailSequence;
     }
 
@@ -109,7 +110,8 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $detailSequence
      * @return $this
      */
-    public function setDetailSequence($detailSequence) {
+    public function setDetailSequence($detailSequence)
+    {
         $this->detailSequence = $detailSequence;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
      * The numbers associated with notes below which apply to the adjudication of this item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
-    public function getNoteNumber() {
+    public function getNoteNumber()
+    {
         return $this->noteNumber;
     }
 
@@ -127,7 +130,8 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $noteNumber
      * @return $this
      */
-    public function addNoteNumber($noteNumber) {
+    public function addNoteNumber($noteNumber)
+    {
         $this->noteNumber[] = $noteNumber;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
      * The adjudication results.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseAdjudication[]
      */
-    public function getAdjudication() {
+    public function getAdjudication()
+    {
         return $this->adjudication;
     }
 
@@ -145,7 +150,8 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseAdjudication $adjudication
      * @return $this
      */
-    public function addAdjudication($adjudication) {
+    public function addAdjudication($adjudication)
+    {
         $this->adjudication[] = $adjudication;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
      * A sub-detail adjudication of a simple product or service.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseSubDetail[]
      */
-    public function getSubDetail() {
+    public function getSubDetail()
+    {
         return $this->subDetail;
     }
 
@@ -163,7 +170,8 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseSubDetail $subDetail
      * @return $this
      */
-    public function addSubDetail($subDetail) {
+    public function addSubDetail($subDetail)
+    {
         $this->subDetail[] = $subDetail;
         return $this;
     }
@@ -171,21 +179,23 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['detailSequence'])) {
                 $this->setDetailSequence($data['detailSequence']);
             }
             if (isset($data['noteNumber'])) {
                 if (is_array($data['noteNumber'])) {
-                    foreach($data['noteNumber'] as $d) {
+                    foreach ($data['noteNumber'] as $d) {
                         $this->addNoteNumber($d);
                     }
                 } else {
@@ -194,7 +204,7 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
             }
             if (isset($data['adjudication'])) {
                 if (is_array($data['adjudication'])) {
-                    foreach($data['adjudication'] as $d) {
+                    foreach ($data['adjudication'] as $d) {
                         $this->addAdjudication($d);
                     }
                 } else {
@@ -203,7 +213,7 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
             }
             if (isset($data['subDetail'])) {
                 if (is_array($data['subDetail'])) {
-                    foreach($data['subDetail'] as $d) {
+                    foreach ($data['subDetail'] as $d) {
                         $this->addSubDetail($d);
                     }
                 } else {
@@ -219,31 +229,35 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->detailSequence)) $json['detailSequence'] = $this->detailSequence;
+        if (isset($this->detailSequence)) {
+            $json['detailSequence'] = $this->detailSequence;
+        }
         if (0 < count($this->noteNumber)) {
             $json['noteNumber'] = [];
-            foreach($this->noteNumber as $noteNumber) {
+            foreach ($this->noteNumber as $noteNumber) {
                 $json['noteNumber'][] = $noteNumber;
             }
         }
         if (0 < count($this->adjudication)) {
             $json['adjudication'] = [];
-            foreach($this->adjudication as $adjudication) {
+            foreach ($this->adjudication as $adjudication) {
                 $json['adjudication'][] = $adjudication;
             }
         }
         if (0 < count($this->subDetail)) {
             $json['subDetail'] = [];
-            foreach($this->subDetail as $subDetail) {
+            foreach ($this->subDetail as $subDetail) {
                 $json['subDetail'][] = $subDetail;
             }
         }
@@ -255,28 +269,33 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimResponseDetail xmlns="http://hl7.org/fhir"></ClaimResponseDetail>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimResponseDetail xmlns="http://hl7.org/fhir"></ClaimResponseDetail>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->detailSequence)) $this->detailSequence->xmlSerialize(true, $sxe->addChild('detailSequence'));
+        if (isset($this->detailSequence)) {
+            $this->detailSequence->xmlSerialize(true, $sxe->addChild('detailSequence'));
+        }
         if (0 < count($this->noteNumber)) {
-            foreach($this->noteNumber as $noteNumber) {
+            foreach ($this->noteNumber as $noteNumber) {
                 $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
             }
         }
         if (0 < count($this->adjudication)) {
-            foreach($this->adjudication as $adjudication) {
+            foreach ($this->adjudication as $adjudication) {
                 $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
             }
         }
         if (0 < count($this->subDetail)) {
-            foreach($this->subDetail as $subDetail) {
+            foreach ($this->subDetail as $subDetail) {
                 $subDetail->xmlSerialize(true, $sxe->addChild('subDetail'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

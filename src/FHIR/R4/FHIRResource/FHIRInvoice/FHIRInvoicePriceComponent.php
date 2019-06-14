@@ -100,7 +100,8 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
      * This code identifies the type of the component.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInvoicePriceComponentType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -109,7 +110,8 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInvoicePriceComponentType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
      * A code that identifies the component. Codes may be used to differentiate between kinds of taxes, surcharges, discounts etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -127,7 +130,8 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
      * The factor that has been applied on the base price for calculating this component.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getFactor() {
+    public function getFactor()
+    {
         return $this->factor;
     }
 
@@ -145,7 +150,8 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $factor
      * @return $this
      */
-    public function setFactor($factor) {
+    public function setFactor($factor)
+    {
         $this->factor = $factor;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
      * The amount calculated for this component.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -163,7 +170,8 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -201,19 +211,29 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->factor)) $json['factor'] = $this->factor;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->factor)) {
+            $json['factor'] = $this->factor;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRInvoicePriceComponent extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InvoicePriceComponent xmlns="http://hl7.org/fhir"></InvoicePriceComponent>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InvoicePriceComponent xmlns="http://hl7.org/fhir"></InvoicePriceComponent>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->factor)) $this->factor->xmlSerialize(true, $sxe->addChild('factor'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->factor)) {
+            $this->factor->xmlSerialize(true, $sxe->addChild('factor'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

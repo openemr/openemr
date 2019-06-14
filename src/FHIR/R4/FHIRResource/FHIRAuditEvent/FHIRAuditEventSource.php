@@ -94,7 +94,8 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
      * Logical source location within the healthcare enterprise network.  For example, a hospital or other provider location within a multi-entity provider group.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSite() {
+    public function getSite()
+    {
         return $this->site;
     }
 
@@ -103,7 +104,8 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $site
      * @return $this
      */
-    public function setSite($site) {
+    public function setSite($site)
+    {
         $this->site = $site;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
      * Identifier of the source where the event was detected.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getObserver() {
+    public function getObserver()
+    {
         return $this->observer;
     }
 
@@ -121,7 +124,8 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $observer
      * @return $this
      */
-    public function setObserver($observer) {
+    public function setObserver($observer)
+    {
         $this->observer = $observer;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
      * Code specifying the type of source where event originated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -139,7 +144,8 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $type
      * @return $this
      */
-    public function addType($type) {
+    public function addType($type)
+    {
         $this->type[] = $type;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['site'])) {
                 $this->setSite($data['site']);
@@ -164,7 +172,7 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['type'])) {
                 if (is_array($data['type'])) {
-                    foreach($data['type'] as $d) {
+                    foreach ($data['type'] as $d) {
                         $this->addType($d);
                     }
                 } else {
@@ -180,20 +188,26 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->site)) $json['site'] = $this->site;
-        if (isset($this->observer)) $json['observer'] = $this->observer;
+        if (isset($this->site)) {
+            $json['site'] = $this->site;
+        }
+        if (isset($this->observer)) {
+            $json['observer'] = $this->observer;
+        }
         if (0 < count($this->type)) {
             $json['type'] = [];
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $json['type'][] = $type;
             }
         }
@@ -205,19 +219,26 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<AuditEventSource xmlns="http://hl7.org/fhir"></AuditEventSource>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<AuditEventSource xmlns="http://hl7.org/fhir"></AuditEventSource>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->site)) $this->site->xmlSerialize(true, $sxe->addChild('site'));
-        if (isset($this->observer)) $this->observer->xmlSerialize(true, $sxe->addChild('observer'));
+        if (isset($this->site)) {
+            $this->site->xmlSerialize(true, $sxe->addChild('site'));
+        }
+        if (isset($this->observer)) {
+            $this->observer->xmlSerialize(true, $sxe->addChild('observer'));
+        }
         if (0 < count($this->type)) {
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $type->xmlSerialize(true, $sxe->addChild('type'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

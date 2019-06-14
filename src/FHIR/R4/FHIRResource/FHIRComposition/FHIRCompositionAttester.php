@@ -94,7 +94,8 @@ class FHIRCompositionAttester extends FHIRBackboneElement implements \JsonSerial
      * The type of attestation the authenticator offers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCompositionAttestationMode
      */
-    public function getMode() {
+    public function getMode()
+    {
         return $this->mode;
     }
 
@@ -103,7 +104,8 @@ class FHIRCompositionAttester extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCompositionAttestationMode $mode
      * @return $this
      */
-    public function setMode($mode) {
+    public function setMode($mode)
+    {
         $this->mode = $mode;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRCompositionAttester extends FHIRBackboneElement implements \JsonSerial
      * When the composition was attested by the party.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getTime() {
+    public function getTime()
+    {
         return $this->time;
     }
 
@@ -121,7 +124,8 @@ class FHIRCompositionAttester extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $time
      * @return $this
      */
-    public function setTime($time) {
+    public function setTime($time)
+    {
         $this->time = $time;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRCompositionAttester extends FHIRBackboneElement implements \JsonSerial
      * Who attested the composition in the specified way.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getParty() {
+    public function getParty()
+    {
         return $this->party;
     }
 
@@ -139,7 +144,8 @@ class FHIRCompositionAttester extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $party
      * @return $this
      */
-    public function setParty($party) {
+    public function setParty($party)
+    {
         $this->party = $party;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRCompositionAttester extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['mode'])) {
                 $this->setMode($data['mode']);
@@ -174,18 +182,26 @@ class FHIRCompositionAttester extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->mode)) $json['mode'] = $this->mode;
-        if (isset($this->time)) $json['time'] = $this->time;
-        if (isset($this->party)) $json['party'] = $this->party;
+        if (isset($this->mode)) {
+            $json['mode'] = $this->mode;
+        }
+        if (isset($this->time)) {
+            $json['time'] = $this->time;
+        }
+        if (isset($this->party)) {
+            $json['party'] = $this->party;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRCompositionAttester extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CompositionAttester xmlns="http://hl7.org/fhir"></CompositionAttester>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CompositionAttester xmlns="http://hl7.org/fhir"></CompositionAttester>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->mode)) $this->mode->xmlSerialize(true, $sxe->addChild('mode'));
-        if (isset($this->time)) $this->time->xmlSerialize(true, $sxe->addChild('time'));
-        if (isset($this->party)) $this->party->xmlSerialize(true, $sxe->addChild('party'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->mode)) {
+            $this->mode->xmlSerialize(true, $sxe->addChild('mode'));
+        }
+        if (isset($this->time)) {
+            $this->time->xmlSerialize(true, $sxe->addChild('time'));
+        }
+        if (isset($this->party)) {
+            $this->party->xmlSerialize(true, $sxe->addChild('party'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

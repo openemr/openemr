@@ -155,7 +155,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * General high level classification of the source material specific to the origin of the material.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSourceMaterialClass() {
+    public function getSourceMaterialClass()
+    {
         return $this->sourceMaterialClass;
     }
 
@@ -164,7 +165,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $sourceMaterialClass
      * @return $this
      */
-    public function setSourceMaterialClass($sourceMaterialClass) {
+    public function setSourceMaterialClass($sourceMaterialClass)
+    {
         $this->sourceMaterialClass = $sourceMaterialClass;
         return $this;
     }
@@ -173,7 +175,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * The type of the source material shall be specified based on a controlled vocabulary. For vaccines, this subclause refers to the class of infectious agent.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSourceMaterialType() {
+    public function getSourceMaterialType()
+    {
         return $this->sourceMaterialType;
     }
 
@@ -182,7 +185,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $sourceMaterialType
      * @return $this
      */
-    public function setSourceMaterialType($sourceMaterialType) {
+    public function setSourceMaterialType($sourceMaterialType)
+    {
         $this->sourceMaterialType = $sourceMaterialType;
         return $this;
     }
@@ -191,7 +195,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * The state of the source material when extracted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSourceMaterialState() {
+    public function getSourceMaterialState()
+    {
         return $this->sourceMaterialState;
     }
 
@@ -200,7 +205,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $sourceMaterialState
      * @return $this
      */
-    public function setSourceMaterialState($sourceMaterialState) {
+    public function setSourceMaterialState($sourceMaterialState)
+    {
         $this->sourceMaterialState = $sourceMaterialState;
         return $this;
     }
@@ -209,7 +215,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * The unique identifier associated with the source material parent organism shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getOrganismId() {
+    public function getOrganismId()
+    {
         return $this->organismId;
     }
 
@@ -218,7 +225,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $organismId
      * @return $this
      */
-    public function setOrganismId($organismId) {
+    public function setOrganismId($organismId)
+    {
         $this->organismId = $organismId;
         return $this;
     }
@@ -227,7 +235,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * The organism accepted Scientific name shall be provided based on the organism taxonomy.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getOrganismName() {
+    public function getOrganismName()
+    {
         return $this->organismName;
     }
 
@@ -236,7 +245,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $organismName
      * @return $this
      */
-    public function setOrganismName($organismName) {
+    public function setOrganismName($organismName)
+    {
         $this->organismName = $organismName;
         return $this;
     }
@@ -245,7 +255,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * The parent of the herbal drug Ginkgo biloba, Leaf is the substance ID of the substance (fresh) of Ginkgo biloba L. or Ginkgo biloba L. (Whole plant).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getParentSubstanceId() {
+    public function getParentSubstanceId()
+    {
         return $this->parentSubstanceId;
     }
 
@@ -254,7 +265,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $parentSubstanceId
      * @return $this
      */
-    public function addParentSubstanceId($parentSubstanceId) {
+    public function addParentSubstanceId($parentSubstanceId)
+    {
         $this->parentSubstanceId[] = $parentSubstanceId;
         return $this;
     }
@@ -263,7 +275,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * The parent substance of the Herbal Drug, or Herbal preparation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getParentSubstanceName() {
+    public function getParentSubstanceName()
+    {
         return $this->parentSubstanceName;
     }
 
@@ -272,7 +285,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $parentSubstanceName
      * @return $this
      */
-    public function addParentSubstanceName($parentSubstanceName) {
+    public function addParentSubstanceName($parentSubstanceName)
+    {
         $this->parentSubstanceName[] = $parentSubstanceName;
         return $this;
     }
@@ -281,7 +295,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * The country where the plant material is harvested or the countries where the plasma is sourced from as laid down in accordance with the Plasma Master File. For “Plasma-derived substances” the attribute country of origin provides information about the countries used for the manufacturing of the Cryopoor plama or Crioprecipitate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCountryOfOrigin() {
+    public function getCountryOfOrigin()
+    {
         return $this->countryOfOrigin;
     }
 
@@ -290,7 +305,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $countryOfOrigin
      * @return $this
      */
-    public function addCountryOfOrigin($countryOfOrigin) {
+    public function addCountryOfOrigin($countryOfOrigin)
+    {
         $this->countryOfOrigin[] = $countryOfOrigin;
         return $this;
     }
@@ -299,7 +315,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * The place/region where the plant is harvested or the places/regions where the animal source material has its habitat.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getGeographicalLocation() {
+    public function getGeographicalLocation()
+    {
         return $this->geographicalLocation;
     }
 
@@ -308,7 +325,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $geographicalLocation
      * @return $this
      */
-    public function addGeographicalLocation($geographicalLocation) {
+    public function addGeographicalLocation($geographicalLocation)
+    {
         $this->geographicalLocation[] = $geographicalLocation;
         return $this;
     }
@@ -317,7 +335,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * Stage of life for animals, plants, insects and microorganisms. This information shall be provided only when the substance is significantly different in these stages (e.g. foetal bovine serum).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDevelopmentStage() {
+    public function getDevelopmentStage()
+    {
         return $this->developmentStage;
     }
 
@@ -326,7 +345,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $developmentStage
      * @return $this
      */
-    public function setDevelopmentStage($developmentStage) {
+    public function setDevelopmentStage($developmentStage)
+    {
         $this->developmentStage = $developmentStage;
         return $this;
     }
@@ -335,7 +355,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * Many complex materials are fractions of parts of plants, animals, or minerals. Fraction elements are often necessary to define both Substances and Specified Group 1 Substances. For substances derived from Plants, fraction information will be captured at the Substance information level ( . Oils, Juices and Exudates). Additional information for Extracts, such as extraction solvent composition, will be captured at the Specified Substance Group 1 information level. For plasma-derived products fraction information will be captured at the Substance and the Specified Substance Group 1 levels.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialFractionDescription[]
      */
-    public function getFractionDescription() {
+    public function getFractionDescription()
+    {
         return $this->fractionDescription;
     }
 
@@ -344,7 +365,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialFractionDescription $fractionDescription
      * @return $this
      */
-    public function addFractionDescription($fractionDescription) {
+    public function addFractionDescription($fractionDescription)
+    {
         $this->fractionDescription[] = $fractionDescription;
         return $this;
     }
@@ -353,7 +375,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * This subclause describes the organism which the substance is derived from. For vaccines, the parent organism shall be specified based on these subclause elements. As an example, full taxonomy will be described for the Substance Name: ., Leaf.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialOrganism
      */
-    public function getOrganism() {
+    public function getOrganism()
+    {
         return $this->organism;
     }
 
@@ -362,7 +385,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialOrganism $organism
      * @return $this
      */
-    public function setOrganism($organism) {
+    public function setOrganism($organism)
+    {
         $this->organism = $organism;
         return $this;
     }
@@ -371,7 +395,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * To do.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialPartDescription[]
      */
-    public function getPartDescription() {
+    public function getPartDescription()
+    {
         return $this->partDescription;
     }
 
@@ -380,7 +405,8 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialPartDescription $partDescription
      * @return $this
      */
-    public function addPartDescription($partDescription) {
+    public function addPartDescription($partDescription)
+    {
         $this->partDescription[] = $partDescription;
         return $this;
     }
@@ -388,14 +414,16 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sourceMaterialClass'])) {
                 $this->setSourceMaterialClass($data['sourceMaterialClass']);
@@ -414,7 +442,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['parentSubstanceId'])) {
                 if (is_array($data['parentSubstanceId'])) {
-                    foreach($data['parentSubstanceId'] as $d) {
+                    foreach ($data['parentSubstanceId'] as $d) {
                         $this->addParentSubstanceId($d);
                     }
                 } else {
@@ -423,7 +451,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['parentSubstanceName'])) {
                 if (is_array($data['parentSubstanceName'])) {
-                    foreach($data['parentSubstanceName'] as $d) {
+                    foreach ($data['parentSubstanceName'] as $d) {
                         $this->addParentSubstanceName($d);
                     }
                 } else {
@@ -432,7 +460,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['countryOfOrigin'])) {
                 if (is_array($data['countryOfOrigin'])) {
-                    foreach($data['countryOfOrigin'] as $d) {
+                    foreach ($data['countryOfOrigin'] as $d) {
                         $this->addCountryOfOrigin($d);
                     }
                 } else {
@@ -441,7 +469,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['geographicalLocation'])) {
                 if (is_array($data['geographicalLocation'])) {
-                    foreach($data['geographicalLocation'] as $d) {
+                    foreach ($data['geographicalLocation'] as $d) {
                         $this->addGeographicalLocation($d);
                     }
                 } else {
@@ -453,7 +481,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['fractionDescription'])) {
                 if (is_array($data['fractionDescription'])) {
-                    foreach($data['fractionDescription'] as $d) {
+                    foreach ($data['fractionDescription'] as $d) {
                         $this->addFractionDescription($d);
                     }
                 } else {
@@ -465,7 +493,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['partDescription'])) {
                 if (is_array($data['partDescription'])) {
-                    foreach($data['partDescription'] as $d) {
+                    foreach ($data['partDescription'] as $d) {
                         $this->addPartDescription($d);
                     }
                 } else {
@@ -481,56 +509,72 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->sourceMaterialClass)) $json['sourceMaterialClass'] = $this->sourceMaterialClass;
-        if (isset($this->sourceMaterialType)) $json['sourceMaterialType'] = $this->sourceMaterialType;
-        if (isset($this->sourceMaterialState)) $json['sourceMaterialState'] = $this->sourceMaterialState;
-        if (isset($this->organismId)) $json['organismId'] = $this->organismId;
-        if (isset($this->organismName)) $json['organismName'] = $this->organismName;
+        if (isset($this->sourceMaterialClass)) {
+            $json['sourceMaterialClass'] = $this->sourceMaterialClass;
+        }
+        if (isset($this->sourceMaterialType)) {
+            $json['sourceMaterialType'] = $this->sourceMaterialType;
+        }
+        if (isset($this->sourceMaterialState)) {
+            $json['sourceMaterialState'] = $this->sourceMaterialState;
+        }
+        if (isset($this->organismId)) {
+            $json['organismId'] = $this->organismId;
+        }
+        if (isset($this->organismName)) {
+            $json['organismName'] = $this->organismName;
+        }
         if (0 < count($this->parentSubstanceId)) {
             $json['parentSubstanceId'] = [];
-            foreach($this->parentSubstanceId as $parentSubstanceId) {
+            foreach ($this->parentSubstanceId as $parentSubstanceId) {
                 $json['parentSubstanceId'][] = $parentSubstanceId;
             }
         }
         if (0 < count($this->parentSubstanceName)) {
             $json['parentSubstanceName'] = [];
-            foreach($this->parentSubstanceName as $parentSubstanceName) {
+            foreach ($this->parentSubstanceName as $parentSubstanceName) {
                 $json['parentSubstanceName'][] = $parentSubstanceName;
             }
         }
         if (0 < count($this->countryOfOrigin)) {
             $json['countryOfOrigin'] = [];
-            foreach($this->countryOfOrigin as $countryOfOrigin) {
+            foreach ($this->countryOfOrigin as $countryOfOrigin) {
                 $json['countryOfOrigin'][] = $countryOfOrigin;
             }
         }
         if (0 < count($this->geographicalLocation)) {
             $json['geographicalLocation'] = [];
-            foreach($this->geographicalLocation as $geographicalLocation) {
+            foreach ($this->geographicalLocation as $geographicalLocation) {
                 $json['geographicalLocation'][] = $geographicalLocation;
             }
         }
-        if (isset($this->developmentStage)) $json['developmentStage'] = $this->developmentStage;
+        if (isset($this->developmentStage)) {
+            $json['developmentStage'] = $this->developmentStage;
+        }
         if (0 < count($this->fractionDescription)) {
             $json['fractionDescription'] = [];
-            foreach($this->fractionDescription as $fractionDescription) {
+            foreach ($this->fractionDescription as $fractionDescription) {
                 $json['fractionDescription'][] = $fractionDescription;
             }
         }
-        if (isset($this->organism)) $json['organism'] = $this->organism;
+        if (isset($this->organism)) {
+            $json['organism'] = $this->organism;
+        }
         if (0 < count($this->partDescription)) {
             $json['partDescription'] = [];
-            foreach($this->partDescription as $partDescription) {
+            foreach ($this->partDescription as $partDescription) {
                 $json['partDescription'][] = $partDescription;
             }
         }
@@ -542,49 +586,66 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSourceMaterial xmlns="http://hl7.org/fhir"></SubstanceSourceMaterial>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSourceMaterial xmlns="http://hl7.org/fhir"></SubstanceSourceMaterial>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sourceMaterialClass)) $this->sourceMaterialClass->xmlSerialize(true, $sxe->addChild('sourceMaterialClass'));
-        if (isset($this->sourceMaterialType)) $this->sourceMaterialType->xmlSerialize(true, $sxe->addChild('sourceMaterialType'));
-        if (isset($this->sourceMaterialState)) $this->sourceMaterialState->xmlSerialize(true, $sxe->addChild('sourceMaterialState'));
-        if (isset($this->organismId)) $this->organismId->xmlSerialize(true, $sxe->addChild('organismId'));
-        if (isset($this->organismName)) $this->organismName->xmlSerialize(true, $sxe->addChild('organismName'));
+        if (isset($this->sourceMaterialClass)) {
+            $this->sourceMaterialClass->xmlSerialize(true, $sxe->addChild('sourceMaterialClass'));
+        }
+        if (isset($this->sourceMaterialType)) {
+            $this->sourceMaterialType->xmlSerialize(true, $sxe->addChild('sourceMaterialType'));
+        }
+        if (isset($this->sourceMaterialState)) {
+            $this->sourceMaterialState->xmlSerialize(true, $sxe->addChild('sourceMaterialState'));
+        }
+        if (isset($this->organismId)) {
+            $this->organismId->xmlSerialize(true, $sxe->addChild('organismId'));
+        }
+        if (isset($this->organismName)) {
+            $this->organismName->xmlSerialize(true, $sxe->addChild('organismName'));
+        }
         if (0 < count($this->parentSubstanceId)) {
-            foreach($this->parentSubstanceId as $parentSubstanceId) {
+            foreach ($this->parentSubstanceId as $parentSubstanceId) {
                 $parentSubstanceId->xmlSerialize(true, $sxe->addChild('parentSubstanceId'));
             }
         }
         if (0 < count($this->parentSubstanceName)) {
-            foreach($this->parentSubstanceName as $parentSubstanceName) {
+            foreach ($this->parentSubstanceName as $parentSubstanceName) {
                 $parentSubstanceName->xmlSerialize(true, $sxe->addChild('parentSubstanceName'));
             }
         }
         if (0 < count($this->countryOfOrigin)) {
-            foreach($this->countryOfOrigin as $countryOfOrigin) {
+            foreach ($this->countryOfOrigin as $countryOfOrigin) {
                 $countryOfOrigin->xmlSerialize(true, $sxe->addChild('countryOfOrigin'));
             }
         }
         if (0 < count($this->geographicalLocation)) {
-            foreach($this->geographicalLocation as $geographicalLocation) {
+            foreach ($this->geographicalLocation as $geographicalLocation) {
                 $geographicalLocation->xmlSerialize(true, $sxe->addChild('geographicalLocation'));
             }
         }
-        if (isset($this->developmentStage)) $this->developmentStage->xmlSerialize(true, $sxe->addChild('developmentStage'));
+        if (isset($this->developmentStage)) {
+            $this->developmentStage->xmlSerialize(true, $sxe->addChild('developmentStage'));
+        }
         if (0 < count($this->fractionDescription)) {
-            foreach($this->fractionDescription as $fractionDescription) {
+            foreach ($this->fractionDescription as $fractionDescription) {
                 $fractionDescription->xmlSerialize(true, $sxe->addChild('fractionDescription'));
             }
         }
-        if (isset($this->organism)) $this->organism->xmlSerialize(true, $sxe->addChild('organism'));
+        if (isset($this->organism)) {
+            $this->organism->xmlSerialize(true, $sxe->addChild('organism'));
+        }
         if (0 < count($this->partDescription)) {
-            foreach($this->partDescription as $partDescription) {
+            foreach ($this->partDescription as $partDescription) {
                 $partDescription->xmlSerialize(true, $sxe->addChild('partDescription'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

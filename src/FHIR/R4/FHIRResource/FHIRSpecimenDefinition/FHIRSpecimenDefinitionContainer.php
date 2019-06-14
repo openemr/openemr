@@ -128,7 +128,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * The type of material of the container.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMaterial() {
+    public function getMaterial()
+    {
         return $this->material;
     }
 
@@ -137,7 +138,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $material
      * @return $this
      */
-    public function setMaterial($material) {
+    public function setMaterial($material)
+    {
         $this->material = $material;
         return $this;
     }
@@ -146,7 +148,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * The type of container used to contain this kind of specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -155,7 +158,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -164,7 +168,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * Color of container cap.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCap() {
+    public function getCap()
+    {
         return $this->cap;
     }
 
@@ -173,7 +178,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $cap
      * @return $this
      */
-    public function setCap($cap) {
+    public function setCap($cap)
+    {
         $this->cap = $cap;
         return $this;
     }
@@ -182,7 +188,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * The textual description of the kind of container.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -191,7 +198,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -200,7 +208,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * The capacity (volume or other measure) of this kind of container.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getCapacity() {
+    public function getCapacity()
+    {
         return $this->capacity;
     }
 
@@ -209,7 +218,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $capacity
      * @return $this
      */
-    public function setCapacity($capacity) {
+    public function setCapacity($capacity)
+    {
         $this->capacity = $capacity;
         return $this;
     }
@@ -217,7 +227,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getMinimumVolumeQuantity() {
+    public function getMinimumVolumeQuantity()
+    {
         return $this->minimumVolumeQuantity;
     }
 
@@ -225,7 +236,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $minimumVolumeQuantity
      * @return $this
      */
-    public function setMinimumVolumeQuantity($minimumVolumeQuantity) {
+    public function setMinimumVolumeQuantity($minimumVolumeQuantity)
+    {
         $this->minimumVolumeQuantity = $minimumVolumeQuantity;
         return $this;
     }
@@ -233,7 +245,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMinimumVolumeString() {
+    public function getMinimumVolumeString()
+    {
         return $this->minimumVolumeString;
     }
 
@@ -241,7 +254,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $minimumVolumeString
      * @return $this
      */
-    public function setMinimumVolumeString($minimumVolumeString) {
+    public function setMinimumVolumeString($minimumVolumeString)
+    {
         $this->minimumVolumeString = $minimumVolumeString;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * Substance introduced in the kind of container to preserve, maintain or enhance the specimen. Examples: Formalin, Citrate, EDTA.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimenDefinition\FHIRSpecimenDefinitionAdditive[]
      */
-    public function getAdditive() {
+    public function getAdditive()
+    {
         return $this->additive;
     }
 
@@ -259,7 +274,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimenDefinition\FHIRSpecimenDefinitionAdditive $additive
      * @return $this
      */
-    public function addAdditive($additive) {
+    public function addAdditive($additive)
+    {
         $this->additive[] = $additive;
         return $this;
     }
@@ -268,7 +284,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * Special processing that should be applied to the container for this kind of specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPreparation() {
+    public function getPreparation()
+    {
         return $this->preparation;
     }
 
@@ -277,7 +294,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $preparation
      * @return $this
      */
-    public function setPreparation($preparation) {
+    public function setPreparation($preparation)
+    {
         $this->preparation = $preparation;
         return $this;
     }
@@ -285,14 +303,16 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['material'])) {
                 $this->setMaterial($data['material']);
@@ -317,7 +337,7 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
             }
             if (isset($data['additive'])) {
                 if (is_array($data['additive'])) {
-                    foreach($data['additive'] as $d) {
+                    foreach ($data['additive'] as $d) {
                         $this->addAdditive($d);
                     }
                 } else {
@@ -336,29 +356,47 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->material)) $json['material'] = $this->material;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->cap)) $json['cap'] = $this->cap;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->capacity)) $json['capacity'] = $this->capacity;
-        if (isset($this->minimumVolumeQuantity)) $json['minimumVolumeQuantity'] = $this->minimumVolumeQuantity;
-        if (isset($this->minimumVolumeString)) $json['minimumVolumeString'] = $this->minimumVolumeString;
+        if (isset($this->material)) {
+            $json['material'] = $this->material;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->cap)) {
+            $json['cap'] = $this->cap;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->capacity)) {
+            $json['capacity'] = $this->capacity;
+        }
+        if (isset($this->minimumVolumeQuantity)) {
+            $json['minimumVolumeQuantity'] = $this->minimumVolumeQuantity;
+        }
+        if (isset($this->minimumVolumeString)) {
+            $json['minimumVolumeString'] = $this->minimumVolumeString;
+        }
         if (0 < count($this->additive)) {
             $json['additive'] = [];
-            foreach($this->additive as $additive) {
+            foreach ($this->additive as $additive) {
                 $json['additive'][] = $additive;
             }
         }
-        if (isset($this->preparation)) $json['preparation'] = $this->preparation;
+        if (isset($this->preparation)) {
+            $json['preparation'] = $this->preparation;
+        }
         return $json;
     }
 
@@ -367,25 +405,44 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SpecimenDefinitionContainer xmlns="http://hl7.org/fhir"></SpecimenDefinitionContainer>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SpecimenDefinitionContainer xmlns="http://hl7.org/fhir"></SpecimenDefinitionContainer>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->material)) $this->material->xmlSerialize(true, $sxe->addChild('material'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->cap)) $this->cap->xmlSerialize(true, $sxe->addChild('cap'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->capacity)) $this->capacity->xmlSerialize(true, $sxe->addChild('capacity'));
-        if (isset($this->minimumVolumeQuantity)) $this->minimumVolumeQuantity->xmlSerialize(true, $sxe->addChild('minimumVolumeQuantity'));
-        if (isset($this->minimumVolumeString)) $this->minimumVolumeString->xmlSerialize(true, $sxe->addChild('minimumVolumeString'));
+        if (isset($this->material)) {
+            $this->material->xmlSerialize(true, $sxe->addChild('material'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->cap)) {
+            $this->cap->xmlSerialize(true, $sxe->addChild('cap'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->capacity)) {
+            $this->capacity->xmlSerialize(true, $sxe->addChild('capacity'));
+        }
+        if (isset($this->minimumVolumeQuantity)) {
+            $this->minimumVolumeQuantity->xmlSerialize(true, $sxe->addChild('minimumVolumeQuantity'));
+        }
+        if (isset($this->minimumVolumeString)) {
+            $this->minimumVolumeString->xmlSerialize(true, $sxe->addChild('minimumVolumeString'));
+        }
         if (0 < count($this->additive)) {
-            foreach($this->additive as $additive) {
+            foreach ($this->additive as $additive) {
                 $additive->xmlSerialize(true, $sxe->addChild('additive'));
             }
         }
-        if (isset($this->preparation)) $this->preparation->xmlSerialize(true, $sxe->addChild('preparation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->preparation)) {
+            $this->preparation->xmlSerialize(true, $sxe->addChild('preparation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

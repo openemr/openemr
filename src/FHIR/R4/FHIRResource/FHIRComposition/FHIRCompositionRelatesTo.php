@@ -92,7 +92,8 @@ class FHIRCompositionRelatesTo extends FHIRBackboneElement implements \JsonSeria
      * The type of relationship that this composition has with anther composition or document.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDocumentRelationshipType
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -101,7 +102,8 @@ class FHIRCompositionRelatesTo extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDocumentRelationshipType $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -109,7 +111,8 @@ class FHIRCompositionRelatesTo extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getTargetIdentifier() {
+    public function getTargetIdentifier()
+    {
         return $this->targetIdentifier;
     }
 
@@ -117,7 +120,8 @@ class FHIRCompositionRelatesTo extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $targetIdentifier
      * @return $this
      */
-    public function setTargetIdentifier($targetIdentifier) {
+    public function setTargetIdentifier($targetIdentifier)
+    {
         $this->targetIdentifier = $targetIdentifier;
         return $this;
     }
@@ -125,7 +129,8 @@ class FHIRCompositionRelatesTo extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getTargetReference() {
+    public function getTargetReference()
+    {
         return $this->targetReference;
     }
 
@@ -133,7 +138,8 @@ class FHIRCompositionRelatesTo extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $targetReference
      * @return $this
      */
-    public function setTargetReference($targetReference) {
+    public function setTargetReference($targetReference)
+    {
         $this->targetReference = $targetReference;
         return $this;
     }
@@ -141,14 +147,16 @@ class FHIRCompositionRelatesTo extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -168,18 +176,26 @@ class FHIRCompositionRelatesTo extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->targetIdentifier)) $json['targetIdentifier'] = $this->targetIdentifier;
-        if (isset($this->targetReference)) $json['targetReference'] = $this->targetReference;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->targetIdentifier)) {
+            $json['targetIdentifier'] = $this->targetIdentifier;
+        }
+        if (isset($this->targetReference)) {
+            $json['targetReference'] = $this->targetReference;
+        }
         return $json;
     }
 
@@ -188,15 +204,24 @@ class FHIRCompositionRelatesTo extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CompositionRelatesTo xmlns="http://hl7.org/fhir"></CompositionRelatesTo>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CompositionRelatesTo xmlns="http://hl7.org/fhir"></CompositionRelatesTo>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->targetIdentifier)) $this->targetIdentifier->xmlSerialize(true, $sxe->addChild('targetIdentifier'));
-        if (isset($this->targetReference)) $this->targetReference->xmlSerialize(true, $sxe->addChild('targetReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->targetIdentifier)) {
+            $this->targetIdentifier->xmlSerialize(true, $sxe->addChild('targetIdentifier'));
+        }
+        if (isset($this->targetReference)) {
+            $this->targetReference->xmlSerialize(true, $sxe->addChild('targetReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

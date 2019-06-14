@@ -161,7 +161,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * Business Identifiers that are specific to a role/location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -170,7 +171,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -179,7 +181,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * Whether this practitioner role record is in active use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getActive() {
+    public function getActive()
+    {
         return $this->active;
     }
 
@@ -188,7 +191,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $active
      * @return $this
      */
-    public function setActive($active) {
+    public function setActive($active)
+    {
         $this->active = $active;
         return $this;
     }
@@ -197,7 +201,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * The period during which the person is authorized to act as a practitioner in these role(s) for the organization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -206,7 +211,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -215,7 +221,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * Practitioner that is able to provide the defined services for the organization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPractitioner() {
+    public function getPractitioner()
+    {
         return $this->practitioner;
     }
 
@@ -224,7 +231,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $practitioner
      * @return $this
      */
-    public function setPractitioner($practitioner) {
+    public function setPractitioner($practitioner)
+    {
         $this->practitioner = $practitioner;
         return $this;
     }
@@ -233,7 +241,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * The organization where the Practitioner performs the roles associated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOrganization() {
+    public function getOrganization()
+    {
         return $this->organization;
     }
 
@@ -242,7 +251,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $organization
      * @return $this
      */
-    public function setOrganization($organization) {
+    public function setOrganization($organization)
+    {
         $this->organization = $organization;
         return $this;
     }
@@ -251,7 +261,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * Roles which this practitioner is authorized to perform for the organization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -260,7 +271,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -269,7 +281,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * Specific specialty of the practitioner.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getSpecialty() {
+    public function getSpecialty()
+    {
         return $this->specialty;
     }
 
@@ -278,7 +291,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $specialty
      * @return $this
      */
-    public function addSpecialty($specialty) {
+    public function addSpecialty($specialty)
+    {
         $this->specialty[] = $specialty;
         return $this;
     }
@@ -287,7 +301,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * The location(s) at which this practitioner provides care.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
@@ -296,7 +311,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $location
      * @return $this
      */
-    public function addLocation($location) {
+    public function addLocation($location)
+    {
         $this->location[] = $location;
         return $this;
     }
@@ -305,7 +321,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * The list of healthcare services that this worker provides for this role's Organization/Location(s).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getHealthcareService() {
+    public function getHealthcareService()
+    {
         return $this->healthcareService;
     }
 
@@ -314,7 +331,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $healthcareService
      * @return $this
      */
-    public function addHealthcareService($healthcareService) {
+    public function addHealthcareService($healthcareService)
+    {
         $this->healthcareService[] = $healthcareService;
         return $this;
     }
@@ -323,7 +341,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * Contact details that are specific to the role/location/service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint[]
      */
-    public function getTelecom() {
+    public function getTelecom()
+    {
         return $this->telecom;
     }
 
@@ -332,7 +351,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $telecom
      * @return $this
      */
-    public function addTelecom($telecom) {
+    public function addTelecom($telecom)
+    {
         $this->telecom[] = $telecom;
         return $this;
     }
@@ -341,7 +361,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * A collection of times the practitioner is available or performing this role at the location and/or healthcareservice.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPractitionerRole\FHIRPractitionerRoleAvailableTime[]
      */
-    public function getAvailableTime() {
+    public function getAvailableTime()
+    {
         return $this->availableTime;
     }
 
@@ -350,7 +371,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPractitionerRole\FHIRPractitionerRoleAvailableTime $availableTime
      * @return $this
      */
-    public function addAvailableTime($availableTime) {
+    public function addAvailableTime($availableTime)
+    {
         $this->availableTime[] = $availableTime;
         return $this;
     }
@@ -359,7 +381,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * The practitioner is not available or performing this role during this period of time due to the provided reason.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPractitionerRole\FHIRPractitionerRoleNotAvailable[]
      */
-    public function getNotAvailable() {
+    public function getNotAvailable()
+    {
         return $this->notAvailable;
     }
 
@@ -368,7 +391,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPractitionerRole\FHIRPractitionerRoleNotAvailable $notAvailable
      * @return $this
      */
-    public function addNotAvailable($notAvailable) {
+    public function addNotAvailable($notAvailable)
+    {
         $this->notAvailable[] = $notAvailable;
         return $this;
     }
@@ -377,7 +401,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * A description of site availability exceptions, e.g. public holiday availability. Succinctly describing all possible exceptions to normal site availability as details in the available Times and not available Times.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAvailabilityExceptions() {
+    public function getAvailabilityExceptions()
+    {
         return $this->availabilityExceptions;
     }
 
@@ -386,7 +411,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $availabilityExceptions
      * @return $this
      */
-    public function setAvailabilityExceptions($availabilityExceptions) {
+    public function setAvailabilityExceptions($availabilityExceptions)
+    {
         $this->availabilityExceptions = $availabilityExceptions;
         return $this;
     }
@@ -395,7 +421,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * Technical endpoints providing access to services operated for the practitioner with this role.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getEndpoint() {
+    public function getEndpoint()
+    {
         return $this->endpoint;
     }
 
@@ -404,7 +431,8 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $endpoint
      * @return $this
      */
-    public function addEndpoint($endpoint) {
+    public function addEndpoint($endpoint)
+    {
         $this->endpoint[] = $endpoint;
         return $this;
     }
@@ -412,18 +440,20 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -444,7 +474,7 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -453,7 +483,7 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['specialty'])) {
                 if (is_array($data['specialty'])) {
-                    foreach($data['specialty'] as $d) {
+                    foreach ($data['specialty'] as $d) {
                         $this->addSpecialty($d);
                     }
                 } else {
@@ -462,7 +492,7 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['location'])) {
                 if (is_array($data['location'])) {
-                    foreach($data['location'] as $d) {
+                    foreach ($data['location'] as $d) {
                         $this->addLocation($d);
                     }
                 } else {
@@ -471,7 +501,7 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['healthcareService'])) {
                 if (is_array($data['healthcareService'])) {
-                    foreach($data['healthcareService'] as $d) {
+                    foreach ($data['healthcareService'] as $d) {
                         $this->addHealthcareService($d);
                     }
                 } else {
@@ -480,7 +510,7 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['telecom'])) {
                 if (is_array($data['telecom'])) {
-                    foreach($data['telecom'] as $d) {
+                    foreach ($data['telecom'] as $d) {
                         $this->addTelecom($d);
                     }
                 } else {
@@ -489,7 +519,7 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['availableTime'])) {
                 if (is_array($data['availableTime'])) {
-                    foreach($data['availableTime'] as $d) {
+                    foreach ($data['availableTime'] as $d) {
                         $this->addAvailableTime($d);
                     }
                 } else {
@@ -498,7 +528,7 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['notAvailable'])) {
                 if (is_array($data['notAvailable'])) {
-                    foreach($data['notAvailable'] as $d) {
+                    foreach ($data['notAvailable'] as $d) {
                         $this->addNotAvailable($d);
                     }
                 } else {
@@ -510,7 +540,7 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['endpoint'])) {
                 if (is_array($data['endpoint'])) {
-                    foreach($data['endpoint'] as $d) {
+                    foreach ($data['endpoint'] as $d) {
                         $this->addEndpoint($d);
                     }
                 } else {
@@ -526,72 +556,84 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->active)) $json['active'] = $this->active;
-        if (isset($this->period)) $json['period'] = $this->period;
-        if (isset($this->practitioner)) $json['practitioner'] = $this->practitioner;
-        if (isset($this->organization)) $json['organization'] = $this->organization;
+        if (isset($this->active)) {
+            $json['active'] = $this->active;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
+        if (isset($this->practitioner)) {
+            $json['practitioner'] = $this->practitioner;
+        }
+        if (isset($this->organization)) {
+            $json['organization'] = $this->organization;
+        }
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
         if (0 < count($this->specialty)) {
             $json['specialty'] = [];
-            foreach($this->specialty as $specialty) {
+            foreach ($this->specialty as $specialty) {
                 $json['specialty'][] = $specialty;
             }
         }
         if (0 < count($this->location)) {
             $json['location'] = [];
-            foreach($this->location as $location) {
+            foreach ($this->location as $location) {
                 $json['location'][] = $location;
             }
         }
         if (0 < count($this->healthcareService)) {
             $json['healthcareService'] = [];
-            foreach($this->healthcareService as $healthcareService) {
+            foreach ($this->healthcareService as $healthcareService) {
                 $json['healthcareService'][] = $healthcareService;
             }
         }
         if (0 < count($this->telecom)) {
             $json['telecom'] = [];
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $json['telecom'][] = $telecom;
             }
         }
         if (0 < count($this->availableTime)) {
             $json['availableTime'] = [];
-            foreach($this->availableTime as $availableTime) {
+            foreach ($this->availableTime as $availableTime) {
                 $json['availableTime'][] = $availableTime;
             }
         }
         if (0 < count($this->notAvailable)) {
             $json['notAvailable'] = [];
-            foreach($this->notAvailable as $notAvailable) {
+            foreach ($this->notAvailable as $notAvailable) {
                 $json['notAvailable'][] = $notAvailable;
             }
         }
-        if (isset($this->availabilityExceptions)) $json['availabilityExceptions'] = $this->availabilityExceptions;
+        if (isset($this->availabilityExceptions)) {
+            $json['availabilityExceptions'] = $this->availabilityExceptions;
+        }
         if (0 < count($this->endpoint)) {
             $json['endpoint'] = [];
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $json['endpoint'][] = $endpoint;
             }
         }
@@ -603,62 +645,75 @@ class FHIRPractitionerRole extends FHIRDomainResource implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PractitionerRole xmlns="http://hl7.org/fhir"></PractitionerRole>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PractitionerRole xmlns="http://hl7.org/fhir"></PractitionerRole>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->active)) $this->active->xmlSerialize(true, $sxe->addChild('active'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if (isset($this->practitioner)) $this->practitioner->xmlSerialize(true, $sxe->addChild('practitioner'));
-        if (isset($this->organization)) $this->organization->xmlSerialize(true, $sxe->addChild('organization'));
+        if (isset($this->active)) {
+            $this->active->xmlSerialize(true, $sxe->addChild('active'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if (isset($this->practitioner)) {
+            $this->practitioner->xmlSerialize(true, $sxe->addChild('practitioner'));
+        }
+        if (isset($this->organization)) {
+            $this->organization->xmlSerialize(true, $sxe->addChild('organization'));
+        }
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
         if (0 < count($this->specialty)) {
-            foreach($this->specialty as $specialty) {
+            foreach ($this->specialty as $specialty) {
                 $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
             }
         }
         if (0 < count($this->location)) {
-            foreach($this->location as $location) {
+            foreach ($this->location as $location) {
                 $location->xmlSerialize(true, $sxe->addChild('location'));
             }
         }
         if (0 < count($this->healthcareService)) {
-            foreach($this->healthcareService as $healthcareService) {
+            foreach ($this->healthcareService as $healthcareService) {
                 $healthcareService->xmlSerialize(true, $sxe->addChild('healthcareService'));
             }
         }
         if (0 < count($this->telecom)) {
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
             }
         }
         if (0 < count($this->availableTime)) {
-            foreach($this->availableTime as $availableTime) {
+            foreach ($this->availableTime as $availableTime) {
                 $availableTime->xmlSerialize(true, $sxe->addChild('availableTime'));
             }
         }
         if (0 < count($this->notAvailable)) {
-            foreach($this->notAvailable as $notAvailable) {
+            foreach ($this->notAvailable as $notAvailable) {
                 $notAvailable->xmlSerialize(true, $sxe->addChild('notAvailable'));
             }
         }
-        if (isset($this->availabilityExceptions)) $this->availabilityExceptions->xmlSerialize(true, $sxe->addChild('availabilityExceptions'));
+        if (isset($this->availabilityExceptions)) {
+            $this->availabilityExceptions->xmlSerialize(true, $sxe->addChild('availabilityExceptions'));
+        }
         if (0 < count($this->endpoint)) {
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

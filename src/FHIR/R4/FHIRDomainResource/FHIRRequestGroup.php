@@ -185,7 +185,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * Allows a service to provide a unique, business identifier for the request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -194,7 +195,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -203,7 +205,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * A canonical URL referencing a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical[]
      */
-    public function getInstantiatesCanonical() {
+    public function getInstantiatesCanonical()
+    {
         return $this->instantiatesCanonical;
     }
 
@@ -212,7 +215,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $instantiatesCanonical
      * @return $this
      */
-    public function addInstantiatesCanonical($instantiatesCanonical) {
+    public function addInstantiatesCanonical($instantiatesCanonical)
+    {
         $this->instantiatesCanonical[] = $instantiatesCanonical;
         return $this;
     }
@@ -221,7 +225,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * A URL referencing an externally defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getInstantiatesUri() {
+    public function getInstantiatesUri()
+    {
         return $this->instantiatesUri;
     }
 
@@ -230,7 +235,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $instantiatesUri
      * @return $this
      */
-    public function addInstantiatesUri($instantiatesUri) {
+    public function addInstantiatesUri($instantiatesUri)
+    {
         $this->instantiatesUri[] = $instantiatesUri;
         return $this;
     }
@@ -239,7 +245,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * A plan, proposal or order that is fulfilled in whole or in part by this request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getBasedOn() {
+    public function getBasedOn()
+    {
         return $this->basedOn;
     }
 
@@ -248,7 +255,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $basedOn
      * @return $this
      */
-    public function addBasedOn($basedOn) {
+    public function addBasedOn($basedOn)
+    {
         $this->basedOn[] = $basedOn;
         return $this;
     }
@@ -257,7 +265,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * Completed or terminated request(s) whose function is taken by this new request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReplaces() {
+    public function getReplaces()
+    {
         return $this->replaces;
     }
 
@@ -266,7 +275,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $replaces
      * @return $this
      */
-    public function addReplaces($replaces) {
+    public function addReplaces($replaces)
+    {
         $this->replaces[] = $replaces;
         return $this;
     }
@@ -275,7 +285,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * A shared identifier common to all requests that were authorized more or less simultaneously by a single author, representing the identifier of the requisition, prescription or similar form.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getGroupIdentifier() {
+    public function getGroupIdentifier()
+    {
         return $this->groupIdentifier;
     }
 
@@ -284,7 +295,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $groupIdentifier
      * @return $this
      */
-    public function setGroupIdentifier($groupIdentifier) {
+    public function setGroupIdentifier($groupIdentifier)
+    {
         $this->groupIdentifier = $groupIdentifier;
         return $this;
     }
@@ -293,7 +305,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * The current state of the request. For request groups, the status reflects the status of all the requests in the group.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -302,7 +315,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -311,7 +325,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * Indicates the level of authority/intentionality associated with the request and where the request fits into the workflow chain.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestIntent
      */
-    public function getIntent() {
+    public function getIntent()
+    {
         return $this->intent;
     }
 
@@ -320,7 +335,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestIntent $intent
      * @return $this
      */
-    public function setIntent($intent) {
+    public function setIntent($intent)
+    {
         $this->intent = $intent;
         return $this;
     }
@@ -329,7 +345,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * Indicates how quickly the request should be addressed with respect to other requests.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority
      */
-    public function getPriority() {
+    public function getPriority()
+    {
         return $this->priority;
     }
 
@@ -338,7 +355,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority $priority
      * @return $this
      */
-    public function setPriority($priority) {
+    public function setPriority($priority)
+    {
         $this->priority = $priority;
         return $this;
     }
@@ -347,7 +365,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * A code that identifies what the overall request group is.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -356,7 +375,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -365,7 +385,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * The subject for which the request group was created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -374,7 +395,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -383,7 +405,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * Describes the context of the request group, if any.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEncounter() {
+    public function getEncounter()
+    {
         return $this->encounter;
     }
 
@@ -392,7 +415,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $encounter
      * @return $this
      */
-    public function setEncounter($encounter) {
+    public function setEncounter($encounter)
+    {
         $this->encounter = $encounter;
         return $this;
     }
@@ -401,7 +425,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * Indicates when the request group was created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getAuthoredOn() {
+    public function getAuthoredOn()
+    {
         return $this->authoredOn;
     }
 
@@ -410,7 +435,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $authoredOn
      * @return $this
      */
-    public function setAuthoredOn($authoredOn) {
+    public function setAuthoredOn($authoredOn)
+    {
         $this->authoredOn = $authoredOn;
         return $this;
     }
@@ -419,7 +445,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * Provides a reference to the author of the request group.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
@@ -428,7 +455,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $author
      * @return $this
      */
-    public function setAuthor($author) {
+    public function setAuthor($author)
+    {
         $this->author = $author;
         return $this;
     }
@@ -437,7 +465,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * Describes the reason for the request group in coded or textual form.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getReasonCode() {
+    public function getReasonCode()
+    {
         return $this->reasonCode;
     }
 
@@ -446,7 +475,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reasonCode
      * @return $this
      */
-    public function addReasonCode($reasonCode) {
+    public function addReasonCode($reasonCode)
+    {
         $this->reasonCode[] = $reasonCode;
         return $this;
     }
@@ -455,7 +485,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * Indicates another resource whose existence justifies this request group.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReasonReference() {
+    public function getReasonReference()
+    {
         return $this->reasonReference;
     }
 
@@ -464,7 +495,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reasonReference
      * @return $this
      */
-    public function addReasonReference($reasonReference) {
+    public function addReasonReference($reasonReference)
+    {
         $this->reasonReference[] = $reasonReference;
         return $this;
     }
@@ -473,7 +505,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * Provides a mechanism to communicate additional information about the response.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -482,7 +515,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -491,7 +525,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * The actions, if any, produced by the evaluation of the artifact.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRRequestGroup\FHIRRequestGroupAction[]
      */
-    public function getAction() {
+    public function getAction()
+    {
         return $this->action;
     }
 
@@ -500,7 +535,8 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRRequestGroup\FHIRRequestGroupAction $action
      * @return $this
      */
-    public function addAction($action) {
+    public function addAction($action)
+    {
         $this->action[] = $action;
         return $this;
     }
@@ -508,18 +544,20 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -528,7 +566,7 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['instantiatesCanonical'])) {
                 if (is_array($data['instantiatesCanonical'])) {
-                    foreach($data['instantiatesCanonical'] as $d) {
+                    foreach ($data['instantiatesCanonical'] as $d) {
                         $this->addInstantiatesCanonical($d);
                     }
                 } else {
@@ -537,7 +575,7 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['instantiatesUri'])) {
                 if (is_array($data['instantiatesUri'])) {
-                    foreach($data['instantiatesUri'] as $d) {
+                    foreach ($data['instantiatesUri'] as $d) {
                         $this->addInstantiatesUri($d);
                     }
                 } else {
@@ -546,7 +584,7 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['basedOn'])) {
                 if (is_array($data['basedOn'])) {
-                    foreach($data['basedOn'] as $d) {
+                    foreach ($data['basedOn'] as $d) {
                         $this->addBasedOn($d);
                     }
                 } else {
@@ -555,7 +593,7 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['replaces'])) {
                 if (is_array($data['replaces'])) {
-                    foreach($data['replaces'] as $d) {
+                    foreach ($data['replaces'] as $d) {
                         $this->addReplaces($d);
                     }
                 } else {
@@ -591,7 +629,7 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['reasonCode'])) {
                 if (is_array($data['reasonCode'])) {
-                    foreach($data['reasonCode'] as $d) {
+                    foreach ($data['reasonCode'] as $d) {
                         $this->addReasonCode($d);
                     }
                 } else {
@@ -600,7 +638,7 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['reasonReference'])) {
                 if (is_array($data['reasonReference'])) {
-                    foreach($data['reasonReference'] as $d) {
+                    foreach ($data['reasonReference'] as $d) {
                         $this->addReasonReference($d);
                     }
                 } else {
@@ -609,7 +647,7 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -618,7 +656,7 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['action'])) {
                 if (is_array($data['action'])) {
-                    foreach($data['action'] as $d) {
+                    foreach ($data['action'] as $d) {
                         $this->addAction($d);
                     }
                 } else {
@@ -634,76 +672,96 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->instantiatesCanonical)) {
             $json['instantiatesCanonical'] = [];
-            foreach($this->instantiatesCanonical as $instantiatesCanonical) {
+            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
                 $json['instantiatesCanonical'][] = $instantiatesCanonical;
             }
         }
         if (0 < count($this->instantiatesUri)) {
             $json['instantiatesUri'] = [];
-            foreach($this->instantiatesUri as $instantiatesUri) {
+            foreach ($this->instantiatesUri as $instantiatesUri) {
                 $json['instantiatesUri'][] = $instantiatesUri;
             }
         }
         if (0 < count($this->basedOn)) {
             $json['basedOn'] = [];
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $json['basedOn'][] = $basedOn;
             }
         }
         if (0 < count($this->replaces)) {
             $json['replaces'] = [];
-            foreach($this->replaces as $replaces) {
+            foreach ($this->replaces as $replaces) {
                 $json['replaces'][] = $replaces;
             }
         }
-        if (isset($this->groupIdentifier)) $json['groupIdentifier'] = $this->groupIdentifier;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->intent)) $json['intent'] = $this->intent;
-        if (isset($this->priority)) $json['priority'] = $this->priority;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->subject)) $json['subject'] = $this->subject;
-        if (isset($this->encounter)) $json['encounter'] = $this->encounter;
-        if (isset($this->authoredOn)) $json['authoredOn'] = $this->authoredOn;
-        if (isset($this->author)) $json['author'] = $this->author;
+        if (isset($this->groupIdentifier)) {
+            $json['groupIdentifier'] = $this->groupIdentifier;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->intent)) {
+            $json['intent'] = $this->intent;
+        }
+        if (isset($this->priority)) {
+            $json['priority'] = $this->priority;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
+        if (isset($this->encounter)) {
+            $json['encounter'] = $this->encounter;
+        }
+        if (isset($this->authoredOn)) {
+            $json['authoredOn'] = $this->authoredOn;
+        }
+        if (isset($this->author)) {
+            $json['author'] = $this->author;
+        }
         if (0 < count($this->reasonCode)) {
             $json['reasonCode'] = [];
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $json['reasonCode'][] = $reasonCode;
             }
         }
         if (0 < count($this->reasonReference)) {
             $json['reasonReference'] = [];
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $json['reasonReference'][] = $reasonReference;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
         if (0 < count($this->action)) {
             $json['action'] = [];
-            foreach($this->action as $action) {
+            foreach ($this->action as $action) {
                 $json['action'][] = $action;
             }
         }
@@ -715,66 +773,87 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<RequestGroup xmlns="http://hl7.org/fhir"></RequestGroup>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<RequestGroup xmlns="http://hl7.org/fhir"></RequestGroup>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->instantiatesCanonical)) {
-            foreach($this->instantiatesCanonical as $instantiatesCanonical) {
+            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
                 $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
             }
         }
         if (0 < count($this->instantiatesUri)) {
-            foreach($this->instantiatesUri as $instantiatesUri) {
+            foreach ($this->instantiatesUri as $instantiatesUri) {
                 $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
             }
         }
         if (0 < count($this->basedOn)) {
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
             }
         }
         if (0 < count($this->replaces)) {
-            foreach($this->replaces as $replaces) {
+            foreach ($this->replaces as $replaces) {
                 $replaces->xmlSerialize(true, $sxe->addChild('replaces'));
             }
         }
-        if (isset($this->groupIdentifier)) $this->groupIdentifier->xmlSerialize(true, $sxe->addChild('groupIdentifier'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->intent)) $this->intent->xmlSerialize(true, $sxe->addChild('intent'));
-        if (isset($this->priority)) $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
-        if (isset($this->encounter)) $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
-        if (isset($this->authoredOn)) $this->authoredOn->xmlSerialize(true, $sxe->addChild('authoredOn'));
-        if (isset($this->author)) $this->author->xmlSerialize(true, $sxe->addChild('author'));
+        if (isset($this->groupIdentifier)) {
+            $this->groupIdentifier->xmlSerialize(true, $sxe->addChild('groupIdentifier'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->intent)) {
+            $this->intent->xmlSerialize(true, $sxe->addChild('intent'));
+        }
+        if (isset($this->priority)) {
+            $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
+        if (isset($this->encounter)) {
+            $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
+        }
+        if (isset($this->authoredOn)) {
+            $this->authoredOn->xmlSerialize(true, $sxe->addChild('authoredOn'));
+        }
+        if (isset($this->author)) {
+            $this->author->xmlSerialize(true, $sxe->addChild('author'));
+        }
         if (0 < count($this->reasonCode)) {
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
             }
         }
         if (0 < count($this->reasonReference)) {
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
         if (0 < count($this->action)) {
-            foreach($this->action as $action) {
+            foreach ($this->action as $action) {
                 $action->xmlSerialize(true, $sxe->addChild('action'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

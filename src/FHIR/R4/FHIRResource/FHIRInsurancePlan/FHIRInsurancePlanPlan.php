@@ -112,7 +112,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * Business identifiers assigned to this health insurance plan which remain constant as the resource is updated and propagates from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -121,7 +122,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * Type of plan. For example, "Platinum" or "High Deductable".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -139,7 +142,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * The geographic region in which a health insurance plan's benefits apply.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getCoverageArea() {
+    public function getCoverageArea()
+    {
         return $this->coverageArea;
     }
 
@@ -157,7 +162,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $coverageArea
      * @return $this
      */
-    public function addCoverageArea($coverageArea) {
+    public function addCoverageArea($coverageArea)
+    {
         $this->coverageArea[] = $coverageArea;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * Reference to the network that providing the type of coverage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getNetwork() {
+    public function getNetwork()
+    {
         return $this->network;
     }
 
@@ -175,7 +182,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $network
      * @return $this
      */
-    public function addNetwork($network) {
+    public function addNetwork($network)
+    {
         $this->network[] = $network;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * Overall costs associated with the plan.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanGeneralCost[]
      */
-    public function getGeneralCost() {
+    public function getGeneralCost()
+    {
         return $this->generalCost;
     }
 
@@ -193,7 +202,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanGeneralCost $generalCost
      * @return $this
      */
-    public function addGeneralCost($generalCost) {
+    public function addGeneralCost($generalCost)
+    {
         $this->generalCost[] = $generalCost;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * Costs associated with the coverage provided by the product.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanSpecificCost[]
      */
-    public function getSpecificCost() {
+    public function getSpecificCost()
+    {
         return $this->specificCost;
     }
 
@@ -211,7 +222,8 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanSpecificCost $specificCost
      * @return $this
      */
-    public function addSpecificCost($specificCost) {
+    public function addSpecificCost($specificCost)
+    {
         $this->specificCost[] = $specificCost;
         return $this;
     }
@@ -219,18 +231,20 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -242,7 +256,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['coverageArea'])) {
                 if (is_array($data['coverageArea'])) {
-                    foreach($data['coverageArea'] as $d) {
+                    foreach ($data['coverageArea'] as $d) {
                         $this->addCoverageArea($d);
                     }
                 } else {
@@ -251,7 +265,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['network'])) {
                 if (is_array($data['network'])) {
-                    foreach($data['network'] as $d) {
+                    foreach ($data['network'] as $d) {
                         $this->addNetwork($d);
                     }
                 } else {
@@ -260,7 +274,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['generalCost'])) {
                 if (is_array($data['generalCost'])) {
-                    foreach($data['generalCost'] as $d) {
+                    foreach ($data['generalCost'] as $d) {
                         $this->addGeneralCost($d);
                     }
                 } else {
@@ -269,7 +283,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['specificCost'])) {
                 if (is_array($data['specificCost'])) {
-                    foreach($data['specificCost'] as $d) {
+                    foreach ($data['specificCost'] as $d) {
                         $this->addSpecificCost($d);
                     }
                 } else {
@@ -285,43 +299,47 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->coverageArea)) {
             $json['coverageArea'] = [];
-            foreach($this->coverageArea as $coverageArea) {
+            foreach ($this->coverageArea as $coverageArea) {
                 $json['coverageArea'][] = $coverageArea;
             }
         }
         if (0 < count($this->network)) {
             $json['network'] = [];
-            foreach($this->network as $network) {
+            foreach ($this->network as $network) {
                 $json['network'][] = $network;
             }
         }
         if (0 < count($this->generalCost)) {
             $json['generalCost'] = [];
-            foreach($this->generalCost as $generalCost) {
+            foreach ($this->generalCost as $generalCost) {
                 $json['generalCost'][] = $generalCost;
             }
         }
         if (0 < count($this->specificCost)) {
             $json['specificCost'] = [];
-            foreach($this->specificCost as $specificCost) {
+            foreach ($this->specificCost as $specificCost) {
                 $json['specificCost'][] = $specificCost;
             }
         }
@@ -333,38 +351,43 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InsurancePlanPlan xmlns="http://hl7.org/fhir"></InsurancePlanPlan>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InsurancePlanPlan xmlns="http://hl7.org/fhir"></InsurancePlanPlan>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->coverageArea)) {
-            foreach($this->coverageArea as $coverageArea) {
+            foreach ($this->coverageArea as $coverageArea) {
                 $coverageArea->xmlSerialize(true, $sxe->addChild('coverageArea'));
             }
         }
         if (0 < count($this->network)) {
-            foreach($this->network as $network) {
+            foreach ($this->network as $network) {
                 $network->xmlSerialize(true, $sxe->addChild('network'));
             }
         }
         if (0 < count($this->generalCost)) {
-            foreach($this->generalCost as $generalCost) {
+            foreach ($this->generalCost as $generalCost) {
                 $generalCost->xmlSerialize(true, $sxe->addChild('generalCost'));
             }
         }
         if (0 < count($this->specificCost)) {
-            foreach($this->specificCost as $specificCost) {
+            foreach ($this->specificCost as $specificCost) {
                 $specificCost->xmlSerialize(true, $sxe->addChild('specificCost'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

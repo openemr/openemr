@@ -119,7 +119,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * The medication for which this is an indication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -128,7 +129,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function addSubject($subject) {
+    public function addSubject($subject)
+    {
         $this->subject[] = $subject;
         return $this;
     }
@@ -137,7 +139,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * The disease, symptom or procedure for the contraindication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDisease() {
+    public function getDisease()
+    {
         return $this->disease;
     }
 
@@ -146,7 +149,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $disease
      * @return $this
      */
-    public function setDisease($disease) {
+    public function setDisease($disease)
+    {
         $this->disease = $disease;
         return $this;
     }
@@ -155,7 +159,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * The status of the disease or symptom for the contraindication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDiseaseStatus() {
+    public function getDiseaseStatus()
+    {
         return $this->diseaseStatus;
     }
 
@@ -164,7 +169,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $diseaseStatus
      * @return $this
      */
-    public function setDiseaseStatus($diseaseStatus) {
+    public function setDiseaseStatus($diseaseStatus)
+    {
         $this->diseaseStatus = $diseaseStatus;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * A comorbidity (concurrent condition) or coinfection.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getComorbidity() {
+    public function getComorbidity()
+    {
         return $this->comorbidity;
     }
 
@@ -182,7 +189,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $comorbidity
      * @return $this
      */
-    public function addComorbidity($comorbidity) {
+    public function addComorbidity($comorbidity)
+    {
         $this->comorbidity[] = $comorbidity;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * Information about the use of the medicinal product in relation to other therapies as part of the indication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getTherapeuticIndication() {
+    public function getTherapeuticIndication()
+    {
         return $this->therapeuticIndication;
     }
 
@@ -200,7 +209,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $therapeuticIndication
      * @return $this
      */
-    public function addTherapeuticIndication($therapeuticIndication) {
+    public function addTherapeuticIndication($therapeuticIndication)
+    {
         $this->therapeuticIndication[] = $therapeuticIndication;
         return $this;
     }
@@ -209,7 +219,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * Information about the use of the medicinal product in relation to other therapies described as part of the indication.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductContraindication\FHIRMedicinalProductContraindicationOtherTherapy[]
      */
-    public function getOtherTherapy() {
+    public function getOtherTherapy()
+    {
         return $this->otherTherapy;
     }
 
@@ -218,7 +229,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductContraindication\FHIRMedicinalProductContraindicationOtherTherapy $otherTherapy
      * @return $this
      */
-    public function addOtherTherapy($otherTherapy) {
+    public function addOtherTherapy($otherTherapy)
+    {
         $this->otherTherapy[] = $otherTherapy;
         return $this;
     }
@@ -227,7 +239,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * The population group to which this applies.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPopulation[]
      */
-    public function getPopulation() {
+    public function getPopulation()
+    {
         return $this->population;
     }
 
@@ -236,7 +249,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPopulation $population
      * @return $this
      */
-    public function addPopulation($population) {
+    public function addPopulation($population)
+    {
         $this->population[] = $population;
         return $this;
     }
@@ -244,18 +258,20 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['subject'])) {
                 if (is_array($data['subject'])) {
-                    foreach($data['subject'] as $d) {
+                    foreach ($data['subject'] as $d) {
                         $this->addSubject($d);
                     }
                 } else {
@@ -270,7 +286,7 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
             }
             if (isset($data['comorbidity'])) {
                 if (is_array($data['comorbidity'])) {
-                    foreach($data['comorbidity'] as $d) {
+                    foreach ($data['comorbidity'] as $d) {
                         $this->addComorbidity($d);
                     }
                 } else {
@@ -279,7 +295,7 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
             }
             if (isset($data['therapeuticIndication'])) {
                 if (is_array($data['therapeuticIndication'])) {
-                    foreach($data['therapeuticIndication'] as $d) {
+                    foreach ($data['therapeuticIndication'] as $d) {
                         $this->addTherapeuticIndication($d);
                     }
                 } else {
@@ -288,7 +304,7 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
             }
             if (isset($data['otherTherapy'])) {
                 if (is_array($data['otherTherapy'])) {
-                    foreach($data['otherTherapy'] as $d) {
+                    foreach ($data['otherTherapy'] as $d) {
                         $this->addOtherTherapy($d);
                     }
                 } else {
@@ -297,7 +313,7 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
             }
             if (isset($data['population'])) {
                 if (is_array($data['population'])) {
-                    foreach($data['population'] as $d) {
+                    foreach ($data['population'] as $d) {
                         $this->addPopulation($d);
                     }
                 } else {
@@ -313,45 +329,51 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->subject)) {
             $json['subject'] = [];
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $json['subject'][] = $subject;
             }
         }
-        if (isset($this->disease)) $json['disease'] = $this->disease;
-        if (isset($this->diseaseStatus)) $json['diseaseStatus'] = $this->diseaseStatus;
+        if (isset($this->disease)) {
+            $json['disease'] = $this->disease;
+        }
+        if (isset($this->diseaseStatus)) {
+            $json['diseaseStatus'] = $this->diseaseStatus;
+        }
         if (0 < count($this->comorbidity)) {
             $json['comorbidity'] = [];
-            foreach($this->comorbidity as $comorbidity) {
+            foreach ($this->comorbidity as $comorbidity) {
                 $json['comorbidity'][] = $comorbidity;
             }
         }
         if (0 < count($this->therapeuticIndication)) {
             $json['therapeuticIndication'] = [];
-            foreach($this->therapeuticIndication as $therapeuticIndication) {
+            foreach ($this->therapeuticIndication as $therapeuticIndication) {
                 $json['therapeuticIndication'][] = $therapeuticIndication;
             }
         }
         if (0 < count($this->otherTherapy)) {
             $json['otherTherapy'] = [];
-            foreach($this->otherTherapy as $otherTherapy) {
+            foreach ($this->otherTherapy as $otherTherapy) {
                 $json['otherTherapy'][] = $otherTherapy;
             }
         }
         if (0 < count($this->population)) {
             $json['population'] = [];
-            foreach($this->population as $population) {
+            foreach ($this->population as $population) {
                 $json['population'][] = $population;
             }
         }
@@ -363,39 +385,46 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductContraindication xmlns="http://hl7.org/fhir"></MedicinalProductContraindication>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductContraindication xmlns="http://hl7.org/fhir"></MedicinalProductContraindication>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->subject)) {
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $subject->xmlSerialize(true, $sxe->addChild('subject'));
             }
         }
-        if (isset($this->disease)) $this->disease->xmlSerialize(true, $sxe->addChild('disease'));
-        if (isset($this->diseaseStatus)) $this->diseaseStatus->xmlSerialize(true, $sxe->addChild('diseaseStatus'));
+        if (isset($this->disease)) {
+            $this->disease->xmlSerialize(true, $sxe->addChild('disease'));
+        }
+        if (isset($this->diseaseStatus)) {
+            $this->diseaseStatus->xmlSerialize(true, $sxe->addChild('diseaseStatus'));
+        }
         if (0 < count($this->comorbidity)) {
-            foreach($this->comorbidity as $comorbidity) {
+            foreach ($this->comorbidity as $comorbidity) {
                 $comorbidity->xmlSerialize(true, $sxe->addChild('comorbidity'));
             }
         }
         if (0 < count($this->therapeuticIndication)) {
-            foreach($this->therapeuticIndication as $therapeuticIndication) {
+            foreach ($this->therapeuticIndication as $therapeuticIndication) {
                 $therapeuticIndication->xmlSerialize(true, $sxe->addChild('therapeuticIndication'));
             }
         }
         if (0 < count($this->otherTherapy)) {
-            foreach($this->otherTherapy as $otherTherapy) {
+            foreach ($this->otherTherapy as $otherTherapy) {
                 $otherTherapy->xmlSerialize(true, $sxe->addChild('otherTherapy'));
             }
         }
         if (0 < count($this->population)) {
-            foreach($this->population as $population) {
+            foreach ($this->population as $population) {
                 $population->xmlSerialize(true, $sxe->addChild('population'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

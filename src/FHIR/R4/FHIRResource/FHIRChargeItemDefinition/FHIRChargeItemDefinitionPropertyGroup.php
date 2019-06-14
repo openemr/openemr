@@ -88,7 +88,8 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
      * Expressions that describe applicability criteria for the priceComponent.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRChargeItemDefinition\FHIRChargeItemDefinitionApplicability[]
      */
-    public function getApplicability() {
+    public function getApplicability()
+    {
         return $this->applicability;
     }
 
@@ -97,7 +98,8 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRChargeItemDefinition\FHIRChargeItemDefinitionApplicability $applicability
      * @return $this
      */
-    public function addApplicability($applicability) {
+    public function addApplicability($applicability)
+    {
         $this->applicability[] = $applicability;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
      * The price for a ChargeItem may be calculated as a base price with surcharges/deductions that apply in certain conditions. A ChargeItemDefinition resource that defines the prices, factors and conditions that apply to a billing code is currently under development. The priceComponent element can be used to offer transparency to the recipient of the Invoice of how the prices have been calculated.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRChargeItemDefinition\FHIRChargeItemDefinitionPriceComponent[]
      */
-    public function getPriceComponent() {
+    public function getPriceComponent()
+    {
         return $this->priceComponent;
     }
 
@@ -115,7 +118,8 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRChargeItemDefinition\FHIRChargeItemDefinitionPriceComponent $priceComponent
      * @return $this
      */
-    public function addPriceComponent($priceComponent) {
+    public function addPriceComponent($priceComponent)
+    {
         $this->priceComponent[] = $priceComponent;
         return $this;
     }
@@ -123,18 +127,20 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['applicability'])) {
                 if (is_array($data['applicability'])) {
-                    foreach($data['applicability'] as $d) {
+                    foreach ($data['applicability'] as $d) {
                         $this->addApplicability($d);
                     }
                 } else {
@@ -143,7 +149,7 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
             }
             if (isset($data['priceComponent'])) {
                 if (is_array($data['priceComponent'])) {
-                    foreach($data['priceComponent'] as $d) {
+                    foreach ($data['priceComponent'] as $d) {
                         $this->addPriceComponent($d);
                     }
                 } else {
@@ -159,24 +165,26 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->applicability)) {
             $json['applicability'] = [];
-            foreach($this->applicability as $applicability) {
+            foreach ($this->applicability as $applicability) {
                 $json['applicability'][] = $applicability;
             }
         }
         if (0 < count($this->priceComponent)) {
             $json['priceComponent'] = [];
-            foreach($this->priceComponent as $priceComponent) {
+            foreach ($this->priceComponent as $priceComponent) {
                 $json['priceComponent'][] = $priceComponent;
             }
         }
@@ -188,22 +196,25 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ChargeItemDefinitionPropertyGroup xmlns="http://hl7.org/fhir"></ChargeItemDefinitionPropertyGroup>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ChargeItemDefinitionPropertyGroup xmlns="http://hl7.org/fhir"></ChargeItemDefinitionPropertyGroup>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->applicability)) {
-            foreach($this->applicability as $applicability) {
+            foreach ($this->applicability as $applicability) {
                 $applicability->xmlSerialize(true, $sxe->addChild('applicability'));
             }
         }
         if (0 < count($this->priceComponent)) {
-            foreach($this->priceComponent as $priceComponent) {
+            foreach ($this->priceComponent as $priceComponent) {
                 $priceComponent->xmlSerialize(true, $sxe->addChild('priceComponent'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

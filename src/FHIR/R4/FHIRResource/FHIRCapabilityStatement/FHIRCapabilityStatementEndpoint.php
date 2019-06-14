@@ -88,7 +88,8 @@ class FHIRCapabilityStatementEndpoint extends FHIRBackboneElement implements \Js
      * A list of the messaging transport protocol(s) identifiers, supported by this endpoint.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getProtocol() {
+    public function getProtocol()
+    {
         return $this->protocol;
     }
 
@@ -97,7 +98,8 @@ class FHIRCapabilityStatementEndpoint extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $protocol
      * @return $this
      */
-    public function setProtocol($protocol) {
+    public function setProtocol($protocol)
+    {
         $this->protocol = $protocol;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRCapabilityStatementEndpoint extends FHIRBackboneElement implements \Js
      * The network address of the endpoint. For solutions that do not use network addresses for routing, it can be just an identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getAddress() {
+    public function getAddress()
+    {
         return $this->address;
     }
 
@@ -115,7 +118,8 @@ class FHIRCapabilityStatementEndpoint extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $address
      * @return $this
      */
-    public function setAddress($address) {
+    public function setAddress($address)
+    {
         $this->address = $address;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRCapabilityStatementEndpoint extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['protocol'])) {
                 $this->setProtocol($data['protocol']);
@@ -147,17 +153,23 @@ class FHIRCapabilityStatementEndpoint extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->protocol)) $json['protocol'] = $this->protocol;
-        if (isset($this->address)) $json['address'] = $this->address;
+        if (isset($this->protocol)) {
+            $json['protocol'] = $this->protocol;
+        }
+        if (isset($this->address)) {
+            $json['address'] = $this->address;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRCapabilityStatementEndpoint extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CapabilityStatementEndpoint xmlns="http://hl7.org/fhir"></CapabilityStatementEndpoint>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CapabilityStatementEndpoint xmlns="http://hl7.org/fhir"></CapabilityStatementEndpoint>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->protocol)) $this->protocol->xmlSerialize(true, $sxe->addChild('protocol'));
-        if (isset($this->address)) $this->address->xmlSerialize(true, $sxe->addChild('address'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->protocol)) {
+            $this->protocol->xmlSerialize(true, $sxe->addChild('protocol'));
+        }
+        if (isset($this->address)) {
+            $this->address->xmlSerialize(true, $sxe->addChild('address'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

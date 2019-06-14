@@ -171,7 +171,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * A unique identifier assigned to this coverage eligiblity request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -180,7 +181,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -189,7 +191,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * The status of the resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -198,7 +201,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -207,7 +211,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * Code to specify whether requesting: prior authorization requirements for some service categories or billing codes; benefits for coverages specified or discovered; discovery and return of coverages for the patient; and/or validation that the specified coverage is in-force at the date/period specified or 'now' if not specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIREligibilityResponsePurpose[]
      */
-    public function getPurpose() {
+    public function getPurpose()
+    {
         return $this->purpose;
     }
 
@@ -216,7 +221,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIREligibilityResponsePurpose $purpose
      * @return $this
      */
-    public function addPurpose($purpose) {
+    public function addPurpose($purpose)
+    {
         $this->purpose[] = $purpose;
         return $this;
     }
@@ -225,7 +231,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * The party who is the beneficiary of the supplied coverage and for whom eligibility is sought.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -234,7 +241,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -242,7 +250,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getServicedDate() {
+    public function getServicedDate()
+    {
         return $this->servicedDate;
     }
 
@@ -250,7 +259,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $servicedDate
      * @return $this
      */
-    public function setServicedDate($servicedDate) {
+    public function setServicedDate($servicedDate)
+    {
         $this->servicedDate = $servicedDate;
         return $this;
     }
@@ -258,7 +268,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getServicedPeriod() {
+    public function getServicedPeriod()
+    {
         return $this->servicedPeriod;
     }
 
@@ -266,7 +277,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $servicedPeriod
      * @return $this
      */
-    public function setServicedPeriod($servicedPeriod) {
+    public function setServicedPeriod($servicedPeriod)
+    {
         $this->servicedPeriod = $servicedPeriod;
         return $this;
     }
@@ -275,7 +287,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * The date this resource was created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getCreated() {
+    public function getCreated()
+    {
         return $this->created;
     }
 
@@ -284,7 +297,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $created
      * @return $this
      */
-    public function setCreated($created) {
+    public function setCreated($created)
+    {
         $this->created = $created;
         return $this;
     }
@@ -293,7 +307,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * The provider which is responsible for the request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequestor() {
+    public function getRequestor()
+    {
         return $this->requestor;
     }
 
@@ -302,7 +317,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $requestor
      * @return $this
      */
-    public function setRequestor($requestor) {
+    public function setRequestor($requestor)
+    {
         $this->requestor = $requestor;
         return $this;
     }
@@ -311,7 +327,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * Reference to the original request resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequest() {
+    public function getRequest()
+    {
         return $this->request;
     }
 
@@ -320,7 +337,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $request
      * @return $this
      */
-    public function setRequest($request) {
+    public function setRequest($request)
+    {
         $this->request = $request;
         return $this;
     }
@@ -329,7 +347,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * The outcome of the request processing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRemittanceOutcome
      */
-    public function getOutcome() {
+    public function getOutcome()
+    {
         return $this->outcome;
     }
 
@@ -338,7 +357,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRemittanceOutcome $outcome
      * @return $this
      */
-    public function setOutcome($outcome) {
+    public function setOutcome($outcome)
+    {
         $this->outcome = $outcome;
         return $this;
     }
@@ -347,7 +367,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * A human readable description of the status of the adjudication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDisposition() {
+    public function getDisposition()
+    {
         return $this->disposition;
     }
 
@@ -356,7 +377,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $disposition
      * @return $this
      */
-    public function setDisposition($disposition) {
+    public function setDisposition($disposition)
+    {
         $this->disposition = $disposition;
         return $this;
     }
@@ -365,7 +387,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * The Insurer who issued the coverage in question and is the author of the response.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getInsurer() {
+    public function getInsurer()
+    {
         return $this->insurer;
     }
 
@@ -374,7 +397,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $insurer
      * @return $this
      */
-    public function setInsurer($insurer) {
+    public function setInsurer($insurer)
+    {
         $this->insurer = $insurer;
         return $this;
     }
@@ -383,7 +407,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * Financial instruments for reimbursement for the health care products and services.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityResponse\FHIRCoverageEligibilityResponseInsurance[]
      */
-    public function getInsurance() {
+    public function getInsurance()
+    {
         return $this->insurance;
     }
 
@@ -392,7 +417,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityResponse\FHIRCoverageEligibilityResponseInsurance $insurance
      * @return $this
      */
-    public function addInsurance($insurance) {
+    public function addInsurance($insurance)
+    {
         $this->insurance[] = $insurance;
         return $this;
     }
@@ -401,7 +427,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * A reference from the Insurer to which these services pertain to be used on further communication and as proof that the request occurred.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPreAuthRef() {
+    public function getPreAuthRef()
+    {
         return $this->preAuthRef;
     }
 
@@ -410,7 +437,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $preAuthRef
      * @return $this
      */
-    public function setPreAuthRef($preAuthRef) {
+    public function setPreAuthRef($preAuthRef)
+    {
         $this->preAuthRef = $preAuthRef;
         return $this;
     }
@@ -419,7 +447,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * A code for the form to be used for printing the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getForm() {
+    public function getForm()
+    {
         return $this->form;
     }
 
@@ -428,7 +457,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $form
      * @return $this
      */
-    public function setForm($form) {
+    public function setForm($form)
+    {
         $this->form = $form;
         return $this;
     }
@@ -437,7 +467,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * Errors encountered during the processing of the request.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityResponse\FHIRCoverageEligibilityResponseError[]
      */
-    public function getError() {
+    public function getError()
+    {
         return $this->error;
     }
 
@@ -446,7 +477,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityResponse\FHIRCoverageEligibilityResponseError $error
      * @return $this
      */
-    public function addError($error) {
+    public function addError($error)
+    {
         $this->error[] = $error;
         return $this;
     }
@@ -454,18 +486,20 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -477,7 +511,7 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
             }
             if (isset($data['purpose'])) {
                 if (is_array($data['purpose'])) {
-                    foreach($data['purpose'] as $d) {
+                    foreach ($data['purpose'] as $d) {
                         $this->addPurpose($d);
                     }
                 } else {
@@ -513,7 +547,7 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
             }
             if (isset($data['insurance'])) {
                 if (is_array($data['insurance'])) {
-                    foreach($data['insurance'] as $d) {
+                    foreach ($data['insurance'] as $d) {
                         $this->addInsurance($d);
                     }
                 } else {
@@ -528,7 +562,7 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
             }
             if (isset($data['error'])) {
                 if (is_array($data['error'])) {
-                    foreach($data['error'] as $d) {
+                    foreach ($data['error'] as $d) {
                         $this->addError($d);
                     }
                 } else {
@@ -544,49 +578,75 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
         if (0 < count($this->purpose)) {
             $json['purpose'] = [];
-            foreach($this->purpose as $purpose) {
+            foreach ($this->purpose as $purpose) {
                 $json['purpose'][] = $purpose;
             }
         }
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->servicedDate)) $json['servicedDate'] = $this->servicedDate;
-        if (isset($this->servicedPeriod)) $json['servicedPeriod'] = $this->servicedPeriod;
-        if (isset($this->created)) $json['created'] = $this->created;
-        if (isset($this->requestor)) $json['requestor'] = $this->requestor;
-        if (isset($this->request)) $json['request'] = $this->request;
-        if (isset($this->outcome)) $json['outcome'] = $this->outcome;
-        if (isset($this->disposition)) $json['disposition'] = $this->disposition;
-        if (isset($this->insurer)) $json['insurer'] = $this->insurer;
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->servicedDate)) {
+            $json['servicedDate'] = $this->servicedDate;
+        }
+        if (isset($this->servicedPeriod)) {
+            $json['servicedPeriod'] = $this->servicedPeriod;
+        }
+        if (isset($this->created)) {
+            $json['created'] = $this->created;
+        }
+        if (isset($this->requestor)) {
+            $json['requestor'] = $this->requestor;
+        }
+        if (isset($this->request)) {
+            $json['request'] = $this->request;
+        }
+        if (isset($this->outcome)) {
+            $json['outcome'] = $this->outcome;
+        }
+        if (isset($this->disposition)) {
+            $json['disposition'] = $this->disposition;
+        }
+        if (isset($this->insurer)) {
+            $json['insurer'] = $this->insurer;
+        }
         if (0 < count($this->insurance)) {
             $json['insurance'] = [];
-            foreach($this->insurance as $insurance) {
+            foreach ($this->insurance as $insurance) {
                 $json['insurance'][] = $insurance;
             }
         }
-        if (isset($this->preAuthRef)) $json['preAuthRef'] = $this->preAuthRef;
-        if (isset($this->form)) $json['form'] = $this->form;
+        if (isset($this->preAuthRef)) {
+            $json['preAuthRef'] = $this->preAuthRef;
+        }
+        if (isset($this->form)) {
+            $json['form'] = $this->form;
+        }
         if (0 < count($this->error)) {
             $json['error'] = [];
-            foreach($this->error as $error) {
+            foreach ($this->error as $error) {
                 $json['error'][] = $error;
             }
         }
@@ -598,44 +658,71 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CoverageEligibilityResponse xmlns="http://hl7.org/fhir"></CoverageEligibilityResponse>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CoverageEligibilityResponse xmlns="http://hl7.org/fhir"></CoverageEligibilityResponse>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
         if (0 < count($this->purpose)) {
-            foreach($this->purpose as $purpose) {
+            foreach ($this->purpose as $purpose) {
                 $purpose->xmlSerialize(true, $sxe->addChild('purpose'));
             }
         }
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->servicedDate)) $this->servicedDate->xmlSerialize(true, $sxe->addChild('servicedDate'));
-        if (isset($this->servicedPeriod)) $this->servicedPeriod->xmlSerialize(true, $sxe->addChild('servicedPeriod'));
-        if (isset($this->created)) $this->created->xmlSerialize(true, $sxe->addChild('created'));
-        if (isset($this->requestor)) $this->requestor->xmlSerialize(true, $sxe->addChild('requestor'));
-        if (isset($this->request)) $this->request->xmlSerialize(true, $sxe->addChild('request'));
-        if (isset($this->outcome)) $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
-        if (isset($this->disposition)) $this->disposition->xmlSerialize(true, $sxe->addChild('disposition'));
-        if (isset($this->insurer)) $this->insurer->xmlSerialize(true, $sxe->addChild('insurer'));
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->servicedDate)) {
+            $this->servicedDate->xmlSerialize(true, $sxe->addChild('servicedDate'));
+        }
+        if (isset($this->servicedPeriod)) {
+            $this->servicedPeriod->xmlSerialize(true, $sxe->addChild('servicedPeriod'));
+        }
+        if (isset($this->created)) {
+            $this->created->xmlSerialize(true, $sxe->addChild('created'));
+        }
+        if (isset($this->requestor)) {
+            $this->requestor->xmlSerialize(true, $sxe->addChild('requestor'));
+        }
+        if (isset($this->request)) {
+            $this->request->xmlSerialize(true, $sxe->addChild('request'));
+        }
+        if (isset($this->outcome)) {
+            $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
+        }
+        if (isset($this->disposition)) {
+            $this->disposition->xmlSerialize(true, $sxe->addChild('disposition'));
+        }
+        if (isset($this->insurer)) {
+            $this->insurer->xmlSerialize(true, $sxe->addChild('insurer'));
+        }
         if (0 < count($this->insurance)) {
-            foreach($this->insurance as $insurance) {
+            foreach ($this->insurance as $insurance) {
                 $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
             }
         }
-        if (isset($this->preAuthRef)) $this->preAuthRef->xmlSerialize(true, $sxe->addChild('preAuthRef'));
-        if (isset($this->form)) $this->form->xmlSerialize(true, $sxe->addChild('form'));
+        if (isset($this->preAuthRef)) {
+            $this->preAuthRef->xmlSerialize(true, $sxe->addChild('preAuthRef'));
+        }
+        if (isset($this->form)) {
+            $this->form->xmlSerialize(true, $sxe->addChild('form'));
+        }
         if (0 < count($this->error)) {
-            foreach($this->error as $error) {
+            foreach ($this->error as $error) {
                 $error->xmlSerialize(true, $sxe->addChild('error'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

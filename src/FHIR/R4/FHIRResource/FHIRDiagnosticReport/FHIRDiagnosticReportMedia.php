@@ -88,7 +88,8 @@ class FHIRDiagnosticReportMedia extends FHIRBackboneElement implements \JsonSeri
      * A comment about the image. Typically, this is used to provide an explanation for why the image is included, or to draw the viewer's attention to important features.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -97,7 +98,8 @@ class FHIRDiagnosticReportMedia extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRDiagnosticReportMedia extends FHIRBackboneElement implements \JsonSeri
      * Reference to the image source.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getLink() {
+    public function getLink()
+    {
         return $this->link;
     }
 
@@ -115,7 +118,8 @@ class FHIRDiagnosticReportMedia extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $link
      * @return $this
      */
-    public function setLink($link) {
+    public function setLink($link)
+    {
         $this->link = $link;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRDiagnosticReportMedia extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['comment'])) {
                 $this->setComment($data['comment']);
@@ -147,17 +153,23 @@ class FHIRDiagnosticReportMedia extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->comment)) $json['comment'] = $this->comment;
-        if (isset($this->link)) $json['link'] = $this->link;
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
+        if (isset($this->link)) {
+            $json['link'] = $this->link;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRDiagnosticReportMedia extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DiagnosticReportMedia xmlns="http://hl7.org/fhir"></DiagnosticReportMedia>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DiagnosticReportMedia xmlns="http://hl7.org/fhir"></DiagnosticReportMedia>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
-        if (isset($this->link)) $this->link->xmlSerialize(true, $sxe->addChild('link'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
+        if (isset($this->link)) {
+            $this->link->xmlSerialize(true, $sxe->addChild('link'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

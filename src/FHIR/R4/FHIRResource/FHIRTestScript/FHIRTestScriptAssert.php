@@ -208,7 +208,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The label would be used for tracking/logging purposes by test engines.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getLabel() {
+    public function getLabel()
+    {
         return $this->label;
     }
 
@@ -217,7 +218,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $label
      * @return $this
      */
-    public function setLabel($label) {
+    public function setLabel($label)
+    {
         $this->label = $label;
         return $this;
     }
@@ -226,7 +228,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The description would be used by test engines for tracking and reporting purposes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -235,7 +238,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -244,7 +248,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The direction to use for the assertion.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAssertionDirectionType
      */
-    public function getDirection() {
+    public function getDirection()
+    {
         return $this->direction;
     }
 
@@ -253,7 +258,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAssertionDirectionType $direction
      * @return $this
      */
-    public function setDirection($direction) {
+    public function setDirection($direction)
+    {
         $this->direction = $direction;
         return $this;
     }
@@ -262,7 +268,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * Id of the source fixture used as the contents to be evaluated by either the "source/expression" or "sourceId/path" definition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getCompareToSourceId() {
+    public function getCompareToSourceId()
+    {
         return $this->compareToSourceId;
     }
 
@@ -271,7 +278,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $compareToSourceId
      * @return $this
      */
-    public function setCompareToSourceId($compareToSourceId) {
+    public function setCompareToSourceId($compareToSourceId)
+    {
         $this->compareToSourceId = $compareToSourceId;
         return $this;
     }
@@ -280,7 +288,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The FHIRPath expression to evaluate against the source fixture. When compareToSourceId is defined, either compareToSourceExpression or compareToSourcePath must be defined, but not both.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getCompareToSourceExpression() {
+    public function getCompareToSourceExpression()
+    {
         return $this->compareToSourceExpression;
     }
 
@@ -289,7 +298,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $compareToSourceExpression
      * @return $this
      */
-    public function setCompareToSourceExpression($compareToSourceExpression) {
+    public function setCompareToSourceExpression($compareToSourceExpression)
+    {
         $this->compareToSourceExpression = $compareToSourceExpression;
         return $this;
     }
@@ -298,7 +308,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * XPath or JSONPath expression to evaluate against the source fixture. When compareToSourceId is defined, either compareToSourceExpression or compareToSourcePath must be defined, but not both.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getCompareToSourcePath() {
+    public function getCompareToSourcePath()
+    {
         return $this->compareToSourcePath;
     }
 
@@ -307,7 +318,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $compareToSourcePath
      * @return $this
      */
-    public function setCompareToSourcePath($compareToSourcePath) {
+    public function setCompareToSourcePath($compareToSourcePath)
+    {
         $this->compareToSourcePath = $compareToSourcePath;
         return $this;
     }
@@ -316,7 +328,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The mime-type contents to compare against the request or response message 'Content-Type' header.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getContentType() {
+    public function getContentType()
+    {
         return $this->contentType;
     }
 
@@ -325,7 +338,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $contentType
      * @return $this
      */
-    public function setContentType($contentType) {
+    public function setContentType($contentType)
+    {
         $this->contentType = $contentType;
         return $this;
     }
@@ -334,7 +348,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The FHIRPath expression to be evaluated against the request or response message contents - HTTP headers and payload.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getExpression() {
+    public function getExpression()
+    {
         return $this->expression;
     }
 
@@ -343,7 +358,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $expression
      * @return $this
      */
-    public function setExpression($expression) {
+    public function setExpression($expression)
+    {
         $this->expression = $expression;
         return $this;
     }
@@ -352,7 +368,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The HTTP header field name e.g. 'Location'.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getHeaderField() {
+    public function getHeaderField()
+    {
         return $this->headerField;
     }
 
@@ -361,7 +378,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $headerField
      * @return $this
      */
-    public function setHeaderField($headerField) {
+    public function setHeaderField($headerField)
+    {
         $this->headerField = $headerField;
         return $this;
     }
@@ -370,7 +388,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The ID of a fixture.  Asserts that the response contains at a minimum the fixture specified by minimumId.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMinimumId() {
+    public function getMinimumId()
+    {
         return $this->minimumId;
     }
 
@@ -379,7 +398,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $minimumId
      * @return $this
      */
-    public function setMinimumId($minimumId) {
+    public function setMinimumId($minimumId)
+    {
         $this->minimumId = $minimumId;
         return $this;
     }
@@ -388,7 +408,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * Whether or not the test execution performs validation on the bundle navigation links.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getNavigationLinks() {
+    public function getNavigationLinks()
+    {
         return $this->navigationLinks;
     }
 
@@ -397,7 +418,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $navigationLinks
      * @return $this
      */
-    public function setNavigationLinks($navigationLinks) {
+    public function setNavigationLinks($navigationLinks)
+    {
         $this->navigationLinks = $navigationLinks;
         return $this;
     }
@@ -406,7 +428,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The operator type defines the conditional behavior of the assert. If not defined, the default is equals.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAssertionOperatorType
      */
-    public function getOperator() {
+    public function getOperator()
+    {
         return $this->operator;
     }
 
@@ -415,7 +438,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAssertionOperatorType $operator
      * @return $this
      */
-    public function setOperator($operator) {
+    public function setOperator($operator)
+    {
         $this->operator = $operator;
         return $this;
     }
@@ -424,7 +448,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The XPath or JSONPath expression to be evaluated against the fixture representing the response received from server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->path;
     }
 
@@ -433,7 +458,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $path
      * @return $this
      */
-    public function setPath($path) {
+    public function setPath($path)
+    {
         $this->path = $path;
         return $this;
     }
@@ -442,7 +468,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The request method or HTTP operation code to compare against that used by the client system under test.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTestScriptRequestMethodCode
      */
-    public function getRequestMethod() {
+    public function getRequestMethod()
+    {
         return $this->requestMethod;
     }
 
@@ -451,7 +478,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTestScriptRequestMethodCode $requestMethod
      * @return $this
      */
-    public function setRequestMethod($requestMethod) {
+    public function setRequestMethod($requestMethod)
+    {
         $this->requestMethod = $requestMethod;
         return $this;
     }
@@ -460,7 +488,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The value to use in a comparison against the request URL path string.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getRequestURL() {
+    public function getRequestURL()
+    {
         return $this->requestURL;
     }
 
@@ -469,7 +498,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $requestURL
      * @return $this
      */
-    public function setRequestURL($requestURL) {
+    public function setRequestURL($requestURL)
+    {
         $this->requestURL = $requestURL;
         return $this;
     }
@@ -478,7 +508,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The type of the resource.  See http://build.fhir.org/resourcelist.html.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getResource() {
+    public function getResource()
+    {
         return $this->resource;
     }
 
@@ -487,7 +518,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $resource
      * @return $this
      */
-    public function setResource($resource) {
+    public function setResource($resource)
+    {
         $this->resource = $resource;
         return $this;
     }
@@ -496,7 +528,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * okay | created | noContent | notModified | bad | forbidden | notFound | methodNotAllowed | conflict | gone | preconditionFailed | unprocessable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAssertionResponseTypes
      */
-    public function getResponse() {
+    public function getResponse()
+    {
         return $this->response;
     }
 
@@ -505,7 +538,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAssertionResponseTypes $response
      * @return $this
      */
-    public function setResponse($response) {
+    public function setResponse($response)
+    {
         $this->response = $response;
         return $this;
     }
@@ -514,7 +548,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The value of the HTTP response code to be tested.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getResponseCode() {
+    public function getResponseCode()
+    {
         return $this->responseCode;
     }
 
@@ -523,7 +558,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $responseCode
      * @return $this
      */
-    public function setResponseCode($responseCode) {
+    public function setResponseCode($responseCode)
+    {
         $this->responseCode = $responseCode;
         return $this;
     }
@@ -532,7 +568,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * Fixture to evaluate the XPath/JSONPath expression or the headerField  against.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getSourceId() {
+    public function getSourceId()
+    {
         return $this->sourceId;
     }
 
@@ -541,7 +578,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $sourceId
      * @return $this
      */
-    public function setSourceId($sourceId) {
+    public function setSourceId($sourceId)
+    {
         $this->sourceId = $sourceId;
         return $this;
     }
@@ -550,7 +588,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The ID of the Profile to validate against.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getValidateProfileId() {
+    public function getValidateProfileId()
+    {
         return $this->validateProfileId;
     }
 
@@ -559,7 +598,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $validateProfileId
      * @return $this
      */
-    public function setValidateProfileId($validateProfileId) {
+    public function setValidateProfileId($validateProfileId)
+    {
         $this->validateProfileId = $validateProfileId;
         return $this;
     }
@@ -568,7 +608,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * The value to compare to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -577,7 +618,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -586,7 +628,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * Whether or not the test execution will produce a warning only on error for this assert.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getWarningOnly() {
+    public function getWarningOnly()
+    {
         return $this->warningOnly;
     }
 
@@ -595,7 +638,8 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $warningOnly
      * @return $this
      */
-    public function setWarningOnly($warningOnly) {
+    public function setWarningOnly($warningOnly)
+    {
         $this->warningOnly = $warningOnly;
         return $this;
     }
@@ -603,14 +647,16 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['label'])) {
                 $this->setLabel($data['label']);
@@ -687,37 +733,83 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->label)) $json['label'] = $this->label;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->direction)) $json['direction'] = $this->direction;
-        if (isset($this->compareToSourceId)) $json['compareToSourceId'] = $this->compareToSourceId;
-        if (isset($this->compareToSourceExpression)) $json['compareToSourceExpression'] = $this->compareToSourceExpression;
-        if (isset($this->compareToSourcePath)) $json['compareToSourcePath'] = $this->compareToSourcePath;
-        if (isset($this->contentType)) $json['contentType'] = $this->contentType;
-        if (isset($this->expression)) $json['expression'] = $this->expression;
-        if (isset($this->headerField)) $json['headerField'] = $this->headerField;
-        if (isset($this->minimumId)) $json['minimumId'] = $this->minimumId;
-        if (isset($this->navigationLinks)) $json['navigationLinks'] = $this->navigationLinks;
-        if (isset($this->operator)) $json['operator'] = $this->operator;
-        if (isset($this->path)) $json['path'] = $this->path;
-        if (isset($this->requestMethod)) $json['requestMethod'] = $this->requestMethod;
-        if (isset($this->requestURL)) $json['requestURL'] = $this->requestURL;
-        if (isset($this->resource)) $json['resource'] = $this->resource;
-        if (isset($this->response)) $json['response'] = $this->response;
-        if (isset($this->responseCode)) $json['responseCode'] = $this->responseCode;
-        if (isset($this->sourceId)) $json['sourceId'] = $this->sourceId;
-        if (isset($this->validateProfileId)) $json['validateProfileId'] = $this->validateProfileId;
-        if (isset($this->value)) $json['value'] = $this->value;
-        if (isset($this->warningOnly)) $json['warningOnly'] = $this->warningOnly;
+        if (isset($this->label)) {
+            $json['label'] = $this->label;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->direction)) {
+            $json['direction'] = $this->direction;
+        }
+        if (isset($this->compareToSourceId)) {
+            $json['compareToSourceId'] = $this->compareToSourceId;
+        }
+        if (isset($this->compareToSourceExpression)) {
+            $json['compareToSourceExpression'] = $this->compareToSourceExpression;
+        }
+        if (isset($this->compareToSourcePath)) {
+            $json['compareToSourcePath'] = $this->compareToSourcePath;
+        }
+        if (isset($this->contentType)) {
+            $json['contentType'] = $this->contentType;
+        }
+        if (isset($this->expression)) {
+            $json['expression'] = $this->expression;
+        }
+        if (isset($this->headerField)) {
+            $json['headerField'] = $this->headerField;
+        }
+        if (isset($this->minimumId)) {
+            $json['minimumId'] = $this->minimumId;
+        }
+        if (isset($this->navigationLinks)) {
+            $json['navigationLinks'] = $this->navigationLinks;
+        }
+        if (isset($this->operator)) {
+            $json['operator'] = $this->operator;
+        }
+        if (isset($this->path)) {
+            $json['path'] = $this->path;
+        }
+        if (isset($this->requestMethod)) {
+            $json['requestMethod'] = $this->requestMethod;
+        }
+        if (isset($this->requestURL)) {
+            $json['requestURL'] = $this->requestURL;
+        }
+        if (isset($this->resource)) {
+            $json['resource'] = $this->resource;
+        }
+        if (isset($this->response)) {
+            $json['response'] = $this->response;
+        }
+        if (isset($this->responseCode)) {
+            $json['responseCode'] = $this->responseCode;
+        }
+        if (isset($this->sourceId)) {
+            $json['sourceId'] = $this->sourceId;
+        }
+        if (isset($this->validateProfileId)) {
+            $json['validateProfileId'] = $this->validateProfileId;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
+        if (isset($this->warningOnly)) {
+            $json['warningOnly'] = $this->warningOnly;
+        }
         return $json;
     }
 
@@ -726,34 +818,81 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestScriptAssert xmlns="http://hl7.org/fhir"></TestScriptAssert>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestScriptAssert xmlns="http://hl7.org/fhir"></TestScriptAssert>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->label)) $this->label->xmlSerialize(true, $sxe->addChild('label'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->direction)) $this->direction->xmlSerialize(true, $sxe->addChild('direction'));
-        if (isset($this->compareToSourceId)) $this->compareToSourceId->xmlSerialize(true, $sxe->addChild('compareToSourceId'));
-        if (isset($this->compareToSourceExpression)) $this->compareToSourceExpression->xmlSerialize(true, $sxe->addChild('compareToSourceExpression'));
-        if (isset($this->compareToSourcePath)) $this->compareToSourcePath->xmlSerialize(true, $sxe->addChild('compareToSourcePath'));
-        if (isset($this->contentType)) $this->contentType->xmlSerialize(true, $sxe->addChild('contentType'));
-        if (isset($this->expression)) $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
-        if (isset($this->headerField)) $this->headerField->xmlSerialize(true, $sxe->addChild('headerField'));
-        if (isset($this->minimumId)) $this->minimumId->xmlSerialize(true, $sxe->addChild('minimumId'));
-        if (isset($this->navigationLinks)) $this->navigationLinks->xmlSerialize(true, $sxe->addChild('navigationLinks'));
-        if (isset($this->operator)) $this->operator->xmlSerialize(true, $sxe->addChild('operator'));
-        if (isset($this->path)) $this->path->xmlSerialize(true, $sxe->addChild('path'));
-        if (isset($this->requestMethod)) $this->requestMethod->xmlSerialize(true, $sxe->addChild('requestMethod'));
-        if (isset($this->requestURL)) $this->requestURL->xmlSerialize(true, $sxe->addChild('requestURL'));
-        if (isset($this->resource)) $this->resource->xmlSerialize(true, $sxe->addChild('resource'));
-        if (isset($this->response)) $this->response->xmlSerialize(true, $sxe->addChild('response'));
-        if (isset($this->responseCode)) $this->responseCode->xmlSerialize(true, $sxe->addChild('responseCode'));
-        if (isset($this->sourceId)) $this->sourceId->xmlSerialize(true, $sxe->addChild('sourceId'));
-        if (isset($this->validateProfileId)) $this->validateProfileId->xmlSerialize(true, $sxe->addChild('validateProfileId'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if (isset($this->warningOnly)) $this->warningOnly->xmlSerialize(true, $sxe->addChild('warningOnly'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->label)) {
+            $this->label->xmlSerialize(true, $sxe->addChild('label'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->direction)) {
+            $this->direction->xmlSerialize(true, $sxe->addChild('direction'));
+        }
+        if (isset($this->compareToSourceId)) {
+            $this->compareToSourceId->xmlSerialize(true, $sxe->addChild('compareToSourceId'));
+        }
+        if (isset($this->compareToSourceExpression)) {
+            $this->compareToSourceExpression->xmlSerialize(true, $sxe->addChild('compareToSourceExpression'));
+        }
+        if (isset($this->compareToSourcePath)) {
+            $this->compareToSourcePath->xmlSerialize(true, $sxe->addChild('compareToSourcePath'));
+        }
+        if (isset($this->contentType)) {
+            $this->contentType->xmlSerialize(true, $sxe->addChild('contentType'));
+        }
+        if (isset($this->expression)) {
+            $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
+        }
+        if (isset($this->headerField)) {
+            $this->headerField->xmlSerialize(true, $sxe->addChild('headerField'));
+        }
+        if (isset($this->minimumId)) {
+            $this->minimumId->xmlSerialize(true, $sxe->addChild('minimumId'));
+        }
+        if (isset($this->navigationLinks)) {
+            $this->navigationLinks->xmlSerialize(true, $sxe->addChild('navigationLinks'));
+        }
+        if (isset($this->operator)) {
+            $this->operator->xmlSerialize(true, $sxe->addChild('operator'));
+        }
+        if (isset($this->path)) {
+            $this->path->xmlSerialize(true, $sxe->addChild('path'));
+        }
+        if (isset($this->requestMethod)) {
+            $this->requestMethod->xmlSerialize(true, $sxe->addChild('requestMethod'));
+        }
+        if (isset($this->requestURL)) {
+            $this->requestURL->xmlSerialize(true, $sxe->addChild('requestURL'));
+        }
+        if (isset($this->resource)) {
+            $this->resource->xmlSerialize(true, $sxe->addChild('resource'));
+        }
+        if (isset($this->response)) {
+            $this->response->xmlSerialize(true, $sxe->addChild('response'));
+        }
+        if (isset($this->responseCode)) {
+            $this->responseCode->xmlSerialize(true, $sxe->addChild('responseCode'));
+        }
+        if (isset($this->sourceId)) {
+            $this->sourceId->xmlSerialize(true, $sxe->addChild('sourceId'));
+        }
+        if (isset($this->validateProfileId)) {
+            $this->validateProfileId->xmlSerialize(true, $sxe->addChild('validateProfileId'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if (isset($this->warningOnly)) {
+            $this->warningOnly->xmlSerialize(true, $sxe->addChild('warningOnly'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

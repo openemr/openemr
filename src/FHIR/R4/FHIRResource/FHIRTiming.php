@@ -95,7 +95,8 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
      * Identifies specific times when the event occurs.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime[]
      */
-    public function getEvent() {
+    public function getEvent()
+    {
         return $this->event;
     }
 
@@ -104,7 +105,8 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $event
      * @return $this
      */
-    public function addEvent($event) {
+    public function addEvent($event)
+    {
         $this->event[] = $event;
         return $this;
     }
@@ -113,7 +115,8 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
      * A set of rules that describe when the event is scheduled.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat
      */
-    public function getRepeat() {
+    public function getRepeat()
+    {
         return $this->repeat;
     }
 
@@ -122,7 +125,8 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat $repeat
      * @return $this
      */
-    public function setRepeat($repeat) {
+    public function setRepeat($repeat)
+    {
         $this->repeat = $repeat;
         return $this;
     }
@@ -131,7 +135,8 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
      * A code for the timing schedule (or just text in code.text). Some codes such as BID are ubiquitous, but many institutions define their own additional codes. If a code is provided, the code is understood to be a complete statement of whatever is specified in the structured timing data, and either the code or the data may be used to interpret the Timing, with the exception that .repeat.bounds still applies over the code (and is not contained in the code).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -140,7 +145,8 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -148,18 +154,20 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['event'])) {
                 if (is_array($data['event'])) {
-                    foreach($data['event'] as $d) {
+                    foreach ($data['event'] as $d) {
                         $this->addEvent($d);
                     }
                 } else {
@@ -181,24 +189,30 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->event)) {
             $json['event'] = [];
-            foreach($this->event as $event) {
+            foreach ($this->event as $event) {
                 $json['event'][] = $event;
             }
         }
-        if (isset($this->repeat)) $json['repeat'] = $this->repeat;
-        if (isset($this->code)) $json['code'] = $this->code;
+        if (isset($this->repeat)) {
+            $json['repeat'] = $this->repeat;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
         return $json;
     }
 
@@ -207,19 +221,26 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Timing xmlns="http://hl7.org/fhir"></Timing>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Timing xmlns="http://hl7.org/fhir"></Timing>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->event)) {
-            foreach($this->event as $event) {
+            foreach ($this->event as $event) {
                 $event->xmlSerialize(true, $sxe->addChild('event'));
             }
         }
-        if (isset($this->repeat)) $this->repeat->xmlSerialize(true, $sxe->addChild('repeat'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->repeat)) {
+            $this->repeat->xmlSerialize(true, $sxe->addChild('repeat'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

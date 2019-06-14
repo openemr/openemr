@@ -124,7 +124,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * The family of an organism shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getFamily() {
+    public function getFamily()
+    {
         return $this->family;
     }
 
@@ -133,7 +134,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $family
      * @return $this
      */
-    public function setFamily($family) {
+    public function setFamily($family)
+    {
         $this->family = $family;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * The genus of an organism shall be specified; refers to the Latin epithet of the genus element of the plant/animal scientific name; it is present in names for genera, species and infraspecies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getGenus() {
+    public function getGenus()
+    {
         return $this->genus;
     }
 
@@ -151,7 +154,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $genus
      * @return $this
      */
-    public function setGenus($genus) {
+    public function setGenus($genus)
+    {
         $this->genus = $genus;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * The species of an organism shall be specified; refers to the Latin epithet of the species of the plant/animal; it is present in names for species and infraspecies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSpecies() {
+    public function getSpecies()
+    {
         return $this->species;
     }
 
@@ -169,7 +174,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $species
      * @return $this
      */
-    public function setSpecies($species) {
+    public function setSpecies($species)
+    {
         $this->species = $species;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * The Intraspecific type of an organism shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getIntraspecificType() {
+    public function getIntraspecificType()
+    {
         return $this->intraspecificType;
     }
 
@@ -187,7 +194,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $intraspecificType
      * @return $this
      */
-    public function setIntraspecificType($intraspecificType) {
+    public function setIntraspecificType($intraspecificType)
+    {
         $this->intraspecificType = $intraspecificType;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * The intraspecific description of an organism shall be specified based on a controlled vocabulary. For Influenza Vaccine, the intraspecific description shall contain the syntax of the antigen in line with the WHO convention.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getIntraspecificDescription() {
+    public function getIntraspecificDescription()
+    {
         return $this->intraspecificDescription;
     }
 
@@ -205,7 +214,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $intraspecificDescription
      * @return $this
      */
-    public function setIntraspecificDescription($intraspecificDescription) {
+    public function setIntraspecificDescription($intraspecificDescription)
+    {
         $this->intraspecificDescription = $intraspecificDescription;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * 4.9.13.6.1 Author type (Conditional).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialAuthor[]
      */
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
@@ -223,7 +234,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialAuthor $author
      * @return $this
      */
-    public function addAuthor($author) {
+    public function addAuthor($author)
+    {
         $this->author[] = $author;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * 4.9.13.8.1 Hybrid species maternal organism ID (Optional).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialHybrid
      */
-    public function getHybrid() {
+    public function getHybrid()
+    {
         return $this->hybrid;
     }
 
@@ -241,7 +254,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialHybrid $hybrid
      * @return $this
      */
-    public function setHybrid($hybrid) {
+    public function setHybrid($hybrid)
+    {
         $this->hybrid = $hybrid;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * 4.9.13.7.1 Kingdom (Conditional).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialOrganismGeneral
      */
-    public function getOrganismGeneral() {
+    public function getOrganismGeneral()
+    {
         return $this->organismGeneral;
     }
 
@@ -259,7 +274,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSourceMaterial\FHIRSubstanceSourceMaterialOrganismGeneral $organismGeneral
      * @return $this
      */
-    public function setOrganismGeneral($organismGeneral) {
+    public function setOrganismGeneral($organismGeneral)
+    {
         $this->organismGeneral = $organismGeneral;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['family'])) {
                 $this->setFamily($data['family']);
@@ -293,7 +311,7 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
             }
             if (isset($data['author'])) {
                 if (is_array($data['author'])) {
-                    foreach($data['author'] as $d) {
+                    foreach ($data['author'] as $d) {
                         $this->addAuthor($d);
                     }
                 } else {
@@ -315,28 +333,44 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->family)) $json['family'] = $this->family;
-        if (isset($this->genus)) $json['genus'] = $this->genus;
-        if (isset($this->species)) $json['species'] = $this->species;
-        if (isset($this->intraspecificType)) $json['intraspecificType'] = $this->intraspecificType;
-        if (isset($this->intraspecificDescription)) $json['intraspecificDescription'] = $this->intraspecificDescription;
+        if (isset($this->family)) {
+            $json['family'] = $this->family;
+        }
+        if (isset($this->genus)) {
+            $json['genus'] = $this->genus;
+        }
+        if (isset($this->species)) {
+            $json['species'] = $this->species;
+        }
+        if (isset($this->intraspecificType)) {
+            $json['intraspecificType'] = $this->intraspecificType;
+        }
+        if (isset($this->intraspecificDescription)) {
+            $json['intraspecificDescription'] = $this->intraspecificDescription;
+        }
         if (0 < count($this->author)) {
             $json['author'] = [];
-            foreach($this->author as $author) {
+            foreach ($this->author as $author) {
                 $json['author'][] = $author;
             }
         }
-        if (isset($this->hybrid)) $json['hybrid'] = $this->hybrid;
-        if (isset($this->organismGeneral)) $json['organismGeneral'] = $this->organismGeneral;
+        if (isset($this->hybrid)) {
+            $json['hybrid'] = $this->hybrid;
+        }
+        if (isset($this->organismGeneral)) {
+            $json['organismGeneral'] = $this->organismGeneral;
+        }
         return $json;
     }
 
@@ -345,24 +379,41 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialOrganism xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialOrganism>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialOrganism xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialOrganism>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->family)) $this->family->xmlSerialize(true, $sxe->addChild('family'));
-        if (isset($this->genus)) $this->genus->xmlSerialize(true, $sxe->addChild('genus'));
-        if (isset($this->species)) $this->species->xmlSerialize(true, $sxe->addChild('species'));
-        if (isset($this->intraspecificType)) $this->intraspecificType->xmlSerialize(true, $sxe->addChild('intraspecificType'));
-        if (isset($this->intraspecificDescription)) $this->intraspecificDescription->xmlSerialize(true, $sxe->addChild('intraspecificDescription'));
+        if (isset($this->family)) {
+            $this->family->xmlSerialize(true, $sxe->addChild('family'));
+        }
+        if (isset($this->genus)) {
+            $this->genus->xmlSerialize(true, $sxe->addChild('genus'));
+        }
+        if (isset($this->species)) {
+            $this->species->xmlSerialize(true, $sxe->addChild('species'));
+        }
+        if (isset($this->intraspecificType)) {
+            $this->intraspecificType->xmlSerialize(true, $sxe->addChild('intraspecificType'));
+        }
+        if (isset($this->intraspecificDescription)) {
+            $this->intraspecificDescription->xmlSerialize(true, $sxe->addChild('intraspecificDescription'));
+        }
         if (0 < count($this->author)) {
-            foreach($this->author as $author) {
+            foreach ($this->author as $author) {
                 $author->xmlSerialize(true, $sxe->addChild('author'));
             }
         }
-        if (isset($this->hybrid)) $this->hybrid->xmlSerialize(true, $sxe->addChild('hybrid'));
-        if (isset($this->organismGeneral)) $this->organismGeneral->xmlSerialize(true, $sxe->addChild('organismGeneral'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->hybrid)) {
+            $this->hybrid->xmlSerialize(true, $sxe->addChild('hybrid'));
+        }
+        if (isset($this->organismGeneral)) {
+            $this->organismGeneral->xmlSerialize(true, $sxe->addChild('organismGeneral'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

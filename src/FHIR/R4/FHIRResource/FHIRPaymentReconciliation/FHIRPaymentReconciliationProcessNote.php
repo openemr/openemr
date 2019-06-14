@@ -88,7 +88,8 @@ class FHIRPaymentReconciliationProcessNote extends FHIRBackboneElement implement
      * The business purpose of the note text.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRNoteType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -97,7 +98,8 @@ class FHIRPaymentReconciliationProcessNote extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRNoteType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRPaymentReconciliationProcessNote extends FHIRBackboneElement implement
      * The explanation or description associated with the processing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -115,7 +118,8 @@ class FHIRPaymentReconciliationProcessNote extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRPaymentReconciliationProcessNote extends FHIRBackboneElement implement
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -147,17 +153,23 @@ class FHIRPaymentReconciliationProcessNote extends FHIRBackboneElement implement
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->text)) $json['text'] = $this->text;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRPaymentReconciliationProcessNote extends FHIRBackboneElement implement
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PaymentReconciliationProcessNote xmlns="http://hl7.org/fhir"></PaymentReconciliationProcessNote>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PaymentReconciliationProcessNote xmlns="http://hl7.org/fhir"></PaymentReconciliationProcessNote>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

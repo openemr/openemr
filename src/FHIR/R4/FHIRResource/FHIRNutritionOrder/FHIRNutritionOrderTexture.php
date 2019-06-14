@@ -88,7 +88,8 @@ class FHIRNutritionOrderTexture extends FHIRBackboneElement implements \JsonSeri
      * Any texture modifications (for solid foods) that should be made, e.g. easy to chew, chopped, ground, and pureed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getModifier() {
+    public function getModifier()
+    {
         return $this->modifier;
     }
 
@@ -97,7 +98,8 @@ class FHIRNutritionOrderTexture extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $modifier
      * @return $this
      */
-    public function setModifier($modifier) {
+    public function setModifier($modifier)
+    {
         $this->modifier = $modifier;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRNutritionOrderTexture extends FHIRBackboneElement implements \JsonSeri
      * The food type(s) (e.g. meats, all foods)  that the texture modification applies to.  This could be all foods types.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getFoodType() {
+    public function getFoodType()
+    {
         return $this->foodType;
     }
 
@@ -115,7 +118,8 @@ class FHIRNutritionOrderTexture extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $foodType
      * @return $this
      */
-    public function setFoodType($foodType) {
+    public function setFoodType($foodType)
+    {
         $this->foodType = $foodType;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRNutritionOrderTexture extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['modifier'])) {
                 $this->setModifier($data['modifier']);
@@ -147,17 +153,23 @@ class FHIRNutritionOrderTexture extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->modifier)) $json['modifier'] = $this->modifier;
-        if (isset($this->foodType)) $json['foodType'] = $this->foodType;
+        if (isset($this->modifier)) {
+            $json['modifier'] = $this->modifier;
+        }
+        if (isset($this->foodType)) {
+            $json['foodType'] = $this->foodType;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRNutritionOrderTexture extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<NutritionOrderTexture xmlns="http://hl7.org/fhir"></NutritionOrderTexture>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<NutritionOrderTexture xmlns="http://hl7.org/fhir"></NutritionOrderTexture>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->modifier)) $this->modifier->xmlSerialize(true, $sxe->addChild('modifier'));
-        if (isset($this->foodType)) $this->foodType->xmlSerialize(true, $sxe->addChild('foodType'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->modifier)) {
+            $this->modifier->xmlSerialize(true, $sxe->addChild('modifier'));
+        }
+        if (isset($this->foodType)) {
+            $this->foodType->xmlSerialize(true, $sxe->addChild('foodType'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

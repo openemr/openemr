@@ -82,7 +82,8 @@ class FHIRTerminologyCapabilitiesValidateCode extends FHIRBackboneElement implem
      * Whether translations are validated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getTranslations() {
+    public function getTranslations()
+    {
         return $this->translations;
     }
 
@@ -91,7 +92,8 @@ class FHIRTerminologyCapabilitiesValidateCode extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $translations
      * @return $this
      */
-    public function setTranslations($translations) {
+    public function setTranslations($translations)
+    {
         $this->translations = $translations;
         return $this;
     }
@@ -99,14 +101,16 @@ class FHIRTerminologyCapabilitiesValidateCode extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['translations'])) {
                 $this->setTranslations($data['translations']);
@@ -120,16 +124,20 @@ class FHIRTerminologyCapabilitiesValidateCode extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->translations)) $json['translations'] = $this->translations;
+        if (isset($this->translations)) {
+            $json['translations'] = $this->translations;
+        }
         return $json;
     }
 
@@ -138,13 +146,18 @@ class FHIRTerminologyCapabilitiesValidateCode extends FHIRBackboneElement implem
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesValidateCode xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesValidateCode>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesValidateCode xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesValidateCode>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->translations)) $this->translations->xmlSerialize(true, $sxe->addChild('translations'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->translations)) {
+            $this->translations->xmlSerialize(true, $sxe->addChild('translations'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

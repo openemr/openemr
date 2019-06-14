@@ -94,7 +94,8 @@ class FHIRSubstanceSpecificationRepresentation extends FHIRBackboneElement imple
      * The type of structure (e.g. Full, Partial, Representative).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -103,7 +104,8 @@ class FHIRSubstanceSpecificationRepresentation extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRSubstanceSpecificationRepresentation extends FHIRBackboneElement imple
      * The structural representation as text string in a format e.g. InChI, SMILES, MOLFILE, CDX.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getRepresentation() {
+    public function getRepresentation()
+    {
         return $this->representation;
     }
 
@@ -121,7 +124,8 @@ class FHIRSubstanceSpecificationRepresentation extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $representation
      * @return $this
      */
-    public function setRepresentation($representation) {
+    public function setRepresentation($representation)
+    {
         $this->representation = $representation;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRSubstanceSpecificationRepresentation extends FHIRBackboneElement imple
      * An attached file with the structural representation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getAttachment() {
+    public function getAttachment()
+    {
         return $this->attachment;
     }
 
@@ -139,7 +144,8 @@ class FHIRSubstanceSpecificationRepresentation extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $attachment
      * @return $this
      */
-    public function setAttachment($attachment) {
+    public function setAttachment($attachment)
+    {
         $this->attachment = $attachment;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRSubstanceSpecificationRepresentation extends FHIRBackboneElement imple
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -174,18 +182,26 @@ class FHIRSubstanceSpecificationRepresentation extends FHIRBackboneElement imple
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->representation)) $json['representation'] = $this->representation;
-        if (isset($this->attachment)) $json['attachment'] = $this->attachment;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->representation)) {
+            $json['representation'] = $this->representation;
+        }
+        if (isset($this->attachment)) {
+            $json['attachment'] = $this->attachment;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRSubstanceSpecificationRepresentation extends FHIRBackboneElement imple
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecificationRepresentation xmlns="http://hl7.org/fhir"></SubstanceSpecificationRepresentation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecificationRepresentation xmlns="http://hl7.org/fhir"></SubstanceSpecificationRepresentation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->representation)) $this->representation->xmlSerialize(true, $sxe->addChild('representation'));
-        if (isset($this->attachment)) $this->attachment->xmlSerialize(true, $sxe->addChild('attachment'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->representation)) {
+            $this->representation->xmlSerialize(true, $sxe->addChild('representation'));
+        }
+        if (isset($this->attachment)) {
+            $this->attachment->xmlSerialize(true, $sxe->addChild('attachment'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

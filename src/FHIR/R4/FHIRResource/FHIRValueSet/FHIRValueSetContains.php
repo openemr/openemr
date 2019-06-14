@@ -124,7 +124,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * An absolute URI which is the code system in which the code for this item in the expansion is defined.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getSystem() {
+    public function getSystem()
+    {
         return $this->system;
     }
 
@@ -133,7 +134,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $system
      * @return $this
      */
-    public function setSystem($system) {
+    public function setSystem($system)
+    {
         $this->system = $system;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * If true, this entry is included in the expansion for navigational purposes, and the user cannot select the code directly as a proper value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getAbstract() {
+    public function getAbstract()
+    {
         return $this->abstract;
     }
 
@@ -151,7 +154,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $abstract
      * @return $this
      */
-    public function setAbstract($abstract) {
+    public function setAbstract($abstract)
+    {
         $this->abstract = $abstract;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * If the concept is inactive in the code system that defines it. Inactive codes are those that are no longer to be used, but are maintained by the code system for understanding legacy data. It might not be known or specified whether an concept is inactive (and it may depend on the context of use).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getInactive() {
+    public function getInactive()
+    {
         return $this->inactive;
     }
 
@@ -169,7 +174,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $inactive
      * @return $this
      */
-    public function setInactive($inactive) {
+    public function setInactive($inactive)
+    {
         $this->inactive = $inactive;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * The version of the code system from this code was taken. Note that a well-maintained code system does not need the version reported, because the meaning of codes is consistent across versions. However this cannot consistently be assured, and when the meaning is not guaranteed to be consistent, the version SHOULD be exchanged.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -187,7 +194,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * The code for this item in the expansion hierarchy. If this code is missing the entry in the hierarchy is a place holder (abstract) and does not represent a valid code in the value set.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -205,7 +214,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * The recommended display for this item in the expansion.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDisplay() {
+    public function getDisplay()
+    {
         return $this->display;
     }
 
@@ -223,7 +234,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $display
      * @return $this
      */
-    public function setDisplay($display) {
+    public function setDisplay($display)
+    {
         $this->display = $display;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * Additional representations for this item - other languages, aliases, specialized purposes, used for particular purposes, etc. These are relevant when the conditions of the expansion do not fix to a single correct representation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetDesignation[]
      */
-    public function getDesignation() {
+    public function getDesignation()
+    {
         return $this->designation;
     }
 
@@ -241,7 +254,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetDesignation $designation
      * @return $this
      */
-    public function addDesignation($designation) {
+    public function addDesignation($designation)
+    {
         $this->designation[] = $designation;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * Other codes and entries contained under this entry in the hierarchy.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetContains[]
      */
-    public function getContains() {
+    public function getContains()
+    {
         return $this->contains;
     }
 
@@ -259,7 +274,8 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetContains $contains
      * @return $this
      */
-    public function addContains($contains) {
+    public function addContains($contains)
+    {
         $this->contains[] = $contains;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['system'])) {
                 $this->setSystem($data['system']);
@@ -296,7 +314,7 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['designation'])) {
                 if (is_array($data['designation'])) {
-                    foreach($data['designation'] as $d) {
+                    foreach ($data['designation'] as $d) {
                         $this->addDesignation($d);
                     }
                 } else {
@@ -305,7 +323,7 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
             }
             if (isset($data['contains'])) {
                 if (is_array($data['contains'])) {
-                    foreach($data['contains'] as $d) {
+                    foreach ($data['contains'] as $d) {
                         $this->addContains($d);
                     }
                 } else {
@@ -321,30 +339,44 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->system)) $json['system'] = $this->system;
-        if (isset($this->abstract)) $json['abstract'] = $this->abstract;
-        if (isset($this->inactive)) $json['inactive'] = $this->inactive;
-        if (isset($this->version)) $json['version'] = $this->version;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->display)) $json['display'] = $this->display;
+        if (isset($this->system)) {
+            $json['system'] = $this->system;
+        }
+        if (isset($this->abstract)) {
+            $json['abstract'] = $this->abstract;
+        }
+        if (isset($this->inactive)) {
+            $json['inactive'] = $this->inactive;
+        }
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->display)) {
+            $json['display'] = $this->display;
+        }
         if (0 < count($this->designation)) {
             $json['designation'] = [];
-            foreach($this->designation as $designation) {
+            foreach ($this->designation as $designation) {
                 $json['designation'][] = $designation;
             }
         }
         if (0 < count($this->contains)) {
             $json['contains'] = [];
-            foreach($this->contains as $contains) {
+            foreach ($this->contains as $contains) {
                 $json['contains'][] = $contains;
             }
         }
@@ -356,28 +388,43 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ValueSetContains xmlns="http://hl7.org/fhir"></ValueSetContains>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ValueSetContains xmlns="http://hl7.org/fhir"></ValueSetContains>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->system)) $this->system->xmlSerialize(true, $sxe->addChild('system'));
-        if (isset($this->abstract)) $this->abstract->xmlSerialize(true, $sxe->addChild('abstract'));
-        if (isset($this->inactive)) $this->inactive->xmlSerialize(true, $sxe->addChild('inactive'));
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->display)) $this->display->xmlSerialize(true, $sxe->addChild('display'));
+        if (isset($this->system)) {
+            $this->system->xmlSerialize(true, $sxe->addChild('system'));
+        }
+        if (isset($this->abstract)) {
+            $this->abstract->xmlSerialize(true, $sxe->addChild('abstract'));
+        }
+        if (isset($this->inactive)) {
+            $this->inactive->xmlSerialize(true, $sxe->addChild('inactive'));
+        }
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->display)) {
+            $this->display->xmlSerialize(true, $sxe->addChild('display'));
+        }
         if (0 < count($this->designation)) {
-            foreach($this->designation as $designation) {
+            foreach ($this->designation as $designation) {
                 $designation->xmlSerialize(true, $sxe->addChild('designation'));
             }
         }
         if (0 < count($this->contains)) {
-            foreach($this->contains as $contains) {
+            foreach ($this->contains as $contains) {
                 $contains->xmlSerialize(true, $sxe->addChild('contains'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

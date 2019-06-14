@@ -138,7 +138,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * The linkId for the question whose answer (or lack of answer) governs whether this item is enabled.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getQuestion() {
+    public function getQuestion()
+    {
         return $this->question;
     }
 
@@ -147,7 +148,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $question
      * @return $this
      */
-    public function setQuestion($question) {
+    public function setQuestion($question)
+    {
         $this->question = $question;
         return $this;
     }
@@ -156,7 +158,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * Specifies the criteria by which the question is enabled.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuestionnaireItemOperator
      */
-    public function getOperator() {
+    public function getOperator()
+    {
         return $this->operator;
     }
 
@@ -165,7 +168,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuestionnaireItemOperator $operator
      * @return $this
      */
-    public function setOperator($operator) {
+    public function setOperator($operator)
+    {
         $this->operator = $operator;
         return $this;
     }
@@ -173,7 +177,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getAnswerBoolean() {
+    public function getAnswerBoolean()
+    {
         return $this->answerBoolean;
     }
 
@@ -181,7 +186,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $answerBoolean
      * @return $this
      */
-    public function setAnswerBoolean($answerBoolean) {
+    public function setAnswerBoolean($answerBoolean)
+    {
         $this->answerBoolean = $answerBoolean;
         return $this;
     }
@@ -189,7 +195,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getAnswerDecimal() {
+    public function getAnswerDecimal()
+    {
         return $this->answerDecimal;
     }
 
@@ -197,7 +204,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $answerDecimal
      * @return $this
      */
-    public function setAnswerDecimal($answerDecimal) {
+    public function setAnswerDecimal($answerDecimal)
+    {
         $this->answerDecimal = $answerDecimal;
         return $this;
     }
@@ -205,7 +213,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getAnswerInteger() {
+    public function getAnswerInteger()
+    {
         return $this->answerInteger;
     }
 
@@ -213,7 +222,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $answerInteger
      * @return $this
      */
-    public function setAnswerInteger($answerInteger) {
+    public function setAnswerInteger($answerInteger)
+    {
         $this->answerInteger = $answerInteger;
         return $this;
     }
@@ -221,7 +231,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getAnswerDate() {
+    public function getAnswerDate()
+    {
         return $this->answerDate;
     }
 
@@ -229,7 +240,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $answerDate
      * @return $this
      */
-    public function setAnswerDate($answerDate) {
+    public function setAnswerDate($answerDate)
+    {
         $this->answerDate = $answerDate;
         return $this;
     }
@@ -237,7 +249,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getAnswerDateTime() {
+    public function getAnswerDateTime()
+    {
         return $this->answerDateTime;
     }
 
@@ -245,7 +258,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $answerDateTime
      * @return $this
      */
-    public function setAnswerDateTime($answerDateTime) {
+    public function setAnswerDateTime($answerDateTime)
+    {
         $this->answerDateTime = $answerDateTime;
         return $this;
     }
@@ -253,7 +267,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getAnswerTime() {
+    public function getAnswerTime()
+    {
         return $this->answerTime;
     }
 
@@ -261,7 +276,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $answerTime
      * @return $this
      */
-    public function setAnswerTime($answerTime) {
+    public function setAnswerTime($answerTime)
+    {
         $this->answerTime = $answerTime;
         return $this;
     }
@@ -269,7 +285,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAnswerString() {
+    public function getAnswerString()
+    {
         return $this->answerString;
     }
 
@@ -277,7 +294,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $answerString
      * @return $this
      */
-    public function setAnswerString($answerString) {
+    public function setAnswerString($answerString)
+    {
         $this->answerString = $answerString;
         return $this;
     }
@@ -285,7 +303,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getAnswerCoding() {
+    public function getAnswerCoding()
+    {
         return $this->answerCoding;
     }
 
@@ -293,7 +312,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $answerCoding
      * @return $this
      */
-    public function setAnswerCoding($answerCoding) {
+    public function setAnswerCoding($answerCoding)
+    {
         $this->answerCoding = $answerCoding;
         return $this;
     }
@@ -301,7 +321,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getAnswerQuantity() {
+    public function getAnswerQuantity()
+    {
         return $this->answerQuantity;
     }
 
@@ -309,7 +330,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $answerQuantity
      * @return $this
      */
-    public function setAnswerQuantity($answerQuantity) {
+    public function setAnswerQuantity($answerQuantity)
+    {
         $this->answerQuantity = $answerQuantity;
         return $this;
     }
@@ -317,7 +339,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAnswerReference() {
+    public function getAnswerReference()
+    {
         return $this->answerReference;
     }
 
@@ -325,7 +348,8 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $answerReference
      * @return $this
      */
-    public function setAnswerReference($answerReference) {
+    public function setAnswerReference($answerReference)
+    {
         $this->answerReference = $answerReference;
         return $this;
     }
@@ -333,14 +357,16 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['question'])) {
                 $this->setQuestion($data['question']);
@@ -387,27 +413,53 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->question)) $json['question'] = $this->question;
-        if (isset($this->operator)) $json['operator'] = $this->operator;
-        if (isset($this->answerBoolean)) $json['answerBoolean'] = $this->answerBoolean;
-        if (isset($this->answerDecimal)) $json['answerDecimal'] = $this->answerDecimal;
-        if (isset($this->answerInteger)) $json['answerInteger'] = $this->answerInteger;
-        if (isset($this->answerDate)) $json['answerDate'] = $this->answerDate;
-        if (isset($this->answerDateTime)) $json['answerDateTime'] = $this->answerDateTime;
-        if (isset($this->answerTime)) $json['answerTime'] = $this->answerTime;
-        if (isset($this->answerString)) $json['answerString'] = $this->answerString;
-        if (isset($this->answerCoding)) $json['answerCoding'] = $this->answerCoding;
-        if (isset($this->answerQuantity)) $json['answerQuantity'] = $this->answerQuantity;
-        if (isset($this->answerReference)) $json['answerReference'] = $this->answerReference;
+        if (isset($this->question)) {
+            $json['question'] = $this->question;
+        }
+        if (isset($this->operator)) {
+            $json['operator'] = $this->operator;
+        }
+        if (isset($this->answerBoolean)) {
+            $json['answerBoolean'] = $this->answerBoolean;
+        }
+        if (isset($this->answerDecimal)) {
+            $json['answerDecimal'] = $this->answerDecimal;
+        }
+        if (isset($this->answerInteger)) {
+            $json['answerInteger'] = $this->answerInteger;
+        }
+        if (isset($this->answerDate)) {
+            $json['answerDate'] = $this->answerDate;
+        }
+        if (isset($this->answerDateTime)) {
+            $json['answerDateTime'] = $this->answerDateTime;
+        }
+        if (isset($this->answerTime)) {
+            $json['answerTime'] = $this->answerTime;
+        }
+        if (isset($this->answerString)) {
+            $json['answerString'] = $this->answerString;
+        }
+        if (isset($this->answerCoding)) {
+            $json['answerCoding'] = $this->answerCoding;
+        }
+        if (isset($this->answerQuantity)) {
+            $json['answerQuantity'] = $this->answerQuantity;
+        }
+        if (isset($this->answerReference)) {
+            $json['answerReference'] = $this->answerReference;
+        }
         return $json;
     }
 
@@ -416,24 +468,51 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<QuestionnaireEnableWhen xmlns="http://hl7.org/fhir"></QuestionnaireEnableWhen>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<QuestionnaireEnableWhen xmlns="http://hl7.org/fhir"></QuestionnaireEnableWhen>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->question)) $this->question->xmlSerialize(true, $sxe->addChild('question'));
-        if (isset($this->operator)) $this->operator->xmlSerialize(true, $sxe->addChild('operator'));
-        if (isset($this->answerBoolean)) $this->answerBoolean->xmlSerialize(true, $sxe->addChild('answerBoolean'));
-        if (isset($this->answerDecimal)) $this->answerDecimal->xmlSerialize(true, $sxe->addChild('answerDecimal'));
-        if (isset($this->answerInteger)) $this->answerInteger->xmlSerialize(true, $sxe->addChild('answerInteger'));
-        if (isset($this->answerDate)) $this->answerDate->xmlSerialize(true, $sxe->addChild('answerDate'));
-        if (isset($this->answerDateTime)) $this->answerDateTime->xmlSerialize(true, $sxe->addChild('answerDateTime'));
-        if (isset($this->answerTime)) $this->answerTime->xmlSerialize(true, $sxe->addChild('answerTime'));
-        if (isset($this->answerString)) $this->answerString->xmlSerialize(true, $sxe->addChild('answerString'));
-        if (isset($this->answerCoding)) $this->answerCoding->xmlSerialize(true, $sxe->addChild('answerCoding'));
-        if (isset($this->answerQuantity)) $this->answerQuantity->xmlSerialize(true, $sxe->addChild('answerQuantity'));
-        if (isset($this->answerReference)) $this->answerReference->xmlSerialize(true, $sxe->addChild('answerReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->question)) {
+            $this->question->xmlSerialize(true, $sxe->addChild('question'));
+        }
+        if (isset($this->operator)) {
+            $this->operator->xmlSerialize(true, $sxe->addChild('operator'));
+        }
+        if (isset($this->answerBoolean)) {
+            $this->answerBoolean->xmlSerialize(true, $sxe->addChild('answerBoolean'));
+        }
+        if (isset($this->answerDecimal)) {
+            $this->answerDecimal->xmlSerialize(true, $sxe->addChild('answerDecimal'));
+        }
+        if (isset($this->answerInteger)) {
+            $this->answerInteger->xmlSerialize(true, $sxe->addChild('answerInteger'));
+        }
+        if (isset($this->answerDate)) {
+            $this->answerDate->xmlSerialize(true, $sxe->addChild('answerDate'));
+        }
+        if (isset($this->answerDateTime)) {
+            $this->answerDateTime->xmlSerialize(true, $sxe->addChild('answerDateTime'));
+        }
+        if (isset($this->answerTime)) {
+            $this->answerTime->xmlSerialize(true, $sxe->addChild('answerTime'));
+        }
+        if (isset($this->answerString)) {
+            $this->answerString->xmlSerialize(true, $sxe->addChild('answerString'));
+        }
+        if (isset($this->answerCoding)) {
+            $this->answerCoding->xmlSerialize(true, $sxe->addChild('answerCoding'));
+        }
+        if (isset($this->answerQuantity)) {
+            $this->answerQuantity->xmlSerialize(true, $sxe->addChild('answerQuantity'));
+        }
+        if (isset($this->answerReference)) {
+            $this->answerReference->xmlSerialize(true, $sxe->addChild('answerReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

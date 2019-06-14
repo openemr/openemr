@@ -98,7 +98,8 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
      * Where this resource is found.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -107,7 +108,8 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reference
      * @return $this
      */
-    public function setReference($reference) {
+    public function setReference($reference)
+    {
         $this->reference = $reference;
         return $this;
     }
@@ -115,7 +117,8 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExampleBoolean() {
+    public function getExampleBoolean()
+    {
         return $this->exampleBoolean;
     }
 
@@ -123,7 +126,8 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $exampleBoolean
      * @return $this
      */
-    public function setExampleBoolean($exampleBoolean) {
+    public function setExampleBoolean($exampleBoolean)
+    {
         $this->exampleBoolean = $exampleBoolean;
         return $this;
     }
@@ -131,7 +135,8 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getExampleCanonical() {
+    public function getExampleCanonical()
+    {
         return $this->exampleCanonical;
     }
 
@@ -139,7 +144,8 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $exampleCanonical
      * @return $this
      */
-    public function setExampleCanonical($exampleCanonical) {
+    public function setExampleCanonical($exampleCanonical)
+    {
         $this->exampleCanonical = $exampleCanonical;
         return $this;
     }
@@ -148,7 +154,8 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
      * The relative path for primary page for this resource within the IG.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getRelativePath() {
+    public function getRelativePath()
+    {
         return $this->relativePath;
     }
 
@@ -157,7 +164,8 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $relativePath
      * @return $this
      */
-    public function setRelativePath($relativePath) {
+    public function setRelativePath($relativePath)
+    {
         $this->relativePath = $relativePath;
         return $this;
     }
@@ -165,14 +173,16 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['reference'])) {
                 $this->setReference($data['reference']);
@@ -195,19 +205,29 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->reference)) $json['reference'] = $this->reference;
-        if (isset($this->exampleBoolean)) $json['exampleBoolean'] = $this->exampleBoolean;
-        if (isset($this->exampleCanonical)) $json['exampleCanonical'] = $this->exampleCanonical;
-        if (isset($this->relativePath)) $json['relativePath'] = $this->relativePath;
+        if (isset($this->reference)) {
+            $json['reference'] = $this->reference;
+        }
+        if (isset($this->exampleBoolean)) {
+            $json['exampleBoolean'] = $this->exampleBoolean;
+        }
+        if (isset($this->exampleCanonical)) {
+            $json['exampleCanonical'] = $this->exampleCanonical;
+        }
+        if (isset($this->relativePath)) {
+            $json['relativePath'] = $this->relativePath;
+        }
         return $json;
     }
 
@@ -216,16 +236,27 @@ class FHIRImplementationGuideResource1 extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImplementationGuideResource1 xmlns="http://hl7.org/fhir"></ImplementationGuideResource1>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImplementationGuideResource1 xmlns="http://hl7.org/fhir"></ImplementationGuideResource1>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->reference)) $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
-        if (isset($this->exampleBoolean)) $this->exampleBoolean->xmlSerialize(true, $sxe->addChild('exampleBoolean'));
-        if (isset($this->exampleCanonical)) $this->exampleCanonical->xmlSerialize(true, $sxe->addChild('exampleCanonical'));
-        if (isset($this->relativePath)) $this->relativePath->xmlSerialize(true, $sxe->addChild('relativePath'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->reference)) {
+            $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        }
+        if (isset($this->exampleBoolean)) {
+            $this->exampleBoolean->xmlSerialize(true, $sxe->addChild('exampleBoolean'));
+        }
+        if (isset($this->exampleCanonical)) {
+            $this->exampleCanonical->xmlSerialize(true, $sxe->addChild('exampleCanonical'));
+        }
+        if (isset($this->relativePath)) {
+            $this->relativePath->xmlSerialize(true, $sxe->addChild('relativePath'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

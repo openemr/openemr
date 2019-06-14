@@ -94,7 +94,8 @@ class FHIRContractContext extends FHIRBackboneElement implements \JsonSerializab
      * Asset context reference may include the creator, custodian, or owning Person or Organization (e.g., bank, repository),  location held, e.g., building,  jurisdiction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -103,7 +104,8 @@ class FHIRContractContext extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reference
      * @return $this
      */
-    public function setReference($reference) {
+    public function setReference($reference)
+    {
         $this->reference = $reference;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRContractContext extends FHIRBackboneElement implements \JsonSerializab
      * Coded representation of the context generally or of the Referenced entity, such as the asset holder type or location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -121,7 +124,8 @@ class FHIRContractContext extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRContractContext extends FHIRBackboneElement implements \JsonSerializab
      * Context description.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -139,7 +144,8 @@ class FHIRContractContext extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -147,21 +153,23 @@ class FHIRContractContext extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['reference'])) {
                 $this->setReference($data['reference']);
             }
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -180,23 +188,29 @@ class FHIRContractContext extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->reference)) $json['reference'] = $this->reference;
+        if (isset($this->reference)) {
+            $json['reference'] = $this->reference;
+        }
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
-        if (isset($this->text)) $json['text'] = $this->text;
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
         return $json;
     }
 
@@ -205,19 +219,26 @@ class FHIRContractContext extends FHIRBackboneElement implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ContractContext xmlns="http://hl7.org/fhir"></ContractContext>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ContractContext xmlns="http://hl7.org/fhir"></ContractContext>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->reference)) $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        if (isset($this->reference)) {
+            $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        }
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

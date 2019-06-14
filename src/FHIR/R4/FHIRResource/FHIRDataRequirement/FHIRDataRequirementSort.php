@@ -89,7 +89,8 @@ class FHIRDataRequirementSort extends FHIRElement implements \JsonSerializable
      * The attribute of the sort. The specified path must be resolvable from the type of the required data. The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as indexers ([x]) to traverse multiple-cardinality sub-elements. Note that the index must be an integer constant.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->path;
     }
 
@@ -98,7 +99,8 @@ class FHIRDataRequirementSort extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $path
      * @return $this
      */
-    public function setPath($path) {
+    public function setPath($path)
+    {
         $this->path = $path;
         return $this;
     }
@@ -107,7 +109,8 @@ class FHIRDataRequirementSort extends FHIRElement implements \JsonSerializable
      * The direction of the sort, ascending or descending.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSortDirection
      */
-    public function getDirection() {
+    public function getDirection()
+    {
         return $this->direction;
     }
 
@@ -116,7 +119,8 @@ class FHIRDataRequirementSort extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSortDirection $direction
      * @return $this
      */
-    public function setDirection($direction) {
+    public function setDirection($direction)
+    {
         $this->direction = $direction;
         return $this;
     }
@@ -124,14 +128,16 @@ class FHIRDataRequirementSort extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['path'])) {
                 $this->setPath($data['path']);
@@ -148,17 +154,23 @@ class FHIRDataRequirementSort extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->path)) $json['path'] = $this->path;
-        if (isset($this->direction)) $json['direction'] = $this->direction;
+        if (isset($this->path)) {
+            $json['path'] = $this->path;
+        }
+        if (isset($this->direction)) {
+            $json['direction'] = $this->direction;
+        }
         return $json;
     }
 
@@ -167,14 +179,21 @@ class FHIRDataRequirementSort extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DataRequirementSort xmlns="http://hl7.org/fhir"></DataRequirementSort>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DataRequirementSort xmlns="http://hl7.org/fhir"></DataRequirementSort>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->path)) $this->path->xmlSerialize(true, $sxe->addChild('path'));
-        if (isset($this->direction)) $this->direction->xmlSerialize(true, $sxe->addChild('direction'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->path)) {
+            $this->path->xmlSerialize(true, $sxe->addChild('path'));
+        }
+        if (isset($this->direction)) {
+            $this->direction->xmlSerialize(true, $sxe->addChild('direction'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

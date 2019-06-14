@@ -88,7 +88,8 @@ class FHIRMedicationBatch extends FHIRBackboneElement implements \JsonSerializab
      * The assigned lot number of a batch of the specified product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getLotNumber() {
+    public function getLotNumber()
+    {
         return $this->lotNumber;
     }
 
@@ -97,7 +98,8 @@ class FHIRMedicationBatch extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $lotNumber
      * @return $this
      */
-    public function setLotNumber($lotNumber) {
+    public function setLotNumber($lotNumber)
+    {
         $this->lotNumber = $lotNumber;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMedicationBatch extends FHIRBackboneElement implements \JsonSerializab
      * When this specific batch of product will expire.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getExpirationDate() {
+    public function getExpirationDate()
+    {
         return $this->expirationDate;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicationBatch extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $expirationDate
      * @return $this
      */
-    public function setExpirationDate($expirationDate) {
+    public function setExpirationDate($expirationDate)
+    {
         $this->expirationDate = $expirationDate;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRMedicationBatch extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['lotNumber'])) {
                 $this->setLotNumber($data['lotNumber']);
@@ -147,17 +153,23 @@ class FHIRMedicationBatch extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->lotNumber)) $json['lotNumber'] = $this->lotNumber;
-        if (isset($this->expirationDate)) $json['expirationDate'] = $this->expirationDate;
+        if (isset($this->lotNumber)) {
+            $json['lotNumber'] = $this->lotNumber;
+        }
+        if (isset($this->expirationDate)) {
+            $json['expirationDate'] = $this->expirationDate;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRMedicationBatch extends FHIRBackboneElement implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationBatch xmlns="http://hl7.org/fhir"></MedicationBatch>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationBatch xmlns="http://hl7.org/fhir"></MedicationBatch>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->lotNumber)) $this->lotNumber->xmlSerialize(true, $sxe->addChild('lotNumber'));
-        if (isset($this->expirationDate)) $this->expirationDate->xmlSerialize(true, $sxe->addChild('expirationDate'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->lotNumber)) {
+            $this->lotNumber->xmlSerialize(true, $sxe->addChild('lotNumber'));
+        }
+        if (isset($this->expirationDate)) {
+            $this->expirationDate->xmlSerialize(true, $sxe->addChild('expirationDate'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

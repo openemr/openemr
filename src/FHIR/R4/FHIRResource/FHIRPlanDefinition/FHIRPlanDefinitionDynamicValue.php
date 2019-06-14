@@ -88,7 +88,8 @@ class FHIRPlanDefinitionDynamicValue extends FHIRBackboneElement implements \Jso
      * The path to the element to be customized. This is the path on the resource that will hold the result of the calculation defined by the expression. The specified path SHALL be a FHIRPath resolveable on the specified target type of the ActivityDefinition, and SHALL consist only of identifiers, constant indexers, and a restricted subset of functions. The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as indexers ([x]) to traverse multiple-cardinality sub-elements (see the [Simple FHIRPath Profile](fhirpath.html#simple) for full details).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->path;
     }
 
@@ -97,7 +98,8 @@ class FHIRPlanDefinitionDynamicValue extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $path
      * @return $this
      */
-    public function setPath($path) {
+    public function setPath($path)
+    {
         $this->path = $path;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRPlanDefinitionDynamicValue extends FHIRBackboneElement implements \Jso
      * An expression specifying the value of the customized element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getExpression() {
+    public function getExpression()
+    {
         return $this->expression;
     }
 
@@ -115,7 +118,8 @@ class FHIRPlanDefinitionDynamicValue extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $expression
      * @return $this
      */
-    public function setExpression($expression) {
+    public function setExpression($expression)
+    {
         $this->expression = $expression;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRPlanDefinitionDynamicValue extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['path'])) {
                 $this->setPath($data['path']);
@@ -147,17 +153,23 @@ class FHIRPlanDefinitionDynamicValue extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->path)) $json['path'] = $this->path;
-        if (isset($this->expression)) $json['expression'] = $this->expression;
+        if (isset($this->path)) {
+            $json['path'] = $this->path;
+        }
+        if (isset($this->expression)) {
+            $json['expression'] = $this->expression;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRPlanDefinitionDynamicValue extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PlanDefinitionDynamicValue xmlns="http://hl7.org/fhir"></PlanDefinitionDynamicValue>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PlanDefinitionDynamicValue xmlns="http://hl7.org/fhir"></PlanDefinitionDynamicValue>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->path)) $this->path->xmlSerialize(true, $sxe->addChild('path'));
-        if (isset($this->expression)) $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->path)) {
+            $this->path->xmlSerialize(true, $sxe->addChild('path'));
+        }
+        if (isset($this->expression)) {
+            $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

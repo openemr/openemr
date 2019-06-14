@@ -106,7 +106,8 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * A logical group of resources. Logical groups can be used when building pages.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideGrouping[]
      */
-    public function getGrouping() {
+    public function getGrouping()
+    {
         return $this->grouping;
     }
 
@@ -115,7 +116,8 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideGrouping $grouping
      * @return $this
      */
-    public function addGrouping($grouping) {
+    public function addGrouping($grouping)
+    {
         $this->grouping[] = $grouping;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * A resource that is part of the implementation guide. Conformance resources (value set, structure definition, capability statements etc.) are obvious candidates for inclusion, but any kind of resource can be included as an example resource.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideResource[]
      */
-    public function getResource() {
+    public function getResource()
+    {
         return $this->resource;
     }
 
@@ -133,7 +136,8 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideResource $resource
      * @return $this
      */
-    public function addResource($resource) {
+    public function addResource($resource)
+    {
         $this->resource[] = $resource;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * A page / section in the implementation guide. The root page is the implementation guide home page.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuidePage
      */
-    public function getPage() {
+    public function getPage()
+    {
         return $this->page;
     }
 
@@ -151,7 +156,8 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuidePage $page
      * @return $this
      */
-    public function setPage($page) {
+    public function setPage($page)
+    {
         $this->page = $page;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * Defines how IG is built by tools.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideParameter[]
      */
-    public function getParameter() {
+    public function getParameter()
+    {
         return $this->parameter;
     }
 
@@ -169,7 +176,8 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideParameter $parameter
      * @return $this
      */
-    public function addParameter($parameter) {
+    public function addParameter($parameter)
+    {
         $this->parameter[] = $parameter;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * A template for building resources.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideTemplate[]
      */
-    public function getTemplate() {
+    public function getTemplate()
+    {
         return $this->template;
     }
 
@@ -187,7 +196,8 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide\FHIRImplementationGuideTemplate $template
      * @return $this
      */
-    public function addTemplate($template) {
+    public function addTemplate($template)
+    {
         $this->template[] = $template;
         return $this;
     }
@@ -195,18 +205,20 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['grouping'])) {
                 if (is_array($data['grouping'])) {
-                    foreach($data['grouping'] as $d) {
+                    foreach ($data['grouping'] as $d) {
                         $this->addGrouping($d);
                     }
                 } else {
@@ -215,7 +227,7 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
             }
             if (isset($data['resource'])) {
                 if (is_array($data['resource'])) {
-                    foreach($data['resource'] as $d) {
+                    foreach ($data['resource'] as $d) {
                         $this->addResource($d);
                     }
                 } else {
@@ -227,7 +239,7 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
             }
             if (isset($data['parameter'])) {
                 if (is_array($data['parameter'])) {
-                    foreach($data['parameter'] as $d) {
+                    foreach ($data['parameter'] as $d) {
                         $this->addParameter($d);
                     }
                 } else {
@@ -236,7 +248,7 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
             }
             if (isset($data['template'])) {
                 if (is_array($data['template'])) {
-                    foreach($data['template'] as $d) {
+                    foreach ($data['template'] as $d) {
                         $this->addTemplate($d);
                     }
                 } else {
@@ -252,37 +264,41 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->grouping)) {
             $json['grouping'] = [];
-            foreach($this->grouping as $grouping) {
+            foreach ($this->grouping as $grouping) {
                 $json['grouping'][] = $grouping;
             }
         }
         if (0 < count($this->resource)) {
             $json['resource'] = [];
-            foreach($this->resource as $resource) {
+            foreach ($this->resource as $resource) {
                 $json['resource'][] = $resource;
             }
         }
-        if (isset($this->page)) $json['page'] = $this->page;
+        if (isset($this->page)) {
+            $json['page'] = $this->page;
+        }
         if (0 < count($this->parameter)) {
             $json['parameter'] = [];
-            foreach($this->parameter as $parameter) {
+            foreach ($this->parameter as $parameter) {
                 $json['parameter'][] = $parameter;
             }
         }
         if (0 < count($this->template)) {
             $json['template'] = [];
-            foreach($this->template as $template) {
+            foreach ($this->template as $template) {
                 $json['template'][] = $template;
             }
         }
@@ -294,33 +310,38 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImplementationGuideDefinition xmlns="http://hl7.org/fhir"></ImplementationGuideDefinition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImplementationGuideDefinition xmlns="http://hl7.org/fhir"></ImplementationGuideDefinition>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->grouping)) {
-            foreach($this->grouping as $grouping) {
+            foreach ($this->grouping as $grouping) {
                 $grouping->xmlSerialize(true, $sxe->addChild('grouping'));
             }
         }
         if (0 < count($this->resource)) {
-            foreach($this->resource as $resource) {
+            foreach ($this->resource as $resource) {
                 $resource->xmlSerialize(true, $sxe->addChild('resource'));
             }
         }
-        if (isset($this->page)) $this->page->xmlSerialize(true, $sxe->addChild('page'));
+        if (isset($this->page)) {
+            $this->page->xmlSerialize(true, $sxe->addChild('page'));
+        }
         if (0 < count($this->parameter)) {
-            foreach($this->parameter as $parameter) {
+            foreach ($this->parameter as $parameter) {
                 $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
             }
         }
         if (0 < count($this->template)) {
-            foreach($this->template as $template) {
+            foreach ($this->template as $template) {
                 $template->xmlSerialize(true, $sxe->addChild('template'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

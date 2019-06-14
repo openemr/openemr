@@ -100,7 +100,8 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
      * The sequence number of the line item submitted which contains the error. This value is omitted when the error occurs outside of the item structure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getItemSequence() {
+    public function getItemSequence()
+    {
         return $this->itemSequence;
     }
 
@@ -109,7 +110,8 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $itemSequence
      * @return $this
      */
-    public function setItemSequence($itemSequence) {
+    public function setItemSequence($itemSequence)
+    {
         $this->itemSequence = $itemSequence;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
      * The sequence number of the detail within the line item submitted which contains the error. This value is omitted when the error occurs outside of the item structure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getDetailSequence() {
+    public function getDetailSequence()
+    {
         return $this->detailSequence;
     }
 
@@ -127,7 +130,8 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $detailSequence
      * @return $this
      */
-    public function setDetailSequence($detailSequence) {
+    public function setDetailSequence($detailSequence)
+    {
         $this->detailSequence = $detailSequence;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
      * The sequence number of the sub-detail within the detail within the line item submitted which contains the error. This value is omitted when the error occurs outside of the item structure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSubDetailSequence() {
+    public function getSubDetailSequence()
+    {
         return $this->subDetailSequence;
     }
 
@@ -145,7 +150,8 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $subDetailSequence
      * @return $this
      */
-    public function setSubDetailSequence($subDetailSequence) {
+    public function setSubDetailSequence($subDetailSequence)
+    {
         $this->subDetailSequence = $subDetailSequence;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
      * An error code, from a specified code system, which details why the claim could not be adjudicated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -163,7 +170,8 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['itemSequence'])) {
                 $this->setItemSequence($data['itemSequence']);
@@ -201,19 +211,29 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->itemSequence)) $json['itemSequence'] = $this->itemSequence;
-        if (isset($this->detailSequence)) $json['detailSequence'] = $this->detailSequence;
-        if (isset($this->subDetailSequence)) $json['subDetailSequence'] = $this->subDetailSequence;
-        if (isset($this->code)) $json['code'] = $this->code;
+        if (isset($this->itemSequence)) {
+            $json['itemSequence'] = $this->itemSequence;
+        }
+        if (isset($this->detailSequence)) {
+            $json['detailSequence'] = $this->detailSequence;
+        }
+        if (isset($this->subDetailSequence)) {
+            $json['subDetailSequence'] = $this->subDetailSequence;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimResponseError xmlns="http://hl7.org/fhir"></ClaimResponseError>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimResponseError xmlns="http://hl7.org/fhir"></ClaimResponseError>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->itemSequence)) $this->itemSequence->xmlSerialize(true, $sxe->addChild('itemSequence'));
-        if (isset($this->detailSequence)) $this->detailSequence->xmlSerialize(true, $sxe->addChild('detailSequence'));
-        if (isset($this->subDetailSequence)) $this->subDetailSequence->xmlSerialize(true, $sxe->addChild('subDetailSequence'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->itemSequence)) {
+            $this->itemSequence->xmlSerialize(true, $sxe->addChild('itemSequence'));
+        }
+        if (isset($this->detailSequence)) {
+            $this->detailSequence->xmlSerialize(true, $sxe->addChild('detailSequence'));
+        }
+        if (isset($this->subDetailSequence)) {
+            $this->subDetailSequence->xmlSerialize(true, $sxe->addChild('subDetailSequence'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

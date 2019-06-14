@@ -100,7 +100,8 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
      * Assessment of if the entity caused the event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAssessment() {
+    public function getAssessment()
+    {
         return $this->assessment;
     }
 
@@ -109,7 +110,8 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $assessment
      * @return $this
      */
-    public function setAssessment($assessment) {
+    public function setAssessment($assessment)
+    {
         $this->assessment = $assessment;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
      * AdverseEvent.suspectEntity.causalityProductRelatedness.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getProductRelatedness() {
+    public function getProductRelatedness()
+    {
         return $this->productRelatedness;
     }
 
@@ -127,7 +130,8 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $productRelatedness
      * @return $this
      */
-    public function setProductRelatedness($productRelatedness) {
+    public function setProductRelatedness($productRelatedness)
+    {
         $this->productRelatedness = $productRelatedness;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
      * AdverseEvent.suspectEntity.causalityAuthor.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
@@ -145,7 +150,8 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $author
      * @return $this
      */
-    public function setAuthor($author) {
+    public function setAuthor($author)
+    {
         $this->author = $author;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
      * ProbabilityScale | Bayesian | Checklist.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method;
     }
 
@@ -163,7 +170,8 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $method
      * @return $this
      */
-    public function setMethod($method) {
+    public function setMethod($method)
+    {
         $this->method = $method;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['assessment'])) {
                 $this->setAssessment($data['assessment']);
@@ -201,19 +211,29 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->assessment)) $json['assessment'] = $this->assessment;
-        if (isset($this->productRelatedness)) $json['productRelatedness'] = $this->productRelatedness;
-        if (isset($this->author)) $json['author'] = $this->author;
-        if (isset($this->method)) $json['method'] = $this->method;
+        if (isset($this->assessment)) {
+            $json['assessment'] = $this->assessment;
+        }
+        if (isset($this->productRelatedness)) {
+            $json['productRelatedness'] = $this->productRelatedness;
+        }
+        if (isset($this->author)) {
+            $json['author'] = $this->author;
+        }
+        if (isset($this->method)) {
+            $json['method'] = $this->method;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRAdverseEventCausality extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<AdverseEventCausality xmlns="http://hl7.org/fhir"></AdverseEventCausality>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<AdverseEventCausality xmlns="http://hl7.org/fhir"></AdverseEventCausality>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->assessment)) $this->assessment->xmlSerialize(true, $sxe->addChild('assessment'));
-        if (isset($this->productRelatedness)) $this->productRelatedness->xmlSerialize(true, $sxe->addChild('productRelatedness'));
-        if (isset($this->author)) $this->author->xmlSerialize(true, $sxe->addChild('author'));
-        if (isset($this->method)) $this->method->xmlSerialize(true, $sxe->addChild('method'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->assessment)) {
+            $this->assessment->xmlSerialize(true, $sxe->addChild('assessment'));
+        }
+        if (isset($this->productRelatedness)) {
+            $this->productRelatedness->xmlSerialize(true, $sxe->addChild('productRelatedness'));
+        }
+        if (isset($this->author)) {
+            $this->author->xmlSerialize(true, $sxe->addChild('author'));
+        }
+        if (isset($this->method)) {
+            $this->method->xmlSerialize(true, $sxe->addChild('method'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

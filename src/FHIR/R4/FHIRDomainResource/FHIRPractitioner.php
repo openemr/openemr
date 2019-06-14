@@ -93,7 +93,7 @@ class FHIRPractitioner extends FHIRDomainResource implements \JsonSerializable
     public $telecom = [];
 
     /**
-     * Address(es) of the practitioner that are not role specific (typically home address). 
+     * Address(es) of the practitioner that are not role specific (typically home address).
 Work addresses are not typically entered in this property as they are usually role dependent.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress[]
      */
@@ -138,7 +138,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * An identifier that applies to this person in this role.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -147,7 +148,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -156,7 +158,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * Whether this practitioner's record is in active use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getActive() {
+    public function getActive()
+    {
         return $this->active;
     }
 
@@ -165,7 +168,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $active
      * @return $this
      */
-    public function setActive($active) {
+    public function setActive($active)
+    {
         $this->active = $active;
         return $this;
     }
@@ -174,7 +178,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * The name(s) associated with the practitioner.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName[]
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -183,7 +188,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName $name
      * @return $this
      */
-    public function addName($name) {
+    public function addName($name)
+    {
         $this->name[] = $name;
         return $this;
     }
@@ -192,7 +198,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * A contact detail for the practitioner, e.g. a telephone number or an email address.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint[]
      */
-    public function getTelecom() {
+    public function getTelecom()
+    {
         return $this->telecom;
     }
 
@@ -201,27 +208,30 @@ Work addresses are not typically entered in this property as they are usually ro
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $telecom
      * @return $this
      */
-    public function addTelecom($telecom) {
+    public function addTelecom($telecom)
+    {
         $this->telecom[] = $telecom;
         return $this;
     }
 
     /**
-     * Address(es) of the practitioner that are not role specific (typically home address). 
+     * Address(es) of the practitioner that are not role specific (typically home address).
 Work addresses are not typically entered in this property as they are usually role dependent.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress[]
      */
-    public function getAddress() {
+    public function getAddress()
+    {
         return $this->address;
     }
 
     /**
-     * Address(es) of the practitioner that are not role specific (typically home address). 
+     * Address(es) of the practitioner that are not role specific (typically home address).
 Work addresses are not typically entered in this property as they are usually role dependent.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $address
      * @return $this
      */
-    public function addAddress($address) {
+    public function addAddress($address)
+    {
         $this->address[] = $address;
         return $this;
     }
@@ -230,7 +240,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * Administrative Gender - the gender that the person is considered to have for administration and record keeping purposes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender
      */
-    public function getGender() {
+    public function getGender()
+    {
         return $this->gender;
     }
 
@@ -239,7 +250,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender $gender
      * @return $this
      */
-    public function setGender($gender) {
+    public function setGender($gender)
+    {
         $this->gender = $gender;
         return $this;
     }
@@ -248,7 +260,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * The date of birth for the practitioner.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getBirthDate() {
+    public function getBirthDate()
+    {
         return $this->birthDate;
     }
 
@@ -257,7 +270,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $birthDate
      * @return $this
      */
-    public function setBirthDate($birthDate) {
+    public function setBirthDate($birthDate)
+    {
         $this->birthDate = $birthDate;
         return $this;
     }
@@ -266,7 +280,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * Image of the person.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment[]
      */
-    public function getPhoto() {
+    public function getPhoto()
+    {
         return $this->photo;
     }
 
@@ -275,7 +290,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $photo
      * @return $this
      */
-    public function addPhoto($photo) {
+    public function addPhoto($photo)
+    {
         $this->photo[] = $photo;
         return $this;
     }
@@ -284,7 +300,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * The official certifications, training, and licenses that authorize or otherwise pertain to the provision of care by the practitioner.  For example, a medical license issued by a medical board authorizing the practitioner to practice medicine within a certian locality.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPractitioner\FHIRPractitionerQualification[]
      */
-    public function getQualification() {
+    public function getQualification()
+    {
         return $this->qualification;
     }
 
@@ -293,7 +310,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPractitioner\FHIRPractitionerQualification $qualification
      * @return $this
      */
-    public function addQualification($qualification) {
+    public function addQualification($qualification)
+    {
         $this->qualification[] = $qualification;
         return $this;
     }
@@ -302,7 +320,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * A language the practitioner can use in patient communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCommunication() {
+    public function getCommunication()
+    {
         return $this->communication;
     }
 
@@ -311,7 +330,8 @@ Work addresses are not typically entered in this property as they are usually ro
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $communication
      * @return $this
      */
-    public function addCommunication($communication) {
+    public function addCommunication($communication)
+    {
         $this->communication[] = $communication;
         return $this;
     }
@@ -319,18 +339,20 @@ Work addresses are not typically entered in this property as they are usually ro
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -342,7 +364,7 @@ Work addresses are not typically entered in this property as they are usually ro
             }
             if (isset($data['name'])) {
                 if (is_array($data['name'])) {
-                    foreach($data['name'] as $d) {
+                    foreach ($data['name'] as $d) {
                         $this->addName($d);
                     }
                 } else {
@@ -351,7 +373,7 @@ Work addresses are not typically entered in this property as they are usually ro
             }
             if (isset($data['telecom'])) {
                 if (is_array($data['telecom'])) {
-                    foreach($data['telecom'] as $d) {
+                    foreach ($data['telecom'] as $d) {
                         $this->addTelecom($d);
                     }
                 } else {
@@ -360,7 +382,7 @@ Work addresses are not typically entered in this property as they are usually ro
             }
             if (isset($data['address'])) {
                 if (is_array($data['address'])) {
-                    foreach($data['address'] as $d) {
+                    foreach ($data['address'] as $d) {
                         $this->addAddress($d);
                     }
                 } else {
@@ -375,7 +397,7 @@ Work addresses are not typically entered in this property as they are usually ro
             }
             if (isset($data['photo'])) {
                 if (is_array($data['photo'])) {
-                    foreach($data['photo'] as $d) {
+                    foreach ($data['photo'] as $d) {
                         $this->addPhoto($d);
                     }
                 } else {
@@ -384,7 +406,7 @@ Work addresses are not typically entered in this property as they are usually ro
             }
             if (isset($data['qualification'])) {
                 if (is_array($data['qualification'])) {
-                    foreach($data['qualification'] as $d) {
+                    foreach ($data['qualification'] as $d) {
                         $this->addQualification($d);
                     }
                 } else {
@@ -393,7 +415,7 @@ Work addresses are not typically entered in this property as they are usually ro
             }
             if (isset($data['communication'])) {
                 if (is_array($data['communication'])) {
-                    foreach($data['communication'] as $d) {
+                    foreach ($data['communication'] as $d) {
                         $this->addCommunication($d);
                     }
                 } else {
@@ -409,58 +431,66 @@ Work addresses are not typically entered in this property as they are usually ro
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->active)) $json['active'] = $this->active;
+        if (isset($this->active)) {
+            $json['active'] = $this->active;
+        }
         if (0 < count($this->name)) {
             $json['name'] = [];
-            foreach($this->name as $name) {
+            foreach ($this->name as $name) {
                 $json['name'][] = $name;
             }
         }
         if (0 < count($this->telecom)) {
             $json['telecom'] = [];
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $json['telecom'][] = $telecom;
             }
         }
         if (0 < count($this->address)) {
             $json['address'] = [];
-            foreach($this->address as $address) {
+            foreach ($this->address as $address) {
                 $json['address'][] = $address;
             }
         }
-        if (isset($this->gender)) $json['gender'] = $this->gender;
-        if (isset($this->birthDate)) $json['birthDate'] = $this->birthDate;
+        if (isset($this->gender)) {
+            $json['gender'] = $this->gender;
+        }
+        if (isset($this->birthDate)) {
+            $json['birthDate'] = $this->birthDate;
+        }
         if (0 < count($this->photo)) {
             $json['photo'] = [];
-            foreach($this->photo as $photo) {
+            foreach ($this->photo as $photo) {
                 $json['photo'][] = $photo;
             }
         }
         if (0 < count($this->qualification)) {
             $json['qualification'] = [];
-            foreach($this->qualification as $qualification) {
+            foreach ($this->qualification as $qualification) {
                 $json['qualification'][] = $qualification;
             }
         }
         if (0 < count($this->communication)) {
             $json['communication'] = [];
-            foreach($this->communication as $communication) {
+            foreach ($this->communication as $communication) {
                 $json['communication'][] = $communication;
             }
         }
@@ -472,50 +502,59 @@ Work addresses are not typically entered in this property as they are usually ro
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Practitioner xmlns="http://hl7.org/fhir"></Practitioner>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Practitioner xmlns="http://hl7.org/fhir"></Practitioner>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->active)) $this->active->xmlSerialize(true, $sxe->addChild('active'));
+        if (isset($this->active)) {
+            $this->active->xmlSerialize(true, $sxe->addChild('active'));
+        }
         if (0 < count($this->name)) {
-            foreach($this->name as $name) {
+            foreach ($this->name as $name) {
                 $name->xmlSerialize(true, $sxe->addChild('name'));
             }
         }
         if (0 < count($this->telecom)) {
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
             }
         }
         if (0 < count($this->address)) {
-            foreach($this->address as $address) {
+            foreach ($this->address as $address) {
                 $address->xmlSerialize(true, $sxe->addChild('address'));
             }
         }
-        if (isset($this->gender)) $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
-        if (isset($this->birthDate)) $this->birthDate->xmlSerialize(true, $sxe->addChild('birthDate'));
+        if (isset($this->gender)) {
+            $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
+        }
+        if (isset($this->birthDate)) {
+            $this->birthDate->xmlSerialize(true, $sxe->addChild('birthDate'));
+        }
         if (0 < count($this->photo)) {
-            foreach($this->photo as $photo) {
+            foreach ($this->photo as $photo) {
                 $photo->xmlSerialize(true, $sxe->addChild('photo'));
             }
         }
         if (0 < count($this->qualification)) {
-            foreach($this->qualification as $qualification) {
+            foreach ($this->qualification as $qualification) {
                 $qualification->xmlSerialize(true, $sxe->addChild('qualification'));
             }
         }
         if (0 < count($this->communication)) {
-            foreach($this->communication as $communication) {
+            foreach ($this->communication as $communication) {
                 $communication->xmlSerialize(true, $sxe->addChild('communication'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIRMedicationKnowledgeMonograph extends FHIRBackboneElement implements \J
      * The category of documentation about the medication. (e.g. professional monograph, patient education monograph).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -97,7 +98,8 @@ class FHIRMedicationKnowledgeMonograph extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMedicationKnowledgeMonograph extends FHIRBackboneElement implements \J
      * Associated documentation about the medication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicationKnowledgeMonograph extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function setSource($source) {
+    public function setSource($source)
+    {
         $this->source = $source;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRMedicationKnowledgeMonograph extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -147,17 +153,23 @@ class FHIRMedicationKnowledgeMonograph extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->source)) $json['source'] = $this->source;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->source)) {
+            $json['source'] = $this->source;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRMedicationKnowledgeMonograph extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationKnowledgeMonograph xmlns="http://hl7.org/fhir"></MedicationKnowledgeMonograph>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationKnowledgeMonograph xmlns="http://hl7.org/fhir"></MedicationKnowledgeMonograph>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->source)) $this->source->xmlSerialize(true, $sxe->addChild('source'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->source)) {
+            $this->source->xmlSerialize(true, $sxe->addChild('source'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

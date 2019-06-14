@@ -159,7 +159,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * Unique identifier for this copy of the Consent Statement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -168,7 +169,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -177,7 +179,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * Indicates the current state of this consent.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRConsentState
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -186,7 +189,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRConsentState $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -195,7 +199,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * A selector of the type of consent being presented: ADR, Privacy, Treatment, Research.  This list is now extensible.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getScope() {
+    public function getScope()
+    {
         return $this->scope;
     }
 
@@ -204,7 +209,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $scope
      * @return $this
      */
-    public function setScope($scope) {
+    public function setScope($scope)
+    {
         $this->scope = $scope;
         return $this;
     }
@@ -213,7 +219,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * A classification of the type of consents found in the statement. This element supports indexing and retrieval of consent statements.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -222,7 +229,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function addCategory($category) {
+    public function addCategory($category)
+    {
         $this->category[] = $category;
         return $this;
     }
@@ -231,7 +239,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * The patient/healthcare consumer to whom this consent applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -240,7 +249,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -249,7 +259,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * When this  Consent was issued / created / indexed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDateTime() {
+    public function getDateTime()
+    {
         return $this->dateTime;
     }
 
@@ -258,7 +269,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $dateTime
      * @return $this
      */
-    public function setDateTime($dateTime) {
+    public function setDateTime($dateTime)
+    {
         $this->dateTime = $dateTime;
         return $this;
     }
@@ -267,7 +279,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * Either the Grantor, which is the entity responsible for granting the rights listed in a Consent Directive or the Grantee, which is the entity responsible for complying with the Consent Directive, including any obligations or limitations on authorizations and enforcement of prohibitions.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPerformer() {
+    public function getPerformer()
+    {
         return $this->performer;
     }
 
@@ -276,7 +289,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $performer
      * @return $this
      */
-    public function addPerformer($performer) {
+    public function addPerformer($performer)
+    {
         $this->performer[] = $performer;
         return $this;
     }
@@ -285,7 +299,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * The organization that manages the consent, and the framework within which it is executed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getOrganization() {
+    public function getOrganization()
+    {
         return $this->organization;
     }
 
@@ -294,7 +309,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $organization
      * @return $this
      */
-    public function addOrganization($organization) {
+    public function addOrganization($organization)
+    {
         $this->organization[] = $organization;
         return $this;
     }
@@ -302,7 +318,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getSourceAttachment() {
+    public function getSourceAttachment()
+    {
         return $this->sourceAttachment;
     }
 
@@ -310,7 +327,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $sourceAttachment
      * @return $this
      */
-    public function setSourceAttachment($sourceAttachment) {
+    public function setSourceAttachment($sourceAttachment)
+    {
         $this->sourceAttachment = $sourceAttachment;
         return $this;
     }
@@ -318,7 +336,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSourceReference() {
+    public function getSourceReference()
+    {
         return $this->sourceReference;
     }
 
@@ -326,7 +345,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $sourceReference
      * @return $this
      */
-    public function setSourceReference($sourceReference) {
+    public function setSourceReference($sourceReference)
+    {
         $this->sourceReference = $sourceReference;
         return $this;
     }
@@ -335,7 +355,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * The references to the policies that are included in this consent scope. Policies may be organizational, but are often defined jurisdictionally, or in law.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentPolicy[]
      */
-    public function getPolicy() {
+    public function getPolicy()
+    {
         return $this->policy;
     }
 
@@ -344,7 +365,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentPolicy $policy
      * @return $this
      */
-    public function addPolicy($policy) {
+    public function addPolicy($policy)
+    {
         $this->policy[] = $policy;
         return $this;
     }
@@ -353,7 +375,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * A reference to the specific base computable regulation or policy.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPolicyRule() {
+    public function getPolicyRule()
+    {
         return $this->policyRule;
     }
 
@@ -362,7 +385,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $policyRule
      * @return $this
      */
-    public function setPolicyRule($policyRule) {
+    public function setPolicyRule($policyRule)
+    {
         $this->policyRule = $policyRule;
         return $this;
     }
@@ -371,7 +395,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * Whether a treatment instruction (e.g. artificial respiration yes or no) was verified with the patient, his/her family or another authorized person.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentVerification[]
      */
-    public function getVerification() {
+    public function getVerification()
+    {
         return $this->verification;
     }
 
@@ -380,7 +405,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentVerification $verification
      * @return $this
      */
-    public function addVerification($verification) {
+    public function addVerification($verification)
+    {
         $this->verification[] = $verification;
         return $this;
     }
@@ -389,7 +415,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * An exception to the base policy of this consent. An exception can be an addition or removal of access permissions.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentProvision
      */
-    public function getProvision() {
+    public function getProvision()
+    {
         return $this->provision;
     }
 
@@ -398,7 +425,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRConsent\FHIRConsentProvision $provision
      * @return $this
      */
-    public function setProvision($provision) {
+    public function setProvision($provision)
+    {
         $this->provision = $provision;
         return $this;
     }
@@ -406,18 +434,20 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -432,7 +462,7 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['category'])) {
                 if (is_array($data['category'])) {
-                    foreach($data['category'] as $d) {
+                    foreach ($data['category'] as $d) {
                         $this->addCategory($d);
                     }
                 } else {
@@ -447,7 +477,7 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['performer'])) {
                 if (is_array($data['performer'])) {
-                    foreach($data['performer'] as $d) {
+                    foreach ($data['performer'] as $d) {
                         $this->addPerformer($d);
                     }
                 } else {
@@ -456,7 +486,7 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['organization'])) {
                 if (is_array($data['organization'])) {
-                    foreach($data['organization'] as $d) {
+                    foreach ($data['organization'] as $d) {
                         $this->addOrganization($d);
                     }
                 } else {
@@ -471,7 +501,7 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['policy'])) {
                 if (is_array($data['policy'])) {
-                    foreach($data['policy'] as $d) {
+                    foreach ($data['policy'] as $d) {
                         $this->addPolicy($d);
                     }
                 } else {
@@ -483,7 +513,7 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['verification'])) {
                 if (is_array($data['verification'])) {
-                    foreach($data['verification'] as $d) {
+                    foreach ($data['verification'] as $d) {
                         $this->addVerification($d);
                     }
                 } else {
@@ -502,60 +532,78 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->scope)) $json['scope'] = $this->scope;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->scope)) {
+            $json['scope'] = $this->scope;
+        }
         if (0 < count($this->category)) {
             $json['category'] = [];
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $json['category'][] = $category;
             }
         }
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->dateTime)) $json['dateTime'] = $this->dateTime;
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->dateTime)) {
+            $json['dateTime'] = $this->dateTime;
+        }
         if (0 < count($this->performer)) {
             $json['performer'] = [];
-            foreach($this->performer as $performer) {
+            foreach ($this->performer as $performer) {
                 $json['performer'][] = $performer;
             }
         }
         if (0 < count($this->organization)) {
             $json['organization'] = [];
-            foreach($this->organization as $organization) {
+            foreach ($this->organization as $organization) {
                 $json['organization'][] = $organization;
             }
         }
-        if (isset($this->sourceAttachment)) $json['sourceAttachment'] = $this->sourceAttachment;
-        if (isset($this->sourceReference)) $json['sourceReference'] = $this->sourceReference;
+        if (isset($this->sourceAttachment)) {
+            $json['sourceAttachment'] = $this->sourceAttachment;
+        }
+        if (isset($this->sourceReference)) {
+            $json['sourceReference'] = $this->sourceReference;
+        }
         if (0 < count($this->policy)) {
             $json['policy'] = [];
-            foreach($this->policy as $policy) {
+            foreach ($this->policy as $policy) {
                 $json['policy'][] = $policy;
             }
         }
-        if (isset($this->policyRule)) $json['policyRule'] = $this->policyRule;
+        if (isset($this->policyRule)) {
+            $json['policyRule'] = $this->policyRule;
+        }
         if (0 < count($this->verification)) {
             $json['verification'] = [];
-            foreach($this->verification as $verification) {
+            foreach ($this->verification as $verification) {
                 $json['verification'][] = $verification;
             }
         }
-        if (isset($this->provision)) $json['provision'] = $this->provision;
+        if (isset($this->provision)) {
+            $json['provision'] = $this->provision;
+        }
         return $json;
     }
 
@@ -564,50 +612,69 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Consent xmlns="http://hl7.org/fhir"></Consent>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Consent xmlns="http://hl7.org/fhir"></Consent>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->scope)) $this->scope->xmlSerialize(true, $sxe->addChild('scope'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->scope)) {
+            $this->scope->xmlSerialize(true, $sxe->addChild('scope'));
+        }
         if (0 < count($this->category)) {
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $category->xmlSerialize(true, $sxe->addChild('category'));
             }
         }
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->dateTime)) $this->dateTime->xmlSerialize(true, $sxe->addChild('dateTime'));
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->dateTime)) {
+            $this->dateTime->xmlSerialize(true, $sxe->addChild('dateTime'));
+        }
         if (0 < count($this->performer)) {
-            foreach($this->performer as $performer) {
+            foreach ($this->performer as $performer) {
                 $performer->xmlSerialize(true, $sxe->addChild('performer'));
             }
         }
         if (0 < count($this->organization)) {
-            foreach($this->organization as $organization) {
+            foreach ($this->organization as $organization) {
                 $organization->xmlSerialize(true, $sxe->addChild('organization'));
             }
         }
-        if (isset($this->sourceAttachment)) $this->sourceAttachment->xmlSerialize(true, $sxe->addChild('sourceAttachment'));
-        if (isset($this->sourceReference)) $this->sourceReference->xmlSerialize(true, $sxe->addChild('sourceReference'));
+        if (isset($this->sourceAttachment)) {
+            $this->sourceAttachment->xmlSerialize(true, $sxe->addChild('sourceAttachment'));
+        }
+        if (isset($this->sourceReference)) {
+            $this->sourceReference->xmlSerialize(true, $sxe->addChild('sourceReference'));
+        }
         if (0 < count($this->policy)) {
-            foreach($this->policy as $policy) {
+            foreach ($this->policy as $policy) {
                 $policy->xmlSerialize(true, $sxe->addChild('policy'));
             }
         }
-        if (isset($this->policyRule)) $this->policyRule->xmlSerialize(true, $sxe->addChild('policyRule'));
+        if (isset($this->policyRule)) {
+            $this->policyRule->xmlSerialize(true, $sxe->addChild('policyRule'));
+        }
         if (0 < count($this->verification)) {
-            foreach($this->verification as $verification) {
+            foreach ($this->verification as $verification) {
                 $verification->xmlSerialize(true, $sxe->addChild('verification'));
             }
         }
-        if (isset($this->provision)) $this->provision->xmlSerialize(true, $sxe->addChild('provision'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->provision)) {
+            $this->provision->xmlSerialize(true, $sxe->addChild('provision'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

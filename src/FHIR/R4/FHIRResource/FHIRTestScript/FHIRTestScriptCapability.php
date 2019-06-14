@@ -118,7 +118,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * Whether or not the test execution will require the given capabilities of the server in order for this test script to execute.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getRequired() {
+    public function getRequired()
+    {
         return $this->required;
     }
 
@@ -127,7 +128,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $required
      * @return $this
      */
-    public function setRequired($required) {
+    public function setRequired($required)
+    {
         $this->required = $required;
         return $this;
     }
@@ -136,7 +138,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * Whether or not the test execution will validate the given capabilities of the server in order for this test script to execute.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getValidated() {
+    public function getValidated()
+    {
         return $this->validated;
     }
 
@@ -145,7 +148,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $validated
      * @return $this
      */
-    public function setValidated($validated) {
+    public function setValidated($validated)
+    {
         $this->validated = $validated;
         return $this;
     }
@@ -154,7 +158,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * Description of the capabilities that this test script is requiring the server to support.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -163,7 +168,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -172,7 +178,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * Which origin server these requirements apply to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger[]
      */
-    public function getOrigin() {
+    public function getOrigin()
+    {
         return $this->origin;
     }
 
@@ -181,7 +188,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $origin
      * @return $this
      */
-    public function addOrigin($origin) {
+    public function addOrigin($origin)
+    {
         $this->origin[] = $origin;
         return $this;
     }
@@ -190,7 +198,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * Which server these requirements apply to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getDestination() {
+    public function getDestination()
+    {
         return $this->destination;
     }
 
@@ -199,7 +208,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $destination
      * @return $this
      */
-    public function setDestination($destination) {
+    public function setDestination($destination)
+    {
         $this->destination = $destination;
         return $this;
     }
@@ -208,7 +218,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * Links to the FHIR specification that describes this interaction and the resources involved in more detail.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getLink() {
+    public function getLink()
+    {
         return $this->link;
     }
 
@@ -217,7 +228,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $link
      * @return $this
      */
-    public function addLink($link) {
+    public function addLink($link)
+    {
         $this->link[] = $link;
         return $this;
     }
@@ -226,7 +238,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * Minimum capabilities required of server for test script to execute successfully.   If server does not meet at a minimum the referenced capability statement, then all tests in this script are skipped.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getCapabilities() {
+    public function getCapabilities()
+    {
         return $this->capabilities;
     }
 
@@ -235,7 +248,8 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $capabilities
      * @return $this
      */
-    public function setCapabilities($capabilities) {
+    public function setCapabilities($capabilities)
+    {
         $this->capabilities = $capabilities;
         return $this;
     }
@@ -243,14 +257,16 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['required'])) {
                 $this->setRequired($data['required']);
@@ -263,7 +279,7 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['origin'])) {
                 if (is_array($data['origin'])) {
-                    foreach($data['origin'] as $d) {
+                    foreach ($data['origin'] as $d) {
                         $this->addOrigin($d);
                     }
                 } else {
@@ -275,7 +291,7 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['link'])) {
                 if (is_array($data['link'])) {
-                    foreach($data['link'] as $d) {
+                    foreach ($data['link'] as $d) {
                         $this->addLink($d);
                     }
                 } else {
@@ -294,32 +310,44 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->required)) $json['required'] = $this->required;
-        if (isset($this->validated)) $json['validated'] = $this->validated;
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->required)) {
+            $json['required'] = $this->required;
+        }
+        if (isset($this->validated)) {
+            $json['validated'] = $this->validated;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->origin)) {
             $json['origin'] = [];
-            foreach($this->origin as $origin) {
+            foreach ($this->origin as $origin) {
                 $json['origin'][] = $origin;
             }
         }
-        if (isset($this->destination)) $json['destination'] = $this->destination;
+        if (isset($this->destination)) {
+            $json['destination'] = $this->destination;
+        }
         if (0 < count($this->link)) {
             $json['link'] = [];
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $json['link'][] = $link;
             }
         }
-        if (isset($this->capabilities)) $json['capabilities'] = $this->capabilities;
+        if (isset($this->capabilities)) {
+            $json['capabilities'] = $this->capabilities;
+        }
         return $json;
     }
 
@@ -328,27 +356,40 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestScriptCapability xmlns="http://hl7.org/fhir"></TestScriptCapability>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestScriptCapability xmlns="http://hl7.org/fhir"></TestScriptCapability>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->required)) $this->required->xmlSerialize(true, $sxe->addChild('required'));
-        if (isset($this->validated)) $this->validated->xmlSerialize(true, $sxe->addChild('validated'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->required)) {
+            $this->required->xmlSerialize(true, $sxe->addChild('required'));
+        }
+        if (isset($this->validated)) {
+            $this->validated->xmlSerialize(true, $sxe->addChild('validated'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->origin)) {
-            foreach($this->origin as $origin) {
+            foreach ($this->origin as $origin) {
                 $origin->xmlSerialize(true, $sxe->addChild('origin'));
             }
         }
-        if (isset($this->destination)) $this->destination->xmlSerialize(true, $sxe->addChild('destination'));
+        if (isset($this->destination)) {
+            $this->destination->xmlSerialize(true, $sxe->addChild('destination'));
+        }
         if (0 < count($this->link)) {
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $link->xmlSerialize(true, $sxe->addChild('link'));
             }
         }
-        if (isset($this->capabilities)) $this->capabilities->xmlSerialize(true, $sxe->addChild('capabilities'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->capabilities)) {
+            $this->capabilities->xmlSerialize(true, $sxe->addChild('capabilities'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

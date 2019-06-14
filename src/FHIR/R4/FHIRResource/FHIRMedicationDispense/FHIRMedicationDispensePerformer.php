@@ -88,7 +88,8 @@ class FHIRMedicationDispensePerformer extends FHIRBackboneElement implements \Js
      * Distinguishes the type of performer in the dispense.  For example, date enterer, packager, final checker.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getFunction() {
+    public function getFunction()
+    {
         return $this->function;
     }
 
@@ -97,7 +98,8 @@ class FHIRMedicationDispensePerformer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $function
      * @return $this
      */
-    public function setFunction($function) {
+    public function setFunction($function)
+    {
         $this->function = $function;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMedicationDispensePerformer extends FHIRBackboneElement implements \Js
      * The device, practitioner, etc. who performed the action.  It should be assumed that the actor is the dispenser of the medication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getActor() {
+    public function getActor()
+    {
         return $this->actor;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicationDispensePerformer extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $actor
      * @return $this
      */
-    public function setActor($actor) {
+    public function setActor($actor)
+    {
         $this->actor = $actor;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRMedicationDispensePerformer extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['function'])) {
                 $this->setFunction($data['function']);
@@ -147,17 +153,23 @@ class FHIRMedicationDispensePerformer extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->function)) $json['function'] = $this->function;
-        if (isset($this->actor)) $json['actor'] = $this->actor;
+        if (isset($this->function)) {
+            $json['function'] = $this->function;
+        }
+        if (isset($this->actor)) {
+            $json['actor'] = $this->actor;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRMedicationDispensePerformer extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationDispensePerformer xmlns="http://hl7.org/fhir"></MedicationDispensePerformer>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationDispensePerformer xmlns="http://hl7.org/fhir"></MedicationDispensePerformer>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->function)) $this->function->xmlSerialize(true, $sxe->addChild('function'));
-        if (isset($this->actor)) $this->actor->xmlSerialize(true, $sxe->addChild('actor'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->function)) {
+            $this->function->xmlSerialize(true, $sxe->addChild('function'));
+        }
+        if (isset($this->actor)) {
+            $this->actor->xmlSerialize(true, $sxe->addChild('actor'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIRTestScriptAction extends FHIRBackboneElement implements \JsonSerializa
      * The operation to perform.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript\FHIRTestScriptOperation
      */
-    public function getOperation() {
+    public function getOperation()
+    {
         return $this->operation;
     }
 
@@ -97,7 +98,8 @@ class FHIRTestScriptAction extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript\FHIRTestScriptOperation $operation
      * @return $this
      */
-    public function setOperation($operation) {
+    public function setOperation($operation)
+    {
         $this->operation = $operation;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRTestScriptAction extends FHIRBackboneElement implements \JsonSerializa
      * Evaluates the results of previous operations to determine if the server under test behaves appropriately.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript\FHIRTestScriptAssert
      */
-    public function getAssert() {
+    public function getAssert()
+    {
         return $this->assert;
     }
 
@@ -115,7 +118,8 @@ class FHIRTestScriptAction extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript\FHIRTestScriptAssert $assert
      * @return $this
      */
-    public function setAssert($assert) {
+    public function setAssert($assert)
+    {
         $this->assert = $assert;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRTestScriptAction extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['operation'])) {
                 $this->setOperation($data['operation']);
@@ -147,17 +153,23 @@ class FHIRTestScriptAction extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->operation)) $json['operation'] = $this->operation;
-        if (isset($this->assert)) $json['assert'] = $this->assert;
+        if (isset($this->operation)) {
+            $json['operation'] = $this->operation;
+        }
+        if (isset($this->assert)) {
+            $json['assert'] = $this->assert;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRTestScriptAction extends FHIRBackboneElement implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestScriptAction xmlns="http://hl7.org/fhir"></TestScriptAction>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestScriptAction xmlns="http://hl7.org/fhir"></TestScriptAction>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->operation)) $this->operation->xmlSerialize(true, $sxe->addChild('operation'));
-        if (isset($this->assert)) $this->assert->xmlSerialize(true, $sxe->addChild('assert'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->operation)) {
+            $this->operation->xmlSerialize(true, $sxe->addChild('operation'));
+        }
+        if (isset($this->assert)) {
+            $this->assert->xmlSerialize(true, $sxe->addChild('assert'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

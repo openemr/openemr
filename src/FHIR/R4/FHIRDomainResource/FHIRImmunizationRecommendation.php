@@ -107,7 +107,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * A unique identifier assigned to this particular recommendation record.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -116,7 +117,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -125,7 +127,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * The patient the recommendation(s) are for.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -134,7 +137,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -143,7 +147,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * The date the immunization recommendation(s) were created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -152,7 +157,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -161,7 +167,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * Indicates the authority who published the protocol (e.g. ACIP).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAuthority() {
+    public function getAuthority()
+    {
         return $this->authority;
     }
 
@@ -170,7 +177,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $authority
      * @return $this
      */
-    public function setAuthority($authority) {
+    public function setAuthority($authority)
+    {
         $this->authority = $authority;
         return $this;
     }
@@ -179,7 +187,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * Vaccine administration recommendations.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImmunizationRecommendation\FHIRImmunizationRecommendationRecommendation[]
      */
-    public function getRecommendation() {
+    public function getRecommendation()
+    {
         return $this->recommendation;
     }
 
@@ -188,7 +197,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImmunizationRecommendation\FHIRImmunizationRecommendationRecommendation $recommendation
      * @return $this
      */
-    public function addRecommendation($recommendation) {
+    public function addRecommendation($recommendation)
+    {
         $this->recommendation[] = $recommendation;
         return $this;
     }
@@ -196,18 +206,20 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -225,7 +237,7 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
             }
             if (isset($data['recommendation'])) {
                 if (is_array($data['recommendation'])) {
-                    foreach($data['recommendation'] as $d) {
+                    foreach ($data['recommendation'] as $d) {
                         $this->addRecommendation($d);
                     }
                 } else {
@@ -241,28 +253,36 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->authority)) $json['authority'] = $this->authority;
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->authority)) {
+            $json['authority'] = $this->authority;
+        }
         if (0 < count($this->recommendation)) {
             $json['recommendation'] = [];
-            foreach($this->recommendation as $recommendation) {
+            foreach ($this->recommendation as $recommendation) {
                 $json['recommendation'][] = $recommendation;
             }
         }
@@ -274,25 +294,34 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImmunizationRecommendation xmlns="http://hl7.org/fhir"></ImmunizationRecommendation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImmunizationRecommendation xmlns="http://hl7.org/fhir"></ImmunizationRecommendation>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->authority)) $this->authority->xmlSerialize(true, $sxe->addChild('authority'));
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->authority)) {
+            $this->authority->xmlSerialize(true, $sxe->addChild('authority'));
+        }
         if (0 < count($this->recommendation)) {
-            foreach($this->recommendation as $recommendation) {
+            foreach ($this->recommendation as $recommendation) {
                 $recommendation->xmlSerialize(true, $sxe->addChild('recommendation'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

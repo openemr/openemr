@@ -112,7 +112,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
      * Classification of benefit being provided.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -121,7 +122,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -129,7 +131,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getAllowedUnsignedInt() {
+    public function getAllowedUnsignedInt()
+    {
         return $this->allowedUnsignedInt;
     }
 
@@ -137,7 +140,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $allowedUnsignedInt
      * @return $this
      */
-    public function setAllowedUnsignedInt($allowedUnsignedInt) {
+    public function setAllowedUnsignedInt($allowedUnsignedInt)
+    {
         $this->allowedUnsignedInt = $allowedUnsignedInt;
         return $this;
     }
@@ -145,7 +149,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAllowedString() {
+    public function getAllowedString()
+    {
         return $this->allowedString;
     }
 
@@ -153,7 +158,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $allowedString
      * @return $this
      */
-    public function setAllowedString($allowedString) {
+    public function setAllowedString($allowedString)
+    {
         $this->allowedString = $allowedString;
         return $this;
     }
@@ -161,7 +167,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getAllowedMoney() {
+    public function getAllowedMoney()
+    {
         return $this->allowedMoney;
     }
 
@@ -169,7 +176,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $allowedMoney
      * @return $this
      */
-    public function setAllowedMoney($allowedMoney) {
+    public function setAllowedMoney($allowedMoney)
+    {
         $this->allowedMoney = $allowedMoney;
         return $this;
     }
@@ -177,7 +185,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getUsedUnsignedInt() {
+    public function getUsedUnsignedInt()
+    {
         return $this->usedUnsignedInt;
     }
 
@@ -185,7 +194,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $usedUnsignedInt
      * @return $this
      */
-    public function setUsedUnsignedInt($usedUnsignedInt) {
+    public function setUsedUnsignedInt($usedUnsignedInt)
+    {
         $this->usedUnsignedInt = $usedUnsignedInt;
         return $this;
     }
@@ -193,7 +203,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getUsedString() {
+    public function getUsedString()
+    {
         return $this->usedString;
     }
 
@@ -201,7 +212,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $usedString
      * @return $this
      */
-    public function setUsedString($usedString) {
+    public function setUsedString($usedString)
+    {
         $this->usedString = $usedString;
         return $this;
     }
@@ -209,7 +221,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getUsedMoney() {
+    public function getUsedMoney()
+    {
         return $this->usedMoney;
     }
 
@@ -217,7 +230,8 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $usedMoney
      * @return $this
      */
-    public function setUsedMoney($usedMoney) {
+    public function setUsedMoney($usedMoney)
+    {
         $this->usedMoney = $usedMoney;
         return $this;
     }
@@ -225,14 +239,16 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -264,22 +280,38 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->allowedUnsignedInt)) $json['allowedUnsignedInt'] = $this->allowedUnsignedInt;
-        if (isset($this->allowedString)) $json['allowedString'] = $this->allowedString;
-        if (isset($this->allowedMoney)) $json['allowedMoney'] = $this->allowedMoney;
-        if (isset($this->usedUnsignedInt)) $json['usedUnsignedInt'] = $this->usedUnsignedInt;
-        if (isset($this->usedString)) $json['usedString'] = $this->usedString;
-        if (isset($this->usedMoney)) $json['usedMoney'] = $this->usedMoney;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->allowedUnsignedInt)) {
+            $json['allowedUnsignedInt'] = $this->allowedUnsignedInt;
+        }
+        if (isset($this->allowedString)) {
+            $json['allowedString'] = $this->allowedString;
+        }
+        if (isset($this->allowedMoney)) {
+            $json['allowedMoney'] = $this->allowedMoney;
+        }
+        if (isset($this->usedUnsignedInt)) {
+            $json['usedUnsignedInt'] = $this->usedUnsignedInt;
+        }
+        if (isset($this->usedString)) {
+            $json['usedString'] = $this->usedString;
+        }
+        if (isset($this->usedMoney)) {
+            $json['usedMoney'] = $this->usedMoney;
+        }
         return $json;
     }
 
@@ -288,19 +320,36 @@ class FHIRCoverageEligibilityResponseBenefit extends FHIRBackboneElement impleme
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CoverageEligibilityResponseBenefit xmlns="http://hl7.org/fhir"></CoverageEligibilityResponseBenefit>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CoverageEligibilityResponseBenefit xmlns="http://hl7.org/fhir"></CoverageEligibilityResponseBenefit>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->allowedUnsignedInt)) $this->allowedUnsignedInt->xmlSerialize(true, $sxe->addChild('allowedUnsignedInt'));
-        if (isset($this->allowedString)) $this->allowedString->xmlSerialize(true, $sxe->addChild('allowedString'));
-        if (isset($this->allowedMoney)) $this->allowedMoney->xmlSerialize(true, $sxe->addChild('allowedMoney'));
-        if (isset($this->usedUnsignedInt)) $this->usedUnsignedInt->xmlSerialize(true, $sxe->addChild('usedUnsignedInt'));
-        if (isset($this->usedString)) $this->usedString->xmlSerialize(true, $sxe->addChild('usedString'));
-        if (isset($this->usedMoney)) $this->usedMoney->xmlSerialize(true, $sxe->addChild('usedMoney'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->allowedUnsignedInt)) {
+            $this->allowedUnsignedInt->xmlSerialize(true, $sxe->addChild('allowedUnsignedInt'));
+        }
+        if (isset($this->allowedString)) {
+            $this->allowedString->xmlSerialize(true, $sxe->addChild('allowedString'));
+        }
+        if (isset($this->allowedMoney)) {
+            $this->allowedMoney->xmlSerialize(true, $sxe->addChild('allowedMoney'));
+        }
+        if (isset($this->usedUnsignedInt)) {
+            $this->usedUnsignedInt->xmlSerialize(true, $sxe->addChild('usedUnsignedInt'));
+        }
+        if (isset($this->usedString)) {
+            $this->usedString->xmlSerialize(true, $sxe->addChild('usedString'));
+        }
+        if (isset($this->usedMoney)) {
+            $this->usedMoney->xmlSerialize(true, $sxe->addChild('usedMoney'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -95,7 +95,8 @@ class FHIRElementDefinitionBase extends FHIRBackboneElement implements \JsonSeri
      * The Path that identifies the base element - this matches the ElementDefinition.path for that element. Across FHIR, there is only one base definition of any element - that is, an element definition on a [[[StructureDefinition]]] without a StructureDefinition.base.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->path;
     }
 
@@ -104,7 +105,8 @@ class FHIRElementDefinitionBase extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $path
      * @return $this
      */
-    public function setPath($path) {
+    public function setPath($path)
+    {
         $this->path = $path;
         return $this;
     }
@@ -113,7 +115,8 @@ class FHIRElementDefinitionBase extends FHIRBackboneElement implements \JsonSeri
      * Minimum cardinality of the base element identified by the path.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getMin() {
+    public function getMin()
+    {
         return $this->min;
     }
 
@@ -122,7 +125,8 @@ class FHIRElementDefinitionBase extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $min
      * @return $this
      */
-    public function setMin($min) {
+    public function setMin($min)
+    {
         $this->min = $min;
         return $this;
     }
@@ -131,7 +135,8 @@ class FHIRElementDefinitionBase extends FHIRBackboneElement implements \JsonSeri
      * Maximum cardinality of the base element identified by the path.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMax() {
+    public function getMax()
+    {
         return $this->max;
     }
 
@@ -140,7 +145,8 @@ class FHIRElementDefinitionBase extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $max
      * @return $this
      */
-    public function setMax($max) {
+    public function setMax($max)
+    {
         $this->max = $max;
         return $this;
     }
@@ -148,14 +154,16 @@ class FHIRElementDefinitionBase extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['path'])) {
                 $this->setPath($data['path']);
@@ -175,18 +183,26 @@ class FHIRElementDefinitionBase extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->path)) $json['path'] = $this->path;
-        if (isset($this->min)) $json['min'] = $this->min;
-        if (isset($this->max)) $json['max'] = $this->max;
+        if (isset($this->path)) {
+            $json['path'] = $this->path;
+        }
+        if (isset($this->min)) {
+            $json['min'] = $this->min;
+        }
+        if (isset($this->max)) {
+            $json['max'] = $this->max;
+        }
         return $json;
     }
 
@@ -195,15 +211,24 @@ class FHIRElementDefinitionBase extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ElementDefinitionBase xmlns="http://hl7.org/fhir"></ElementDefinitionBase>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ElementDefinitionBase xmlns="http://hl7.org/fhir"></ElementDefinitionBase>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->path)) $this->path->xmlSerialize(true, $sxe->addChild('path'));
-        if (isset($this->min)) $this->min->xmlSerialize(true, $sxe->addChild('min'));
-        if (isset($this->max)) $this->max->xmlSerialize(true, $sxe->addChild('max'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->path)) {
+            $this->path->xmlSerialize(true, $sxe->addChild('path'));
+        }
+        if (isset($this->min)) {
+            $this->min->xmlSerialize(true, $sxe->addChild('min'));
+        }
+        if (isset($this->max)) {
+            $this->max->xmlSerialize(true, $sxe->addChild('max'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

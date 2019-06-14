@@ -94,7 +94,8 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
      * Coded expression for the type of tissue for which the withdrawal period applues, e.g. meat, milk.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getTissue() {
+    public function getTissue()
+    {
         return $this->tissue;
     }
 
@@ -103,7 +104,8 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $tissue
      * @return $this
      */
-    public function setTissue($tissue) {
+    public function setTissue($tissue)
+    {
         $this->tissue = $tissue;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
      * A value for the time.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -121,7 +124,8 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
      * Extra information about the withdrawal period.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSupportingInformation() {
+    public function getSupportingInformation()
+    {
         return $this->supportingInformation;
     }
 
@@ -139,7 +144,8 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $supportingInformation
      * @return $this
      */
-    public function setSupportingInformation($supportingInformation) {
+    public function setSupportingInformation($supportingInformation)
+    {
         $this->supportingInformation = $supportingInformation;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['tissue'])) {
                 $this->setTissue($data['tissue']);
@@ -174,18 +182,26 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->tissue)) $json['tissue'] = $this->tissue;
-        if (isset($this->value)) $json['value'] = $this->value;
-        if (isset($this->supportingInformation)) $json['supportingInformation'] = $this->supportingInformation;
+        if (isset($this->tissue)) {
+            $json['tissue'] = $this->tissue;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
+        if (isset($this->supportingInformation)) {
+            $json['supportingInformation'] = $this->supportingInformation;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRMedicinalProductPharmaceuticalWithdrawalPeriod extends FHIRBackboneEle
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalWithdrawalPeriod xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalWithdrawalPeriod>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalWithdrawalPeriod xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalWithdrawalPeriod>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->tissue)) $this->tissue->xmlSerialize(true, $sxe->addChild('tissue'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if (isset($this->supportingInformation)) $this->supportingInformation->xmlSerialize(true, $sxe->addChild('supportingInformation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->tissue)) {
+            $this->tissue->xmlSerialize(true, $sxe->addChild('tissue'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if (isset($this->supportingInformation)) {
+            $this->supportingInformation->xmlSerialize(true, $sxe->addChild('supportingInformation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -100,7 +100,8 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getNumberOfUnits() {
+    public function getNumberOfUnits()
+    {
         return $this->numberOfUnits;
     }
 
@@ -109,7 +110,8 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $numberOfUnits
      * @return $this
      */
-    public function setNumberOfUnits($numberOfUnits) {
+    public function setNumberOfUnits($numberOfUnits)
+    {
         $this->numberOfUnits = $numberOfUnits;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAverageMolecularFormula() {
+    public function getAverageMolecularFormula()
+    {
         return $this->averageMolecularFormula;
     }
 
@@ -127,7 +130,8 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $averageMolecularFormula
      * @return $this
      */
-    public function setAverageMolecularFormula($averageMolecularFormula) {
+    public function setAverageMolecularFormula($averageMolecularFormula)
+    {
         $this->averageMolecularFormula = $averageMolecularFormula;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRepeatUnitAmountType() {
+    public function getRepeatUnitAmountType()
+    {
         return $this->repeatUnitAmountType;
     }
 
@@ -145,7 +150,8 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $repeatUnitAmountType
      * @return $this
      */
-    public function setRepeatUnitAmountType($repeatUnitAmountType) {
+    public function setRepeatUnitAmountType($repeatUnitAmountType)
+    {
         $this->repeatUnitAmountType = $repeatUnitAmountType;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerRepeatUnit[]
      */
-    public function getRepeatUnit() {
+    public function getRepeatUnit()
+    {
         return $this->repeatUnit;
     }
 
@@ -163,7 +170,8 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerRepeatUnit $repeatUnit
      * @return $this
      */
-    public function addRepeatUnit($repeatUnit) {
+    public function addRepeatUnit($repeatUnit)
+    {
         $this->repeatUnit[] = $repeatUnit;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['numberOfUnits'])) {
                 $this->setNumberOfUnits($data['numberOfUnits']);
@@ -191,7 +201,7 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
             }
             if (isset($data['repeatUnit'])) {
                 if (is_array($data['repeatUnit'])) {
-                    foreach($data['repeatUnit'] as $d) {
+                    foreach ($data['repeatUnit'] as $d) {
                         $this->addRepeatUnit($d);
                     }
                 } else {
@@ -207,21 +217,29 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->numberOfUnits)) $json['numberOfUnits'] = $this->numberOfUnits;
-        if (isset($this->averageMolecularFormula)) $json['averageMolecularFormula'] = $this->averageMolecularFormula;
-        if (isset($this->repeatUnitAmountType)) $json['repeatUnitAmountType'] = $this->repeatUnitAmountType;
+        if (isset($this->numberOfUnits)) {
+            $json['numberOfUnits'] = $this->numberOfUnits;
+        }
+        if (isset($this->averageMolecularFormula)) {
+            $json['averageMolecularFormula'] = $this->averageMolecularFormula;
+        }
+        if (isset($this->repeatUnitAmountType)) {
+            $json['repeatUnitAmountType'] = $this->repeatUnitAmountType;
+        }
         if (0 < count($this->repeatUnit)) {
             $json['repeatUnit'] = [];
-            foreach($this->repeatUnit as $repeatUnit) {
+            foreach ($this->repeatUnit as $repeatUnit) {
                 $json['repeatUnit'][] = $repeatUnit;
             }
         }
@@ -233,20 +251,29 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstancePolymerRepeat xmlns="http://hl7.org/fhir"></SubstancePolymerRepeat>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstancePolymerRepeat xmlns="http://hl7.org/fhir"></SubstancePolymerRepeat>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->numberOfUnits)) $this->numberOfUnits->xmlSerialize(true, $sxe->addChild('numberOfUnits'));
-        if (isset($this->averageMolecularFormula)) $this->averageMolecularFormula->xmlSerialize(true, $sxe->addChild('averageMolecularFormula'));
-        if (isset($this->repeatUnitAmountType)) $this->repeatUnitAmountType->xmlSerialize(true, $sxe->addChild('repeatUnitAmountType'));
+        if (isset($this->numberOfUnits)) {
+            $this->numberOfUnits->xmlSerialize(true, $sxe->addChild('numberOfUnits'));
+        }
+        if (isset($this->averageMolecularFormula)) {
+            $this->averageMolecularFormula->xmlSerialize(true, $sxe->addChild('averageMolecularFormula'));
+        }
+        if (isset($this->repeatUnitAmountType)) {
+            $this->repeatUnitAmountType->xmlSerialize(true, $sxe->addChild('repeatUnitAmountType'));
+        }
         if (0 < count($this->repeatUnit)) {
-            foreach($this->repeatUnit as $repeatUnit) {
+            foreach ($this->repeatUnit as $repeatUnit) {
                 $repeatUnit->xmlSerialize(true, $sxe->addChild('repeatUnit'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

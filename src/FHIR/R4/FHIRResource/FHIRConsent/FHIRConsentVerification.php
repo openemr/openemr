@@ -94,7 +94,8 @@ class FHIRConsentVerification extends FHIRBackboneElement implements \JsonSerial
      * Has the instruction been verified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getVerified() {
+    public function getVerified()
+    {
         return $this->verified;
     }
 
@@ -103,7 +104,8 @@ class FHIRConsentVerification extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $verified
      * @return $this
      */
-    public function setVerified($verified) {
+    public function setVerified($verified)
+    {
         $this->verified = $verified;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRConsentVerification extends FHIRBackboneElement implements \JsonSerial
      * Who verified the instruction (Patient, Relative or other Authorized Person).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getVerifiedWith() {
+    public function getVerifiedWith()
+    {
         return $this->verifiedWith;
     }
 
@@ -121,7 +124,8 @@ class FHIRConsentVerification extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $verifiedWith
      * @return $this
      */
-    public function setVerifiedWith($verifiedWith) {
+    public function setVerifiedWith($verifiedWith)
+    {
         $this->verifiedWith = $verifiedWith;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRConsentVerification extends FHIRBackboneElement implements \JsonSerial
      * Date verification was collected.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getVerificationDate() {
+    public function getVerificationDate()
+    {
         return $this->verificationDate;
     }
 
@@ -139,7 +144,8 @@ class FHIRConsentVerification extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $verificationDate
      * @return $this
      */
-    public function setVerificationDate($verificationDate) {
+    public function setVerificationDate($verificationDate)
+    {
         $this->verificationDate = $verificationDate;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRConsentVerification extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['verified'])) {
                 $this->setVerified($data['verified']);
@@ -174,18 +182,26 @@ class FHIRConsentVerification extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->verified)) $json['verified'] = $this->verified;
-        if (isset($this->verifiedWith)) $json['verifiedWith'] = $this->verifiedWith;
-        if (isset($this->verificationDate)) $json['verificationDate'] = $this->verificationDate;
+        if (isset($this->verified)) {
+            $json['verified'] = $this->verified;
+        }
+        if (isset($this->verifiedWith)) {
+            $json['verifiedWith'] = $this->verifiedWith;
+        }
+        if (isset($this->verificationDate)) {
+            $json['verificationDate'] = $this->verificationDate;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRConsentVerification extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ConsentVerification xmlns="http://hl7.org/fhir"></ConsentVerification>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ConsentVerification xmlns="http://hl7.org/fhir"></ConsentVerification>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->verified)) $this->verified->xmlSerialize(true, $sxe->addChild('verified'));
-        if (isset($this->verifiedWith)) $this->verifiedWith->xmlSerialize(true, $sxe->addChild('verifiedWith'));
-        if (isset($this->verificationDate)) $this->verificationDate->xmlSerialize(true, $sxe->addChild('verificationDate'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->verified)) {
+            $this->verified->xmlSerialize(true, $sxe->addChild('verified'));
+        }
+        if (isset($this->verifiedWith)) {
+            $this->verifiedWith->xmlSerialize(true, $sxe->addChild('verifiedWith'));
+        }
+        if (isset($this->verificationDate)) {
+            $this->verificationDate->xmlSerialize(true, $sxe->addChild('verificationDate'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

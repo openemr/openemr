@@ -270,7 +270,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * A user-visible prefix for the action.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPrefix() {
+    public function getPrefix()
+    {
         return $this->prefix;
     }
 
@@ -279,7 +280,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $prefix
      * @return $this
      */
-    public function setPrefix($prefix) {
+    public function setPrefix($prefix)
+    {
         $this->prefix = $prefix;
         return $this;
     }
@@ -288,7 +290,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * The title of the action displayed to a user.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -297,7 +300,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -306,7 +310,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * A brief description of the action used to provide a summary to display to the user.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -315,7 +320,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -324,7 +330,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * A text equivalent of the action to be performed. This provides a human-interpretable description of the action when the definition is consumed by a system that might not be capable of interpreting it dynamically.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTextEquivalent() {
+    public function getTextEquivalent()
+    {
         return $this->textEquivalent;
     }
 
@@ -333,7 +340,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $textEquivalent
      * @return $this
      */
-    public function setTextEquivalent($textEquivalent) {
+    public function setTextEquivalent($textEquivalent)
+    {
         $this->textEquivalent = $textEquivalent;
         return $this;
     }
@@ -342,7 +350,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Indicates how quickly the action should be addressed with respect to other actions.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority
      */
-    public function getPriority() {
+    public function getPriority()
+    {
         return $this->priority;
     }
 
@@ -351,7 +360,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority $priority
      * @return $this
      */
-    public function setPriority($priority) {
+    public function setPriority($priority)
+    {
         $this->priority = $priority;
         return $this;
     }
@@ -360,7 +370,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * A code that provides meaning for the action or action group. For example, a section may have a LOINC code for the section of a documentation template.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -369,7 +380,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -378,7 +390,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * A description of why this action is necessary or appropriate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getReason() {
+    public function getReason()
+    {
         return $this->reason;
     }
 
@@ -387,7 +400,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reason
      * @return $this
      */
-    public function addReason($reason) {
+    public function addReason($reason)
+    {
         $this->reason[] = $reason;
         return $this;
     }
@@ -396,7 +410,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Didactic or other informational resources associated with the action that can be provided to the CDS recipient. Information resources can include inline text commentary and links to web resources.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact[]
      */
-    public function getDocumentation() {
+    public function getDocumentation()
+    {
         return $this->documentation;
     }
 
@@ -405,7 +420,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact $documentation
      * @return $this
      */
-    public function addDocumentation($documentation) {
+    public function addDocumentation($documentation)
+    {
         $this->documentation[] = $documentation;
         return $this;
     }
@@ -414,7 +430,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Identifies goals that this action supports. The reference must be to a goal element defined within this plan definition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId[]
      */
-    public function getGoalId() {
+    public function getGoalId()
+    {
         return $this->goalId;
     }
 
@@ -423,7 +440,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $goalId
      * @return $this
      */
-    public function addGoalId($goalId) {
+    public function addGoalId($goalId)
+    {
         $this->goalId[] = $goalId;
         return $this;
     }
@@ -431,7 +449,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSubjectCodeableConcept() {
+    public function getSubjectCodeableConcept()
+    {
         return $this->subjectCodeableConcept;
     }
 
@@ -439,7 +458,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $subjectCodeableConcept
      * @return $this
      */
-    public function setSubjectCodeableConcept($subjectCodeableConcept) {
+    public function setSubjectCodeableConcept($subjectCodeableConcept)
+    {
         $this->subjectCodeableConcept = $subjectCodeableConcept;
         return $this;
     }
@@ -447,7 +467,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubjectReference() {
+    public function getSubjectReference()
+    {
         return $this->subjectReference;
     }
 
@@ -455,7 +476,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subjectReference
      * @return $this
      */
-    public function setSubjectReference($subjectReference) {
+    public function setSubjectReference($subjectReference)
+    {
         $this->subjectReference = $subjectReference;
         return $this;
     }
@@ -464,7 +486,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * A description of when the action should be triggered.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition[]
      */
-    public function getTrigger() {
+    public function getTrigger()
+    {
         return $this->trigger;
     }
 
@@ -473,7 +496,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition $trigger
      * @return $this
      */
-    public function addTrigger($trigger) {
+    public function addTrigger($trigger)
+    {
         $this->trigger[] = $trigger;
         return $this;
     }
@@ -482,7 +506,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * An expression that describes applicability criteria or start/stop conditions for the action.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionCondition[]
      */
-    public function getCondition() {
+    public function getCondition()
+    {
         return $this->condition;
     }
 
@@ -491,7 +516,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionCondition $condition
      * @return $this
      */
-    public function addCondition($condition) {
+    public function addCondition($condition)
+    {
         $this->condition[] = $condition;
         return $this;
     }
@@ -500,7 +526,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Defines input data requirements for the action.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement[]
      */
-    public function getInput() {
+    public function getInput()
+    {
         return $this->input;
     }
 
@@ -509,7 +536,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement $input
      * @return $this
      */
-    public function addInput($input) {
+    public function addInput($input)
+    {
         $this->input[] = $input;
         return $this;
     }
@@ -518,7 +546,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Defines the outputs of the action, if any.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement[]
      */
-    public function getOutput() {
+    public function getOutput()
+    {
         return $this->output;
     }
 
@@ -527,7 +556,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement $output
      * @return $this
      */
-    public function addOutput($output) {
+    public function addOutput($output)
+    {
         $this->output[] = $output;
         return $this;
     }
@@ -536,7 +566,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * A relationship to another action such as "before" or "30-60 minutes after start of".
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionRelatedAction[]
      */
-    public function getRelatedAction() {
+    public function getRelatedAction()
+    {
         return $this->relatedAction;
     }
 
@@ -545,7 +576,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionRelatedAction $relatedAction
      * @return $this
      */
-    public function addRelatedAction($relatedAction) {
+    public function addRelatedAction($relatedAction)
+    {
         $this->relatedAction[] = $relatedAction;
         return $this;
     }
@@ -553,7 +585,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getTimingDateTime() {
+    public function getTimingDateTime()
+    {
         return $this->timingDateTime;
     }
 
@@ -561,7 +594,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $timingDateTime
      * @return $this
      */
-    public function setTimingDateTime($timingDateTime) {
+    public function setTimingDateTime($timingDateTime)
+    {
         $this->timingDateTime = $timingDateTime;
         return $this;
     }
@@ -569,7 +603,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getTimingAge() {
+    public function getTimingAge()
+    {
         return $this->timingAge;
     }
 
@@ -577,7 +612,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $timingAge
      * @return $this
      */
-    public function setTimingAge($timingAge) {
+    public function setTimingAge($timingAge)
+    {
         $this->timingAge = $timingAge;
         return $this;
     }
@@ -585,7 +621,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getTimingPeriod() {
+    public function getTimingPeriod()
+    {
         return $this->timingPeriod;
     }
 
@@ -593,7 +630,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $timingPeriod
      * @return $this
      */
-    public function setTimingPeriod($timingPeriod) {
+    public function setTimingPeriod($timingPeriod)
+    {
         $this->timingPeriod = $timingPeriod;
         return $this;
     }
@@ -601,7 +639,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getTimingDuration() {
+    public function getTimingDuration()
+    {
         return $this->timingDuration;
     }
 
@@ -609,7 +648,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $timingDuration
      * @return $this
      */
-    public function setTimingDuration($timingDuration) {
+    public function setTimingDuration($timingDuration)
+    {
         $this->timingDuration = $timingDuration;
         return $this;
     }
@@ -617,7 +657,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getTimingRange() {
+    public function getTimingRange()
+    {
         return $this->timingRange;
     }
 
@@ -625,7 +666,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $timingRange
      * @return $this
      */
-    public function setTimingRange($timingRange) {
+    public function setTimingRange($timingRange)
+    {
         $this->timingRange = $timingRange;
         return $this;
     }
@@ -633,7 +675,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getTimingTiming() {
+    public function getTimingTiming()
+    {
         return $this->timingTiming;
     }
 
@@ -641,7 +684,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $timingTiming
      * @return $this
      */
-    public function setTimingTiming($timingTiming) {
+    public function setTimingTiming($timingTiming)
+    {
         $this->timingTiming = $timingTiming;
         return $this;
     }
@@ -650,7 +694,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Indicates who should participate in performing the action described.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionParticipant[]
      */
-    public function getParticipant() {
+    public function getParticipant()
+    {
         return $this->participant;
     }
 
@@ -659,7 +704,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionParticipant $participant
      * @return $this
      */
-    public function addParticipant($participant) {
+    public function addParticipant($participant)
+    {
         $this->participant[] = $participant;
         return $this;
     }
@@ -668,7 +714,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * The type of action to perform (create, update, remove).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -677,7 +724,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -686,7 +734,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Defines the grouping behavior for the action and its children.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRActionGroupingBehavior
      */
-    public function getGroupingBehavior() {
+    public function getGroupingBehavior()
+    {
         return $this->groupingBehavior;
     }
 
@@ -695,7 +744,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRActionGroupingBehavior $groupingBehavior
      * @return $this
      */
-    public function setGroupingBehavior($groupingBehavior) {
+    public function setGroupingBehavior($groupingBehavior)
+    {
         $this->groupingBehavior = $groupingBehavior;
         return $this;
     }
@@ -704,7 +754,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Defines the selection behavior for the action and its children.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRActionSelectionBehavior
      */
-    public function getSelectionBehavior() {
+    public function getSelectionBehavior()
+    {
         return $this->selectionBehavior;
     }
 
@@ -713,7 +764,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRActionSelectionBehavior $selectionBehavior
      * @return $this
      */
-    public function setSelectionBehavior($selectionBehavior) {
+    public function setSelectionBehavior($selectionBehavior)
+    {
         $this->selectionBehavior = $selectionBehavior;
         return $this;
     }
@@ -722,7 +774,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Defines the required behavior for the action.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRActionRequiredBehavior
      */
-    public function getRequiredBehavior() {
+    public function getRequiredBehavior()
+    {
         return $this->requiredBehavior;
     }
 
@@ -731,7 +784,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRActionRequiredBehavior $requiredBehavior
      * @return $this
      */
-    public function setRequiredBehavior($requiredBehavior) {
+    public function setRequiredBehavior($requiredBehavior)
+    {
         $this->requiredBehavior = $requiredBehavior;
         return $this;
     }
@@ -740,7 +794,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Defines whether the action should usually be preselected.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRActionPrecheckBehavior
      */
-    public function getPrecheckBehavior() {
+    public function getPrecheckBehavior()
+    {
         return $this->precheckBehavior;
     }
 
@@ -749,7 +804,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRActionPrecheckBehavior $precheckBehavior
      * @return $this
      */
-    public function setPrecheckBehavior($precheckBehavior) {
+    public function setPrecheckBehavior($precheckBehavior)
+    {
         $this->precheckBehavior = $precheckBehavior;
         return $this;
     }
@@ -758,7 +814,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Defines whether the action can be selected multiple times.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRActionCardinalityBehavior
      */
-    public function getCardinalityBehavior() {
+    public function getCardinalityBehavior()
+    {
         return $this->cardinalityBehavior;
     }
 
@@ -767,7 +824,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRActionCardinalityBehavior $cardinalityBehavior
      * @return $this
      */
-    public function setCardinalityBehavior($cardinalityBehavior) {
+    public function setCardinalityBehavior($cardinalityBehavior)
+    {
         $this->cardinalityBehavior = $cardinalityBehavior;
         return $this;
     }
@@ -775,7 +833,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getDefinitionCanonical() {
+    public function getDefinitionCanonical()
+    {
         return $this->definitionCanonical;
     }
 
@@ -783,7 +842,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $definitionCanonical
      * @return $this
      */
-    public function setDefinitionCanonical($definitionCanonical) {
+    public function setDefinitionCanonical($definitionCanonical)
+    {
         $this->definitionCanonical = $definitionCanonical;
         return $this;
     }
@@ -791,7 +851,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getDefinitionUri() {
+    public function getDefinitionUri()
+    {
         return $this->definitionUri;
     }
 
@@ -799,7 +860,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $definitionUri
      * @return $this
      */
-    public function setDefinitionUri($definitionUri) {
+    public function setDefinitionUri($definitionUri)
+    {
         $this->definitionUri = $definitionUri;
         return $this;
     }
@@ -808,7 +870,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * A reference to a StructureMap resource that defines a transform that can be executed to produce the intent resource using the ActivityDefinition instance as the input.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getTransform() {
+    public function getTransform()
+    {
         return $this->transform;
     }
 
@@ -817,7 +880,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $transform
      * @return $this
      */
-    public function setTransform($transform) {
+    public function setTransform($transform)
+    {
         $this->transform = $transform;
         return $this;
     }
@@ -826,7 +890,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Customizations that should be applied to the statically defined resource. For example, if the dosage of a medication must be computed based on the patient's weight, a customization would be used to specify an expression that calculated the weight, and the path on the resource that would contain the result.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionDynamicValue[]
      */
-    public function getDynamicValue() {
+    public function getDynamicValue()
+    {
         return $this->dynamicValue;
     }
 
@@ -835,7 +900,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionDynamicValue $dynamicValue
      * @return $this
      */
-    public function addDynamicValue($dynamicValue) {
+    public function addDynamicValue($dynamicValue)
+    {
         $this->dynamicValue[] = $dynamicValue;
         return $this;
     }
@@ -844,7 +910,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * Sub actions that are contained within the action. The behavior of this action determines the functionality of the sub-actions. For example, a selection behavior of at-most-one indicates that of the sub-actions, at most one may be chosen as part of realizing the action definition.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionAction[]
      */
-    public function getAction() {
+    public function getAction()
+    {
         return $this->action;
     }
 
@@ -853,7 +920,8 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionAction $action
      * @return $this
      */
-    public function addAction($action) {
+    public function addAction($action)
+    {
         $this->action[] = $action;
         return $this;
     }
@@ -861,14 +929,16 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['prefix'])) {
                 $this->setPrefix($data['prefix']);
@@ -887,7 +957,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -896,7 +966,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['reason'])) {
                 if (is_array($data['reason'])) {
-                    foreach($data['reason'] as $d) {
+                    foreach ($data['reason'] as $d) {
                         $this->addReason($d);
                     }
                 } else {
@@ -905,7 +975,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['documentation'])) {
                 if (is_array($data['documentation'])) {
-                    foreach($data['documentation'] as $d) {
+                    foreach ($data['documentation'] as $d) {
                         $this->addDocumentation($d);
                     }
                 } else {
@@ -914,7 +984,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['goalId'])) {
                 if (is_array($data['goalId'])) {
-                    foreach($data['goalId'] as $d) {
+                    foreach ($data['goalId'] as $d) {
                         $this->addGoalId($d);
                     }
                 } else {
@@ -929,7 +999,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['trigger'])) {
                 if (is_array($data['trigger'])) {
-                    foreach($data['trigger'] as $d) {
+                    foreach ($data['trigger'] as $d) {
                         $this->addTrigger($d);
                     }
                 } else {
@@ -938,7 +1008,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['condition'])) {
                 if (is_array($data['condition'])) {
-                    foreach($data['condition'] as $d) {
+                    foreach ($data['condition'] as $d) {
                         $this->addCondition($d);
                     }
                 } else {
@@ -947,7 +1017,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['input'])) {
                 if (is_array($data['input'])) {
-                    foreach($data['input'] as $d) {
+                    foreach ($data['input'] as $d) {
                         $this->addInput($d);
                     }
                 } else {
@@ -956,7 +1026,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['output'])) {
                 if (is_array($data['output'])) {
-                    foreach($data['output'] as $d) {
+                    foreach ($data['output'] as $d) {
                         $this->addOutput($d);
                     }
                 } else {
@@ -965,7 +1035,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['relatedAction'])) {
                 if (is_array($data['relatedAction'])) {
-                    foreach($data['relatedAction'] as $d) {
+                    foreach ($data['relatedAction'] as $d) {
                         $this->addRelatedAction($d);
                     }
                 } else {
@@ -992,7 +1062,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['participant'])) {
                 if (is_array($data['participant'])) {
-                    foreach($data['participant'] as $d) {
+                    foreach ($data['participant'] as $d) {
                         $this->addParticipant($d);
                     }
                 } else {
@@ -1028,7 +1098,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['dynamicValue'])) {
                 if (is_array($data['dynamicValue'])) {
-                    foreach($data['dynamicValue'] as $d) {
+                    foreach ($data['dynamicValue'] as $d) {
                         $this->addDynamicValue($d);
                     }
                 } else {
@@ -1037,7 +1107,7 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['action'])) {
                 if (is_array($data['action'])) {
-                    foreach($data['action'] as $d) {
+                    foreach ($data['action'] as $d) {
                         $this->addAction($d);
                     }
                 } else {
@@ -1053,106 +1123,152 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->prefix)) $json['prefix'] = $this->prefix;
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->textEquivalent)) $json['textEquivalent'] = $this->textEquivalent;
-        if (isset($this->priority)) $json['priority'] = $this->priority;
+        if (isset($this->prefix)) {
+            $json['prefix'] = $this->prefix;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->textEquivalent)) {
+            $json['textEquivalent'] = $this->textEquivalent;
+        }
+        if (isset($this->priority)) {
+            $json['priority'] = $this->priority;
+        }
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
         if (0 < count($this->reason)) {
             $json['reason'] = [];
-            foreach($this->reason as $reason) {
+            foreach ($this->reason as $reason) {
                 $json['reason'][] = $reason;
             }
         }
         if (0 < count($this->documentation)) {
             $json['documentation'] = [];
-            foreach($this->documentation as $documentation) {
+            foreach ($this->documentation as $documentation) {
                 $json['documentation'][] = $documentation;
             }
         }
         if (0 < count($this->goalId)) {
             $json['goalId'] = [];
-            foreach($this->goalId as $goalId) {
+            foreach ($this->goalId as $goalId) {
                 $json['goalId'][] = $goalId;
             }
         }
-        if (isset($this->subjectCodeableConcept)) $json['subjectCodeableConcept'] = $this->subjectCodeableConcept;
-        if (isset($this->subjectReference)) $json['subjectReference'] = $this->subjectReference;
+        if (isset($this->subjectCodeableConcept)) {
+            $json['subjectCodeableConcept'] = $this->subjectCodeableConcept;
+        }
+        if (isset($this->subjectReference)) {
+            $json['subjectReference'] = $this->subjectReference;
+        }
         if (0 < count($this->trigger)) {
             $json['trigger'] = [];
-            foreach($this->trigger as $trigger) {
+            foreach ($this->trigger as $trigger) {
                 $json['trigger'][] = $trigger;
             }
         }
         if (0 < count($this->condition)) {
             $json['condition'] = [];
-            foreach($this->condition as $condition) {
+            foreach ($this->condition as $condition) {
                 $json['condition'][] = $condition;
             }
         }
         if (0 < count($this->input)) {
             $json['input'] = [];
-            foreach($this->input as $input) {
+            foreach ($this->input as $input) {
                 $json['input'][] = $input;
             }
         }
         if (0 < count($this->output)) {
             $json['output'] = [];
-            foreach($this->output as $output) {
+            foreach ($this->output as $output) {
                 $json['output'][] = $output;
             }
         }
         if (0 < count($this->relatedAction)) {
             $json['relatedAction'] = [];
-            foreach($this->relatedAction as $relatedAction) {
+            foreach ($this->relatedAction as $relatedAction) {
                 $json['relatedAction'][] = $relatedAction;
             }
         }
-        if (isset($this->timingDateTime)) $json['timingDateTime'] = $this->timingDateTime;
-        if (isset($this->timingAge)) $json['timingAge'] = $this->timingAge;
-        if (isset($this->timingPeriod)) $json['timingPeriod'] = $this->timingPeriod;
-        if (isset($this->timingDuration)) $json['timingDuration'] = $this->timingDuration;
-        if (isset($this->timingRange)) $json['timingRange'] = $this->timingRange;
-        if (isset($this->timingTiming)) $json['timingTiming'] = $this->timingTiming;
+        if (isset($this->timingDateTime)) {
+            $json['timingDateTime'] = $this->timingDateTime;
+        }
+        if (isset($this->timingAge)) {
+            $json['timingAge'] = $this->timingAge;
+        }
+        if (isset($this->timingPeriod)) {
+            $json['timingPeriod'] = $this->timingPeriod;
+        }
+        if (isset($this->timingDuration)) {
+            $json['timingDuration'] = $this->timingDuration;
+        }
+        if (isset($this->timingRange)) {
+            $json['timingRange'] = $this->timingRange;
+        }
+        if (isset($this->timingTiming)) {
+            $json['timingTiming'] = $this->timingTiming;
+        }
         if (0 < count($this->participant)) {
             $json['participant'] = [];
-            foreach($this->participant as $participant) {
+            foreach ($this->participant as $participant) {
                 $json['participant'][] = $participant;
             }
         }
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->groupingBehavior)) $json['groupingBehavior'] = $this->groupingBehavior;
-        if (isset($this->selectionBehavior)) $json['selectionBehavior'] = $this->selectionBehavior;
-        if (isset($this->requiredBehavior)) $json['requiredBehavior'] = $this->requiredBehavior;
-        if (isset($this->precheckBehavior)) $json['precheckBehavior'] = $this->precheckBehavior;
-        if (isset($this->cardinalityBehavior)) $json['cardinalityBehavior'] = $this->cardinalityBehavior;
-        if (isset($this->definitionCanonical)) $json['definitionCanonical'] = $this->definitionCanonical;
-        if (isset($this->definitionUri)) $json['definitionUri'] = $this->definitionUri;
-        if (isset($this->transform)) $json['transform'] = $this->transform;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->groupingBehavior)) {
+            $json['groupingBehavior'] = $this->groupingBehavior;
+        }
+        if (isset($this->selectionBehavior)) {
+            $json['selectionBehavior'] = $this->selectionBehavior;
+        }
+        if (isset($this->requiredBehavior)) {
+            $json['requiredBehavior'] = $this->requiredBehavior;
+        }
+        if (isset($this->precheckBehavior)) {
+            $json['precheckBehavior'] = $this->precheckBehavior;
+        }
+        if (isset($this->cardinalityBehavior)) {
+            $json['cardinalityBehavior'] = $this->cardinalityBehavior;
+        }
+        if (isset($this->definitionCanonical)) {
+            $json['definitionCanonical'] = $this->definitionCanonical;
+        }
+        if (isset($this->definitionUri)) {
+            $json['definitionUri'] = $this->definitionUri;
+        }
+        if (isset($this->transform)) {
+            $json['transform'] = $this->transform;
+        }
         if (0 < count($this->dynamicValue)) {
             $json['dynamicValue'] = [];
-            foreach($this->dynamicValue as $dynamicValue) {
+            foreach ($this->dynamicValue as $dynamicValue) {
                 $json['dynamicValue'][] = $dynamicValue;
             }
         }
         if (0 < count($this->action)) {
             $json['action'] = [];
-            foreach($this->action as $action) {
+            foreach ($this->action as $action) {
                 $json['action'][] = $action;
             }
         }
@@ -1164,94 +1280,141 @@ class FHIRPlanDefinitionAction extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PlanDefinitionAction xmlns="http://hl7.org/fhir"></PlanDefinitionAction>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PlanDefinitionAction xmlns="http://hl7.org/fhir"></PlanDefinitionAction>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->prefix)) $this->prefix->xmlSerialize(true, $sxe->addChild('prefix'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->textEquivalent)) $this->textEquivalent->xmlSerialize(true, $sxe->addChild('textEquivalent'));
-        if (isset($this->priority)) $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        if (isset($this->prefix)) {
+            $this->prefix->xmlSerialize(true, $sxe->addChild('prefix'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->textEquivalent)) {
+            $this->textEquivalent->xmlSerialize(true, $sxe->addChild('textEquivalent'));
+        }
+        if (isset($this->priority)) {
+            $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        }
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
         if (0 < count($this->reason)) {
-            foreach($this->reason as $reason) {
+            foreach ($this->reason as $reason) {
                 $reason->xmlSerialize(true, $sxe->addChild('reason'));
             }
         }
         if (0 < count($this->documentation)) {
-            foreach($this->documentation as $documentation) {
+            foreach ($this->documentation as $documentation) {
                 $documentation->xmlSerialize(true, $sxe->addChild('documentation'));
             }
         }
         if (0 < count($this->goalId)) {
-            foreach($this->goalId as $goalId) {
+            foreach ($this->goalId as $goalId) {
                 $goalId->xmlSerialize(true, $sxe->addChild('goalId'));
             }
         }
-        if (isset($this->subjectCodeableConcept)) $this->subjectCodeableConcept->xmlSerialize(true, $sxe->addChild('subjectCodeableConcept'));
-        if (isset($this->subjectReference)) $this->subjectReference->xmlSerialize(true, $sxe->addChild('subjectReference'));
+        if (isset($this->subjectCodeableConcept)) {
+            $this->subjectCodeableConcept->xmlSerialize(true, $sxe->addChild('subjectCodeableConcept'));
+        }
+        if (isset($this->subjectReference)) {
+            $this->subjectReference->xmlSerialize(true, $sxe->addChild('subjectReference'));
+        }
         if (0 < count($this->trigger)) {
-            foreach($this->trigger as $trigger) {
+            foreach ($this->trigger as $trigger) {
                 $trigger->xmlSerialize(true, $sxe->addChild('trigger'));
             }
         }
         if (0 < count($this->condition)) {
-            foreach($this->condition as $condition) {
+            foreach ($this->condition as $condition) {
                 $condition->xmlSerialize(true, $sxe->addChild('condition'));
             }
         }
         if (0 < count($this->input)) {
-            foreach($this->input as $input) {
+            foreach ($this->input as $input) {
                 $input->xmlSerialize(true, $sxe->addChild('input'));
             }
         }
         if (0 < count($this->output)) {
-            foreach($this->output as $output) {
+            foreach ($this->output as $output) {
                 $output->xmlSerialize(true, $sxe->addChild('output'));
             }
         }
         if (0 < count($this->relatedAction)) {
-            foreach($this->relatedAction as $relatedAction) {
+            foreach ($this->relatedAction as $relatedAction) {
                 $relatedAction->xmlSerialize(true, $sxe->addChild('relatedAction'));
             }
         }
-        if (isset($this->timingDateTime)) $this->timingDateTime->xmlSerialize(true, $sxe->addChild('timingDateTime'));
-        if (isset($this->timingAge)) $this->timingAge->xmlSerialize(true, $sxe->addChild('timingAge'));
-        if (isset($this->timingPeriod)) $this->timingPeriod->xmlSerialize(true, $sxe->addChild('timingPeriod'));
-        if (isset($this->timingDuration)) $this->timingDuration->xmlSerialize(true, $sxe->addChild('timingDuration'));
-        if (isset($this->timingRange)) $this->timingRange->xmlSerialize(true, $sxe->addChild('timingRange'));
-        if (isset($this->timingTiming)) $this->timingTiming->xmlSerialize(true, $sxe->addChild('timingTiming'));
+        if (isset($this->timingDateTime)) {
+            $this->timingDateTime->xmlSerialize(true, $sxe->addChild('timingDateTime'));
+        }
+        if (isset($this->timingAge)) {
+            $this->timingAge->xmlSerialize(true, $sxe->addChild('timingAge'));
+        }
+        if (isset($this->timingPeriod)) {
+            $this->timingPeriod->xmlSerialize(true, $sxe->addChild('timingPeriod'));
+        }
+        if (isset($this->timingDuration)) {
+            $this->timingDuration->xmlSerialize(true, $sxe->addChild('timingDuration'));
+        }
+        if (isset($this->timingRange)) {
+            $this->timingRange->xmlSerialize(true, $sxe->addChild('timingRange'));
+        }
+        if (isset($this->timingTiming)) {
+            $this->timingTiming->xmlSerialize(true, $sxe->addChild('timingTiming'));
+        }
         if (0 < count($this->participant)) {
-            foreach($this->participant as $participant) {
+            foreach ($this->participant as $participant) {
                 $participant->xmlSerialize(true, $sxe->addChild('participant'));
             }
         }
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->groupingBehavior)) $this->groupingBehavior->xmlSerialize(true, $sxe->addChild('groupingBehavior'));
-        if (isset($this->selectionBehavior)) $this->selectionBehavior->xmlSerialize(true, $sxe->addChild('selectionBehavior'));
-        if (isset($this->requiredBehavior)) $this->requiredBehavior->xmlSerialize(true, $sxe->addChild('requiredBehavior'));
-        if (isset($this->precheckBehavior)) $this->precheckBehavior->xmlSerialize(true, $sxe->addChild('precheckBehavior'));
-        if (isset($this->cardinalityBehavior)) $this->cardinalityBehavior->xmlSerialize(true, $sxe->addChild('cardinalityBehavior'));
-        if (isset($this->definitionCanonical)) $this->definitionCanonical->xmlSerialize(true, $sxe->addChild('definitionCanonical'));
-        if (isset($this->definitionUri)) $this->definitionUri->xmlSerialize(true, $sxe->addChild('definitionUri'));
-        if (isset($this->transform)) $this->transform->xmlSerialize(true, $sxe->addChild('transform'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->groupingBehavior)) {
+            $this->groupingBehavior->xmlSerialize(true, $sxe->addChild('groupingBehavior'));
+        }
+        if (isset($this->selectionBehavior)) {
+            $this->selectionBehavior->xmlSerialize(true, $sxe->addChild('selectionBehavior'));
+        }
+        if (isset($this->requiredBehavior)) {
+            $this->requiredBehavior->xmlSerialize(true, $sxe->addChild('requiredBehavior'));
+        }
+        if (isset($this->precheckBehavior)) {
+            $this->precheckBehavior->xmlSerialize(true, $sxe->addChild('precheckBehavior'));
+        }
+        if (isset($this->cardinalityBehavior)) {
+            $this->cardinalityBehavior->xmlSerialize(true, $sxe->addChild('cardinalityBehavior'));
+        }
+        if (isset($this->definitionCanonical)) {
+            $this->definitionCanonical->xmlSerialize(true, $sxe->addChild('definitionCanonical'));
+        }
+        if (isset($this->definitionUri)) {
+            $this->definitionUri->xmlSerialize(true, $sxe->addChild('definitionUri'));
+        }
+        if (isset($this->transform)) {
+            $this->transform->xmlSerialize(true, $sxe->addChild('transform'));
+        }
         if (0 < count($this->dynamicValue)) {
-            foreach($this->dynamicValue as $dynamicValue) {
+            foreach ($this->dynamicValue as $dynamicValue) {
                 $dynamicValue->xmlSerialize(true, $sxe->addChild('dynamicValue'));
             }
         }
         if (0 < count($this->action)) {
-            foreach($this->action as $action) {
+            foreach ($this->action as $action) {
                 $action->xmlSerialize(true, $sxe->addChild('action'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -94,7 +94,8 @@ class FHIRMedicationKnowledgeCost extends FHIRBackboneElement implements \JsonSe
      * The category of the cost information.  For example, manufacturers' cost, patient cost, claim reimbursement cost, actual acquisition cost.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -103,7 +104,8 @@ class FHIRMedicationKnowledgeCost extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRMedicationKnowledgeCost extends FHIRBackboneElement implements \JsonSe
      * The source or owner that assigns the price to the medication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -121,7 +124,8 @@ class FHIRMedicationKnowledgeCost extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $source
      * @return $this
      */
-    public function setSource($source) {
+    public function setSource($source)
+    {
         $this->source = $source;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRMedicationKnowledgeCost extends FHIRBackboneElement implements \JsonSe
      * The price of the medication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getCost() {
+    public function getCost()
+    {
         return $this->cost;
     }
 
@@ -139,7 +144,8 @@ class FHIRMedicationKnowledgeCost extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $cost
      * @return $this
      */
-    public function setCost($cost) {
+    public function setCost($cost)
+    {
         $this->cost = $cost;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRMedicationKnowledgeCost extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -174,18 +182,26 @@ class FHIRMedicationKnowledgeCost extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->source)) $json['source'] = $this->source;
-        if (isset($this->cost)) $json['cost'] = $this->cost;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->source)) {
+            $json['source'] = $this->source;
+        }
+        if (isset($this->cost)) {
+            $json['cost'] = $this->cost;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRMedicationKnowledgeCost extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationKnowledgeCost xmlns="http://hl7.org/fhir"></MedicationKnowledgeCost>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationKnowledgeCost xmlns="http://hl7.org/fhir"></MedicationKnowledgeCost>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->source)) $this->source->xmlSerialize(true, $sxe->addChild('source'));
-        if (isset($this->cost)) $this->cost->xmlSerialize(true, $sxe->addChild('cost'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->source)) {
+            $this->source->xmlSerialize(true, $sxe->addChild('source'));
+        }
+        if (isset($this->cost)) {
+            $this->cost->xmlSerialize(true, $sxe->addChild('cost'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

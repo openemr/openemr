@@ -88,7 +88,8 @@ class FHIRMedicinalProductIngredientSubstance extends FHIRBackboneElement implem
      * The ingredient substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -97,7 +98,8 @@ class FHIRMedicinalProductIngredientSubstance extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMedicinalProductIngredientSubstance extends FHIRBackboneElement implem
      * Quantity of the substance or specified substance present in the manufactured item or pharmaceutical product.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductIngredient\FHIRMedicinalProductIngredientStrength[]
      */
-    public function getStrength() {
+    public function getStrength()
+    {
         return $this->strength;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicinalProductIngredientSubstance extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductIngredient\FHIRMedicinalProductIngredientStrength $strength
      * @return $this
      */
-    public function addStrength($strength) {
+    public function addStrength($strength)
+    {
         $this->strength[] = $strength;
         return $this;
     }
@@ -123,21 +127,23 @@ class FHIRMedicinalProductIngredientSubstance extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
             }
             if (isset($data['strength'])) {
                 if (is_array($data['strength'])) {
-                    foreach($data['strength'] as $d) {
+                    foreach ($data['strength'] as $d) {
                         $this->addStrength($d);
                     }
                 } else {
@@ -153,19 +159,23 @@ class FHIRMedicinalProductIngredientSubstance extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
         if (0 < count($this->strength)) {
             $json['strength'] = [];
-            foreach($this->strength as $strength) {
+            foreach ($this->strength as $strength) {
                 $json['strength'][] = $strength;
             }
         }
@@ -177,18 +187,23 @@ class FHIRMedicinalProductIngredientSubstance extends FHIRBackboneElement implem
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductIngredientSubstance xmlns="http://hl7.org/fhir"></MedicinalProductIngredientSubstance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductIngredientSubstance xmlns="http://hl7.org/fhir"></MedicinalProductIngredientSubstance>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
         if (0 < count($this->strength)) {
-            foreach($this->strength as $strength) {
+            foreach ($this->strength as $strength) {
                 $strength->xmlSerialize(true, $sxe->addChild('strength'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

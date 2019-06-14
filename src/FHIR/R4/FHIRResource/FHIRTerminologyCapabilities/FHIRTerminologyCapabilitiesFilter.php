@@ -88,7 +88,8 @@ class FHIRTerminologyCapabilitiesFilter extends FHIRBackboneElement implements \
      * Code of the property supported.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -97,7 +98,8 @@ class FHIRTerminologyCapabilitiesFilter extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRTerminologyCapabilitiesFilter extends FHIRBackboneElement implements \
      * Operations supported for the property.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode[]
      */
-    public function getOp() {
+    public function getOp()
+    {
         return $this->op;
     }
 
@@ -115,7 +118,8 @@ class FHIRTerminologyCapabilitiesFilter extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $op
      * @return $this
      */
-    public function addOp($op) {
+    public function addOp($op)
+    {
         $this->op[] = $op;
         return $this;
     }
@@ -123,21 +127,23 @@ class FHIRTerminologyCapabilitiesFilter extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
             }
             if (isset($data['op'])) {
                 if (is_array($data['op'])) {
-                    foreach($data['op'] as $d) {
+                    foreach ($data['op'] as $d) {
                         $this->addOp($d);
                     }
                 } else {
@@ -153,19 +159,23 @@ class FHIRTerminologyCapabilitiesFilter extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
         if (0 < count($this->op)) {
             $json['op'] = [];
-            foreach($this->op as $op) {
+            foreach ($this->op as $op) {
                 $json['op'][] = $op;
             }
         }
@@ -177,18 +187,23 @@ class FHIRTerminologyCapabilitiesFilter extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesFilter xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesFilter>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesFilter xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesFilter>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
         if (0 < count($this->op)) {
-            foreach($this->op as $op) {
+            foreach ($this->op as $op) {
                 $op->xmlSerialize(true, $sxe->addChild('op'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

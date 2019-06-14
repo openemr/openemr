@@ -121,7 +121,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * The type of triggering event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -130,7 +131,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -139,7 +141,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * A formal name for the event. This may be an absolute URI that identifies the event formally (e.g. from a trigger registry), or a simple relative URI that identifies the event in a local context.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -148,7 +151,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -156,7 +160,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getTimingTiming() {
+    public function getTimingTiming()
+    {
         return $this->timingTiming;
     }
 
@@ -164,7 +169,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $timingTiming
      * @return $this
      */
-    public function setTimingTiming($timingTiming) {
+    public function setTimingTiming($timingTiming)
+    {
         $this->timingTiming = $timingTiming;
         return $this;
     }
@@ -172,7 +178,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getTimingReference() {
+    public function getTimingReference()
+    {
         return $this->timingReference;
     }
 
@@ -180,7 +187,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $timingReference
      * @return $this
      */
-    public function setTimingReference($timingReference) {
+    public function setTimingReference($timingReference)
+    {
         $this->timingReference = $timingReference;
         return $this;
     }
@@ -188,7 +196,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getTimingDate() {
+    public function getTimingDate()
+    {
         return $this->timingDate;
     }
 
@@ -196,7 +205,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $timingDate
      * @return $this
      */
-    public function setTimingDate($timingDate) {
+    public function setTimingDate($timingDate)
+    {
         $this->timingDate = $timingDate;
         return $this;
     }
@@ -204,7 +214,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getTimingDateTime() {
+    public function getTimingDateTime()
+    {
         return $this->timingDateTime;
     }
 
@@ -212,7 +223,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $timingDateTime
      * @return $this
      */
-    public function setTimingDateTime($timingDateTime) {
+    public function setTimingDateTime($timingDateTime)
+    {
         $this->timingDateTime = $timingDateTime;
         return $this;
     }
@@ -221,7 +233,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * The triggering data of the event (if this is a data trigger). If more than one data is requirement is specified, then all the data requirements must be true.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement[]
      */
-    public function getData() {
+    public function getData()
+    {
         return $this->data;
     }
 
@@ -230,7 +243,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement $data
      * @return $this
      */
-    public function addData($data) {
+    public function addData($data)
+    {
         $this->data[] = $data;
         return $this;
     }
@@ -239,7 +253,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * A boolean-valued expression that is evaluated in the context of the container of the trigger definition and returns whether or not the trigger fires.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getCondition() {
+    public function getCondition()
+    {
         return $this->condition;
     }
 
@@ -248,7 +263,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $condition
      * @return $this
      */
-    public function setCondition($condition) {
+    public function setCondition($condition)
+    {
         $this->condition = $condition;
         return $this;
     }
@@ -256,14 +272,16 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -285,7 +303,7 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
             }
             if (isset($data['data'])) {
                 if (is_array($data['data'])) {
-                    foreach($data['data'] as $d) {
+                    foreach ($data['data'] as $d) {
                         $this->addData($d);
                     }
                 } else {
@@ -304,28 +322,44 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->timingTiming)) $json['timingTiming'] = $this->timingTiming;
-        if (isset($this->timingReference)) $json['timingReference'] = $this->timingReference;
-        if (isset($this->timingDate)) $json['timingDate'] = $this->timingDate;
-        if (isset($this->timingDateTime)) $json['timingDateTime'] = $this->timingDateTime;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->timingTiming)) {
+            $json['timingTiming'] = $this->timingTiming;
+        }
+        if (isset($this->timingReference)) {
+            $json['timingReference'] = $this->timingReference;
+        }
+        if (isset($this->timingDate)) {
+            $json['timingDate'] = $this->timingDate;
+        }
+        if (isset($this->timingDateTime)) {
+            $json['timingDateTime'] = $this->timingDateTime;
+        }
         if (0 < count($this->data)) {
             $json['data'] = [];
-            foreach($this->data as $data) {
+            foreach ($this->data as $data) {
                 $json['data'][] = $data;
             }
         }
-        if (isset($this->condition)) $json['condition'] = $this->condition;
+        if (isset($this->condition)) {
+            $json['condition'] = $this->condition;
+        }
         return $json;
     }
 
@@ -334,24 +368,41 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TriggerDefinition xmlns="http://hl7.org/fhir"></TriggerDefinition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TriggerDefinition xmlns="http://hl7.org/fhir"></TriggerDefinition>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->timingTiming)) $this->timingTiming->xmlSerialize(true, $sxe->addChild('timingTiming'));
-        if (isset($this->timingReference)) $this->timingReference->xmlSerialize(true, $sxe->addChild('timingReference'));
-        if (isset($this->timingDate)) $this->timingDate->xmlSerialize(true, $sxe->addChild('timingDate'));
-        if (isset($this->timingDateTime)) $this->timingDateTime->xmlSerialize(true, $sxe->addChild('timingDateTime'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->timingTiming)) {
+            $this->timingTiming->xmlSerialize(true, $sxe->addChild('timingTiming'));
+        }
+        if (isset($this->timingReference)) {
+            $this->timingReference->xmlSerialize(true, $sxe->addChild('timingReference'));
+        }
+        if (isset($this->timingDate)) {
+            $this->timingDate->xmlSerialize(true, $sxe->addChild('timingDate'));
+        }
+        if (isset($this->timingDateTime)) {
+            $this->timingDateTime->xmlSerialize(true, $sxe->addChild('timingDateTime'));
+        }
         if (0 < count($this->data)) {
-            foreach($this->data as $data) {
+            foreach ($this->data as $data) {
                 $data->xmlSerialize(true, $sxe->addChild('data'));
             }
         }
-        if (isset($this->condition)) $this->condition->xmlSerialize(true, $sxe->addChild('condition'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->condition)) {
+            $this->condition->xmlSerialize(true, $sxe->addChild('condition'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -161,7 +161,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * A resource that was validated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getTarget() {
+    public function getTarget()
+    {
         return $this->target;
     }
 
@@ -170,7 +171,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $target
      * @return $this
      */
-    public function addTarget($target) {
+    public function addTarget($target)
+    {
         $this->target[] = $target;
         return $this;
     }
@@ -179,7 +181,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * The fhirpath location(s) within the resource that was validated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getTargetLocation() {
+    public function getTargetLocation()
+    {
         return $this->targetLocation;
     }
 
@@ -188,7 +191,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $targetLocation
      * @return $this
      */
-    public function addTargetLocation($targetLocation) {
+    public function addTargetLocation($targetLocation)
+    {
         $this->targetLocation[] = $targetLocation;
         return $this;
     }
@@ -197,7 +201,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * The frequency with which the target must be validated (none; initial; periodic).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getNeed() {
+    public function getNeed()
+    {
         return $this->need;
     }
 
@@ -206,7 +211,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $need
      * @return $this
      */
-    public function setNeed($need) {
+    public function setNeed($need)
+    {
         $this->need = $need;
         return $this;
     }
@@ -215,7 +221,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * The validation status of the target (attested; validated; in process; requires revalidation; validation failed; revalidation failed).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -224,7 +231,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -233,7 +241,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * When the validation status was updated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getStatusDate() {
+    public function getStatusDate()
+    {
         return $this->statusDate;
     }
 
@@ -242,7 +251,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $statusDate
      * @return $this
      */
-    public function setStatusDate($statusDate) {
+    public function setStatusDate($statusDate)
+    {
         $this->statusDate = $statusDate;
         return $this;
     }
@@ -251,7 +261,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * What the target is validated against (nothing; primary source; multiple sources).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getValidationType() {
+    public function getValidationType()
+    {
         return $this->validationType;
     }
 
@@ -260,7 +271,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $validationType
      * @return $this
      */
-    public function setValidationType($validationType) {
+    public function setValidationType($validationType)
+    {
         $this->validationType = $validationType;
         return $this;
     }
@@ -269,7 +281,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * The primary process by which the target is validated (edit check; value set; primary source; multiple sources; standalone; in context).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getValidationProcess() {
+    public function getValidationProcess()
+    {
         return $this->validationProcess;
     }
 
@@ -278,7 +291,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $validationProcess
      * @return $this
      */
-    public function addValidationProcess($validationProcess) {
+    public function addValidationProcess($validationProcess)
+    {
         $this->validationProcess[] = $validationProcess;
         return $this;
     }
@@ -287,7 +301,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * Frequency of revalidation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getFrequency() {
+    public function getFrequency()
+    {
         return $this->frequency;
     }
 
@@ -296,7 +311,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $frequency
      * @return $this
      */
-    public function setFrequency($frequency) {
+    public function setFrequency($frequency)
+    {
         $this->frequency = $frequency;
         return $this;
     }
@@ -305,7 +321,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * The date/time validation was last completed (including failed validations).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getLastPerformed() {
+    public function getLastPerformed()
+    {
         return $this->lastPerformed;
     }
 
@@ -314,7 +331,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $lastPerformed
      * @return $this
      */
-    public function setLastPerformed($lastPerformed) {
+    public function setLastPerformed($lastPerformed)
+    {
         $this->lastPerformed = $lastPerformed;
         return $this;
     }
@@ -323,7 +341,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * The date when target is next validated, if appropriate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getNextScheduled() {
+    public function getNextScheduled()
+    {
         return $this->nextScheduled;
     }
 
@@ -332,7 +351,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $nextScheduled
      * @return $this
      */
-    public function setNextScheduled($nextScheduled) {
+    public function setNextScheduled($nextScheduled)
+    {
         $this->nextScheduled = $nextScheduled;
         return $this;
     }
@@ -341,7 +361,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * The result if validation fails (fatal; warning; record only; none).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getFailureAction() {
+    public function getFailureAction()
+    {
         return $this->failureAction;
     }
 
@@ -350,7 +371,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $failureAction
      * @return $this
      */
-    public function setFailureAction($failureAction) {
+    public function setFailureAction($failureAction)
+    {
         $this->failureAction = $failureAction;
         return $this;
     }
@@ -359,7 +381,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * Information about the primary source(s) involved in validation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRVerificationResult\FHIRVerificationResultPrimarySource[]
      */
-    public function getPrimarySource() {
+    public function getPrimarySource()
+    {
         return $this->primarySource;
     }
 
@@ -368,7 +391,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRVerificationResult\FHIRVerificationResultPrimarySource $primarySource
      * @return $this
      */
-    public function addPrimarySource($primarySource) {
+    public function addPrimarySource($primarySource)
+    {
         $this->primarySource[] = $primarySource;
         return $this;
     }
@@ -377,7 +401,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * Information about the entity attesting to information.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRVerificationResult\FHIRVerificationResultAttestation
      */
-    public function getAttestation() {
+    public function getAttestation()
+    {
         return $this->attestation;
     }
 
@@ -386,7 +411,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRVerificationResult\FHIRVerificationResultAttestation $attestation
      * @return $this
      */
-    public function setAttestation($attestation) {
+    public function setAttestation($attestation)
+    {
         $this->attestation = $attestation;
         return $this;
     }
@@ -395,7 +421,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * Information about the entity validating information.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRVerificationResult\FHIRVerificationResultValidator[]
      */
-    public function getValidator() {
+    public function getValidator()
+    {
         return $this->validator;
     }
 
@@ -404,7 +431,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRVerificationResult\FHIRVerificationResultValidator $validator
      * @return $this
      */
-    public function addValidator($validator) {
+    public function addValidator($validator)
+    {
         $this->validator[] = $validator;
         return $this;
     }
@@ -412,18 +440,20 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['target'])) {
                 if (is_array($data['target'])) {
-                    foreach($data['target'] as $d) {
+                    foreach ($data['target'] as $d) {
                         $this->addTarget($d);
                     }
                 } else {
@@ -432,7 +462,7 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['targetLocation'])) {
                 if (is_array($data['targetLocation'])) {
-                    foreach($data['targetLocation'] as $d) {
+                    foreach ($data['targetLocation'] as $d) {
                         $this->addTargetLocation($d);
                     }
                 } else {
@@ -453,7 +483,7 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['validationProcess'])) {
                 if (is_array($data['validationProcess'])) {
-                    foreach($data['validationProcess'] as $d) {
+                    foreach ($data['validationProcess'] as $d) {
                         $this->addValidationProcess($d);
                     }
                 } else {
@@ -474,7 +504,7 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['primarySource'])) {
                 if (is_array($data['primarySource'])) {
-                    foreach($data['primarySource'] as $d) {
+                    foreach ($data['primarySource'] as $d) {
                         $this->addPrimarySource($d);
                     }
                 } else {
@@ -486,7 +516,7 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['validator'])) {
                 if (is_array($data['validator'])) {
-                    foreach($data['validator'] as $d) {
+                    foreach ($data['validator'] as $d) {
                         $this->addValidator($d);
                     }
                 } else {
@@ -502,52 +532,72 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->target)) {
             $json['target'] = [];
-            foreach($this->target as $target) {
+            foreach ($this->target as $target) {
                 $json['target'][] = $target;
             }
         }
         if (0 < count($this->targetLocation)) {
             $json['targetLocation'] = [];
-            foreach($this->targetLocation as $targetLocation) {
+            foreach ($this->targetLocation as $targetLocation) {
                 $json['targetLocation'][] = $targetLocation;
             }
         }
-        if (isset($this->need)) $json['need'] = $this->need;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->statusDate)) $json['statusDate'] = $this->statusDate;
-        if (isset($this->validationType)) $json['validationType'] = $this->validationType;
+        if (isset($this->need)) {
+            $json['need'] = $this->need;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->statusDate)) {
+            $json['statusDate'] = $this->statusDate;
+        }
+        if (isset($this->validationType)) {
+            $json['validationType'] = $this->validationType;
+        }
         if (0 < count($this->validationProcess)) {
             $json['validationProcess'] = [];
-            foreach($this->validationProcess as $validationProcess) {
+            foreach ($this->validationProcess as $validationProcess) {
                 $json['validationProcess'][] = $validationProcess;
             }
         }
-        if (isset($this->frequency)) $json['frequency'] = $this->frequency;
-        if (isset($this->lastPerformed)) $json['lastPerformed'] = $this->lastPerformed;
-        if (isset($this->nextScheduled)) $json['nextScheduled'] = $this->nextScheduled;
-        if (isset($this->failureAction)) $json['failureAction'] = $this->failureAction;
+        if (isset($this->frequency)) {
+            $json['frequency'] = $this->frequency;
+        }
+        if (isset($this->lastPerformed)) {
+            $json['lastPerformed'] = $this->lastPerformed;
+        }
+        if (isset($this->nextScheduled)) {
+            $json['nextScheduled'] = $this->nextScheduled;
+        }
+        if (isset($this->failureAction)) {
+            $json['failureAction'] = $this->failureAction;
+        }
         if (0 < count($this->primarySource)) {
             $json['primarySource'] = [];
-            foreach($this->primarySource as $primarySource) {
+            foreach ($this->primarySource as $primarySource) {
                 $json['primarySource'][] = $primarySource;
             }
         }
-        if (isset($this->attestation)) $json['attestation'] = $this->attestation;
+        if (isset($this->attestation)) {
+            $json['attestation'] = $this->attestation;
+        }
         if (0 < count($this->validator)) {
             $json['validator'] = [];
-            foreach($this->validator as $validator) {
+            foreach ($this->validator as $validator) {
                 $json['validator'][] = $validator;
             }
         }
@@ -559,46 +609,67 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<VerificationResult xmlns="http://hl7.org/fhir"></VerificationResult>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<VerificationResult xmlns="http://hl7.org/fhir"></VerificationResult>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->target)) {
-            foreach($this->target as $target) {
+            foreach ($this->target as $target) {
                 $target->xmlSerialize(true, $sxe->addChild('target'));
             }
         }
         if (0 < count($this->targetLocation)) {
-            foreach($this->targetLocation as $targetLocation) {
+            foreach ($this->targetLocation as $targetLocation) {
                 $targetLocation->xmlSerialize(true, $sxe->addChild('targetLocation'));
             }
         }
-        if (isset($this->need)) $this->need->xmlSerialize(true, $sxe->addChild('need'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->statusDate)) $this->statusDate->xmlSerialize(true, $sxe->addChild('statusDate'));
-        if (isset($this->validationType)) $this->validationType->xmlSerialize(true, $sxe->addChild('validationType'));
+        if (isset($this->need)) {
+            $this->need->xmlSerialize(true, $sxe->addChild('need'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->statusDate)) {
+            $this->statusDate->xmlSerialize(true, $sxe->addChild('statusDate'));
+        }
+        if (isset($this->validationType)) {
+            $this->validationType->xmlSerialize(true, $sxe->addChild('validationType'));
+        }
         if (0 < count($this->validationProcess)) {
-            foreach($this->validationProcess as $validationProcess) {
+            foreach ($this->validationProcess as $validationProcess) {
                 $validationProcess->xmlSerialize(true, $sxe->addChild('validationProcess'));
             }
         }
-        if (isset($this->frequency)) $this->frequency->xmlSerialize(true, $sxe->addChild('frequency'));
-        if (isset($this->lastPerformed)) $this->lastPerformed->xmlSerialize(true, $sxe->addChild('lastPerformed'));
-        if (isset($this->nextScheduled)) $this->nextScheduled->xmlSerialize(true, $sxe->addChild('nextScheduled'));
-        if (isset($this->failureAction)) $this->failureAction->xmlSerialize(true, $sxe->addChild('failureAction'));
+        if (isset($this->frequency)) {
+            $this->frequency->xmlSerialize(true, $sxe->addChild('frequency'));
+        }
+        if (isset($this->lastPerformed)) {
+            $this->lastPerformed->xmlSerialize(true, $sxe->addChild('lastPerformed'));
+        }
+        if (isset($this->nextScheduled)) {
+            $this->nextScheduled->xmlSerialize(true, $sxe->addChild('nextScheduled'));
+        }
+        if (isset($this->failureAction)) {
+            $this->failureAction->xmlSerialize(true, $sxe->addChild('failureAction'));
+        }
         if (0 < count($this->primarySource)) {
-            foreach($this->primarySource as $primarySource) {
+            foreach ($this->primarySource as $primarySource) {
                 $primarySource->xmlSerialize(true, $sxe->addChild('primarySource'));
             }
         }
-        if (isset($this->attestation)) $this->attestation->xmlSerialize(true, $sxe->addChild('attestation'));
+        if (isset($this->attestation)) {
+            $this->attestation->xmlSerialize(true, $sxe->addChild('attestation'));
+        }
         if (0 < count($this->validator)) {
-            foreach($this->validator as $validator) {
+            foreach ($this->validator as $validator) {
                 $validator->xmlSerialize(true, $sxe->addChild('validator'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

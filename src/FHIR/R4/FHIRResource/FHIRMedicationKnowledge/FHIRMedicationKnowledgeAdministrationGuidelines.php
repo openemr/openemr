@@ -98,7 +98,8 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
      * Dosage for the medication for the specific guidelines.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeDosage[]
      */
-    public function getDosage() {
+    public function getDosage()
+    {
         return $this->dosage;
     }
 
@@ -107,7 +108,8 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgeDosage $dosage
      * @return $this
      */
-    public function addDosage($dosage) {
+    public function addDosage($dosage)
+    {
         $this->dosage[] = $dosage;
         return $this;
     }
@@ -115,7 +117,8 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getIndicationCodeableConcept() {
+    public function getIndicationCodeableConcept()
+    {
         return $this->indicationCodeableConcept;
     }
 
@@ -123,7 +126,8 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $indicationCodeableConcept
      * @return $this
      */
-    public function setIndicationCodeableConcept($indicationCodeableConcept) {
+    public function setIndicationCodeableConcept($indicationCodeableConcept)
+    {
         $this->indicationCodeableConcept = $indicationCodeableConcept;
         return $this;
     }
@@ -131,7 +135,8 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getIndicationReference() {
+    public function getIndicationReference()
+    {
         return $this->indicationReference;
     }
 
@@ -139,7 +144,8 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $indicationReference
      * @return $this
      */
-    public function setIndicationReference($indicationReference) {
+    public function setIndicationReference($indicationReference)
+    {
         $this->indicationReference = $indicationReference;
         return $this;
     }
@@ -148,7 +154,8 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
      * Characteristics of the patient that are relevant to the administration guidelines (for example, height, weight, gender, etc.).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgePatientCharacteristics[]
      */
-    public function getPatientCharacteristics() {
+    public function getPatientCharacteristics()
+    {
         return $this->patientCharacteristics;
     }
 
@@ -157,7 +164,8 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge\FHIRMedicationKnowledgePatientCharacteristics $patientCharacteristics
      * @return $this
      */
-    public function addPatientCharacteristics($patientCharacteristics) {
+    public function addPatientCharacteristics($patientCharacteristics)
+    {
         $this->patientCharacteristics[] = $patientCharacteristics;
         return $this;
     }
@@ -165,18 +173,20 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['dosage'])) {
                 if (is_array($data['dosage'])) {
-                    foreach($data['dosage'] as $d) {
+                    foreach ($data['dosage'] as $d) {
                         $this->addDosage($d);
                     }
                 } else {
@@ -191,7 +201,7 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
             }
             if (isset($data['patientCharacteristics'])) {
                 if (is_array($data['patientCharacteristics'])) {
-                    foreach($data['patientCharacteristics'] as $d) {
+                    foreach ($data['patientCharacteristics'] as $d) {
                         $this->addPatientCharacteristics($d);
                     }
                 } else {
@@ -207,26 +217,32 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->dosage)) {
             $json['dosage'] = [];
-            foreach($this->dosage as $dosage) {
+            foreach ($this->dosage as $dosage) {
                 $json['dosage'][] = $dosage;
             }
         }
-        if (isset($this->indicationCodeableConcept)) $json['indicationCodeableConcept'] = $this->indicationCodeableConcept;
-        if (isset($this->indicationReference)) $json['indicationReference'] = $this->indicationReference;
+        if (isset($this->indicationCodeableConcept)) {
+            $json['indicationCodeableConcept'] = $this->indicationCodeableConcept;
+        }
+        if (isset($this->indicationReference)) {
+            $json['indicationReference'] = $this->indicationReference;
+        }
         if (0 < count($this->patientCharacteristics)) {
             $json['patientCharacteristics'] = [];
-            foreach($this->patientCharacteristics as $patientCharacteristics) {
+            foreach ($this->patientCharacteristics as $patientCharacteristics) {
                 $json['patientCharacteristics'][] = $patientCharacteristics;
             }
         }
@@ -238,24 +254,31 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationKnowledgeAdministrationGuidelines xmlns="http://hl7.org/fhir"></MedicationKnowledgeAdministrationGuidelines>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationKnowledgeAdministrationGuidelines xmlns="http://hl7.org/fhir"></MedicationKnowledgeAdministrationGuidelines>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->dosage)) {
-            foreach($this->dosage as $dosage) {
+            foreach ($this->dosage as $dosage) {
                 $dosage->xmlSerialize(true, $sxe->addChild('dosage'));
             }
         }
-        if (isset($this->indicationCodeableConcept)) $this->indicationCodeableConcept->xmlSerialize(true, $sxe->addChild('indicationCodeableConcept'));
-        if (isset($this->indicationReference)) $this->indicationReference->xmlSerialize(true, $sxe->addChild('indicationReference'));
+        if (isset($this->indicationCodeableConcept)) {
+            $this->indicationCodeableConcept->xmlSerialize(true, $sxe->addChild('indicationCodeableConcept'));
+        }
+        if (isset($this->indicationReference)) {
+            $this->indicationReference->xmlSerialize(true, $sxe->addChild('indicationReference'));
+        }
         if (0 < count($this->patientCharacteristics)) {
-            foreach($this->patientCharacteristics as $patientCharacteristics) {
+            foreach ($this->patientCharacteristics as $patientCharacteristics) {
                 $patientCharacteristics->xmlSerialize(true, $sxe->addChild('patientCharacteristics'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

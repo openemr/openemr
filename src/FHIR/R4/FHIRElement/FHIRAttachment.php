@@ -125,7 +125,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * Identifies the type of the data in the attachment and allows a method to be chosen to interpret or render the data. Includes mime type parameters such as charset where appropriate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getContentType() {
+    public function getContentType()
+    {
         return $this->contentType;
     }
 
@@ -134,7 +135,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $contentType
      * @return $this
      */
-    public function setContentType($contentType) {
+    public function setContentType($contentType)
+    {
         $this->contentType = $contentType;
         return $this;
     }
@@ -143,7 +145,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * The human language of the content. The value can be any valid value according to BCP 47.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -152,7 +155,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $language
      * @return $this
      */
-    public function setLanguage($language) {
+    public function setLanguage($language)
+    {
         $this->language = $language;
         return $this;
     }
@@ -161,7 +165,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * The actual data of the attachment - a sequence of bytes, base64 encoded.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary
      */
-    public function getData() {
+    public function getData()
+    {
         return $this->data;
     }
 
@@ -170,7 +175,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary $data
      * @return $this
      */
-    public function setData($data) {
+    public function setData($data)
+    {
         $this->data = $data;
         return $this;
     }
@@ -179,7 +185,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * A location where the data can be accessed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -188,7 +195,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -197,7 +205,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * The number of bytes of data that make up this attachment (before base64 encoding, if that is done).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getSize() {
+    public function getSize()
+    {
         return $this->size;
     }
 
@@ -206,7 +215,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $size
      * @return $this
      */
-    public function setSize($size) {
+    public function setSize($size)
+    {
         $this->size = $size;
         return $this;
     }
@@ -215,7 +225,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * The calculated hash of the data using SHA-1. Represented using base64.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary
      */
-    public function getHash() {
+    public function getHash()
+    {
         return $this->hash;
     }
 
@@ -224,7 +235,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary $hash
      * @return $this
      */
-    public function setHash($hash) {
+    public function setHash($hash)
+    {
         $this->hash = $hash;
         return $this;
     }
@@ -233,7 +245,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * A label or set of text to display in place of the data.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -242,7 +255,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -251,7 +265,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * The date that the attachment was first created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getCreation() {
+    public function getCreation()
+    {
         return $this->creation;
     }
 
@@ -260,7 +275,8 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $creation
      * @return $this
      */
-    public function setCreation($creation) {
+    public function setCreation($creation)
+    {
         $this->creation = $creation;
         return $this;
     }
@@ -268,14 +284,16 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['contentType'])) {
                 $this->setContentType($data['contentType']);
@@ -310,23 +328,41 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->contentType)) $json['contentType'] = $this->contentType;
-        if (isset($this->language)) $json['language'] = $this->language;
-        if (isset($this->data)) $json['data'] = $this->data;
-        if (isset($this->url)) $json['url'] = $this->url;
-        if (isset($this->size)) $json['size'] = $this->size;
-        if (isset($this->hash)) $json['hash'] = $this->hash;
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->creation)) $json['creation'] = $this->creation;
+        if (isset($this->contentType)) {
+            $json['contentType'] = $this->contentType;
+        }
+        if (isset($this->language)) {
+            $json['language'] = $this->language;
+        }
+        if (isset($this->data)) {
+            $json['data'] = $this->data;
+        }
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
+        if (isset($this->size)) {
+            $json['size'] = $this->size;
+        }
+        if (isset($this->hash)) {
+            $json['hash'] = $this->hash;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->creation)) {
+            $json['creation'] = $this->creation;
+        }
         return $json;
     }
 
@@ -335,20 +371,39 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Attachment xmlns="http://hl7.org/fhir"></Attachment>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Attachment xmlns="http://hl7.org/fhir"></Attachment>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->contentType)) $this->contentType->xmlSerialize(true, $sxe->addChild('contentType'));
-        if (isset($this->language)) $this->language->xmlSerialize(true, $sxe->addChild('language'));
-        if (isset($this->data)) $this->data->xmlSerialize(true, $sxe->addChild('data'));
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
-        if (isset($this->size)) $this->size->xmlSerialize(true, $sxe->addChild('size'));
-        if (isset($this->hash)) $this->hash->xmlSerialize(true, $sxe->addChild('hash'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->creation)) $this->creation->xmlSerialize(true, $sxe->addChild('creation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->contentType)) {
+            $this->contentType->xmlSerialize(true, $sxe->addChild('contentType'));
+        }
+        if (isset($this->language)) {
+            $this->language->xmlSerialize(true, $sxe->addChild('language'));
+        }
+        if (isset($this->data)) {
+            $this->data->xmlSerialize(true, $sxe->addChild('data'));
+        }
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
+        if (isset($this->size)) {
+            $this->size->xmlSerialize(true, $sxe->addChild('size'));
+        }
+        if (isset($this->hash)) {
+            $this->hash->xmlSerialize(true, $sxe->addChild('hash'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->creation)) {
+            $this->creation->xmlSerialize(true, $sxe->addChild('creation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

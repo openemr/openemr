@@ -110,7 +110,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * A number to uniquely identify procedure entries.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -119,7 +120,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -128,7 +130,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * When the condition was observed or the relative ranking.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -137,7 +140,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function addType($type) {
+    public function addType($type)
+    {
         $this->type[] = $type;
         return $this;
     }
@@ -146,7 +150,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * Date and optionally time the procedure was performed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -155,7 +160,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -163,7 +169,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getProcedureCodeableConcept() {
+    public function getProcedureCodeableConcept()
+    {
         return $this->procedureCodeableConcept;
     }
 
@@ -171,7 +178,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $procedureCodeableConcept
      * @return $this
      */
-    public function setProcedureCodeableConcept($procedureCodeableConcept) {
+    public function setProcedureCodeableConcept($procedureCodeableConcept)
+    {
         $this->procedureCodeableConcept = $procedureCodeableConcept;
         return $this;
     }
@@ -179,7 +187,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getProcedureReference() {
+    public function getProcedureReference()
+    {
         return $this->procedureReference;
     }
 
@@ -187,7 +196,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $procedureReference
      * @return $this
      */
-    public function setProcedureReference($procedureReference) {
+    public function setProcedureReference($procedureReference)
+    {
         $this->procedureReference = $procedureReference;
         return $this;
     }
@@ -196,7 +206,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * Unique Device Identifiers associated with this line item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getUdi() {
+    public function getUdi()
+    {
         return $this->udi;
     }
 
@@ -205,7 +216,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $udi
      * @return $this
      */
-    public function addUdi($udi) {
+    public function addUdi($udi)
+    {
         $this->udi[] = $udi;
         return $this;
     }
@@ -213,21 +225,23 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequence'])) {
                 $this->setSequence($data['sequence']);
             }
             if (isset($data['type'])) {
                 if (is_array($data['type'])) {
-                    foreach($data['type'] as $d) {
+                    foreach ($data['type'] as $d) {
                         $this->addType($d);
                     }
                 } else {
@@ -245,7 +259,7 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
             }
             if (isset($data['udi'])) {
                 if (is_array($data['udi'])) {
-                    foreach($data['udi'] as $d) {
+                    foreach ($data['udi'] as $d) {
                         $this->addUdi($d);
                     }
                 } else {
@@ -261,28 +275,38 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
         if (0 < count($this->type)) {
             $json['type'] = [];
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $json['type'][] = $type;
             }
         }
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->procedureCodeableConcept)) $json['procedureCodeableConcept'] = $this->procedureCodeableConcept;
-        if (isset($this->procedureReference)) $json['procedureReference'] = $this->procedureReference;
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->procedureCodeableConcept)) {
+            $json['procedureCodeableConcept'] = $this->procedureCodeableConcept;
+        }
+        if (isset($this->procedureReference)) {
+            $json['procedureReference'] = $this->procedureReference;
+        }
         if (0 < count($this->udi)) {
             $json['udi'] = [];
-            foreach($this->udi as $udi) {
+            foreach ($this->udi as $udi) {
                 $json['udi'][] = $udi;
             }
         }
@@ -294,26 +318,37 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExplanationOfBenefitProcedure xmlns="http://hl7.org/fhir"></ExplanationOfBenefitProcedure>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitProcedure xmlns="http://hl7.org/fhir"></ExplanationOfBenefitProcedure>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
         if (0 < count($this->type)) {
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $type->xmlSerialize(true, $sxe->addChild('type'));
             }
         }
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->procedureCodeableConcept)) $this->procedureCodeableConcept->xmlSerialize(true, $sxe->addChild('procedureCodeableConcept'));
-        if (isset($this->procedureReference)) $this->procedureReference->xmlSerialize(true, $sxe->addChild('procedureReference'));
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->procedureCodeableConcept)) {
+            $this->procedureCodeableConcept->xmlSerialize(true, $sxe->addChild('procedureCodeableConcept'));
+        }
+        if (isset($this->procedureReference)) {
+            $this->procedureReference->xmlSerialize(true, $sxe->addChild('procedureReference'));
+        }
         if (0 < count($this->udi)) {
-            foreach($this->udi as $udi) {
+            foreach ($this->udi as $udi) {
                 $udi->xmlSerialize(true, $sxe->addChild('udi'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

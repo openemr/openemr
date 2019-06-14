@@ -239,7 +239,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * A unique identifier assigned to this claim.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -248,7 +249,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -257,7 +259,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The status of the resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -266,7 +269,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -275,7 +279,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The category of claim, e.g. oral, pharmacy, vision, institutional, professional.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -284,7 +289,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -293,7 +299,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * A finer grained suite of claim type codes which may convey additional information such as Inpatient vs Outpatient and/or a specialty service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSubType() {
+    public function getSubType()
+    {
         return $this->subType;
     }
 
@@ -302,7 +309,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $subType
      * @return $this
      */
-    public function setSubType($subType) {
+    public function setSubType($subType)
+    {
         $this->subType = $subType;
         return $this;
     }
@@ -311,7 +319,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * A code to indicate whether the nature of the request is: to request adjudication of products and services previously rendered; or requesting authorization and adjudication for provision in the future; or requesting the non-binding adjudication of the listed products and services which could be provided in the future.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUse
      */
-    public function getUse() {
+    public function getUse()
+    {
         return $this->use;
     }
 
@@ -320,7 +329,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUse $use
      * @return $this
      */
-    public function setUse($use) {
+    public function setUse($use)
+    {
         $this->use = $use;
         return $this;
     }
@@ -329,7 +339,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The party to whom the professional services and/or products have been supplied or are being considered and for whom actual or forecast reimbursement is sought.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -338,7 +349,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -347,7 +359,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The period for which charges are being submitted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getBillablePeriod() {
+    public function getBillablePeriod()
+    {
         return $this->billablePeriod;
     }
 
@@ -356,7 +369,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $billablePeriod
      * @return $this
      */
-    public function setBillablePeriod($billablePeriod) {
+    public function setBillablePeriod($billablePeriod)
+    {
         $this->billablePeriod = $billablePeriod;
         return $this;
     }
@@ -365,7 +379,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The date this resource was created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getCreated() {
+    public function getCreated()
+    {
         return $this->created;
     }
 
@@ -374,7 +389,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $created
      * @return $this
      */
-    public function setCreated($created) {
+    public function setCreated($created)
+    {
         $this->created = $created;
         return $this;
     }
@@ -383,7 +399,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * Individual who created the claim, predetermination or preauthorization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEnterer() {
+    public function getEnterer()
+    {
         return $this->enterer;
     }
 
@@ -392,7 +409,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $enterer
      * @return $this
      */
-    public function setEnterer($enterer) {
+    public function setEnterer($enterer)
+    {
         $this->enterer = $enterer;
         return $this;
     }
@@ -401,7 +419,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The Insurer who is target of the request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getInsurer() {
+    public function getInsurer()
+    {
         return $this->insurer;
     }
 
@@ -410,7 +429,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $insurer
      * @return $this
      */
-    public function setInsurer($insurer) {
+    public function setInsurer($insurer)
+    {
         $this->insurer = $insurer;
         return $this;
     }
@@ -419,7 +439,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The provider which is responsible for the claim, predetermination or preauthorization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getProvider() {
+    public function getProvider()
+    {
         return $this->provider;
     }
 
@@ -428,7 +449,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $provider
      * @return $this
      */
-    public function setProvider($provider) {
+    public function setProvider($provider)
+    {
         $this->provider = $provider;
         return $this;
     }
@@ -437,7 +459,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The provider-required urgency of processing the request. Typical values include: stat, routine deferred.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPriority() {
+    public function getPriority()
+    {
         return $this->priority;
     }
 
@@ -446,7 +469,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $priority
      * @return $this
      */
-    public function setPriority($priority) {
+    public function setPriority($priority)
+    {
         $this->priority = $priority;
         return $this;
     }
@@ -455,7 +479,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * A code to indicate whether and for whom funds are to be reserved for future claims.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getFundsReserve() {
+    public function getFundsReserve()
+    {
         return $this->fundsReserve;
     }
 
@@ -464,7 +489,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $fundsReserve
      * @return $this
      */
-    public function setFundsReserve($fundsReserve) {
+    public function setFundsReserve($fundsReserve)
+    {
         $this->fundsReserve = $fundsReserve;
         return $this;
     }
@@ -473,7 +499,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * Other claims which are related to this claim such as prior submissions or claims for related services or for the same event.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimRelated[]
      */
-    public function getRelated() {
+    public function getRelated()
+    {
         return $this->related;
     }
 
@@ -482,7 +509,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimRelated $related
      * @return $this
      */
-    public function addRelated($related) {
+    public function addRelated($related)
+    {
         $this->related[] = $related;
         return $this;
     }
@@ -491,7 +519,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * Prescription to support the dispensing of pharmacy, device or vision products.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPrescription() {
+    public function getPrescription()
+    {
         return $this->prescription;
     }
 
@@ -500,7 +529,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $prescription
      * @return $this
      */
-    public function setPrescription($prescription) {
+    public function setPrescription($prescription)
+    {
         $this->prescription = $prescription;
         return $this;
     }
@@ -509,7 +539,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * Original prescription which has been superseded by this prescription to support the dispensing of pharmacy services, medications or products.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOriginalPrescription() {
+    public function getOriginalPrescription()
+    {
         return $this->originalPrescription;
     }
 
@@ -518,7 +549,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $originalPrescription
      * @return $this
      */
-    public function setOriginalPrescription($originalPrescription) {
+    public function setOriginalPrescription($originalPrescription)
+    {
         $this->originalPrescription = $originalPrescription;
         return $this;
     }
@@ -527,7 +559,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The party to be reimbursed for cost of the products and services according to the terms of the policy.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimPayee
      */
-    public function getPayee() {
+    public function getPayee()
+    {
         return $this->payee;
     }
 
@@ -536,7 +569,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimPayee $payee
      * @return $this
      */
-    public function setPayee($payee) {
+    public function setPayee($payee)
+    {
         $this->payee = $payee;
         return $this;
     }
@@ -545,7 +579,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * A reference to a referral resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReferral() {
+    public function getReferral()
+    {
         return $this->referral;
     }
 
@@ -554,7 +589,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $referral
      * @return $this
      */
-    public function setReferral($referral) {
+    public function setReferral($referral)
+    {
         $this->referral = $referral;
         return $this;
     }
@@ -563,7 +599,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * Facility where the services were provided.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getFacility() {
+    public function getFacility()
+    {
         return $this->facility;
     }
 
@@ -572,7 +609,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $facility
      * @return $this
      */
-    public function setFacility($facility) {
+    public function setFacility($facility)
+    {
         $this->facility = $facility;
         return $this;
     }
@@ -581,7 +619,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The members of the team who provided the products and services.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimCareTeam[]
      */
-    public function getCareTeam() {
+    public function getCareTeam()
+    {
         return $this->careTeam;
     }
 
@@ -590,7 +629,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimCareTeam $careTeam
      * @return $this
      */
-    public function addCareTeam($careTeam) {
+    public function addCareTeam($careTeam)
+    {
         $this->careTeam[] = $careTeam;
         return $this;
     }
@@ -599,7 +639,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * Additional information codes regarding exceptions, special considerations, the condition, situation, prior or concurrent issues.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimSupportingInfo[]
      */
-    public function getSupportingInfo() {
+    public function getSupportingInfo()
+    {
         return $this->supportingInfo;
     }
 
@@ -608,7 +649,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimSupportingInfo $supportingInfo
      * @return $this
      */
-    public function addSupportingInfo($supportingInfo) {
+    public function addSupportingInfo($supportingInfo)
+    {
         $this->supportingInfo[] = $supportingInfo;
         return $this;
     }
@@ -617,7 +659,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * Information about diagnoses relevant to the claim items.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimDiagnosis[]
      */
-    public function getDiagnosis() {
+    public function getDiagnosis()
+    {
         return $this->diagnosis;
     }
 
@@ -626,7 +669,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimDiagnosis $diagnosis
      * @return $this
      */
-    public function addDiagnosis($diagnosis) {
+    public function addDiagnosis($diagnosis)
+    {
         $this->diagnosis[] = $diagnosis;
         return $this;
     }
@@ -635,7 +679,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * Procedures performed on the patient relevant to the billing items with the claim.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimProcedure[]
      */
-    public function getProcedure() {
+    public function getProcedure()
+    {
         return $this->procedure;
     }
 
@@ -644,7 +689,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimProcedure $procedure
      * @return $this
      */
-    public function addProcedure($procedure) {
+    public function addProcedure($procedure)
+    {
         $this->procedure[] = $procedure;
         return $this;
     }
@@ -653,7 +699,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * Financial instruments for reimbursement for the health care products and services specified on the claim.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimInsurance[]
      */
-    public function getInsurance() {
+    public function getInsurance()
+    {
         return $this->insurance;
     }
 
@@ -662,7 +709,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimInsurance $insurance
      * @return $this
      */
-    public function addInsurance($insurance) {
+    public function addInsurance($insurance)
+    {
         $this->insurance[] = $insurance;
         return $this;
     }
@@ -671,7 +719,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * Details of an accident which resulted in injuries which required the products and services listed in the claim.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimAccident
      */
-    public function getAccident() {
+    public function getAccident()
+    {
         return $this->accident;
     }
 
@@ -680,7 +729,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimAccident $accident
      * @return $this
      */
-    public function setAccident($accident) {
+    public function setAccident($accident)
+    {
         $this->accident = $accident;
         return $this;
     }
@@ -689,7 +739,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * A claim line. Either a simple  product or service or a 'group' of details which can each be a simple items or groups of sub-details.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimItem[]
      */
-    public function getItem() {
+    public function getItem()
+    {
         return $this->item;
     }
 
@@ -698,7 +749,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaim\FHIRClaimItem $item
      * @return $this
      */
-    public function addItem($item) {
+    public function addItem($item)
+    {
         $this->item[] = $item;
         return $this;
     }
@@ -707,7 +759,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * The total value of the all the items in the claim.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getTotal() {
+    public function getTotal()
+    {
         return $this->total;
     }
 
@@ -716,7 +769,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $total
      * @return $this
      */
-    public function setTotal($total) {
+    public function setTotal($total)
+    {
         $this->total = $total;
         return $this;
     }
@@ -724,18 +778,20 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -780,7 +836,7 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['related'])) {
                 if (is_array($data['related'])) {
-                    foreach($data['related'] as $d) {
+                    foreach ($data['related'] as $d) {
                         $this->addRelated($d);
                     }
                 } else {
@@ -804,7 +860,7 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['careTeam'])) {
                 if (is_array($data['careTeam'])) {
-                    foreach($data['careTeam'] as $d) {
+                    foreach ($data['careTeam'] as $d) {
                         $this->addCareTeam($d);
                     }
                 } else {
@@ -813,7 +869,7 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['supportingInfo'])) {
                 if (is_array($data['supportingInfo'])) {
-                    foreach($data['supportingInfo'] as $d) {
+                    foreach ($data['supportingInfo'] as $d) {
                         $this->addSupportingInfo($d);
                     }
                 } else {
@@ -822,7 +878,7 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['diagnosis'])) {
                 if (is_array($data['diagnosis'])) {
-                    foreach($data['diagnosis'] as $d) {
+                    foreach ($data['diagnosis'] as $d) {
                         $this->addDiagnosis($d);
                     }
                 } else {
@@ -831,7 +887,7 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['procedure'])) {
                 if (is_array($data['procedure'])) {
-                    foreach($data['procedure'] as $d) {
+                    foreach ($data['procedure'] as $d) {
                         $this->addProcedure($d);
                     }
                 } else {
@@ -840,7 +896,7 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['insurance'])) {
                 if (is_array($data['insurance'])) {
-                    foreach($data['insurance'] as $d) {
+                    foreach ($data['insurance'] as $d) {
                         $this->addInsurance($d);
                     }
                 } else {
@@ -852,7 +908,7 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['item'])) {
                 if (is_array($data['item'])) {
-                    foreach($data['item'] as $d) {
+                    foreach ($data['item'] as $d) {
                         $this->addItem($d);
                     }
                 } else {
@@ -871,83 +927,123 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->subType)) $json['subType'] = $this->subType;
-        if (isset($this->use)) $json['use'] = $this->use;
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->billablePeriod)) $json['billablePeriod'] = $this->billablePeriod;
-        if (isset($this->created)) $json['created'] = $this->created;
-        if (isset($this->enterer)) $json['enterer'] = $this->enterer;
-        if (isset($this->insurer)) $json['insurer'] = $this->insurer;
-        if (isset($this->provider)) $json['provider'] = $this->provider;
-        if (isset($this->priority)) $json['priority'] = $this->priority;
-        if (isset($this->fundsReserve)) $json['fundsReserve'] = $this->fundsReserve;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->subType)) {
+            $json['subType'] = $this->subType;
+        }
+        if (isset($this->use)) {
+            $json['use'] = $this->use;
+        }
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->billablePeriod)) {
+            $json['billablePeriod'] = $this->billablePeriod;
+        }
+        if (isset($this->created)) {
+            $json['created'] = $this->created;
+        }
+        if (isset($this->enterer)) {
+            $json['enterer'] = $this->enterer;
+        }
+        if (isset($this->insurer)) {
+            $json['insurer'] = $this->insurer;
+        }
+        if (isset($this->provider)) {
+            $json['provider'] = $this->provider;
+        }
+        if (isset($this->priority)) {
+            $json['priority'] = $this->priority;
+        }
+        if (isset($this->fundsReserve)) {
+            $json['fundsReserve'] = $this->fundsReserve;
+        }
         if (0 < count($this->related)) {
             $json['related'] = [];
-            foreach($this->related as $related) {
+            foreach ($this->related as $related) {
                 $json['related'][] = $related;
             }
         }
-        if (isset($this->prescription)) $json['prescription'] = $this->prescription;
-        if (isset($this->originalPrescription)) $json['originalPrescription'] = $this->originalPrescription;
-        if (isset($this->payee)) $json['payee'] = $this->payee;
-        if (isset($this->referral)) $json['referral'] = $this->referral;
-        if (isset($this->facility)) $json['facility'] = $this->facility;
+        if (isset($this->prescription)) {
+            $json['prescription'] = $this->prescription;
+        }
+        if (isset($this->originalPrescription)) {
+            $json['originalPrescription'] = $this->originalPrescription;
+        }
+        if (isset($this->payee)) {
+            $json['payee'] = $this->payee;
+        }
+        if (isset($this->referral)) {
+            $json['referral'] = $this->referral;
+        }
+        if (isset($this->facility)) {
+            $json['facility'] = $this->facility;
+        }
         if (0 < count($this->careTeam)) {
             $json['careTeam'] = [];
-            foreach($this->careTeam as $careTeam) {
+            foreach ($this->careTeam as $careTeam) {
                 $json['careTeam'][] = $careTeam;
             }
         }
         if (0 < count($this->supportingInfo)) {
             $json['supportingInfo'] = [];
-            foreach($this->supportingInfo as $supportingInfo) {
+            foreach ($this->supportingInfo as $supportingInfo) {
                 $json['supportingInfo'][] = $supportingInfo;
             }
         }
         if (0 < count($this->diagnosis)) {
             $json['diagnosis'] = [];
-            foreach($this->diagnosis as $diagnosis) {
+            foreach ($this->diagnosis as $diagnosis) {
                 $json['diagnosis'][] = $diagnosis;
             }
         }
         if (0 < count($this->procedure)) {
             $json['procedure'] = [];
-            foreach($this->procedure as $procedure) {
+            foreach ($this->procedure as $procedure) {
                 $json['procedure'][] = $procedure;
             }
         }
         if (0 < count($this->insurance)) {
             $json['insurance'] = [];
-            foreach($this->insurance as $insurance) {
+            foreach ($this->insurance as $insurance) {
                 $json['insurance'][] = $insurance;
             }
         }
-        if (isset($this->accident)) $json['accident'] = $this->accident;
+        if (isset($this->accident)) {
+            $json['accident'] = $this->accident;
+        }
         if (0 < count($this->item)) {
             $json['item'] = [];
-            foreach($this->item as $item) {
+            foreach ($this->item as $item) {
                 $json['item'][] = $item;
             }
         }
-        if (isset($this->total)) $json['total'] = $this->total;
+        if (isset($this->total)) {
+            $json['total'] = $this->total;
+        }
         return $json;
     }
 
@@ -956,71 +1052,112 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Claim xmlns="http://hl7.org/fhir"></Claim>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Claim xmlns="http://hl7.org/fhir"></Claim>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->subType)) $this->subType->xmlSerialize(true, $sxe->addChild('subType'));
-        if (isset($this->use)) $this->use->xmlSerialize(true, $sxe->addChild('use'));
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->billablePeriod)) $this->billablePeriod->xmlSerialize(true, $sxe->addChild('billablePeriod'));
-        if (isset($this->created)) $this->created->xmlSerialize(true, $sxe->addChild('created'));
-        if (isset($this->enterer)) $this->enterer->xmlSerialize(true, $sxe->addChild('enterer'));
-        if (isset($this->insurer)) $this->insurer->xmlSerialize(true, $sxe->addChild('insurer'));
-        if (isset($this->provider)) $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
-        if (isset($this->priority)) $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
-        if (isset($this->fundsReserve)) $this->fundsReserve->xmlSerialize(true, $sxe->addChild('fundsReserve'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->subType)) {
+            $this->subType->xmlSerialize(true, $sxe->addChild('subType'));
+        }
+        if (isset($this->use)) {
+            $this->use->xmlSerialize(true, $sxe->addChild('use'));
+        }
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->billablePeriod)) {
+            $this->billablePeriod->xmlSerialize(true, $sxe->addChild('billablePeriod'));
+        }
+        if (isset($this->created)) {
+            $this->created->xmlSerialize(true, $sxe->addChild('created'));
+        }
+        if (isset($this->enterer)) {
+            $this->enterer->xmlSerialize(true, $sxe->addChild('enterer'));
+        }
+        if (isset($this->insurer)) {
+            $this->insurer->xmlSerialize(true, $sxe->addChild('insurer'));
+        }
+        if (isset($this->provider)) {
+            $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
+        }
+        if (isset($this->priority)) {
+            $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        }
+        if (isset($this->fundsReserve)) {
+            $this->fundsReserve->xmlSerialize(true, $sxe->addChild('fundsReserve'));
+        }
         if (0 < count($this->related)) {
-            foreach($this->related as $related) {
+            foreach ($this->related as $related) {
                 $related->xmlSerialize(true, $sxe->addChild('related'));
             }
         }
-        if (isset($this->prescription)) $this->prescription->xmlSerialize(true, $sxe->addChild('prescription'));
-        if (isset($this->originalPrescription)) $this->originalPrescription->xmlSerialize(true, $sxe->addChild('originalPrescription'));
-        if (isset($this->payee)) $this->payee->xmlSerialize(true, $sxe->addChild('payee'));
-        if (isset($this->referral)) $this->referral->xmlSerialize(true, $sxe->addChild('referral'));
-        if (isset($this->facility)) $this->facility->xmlSerialize(true, $sxe->addChild('facility'));
+        if (isset($this->prescription)) {
+            $this->prescription->xmlSerialize(true, $sxe->addChild('prescription'));
+        }
+        if (isset($this->originalPrescription)) {
+            $this->originalPrescription->xmlSerialize(true, $sxe->addChild('originalPrescription'));
+        }
+        if (isset($this->payee)) {
+            $this->payee->xmlSerialize(true, $sxe->addChild('payee'));
+        }
+        if (isset($this->referral)) {
+            $this->referral->xmlSerialize(true, $sxe->addChild('referral'));
+        }
+        if (isset($this->facility)) {
+            $this->facility->xmlSerialize(true, $sxe->addChild('facility'));
+        }
         if (0 < count($this->careTeam)) {
-            foreach($this->careTeam as $careTeam) {
+            foreach ($this->careTeam as $careTeam) {
                 $careTeam->xmlSerialize(true, $sxe->addChild('careTeam'));
             }
         }
         if (0 < count($this->supportingInfo)) {
-            foreach($this->supportingInfo as $supportingInfo) {
+            foreach ($this->supportingInfo as $supportingInfo) {
                 $supportingInfo->xmlSerialize(true, $sxe->addChild('supportingInfo'));
             }
         }
         if (0 < count($this->diagnosis)) {
-            foreach($this->diagnosis as $diagnosis) {
+            foreach ($this->diagnosis as $diagnosis) {
                 $diagnosis->xmlSerialize(true, $sxe->addChild('diagnosis'));
             }
         }
         if (0 < count($this->procedure)) {
-            foreach($this->procedure as $procedure) {
+            foreach ($this->procedure as $procedure) {
                 $procedure->xmlSerialize(true, $sxe->addChild('procedure'));
             }
         }
         if (0 < count($this->insurance)) {
-            foreach($this->insurance as $insurance) {
+            foreach ($this->insurance as $insurance) {
                 $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
             }
         }
-        if (isset($this->accident)) $this->accident->xmlSerialize(true, $sxe->addChild('accident'));
+        if (isset($this->accident)) {
+            $this->accident->xmlSerialize(true, $sxe->addChild('accident'));
+        }
         if (0 < count($this->item)) {
-            foreach($this->item as $item) {
+            foreach ($this->item as $item) {
                 $item->xmlSerialize(true, $sxe->addChild('item'));
             }
         }
-        if (isset($this->total)) $this->total->xmlSerialize(true, $sxe->addChild('total'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->total)) {
+            $this->total->xmlSerialize(true, $sxe->addChild('total'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -143,7 +143,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * Unique identifier used to reference the account.  Might or might not be intended for human use (e.g. credit card number).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -152,7 +153,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -161,7 +163,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * Indicates whether the account is presently used/usable or not.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAccountStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -170,7 +173,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAccountStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -179,7 +183,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * Categorizes the account for reporting and searching purposes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -188,7 +193,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -197,7 +203,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * Name used for the account when displaying it to humans in reports, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -206,7 +213,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -215,7 +223,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * Identifies the entity which incurs the expenses. While the immediate recipients of services or goods might be entities related to the subject, the expenses were ultimately incurred by the subject of the Account.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -224,7 +233,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function addSubject($subject) {
+    public function addSubject($subject)
+    {
         $this->subject[] = $subject;
         return $this;
     }
@@ -233,7 +243,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * The date range of services associated with this account.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getServicePeriod() {
+    public function getServicePeriod()
+    {
         return $this->servicePeriod;
     }
 
@@ -242,7 +253,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $servicePeriod
      * @return $this
      */
-    public function setServicePeriod($servicePeriod) {
+    public function setServicePeriod($servicePeriod)
+    {
         $this->servicePeriod = $servicePeriod;
         return $this;
     }
@@ -251,7 +263,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * The party(s) that are responsible for covering the payment of this account, and what order should they be applied to the account.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRAccount\FHIRAccountCoverage[]
      */
-    public function getCoverage() {
+    public function getCoverage()
+    {
         return $this->coverage;
     }
 
@@ -260,7 +273,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRAccount\FHIRAccountCoverage $coverage
      * @return $this
      */
-    public function addCoverage($coverage) {
+    public function addCoverage($coverage)
+    {
         $this->coverage[] = $coverage;
         return $this;
     }
@@ -269,7 +283,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * Indicates the service area, hospital, department, etc. with responsibility for managing the Account.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOwner() {
+    public function getOwner()
+    {
         return $this->owner;
     }
 
@@ -278,7 +293,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $owner
      * @return $this
      */
-    public function setOwner($owner) {
+    public function setOwner($owner)
+    {
         $this->owner = $owner;
         return $this;
     }
@@ -287,7 +303,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * Provides additional information about what the account tracks and how it is used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -296,7 +313,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -305,7 +323,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * The parties responsible for balancing the account if other payment options fall short.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRAccount\FHIRAccountGuarantor[]
      */
-    public function getGuarantor() {
+    public function getGuarantor()
+    {
         return $this->guarantor;
     }
 
@@ -314,7 +333,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRAccount\FHIRAccountGuarantor $guarantor
      * @return $this
      */
-    public function addGuarantor($guarantor) {
+    public function addGuarantor($guarantor)
+    {
         $this->guarantor[] = $guarantor;
         return $this;
     }
@@ -323,7 +343,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * Reference to a parent Account.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPartOf() {
+    public function getPartOf()
+    {
         return $this->partOf;
     }
 
@@ -332,7 +353,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $partOf
      * @return $this
      */
-    public function setPartOf($partOf) {
+    public function setPartOf($partOf)
+    {
         $this->partOf = $partOf;
         return $this;
     }
@@ -340,18 +362,20 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -369,7 +393,7 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['subject'])) {
                 if (is_array($data['subject'])) {
-                    foreach($data['subject'] as $d) {
+                    foreach ($data['subject'] as $d) {
                         $this->addSubject($d);
                     }
                 } else {
@@ -381,7 +405,7 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['coverage'])) {
                 if (is_array($data['coverage'])) {
-                    foreach($data['coverage'] as $d) {
+                    foreach ($data['coverage'] as $d) {
                         $this->addCoverage($d);
                     }
                 } else {
@@ -396,7 +420,7 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['guarantor'])) {
                 if (is_array($data['guarantor'])) {
-                    foreach($data['guarantor'] as $d) {
+                    foreach ($data['guarantor'] as $d) {
                         $this->addGuarantor($d);
                     }
                 } else {
@@ -415,47 +439,63 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->name)) $json['name'] = $this->name;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
         if (0 < count($this->subject)) {
             $json['subject'] = [];
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $json['subject'][] = $subject;
             }
         }
-        if (isset($this->servicePeriod)) $json['servicePeriod'] = $this->servicePeriod;
+        if (isset($this->servicePeriod)) {
+            $json['servicePeriod'] = $this->servicePeriod;
+        }
         if (0 < count($this->coverage)) {
             $json['coverage'] = [];
-            foreach($this->coverage as $coverage) {
+            foreach ($this->coverage as $coverage) {
                 $json['coverage'][] = $coverage;
             }
         }
-        if (isset($this->owner)) $json['owner'] = $this->owner;
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->owner)) {
+            $json['owner'] = $this->owner;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->guarantor)) {
             $json['guarantor'] = [];
-            foreach($this->guarantor as $guarantor) {
+            foreach ($this->guarantor as $guarantor) {
                 $json['guarantor'][] = $guarantor;
             }
         }
-        if (isset($this->partOf)) $json['partOf'] = $this->partOf;
+        if (isset($this->partOf)) {
+            $json['partOf'] = $this->partOf;
+        }
         return $json;
     }
 
@@ -464,39 +504,56 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Account xmlns="http://hl7.org/fhir"></Account>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Account xmlns="http://hl7.org/fhir"></Account>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
         if (0 < count($this->subject)) {
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $subject->xmlSerialize(true, $sxe->addChild('subject'));
             }
         }
-        if (isset($this->servicePeriod)) $this->servicePeriod->xmlSerialize(true, $sxe->addChild('servicePeriod'));
+        if (isset($this->servicePeriod)) {
+            $this->servicePeriod->xmlSerialize(true, $sxe->addChild('servicePeriod'));
+        }
         if (0 < count($this->coverage)) {
-            foreach($this->coverage as $coverage) {
+            foreach ($this->coverage as $coverage) {
                 $coverage->xmlSerialize(true, $sxe->addChild('coverage'));
             }
         }
-        if (isset($this->owner)) $this->owner->xmlSerialize(true, $sxe->addChild('owner'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->owner)) {
+            $this->owner->xmlSerialize(true, $sxe->addChild('owner'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->guarantor)) {
-            foreach($this->guarantor as $guarantor) {
+            foreach ($this->guarantor as $guarantor) {
                 $guarantor->xmlSerialize(true, $sxe->addChild('guarantor'));
             }
         }
-        if (isset($this->partOf)) $this->partOf->xmlSerialize(true, $sxe->addChild('partOf'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->partOf)) {
+            $this->partOf->xmlSerialize(true, $sxe->addChild('partOf'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

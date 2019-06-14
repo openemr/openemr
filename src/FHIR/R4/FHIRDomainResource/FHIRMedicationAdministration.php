@@ -199,7 +199,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * Identifiers associated with this Medication Administration that are defined by business processes and/or used to refer to it when a direct URL reference to the resource itself is not appropriate. They are business identifiers assigned to this resource by the performer or other systems and remain constant as the resource is updated and propagates from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -208,7 +209,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -217,7 +219,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * A protocol, guideline, orderset, or other definition that was adhered to in whole or in part by this event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getInstantiates() {
+    public function getInstantiates()
+    {
         return $this->instantiates;
     }
 
@@ -226,7 +229,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $instantiates
      * @return $this
      */
-    public function addInstantiates($instantiates) {
+    public function addInstantiates($instantiates)
+    {
         $this->instantiates[] = $instantiates;
         return $this;
     }
@@ -235,7 +239,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * A larger event of which this particular event is a component or step.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPartOf() {
+    public function getPartOf()
+    {
         return $this->partOf;
     }
 
@@ -244,7 +249,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $partOf
      * @return $this
      */
-    public function addPartOf($partOf) {
+    public function addPartOf($partOf)
+    {
         $this->partOf[] = $partOf;
         return $this;
     }
@@ -253,7 +259,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * Will generally be set to show that the administration has been completed.  For some long running administrations such as infusions, it is possible for an administration to be started but not completed or it may be paused while some other process is under way.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -262,7 +269,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -271,7 +279,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * A code indicating why the administration was not performed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getStatusReason() {
+    public function getStatusReason()
+    {
         return $this->statusReason;
     }
 
@@ -280,7 +289,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $statusReason
      * @return $this
      */
-    public function addStatusReason($statusReason) {
+    public function addStatusReason($statusReason)
+    {
         $this->statusReason[] = $statusReason;
         return $this;
     }
@@ -289,7 +299,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * Indicates where the medication is expected to be consumed or administered.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -298,7 +309,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -306,7 +318,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMedicationCodeableConcept() {
+    public function getMedicationCodeableConcept()
+    {
         return $this->medicationCodeableConcept;
     }
 
@@ -314,7 +327,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $medicationCodeableConcept
      * @return $this
      */
-    public function setMedicationCodeableConcept($medicationCodeableConcept) {
+    public function setMedicationCodeableConcept($medicationCodeableConcept)
+    {
         $this->medicationCodeableConcept = $medicationCodeableConcept;
         return $this;
     }
@@ -322,7 +336,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getMedicationReference() {
+    public function getMedicationReference()
+    {
         return $this->medicationReference;
     }
 
@@ -330,7 +345,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $medicationReference
      * @return $this
      */
-    public function setMedicationReference($medicationReference) {
+    public function setMedicationReference($medicationReference)
+    {
         $this->medicationReference = $medicationReference;
         return $this;
     }
@@ -339,7 +355,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * The person or animal or group receiving the medication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -348,7 +365,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -357,7 +375,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * The visit, admission, or other contact between patient and health care provider during which the medication administration was performed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getContext() {
+    public function getContext()
+    {
         return $this->context;
     }
 
@@ -366,7 +385,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $context
      * @return $this
      */
-    public function setContext($context) {
+    public function setContext($context)
+    {
         $this->context = $context;
         return $this;
     }
@@ -375,7 +395,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * Additional information (for example, patient height and weight) that supports the administration of the medication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSupportingInformation() {
+    public function getSupportingInformation()
+    {
         return $this->supportingInformation;
     }
 
@@ -384,7 +405,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $supportingInformation
      * @return $this
      */
-    public function addSupportingInformation($supportingInformation) {
+    public function addSupportingInformation($supportingInformation)
+    {
         $this->supportingInformation[] = $supportingInformation;
         return $this;
     }
@@ -392,7 +414,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getEffectiveDateTime() {
+    public function getEffectiveDateTime()
+    {
         return $this->effectiveDateTime;
     }
 
@@ -400,7 +423,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $effectiveDateTime
      * @return $this
      */
-    public function setEffectiveDateTime($effectiveDateTime) {
+    public function setEffectiveDateTime($effectiveDateTime)
+    {
         $this->effectiveDateTime = $effectiveDateTime;
         return $this;
     }
@@ -408,7 +432,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getEffectivePeriod() {
+    public function getEffectivePeriod()
+    {
         return $this->effectivePeriod;
     }
 
@@ -416,7 +441,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $effectivePeriod
      * @return $this
      */
-    public function setEffectivePeriod($effectivePeriod) {
+    public function setEffectivePeriod($effectivePeriod)
+    {
         $this->effectivePeriod = $effectivePeriod;
         return $this;
     }
@@ -425,7 +451,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * Indicates who or what performed the medication administration and how they were involved.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationAdministration\FHIRMedicationAdministrationPerformer[]
      */
-    public function getPerformer() {
+    public function getPerformer()
+    {
         return $this->performer;
     }
 
@@ -434,7 +461,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationAdministration\FHIRMedicationAdministrationPerformer $performer
      * @return $this
      */
-    public function addPerformer($performer) {
+    public function addPerformer($performer)
+    {
         $this->performer[] = $performer;
         return $this;
     }
@@ -443,7 +471,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * A code indicating why the medication was given.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getReasonCode() {
+    public function getReasonCode()
+    {
         return $this->reasonCode;
     }
 
@@ -452,7 +481,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reasonCode
      * @return $this
      */
-    public function addReasonCode($reasonCode) {
+    public function addReasonCode($reasonCode)
+    {
         $this->reasonCode[] = $reasonCode;
         return $this;
     }
@@ -461,7 +491,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * Condition or observation that supports why the medication was administered.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReasonReference() {
+    public function getReasonReference()
+    {
         return $this->reasonReference;
     }
 
@@ -470,7 +501,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reasonReference
      * @return $this
      */
-    public function addReasonReference($reasonReference) {
+    public function addReasonReference($reasonReference)
+    {
         $this->reasonReference[] = $reasonReference;
         return $this;
     }
@@ -479,7 +511,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * The original request, instruction or authority to perform the administration.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequest() {
+    public function getRequest()
+    {
         return $this->request;
     }
 
@@ -488,7 +521,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $request
      * @return $this
      */
-    public function setRequest($request) {
+    public function setRequest($request)
+    {
         $this->request = $request;
         return $this;
     }
@@ -497,7 +531,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * The device used in administering the medication to the patient.  For example, a particular infusion pump.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getDevice() {
+    public function getDevice()
+    {
         return $this->device;
     }
 
@@ -506,7 +541,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $device
      * @return $this
      */
-    public function addDevice($device) {
+    public function addDevice($device)
+    {
         $this->device[] = $device;
         return $this;
     }
@@ -515,7 +551,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * Extra information about the medication administration that is not conveyed by the other attributes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -524,7 +561,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -533,7 +571,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * Describes the medication dosage information details e.g. dose, rate, site, route, etc.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationAdministration\FHIRMedicationAdministrationDosage
      */
-    public function getDosage() {
+    public function getDosage()
+    {
         return $this->dosage;
     }
 
@@ -542,7 +581,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationAdministration\FHIRMedicationAdministrationDosage $dosage
      * @return $this
      */
-    public function setDosage($dosage) {
+    public function setDosage($dosage)
+    {
         $this->dosage = $dosage;
         return $this;
     }
@@ -551,7 +591,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * A summary of the events of interest that have occurred, such as when the administration was verified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getEventHistory() {
+    public function getEventHistory()
+    {
         return $this->eventHistory;
     }
 
@@ -560,7 +601,8 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $eventHistory
      * @return $this
      */
-    public function addEventHistory($eventHistory) {
+    public function addEventHistory($eventHistory)
+    {
         $this->eventHistory[] = $eventHistory;
         return $this;
     }
@@ -568,18 +610,20 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -588,7 +632,7 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['instantiates'])) {
                 if (is_array($data['instantiates'])) {
-                    foreach($data['instantiates'] as $d) {
+                    foreach ($data['instantiates'] as $d) {
                         $this->addInstantiates($d);
                     }
                 } else {
@@ -597,7 +641,7 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['partOf'])) {
                 if (is_array($data['partOf'])) {
-                    foreach($data['partOf'] as $d) {
+                    foreach ($data['partOf'] as $d) {
                         $this->addPartOf($d);
                     }
                 } else {
@@ -609,7 +653,7 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['statusReason'])) {
                 if (is_array($data['statusReason'])) {
-                    foreach($data['statusReason'] as $d) {
+                    foreach ($data['statusReason'] as $d) {
                         $this->addStatusReason($d);
                     }
                 } else {
@@ -633,7 +677,7 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['supportingInformation'])) {
                 if (is_array($data['supportingInformation'])) {
-                    foreach($data['supportingInformation'] as $d) {
+                    foreach ($data['supportingInformation'] as $d) {
                         $this->addSupportingInformation($d);
                     }
                 } else {
@@ -648,7 +692,7 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['performer'])) {
                 if (is_array($data['performer'])) {
-                    foreach($data['performer'] as $d) {
+                    foreach ($data['performer'] as $d) {
                         $this->addPerformer($d);
                     }
                 } else {
@@ -657,7 +701,7 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['reasonCode'])) {
                 if (is_array($data['reasonCode'])) {
-                    foreach($data['reasonCode'] as $d) {
+                    foreach ($data['reasonCode'] as $d) {
                         $this->addReasonCode($d);
                     }
                 } else {
@@ -666,7 +710,7 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['reasonReference'])) {
                 if (is_array($data['reasonReference'])) {
-                    foreach($data['reasonReference'] as $d) {
+                    foreach ($data['reasonReference'] as $d) {
                         $this->addReasonReference($d);
                     }
                 } else {
@@ -678,7 +722,7 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['device'])) {
                 if (is_array($data['device'])) {
-                    foreach($data['device'] as $d) {
+                    foreach ($data['device'] as $d) {
                         $this->addDevice($d);
                     }
                 } else {
@@ -687,7 +731,7 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -699,7 +743,7 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
             }
             if (isset($data['eventHistory'])) {
                 if (is_array($data['eventHistory'])) {
-                    foreach($data['eventHistory'] as $d) {
+                    foreach ($data['eventHistory'] as $d) {
                         $this->addEventHistory($d);
                     }
                 } else {
@@ -715,89 +759,111 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->instantiates)) {
             $json['instantiates'] = [];
-            foreach($this->instantiates as $instantiates) {
+            foreach ($this->instantiates as $instantiates) {
                 $json['instantiates'][] = $instantiates;
             }
         }
         if (0 < count($this->partOf)) {
             $json['partOf'] = [];
-            foreach($this->partOf as $partOf) {
+            foreach ($this->partOf as $partOf) {
                 $json['partOf'][] = $partOf;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
         if (0 < count($this->statusReason)) {
             $json['statusReason'] = [];
-            foreach($this->statusReason as $statusReason) {
+            foreach ($this->statusReason as $statusReason) {
                 $json['statusReason'][] = $statusReason;
             }
         }
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->medicationCodeableConcept)) $json['medicationCodeableConcept'] = $this->medicationCodeableConcept;
-        if (isset($this->medicationReference)) $json['medicationReference'] = $this->medicationReference;
-        if (isset($this->subject)) $json['subject'] = $this->subject;
-        if (isset($this->context)) $json['context'] = $this->context;
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->medicationCodeableConcept)) {
+            $json['medicationCodeableConcept'] = $this->medicationCodeableConcept;
+        }
+        if (isset($this->medicationReference)) {
+            $json['medicationReference'] = $this->medicationReference;
+        }
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
+        if (isset($this->context)) {
+            $json['context'] = $this->context;
+        }
         if (0 < count($this->supportingInformation)) {
             $json['supportingInformation'] = [];
-            foreach($this->supportingInformation as $supportingInformation) {
+            foreach ($this->supportingInformation as $supportingInformation) {
                 $json['supportingInformation'][] = $supportingInformation;
             }
         }
-        if (isset($this->effectiveDateTime)) $json['effectiveDateTime'] = $this->effectiveDateTime;
-        if (isset($this->effectivePeriod)) $json['effectivePeriod'] = $this->effectivePeriod;
+        if (isset($this->effectiveDateTime)) {
+            $json['effectiveDateTime'] = $this->effectiveDateTime;
+        }
+        if (isset($this->effectivePeriod)) {
+            $json['effectivePeriod'] = $this->effectivePeriod;
+        }
         if (0 < count($this->performer)) {
             $json['performer'] = [];
-            foreach($this->performer as $performer) {
+            foreach ($this->performer as $performer) {
                 $json['performer'][] = $performer;
             }
         }
         if (0 < count($this->reasonCode)) {
             $json['reasonCode'] = [];
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $json['reasonCode'][] = $reasonCode;
             }
         }
         if (0 < count($this->reasonReference)) {
             $json['reasonReference'] = [];
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $json['reasonReference'][] = $reasonReference;
             }
         }
-        if (isset($this->request)) $json['request'] = $this->request;
+        if (isset($this->request)) {
+            $json['request'] = $this->request;
+        }
         if (0 < count($this->device)) {
             $json['device'] = [];
-            foreach($this->device as $device) {
+            foreach ($this->device as $device) {
                 $json['device'][] = $device;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
-        if (isset($this->dosage)) $json['dosage'] = $this->dosage;
+        if (isset($this->dosage)) {
+            $json['dosage'] = $this->dosage;
+        }
         if (0 < count($this->eventHistory)) {
             $json['eventHistory'] = [];
-            foreach($this->eventHistory as $eventHistory) {
+            foreach ($this->eventHistory as $eventHistory) {
                 $json['eventHistory'][] = $eventHistory;
             }
         }
@@ -809,77 +875,100 @@ class FHIRMedicationAdministration extends FHIRDomainResource implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationAdministration xmlns="http://hl7.org/fhir"></MedicationAdministration>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationAdministration xmlns="http://hl7.org/fhir"></MedicationAdministration>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->instantiates)) {
-            foreach($this->instantiates as $instantiates) {
+            foreach ($this->instantiates as $instantiates) {
                 $instantiates->xmlSerialize(true, $sxe->addChild('instantiates'));
             }
         }
         if (0 < count($this->partOf)) {
-            foreach($this->partOf as $partOf) {
+            foreach ($this->partOf as $partOf) {
                 $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
         if (0 < count($this->statusReason)) {
-            foreach($this->statusReason as $statusReason) {
+            foreach ($this->statusReason as $statusReason) {
                 $statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
             }
         }
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->medicationCodeableConcept)) $this->medicationCodeableConcept->xmlSerialize(true, $sxe->addChild('medicationCodeableConcept'));
-        if (isset($this->medicationReference)) $this->medicationReference->xmlSerialize(true, $sxe->addChild('medicationReference'));
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
-        if (isset($this->context)) $this->context->xmlSerialize(true, $sxe->addChild('context'));
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->medicationCodeableConcept)) {
+            $this->medicationCodeableConcept->xmlSerialize(true, $sxe->addChild('medicationCodeableConcept'));
+        }
+        if (isset($this->medicationReference)) {
+            $this->medicationReference->xmlSerialize(true, $sxe->addChild('medicationReference'));
+        }
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
+        if (isset($this->context)) {
+            $this->context->xmlSerialize(true, $sxe->addChild('context'));
+        }
         if (0 < count($this->supportingInformation)) {
-            foreach($this->supportingInformation as $supportingInformation) {
+            foreach ($this->supportingInformation as $supportingInformation) {
                 $supportingInformation->xmlSerialize(true, $sxe->addChild('supportingInformation'));
             }
         }
-        if (isset($this->effectiveDateTime)) $this->effectiveDateTime->xmlSerialize(true, $sxe->addChild('effectiveDateTime'));
-        if (isset($this->effectivePeriod)) $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
+        if (isset($this->effectiveDateTime)) {
+            $this->effectiveDateTime->xmlSerialize(true, $sxe->addChild('effectiveDateTime'));
+        }
+        if (isset($this->effectivePeriod)) {
+            $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
+        }
         if (0 < count($this->performer)) {
-            foreach($this->performer as $performer) {
+            foreach ($this->performer as $performer) {
                 $performer->xmlSerialize(true, $sxe->addChild('performer'));
             }
         }
         if (0 < count($this->reasonCode)) {
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
             }
         }
         if (0 < count($this->reasonReference)) {
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
             }
         }
-        if (isset($this->request)) $this->request->xmlSerialize(true, $sxe->addChild('request'));
+        if (isset($this->request)) {
+            $this->request->xmlSerialize(true, $sxe->addChild('request'));
+        }
         if (0 < count($this->device)) {
-            foreach($this->device as $device) {
+            foreach ($this->device as $device) {
                 $device->xmlSerialize(true, $sxe->addChild('device'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if (isset($this->dosage)) $this->dosage->xmlSerialize(true, $sxe->addChild('dosage'));
+        if (isset($this->dosage)) {
+            $this->dosage->xmlSerialize(true, $sxe->addChild('dosage'));
+        }
         if (0 < count($this->eventHistory)) {
-            foreach($this->eventHistory as $eventHistory) {
+            foreach ($this->eventHistory as $eventHistory) {
                 $eventHistory->xmlSerialize(true, $sxe->addChild('eventHistory'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

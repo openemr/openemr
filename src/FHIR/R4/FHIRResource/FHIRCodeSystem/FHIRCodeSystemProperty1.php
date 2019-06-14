@@ -117,7 +117,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      * A code that is a reference to CodeSystem.property.code.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -126,7 +127,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -134,7 +136,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getValueCode() {
+    public function getValueCode()
+    {
         return $this->valueCode;
     }
 
@@ -142,7 +145,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $valueCode
      * @return $this
      */
-    public function setValueCode($valueCode) {
+    public function setValueCode($valueCode)
+    {
         $this->valueCode = $valueCode;
         return $this;
     }
@@ -150,7 +154,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getValueCoding() {
+    public function getValueCoding()
+    {
         return $this->valueCoding;
     }
 
@@ -158,7 +163,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $valueCoding
      * @return $this
      */
-    public function setValueCoding($valueCoding) {
+    public function setValueCoding($valueCoding)
+    {
         $this->valueCoding = $valueCoding;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValueString() {
+    public function getValueString()
+    {
         return $this->valueString;
     }
 
@@ -174,7 +181,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $valueString
      * @return $this
      */
-    public function setValueString($valueString) {
+    public function setValueString($valueString)
+    {
         $this->valueString = $valueString;
         return $this;
     }
@@ -182,7 +190,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getValueInteger() {
+    public function getValueInteger()
+    {
         return $this->valueInteger;
     }
 
@@ -190,7 +199,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $valueInteger
      * @return $this
      */
-    public function setValueInteger($valueInteger) {
+    public function setValueInteger($valueInteger)
+    {
         $this->valueInteger = $valueInteger;
         return $this;
     }
@@ -198,7 +208,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getValueBoolean() {
+    public function getValueBoolean()
+    {
         return $this->valueBoolean;
     }
 
@@ -206,7 +217,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $valueBoolean
      * @return $this
      */
-    public function setValueBoolean($valueBoolean) {
+    public function setValueBoolean($valueBoolean)
+    {
         $this->valueBoolean = $valueBoolean;
         return $this;
     }
@@ -214,7 +226,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getValueDateTime() {
+    public function getValueDateTime()
+    {
         return $this->valueDateTime;
     }
 
@@ -222,7 +235,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $valueDateTime
      * @return $this
      */
-    public function setValueDateTime($valueDateTime) {
+    public function setValueDateTime($valueDateTime)
+    {
         $this->valueDateTime = $valueDateTime;
         return $this;
     }
@@ -230,7 +244,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getValueDecimal() {
+    public function getValueDecimal()
+    {
         return $this->valueDecimal;
     }
 
@@ -238,7 +253,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $valueDecimal
      * @return $this
      */
-    public function setValueDecimal($valueDecimal) {
+    public function setValueDecimal($valueDecimal)
+    {
         $this->valueDecimal = $valueDecimal;
         return $this;
     }
@@ -246,14 +262,16 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -288,23 +306,41 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->valueCode)) $json['valueCode'] = $this->valueCode;
-        if (isset($this->valueCoding)) $json['valueCoding'] = $this->valueCoding;
-        if (isset($this->valueString)) $json['valueString'] = $this->valueString;
-        if (isset($this->valueInteger)) $json['valueInteger'] = $this->valueInteger;
-        if (isset($this->valueBoolean)) $json['valueBoolean'] = $this->valueBoolean;
-        if (isset($this->valueDateTime)) $json['valueDateTime'] = $this->valueDateTime;
-        if (isset($this->valueDecimal)) $json['valueDecimal'] = $this->valueDecimal;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->valueCode)) {
+            $json['valueCode'] = $this->valueCode;
+        }
+        if (isset($this->valueCoding)) {
+            $json['valueCoding'] = $this->valueCoding;
+        }
+        if (isset($this->valueString)) {
+            $json['valueString'] = $this->valueString;
+        }
+        if (isset($this->valueInteger)) {
+            $json['valueInteger'] = $this->valueInteger;
+        }
+        if (isset($this->valueBoolean)) {
+            $json['valueBoolean'] = $this->valueBoolean;
+        }
+        if (isset($this->valueDateTime)) {
+            $json['valueDateTime'] = $this->valueDateTime;
+        }
+        if (isset($this->valueDecimal)) {
+            $json['valueDecimal'] = $this->valueDecimal;
+        }
         return $json;
     }
 
@@ -313,20 +349,39 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CodeSystemProperty1 xmlns="http://hl7.org/fhir"></CodeSystemProperty1>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CodeSystemProperty1 xmlns="http://hl7.org/fhir"></CodeSystemProperty1>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->valueCode)) $this->valueCode->xmlSerialize(true, $sxe->addChild('valueCode'));
-        if (isset($this->valueCoding)) $this->valueCoding->xmlSerialize(true, $sxe->addChild('valueCoding'));
-        if (isset($this->valueString)) $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
-        if (isset($this->valueInteger)) $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
-        if (isset($this->valueBoolean)) $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
-        if (isset($this->valueDateTime)) $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
-        if (isset($this->valueDecimal)) $this->valueDecimal->xmlSerialize(true, $sxe->addChild('valueDecimal'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->valueCode)) {
+            $this->valueCode->xmlSerialize(true, $sxe->addChild('valueCode'));
+        }
+        if (isset($this->valueCoding)) {
+            $this->valueCoding->xmlSerialize(true, $sxe->addChild('valueCoding'));
+        }
+        if (isset($this->valueString)) {
+            $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
+        }
+        if (isset($this->valueInteger)) {
+            $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
+        }
+        if (isset($this->valueBoolean)) {
+            $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
+        }
+        if (isset($this->valueDateTime)) {
+            $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
+        }
+        if (isset($this->valueDecimal)) {
+            $this->valueDecimal->xmlSerialize(true, $sxe->addChild('valueDecimal'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

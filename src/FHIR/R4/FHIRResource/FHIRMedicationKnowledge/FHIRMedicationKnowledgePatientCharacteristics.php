@@ -91,7 +91,8 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCharacteristicCodeableConcept() {
+    public function getCharacteristicCodeableConcept()
+    {
         return $this->characteristicCodeableConcept;
     }
 
@@ -99,7 +100,8 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $characteristicCodeableConcept
      * @return $this
      */
-    public function setCharacteristicCodeableConcept($characteristicCodeableConcept) {
+    public function setCharacteristicCodeableConcept($characteristicCodeableConcept)
+    {
         $this->characteristicCodeableConcept = $characteristicCodeableConcept;
         return $this;
     }
@@ -107,7 +109,8 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getCharacteristicQuantity() {
+    public function getCharacteristicQuantity()
+    {
         return $this->characteristicQuantity;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $characteristicQuantity
      * @return $this
      */
-    public function setCharacteristicQuantity($characteristicQuantity) {
+    public function setCharacteristicQuantity($characteristicQuantity)
+    {
         $this->characteristicQuantity = $characteristicQuantity;
         return $this;
     }
@@ -124,7 +128,8 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
      * The specific characteristic (e.g. height, weight, gender, etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -133,7 +138,8 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $value
      * @return $this
      */
-    public function addValue($value) {
+    public function addValue($value)
+    {
         $this->value[] = $value;
         return $this;
     }
@@ -141,14 +147,16 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['characteristicCodeableConcept'])) {
                 $this->setCharacteristicCodeableConcept($data['characteristicCodeableConcept']);
@@ -158,7 +166,7 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
             }
             if (isset($data['value'])) {
                 if (is_array($data['value'])) {
-                    foreach($data['value'] as $d) {
+                    foreach ($data['value'] as $d) {
                         $this->addValue($d);
                     }
                 } else {
@@ -174,20 +182,26 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->characteristicCodeableConcept)) $json['characteristicCodeableConcept'] = $this->characteristicCodeableConcept;
-        if (isset($this->characteristicQuantity)) $json['characteristicQuantity'] = $this->characteristicQuantity;
+        if (isset($this->characteristicCodeableConcept)) {
+            $json['characteristicCodeableConcept'] = $this->characteristicCodeableConcept;
+        }
+        if (isset($this->characteristicQuantity)) {
+            $json['characteristicQuantity'] = $this->characteristicQuantity;
+        }
         if (0 < count($this->value)) {
             $json['value'] = [];
-            foreach($this->value as $value) {
+            foreach ($this->value as $value) {
                 $json['value'][] = $value;
             }
         }
@@ -199,19 +213,26 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationKnowledgePatientCharacteristics xmlns="http://hl7.org/fhir"></MedicationKnowledgePatientCharacteristics>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationKnowledgePatientCharacteristics xmlns="http://hl7.org/fhir"></MedicationKnowledgePatientCharacteristics>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->characteristicCodeableConcept)) $this->characteristicCodeableConcept->xmlSerialize(true, $sxe->addChild('characteristicCodeableConcept'));
-        if (isset($this->characteristicQuantity)) $this->characteristicQuantity->xmlSerialize(true, $sxe->addChild('characteristicQuantity'));
+        if (isset($this->characteristicCodeableConcept)) {
+            $this->characteristicCodeableConcept->xmlSerialize(true, $sxe->addChild('characteristicCodeableConcept'));
+        }
+        if (isset($this->characteristicQuantity)) {
+            $this->characteristicQuantity->xmlSerialize(true, $sxe->addChild('characteristicQuantity'));
+        }
         if (0 < count($this->value)) {
-            foreach($this->value as $value) {
+            foreach ($this->value as $value) {
                 $value->xmlSerialize(true, $sxe->addChild('value'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

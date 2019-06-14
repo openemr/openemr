@@ -124,7 +124,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * Code to identify the general type of benefits under which products and services are provided.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -133,7 +134,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * True if the indicated class of service is excluded from the plan, missing or False indicates the product or service is included in the coverage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExcluded() {
+    public function getExcluded()
+    {
         return $this->excluded;
     }
 
@@ -151,7 +154,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $excluded
      * @return $this
      */
-    public function setExcluded($excluded) {
+    public function setExcluded($excluded)
+    {
         $this->excluded = $excluded;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * A short name or tag for the benefit.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -169,7 +174,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * A richer description of the benefit or services covered.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -187,7 +194,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * Is a flag to indicate whether the benefits refer to in-network providers or out-of-network providers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getNetwork() {
+    public function getNetwork()
+    {
         return $this->network;
     }
 
@@ -205,7 +214,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $network
      * @return $this
      */
-    public function setNetwork($network) {
+    public function setNetwork($network)
+    {
         $this->network = $network;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * Indicates if the benefits apply to an individual or to the family.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getUnit() {
+    public function getUnit()
+    {
         return $this->unit;
     }
 
@@ -223,7 +234,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $unit
      * @return $this
      */
-    public function setUnit($unit) {
+    public function setUnit($unit)
+    {
         $this->unit = $unit;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * The term or period of the values such as 'maximum lifetime benefit' or 'maximum annual visits'.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getTerm() {
+    public function getTerm()
+    {
         return $this->term;
     }
 
@@ -241,7 +254,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $term
      * @return $this
      */
-    public function setTerm($term) {
+    public function setTerm($term)
+    {
         $this->term = $term;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * Benefits Used to date.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRExplanationOfBenefit\FHIRExplanationOfBenefitFinancial[]
      */
-    public function getFinancial() {
+    public function getFinancial()
+    {
         return $this->financial;
     }
 
@@ -259,7 +274,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRExplanationOfBenefit\FHIRExplanationOfBenefitFinancial $financial
      * @return $this
      */
-    public function addFinancial($financial) {
+    public function addFinancial($financial)
+    {
         $this->financial[] = $financial;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['category'])) {
                 $this->setCategory($data['category']);
@@ -299,7 +317,7 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
             }
             if (isset($data['financial'])) {
                 if (is_array($data['financial'])) {
-                    foreach($data['financial'] as $d) {
+                    foreach ($data['financial'] as $d) {
                         $this->addFinancial($d);
                     }
                 } else {
@@ -315,25 +333,41 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->excluded)) $json['excluded'] = $this->excluded;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->network)) $json['network'] = $this->network;
-        if (isset($this->unit)) $json['unit'] = $this->unit;
-        if (isset($this->term)) $json['term'] = $this->term;
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->excluded)) {
+            $json['excluded'] = $this->excluded;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->network)) {
+            $json['network'] = $this->network;
+        }
+        if (isset($this->unit)) {
+            $json['unit'] = $this->unit;
+        }
+        if (isset($this->term)) {
+            $json['term'] = $this->term;
+        }
         if (0 < count($this->financial)) {
             $json['financial'] = [];
-            foreach($this->financial as $financial) {
+            foreach ($this->financial as $financial) {
                 $json['financial'][] = $financial;
             }
         }
@@ -345,24 +379,41 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExplanationOfBenefitBenefitBalance xmlns="http://hl7.org/fhir"></ExplanationOfBenefitBenefitBalance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitBenefitBalance xmlns="http://hl7.org/fhir"></ExplanationOfBenefitBenefitBalance>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->excluded)) $this->excluded->xmlSerialize(true, $sxe->addChild('excluded'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->network)) $this->network->xmlSerialize(true, $sxe->addChild('network'));
-        if (isset($this->unit)) $this->unit->xmlSerialize(true, $sxe->addChild('unit'));
-        if (isset($this->term)) $this->term->xmlSerialize(true, $sxe->addChild('term'));
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->excluded)) {
+            $this->excluded->xmlSerialize(true, $sxe->addChild('excluded'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->network)) {
+            $this->network->xmlSerialize(true, $sxe->addChild('network'));
+        }
+        if (isset($this->unit)) {
+            $this->unit->xmlSerialize(true, $sxe->addChild('unit'));
+        }
+        if (isset($this->term)) {
+            $this->term->xmlSerialize(true, $sxe->addChild('term'));
+        }
         if (0 < count($this->financial)) {
-            foreach($this->financial as $financial) {
+            foreach ($this->financial as $financial) {
                 $financial->xmlSerialize(true, $sxe->addChild('financial'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

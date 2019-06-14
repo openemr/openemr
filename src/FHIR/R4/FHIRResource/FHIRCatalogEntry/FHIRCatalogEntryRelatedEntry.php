@@ -88,7 +88,8 @@ class FHIRCatalogEntryRelatedEntry extends FHIRBackboneElement implements \JsonS
      * The type of relation to the related item: child, parent, packageContent, containerPackage, usedIn, uses, requires, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCatalogEntryRelationType
      */
-    public function getRelationtype() {
+    public function getRelationtype()
+    {
         return $this->relationtype;
     }
 
@@ -97,7 +98,8 @@ class FHIRCatalogEntryRelatedEntry extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCatalogEntryRelationType $relationtype
      * @return $this
      */
-    public function setRelationtype($relationtype) {
+    public function setRelationtype($relationtype)
+    {
         $this->relationtype = $relationtype;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRCatalogEntryRelatedEntry extends FHIRBackboneElement implements \JsonS
      * The reference to the related item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getItem() {
+    public function getItem()
+    {
         return $this->item;
     }
 
@@ -115,7 +118,8 @@ class FHIRCatalogEntryRelatedEntry extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $item
      * @return $this
      */
-    public function setItem($item) {
+    public function setItem($item)
+    {
         $this->item = $item;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRCatalogEntryRelatedEntry extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['relationtype'])) {
                 $this->setRelationtype($data['relationtype']);
@@ -147,17 +153,23 @@ class FHIRCatalogEntryRelatedEntry extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->relationtype)) $json['relationtype'] = $this->relationtype;
-        if (isset($this->item)) $json['item'] = $this->item;
+        if (isset($this->relationtype)) {
+            $json['relationtype'] = $this->relationtype;
+        }
+        if (isset($this->item)) {
+            $json['item'] = $this->item;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRCatalogEntryRelatedEntry extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CatalogEntryRelatedEntry xmlns="http://hl7.org/fhir"></CatalogEntryRelatedEntry>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CatalogEntryRelatedEntry xmlns="http://hl7.org/fhir"></CatalogEntryRelatedEntry>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->relationtype)) $this->relationtype->xmlSerialize(true, $sxe->addChild('relationtype'));
-        if (isset($this->item)) $this->item->xmlSerialize(true, $sxe->addChild('item'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->relationtype)) {
+            $this->relationtype->xmlSerialize(true, $sxe->addChild('relationtype'));
+        }
+        if (isset($this->item)) {
+            $this->item->xmlSerialize(true, $sxe->addChild('item'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

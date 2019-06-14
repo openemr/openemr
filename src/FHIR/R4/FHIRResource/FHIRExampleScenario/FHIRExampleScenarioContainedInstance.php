@@ -88,7 +88,8 @@ class FHIRExampleScenarioContainedInstance extends FHIRBackboneElement implement
      * Each resource contained in the instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getResourceId() {
+    public function getResourceId()
+    {
         return $this->resourceId;
     }
 
@@ -97,7 +98,8 @@ class FHIRExampleScenarioContainedInstance extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $resourceId
      * @return $this
      */
-    public function setResourceId($resourceId) {
+    public function setResourceId($resourceId)
+    {
         $this->resourceId = $resourceId;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRExampleScenarioContainedInstance extends FHIRBackboneElement implement
      * A specific version of a resource contained in the instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersionId() {
+    public function getVersionId()
+    {
         return $this->versionId;
     }
 
@@ -115,7 +118,8 @@ class FHIRExampleScenarioContainedInstance extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $versionId
      * @return $this
      */
-    public function setVersionId($versionId) {
+    public function setVersionId($versionId)
+    {
         $this->versionId = $versionId;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRExampleScenarioContainedInstance extends FHIRBackboneElement implement
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['resourceId'])) {
                 $this->setResourceId($data['resourceId']);
@@ -147,17 +153,23 @@ class FHIRExampleScenarioContainedInstance extends FHIRBackboneElement implement
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->resourceId)) $json['resourceId'] = $this->resourceId;
-        if (isset($this->versionId)) $json['versionId'] = $this->versionId;
+        if (isset($this->resourceId)) {
+            $json['resourceId'] = $this->resourceId;
+        }
+        if (isset($this->versionId)) {
+            $json['versionId'] = $this->versionId;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRExampleScenarioContainedInstance extends FHIRBackboneElement implement
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExampleScenarioContainedInstance xmlns="http://hl7.org/fhir"></ExampleScenarioContainedInstance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExampleScenarioContainedInstance xmlns="http://hl7.org/fhir"></ExampleScenarioContainedInstance>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->resourceId)) $this->resourceId->xmlSerialize(true, $sxe->addChild('resourceId'));
-        if (isset($this->versionId)) $this->versionId->xmlSerialize(true, $sxe->addChild('versionId'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->resourceId)) {
+            $this->resourceId->xmlSerialize(true, $sxe->addChild('resourceId'));
+        }
+        if (isset($this->versionId)) {
+            $this->versionId->xmlSerialize(true, $sxe->addChild('versionId'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

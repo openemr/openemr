@@ -88,7 +88,8 @@ class FHIRProcedureFocalDevice extends FHIRBackboneElement implements \JsonSeria
      * The kind of change that happened to the device during the procedure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAction() {
+    public function getAction()
+    {
         return $this->action;
     }
 
@@ -97,7 +98,8 @@ class FHIRProcedureFocalDevice extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $action
      * @return $this
      */
-    public function setAction($action) {
+    public function setAction($action)
+    {
         $this->action = $action;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRProcedureFocalDevice extends FHIRBackboneElement implements \JsonSeria
      * The device that was manipulated (changed) during the procedure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getManipulated() {
+    public function getManipulated()
+    {
         return $this->manipulated;
     }
 
@@ -115,7 +118,8 @@ class FHIRProcedureFocalDevice extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $manipulated
      * @return $this
      */
-    public function setManipulated($manipulated) {
+    public function setManipulated($manipulated)
+    {
         $this->manipulated = $manipulated;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRProcedureFocalDevice extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['action'])) {
                 $this->setAction($data['action']);
@@ -147,17 +153,23 @@ class FHIRProcedureFocalDevice extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->action)) $json['action'] = $this->action;
-        if (isset($this->manipulated)) $json['manipulated'] = $this->manipulated;
+        if (isset($this->action)) {
+            $json['action'] = $this->action;
+        }
+        if (isset($this->manipulated)) {
+            $json['manipulated'] = $this->manipulated;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRProcedureFocalDevice extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ProcedureFocalDevice xmlns="http://hl7.org/fhir"></ProcedureFocalDevice>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ProcedureFocalDevice xmlns="http://hl7.org/fhir"></ProcedureFocalDevice>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->action)) $this->action->xmlSerialize(true, $sxe->addChild('action'));
-        if (isset($this->manipulated)) $this->manipulated->xmlSerialize(true, $sxe->addChild('manipulated'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->action)) {
+            $this->action->xmlSerialize(true, $sxe->addChild('action'));
+        }
+        if (isset($this->manipulated)) {
+            $this->manipulated->xmlSerialize(true, $sxe->addChild('manipulated'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

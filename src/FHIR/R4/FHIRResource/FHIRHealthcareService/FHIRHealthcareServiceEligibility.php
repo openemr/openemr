@@ -88,7 +88,8 @@ class FHIRHealthcareServiceEligibility extends FHIRBackboneElement implements \J
      * Coded value for the eligibility.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -97,7 +98,8 @@ class FHIRHealthcareServiceEligibility extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRHealthcareServiceEligibility extends FHIRBackboneElement implements \J
      * Describes the eligibility conditions for the service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -115,7 +118,8 @@ class FHIRHealthcareServiceEligibility extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRHealthcareServiceEligibility extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -147,17 +153,23 @@ class FHIRHealthcareServiceEligibility extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->comment)) $json['comment'] = $this->comment;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRHealthcareServiceEligibility extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<HealthcareServiceEligibility xmlns="http://hl7.org/fhir"></HealthcareServiceEligibility>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<HealthcareServiceEligibility xmlns="http://hl7.org/fhir"></HealthcareServiceEligibility>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

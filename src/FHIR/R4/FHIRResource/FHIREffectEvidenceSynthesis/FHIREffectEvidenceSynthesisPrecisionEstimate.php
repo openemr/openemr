@@ -100,7 +100,8 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
      * Examples include confidence interval and interquartile range.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -109,7 +110,8 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
      * Use 95 for a 95% confidence interval.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getLevel() {
+    public function getLevel()
+    {
         return $this->level;
     }
 
@@ -127,7 +130,8 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $level
      * @return $this
      */
-    public function setLevel($level) {
+    public function setLevel($level)
+    {
         $this->level = $level;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
      * Lower bound of confidence interval.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getFrom() {
+    public function getFrom()
+    {
         return $this->from;
     }
 
@@ -145,7 +150,8 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $from
      * @return $this
      */
-    public function setFrom($from) {
+    public function setFrom($from)
+    {
         $this->from = $from;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
      * Upper bound of confidence interval.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getTo() {
+    public function getTo()
+    {
         return $this->to;
     }
 
@@ -163,7 +170,8 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $to
      * @return $this
      */
-    public function setTo($to) {
+    public function setTo($to)
+    {
         $this->to = $to;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -201,19 +211,29 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->level)) $json['level'] = $this->level;
-        if (isset($this->from)) $json['from'] = $this->from;
-        if (isset($this->to)) $json['to'] = $this->to;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->level)) {
+            $json['level'] = $this->level;
+        }
+        if (isset($this->from)) {
+            $json['from'] = $this->from;
+        }
+        if (isset($this->to)) {
+            $json['to'] = $this->to;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIREffectEvidenceSynthesisPrecisionEstimate extends FHIRBackboneElement i
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesisPrecisionEstimate xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisPrecisionEstimate>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<EffectEvidenceSynthesisPrecisionEstimate xmlns="http://hl7.org/fhir"></EffectEvidenceSynthesisPrecisionEstimate>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->level)) $this->level->xmlSerialize(true, $sxe->addChild('level'));
-        if (isset($this->from)) $this->from->xmlSerialize(true, $sxe->addChild('from'));
-        if (isset($this->to)) $this->to->xmlSerialize(true, $sxe->addChild('to'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->level)) {
+            $this->level->xmlSerialize(true, $sxe->addChild('level'));
+        }
+        if (isset($this->from)) {
+            $this->from->xmlSerialize(true, $sxe->addChild('from'));
+        }
+        if (isset($this->to)) {
+            $this->to->xmlSerialize(true, $sxe->addChild('to'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -124,7 +124,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * The individual or organization attesting to information.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getWho() {
+    public function getWho()
+    {
         return $this->who;
     }
 
@@ -133,7 +134,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $who
      * @return $this
      */
-    public function setWho($who) {
+    public function setWho($who)
+    {
         $this->who = $who;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * When the who is asserting on behalf of another (organization or individual).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOnBehalfOf() {
+    public function getOnBehalfOf()
+    {
         return $this->onBehalfOf;
     }
 
@@ -151,7 +154,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $onBehalfOf
      * @return $this
      */
-    public function setOnBehalfOf($onBehalfOf) {
+    public function setOnBehalfOf($onBehalfOf)
+    {
         $this->onBehalfOf = $onBehalfOf;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * The method by which attested information was submitted/retrieved (manual; API; Push).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCommunicationMethod() {
+    public function getCommunicationMethod()
+    {
         return $this->communicationMethod;
     }
 
@@ -169,7 +174,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $communicationMethod
      * @return $this
      */
-    public function setCommunicationMethod($communicationMethod) {
+    public function setCommunicationMethod($communicationMethod)
+    {
         $this->communicationMethod = $communicationMethod;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * The date the information was attested to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -187,7 +194,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * A digital identity certificate associated with the attestation source.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSourceIdentityCertificate() {
+    public function getSourceIdentityCertificate()
+    {
         return $this->sourceIdentityCertificate;
     }
 
@@ -205,7 +214,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $sourceIdentityCertificate
      * @return $this
      */
-    public function setSourceIdentityCertificate($sourceIdentityCertificate) {
+    public function setSourceIdentityCertificate($sourceIdentityCertificate)
+    {
         $this->sourceIdentityCertificate = $sourceIdentityCertificate;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * A digital identity certificate associated with the proxy entity submitting attested information on behalf of the attestation source.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getProxyIdentityCertificate() {
+    public function getProxyIdentityCertificate()
+    {
         return $this->proxyIdentityCertificate;
     }
 
@@ -223,7 +234,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $proxyIdentityCertificate
      * @return $this
      */
-    public function setProxyIdentityCertificate($proxyIdentityCertificate) {
+    public function setProxyIdentityCertificate($proxyIdentityCertificate)
+    {
         $this->proxyIdentityCertificate = $proxyIdentityCertificate;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * Signed assertion by the proxy entity indicating that they have the right to submit attested information on behalf of the attestation source.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature
      */
-    public function getProxySignature() {
+    public function getProxySignature()
+    {
         return $this->proxySignature;
     }
 
@@ -241,7 +254,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature $proxySignature
      * @return $this
      */
-    public function setProxySignature($proxySignature) {
+    public function setProxySignature($proxySignature)
+    {
         $this->proxySignature = $proxySignature;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * Signed assertion by the attestation source that they have attested to the information.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature
      */
-    public function getSourceSignature() {
+    public function getSourceSignature()
+    {
         return $this->sourceSignature;
     }
 
@@ -259,7 +274,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature $sourceSignature
      * @return $this
      */
-    public function setSourceSignature($sourceSignature) {
+    public function setSourceSignature($sourceSignature)
+    {
         $this->sourceSignature = $sourceSignature;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['who'])) {
                 $this->setWho($data['who']);
@@ -309,23 +327,41 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->who)) $json['who'] = $this->who;
-        if (isset($this->onBehalfOf)) $json['onBehalfOf'] = $this->onBehalfOf;
-        if (isset($this->communicationMethod)) $json['communicationMethod'] = $this->communicationMethod;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->sourceIdentityCertificate)) $json['sourceIdentityCertificate'] = $this->sourceIdentityCertificate;
-        if (isset($this->proxyIdentityCertificate)) $json['proxyIdentityCertificate'] = $this->proxyIdentityCertificate;
-        if (isset($this->proxySignature)) $json['proxySignature'] = $this->proxySignature;
-        if (isset($this->sourceSignature)) $json['sourceSignature'] = $this->sourceSignature;
+        if (isset($this->who)) {
+            $json['who'] = $this->who;
+        }
+        if (isset($this->onBehalfOf)) {
+            $json['onBehalfOf'] = $this->onBehalfOf;
+        }
+        if (isset($this->communicationMethod)) {
+            $json['communicationMethod'] = $this->communicationMethod;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->sourceIdentityCertificate)) {
+            $json['sourceIdentityCertificate'] = $this->sourceIdentityCertificate;
+        }
+        if (isset($this->proxyIdentityCertificate)) {
+            $json['proxyIdentityCertificate'] = $this->proxyIdentityCertificate;
+        }
+        if (isset($this->proxySignature)) {
+            $json['proxySignature'] = $this->proxySignature;
+        }
+        if (isset($this->sourceSignature)) {
+            $json['sourceSignature'] = $this->sourceSignature;
+        }
         return $json;
     }
 
@@ -334,20 +370,39 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<VerificationResultAttestation xmlns="http://hl7.org/fhir"></VerificationResultAttestation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<VerificationResultAttestation xmlns="http://hl7.org/fhir"></VerificationResultAttestation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->who)) $this->who->xmlSerialize(true, $sxe->addChild('who'));
-        if (isset($this->onBehalfOf)) $this->onBehalfOf->xmlSerialize(true, $sxe->addChild('onBehalfOf'));
-        if (isset($this->communicationMethod)) $this->communicationMethod->xmlSerialize(true, $sxe->addChild('communicationMethod'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->sourceIdentityCertificate)) $this->sourceIdentityCertificate->xmlSerialize(true, $sxe->addChild('sourceIdentityCertificate'));
-        if (isset($this->proxyIdentityCertificate)) $this->proxyIdentityCertificate->xmlSerialize(true, $sxe->addChild('proxyIdentityCertificate'));
-        if (isset($this->proxySignature)) $this->proxySignature->xmlSerialize(true, $sxe->addChild('proxySignature'));
-        if (isset($this->sourceSignature)) $this->sourceSignature->xmlSerialize(true, $sxe->addChild('sourceSignature'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->who)) {
+            $this->who->xmlSerialize(true, $sxe->addChild('who'));
+        }
+        if (isset($this->onBehalfOf)) {
+            $this->onBehalfOf->xmlSerialize(true, $sxe->addChild('onBehalfOf'));
+        }
+        if (isset($this->communicationMethod)) {
+            $this->communicationMethod->xmlSerialize(true, $sxe->addChild('communicationMethod'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->sourceIdentityCertificate)) {
+            $this->sourceIdentityCertificate->xmlSerialize(true, $sxe->addChild('sourceIdentityCertificate'));
+        }
+        if (isset($this->proxyIdentityCertificate)) {
+            $this->proxyIdentityCertificate->xmlSerialize(true, $sxe->addChild('proxyIdentityCertificate'));
+        }
+        if (isset($this->proxySignature)) {
+            $this->proxySignature->xmlSerialize(true, $sxe->addChild('proxySignature'));
+        }
+        if (isset($this->sourceSignature)) {
+            $this->sourceSignature->xmlSerialize(true, $sxe->addChild('sourceSignature'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

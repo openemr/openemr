@@ -88,7 +88,8 @@ class FHIRSearchParameterComponent extends FHIRBackboneElement implements \JsonS
      * The definition of the search parameter that describes this part.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getDefinition() {
+    public function getDefinition()
+    {
         return $this->definition;
     }
 
@@ -97,7 +98,8 @@ class FHIRSearchParameterComponent extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $definition
      * @return $this
      */
-    public function setDefinition($definition) {
+    public function setDefinition($definition)
+    {
         $this->definition = $definition;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRSearchParameterComponent extends FHIRBackboneElement implements \JsonS
      * A sub-expression that defines how to extract values for this component from the output of the main SearchParameter.expression.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getExpression() {
+    public function getExpression()
+    {
         return $this->expression;
     }
 
@@ -115,7 +118,8 @@ class FHIRSearchParameterComponent extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $expression
      * @return $this
      */
-    public function setExpression($expression) {
+    public function setExpression($expression)
+    {
         $this->expression = $expression;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRSearchParameterComponent extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['definition'])) {
                 $this->setDefinition($data['definition']);
@@ -147,17 +153,23 @@ class FHIRSearchParameterComponent extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->definition)) $json['definition'] = $this->definition;
-        if (isset($this->expression)) $json['expression'] = $this->expression;
+        if (isset($this->definition)) {
+            $json['definition'] = $this->definition;
+        }
+        if (isset($this->expression)) {
+            $json['expression'] = $this->expression;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRSearchParameterComponent extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SearchParameterComponent xmlns="http://hl7.org/fhir"></SearchParameterComponent>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SearchParameterComponent xmlns="http://hl7.org/fhir"></SearchParameterComponent>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->definition)) $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
-        if (isset($this->expression)) $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->definition)) {
+            $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        }
+        if (isset($this->expression)) {
+            $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

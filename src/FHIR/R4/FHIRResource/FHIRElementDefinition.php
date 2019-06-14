@@ -1076,7 +1076,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * The path identifies the element and is expressed as a "."-separated list of ancestor elements, beginning with the name of the resource or extension.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->path;
     }
 
@@ -1085,7 +1086,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $path
      * @return $this
      */
-    public function setPath($path) {
+    public function setPath($path)
+    {
         $this->path = $path;
         return $this;
     }
@@ -1094,7 +1096,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Codes that define how this element is represented in instances, when the deviation varies from the normal case.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPropertyRepresentation[]
      */
-    public function getRepresentation() {
+    public function getRepresentation()
+    {
         return $this->representation;
     }
 
@@ -1103,7 +1106,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPropertyRepresentation $representation
      * @return $this
      */
-    public function addRepresentation($representation) {
+    public function addRepresentation($representation)
+    {
         $this->representation[] = $representation;
         return $this;
     }
@@ -1112,7 +1116,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * The name of this element definition slice, when slicing is working. The name must be a token with no dots or spaces. This is a unique name referring to a specific set of constraints applied to this element, used to provide a name to different slices of the same element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSliceName() {
+    public function getSliceName()
+    {
         return $this->sliceName;
     }
 
@@ -1121,7 +1126,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $sliceName
      * @return $this
      */
-    public function setSliceName($sliceName) {
+    public function setSliceName($sliceName)
+    {
         $this->sliceName = $sliceName;
         return $this;
     }
@@ -1130,7 +1136,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * If true, indicates that this slice definition is constraining a slice definition with the same name in an inherited profile. If false, the slice is not overriding any slice in an inherited profile. If missing, the slice might or might not be overriding a slice in an inherited profile, depending on the sliceName.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getSliceIsConstraining() {
+    public function getSliceIsConstraining()
+    {
         return $this->sliceIsConstraining;
     }
 
@@ -1139,7 +1146,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $sliceIsConstraining
      * @return $this
      */
-    public function setSliceIsConstraining($sliceIsConstraining) {
+    public function setSliceIsConstraining($sliceIsConstraining)
+    {
         $this->sliceIsConstraining = $sliceIsConstraining;
         return $this;
     }
@@ -1148,7 +1156,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * A single preferred label which is the text to display beside the element indicating its meaning or to use to prompt for the element in a user display or form.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getLabel() {
+    public function getLabel()
+    {
         return $this->label;
     }
 
@@ -1157,7 +1166,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $label
      * @return $this
      */
-    public function setLabel($label) {
+    public function setLabel($label)
+    {
         $this->label = $label;
         return $this;
     }
@@ -1166,7 +1176,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * A code that has the same meaning as the element in a particular terminology.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -1175,7 +1186,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -1184,7 +1196,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Indicates that the element is sliced into a set of alternative definitions (i.e. in a structure definition, there are multiple different constraints on a single element in the base resource). Slicing can be used in any resource that has cardinality ..* on the base resource, or any resource with a choice of types. The set of slices is any elements that come after this in the element sequence that have the same path, until a shorter path occurs (the shorter path terminates the set).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionSlicing
      */
-    public function getSlicing() {
+    public function getSlicing()
+    {
         return $this->slicing;
     }
 
@@ -1193,7 +1206,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionSlicing $slicing
      * @return $this
      */
-    public function setSlicing($slicing) {
+    public function setSlicing($slicing)
+    {
         $this->slicing = $slicing;
         return $this;
     }
@@ -1202,7 +1216,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * A concise description of what this element means (e.g. for use in autogenerated summaries).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getShort() {
+    public function getShort()
+    {
         return $this->short;
     }
 
@@ -1211,7 +1226,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $short
      * @return $this
      */
-    public function setShort($short) {
+    public function setShort($short)
+    {
         $this->short = $short;
         return $this;
     }
@@ -1220,7 +1236,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Provides a complete explanation of the meaning of the data element for human readability.  For the case of elements derived from existing elements (e.g. constraints), the definition SHALL be consistent with the base definition, but convey the meaning of the element in the particular context of use of the resource. (Note: The text you are reading is specified in ElementDefinition.definition).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDefinition() {
+    public function getDefinition()
+    {
         return $this->definition;
     }
 
@@ -1229,7 +1246,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $definition
      * @return $this
      */
-    public function setDefinition($definition) {
+    public function setDefinition($definition)
+    {
         $this->definition = $definition;
         return $this;
     }
@@ -1238,7 +1256,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Explanatory notes and implementation guidance about the data element, including notes about how to use the data properly, exceptions to proper use, etc. (Note: The text you are reading is specified in ElementDefinition.comment).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -1247,7 +1266,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -1256,7 +1276,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * This element is for traceability of why the element was created and why the constraints exist as they do. This may be used to point to source materials or specifications that drove the structure of this element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getRequirements() {
+    public function getRequirements()
+    {
         return $this->requirements;
     }
 
@@ -1265,7 +1286,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $requirements
      * @return $this
      */
-    public function setRequirements($requirements) {
+    public function setRequirements($requirements)
+    {
         $this->requirements = $requirements;
         return $this;
     }
@@ -1274,7 +1296,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Identifies additional names by which this element might also be known.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getAlias() {
+    public function getAlias()
+    {
         return $this->alias;
     }
 
@@ -1283,7 +1306,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $alias
      * @return $this
      */
-    public function addAlias($alias) {
+    public function addAlias($alias)
+    {
         $this->alias[] = $alias;
         return $this;
     }
@@ -1292,7 +1316,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * The minimum number of times this element SHALL appear in the instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getMin() {
+    public function getMin()
+    {
         return $this->min;
     }
 
@@ -1301,7 +1326,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $min
      * @return $this
      */
-    public function setMin($min) {
+    public function setMin($min)
+    {
         $this->min = $min;
         return $this;
     }
@@ -1310,7 +1336,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * The maximum number of times this element is permitted to appear in the instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMax() {
+    public function getMax()
+    {
         return $this->max;
     }
 
@@ -1319,7 +1346,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $max
      * @return $this
      */
-    public function setMax($max) {
+    public function setMax($max)
+    {
         $this->max = $max;
         return $this;
     }
@@ -1328,7 +1356,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Information about the base definition of the element, provided to make it unnecessary for tools to trace the deviation of the element through the derived and related profiles. When the element definition is not the original definition of an element - i.g. either in a constraint on another type, or for elements from a super type in a snap shot - then the information in provided in the element definition may be different to the base definition. On the original definition of the element, it will be same.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionBase
      */
-    public function getBase() {
+    public function getBase()
+    {
         return $this->base;
     }
 
@@ -1337,7 +1366,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionBase $base
      * @return $this
      */
-    public function setBase($base) {
+    public function setBase($base)
+    {
         $this->base = $base;
         return $this;
     }
@@ -1346,7 +1376,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Identifies an element defined elsewhere in the definition whose content rules should be applied to the current element. ContentReferences bring across all the rules that are in the ElementDefinition for the element, including definitions, cardinality constraints, bindings, invariants etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getContentReference() {
+    public function getContentReference()
+    {
         return $this->contentReference;
     }
 
@@ -1355,7 +1386,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $contentReference
      * @return $this
      */
-    public function setContentReference($contentReference) {
+    public function setContentReference($contentReference)
+    {
         $this->contentReference = $contentReference;
         return $this;
     }
@@ -1364,7 +1396,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * The data type or resource that the value of this element is permitted to be.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionType[]
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -1373,7 +1406,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionType $type
      * @return $this
      */
-    public function addType($type) {
+    public function addType($type)
+    {
         $this->type[] = $type;
         return $this;
     }
@@ -1381,7 +1415,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary
      */
-    public function getDefaultValueBase64Binary() {
+    public function getDefaultValueBase64Binary()
+    {
         return $this->defaultValueBase64Binary;
     }
 
@@ -1389,7 +1424,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary $defaultValueBase64Binary
      * @return $this
      */
-    public function setDefaultValueBase64Binary($defaultValueBase64Binary) {
+    public function setDefaultValueBase64Binary($defaultValueBase64Binary)
+    {
         $this->defaultValueBase64Binary = $defaultValueBase64Binary;
         return $this;
     }
@@ -1397,7 +1433,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getDefaultValueBoolean() {
+    public function getDefaultValueBoolean()
+    {
         return $this->defaultValueBoolean;
     }
 
@@ -1405,7 +1442,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $defaultValueBoolean
      * @return $this
      */
-    public function setDefaultValueBoolean($defaultValueBoolean) {
+    public function setDefaultValueBoolean($defaultValueBoolean)
+    {
         $this->defaultValueBoolean = $defaultValueBoolean;
         return $this;
     }
@@ -1413,7 +1451,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getDefaultValueCanonical() {
+    public function getDefaultValueCanonical()
+    {
         return $this->defaultValueCanonical;
     }
 
@@ -1421,7 +1460,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $defaultValueCanonical
      * @return $this
      */
-    public function setDefaultValueCanonical($defaultValueCanonical) {
+    public function setDefaultValueCanonical($defaultValueCanonical)
+    {
         $this->defaultValueCanonical = $defaultValueCanonical;
         return $this;
     }
@@ -1429,7 +1469,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getDefaultValueCode() {
+    public function getDefaultValueCode()
+    {
         return $this->defaultValueCode;
     }
 
@@ -1437,7 +1478,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $defaultValueCode
      * @return $this
      */
-    public function setDefaultValueCode($defaultValueCode) {
+    public function setDefaultValueCode($defaultValueCode)
+    {
         $this->defaultValueCode = $defaultValueCode;
         return $this;
     }
@@ -1445,7 +1487,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getDefaultValueDate() {
+    public function getDefaultValueDate()
+    {
         return $this->defaultValueDate;
     }
 
@@ -1453,7 +1496,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $defaultValueDate
      * @return $this
      */
-    public function setDefaultValueDate($defaultValueDate) {
+    public function setDefaultValueDate($defaultValueDate)
+    {
         $this->defaultValueDate = $defaultValueDate;
         return $this;
     }
@@ -1461,7 +1505,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDefaultValueDateTime() {
+    public function getDefaultValueDateTime()
+    {
         return $this->defaultValueDateTime;
     }
 
@@ -1469,7 +1514,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $defaultValueDateTime
      * @return $this
      */
-    public function setDefaultValueDateTime($defaultValueDateTime) {
+    public function setDefaultValueDateTime($defaultValueDateTime)
+    {
         $this->defaultValueDateTime = $defaultValueDateTime;
         return $this;
     }
@@ -1477,7 +1523,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getDefaultValueDecimal() {
+    public function getDefaultValueDecimal()
+    {
         return $this->defaultValueDecimal;
     }
 
@@ -1485,7 +1532,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $defaultValueDecimal
      * @return $this
      */
-    public function setDefaultValueDecimal($defaultValueDecimal) {
+    public function setDefaultValueDecimal($defaultValueDecimal)
+    {
         $this->defaultValueDecimal = $defaultValueDecimal;
         return $this;
     }
@@ -1493,7 +1541,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getDefaultValueId() {
+    public function getDefaultValueId()
+    {
         return $this->defaultValueId;
     }
 
@@ -1501,7 +1550,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $defaultValueId
      * @return $this
      */
-    public function setDefaultValueId($defaultValueId) {
+    public function setDefaultValueId($defaultValueId)
+    {
         $this->defaultValueId = $defaultValueId;
         return $this;
     }
@@ -1509,7 +1559,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getDefaultValueInstant() {
+    public function getDefaultValueInstant()
+    {
         return $this->defaultValueInstant;
     }
 
@@ -1517,7 +1568,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $defaultValueInstant
      * @return $this
      */
-    public function setDefaultValueInstant($defaultValueInstant) {
+    public function setDefaultValueInstant($defaultValueInstant)
+    {
         $this->defaultValueInstant = $defaultValueInstant;
         return $this;
     }
@@ -1525,7 +1577,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getDefaultValueInteger() {
+    public function getDefaultValueInteger()
+    {
         return $this->defaultValueInteger;
     }
 
@@ -1533,7 +1586,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $defaultValueInteger
      * @return $this
      */
-    public function setDefaultValueInteger($defaultValueInteger) {
+    public function setDefaultValueInteger($defaultValueInteger)
+    {
         $this->defaultValueInteger = $defaultValueInteger;
         return $this;
     }
@@ -1541,7 +1595,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDefaultValueMarkdown() {
+    public function getDefaultValueMarkdown()
+    {
         return $this->defaultValueMarkdown;
     }
 
@@ -1549,7 +1604,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $defaultValueMarkdown
      * @return $this
      */
-    public function setDefaultValueMarkdown($defaultValueMarkdown) {
+    public function setDefaultValueMarkdown($defaultValueMarkdown)
+    {
         $this->defaultValueMarkdown = $defaultValueMarkdown;
         return $this;
     }
@@ -1557,7 +1613,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIROid
      */
-    public function getDefaultValueOid() {
+    public function getDefaultValueOid()
+    {
         return $this->defaultValueOid;
     }
 
@@ -1565,7 +1622,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIROid $defaultValueOid
      * @return $this
      */
-    public function setDefaultValueOid($defaultValueOid) {
+    public function setDefaultValueOid($defaultValueOid)
+    {
         $this->defaultValueOid = $defaultValueOid;
         return $this;
     }
@@ -1573,7 +1631,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getDefaultValuePositiveInt() {
+    public function getDefaultValuePositiveInt()
+    {
         return $this->defaultValuePositiveInt;
     }
 
@@ -1581,7 +1640,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $defaultValuePositiveInt
      * @return $this
      */
-    public function setDefaultValuePositiveInt($defaultValuePositiveInt) {
+    public function setDefaultValuePositiveInt($defaultValuePositiveInt)
+    {
         $this->defaultValuePositiveInt = $defaultValuePositiveInt;
         return $this;
     }
@@ -1589,7 +1649,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDefaultValueString() {
+    public function getDefaultValueString()
+    {
         return $this->defaultValueString;
     }
 
@@ -1597,7 +1658,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $defaultValueString
      * @return $this
      */
-    public function setDefaultValueString($defaultValueString) {
+    public function setDefaultValueString($defaultValueString)
+    {
         $this->defaultValueString = $defaultValueString;
         return $this;
     }
@@ -1605,7 +1667,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getDefaultValueTime() {
+    public function getDefaultValueTime()
+    {
         return $this->defaultValueTime;
     }
 
@@ -1613,7 +1676,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $defaultValueTime
      * @return $this
      */
-    public function setDefaultValueTime($defaultValueTime) {
+    public function setDefaultValueTime($defaultValueTime)
+    {
         $this->defaultValueTime = $defaultValueTime;
         return $this;
     }
@@ -1621,7 +1685,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getDefaultValueUnsignedInt() {
+    public function getDefaultValueUnsignedInt()
+    {
         return $this->defaultValueUnsignedInt;
     }
 
@@ -1629,7 +1694,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $defaultValueUnsignedInt
      * @return $this
      */
-    public function setDefaultValueUnsignedInt($defaultValueUnsignedInt) {
+    public function setDefaultValueUnsignedInt($defaultValueUnsignedInt)
+    {
         $this->defaultValueUnsignedInt = $defaultValueUnsignedInt;
         return $this;
     }
@@ -1637,7 +1703,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getDefaultValueUri() {
+    public function getDefaultValueUri()
+    {
         return $this->defaultValueUri;
     }
 
@@ -1645,7 +1712,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $defaultValueUri
      * @return $this
      */
-    public function setDefaultValueUri($defaultValueUri) {
+    public function setDefaultValueUri($defaultValueUri)
+    {
         $this->defaultValueUri = $defaultValueUri;
         return $this;
     }
@@ -1653,7 +1721,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getDefaultValueUrl() {
+    public function getDefaultValueUrl()
+    {
         return $this->defaultValueUrl;
     }
 
@@ -1661,7 +1730,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $defaultValueUrl
      * @return $this
      */
-    public function setDefaultValueUrl($defaultValueUrl) {
+    public function setDefaultValueUrl($defaultValueUrl)
+    {
         $this->defaultValueUrl = $defaultValueUrl;
         return $this;
     }
@@ -1669,7 +1739,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUuid
      */
-    public function getDefaultValueUuid() {
+    public function getDefaultValueUuid()
+    {
         return $this->defaultValueUuid;
     }
 
@@ -1677,7 +1748,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUuid $defaultValueUuid
      * @return $this
      */
-    public function setDefaultValueUuid($defaultValueUuid) {
+    public function setDefaultValueUuid($defaultValueUuid)
+    {
         $this->defaultValueUuid = $defaultValueUuid;
         return $this;
     }
@@ -1685,7 +1757,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress
      */
-    public function getDefaultValueAddress() {
+    public function getDefaultValueAddress()
+    {
         return $this->defaultValueAddress;
     }
 
@@ -1693,7 +1766,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $defaultValueAddress
      * @return $this
      */
-    public function setDefaultValueAddress($defaultValueAddress) {
+    public function setDefaultValueAddress($defaultValueAddress)
+    {
         $this->defaultValueAddress = $defaultValueAddress;
         return $this;
     }
@@ -1701,7 +1775,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getDefaultValueAge() {
+    public function getDefaultValueAge()
+    {
         return $this->defaultValueAge;
     }
 
@@ -1709,7 +1784,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $defaultValueAge
      * @return $this
      */
-    public function setDefaultValueAge($defaultValueAge) {
+    public function setDefaultValueAge($defaultValueAge)
+    {
         $this->defaultValueAge = $defaultValueAge;
         return $this;
     }
@@ -1717,7 +1793,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation
      */
-    public function getDefaultValueAnnotation() {
+    public function getDefaultValueAnnotation()
+    {
         return $this->defaultValueAnnotation;
     }
 
@@ -1725,7 +1802,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $defaultValueAnnotation
      * @return $this
      */
-    public function setDefaultValueAnnotation($defaultValueAnnotation) {
+    public function setDefaultValueAnnotation($defaultValueAnnotation)
+    {
         $this->defaultValueAnnotation = $defaultValueAnnotation;
         return $this;
     }
@@ -1733,7 +1811,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getDefaultValueAttachment() {
+    public function getDefaultValueAttachment()
+    {
         return $this->defaultValueAttachment;
     }
 
@@ -1741,7 +1820,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $defaultValueAttachment
      * @return $this
      */
-    public function setDefaultValueAttachment($defaultValueAttachment) {
+    public function setDefaultValueAttachment($defaultValueAttachment)
+    {
         $this->defaultValueAttachment = $defaultValueAttachment;
         return $this;
     }
@@ -1749,7 +1829,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDefaultValueCodeableConcept() {
+    public function getDefaultValueCodeableConcept()
+    {
         return $this->defaultValueCodeableConcept;
     }
 
@@ -1757,7 +1838,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $defaultValueCodeableConcept
      * @return $this
      */
-    public function setDefaultValueCodeableConcept($defaultValueCodeableConcept) {
+    public function setDefaultValueCodeableConcept($defaultValueCodeableConcept)
+    {
         $this->defaultValueCodeableConcept = $defaultValueCodeableConcept;
         return $this;
     }
@@ -1765,7 +1847,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getDefaultValueCoding() {
+    public function getDefaultValueCoding()
+    {
         return $this->defaultValueCoding;
     }
 
@@ -1773,7 +1856,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $defaultValueCoding
      * @return $this
      */
-    public function setDefaultValueCoding($defaultValueCoding) {
+    public function setDefaultValueCoding($defaultValueCoding)
+    {
         $this->defaultValueCoding = $defaultValueCoding;
         return $this;
     }
@@ -1781,7 +1865,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint
      */
-    public function getDefaultValueContactPoint() {
+    public function getDefaultValueContactPoint()
+    {
         return $this->defaultValueContactPoint;
     }
 
@@ -1789,7 +1874,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $defaultValueContactPoint
      * @return $this
      */
-    public function setDefaultValueContactPoint($defaultValueContactPoint) {
+    public function setDefaultValueContactPoint($defaultValueContactPoint)
+    {
         $this->defaultValueContactPoint = $defaultValueContactPoint;
         return $this;
     }
@@ -1797,7 +1883,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRCount
      */
-    public function getDefaultValueCount() {
+    public function getDefaultValueCount()
+    {
         return $this->defaultValueCount;
     }
 
@@ -1805,7 +1892,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRCount $defaultValueCount
      * @return $this
      */
-    public function setDefaultValueCount($defaultValueCount) {
+    public function setDefaultValueCount($defaultValueCount)
+    {
         $this->defaultValueCount = $defaultValueCount;
         return $this;
     }
@@ -1813,7 +1901,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDistance
      */
-    public function getDefaultValueDistance() {
+    public function getDefaultValueDistance()
+    {
         return $this->defaultValueDistance;
     }
 
@@ -1821,7 +1910,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDistance $defaultValueDistance
      * @return $this
      */
-    public function setDefaultValueDistance($defaultValueDistance) {
+    public function setDefaultValueDistance($defaultValueDistance)
+    {
         $this->defaultValueDistance = $defaultValueDistance;
         return $this;
     }
@@ -1829,7 +1919,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getDefaultValueDuration() {
+    public function getDefaultValueDuration()
+    {
         return $this->defaultValueDuration;
     }
 
@@ -1837,7 +1928,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $defaultValueDuration
      * @return $this
      */
-    public function setDefaultValueDuration($defaultValueDuration) {
+    public function setDefaultValueDuration($defaultValueDuration)
+    {
         $this->defaultValueDuration = $defaultValueDuration;
         return $this;
     }
@@ -1845,7 +1937,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName
      */
-    public function getDefaultValueHumanName() {
+    public function getDefaultValueHumanName()
+    {
         return $this->defaultValueHumanName;
     }
 
@@ -1853,7 +1946,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName $defaultValueHumanName
      * @return $this
      */
-    public function setDefaultValueHumanName($defaultValueHumanName) {
+    public function setDefaultValueHumanName($defaultValueHumanName)
+    {
         $this->defaultValueHumanName = $defaultValueHumanName;
         return $this;
     }
@@ -1861,7 +1955,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getDefaultValueIdentifier() {
+    public function getDefaultValueIdentifier()
+    {
         return $this->defaultValueIdentifier;
     }
 
@@ -1869,7 +1964,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $defaultValueIdentifier
      * @return $this
      */
-    public function setDefaultValueIdentifier($defaultValueIdentifier) {
+    public function setDefaultValueIdentifier($defaultValueIdentifier)
+    {
         $this->defaultValueIdentifier = $defaultValueIdentifier;
         return $this;
     }
@@ -1877,7 +1973,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getDefaultValueMoney() {
+    public function getDefaultValueMoney()
+    {
         return $this->defaultValueMoney;
     }
 
@@ -1885,7 +1982,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $defaultValueMoney
      * @return $this
      */
-    public function setDefaultValueMoney($defaultValueMoney) {
+    public function setDefaultValueMoney($defaultValueMoney)
+    {
         $this->defaultValueMoney = $defaultValueMoney;
         return $this;
     }
@@ -1893,7 +1991,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getDefaultValuePeriod() {
+    public function getDefaultValuePeriod()
+    {
         return $this->defaultValuePeriod;
     }
 
@@ -1901,7 +2000,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $defaultValuePeriod
      * @return $this
      */
-    public function setDefaultValuePeriod($defaultValuePeriod) {
+    public function setDefaultValuePeriod($defaultValuePeriod)
+    {
         $this->defaultValuePeriod = $defaultValuePeriod;
         return $this;
     }
@@ -1909,7 +2009,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getDefaultValueQuantity() {
+    public function getDefaultValueQuantity()
+    {
         return $this->defaultValueQuantity;
     }
 
@@ -1917,7 +2018,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $defaultValueQuantity
      * @return $this
      */
-    public function setDefaultValueQuantity($defaultValueQuantity) {
+    public function setDefaultValueQuantity($defaultValueQuantity)
+    {
         $this->defaultValueQuantity = $defaultValueQuantity;
         return $this;
     }
@@ -1925,7 +2027,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getDefaultValueRange() {
+    public function getDefaultValueRange()
+    {
         return $this->defaultValueRange;
     }
 
@@ -1933,7 +2036,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $defaultValueRange
      * @return $this
      */
-    public function setDefaultValueRange($defaultValueRange) {
+    public function setDefaultValueRange($defaultValueRange)
+    {
         $this->defaultValueRange = $defaultValueRange;
         return $this;
     }
@@ -1941,7 +2045,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getDefaultValueRatio() {
+    public function getDefaultValueRatio()
+    {
         return $this->defaultValueRatio;
     }
 
@@ -1949,7 +2054,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $defaultValueRatio
      * @return $this
      */
-    public function setDefaultValueRatio($defaultValueRatio) {
+    public function setDefaultValueRatio($defaultValueRatio)
+    {
         $this->defaultValueRatio = $defaultValueRatio;
         return $this;
     }
@@ -1957,7 +2063,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDefaultValueReference() {
+    public function getDefaultValueReference()
+    {
         return $this->defaultValueReference;
     }
 
@@ -1965,7 +2072,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $defaultValueReference
      * @return $this
      */
-    public function setDefaultValueReference($defaultValueReference) {
+    public function setDefaultValueReference($defaultValueReference)
+    {
         $this->defaultValueReference = $defaultValueReference;
         return $this;
     }
@@ -1973,7 +2081,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData
      */
-    public function getDefaultValueSampledData() {
+    public function getDefaultValueSampledData()
+    {
         return $this->defaultValueSampledData;
     }
 
@@ -1981,7 +2090,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData $defaultValueSampledData
      * @return $this
      */
-    public function setDefaultValueSampledData($defaultValueSampledData) {
+    public function setDefaultValueSampledData($defaultValueSampledData)
+    {
         $this->defaultValueSampledData = $defaultValueSampledData;
         return $this;
     }
@@ -1989,7 +2099,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature
      */
-    public function getDefaultValueSignature() {
+    public function getDefaultValueSignature()
+    {
         return $this->defaultValueSignature;
     }
 
@@ -1997,7 +2108,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature $defaultValueSignature
      * @return $this
      */
-    public function setDefaultValueSignature($defaultValueSignature) {
+    public function setDefaultValueSignature($defaultValueSignature)
+    {
         $this->defaultValueSignature = $defaultValueSignature;
         return $this;
     }
@@ -2005,7 +2117,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getDefaultValueTiming() {
+    public function getDefaultValueTiming()
+    {
         return $this->defaultValueTiming;
     }
 
@@ -2013,7 +2126,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $defaultValueTiming
      * @return $this
      */
-    public function setDefaultValueTiming($defaultValueTiming) {
+    public function setDefaultValueTiming($defaultValueTiming)
+    {
         $this->defaultValueTiming = $defaultValueTiming;
         return $this;
     }
@@ -2021,7 +2135,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail
      */
-    public function getDefaultValueContactDetail() {
+    public function getDefaultValueContactDetail()
+    {
         return $this->defaultValueContactDetail;
     }
 
@@ -2029,7 +2144,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $defaultValueContactDetail
      * @return $this
      */
-    public function setDefaultValueContactDetail($defaultValueContactDetail) {
+    public function setDefaultValueContactDetail($defaultValueContactDetail)
+    {
         $this->defaultValueContactDetail = $defaultValueContactDetail;
         return $this;
     }
@@ -2037,7 +2153,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContributor
      */
-    public function getDefaultValueContributor() {
+    public function getDefaultValueContributor()
+    {
         return $this->defaultValueContributor;
     }
 
@@ -2045,7 +2162,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContributor $defaultValueContributor
      * @return $this
      */
-    public function setDefaultValueContributor($defaultValueContributor) {
+    public function setDefaultValueContributor($defaultValueContributor)
+    {
         $this->defaultValueContributor = $defaultValueContributor;
         return $this;
     }
@@ -2053,7 +2171,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement
      */
-    public function getDefaultValueDataRequirement() {
+    public function getDefaultValueDataRequirement()
+    {
         return $this->defaultValueDataRequirement;
     }
 
@@ -2061,7 +2180,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement $defaultValueDataRequirement
      * @return $this
      */
-    public function setDefaultValueDataRequirement($defaultValueDataRequirement) {
+    public function setDefaultValueDataRequirement($defaultValueDataRequirement)
+    {
         $this->defaultValueDataRequirement = $defaultValueDataRequirement;
         return $this;
     }
@@ -2069,7 +2189,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getDefaultValueExpression() {
+    public function getDefaultValueExpression()
+    {
         return $this->defaultValueExpression;
     }
 
@@ -2077,7 +2198,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $defaultValueExpression
      * @return $this
      */
-    public function setDefaultValueExpression($defaultValueExpression) {
+    public function setDefaultValueExpression($defaultValueExpression)
+    {
         $this->defaultValueExpression = $defaultValueExpression;
         return $this;
     }
@@ -2085,7 +2207,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRParameterDefinition
      */
-    public function getDefaultValueParameterDefinition() {
+    public function getDefaultValueParameterDefinition()
+    {
         return $this->defaultValueParameterDefinition;
     }
 
@@ -2093,7 +2216,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRParameterDefinition $defaultValueParameterDefinition
      * @return $this
      */
-    public function setDefaultValueParameterDefinition($defaultValueParameterDefinition) {
+    public function setDefaultValueParameterDefinition($defaultValueParameterDefinition)
+    {
         $this->defaultValueParameterDefinition = $defaultValueParameterDefinition;
         return $this;
     }
@@ -2101,7 +2225,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact
      */
-    public function getDefaultValueRelatedArtifact() {
+    public function getDefaultValueRelatedArtifact()
+    {
         return $this->defaultValueRelatedArtifact;
     }
 
@@ -2109,7 +2234,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact $defaultValueRelatedArtifact
      * @return $this
      */
-    public function setDefaultValueRelatedArtifact($defaultValueRelatedArtifact) {
+    public function setDefaultValueRelatedArtifact($defaultValueRelatedArtifact)
+    {
         $this->defaultValueRelatedArtifact = $defaultValueRelatedArtifact;
         return $this;
     }
@@ -2117,7 +2243,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition
      */
-    public function getDefaultValueTriggerDefinition() {
+    public function getDefaultValueTriggerDefinition()
+    {
         return $this->defaultValueTriggerDefinition;
     }
 
@@ -2125,7 +2252,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition $defaultValueTriggerDefinition
      * @return $this
      */
-    public function setDefaultValueTriggerDefinition($defaultValueTriggerDefinition) {
+    public function setDefaultValueTriggerDefinition($defaultValueTriggerDefinition)
+    {
         $this->defaultValueTriggerDefinition = $defaultValueTriggerDefinition;
         return $this;
     }
@@ -2133,7 +2261,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext
      */
-    public function getDefaultValueUsageContext() {
+    public function getDefaultValueUsageContext()
+    {
         return $this->defaultValueUsageContext;
     }
 
@@ -2141,7 +2270,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $defaultValueUsageContext
      * @return $this
      */
-    public function setDefaultValueUsageContext($defaultValueUsageContext) {
+    public function setDefaultValueUsageContext($defaultValueUsageContext)
+    {
         $this->defaultValueUsageContext = $defaultValueUsageContext;
         return $this;
     }
@@ -2149,7 +2279,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage
      */
-    public function getDefaultValueDosage() {
+    public function getDefaultValueDosage()
+    {
         return $this->defaultValueDosage;
     }
 
@@ -2157,7 +2288,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage $defaultValueDosage
      * @return $this
      */
-    public function setDefaultValueDosage($defaultValueDosage) {
+    public function setDefaultValueDosage($defaultValueDosage)
+    {
         $this->defaultValueDosage = $defaultValueDosage;
         return $this;
     }
@@ -2166,7 +2298,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * The Implicit meaning that is to be understood when this element is missing (e.g. 'when this element is missing, the period is ongoing').
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getMeaningWhenMissing() {
+    public function getMeaningWhenMissing()
+    {
         return $this->meaningWhenMissing;
     }
 
@@ -2175,7 +2308,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $meaningWhenMissing
      * @return $this
      */
-    public function setMeaningWhenMissing($meaningWhenMissing) {
+    public function setMeaningWhenMissing($meaningWhenMissing)
+    {
         $this->meaningWhenMissing = $meaningWhenMissing;
         return $this;
     }
@@ -2184,7 +2318,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * If present, indicates that the order of the repeating element has meaning and describes what that meaning is.  If absent, it means that the order of the element has no meaning.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getOrderMeaning() {
+    public function getOrderMeaning()
+    {
         return $this->orderMeaning;
     }
 
@@ -2193,7 +2328,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $orderMeaning
      * @return $this
      */
-    public function setOrderMeaning($orderMeaning) {
+    public function setOrderMeaning($orderMeaning)
+    {
         $this->orderMeaning = $orderMeaning;
         return $this;
     }
@@ -2201,7 +2337,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary
      */
-    public function getFixedBase64Binary() {
+    public function getFixedBase64Binary()
+    {
         return $this->fixedBase64Binary;
     }
 
@@ -2209,7 +2346,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary $fixedBase64Binary
      * @return $this
      */
-    public function setFixedBase64Binary($fixedBase64Binary) {
+    public function setFixedBase64Binary($fixedBase64Binary)
+    {
         $this->fixedBase64Binary = $fixedBase64Binary;
         return $this;
     }
@@ -2217,7 +2355,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getFixedBoolean() {
+    public function getFixedBoolean()
+    {
         return $this->fixedBoolean;
     }
 
@@ -2225,7 +2364,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $fixedBoolean
      * @return $this
      */
-    public function setFixedBoolean($fixedBoolean) {
+    public function setFixedBoolean($fixedBoolean)
+    {
         $this->fixedBoolean = $fixedBoolean;
         return $this;
     }
@@ -2233,7 +2373,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getFixedCanonical() {
+    public function getFixedCanonical()
+    {
         return $this->fixedCanonical;
     }
 
@@ -2241,7 +2382,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $fixedCanonical
      * @return $this
      */
-    public function setFixedCanonical($fixedCanonical) {
+    public function setFixedCanonical($fixedCanonical)
+    {
         $this->fixedCanonical = $fixedCanonical;
         return $this;
     }
@@ -2249,7 +2391,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getFixedCode() {
+    public function getFixedCode()
+    {
         return $this->fixedCode;
     }
 
@@ -2257,7 +2400,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $fixedCode
      * @return $this
      */
-    public function setFixedCode($fixedCode) {
+    public function setFixedCode($fixedCode)
+    {
         $this->fixedCode = $fixedCode;
         return $this;
     }
@@ -2265,7 +2409,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getFixedDate() {
+    public function getFixedDate()
+    {
         return $this->fixedDate;
     }
 
@@ -2273,7 +2418,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $fixedDate
      * @return $this
      */
-    public function setFixedDate($fixedDate) {
+    public function setFixedDate($fixedDate)
+    {
         $this->fixedDate = $fixedDate;
         return $this;
     }
@@ -2281,7 +2427,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getFixedDateTime() {
+    public function getFixedDateTime()
+    {
         return $this->fixedDateTime;
     }
 
@@ -2289,7 +2436,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $fixedDateTime
      * @return $this
      */
-    public function setFixedDateTime($fixedDateTime) {
+    public function setFixedDateTime($fixedDateTime)
+    {
         $this->fixedDateTime = $fixedDateTime;
         return $this;
     }
@@ -2297,7 +2445,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getFixedDecimal() {
+    public function getFixedDecimal()
+    {
         return $this->fixedDecimal;
     }
 
@@ -2305,7 +2454,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $fixedDecimal
      * @return $this
      */
-    public function setFixedDecimal($fixedDecimal) {
+    public function setFixedDecimal($fixedDecimal)
+    {
         $this->fixedDecimal = $fixedDecimal;
         return $this;
     }
@@ -2313,7 +2463,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getFixedId() {
+    public function getFixedId()
+    {
         return $this->fixedId;
     }
 
@@ -2321,7 +2472,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $fixedId
      * @return $this
      */
-    public function setFixedId($fixedId) {
+    public function setFixedId($fixedId)
+    {
         $this->fixedId = $fixedId;
         return $this;
     }
@@ -2329,7 +2481,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getFixedInstant() {
+    public function getFixedInstant()
+    {
         return $this->fixedInstant;
     }
 
@@ -2337,7 +2490,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $fixedInstant
      * @return $this
      */
-    public function setFixedInstant($fixedInstant) {
+    public function setFixedInstant($fixedInstant)
+    {
         $this->fixedInstant = $fixedInstant;
         return $this;
     }
@@ -2345,7 +2499,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getFixedInteger() {
+    public function getFixedInteger()
+    {
         return $this->fixedInteger;
     }
 
@@ -2353,7 +2508,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $fixedInteger
      * @return $this
      */
-    public function setFixedInteger($fixedInteger) {
+    public function setFixedInteger($fixedInteger)
+    {
         $this->fixedInteger = $fixedInteger;
         return $this;
     }
@@ -2361,7 +2517,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getFixedMarkdown() {
+    public function getFixedMarkdown()
+    {
         return $this->fixedMarkdown;
     }
 
@@ -2369,7 +2526,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $fixedMarkdown
      * @return $this
      */
-    public function setFixedMarkdown($fixedMarkdown) {
+    public function setFixedMarkdown($fixedMarkdown)
+    {
         $this->fixedMarkdown = $fixedMarkdown;
         return $this;
     }
@@ -2377,7 +2535,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIROid
      */
-    public function getFixedOid() {
+    public function getFixedOid()
+    {
         return $this->fixedOid;
     }
 
@@ -2385,7 +2544,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIROid $fixedOid
      * @return $this
      */
-    public function setFixedOid($fixedOid) {
+    public function setFixedOid($fixedOid)
+    {
         $this->fixedOid = $fixedOid;
         return $this;
     }
@@ -2393,7 +2553,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getFixedPositiveInt() {
+    public function getFixedPositiveInt()
+    {
         return $this->fixedPositiveInt;
     }
 
@@ -2401,7 +2562,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $fixedPositiveInt
      * @return $this
      */
-    public function setFixedPositiveInt($fixedPositiveInt) {
+    public function setFixedPositiveInt($fixedPositiveInt)
+    {
         $this->fixedPositiveInt = $fixedPositiveInt;
         return $this;
     }
@@ -2409,7 +2571,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getFixedString() {
+    public function getFixedString()
+    {
         return $this->fixedString;
     }
 
@@ -2417,7 +2580,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $fixedString
      * @return $this
      */
-    public function setFixedString($fixedString) {
+    public function setFixedString($fixedString)
+    {
         $this->fixedString = $fixedString;
         return $this;
     }
@@ -2425,7 +2589,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getFixedTime() {
+    public function getFixedTime()
+    {
         return $this->fixedTime;
     }
 
@@ -2433,7 +2598,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $fixedTime
      * @return $this
      */
-    public function setFixedTime($fixedTime) {
+    public function setFixedTime($fixedTime)
+    {
         $this->fixedTime = $fixedTime;
         return $this;
     }
@@ -2441,7 +2607,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getFixedUnsignedInt() {
+    public function getFixedUnsignedInt()
+    {
         return $this->fixedUnsignedInt;
     }
 
@@ -2449,7 +2616,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $fixedUnsignedInt
      * @return $this
      */
-    public function setFixedUnsignedInt($fixedUnsignedInt) {
+    public function setFixedUnsignedInt($fixedUnsignedInt)
+    {
         $this->fixedUnsignedInt = $fixedUnsignedInt;
         return $this;
     }
@@ -2457,7 +2625,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getFixedUri() {
+    public function getFixedUri()
+    {
         return $this->fixedUri;
     }
 
@@ -2465,7 +2634,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $fixedUri
      * @return $this
      */
-    public function setFixedUri($fixedUri) {
+    public function setFixedUri($fixedUri)
+    {
         $this->fixedUri = $fixedUri;
         return $this;
     }
@@ -2473,7 +2643,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getFixedUrl() {
+    public function getFixedUrl()
+    {
         return $this->fixedUrl;
     }
 
@@ -2481,7 +2652,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $fixedUrl
      * @return $this
      */
-    public function setFixedUrl($fixedUrl) {
+    public function setFixedUrl($fixedUrl)
+    {
         $this->fixedUrl = $fixedUrl;
         return $this;
     }
@@ -2489,7 +2661,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUuid
      */
-    public function getFixedUuid() {
+    public function getFixedUuid()
+    {
         return $this->fixedUuid;
     }
 
@@ -2497,7 +2670,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUuid $fixedUuid
      * @return $this
      */
-    public function setFixedUuid($fixedUuid) {
+    public function setFixedUuid($fixedUuid)
+    {
         $this->fixedUuid = $fixedUuid;
         return $this;
     }
@@ -2505,7 +2679,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress
      */
-    public function getFixedAddress() {
+    public function getFixedAddress()
+    {
         return $this->fixedAddress;
     }
 
@@ -2513,7 +2688,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $fixedAddress
      * @return $this
      */
-    public function setFixedAddress($fixedAddress) {
+    public function setFixedAddress($fixedAddress)
+    {
         $this->fixedAddress = $fixedAddress;
         return $this;
     }
@@ -2521,7 +2697,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getFixedAge() {
+    public function getFixedAge()
+    {
         return $this->fixedAge;
     }
 
@@ -2529,7 +2706,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $fixedAge
      * @return $this
      */
-    public function setFixedAge($fixedAge) {
+    public function setFixedAge($fixedAge)
+    {
         $this->fixedAge = $fixedAge;
         return $this;
     }
@@ -2537,7 +2715,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation
      */
-    public function getFixedAnnotation() {
+    public function getFixedAnnotation()
+    {
         return $this->fixedAnnotation;
     }
 
@@ -2545,7 +2724,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $fixedAnnotation
      * @return $this
      */
-    public function setFixedAnnotation($fixedAnnotation) {
+    public function setFixedAnnotation($fixedAnnotation)
+    {
         $this->fixedAnnotation = $fixedAnnotation;
         return $this;
     }
@@ -2553,7 +2733,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getFixedAttachment() {
+    public function getFixedAttachment()
+    {
         return $this->fixedAttachment;
     }
 
@@ -2561,7 +2742,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $fixedAttachment
      * @return $this
      */
-    public function setFixedAttachment($fixedAttachment) {
+    public function setFixedAttachment($fixedAttachment)
+    {
         $this->fixedAttachment = $fixedAttachment;
         return $this;
     }
@@ -2569,7 +2751,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getFixedCodeableConcept() {
+    public function getFixedCodeableConcept()
+    {
         return $this->fixedCodeableConcept;
     }
 
@@ -2577,7 +2760,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $fixedCodeableConcept
      * @return $this
      */
-    public function setFixedCodeableConcept($fixedCodeableConcept) {
+    public function setFixedCodeableConcept($fixedCodeableConcept)
+    {
         $this->fixedCodeableConcept = $fixedCodeableConcept;
         return $this;
     }
@@ -2585,7 +2769,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getFixedCoding() {
+    public function getFixedCoding()
+    {
         return $this->fixedCoding;
     }
 
@@ -2593,7 +2778,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $fixedCoding
      * @return $this
      */
-    public function setFixedCoding($fixedCoding) {
+    public function setFixedCoding($fixedCoding)
+    {
         $this->fixedCoding = $fixedCoding;
         return $this;
     }
@@ -2601,7 +2787,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint
      */
-    public function getFixedContactPoint() {
+    public function getFixedContactPoint()
+    {
         return $this->fixedContactPoint;
     }
 
@@ -2609,7 +2796,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $fixedContactPoint
      * @return $this
      */
-    public function setFixedContactPoint($fixedContactPoint) {
+    public function setFixedContactPoint($fixedContactPoint)
+    {
         $this->fixedContactPoint = $fixedContactPoint;
         return $this;
     }
@@ -2617,7 +2805,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRCount
      */
-    public function getFixedCount() {
+    public function getFixedCount()
+    {
         return $this->fixedCount;
     }
 
@@ -2625,7 +2814,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRCount $fixedCount
      * @return $this
      */
-    public function setFixedCount($fixedCount) {
+    public function setFixedCount($fixedCount)
+    {
         $this->fixedCount = $fixedCount;
         return $this;
     }
@@ -2633,7 +2823,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDistance
      */
-    public function getFixedDistance() {
+    public function getFixedDistance()
+    {
         return $this->fixedDistance;
     }
 
@@ -2641,7 +2832,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDistance $fixedDistance
      * @return $this
      */
-    public function setFixedDistance($fixedDistance) {
+    public function setFixedDistance($fixedDistance)
+    {
         $this->fixedDistance = $fixedDistance;
         return $this;
     }
@@ -2649,7 +2841,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getFixedDuration() {
+    public function getFixedDuration()
+    {
         return $this->fixedDuration;
     }
 
@@ -2657,7 +2850,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $fixedDuration
      * @return $this
      */
-    public function setFixedDuration($fixedDuration) {
+    public function setFixedDuration($fixedDuration)
+    {
         $this->fixedDuration = $fixedDuration;
         return $this;
     }
@@ -2665,7 +2859,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName
      */
-    public function getFixedHumanName() {
+    public function getFixedHumanName()
+    {
         return $this->fixedHumanName;
     }
 
@@ -2673,7 +2868,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName $fixedHumanName
      * @return $this
      */
-    public function setFixedHumanName($fixedHumanName) {
+    public function setFixedHumanName($fixedHumanName)
+    {
         $this->fixedHumanName = $fixedHumanName;
         return $this;
     }
@@ -2681,7 +2877,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getFixedIdentifier() {
+    public function getFixedIdentifier()
+    {
         return $this->fixedIdentifier;
     }
 
@@ -2689,7 +2886,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $fixedIdentifier
      * @return $this
      */
-    public function setFixedIdentifier($fixedIdentifier) {
+    public function setFixedIdentifier($fixedIdentifier)
+    {
         $this->fixedIdentifier = $fixedIdentifier;
         return $this;
     }
@@ -2697,7 +2895,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getFixedMoney() {
+    public function getFixedMoney()
+    {
         return $this->fixedMoney;
     }
 
@@ -2705,7 +2904,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $fixedMoney
      * @return $this
      */
-    public function setFixedMoney($fixedMoney) {
+    public function setFixedMoney($fixedMoney)
+    {
         $this->fixedMoney = $fixedMoney;
         return $this;
     }
@@ -2713,7 +2913,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getFixedPeriod() {
+    public function getFixedPeriod()
+    {
         return $this->fixedPeriod;
     }
 
@@ -2721,7 +2922,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $fixedPeriod
      * @return $this
      */
-    public function setFixedPeriod($fixedPeriod) {
+    public function setFixedPeriod($fixedPeriod)
+    {
         $this->fixedPeriod = $fixedPeriod;
         return $this;
     }
@@ -2729,7 +2931,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getFixedQuantity() {
+    public function getFixedQuantity()
+    {
         return $this->fixedQuantity;
     }
 
@@ -2737,7 +2940,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $fixedQuantity
      * @return $this
      */
-    public function setFixedQuantity($fixedQuantity) {
+    public function setFixedQuantity($fixedQuantity)
+    {
         $this->fixedQuantity = $fixedQuantity;
         return $this;
     }
@@ -2745,7 +2949,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getFixedRange() {
+    public function getFixedRange()
+    {
         return $this->fixedRange;
     }
 
@@ -2753,7 +2958,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $fixedRange
      * @return $this
      */
-    public function setFixedRange($fixedRange) {
+    public function setFixedRange($fixedRange)
+    {
         $this->fixedRange = $fixedRange;
         return $this;
     }
@@ -2761,7 +2967,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getFixedRatio() {
+    public function getFixedRatio()
+    {
         return $this->fixedRatio;
     }
 
@@ -2769,7 +2976,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $fixedRatio
      * @return $this
      */
-    public function setFixedRatio($fixedRatio) {
+    public function setFixedRatio($fixedRatio)
+    {
         $this->fixedRatio = $fixedRatio;
         return $this;
     }
@@ -2777,7 +2985,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getFixedReference() {
+    public function getFixedReference()
+    {
         return $this->fixedReference;
     }
 
@@ -2785,7 +2994,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $fixedReference
      * @return $this
      */
-    public function setFixedReference($fixedReference) {
+    public function setFixedReference($fixedReference)
+    {
         $this->fixedReference = $fixedReference;
         return $this;
     }
@@ -2793,7 +3003,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData
      */
-    public function getFixedSampledData() {
+    public function getFixedSampledData()
+    {
         return $this->fixedSampledData;
     }
 
@@ -2801,7 +3012,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData $fixedSampledData
      * @return $this
      */
-    public function setFixedSampledData($fixedSampledData) {
+    public function setFixedSampledData($fixedSampledData)
+    {
         $this->fixedSampledData = $fixedSampledData;
         return $this;
     }
@@ -2809,7 +3021,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature
      */
-    public function getFixedSignature() {
+    public function getFixedSignature()
+    {
         return $this->fixedSignature;
     }
 
@@ -2817,7 +3030,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature $fixedSignature
      * @return $this
      */
-    public function setFixedSignature($fixedSignature) {
+    public function setFixedSignature($fixedSignature)
+    {
         $this->fixedSignature = $fixedSignature;
         return $this;
     }
@@ -2825,7 +3039,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getFixedTiming() {
+    public function getFixedTiming()
+    {
         return $this->fixedTiming;
     }
 
@@ -2833,7 +3048,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $fixedTiming
      * @return $this
      */
-    public function setFixedTiming($fixedTiming) {
+    public function setFixedTiming($fixedTiming)
+    {
         $this->fixedTiming = $fixedTiming;
         return $this;
     }
@@ -2841,7 +3057,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail
      */
-    public function getFixedContactDetail() {
+    public function getFixedContactDetail()
+    {
         return $this->fixedContactDetail;
     }
 
@@ -2849,7 +3066,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $fixedContactDetail
      * @return $this
      */
-    public function setFixedContactDetail($fixedContactDetail) {
+    public function setFixedContactDetail($fixedContactDetail)
+    {
         $this->fixedContactDetail = $fixedContactDetail;
         return $this;
     }
@@ -2857,7 +3075,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContributor
      */
-    public function getFixedContributor() {
+    public function getFixedContributor()
+    {
         return $this->fixedContributor;
     }
 
@@ -2865,7 +3084,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContributor $fixedContributor
      * @return $this
      */
-    public function setFixedContributor($fixedContributor) {
+    public function setFixedContributor($fixedContributor)
+    {
         $this->fixedContributor = $fixedContributor;
         return $this;
     }
@@ -2873,7 +3093,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement
      */
-    public function getFixedDataRequirement() {
+    public function getFixedDataRequirement()
+    {
         return $this->fixedDataRequirement;
     }
 
@@ -2881,7 +3102,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement $fixedDataRequirement
      * @return $this
      */
-    public function setFixedDataRequirement($fixedDataRequirement) {
+    public function setFixedDataRequirement($fixedDataRequirement)
+    {
         $this->fixedDataRequirement = $fixedDataRequirement;
         return $this;
     }
@@ -2889,7 +3111,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getFixedExpression() {
+    public function getFixedExpression()
+    {
         return $this->fixedExpression;
     }
 
@@ -2897,7 +3120,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $fixedExpression
      * @return $this
      */
-    public function setFixedExpression($fixedExpression) {
+    public function setFixedExpression($fixedExpression)
+    {
         $this->fixedExpression = $fixedExpression;
         return $this;
     }
@@ -2905,7 +3129,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRParameterDefinition
      */
-    public function getFixedParameterDefinition() {
+    public function getFixedParameterDefinition()
+    {
         return $this->fixedParameterDefinition;
     }
 
@@ -2913,7 +3138,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRParameterDefinition $fixedParameterDefinition
      * @return $this
      */
-    public function setFixedParameterDefinition($fixedParameterDefinition) {
+    public function setFixedParameterDefinition($fixedParameterDefinition)
+    {
         $this->fixedParameterDefinition = $fixedParameterDefinition;
         return $this;
     }
@@ -2921,7 +3147,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact
      */
-    public function getFixedRelatedArtifact() {
+    public function getFixedRelatedArtifact()
+    {
         return $this->fixedRelatedArtifact;
     }
 
@@ -2929,7 +3156,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact $fixedRelatedArtifact
      * @return $this
      */
-    public function setFixedRelatedArtifact($fixedRelatedArtifact) {
+    public function setFixedRelatedArtifact($fixedRelatedArtifact)
+    {
         $this->fixedRelatedArtifact = $fixedRelatedArtifact;
         return $this;
     }
@@ -2937,7 +3165,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition
      */
-    public function getFixedTriggerDefinition() {
+    public function getFixedTriggerDefinition()
+    {
         return $this->fixedTriggerDefinition;
     }
 
@@ -2945,7 +3174,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition $fixedTriggerDefinition
      * @return $this
      */
-    public function setFixedTriggerDefinition($fixedTriggerDefinition) {
+    public function setFixedTriggerDefinition($fixedTriggerDefinition)
+    {
         $this->fixedTriggerDefinition = $fixedTriggerDefinition;
         return $this;
     }
@@ -2953,7 +3183,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext
      */
-    public function getFixedUsageContext() {
+    public function getFixedUsageContext()
+    {
         return $this->fixedUsageContext;
     }
 
@@ -2961,7 +3192,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $fixedUsageContext
      * @return $this
      */
-    public function setFixedUsageContext($fixedUsageContext) {
+    public function setFixedUsageContext($fixedUsageContext)
+    {
         $this->fixedUsageContext = $fixedUsageContext;
         return $this;
     }
@@ -2969,7 +3201,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage
      */
-    public function getFixedDosage() {
+    public function getFixedDosage()
+    {
         return $this->fixedDosage;
     }
 
@@ -2977,7 +3210,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage $fixedDosage
      * @return $this
      */
-    public function setFixedDosage($fixedDosage) {
+    public function setFixedDosage($fixedDosage)
+    {
         $this->fixedDosage = $fixedDosage;
         return $this;
     }
@@ -2985,7 +3219,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary
      */
-    public function getPatternBase64Binary() {
+    public function getPatternBase64Binary()
+    {
         return $this->patternBase64Binary;
     }
 
@@ -2993,7 +3228,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary $patternBase64Binary
      * @return $this
      */
-    public function setPatternBase64Binary($patternBase64Binary) {
+    public function setPatternBase64Binary($patternBase64Binary)
+    {
         $this->patternBase64Binary = $patternBase64Binary;
         return $this;
     }
@@ -3001,7 +3237,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getPatternBoolean() {
+    public function getPatternBoolean()
+    {
         return $this->patternBoolean;
     }
 
@@ -3009,7 +3246,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $patternBoolean
      * @return $this
      */
-    public function setPatternBoolean($patternBoolean) {
+    public function setPatternBoolean($patternBoolean)
+    {
         $this->patternBoolean = $patternBoolean;
         return $this;
     }
@@ -3017,7 +3255,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getPatternCanonical() {
+    public function getPatternCanonical()
+    {
         return $this->patternCanonical;
     }
 
@@ -3025,7 +3264,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $patternCanonical
      * @return $this
      */
-    public function setPatternCanonical($patternCanonical) {
+    public function setPatternCanonical($patternCanonical)
+    {
         $this->patternCanonical = $patternCanonical;
         return $this;
     }
@@ -3033,7 +3273,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getPatternCode() {
+    public function getPatternCode()
+    {
         return $this->patternCode;
     }
 
@@ -3041,7 +3282,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $patternCode
      * @return $this
      */
-    public function setPatternCode($patternCode) {
+    public function setPatternCode($patternCode)
+    {
         $this->patternCode = $patternCode;
         return $this;
     }
@@ -3049,7 +3291,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getPatternDate() {
+    public function getPatternDate()
+    {
         return $this->patternDate;
     }
 
@@ -3057,7 +3300,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $patternDate
      * @return $this
      */
-    public function setPatternDate($patternDate) {
+    public function setPatternDate($patternDate)
+    {
         $this->patternDate = $patternDate;
         return $this;
     }
@@ -3065,7 +3309,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getPatternDateTime() {
+    public function getPatternDateTime()
+    {
         return $this->patternDateTime;
     }
 
@@ -3073,7 +3318,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $patternDateTime
      * @return $this
      */
-    public function setPatternDateTime($patternDateTime) {
+    public function setPatternDateTime($patternDateTime)
+    {
         $this->patternDateTime = $patternDateTime;
         return $this;
     }
@@ -3081,7 +3327,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getPatternDecimal() {
+    public function getPatternDecimal()
+    {
         return $this->patternDecimal;
     }
 
@@ -3089,7 +3336,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $patternDecimal
      * @return $this
      */
-    public function setPatternDecimal($patternDecimal) {
+    public function setPatternDecimal($patternDecimal)
+    {
         $this->patternDecimal = $patternDecimal;
         return $this;
     }
@@ -3097,7 +3345,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getPatternId() {
+    public function getPatternId()
+    {
         return $this->patternId;
     }
 
@@ -3105,7 +3354,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $patternId
      * @return $this
      */
-    public function setPatternId($patternId) {
+    public function setPatternId($patternId)
+    {
         $this->patternId = $patternId;
         return $this;
     }
@@ -3113,7 +3363,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getPatternInstant() {
+    public function getPatternInstant()
+    {
         return $this->patternInstant;
     }
 
@@ -3121,7 +3372,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $patternInstant
      * @return $this
      */
-    public function setPatternInstant($patternInstant) {
+    public function setPatternInstant($patternInstant)
+    {
         $this->patternInstant = $patternInstant;
         return $this;
     }
@@ -3129,7 +3381,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getPatternInteger() {
+    public function getPatternInteger()
+    {
         return $this->patternInteger;
     }
 
@@ -3137,7 +3390,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $patternInteger
      * @return $this
      */
-    public function setPatternInteger($patternInteger) {
+    public function setPatternInteger($patternInteger)
+    {
         $this->patternInteger = $patternInteger;
         return $this;
     }
@@ -3145,7 +3399,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getPatternMarkdown() {
+    public function getPatternMarkdown()
+    {
         return $this->patternMarkdown;
     }
 
@@ -3153,7 +3408,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $patternMarkdown
      * @return $this
      */
-    public function setPatternMarkdown($patternMarkdown) {
+    public function setPatternMarkdown($patternMarkdown)
+    {
         $this->patternMarkdown = $patternMarkdown;
         return $this;
     }
@@ -3161,7 +3417,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIROid
      */
-    public function getPatternOid() {
+    public function getPatternOid()
+    {
         return $this->patternOid;
     }
 
@@ -3169,7 +3426,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIROid $patternOid
      * @return $this
      */
-    public function setPatternOid($patternOid) {
+    public function setPatternOid($patternOid)
+    {
         $this->patternOid = $patternOid;
         return $this;
     }
@@ -3177,7 +3435,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getPatternPositiveInt() {
+    public function getPatternPositiveInt()
+    {
         return $this->patternPositiveInt;
     }
 
@@ -3185,7 +3444,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $patternPositiveInt
      * @return $this
      */
-    public function setPatternPositiveInt($patternPositiveInt) {
+    public function setPatternPositiveInt($patternPositiveInt)
+    {
         $this->patternPositiveInt = $patternPositiveInt;
         return $this;
     }
@@ -3193,7 +3453,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPatternString() {
+    public function getPatternString()
+    {
         return $this->patternString;
     }
 
@@ -3201,7 +3462,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $patternString
      * @return $this
      */
-    public function setPatternString($patternString) {
+    public function setPatternString($patternString)
+    {
         $this->patternString = $patternString;
         return $this;
     }
@@ -3209,7 +3471,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getPatternTime() {
+    public function getPatternTime()
+    {
         return $this->patternTime;
     }
 
@@ -3217,7 +3480,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $patternTime
      * @return $this
      */
-    public function setPatternTime($patternTime) {
+    public function setPatternTime($patternTime)
+    {
         $this->patternTime = $patternTime;
         return $this;
     }
@@ -3225,7 +3489,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getPatternUnsignedInt() {
+    public function getPatternUnsignedInt()
+    {
         return $this->patternUnsignedInt;
     }
 
@@ -3233,7 +3498,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $patternUnsignedInt
      * @return $this
      */
-    public function setPatternUnsignedInt($patternUnsignedInt) {
+    public function setPatternUnsignedInt($patternUnsignedInt)
+    {
         $this->patternUnsignedInt = $patternUnsignedInt;
         return $this;
     }
@@ -3241,7 +3507,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getPatternUri() {
+    public function getPatternUri()
+    {
         return $this->patternUri;
     }
 
@@ -3249,7 +3516,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $patternUri
      * @return $this
      */
-    public function setPatternUri($patternUri) {
+    public function setPatternUri($patternUri)
+    {
         $this->patternUri = $patternUri;
         return $this;
     }
@@ -3257,7 +3525,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getPatternUrl() {
+    public function getPatternUrl()
+    {
         return $this->patternUrl;
     }
 
@@ -3265,7 +3534,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $patternUrl
      * @return $this
      */
-    public function setPatternUrl($patternUrl) {
+    public function setPatternUrl($patternUrl)
+    {
         $this->patternUrl = $patternUrl;
         return $this;
     }
@@ -3273,7 +3543,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUuid
      */
-    public function getPatternUuid() {
+    public function getPatternUuid()
+    {
         return $this->patternUuid;
     }
 
@@ -3281,7 +3552,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUuid $patternUuid
      * @return $this
      */
-    public function setPatternUuid($patternUuid) {
+    public function setPatternUuid($patternUuid)
+    {
         $this->patternUuid = $patternUuid;
         return $this;
     }
@@ -3289,7 +3561,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress
      */
-    public function getPatternAddress() {
+    public function getPatternAddress()
+    {
         return $this->patternAddress;
     }
 
@@ -3297,7 +3570,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $patternAddress
      * @return $this
      */
-    public function setPatternAddress($patternAddress) {
+    public function setPatternAddress($patternAddress)
+    {
         $this->patternAddress = $patternAddress;
         return $this;
     }
@@ -3305,7 +3579,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getPatternAge() {
+    public function getPatternAge()
+    {
         return $this->patternAge;
     }
 
@@ -3313,7 +3588,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $patternAge
      * @return $this
      */
-    public function setPatternAge($patternAge) {
+    public function setPatternAge($patternAge)
+    {
         $this->patternAge = $patternAge;
         return $this;
     }
@@ -3321,7 +3597,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation
      */
-    public function getPatternAnnotation() {
+    public function getPatternAnnotation()
+    {
         return $this->patternAnnotation;
     }
 
@@ -3329,7 +3606,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $patternAnnotation
      * @return $this
      */
-    public function setPatternAnnotation($patternAnnotation) {
+    public function setPatternAnnotation($patternAnnotation)
+    {
         $this->patternAnnotation = $patternAnnotation;
         return $this;
     }
@@ -3337,7 +3615,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getPatternAttachment() {
+    public function getPatternAttachment()
+    {
         return $this->patternAttachment;
     }
 
@@ -3345,7 +3624,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $patternAttachment
      * @return $this
      */
-    public function setPatternAttachment($patternAttachment) {
+    public function setPatternAttachment($patternAttachment)
+    {
         $this->patternAttachment = $patternAttachment;
         return $this;
     }
@@ -3353,7 +3633,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPatternCodeableConcept() {
+    public function getPatternCodeableConcept()
+    {
         return $this->patternCodeableConcept;
     }
 
@@ -3361,7 +3642,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $patternCodeableConcept
      * @return $this
      */
-    public function setPatternCodeableConcept($patternCodeableConcept) {
+    public function setPatternCodeableConcept($patternCodeableConcept)
+    {
         $this->patternCodeableConcept = $patternCodeableConcept;
         return $this;
     }
@@ -3369,7 +3651,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getPatternCoding() {
+    public function getPatternCoding()
+    {
         return $this->patternCoding;
     }
 
@@ -3377,7 +3660,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $patternCoding
      * @return $this
      */
-    public function setPatternCoding($patternCoding) {
+    public function setPatternCoding($patternCoding)
+    {
         $this->patternCoding = $patternCoding;
         return $this;
     }
@@ -3385,7 +3669,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint
      */
-    public function getPatternContactPoint() {
+    public function getPatternContactPoint()
+    {
         return $this->patternContactPoint;
     }
 
@@ -3393,7 +3678,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $patternContactPoint
      * @return $this
      */
-    public function setPatternContactPoint($patternContactPoint) {
+    public function setPatternContactPoint($patternContactPoint)
+    {
         $this->patternContactPoint = $patternContactPoint;
         return $this;
     }
@@ -3401,7 +3687,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRCount
      */
-    public function getPatternCount() {
+    public function getPatternCount()
+    {
         return $this->patternCount;
     }
 
@@ -3409,7 +3696,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRCount $patternCount
      * @return $this
      */
-    public function setPatternCount($patternCount) {
+    public function setPatternCount($patternCount)
+    {
         $this->patternCount = $patternCount;
         return $this;
     }
@@ -3417,7 +3705,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDistance
      */
-    public function getPatternDistance() {
+    public function getPatternDistance()
+    {
         return $this->patternDistance;
     }
 
@@ -3425,7 +3714,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDistance $patternDistance
      * @return $this
      */
-    public function setPatternDistance($patternDistance) {
+    public function setPatternDistance($patternDistance)
+    {
         $this->patternDistance = $patternDistance;
         return $this;
     }
@@ -3433,7 +3723,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getPatternDuration() {
+    public function getPatternDuration()
+    {
         return $this->patternDuration;
     }
 
@@ -3441,7 +3732,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $patternDuration
      * @return $this
      */
-    public function setPatternDuration($patternDuration) {
+    public function setPatternDuration($patternDuration)
+    {
         $this->patternDuration = $patternDuration;
         return $this;
     }
@@ -3449,7 +3741,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName
      */
-    public function getPatternHumanName() {
+    public function getPatternHumanName()
+    {
         return $this->patternHumanName;
     }
 
@@ -3457,7 +3750,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName $patternHumanName
      * @return $this
      */
-    public function setPatternHumanName($patternHumanName) {
+    public function setPatternHumanName($patternHumanName)
+    {
         $this->patternHumanName = $patternHumanName;
         return $this;
     }
@@ -3465,7 +3759,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getPatternIdentifier() {
+    public function getPatternIdentifier()
+    {
         return $this->patternIdentifier;
     }
 
@@ -3473,7 +3768,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $patternIdentifier
      * @return $this
      */
-    public function setPatternIdentifier($patternIdentifier) {
+    public function setPatternIdentifier($patternIdentifier)
+    {
         $this->patternIdentifier = $patternIdentifier;
         return $this;
     }
@@ -3481,7 +3777,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getPatternMoney() {
+    public function getPatternMoney()
+    {
         return $this->patternMoney;
     }
 
@@ -3489,7 +3786,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $patternMoney
      * @return $this
      */
-    public function setPatternMoney($patternMoney) {
+    public function setPatternMoney($patternMoney)
+    {
         $this->patternMoney = $patternMoney;
         return $this;
     }
@@ -3497,7 +3795,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPatternPeriod() {
+    public function getPatternPeriod()
+    {
         return $this->patternPeriod;
     }
 
@@ -3505,7 +3804,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $patternPeriod
      * @return $this
      */
-    public function setPatternPeriod($patternPeriod) {
+    public function setPatternPeriod($patternPeriod)
+    {
         $this->patternPeriod = $patternPeriod;
         return $this;
     }
@@ -3513,7 +3813,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getPatternQuantity() {
+    public function getPatternQuantity()
+    {
         return $this->patternQuantity;
     }
 
@@ -3521,7 +3822,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $patternQuantity
      * @return $this
      */
-    public function setPatternQuantity($patternQuantity) {
+    public function setPatternQuantity($patternQuantity)
+    {
         $this->patternQuantity = $patternQuantity;
         return $this;
     }
@@ -3529,7 +3831,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getPatternRange() {
+    public function getPatternRange()
+    {
         return $this->patternRange;
     }
 
@@ -3537,7 +3840,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $patternRange
      * @return $this
      */
-    public function setPatternRange($patternRange) {
+    public function setPatternRange($patternRange)
+    {
         $this->patternRange = $patternRange;
         return $this;
     }
@@ -3545,7 +3849,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getPatternRatio() {
+    public function getPatternRatio()
+    {
         return $this->patternRatio;
     }
 
@@ -3553,7 +3858,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $patternRatio
      * @return $this
      */
-    public function setPatternRatio($patternRatio) {
+    public function setPatternRatio($patternRatio)
+    {
         $this->patternRatio = $patternRatio;
         return $this;
     }
@@ -3561,7 +3867,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatternReference() {
+    public function getPatternReference()
+    {
         return $this->patternReference;
     }
 
@@ -3569,7 +3876,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patternReference
      * @return $this
      */
-    public function setPatternReference($patternReference) {
+    public function setPatternReference($patternReference)
+    {
         $this->patternReference = $patternReference;
         return $this;
     }
@@ -3577,7 +3885,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData
      */
-    public function getPatternSampledData() {
+    public function getPatternSampledData()
+    {
         return $this->patternSampledData;
     }
 
@@ -3585,7 +3894,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData $patternSampledData
      * @return $this
      */
-    public function setPatternSampledData($patternSampledData) {
+    public function setPatternSampledData($patternSampledData)
+    {
         $this->patternSampledData = $patternSampledData;
         return $this;
     }
@@ -3593,7 +3903,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature
      */
-    public function getPatternSignature() {
+    public function getPatternSignature()
+    {
         return $this->patternSignature;
     }
 
@@ -3601,7 +3912,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature $patternSignature
      * @return $this
      */
-    public function setPatternSignature($patternSignature) {
+    public function setPatternSignature($patternSignature)
+    {
         $this->patternSignature = $patternSignature;
         return $this;
     }
@@ -3609,7 +3921,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getPatternTiming() {
+    public function getPatternTiming()
+    {
         return $this->patternTiming;
     }
 
@@ -3617,7 +3930,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $patternTiming
      * @return $this
      */
-    public function setPatternTiming($patternTiming) {
+    public function setPatternTiming($patternTiming)
+    {
         $this->patternTiming = $patternTiming;
         return $this;
     }
@@ -3625,7 +3939,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail
      */
-    public function getPatternContactDetail() {
+    public function getPatternContactDetail()
+    {
         return $this->patternContactDetail;
     }
 
@@ -3633,7 +3948,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $patternContactDetail
      * @return $this
      */
-    public function setPatternContactDetail($patternContactDetail) {
+    public function setPatternContactDetail($patternContactDetail)
+    {
         $this->patternContactDetail = $patternContactDetail;
         return $this;
     }
@@ -3641,7 +3957,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContributor
      */
-    public function getPatternContributor() {
+    public function getPatternContributor()
+    {
         return $this->patternContributor;
     }
 
@@ -3649,7 +3966,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContributor $patternContributor
      * @return $this
      */
-    public function setPatternContributor($patternContributor) {
+    public function setPatternContributor($patternContributor)
+    {
         $this->patternContributor = $patternContributor;
         return $this;
     }
@@ -3657,7 +3975,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement
      */
-    public function getPatternDataRequirement() {
+    public function getPatternDataRequirement()
+    {
         return $this->patternDataRequirement;
     }
 
@@ -3665,7 +3984,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement $patternDataRequirement
      * @return $this
      */
-    public function setPatternDataRequirement($patternDataRequirement) {
+    public function setPatternDataRequirement($patternDataRequirement)
+    {
         $this->patternDataRequirement = $patternDataRequirement;
         return $this;
     }
@@ -3673,7 +3993,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getPatternExpression() {
+    public function getPatternExpression()
+    {
         return $this->patternExpression;
     }
 
@@ -3681,7 +4002,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $patternExpression
      * @return $this
      */
-    public function setPatternExpression($patternExpression) {
+    public function setPatternExpression($patternExpression)
+    {
         $this->patternExpression = $patternExpression;
         return $this;
     }
@@ -3689,7 +4011,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRParameterDefinition
      */
-    public function getPatternParameterDefinition() {
+    public function getPatternParameterDefinition()
+    {
         return $this->patternParameterDefinition;
     }
 
@@ -3697,7 +4020,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRParameterDefinition $patternParameterDefinition
      * @return $this
      */
-    public function setPatternParameterDefinition($patternParameterDefinition) {
+    public function setPatternParameterDefinition($patternParameterDefinition)
+    {
         $this->patternParameterDefinition = $patternParameterDefinition;
         return $this;
     }
@@ -3705,7 +4029,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact
      */
-    public function getPatternRelatedArtifact() {
+    public function getPatternRelatedArtifact()
+    {
         return $this->patternRelatedArtifact;
     }
 
@@ -3713,7 +4038,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact $patternRelatedArtifact
      * @return $this
      */
-    public function setPatternRelatedArtifact($patternRelatedArtifact) {
+    public function setPatternRelatedArtifact($patternRelatedArtifact)
+    {
         $this->patternRelatedArtifact = $patternRelatedArtifact;
         return $this;
     }
@@ -3721,7 +4047,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition
      */
-    public function getPatternTriggerDefinition() {
+    public function getPatternTriggerDefinition()
+    {
         return $this->patternTriggerDefinition;
     }
 
@@ -3729,7 +4056,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition $patternTriggerDefinition
      * @return $this
      */
-    public function setPatternTriggerDefinition($patternTriggerDefinition) {
+    public function setPatternTriggerDefinition($patternTriggerDefinition)
+    {
         $this->patternTriggerDefinition = $patternTriggerDefinition;
         return $this;
     }
@@ -3737,7 +4065,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext
      */
-    public function getPatternUsageContext() {
+    public function getPatternUsageContext()
+    {
         return $this->patternUsageContext;
     }
 
@@ -3745,7 +4074,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $patternUsageContext
      * @return $this
      */
-    public function setPatternUsageContext($patternUsageContext) {
+    public function setPatternUsageContext($patternUsageContext)
+    {
         $this->patternUsageContext = $patternUsageContext;
         return $this;
     }
@@ -3753,7 +4083,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage
      */
-    public function getPatternDosage() {
+    public function getPatternDosage()
+    {
         return $this->patternDosage;
     }
 
@@ -3761,7 +4092,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage $patternDosage
      * @return $this
      */
-    public function setPatternDosage($patternDosage) {
+    public function setPatternDosage($patternDosage)
+    {
         $this->patternDosage = $patternDosage;
         return $this;
     }
@@ -3770,7 +4102,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * A sample value for this element demonstrating the type of information that would typically be found in the element.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionExample[]
      */
-    public function getExample() {
+    public function getExample()
+    {
         return $this->example;
     }
 
@@ -3779,7 +4112,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionExample $example
      * @return $this
      */
-    public function addExample($example) {
+    public function addExample($example)
+    {
         $this->example[] = $example;
         return $this;
     }
@@ -3787,7 +4121,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getMinValueDate() {
+    public function getMinValueDate()
+    {
         return $this->minValueDate;
     }
 
@@ -3795,7 +4130,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $minValueDate
      * @return $this
      */
-    public function setMinValueDate($minValueDate) {
+    public function setMinValueDate($minValueDate)
+    {
         $this->minValueDate = $minValueDate;
         return $this;
     }
@@ -3803,7 +4139,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getMinValueDateTime() {
+    public function getMinValueDateTime()
+    {
         return $this->minValueDateTime;
     }
 
@@ -3811,7 +4148,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $minValueDateTime
      * @return $this
      */
-    public function setMinValueDateTime($minValueDateTime) {
+    public function setMinValueDateTime($minValueDateTime)
+    {
         $this->minValueDateTime = $minValueDateTime;
         return $this;
     }
@@ -3819,7 +4157,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getMinValueInstant() {
+    public function getMinValueInstant()
+    {
         return $this->minValueInstant;
     }
 
@@ -3827,7 +4166,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $minValueInstant
      * @return $this
      */
-    public function setMinValueInstant($minValueInstant) {
+    public function setMinValueInstant($minValueInstant)
+    {
         $this->minValueInstant = $minValueInstant;
         return $this;
     }
@@ -3835,7 +4175,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getMinValueTime() {
+    public function getMinValueTime()
+    {
         return $this->minValueTime;
     }
 
@@ -3843,7 +4184,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $minValueTime
      * @return $this
      */
-    public function setMinValueTime($minValueTime) {
+    public function setMinValueTime($minValueTime)
+    {
         $this->minValueTime = $minValueTime;
         return $this;
     }
@@ -3851,7 +4193,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getMinValueDecimal() {
+    public function getMinValueDecimal()
+    {
         return $this->minValueDecimal;
     }
 
@@ -3859,7 +4202,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $minValueDecimal
      * @return $this
      */
-    public function setMinValueDecimal($minValueDecimal) {
+    public function setMinValueDecimal($minValueDecimal)
+    {
         $this->minValueDecimal = $minValueDecimal;
         return $this;
     }
@@ -3867,7 +4211,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getMinValueInteger() {
+    public function getMinValueInteger()
+    {
         return $this->minValueInteger;
     }
 
@@ -3875,7 +4220,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $minValueInteger
      * @return $this
      */
-    public function setMinValueInteger($minValueInteger) {
+    public function setMinValueInteger($minValueInteger)
+    {
         $this->minValueInteger = $minValueInteger;
         return $this;
     }
@@ -3883,7 +4229,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getMinValuePositiveInt() {
+    public function getMinValuePositiveInt()
+    {
         return $this->minValuePositiveInt;
     }
 
@@ -3891,7 +4238,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $minValuePositiveInt
      * @return $this
      */
-    public function setMinValuePositiveInt($minValuePositiveInt) {
+    public function setMinValuePositiveInt($minValuePositiveInt)
+    {
         $this->minValuePositiveInt = $minValuePositiveInt;
         return $this;
     }
@@ -3899,7 +4247,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getMinValueUnsignedInt() {
+    public function getMinValueUnsignedInt()
+    {
         return $this->minValueUnsignedInt;
     }
 
@@ -3907,7 +4256,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $minValueUnsignedInt
      * @return $this
      */
-    public function setMinValueUnsignedInt($minValueUnsignedInt) {
+    public function setMinValueUnsignedInt($minValueUnsignedInt)
+    {
         $this->minValueUnsignedInt = $minValueUnsignedInt;
         return $this;
     }
@@ -3915,7 +4265,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getMinValueQuantity() {
+    public function getMinValueQuantity()
+    {
         return $this->minValueQuantity;
     }
 
@@ -3923,7 +4274,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $minValueQuantity
      * @return $this
      */
-    public function setMinValueQuantity($minValueQuantity) {
+    public function setMinValueQuantity($minValueQuantity)
+    {
         $this->minValueQuantity = $minValueQuantity;
         return $this;
     }
@@ -3931,7 +4283,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getMaxValueDate() {
+    public function getMaxValueDate()
+    {
         return $this->maxValueDate;
     }
 
@@ -3939,7 +4292,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $maxValueDate
      * @return $this
      */
-    public function setMaxValueDate($maxValueDate) {
+    public function setMaxValueDate($maxValueDate)
+    {
         $this->maxValueDate = $maxValueDate;
         return $this;
     }
@@ -3947,7 +4301,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getMaxValueDateTime() {
+    public function getMaxValueDateTime()
+    {
         return $this->maxValueDateTime;
     }
 
@@ -3955,7 +4310,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $maxValueDateTime
      * @return $this
      */
-    public function setMaxValueDateTime($maxValueDateTime) {
+    public function setMaxValueDateTime($maxValueDateTime)
+    {
         $this->maxValueDateTime = $maxValueDateTime;
         return $this;
     }
@@ -3963,7 +4319,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getMaxValueInstant() {
+    public function getMaxValueInstant()
+    {
         return $this->maxValueInstant;
     }
 
@@ -3971,7 +4328,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $maxValueInstant
      * @return $this
      */
-    public function setMaxValueInstant($maxValueInstant) {
+    public function setMaxValueInstant($maxValueInstant)
+    {
         $this->maxValueInstant = $maxValueInstant;
         return $this;
     }
@@ -3979,7 +4337,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getMaxValueTime() {
+    public function getMaxValueTime()
+    {
         return $this->maxValueTime;
     }
 
@@ -3987,7 +4346,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $maxValueTime
      * @return $this
      */
-    public function setMaxValueTime($maxValueTime) {
+    public function setMaxValueTime($maxValueTime)
+    {
         $this->maxValueTime = $maxValueTime;
         return $this;
     }
@@ -3995,7 +4355,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getMaxValueDecimal() {
+    public function getMaxValueDecimal()
+    {
         return $this->maxValueDecimal;
     }
 
@@ -4003,7 +4364,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $maxValueDecimal
      * @return $this
      */
-    public function setMaxValueDecimal($maxValueDecimal) {
+    public function setMaxValueDecimal($maxValueDecimal)
+    {
         $this->maxValueDecimal = $maxValueDecimal;
         return $this;
     }
@@ -4011,7 +4373,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getMaxValueInteger() {
+    public function getMaxValueInteger()
+    {
         return $this->maxValueInteger;
     }
 
@@ -4019,7 +4382,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $maxValueInteger
      * @return $this
      */
-    public function setMaxValueInteger($maxValueInteger) {
+    public function setMaxValueInteger($maxValueInteger)
+    {
         $this->maxValueInteger = $maxValueInteger;
         return $this;
     }
@@ -4027,7 +4391,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getMaxValuePositiveInt() {
+    public function getMaxValuePositiveInt()
+    {
         return $this->maxValuePositiveInt;
     }
 
@@ -4035,7 +4400,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $maxValuePositiveInt
      * @return $this
      */
-    public function setMaxValuePositiveInt($maxValuePositiveInt) {
+    public function setMaxValuePositiveInt($maxValuePositiveInt)
+    {
         $this->maxValuePositiveInt = $maxValuePositiveInt;
         return $this;
     }
@@ -4043,7 +4409,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getMaxValueUnsignedInt() {
+    public function getMaxValueUnsignedInt()
+    {
         return $this->maxValueUnsignedInt;
     }
 
@@ -4051,7 +4418,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $maxValueUnsignedInt
      * @return $this
      */
-    public function setMaxValueUnsignedInt($maxValueUnsignedInt) {
+    public function setMaxValueUnsignedInt($maxValueUnsignedInt)
+    {
         $this->maxValueUnsignedInt = $maxValueUnsignedInt;
         return $this;
     }
@@ -4059,7 +4427,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getMaxValueQuantity() {
+    public function getMaxValueQuantity()
+    {
         return $this->maxValueQuantity;
     }
 
@@ -4067,7 +4436,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $maxValueQuantity
      * @return $this
      */
-    public function setMaxValueQuantity($maxValueQuantity) {
+    public function setMaxValueQuantity($maxValueQuantity)
+    {
         $this->maxValueQuantity = $maxValueQuantity;
         return $this;
     }
@@ -4076,7 +4446,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Indicates the maximum length in characters that is permitted to be present in conformant instances and which is expected to be supported by conformant consumers that support the element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getMaxLength() {
+    public function getMaxLength()
+    {
         return $this->maxLength;
     }
 
@@ -4085,7 +4456,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $maxLength
      * @return $this
      */
-    public function setMaxLength($maxLength) {
+    public function setMaxLength($maxLength)
+    {
         $this->maxLength = $maxLength;
         return $this;
     }
@@ -4094,7 +4466,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * A reference to an invariant that may make additional statements about the cardinality or value in the instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId[]
      */
-    public function getCondition() {
+    public function getCondition()
+    {
         return $this->condition;
     }
 
@@ -4103,7 +4476,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $condition
      * @return $this
      */
-    public function addCondition($condition) {
+    public function addCondition($condition)
+    {
         $this->condition[] = $condition;
         return $this;
     }
@@ -4112,7 +4486,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Formal constraints such as co-occurrence and other constraints that can be computationally evaluated within the context of the instance.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionConstraint[]
      */
-    public function getConstraint() {
+    public function getConstraint()
+    {
         return $this->constraint;
     }
 
@@ -4121,7 +4496,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionConstraint $constraint
      * @return $this
      */
-    public function addConstraint($constraint) {
+    public function addConstraint($constraint)
+    {
         $this->constraint[] = $constraint;
         return $this;
     }
@@ -4130,7 +4506,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * If true, implementations that produce or consume resources SHALL provide "support" for the element in some meaningful way.  If false, the element may be ignored and not supported. If false, whether to populate or use the data element in any way is at the discretion of the implementation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getMustSupport() {
+    public function getMustSupport()
+    {
         return $this->mustSupport;
     }
 
@@ -4139,7 +4516,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $mustSupport
      * @return $this
      */
-    public function setMustSupport($mustSupport) {
+    public function setMustSupport($mustSupport)
+    {
         $this->mustSupport = $mustSupport;
         return $this;
     }
@@ -4148,7 +4526,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * If true, the value of this element affects the interpretation of the element or resource that contains it, and the value of the element cannot be ignored. Typically, this is used for status, negation and qualification codes. The effect of this is that the element cannot be ignored by systems: they SHALL either recognize the element and process it, and/or a pre-determination has been made that it is not relevant to their particular system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getIsModifier() {
+    public function getIsModifier()
+    {
         return $this->isModifier;
     }
 
@@ -4157,7 +4536,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $isModifier
      * @return $this
      */
-    public function setIsModifier($isModifier) {
+    public function setIsModifier($isModifier)
+    {
         $this->isModifier = $isModifier;
         return $this;
     }
@@ -4166,7 +4546,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Explains how that element affects the interpretation of the resource or element that contains it.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getIsModifierReason() {
+    public function getIsModifierReason()
+    {
         return $this->isModifierReason;
     }
 
@@ -4175,7 +4556,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $isModifierReason
      * @return $this
      */
-    public function setIsModifierReason($isModifierReason) {
+    public function setIsModifierReason($isModifierReason)
+    {
         $this->isModifierReason = $isModifierReason;
         return $this;
     }
@@ -4184,7 +4566,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Whether the element should be included if a client requests a search with the parameter _summary=true.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getIsSummary() {
+    public function getIsSummary()
+    {
         return $this->isSummary;
     }
 
@@ -4193,7 +4576,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $isSummary
      * @return $this
      */
-    public function setIsSummary($isSummary) {
+    public function setIsSummary($isSummary)
+    {
         $this->isSummary = $isSummary;
         return $this;
     }
@@ -4202,7 +4586,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Binds to a value set if this element is coded (code, Coding, CodeableConcept, Quantity), or the data types (string, uri).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionBinding
      */
-    public function getBinding() {
+    public function getBinding()
+    {
         return $this->binding;
     }
 
@@ -4211,7 +4596,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionBinding $binding
      * @return $this
      */
-    public function setBinding($binding) {
+    public function setBinding($binding)
+    {
         $this->binding = $binding;
         return $this;
     }
@@ -4220,7 +4606,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * Identifies a concept from an external specification that roughly corresponds to this element.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionMapping[]
      */
-    public function getMapping() {
+    public function getMapping()
+    {
         return $this->mapping;
     }
 
@@ -4229,7 +4616,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition\FHIRElementDefinitionMapping $mapping
      * @return $this
      */
-    public function addMapping($mapping) {
+    public function addMapping($mapping)
+    {
         $this->mapping[] = $mapping;
         return $this;
     }
@@ -4237,21 +4625,23 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['path'])) {
                 $this->setPath($data['path']);
             }
             if (isset($data['representation'])) {
                 if (is_array($data['representation'])) {
-                    foreach($data['representation'] as $d) {
+                    foreach ($data['representation'] as $d) {
                         $this->addRepresentation($d);
                     }
                 } else {
@@ -4269,7 +4659,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -4293,7 +4683,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['alias'])) {
                 if (is_array($data['alias'])) {
-                    foreach($data['alias'] as $d) {
+                    foreach ($data['alias'] as $d) {
                         $this->addAlias($d);
                     }
                 } else {
@@ -4314,7 +4704,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['type'])) {
                 if (is_array($data['type'])) {
-                    foreach($data['type'] as $d) {
+                    foreach ($data['type'] as $d) {
                         $this->addType($d);
                     }
                 } else {
@@ -4770,7 +5160,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['example'])) {
                 if (is_array($data['example'])) {
-                    foreach($data['example'] as $d) {
+                    foreach ($data['example'] as $d) {
                         $this->addExample($d);
                     }
                 } else {
@@ -4836,7 +5226,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['condition'])) {
                 if (is_array($data['condition'])) {
-                    foreach($data['condition'] as $d) {
+                    foreach ($data['condition'] as $d) {
                         $this->addCondition($d);
                     }
                 } else {
@@ -4845,7 +5235,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['constraint'])) {
                 if (is_array($data['constraint'])) {
-                    foreach($data['constraint'] as $d) {
+                    foreach ($data['constraint'] as $d) {
                         $this->addConstraint($d);
                     }
                 } else {
@@ -4869,7 +5259,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['mapping'])) {
                 if (is_array($data['mapping'])) {
-                    foreach($data['mapping'] as $d) {
+                    foreach ($data['mapping'] as $d) {
                         $this->addMapping($d);
                     }
                 } else {
@@ -4885,247 +5275,621 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->path)) $json['path'] = $this->path;
+        if (isset($this->path)) {
+            $json['path'] = $this->path;
+        }
         if (0 < count($this->representation)) {
             $json['representation'] = [];
-            foreach($this->representation as $representation) {
+            foreach ($this->representation as $representation) {
                 $json['representation'][] = $representation;
             }
         }
-        if (isset($this->sliceName)) $json['sliceName'] = $this->sliceName;
-        if (isset($this->sliceIsConstraining)) $json['sliceIsConstraining'] = $this->sliceIsConstraining;
-        if (isset($this->label)) $json['label'] = $this->label;
+        if (isset($this->sliceName)) {
+            $json['sliceName'] = $this->sliceName;
+        }
+        if (isset($this->sliceIsConstraining)) {
+            $json['sliceIsConstraining'] = $this->sliceIsConstraining;
+        }
+        if (isset($this->label)) {
+            $json['label'] = $this->label;
+        }
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
-        if (isset($this->slicing)) $json['slicing'] = $this->slicing;
-        if (isset($this->short)) $json['short'] = $this->short;
-        if (isset($this->definition)) $json['definition'] = $this->definition;
-        if (isset($this->comment)) $json['comment'] = $this->comment;
-        if (isset($this->requirements)) $json['requirements'] = $this->requirements;
+        if (isset($this->slicing)) {
+            $json['slicing'] = $this->slicing;
+        }
+        if (isset($this->short)) {
+            $json['short'] = $this->short;
+        }
+        if (isset($this->definition)) {
+            $json['definition'] = $this->definition;
+        }
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
+        if (isset($this->requirements)) {
+            $json['requirements'] = $this->requirements;
+        }
         if (0 < count($this->alias)) {
             $json['alias'] = [];
-            foreach($this->alias as $alias) {
+            foreach ($this->alias as $alias) {
                 $json['alias'][] = $alias;
             }
         }
-        if (isset($this->min)) $json['min'] = $this->min;
-        if (isset($this->max)) $json['max'] = $this->max;
-        if (isset($this->base)) $json['base'] = $this->base;
-        if (isset($this->contentReference)) $json['contentReference'] = $this->contentReference;
+        if (isset($this->min)) {
+            $json['min'] = $this->min;
+        }
+        if (isset($this->max)) {
+            $json['max'] = $this->max;
+        }
+        if (isset($this->base)) {
+            $json['base'] = $this->base;
+        }
+        if (isset($this->contentReference)) {
+            $json['contentReference'] = $this->contentReference;
+        }
         if (0 < count($this->type)) {
             $json['type'] = [];
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $json['type'][] = $type;
             }
         }
-        if (isset($this->defaultValueBase64Binary)) $json['defaultValueBase64Binary'] = $this->defaultValueBase64Binary;
-        if (isset($this->defaultValueBoolean)) $json['defaultValueBoolean'] = $this->defaultValueBoolean;
-        if (isset($this->defaultValueCanonical)) $json['defaultValueCanonical'] = $this->defaultValueCanonical;
-        if (isset($this->defaultValueCode)) $json['defaultValueCode'] = $this->defaultValueCode;
-        if (isset($this->defaultValueDate)) $json['defaultValueDate'] = $this->defaultValueDate;
-        if (isset($this->defaultValueDateTime)) $json['defaultValueDateTime'] = $this->defaultValueDateTime;
-        if (isset($this->defaultValueDecimal)) $json['defaultValueDecimal'] = $this->defaultValueDecimal;
-        if (isset($this->defaultValueId)) $json['defaultValueId'] = $this->defaultValueId;
-        if (isset($this->defaultValueInstant)) $json['defaultValueInstant'] = $this->defaultValueInstant;
-        if (isset($this->defaultValueInteger)) $json['defaultValueInteger'] = $this->defaultValueInteger;
-        if (isset($this->defaultValueMarkdown)) $json['defaultValueMarkdown'] = $this->defaultValueMarkdown;
-        if (isset($this->defaultValueOid)) $json['defaultValueOid'] = $this->defaultValueOid;
-        if (isset($this->defaultValuePositiveInt)) $json['defaultValuePositiveInt'] = $this->defaultValuePositiveInt;
-        if (isset($this->defaultValueString)) $json['defaultValueString'] = $this->defaultValueString;
-        if (isset($this->defaultValueTime)) $json['defaultValueTime'] = $this->defaultValueTime;
-        if (isset($this->defaultValueUnsignedInt)) $json['defaultValueUnsignedInt'] = $this->defaultValueUnsignedInt;
-        if (isset($this->defaultValueUri)) $json['defaultValueUri'] = $this->defaultValueUri;
-        if (isset($this->defaultValueUrl)) $json['defaultValueUrl'] = $this->defaultValueUrl;
-        if (isset($this->defaultValueUuid)) $json['defaultValueUuid'] = $this->defaultValueUuid;
-        if (isset($this->defaultValueAddress)) $json['defaultValueAddress'] = $this->defaultValueAddress;
-        if (isset($this->defaultValueAge)) $json['defaultValueAge'] = $this->defaultValueAge;
-        if (isset($this->defaultValueAnnotation)) $json['defaultValueAnnotation'] = $this->defaultValueAnnotation;
-        if (isset($this->defaultValueAttachment)) $json['defaultValueAttachment'] = $this->defaultValueAttachment;
-        if (isset($this->defaultValueCodeableConcept)) $json['defaultValueCodeableConcept'] = $this->defaultValueCodeableConcept;
-        if (isset($this->defaultValueCoding)) $json['defaultValueCoding'] = $this->defaultValueCoding;
-        if (isset($this->defaultValueContactPoint)) $json['defaultValueContactPoint'] = $this->defaultValueContactPoint;
-        if (isset($this->defaultValueCount)) $json['defaultValueCount'] = $this->defaultValueCount;
-        if (isset($this->defaultValueDistance)) $json['defaultValueDistance'] = $this->defaultValueDistance;
-        if (isset($this->defaultValueDuration)) $json['defaultValueDuration'] = $this->defaultValueDuration;
-        if (isset($this->defaultValueHumanName)) $json['defaultValueHumanName'] = $this->defaultValueHumanName;
-        if (isset($this->defaultValueIdentifier)) $json['defaultValueIdentifier'] = $this->defaultValueIdentifier;
-        if (isset($this->defaultValueMoney)) $json['defaultValueMoney'] = $this->defaultValueMoney;
-        if (isset($this->defaultValuePeriod)) $json['defaultValuePeriod'] = $this->defaultValuePeriod;
-        if (isset($this->defaultValueQuantity)) $json['defaultValueQuantity'] = $this->defaultValueQuantity;
-        if (isset($this->defaultValueRange)) $json['defaultValueRange'] = $this->defaultValueRange;
-        if (isset($this->defaultValueRatio)) $json['defaultValueRatio'] = $this->defaultValueRatio;
-        if (isset($this->defaultValueReference)) $json['defaultValueReference'] = $this->defaultValueReference;
-        if (isset($this->defaultValueSampledData)) $json['defaultValueSampledData'] = $this->defaultValueSampledData;
-        if (isset($this->defaultValueSignature)) $json['defaultValueSignature'] = $this->defaultValueSignature;
-        if (isset($this->defaultValueTiming)) $json['defaultValueTiming'] = $this->defaultValueTiming;
-        if (isset($this->defaultValueContactDetail)) $json['defaultValueContactDetail'] = $this->defaultValueContactDetail;
-        if (isset($this->defaultValueContributor)) $json['defaultValueContributor'] = $this->defaultValueContributor;
-        if (isset($this->defaultValueDataRequirement)) $json['defaultValueDataRequirement'] = $this->defaultValueDataRequirement;
-        if (isset($this->defaultValueExpression)) $json['defaultValueExpression'] = $this->defaultValueExpression;
-        if (isset($this->defaultValueParameterDefinition)) $json['defaultValueParameterDefinition'] = $this->defaultValueParameterDefinition;
-        if (isset($this->defaultValueRelatedArtifact)) $json['defaultValueRelatedArtifact'] = $this->defaultValueRelatedArtifact;
-        if (isset($this->defaultValueTriggerDefinition)) $json['defaultValueTriggerDefinition'] = $this->defaultValueTriggerDefinition;
-        if (isset($this->defaultValueUsageContext)) $json['defaultValueUsageContext'] = $this->defaultValueUsageContext;
-        if (isset($this->defaultValueDosage)) $json['defaultValueDosage'] = $this->defaultValueDosage;
-        if (isset($this->meaningWhenMissing)) $json['meaningWhenMissing'] = $this->meaningWhenMissing;
-        if (isset($this->orderMeaning)) $json['orderMeaning'] = $this->orderMeaning;
-        if (isset($this->fixedBase64Binary)) $json['fixedBase64Binary'] = $this->fixedBase64Binary;
-        if (isset($this->fixedBoolean)) $json['fixedBoolean'] = $this->fixedBoolean;
-        if (isset($this->fixedCanonical)) $json['fixedCanonical'] = $this->fixedCanonical;
-        if (isset($this->fixedCode)) $json['fixedCode'] = $this->fixedCode;
-        if (isset($this->fixedDate)) $json['fixedDate'] = $this->fixedDate;
-        if (isset($this->fixedDateTime)) $json['fixedDateTime'] = $this->fixedDateTime;
-        if (isset($this->fixedDecimal)) $json['fixedDecimal'] = $this->fixedDecimal;
-        if (isset($this->fixedId)) $json['fixedId'] = $this->fixedId;
-        if (isset($this->fixedInstant)) $json['fixedInstant'] = $this->fixedInstant;
-        if (isset($this->fixedInteger)) $json['fixedInteger'] = $this->fixedInteger;
-        if (isset($this->fixedMarkdown)) $json['fixedMarkdown'] = $this->fixedMarkdown;
-        if (isset($this->fixedOid)) $json['fixedOid'] = $this->fixedOid;
-        if (isset($this->fixedPositiveInt)) $json['fixedPositiveInt'] = $this->fixedPositiveInt;
-        if (isset($this->fixedString)) $json['fixedString'] = $this->fixedString;
-        if (isset($this->fixedTime)) $json['fixedTime'] = $this->fixedTime;
-        if (isset($this->fixedUnsignedInt)) $json['fixedUnsignedInt'] = $this->fixedUnsignedInt;
-        if (isset($this->fixedUri)) $json['fixedUri'] = $this->fixedUri;
-        if (isset($this->fixedUrl)) $json['fixedUrl'] = $this->fixedUrl;
-        if (isset($this->fixedUuid)) $json['fixedUuid'] = $this->fixedUuid;
-        if (isset($this->fixedAddress)) $json['fixedAddress'] = $this->fixedAddress;
-        if (isset($this->fixedAge)) $json['fixedAge'] = $this->fixedAge;
-        if (isset($this->fixedAnnotation)) $json['fixedAnnotation'] = $this->fixedAnnotation;
-        if (isset($this->fixedAttachment)) $json['fixedAttachment'] = $this->fixedAttachment;
-        if (isset($this->fixedCodeableConcept)) $json['fixedCodeableConcept'] = $this->fixedCodeableConcept;
-        if (isset($this->fixedCoding)) $json['fixedCoding'] = $this->fixedCoding;
-        if (isset($this->fixedContactPoint)) $json['fixedContactPoint'] = $this->fixedContactPoint;
-        if (isset($this->fixedCount)) $json['fixedCount'] = $this->fixedCount;
-        if (isset($this->fixedDistance)) $json['fixedDistance'] = $this->fixedDistance;
-        if (isset($this->fixedDuration)) $json['fixedDuration'] = $this->fixedDuration;
-        if (isset($this->fixedHumanName)) $json['fixedHumanName'] = $this->fixedHumanName;
-        if (isset($this->fixedIdentifier)) $json['fixedIdentifier'] = $this->fixedIdentifier;
-        if (isset($this->fixedMoney)) $json['fixedMoney'] = $this->fixedMoney;
-        if (isset($this->fixedPeriod)) $json['fixedPeriod'] = $this->fixedPeriod;
-        if (isset($this->fixedQuantity)) $json['fixedQuantity'] = $this->fixedQuantity;
-        if (isset($this->fixedRange)) $json['fixedRange'] = $this->fixedRange;
-        if (isset($this->fixedRatio)) $json['fixedRatio'] = $this->fixedRatio;
-        if (isset($this->fixedReference)) $json['fixedReference'] = $this->fixedReference;
-        if (isset($this->fixedSampledData)) $json['fixedSampledData'] = $this->fixedSampledData;
-        if (isset($this->fixedSignature)) $json['fixedSignature'] = $this->fixedSignature;
-        if (isset($this->fixedTiming)) $json['fixedTiming'] = $this->fixedTiming;
-        if (isset($this->fixedContactDetail)) $json['fixedContactDetail'] = $this->fixedContactDetail;
-        if (isset($this->fixedContributor)) $json['fixedContributor'] = $this->fixedContributor;
-        if (isset($this->fixedDataRequirement)) $json['fixedDataRequirement'] = $this->fixedDataRequirement;
-        if (isset($this->fixedExpression)) $json['fixedExpression'] = $this->fixedExpression;
-        if (isset($this->fixedParameterDefinition)) $json['fixedParameterDefinition'] = $this->fixedParameterDefinition;
-        if (isset($this->fixedRelatedArtifact)) $json['fixedRelatedArtifact'] = $this->fixedRelatedArtifact;
-        if (isset($this->fixedTriggerDefinition)) $json['fixedTriggerDefinition'] = $this->fixedTriggerDefinition;
-        if (isset($this->fixedUsageContext)) $json['fixedUsageContext'] = $this->fixedUsageContext;
-        if (isset($this->fixedDosage)) $json['fixedDosage'] = $this->fixedDosage;
-        if (isset($this->patternBase64Binary)) $json['patternBase64Binary'] = $this->patternBase64Binary;
-        if (isset($this->patternBoolean)) $json['patternBoolean'] = $this->patternBoolean;
-        if (isset($this->patternCanonical)) $json['patternCanonical'] = $this->patternCanonical;
-        if (isset($this->patternCode)) $json['patternCode'] = $this->patternCode;
-        if (isset($this->patternDate)) $json['patternDate'] = $this->patternDate;
-        if (isset($this->patternDateTime)) $json['patternDateTime'] = $this->patternDateTime;
-        if (isset($this->patternDecimal)) $json['patternDecimal'] = $this->patternDecimal;
-        if (isset($this->patternId)) $json['patternId'] = $this->patternId;
-        if (isset($this->patternInstant)) $json['patternInstant'] = $this->patternInstant;
-        if (isset($this->patternInteger)) $json['patternInteger'] = $this->patternInteger;
-        if (isset($this->patternMarkdown)) $json['patternMarkdown'] = $this->patternMarkdown;
-        if (isset($this->patternOid)) $json['patternOid'] = $this->patternOid;
-        if (isset($this->patternPositiveInt)) $json['patternPositiveInt'] = $this->patternPositiveInt;
-        if (isset($this->patternString)) $json['patternString'] = $this->patternString;
-        if (isset($this->patternTime)) $json['patternTime'] = $this->patternTime;
-        if (isset($this->patternUnsignedInt)) $json['patternUnsignedInt'] = $this->patternUnsignedInt;
-        if (isset($this->patternUri)) $json['patternUri'] = $this->patternUri;
-        if (isset($this->patternUrl)) $json['patternUrl'] = $this->patternUrl;
-        if (isset($this->patternUuid)) $json['patternUuid'] = $this->patternUuid;
-        if (isset($this->patternAddress)) $json['patternAddress'] = $this->patternAddress;
-        if (isset($this->patternAge)) $json['patternAge'] = $this->patternAge;
-        if (isset($this->patternAnnotation)) $json['patternAnnotation'] = $this->patternAnnotation;
-        if (isset($this->patternAttachment)) $json['patternAttachment'] = $this->patternAttachment;
-        if (isset($this->patternCodeableConcept)) $json['patternCodeableConcept'] = $this->patternCodeableConcept;
-        if (isset($this->patternCoding)) $json['patternCoding'] = $this->patternCoding;
-        if (isset($this->patternContactPoint)) $json['patternContactPoint'] = $this->patternContactPoint;
-        if (isset($this->patternCount)) $json['patternCount'] = $this->patternCount;
-        if (isset($this->patternDistance)) $json['patternDistance'] = $this->patternDistance;
-        if (isset($this->patternDuration)) $json['patternDuration'] = $this->patternDuration;
-        if (isset($this->patternHumanName)) $json['patternHumanName'] = $this->patternHumanName;
-        if (isset($this->patternIdentifier)) $json['patternIdentifier'] = $this->patternIdentifier;
-        if (isset($this->patternMoney)) $json['patternMoney'] = $this->patternMoney;
-        if (isset($this->patternPeriod)) $json['patternPeriod'] = $this->patternPeriod;
-        if (isset($this->patternQuantity)) $json['patternQuantity'] = $this->patternQuantity;
-        if (isset($this->patternRange)) $json['patternRange'] = $this->patternRange;
-        if (isset($this->patternRatio)) $json['patternRatio'] = $this->patternRatio;
-        if (isset($this->patternReference)) $json['patternReference'] = $this->patternReference;
-        if (isset($this->patternSampledData)) $json['patternSampledData'] = $this->patternSampledData;
-        if (isset($this->patternSignature)) $json['patternSignature'] = $this->patternSignature;
-        if (isset($this->patternTiming)) $json['patternTiming'] = $this->patternTiming;
-        if (isset($this->patternContactDetail)) $json['patternContactDetail'] = $this->patternContactDetail;
-        if (isset($this->patternContributor)) $json['patternContributor'] = $this->patternContributor;
-        if (isset($this->patternDataRequirement)) $json['patternDataRequirement'] = $this->patternDataRequirement;
-        if (isset($this->patternExpression)) $json['patternExpression'] = $this->patternExpression;
-        if (isset($this->patternParameterDefinition)) $json['patternParameterDefinition'] = $this->patternParameterDefinition;
-        if (isset($this->patternRelatedArtifact)) $json['patternRelatedArtifact'] = $this->patternRelatedArtifact;
-        if (isset($this->patternTriggerDefinition)) $json['patternTriggerDefinition'] = $this->patternTriggerDefinition;
-        if (isset($this->patternUsageContext)) $json['patternUsageContext'] = $this->patternUsageContext;
-        if (isset($this->patternDosage)) $json['patternDosage'] = $this->patternDosage;
+        if (isset($this->defaultValueBase64Binary)) {
+            $json['defaultValueBase64Binary'] = $this->defaultValueBase64Binary;
+        }
+        if (isset($this->defaultValueBoolean)) {
+            $json['defaultValueBoolean'] = $this->defaultValueBoolean;
+        }
+        if (isset($this->defaultValueCanonical)) {
+            $json['defaultValueCanonical'] = $this->defaultValueCanonical;
+        }
+        if (isset($this->defaultValueCode)) {
+            $json['defaultValueCode'] = $this->defaultValueCode;
+        }
+        if (isset($this->defaultValueDate)) {
+            $json['defaultValueDate'] = $this->defaultValueDate;
+        }
+        if (isset($this->defaultValueDateTime)) {
+            $json['defaultValueDateTime'] = $this->defaultValueDateTime;
+        }
+        if (isset($this->defaultValueDecimal)) {
+            $json['defaultValueDecimal'] = $this->defaultValueDecimal;
+        }
+        if (isset($this->defaultValueId)) {
+            $json['defaultValueId'] = $this->defaultValueId;
+        }
+        if (isset($this->defaultValueInstant)) {
+            $json['defaultValueInstant'] = $this->defaultValueInstant;
+        }
+        if (isset($this->defaultValueInteger)) {
+            $json['defaultValueInteger'] = $this->defaultValueInteger;
+        }
+        if (isset($this->defaultValueMarkdown)) {
+            $json['defaultValueMarkdown'] = $this->defaultValueMarkdown;
+        }
+        if (isset($this->defaultValueOid)) {
+            $json['defaultValueOid'] = $this->defaultValueOid;
+        }
+        if (isset($this->defaultValuePositiveInt)) {
+            $json['defaultValuePositiveInt'] = $this->defaultValuePositiveInt;
+        }
+        if (isset($this->defaultValueString)) {
+            $json['defaultValueString'] = $this->defaultValueString;
+        }
+        if (isset($this->defaultValueTime)) {
+            $json['defaultValueTime'] = $this->defaultValueTime;
+        }
+        if (isset($this->defaultValueUnsignedInt)) {
+            $json['defaultValueUnsignedInt'] = $this->defaultValueUnsignedInt;
+        }
+        if (isset($this->defaultValueUri)) {
+            $json['defaultValueUri'] = $this->defaultValueUri;
+        }
+        if (isset($this->defaultValueUrl)) {
+            $json['defaultValueUrl'] = $this->defaultValueUrl;
+        }
+        if (isset($this->defaultValueUuid)) {
+            $json['defaultValueUuid'] = $this->defaultValueUuid;
+        }
+        if (isset($this->defaultValueAddress)) {
+            $json['defaultValueAddress'] = $this->defaultValueAddress;
+        }
+        if (isset($this->defaultValueAge)) {
+            $json['defaultValueAge'] = $this->defaultValueAge;
+        }
+        if (isset($this->defaultValueAnnotation)) {
+            $json['defaultValueAnnotation'] = $this->defaultValueAnnotation;
+        }
+        if (isset($this->defaultValueAttachment)) {
+            $json['defaultValueAttachment'] = $this->defaultValueAttachment;
+        }
+        if (isset($this->defaultValueCodeableConcept)) {
+            $json['defaultValueCodeableConcept'] = $this->defaultValueCodeableConcept;
+        }
+        if (isset($this->defaultValueCoding)) {
+            $json['defaultValueCoding'] = $this->defaultValueCoding;
+        }
+        if (isset($this->defaultValueContactPoint)) {
+            $json['defaultValueContactPoint'] = $this->defaultValueContactPoint;
+        }
+        if (isset($this->defaultValueCount)) {
+            $json['defaultValueCount'] = $this->defaultValueCount;
+        }
+        if (isset($this->defaultValueDistance)) {
+            $json['defaultValueDistance'] = $this->defaultValueDistance;
+        }
+        if (isset($this->defaultValueDuration)) {
+            $json['defaultValueDuration'] = $this->defaultValueDuration;
+        }
+        if (isset($this->defaultValueHumanName)) {
+            $json['defaultValueHumanName'] = $this->defaultValueHumanName;
+        }
+        if (isset($this->defaultValueIdentifier)) {
+            $json['defaultValueIdentifier'] = $this->defaultValueIdentifier;
+        }
+        if (isset($this->defaultValueMoney)) {
+            $json['defaultValueMoney'] = $this->defaultValueMoney;
+        }
+        if (isset($this->defaultValuePeriod)) {
+            $json['defaultValuePeriod'] = $this->defaultValuePeriod;
+        }
+        if (isset($this->defaultValueQuantity)) {
+            $json['defaultValueQuantity'] = $this->defaultValueQuantity;
+        }
+        if (isset($this->defaultValueRange)) {
+            $json['defaultValueRange'] = $this->defaultValueRange;
+        }
+        if (isset($this->defaultValueRatio)) {
+            $json['defaultValueRatio'] = $this->defaultValueRatio;
+        }
+        if (isset($this->defaultValueReference)) {
+            $json['defaultValueReference'] = $this->defaultValueReference;
+        }
+        if (isset($this->defaultValueSampledData)) {
+            $json['defaultValueSampledData'] = $this->defaultValueSampledData;
+        }
+        if (isset($this->defaultValueSignature)) {
+            $json['defaultValueSignature'] = $this->defaultValueSignature;
+        }
+        if (isset($this->defaultValueTiming)) {
+            $json['defaultValueTiming'] = $this->defaultValueTiming;
+        }
+        if (isset($this->defaultValueContactDetail)) {
+            $json['defaultValueContactDetail'] = $this->defaultValueContactDetail;
+        }
+        if (isset($this->defaultValueContributor)) {
+            $json['defaultValueContributor'] = $this->defaultValueContributor;
+        }
+        if (isset($this->defaultValueDataRequirement)) {
+            $json['defaultValueDataRequirement'] = $this->defaultValueDataRequirement;
+        }
+        if (isset($this->defaultValueExpression)) {
+            $json['defaultValueExpression'] = $this->defaultValueExpression;
+        }
+        if (isset($this->defaultValueParameterDefinition)) {
+            $json['defaultValueParameterDefinition'] = $this->defaultValueParameterDefinition;
+        }
+        if (isset($this->defaultValueRelatedArtifact)) {
+            $json['defaultValueRelatedArtifact'] = $this->defaultValueRelatedArtifact;
+        }
+        if (isset($this->defaultValueTriggerDefinition)) {
+            $json['defaultValueTriggerDefinition'] = $this->defaultValueTriggerDefinition;
+        }
+        if (isset($this->defaultValueUsageContext)) {
+            $json['defaultValueUsageContext'] = $this->defaultValueUsageContext;
+        }
+        if (isset($this->defaultValueDosage)) {
+            $json['defaultValueDosage'] = $this->defaultValueDosage;
+        }
+        if (isset($this->meaningWhenMissing)) {
+            $json['meaningWhenMissing'] = $this->meaningWhenMissing;
+        }
+        if (isset($this->orderMeaning)) {
+            $json['orderMeaning'] = $this->orderMeaning;
+        }
+        if (isset($this->fixedBase64Binary)) {
+            $json['fixedBase64Binary'] = $this->fixedBase64Binary;
+        }
+        if (isset($this->fixedBoolean)) {
+            $json['fixedBoolean'] = $this->fixedBoolean;
+        }
+        if (isset($this->fixedCanonical)) {
+            $json['fixedCanonical'] = $this->fixedCanonical;
+        }
+        if (isset($this->fixedCode)) {
+            $json['fixedCode'] = $this->fixedCode;
+        }
+        if (isset($this->fixedDate)) {
+            $json['fixedDate'] = $this->fixedDate;
+        }
+        if (isset($this->fixedDateTime)) {
+            $json['fixedDateTime'] = $this->fixedDateTime;
+        }
+        if (isset($this->fixedDecimal)) {
+            $json['fixedDecimal'] = $this->fixedDecimal;
+        }
+        if (isset($this->fixedId)) {
+            $json['fixedId'] = $this->fixedId;
+        }
+        if (isset($this->fixedInstant)) {
+            $json['fixedInstant'] = $this->fixedInstant;
+        }
+        if (isset($this->fixedInteger)) {
+            $json['fixedInteger'] = $this->fixedInteger;
+        }
+        if (isset($this->fixedMarkdown)) {
+            $json['fixedMarkdown'] = $this->fixedMarkdown;
+        }
+        if (isset($this->fixedOid)) {
+            $json['fixedOid'] = $this->fixedOid;
+        }
+        if (isset($this->fixedPositiveInt)) {
+            $json['fixedPositiveInt'] = $this->fixedPositiveInt;
+        }
+        if (isset($this->fixedString)) {
+            $json['fixedString'] = $this->fixedString;
+        }
+        if (isset($this->fixedTime)) {
+            $json['fixedTime'] = $this->fixedTime;
+        }
+        if (isset($this->fixedUnsignedInt)) {
+            $json['fixedUnsignedInt'] = $this->fixedUnsignedInt;
+        }
+        if (isset($this->fixedUri)) {
+            $json['fixedUri'] = $this->fixedUri;
+        }
+        if (isset($this->fixedUrl)) {
+            $json['fixedUrl'] = $this->fixedUrl;
+        }
+        if (isset($this->fixedUuid)) {
+            $json['fixedUuid'] = $this->fixedUuid;
+        }
+        if (isset($this->fixedAddress)) {
+            $json['fixedAddress'] = $this->fixedAddress;
+        }
+        if (isset($this->fixedAge)) {
+            $json['fixedAge'] = $this->fixedAge;
+        }
+        if (isset($this->fixedAnnotation)) {
+            $json['fixedAnnotation'] = $this->fixedAnnotation;
+        }
+        if (isset($this->fixedAttachment)) {
+            $json['fixedAttachment'] = $this->fixedAttachment;
+        }
+        if (isset($this->fixedCodeableConcept)) {
+            $json['fixedCodeableConcept'] = $this->fixedCodeableConcept;
+        }
+        if (isset($this->fixedCoding)) {
+            $json['fixedCoding'] = $this->fixedCoding;
+        }
+        if (isset($this->fixedContactPoint)) {
+            $json['fixedContactPoint'] = $this->fixedContactPoint;
+        }
+        if (isset($this->fixedCount)) {
+            $json['fixedCount'] = $this->fixedCount;
+        }
+        if (isset($this->fixedDistance)) {
+            $json['fixedDistance'] = $this->fixedDistance;
+        }
+        if (isset($this->fixedDuration)) {
+            $json['fixedDuration'] = $this->fixedDuration;
+        }
+        if (isset($this->fixedHumanName)) {
+            $json['fixedHumanName'] = $this->fixedHumanName;
+        }
+        if (isset($this->fixedIdentifier)) {
+            $json['fixedIdentifier'] = $this->fixedIdentifier;
+        }
+        if (isset($this->fixedMoney)) {
+            $json['fixedMoney'] = $this->fixedMoney;
+        }
+        if (isset($this->fixedPeriod)) {
+            $json['fixedPeriod'] = $this->fixedPeriod;
+        }
+        if (isset($this->fixedQuantity)) {
+            $json['fixedQuantity'] = $this->fixedQuantity;
+        }
+        if (isset($this->fixedRange)) {
+            $json['fixedRange'] = $this->fixedRange;
+        }
+        if (isset($this->fixedRatio)) {
+            $json['fixedRatio'] = $this->fixedRatio;
+        }
+        if (isset($this->fixedReference)) {
+            $json['fixedReference'] = $this->fixedReference;
+        }
+        if (isset($this->fixedSampledData)) {
+            $json['fixedSampledData'] = $this->fixedSampledData;
+        }
+        if (isset($this->fixedSignature)) {
+            $json['fixedSignature'] = $this->fixedSignature;
+        }
+        if (isset($this->fixedTiming)) {
+            $json['fixedTiming'] = $this->fixedTiming;
+        }
+        if (isset($this->fixedContactDetail)) {
+            $json['fixedContactDetail'] = $this->fixedContactDetail;
+        }
+        if (isset($this->fixedContributor)) {
+            $json['fixedContributor'] = $this->fixedContributor;
+        }
+        if (isset($this->fixedDataRequirement)) {
+            $json['fixedDataRequirement'] = $this->fixedDataRequirement;
+        }
+        if (isset($this->fixedExpression)) {
+            $json['fixedExpression'] = $this->fixedExpression;
+        }
+        if (isset($this->fixedParameterDefinition)) {
+            $json['fixedParameterDefinition'] = $this->fixedParameterDefinition;
+        }
+        if (isset($this->fixedRelatedArtifact)) {
+            $json['fixedRelatedArtifact'] = $this->fixedRelatedArtifact;
+        }
+        if (isset($this->fixedTriggerDefinition)) {
+            $json['fixedTriggerDefinition'] = $this->fixedTriggerDefinition;
+        }
+        if (isset($this->fixedUsageContext)) {
+            $json['fixedUsageContext'] = $this->fixedUsageContext;
+        }
+        if (isset($this->fixedDosage)) {
+            $json['fixedDosage'] = $this->fixedDosage;
+        }
+        if (isset($this->patternBase64Binary)) {
+            $json['patternBase64Binary'] = $this->patternBase64Binary;
+        }
+        if (isset($this->patternBoolean)) {
+            $json['patternBoolean'] = $this->patternBoolean;
+        }
+        if (isset($this->patternCanonical)) {
+            $json['patternCanonical'] = $this->patternCanonical;
+        }
+        if (isset($this->patternCode)) {
+            $json['patternCode'] = $this->patternCode;
+        }
+        if (isset($this->patternDate)) {
+            $json['patternDate'] = $this->patternDate;
+        }
+        if (isset($this->patternDateTime)) {
+            $json['patternDateTime'] = $this->patternDateTime;
+        }
+        if (isset($this->patternDecimal)) {
+            $json['patternDecimal'] = $this->patternDecimal;
+        }
+        if (isset($this->patternId)) {
+            $json['patternId'] = $this->patternId;
+        }
+        if (isset($this->patternInstant)) {
+            $json['patternInstant'] = $this->patternInstant;
+        }
+        if (isset($this->patternInteger)) {
+            $json['patternInteger'] = $this->patternInteger;
+        }
+        if (isset($this->patternMarkdown)) {
+            $json['patternMarkdown'] = $this->patternMarkdown;
+        }
+        if (isset($this->patternOid)) {
+            $json['patternOid'] = $this->patternOid;
+        }
+        if (isset($this->patternPositiveInt)) {
+            $json['patternPositiveInt'] = $this->patternPositiveInt;
+        }
+        if (isset($this->patternString)) {
+            $json['patternString'] = $this->patternString;
+        }
+        if (isset($this->patternTime)) {
+            $json['patternTime'] = $this->patternTime;
+        }
+        if (isset($this->patternUnsignedInt)) {
+            $json['patternUnsignedInt'] = $this->patternUnsignedInt;
+        }
+        if (isset($this->patternUri)) {
+            $json['patternUri'] = $this->patternUri;
+        }
+        if (isset($this->patternUrl)) {
+            $json['patternUrl'] = $this->patternUrl;
+        }
+        if (isset($this->patternUuid)) {
+            $json['patternUuid'] = $this->patternUuid;
+        }
+        if (isset($this->patternAddress)) {
+            $json['patternAddress'] = $this->patternAddress;
+        }
+        if (isset($this->patternAge)) {
+            $json['patternAge'] = $this->patternAge;
+        }
+        if (isset($this->patternAnnotation)) {
+            $json['patternAnnotation'] = $this->patternAnnotation;
+        }
+        if (isset($this->patternAttachment)) {
+            $json['patternAttachment'] = $this->patternAttachment;
+        }
+        if (isset($this->patternCodeableConcept)) {
+            $json['patternCodeableConcept'] = $this->patternCodeableConcept;
+        }
+        if (isset($this->patternCoding)) {
+            $json['patternCoding'] = $this->patternCoding;
+        }
+        if (isset($this->patternContactPoint)) {
+            $json['patternContactPoint'] = $this->patternContactPoint;
+        }
+        if (isset($this->patternCount)) {
+            $json['patternCount'] = $this->patternCount;
+        }
+        if (isset($this->patternDistance)) {
+            $json['patternDistance'] = $this->patternDistance;
+        }
+        if (isset($this->patternDuration)) {
+            $json['patternDuration'] = $this->patternDuration;
+        }
+        if (isset($this->patternHumanName)) {
+            $json['patternHumanName'] = $this->patternHumanName;
+        }
+        if (isset($this->patternIdentifier)) {
+            $json['patternIdentifier'] = $this->patternIdentifier;
+        }
+        if (isset($this->patternMoney)) {
+            $json['patternMoney'] = $this->patternMoney;
+        }
+        if (isset($this->patternPeriod)) {
+            $json['patternPeriod'] = $this->patternPeriod;
+        }
+        if (isset($this->patternQuantity)) {
+            $json['patternQuantity'] = $this->patternQuantity;
+        }
+        if (isset($this->patternRange)) {
+            $json['patternRange'] = $this->patternRange;
+        }
+        if (isset($this->patternRatio)) {
+            $json['patternRatio'] = $this->patternRatio;
+        }
+        if (isset($this->patternReference)) {
+            $json['patternReference'] = $this->patternReference;
+        }
+        if (isset($this->patternSampledData)) {
+            $json['patternSampledData'] = $this->patternSampledData;
+        }
+        if (isset($this->patternSignature)) {
+            $json['patternSignature'] = $this->patternSignature;
+        }
+        if (isset($this->patternTiming)) {
+            $json['patternTiming'] = $this->patternTiming;
+        }
+        if (isset($this->patternContactDetail)) {
+            $json['patternContactDetail'] = $this->patternContactDetail;
+        }
+        if (isset($this->patternContributor)) {
+            $json['patternContributor'] = $this->patternContributor;
+        }
+        if (isset($this->patternDataRequirement)) {
+            $json['patternDataRequirement'] = $this->patternDataRequirement;
+        }
+        if (isset($this->patternExpression)) {
+            $json['patternExpression'] = $this->patternExpression;
+        }
+        if (isset($this->patternParameterDefinition)) {
+            $json['patternParameterDefinition'] = $this->patternParameterDefinition;
+        }
+        if (isset($this->patternRelatedArtifact)) {
+            $json['patternRelatedArtifact'] = $this->patternRelatedArtifact;
+        }
+        if (isset($this->patternTriggerDefinition)) {
+            $json['patternTriggerDefinition'] = $this->patternTriggerDefinition;
+        }
+        if (isset($this->patternUsageContext)) {
+            $json['patternUsageContext'] = $this->patternUsageContext;
+        }
+        if (isset($this->patternDosage)) {
+            $json['patternDosage'] = $this->patternDosage;
+        }
         if (0 < count($this->example)) {
             $json['example'] = [];
-            foreach($this->example as $example) {
+            foreach ($this->example as $example) {
                 $json['example'][] = $example;
             }
         }
-        if (isset($this->minValueDate)) $json['minValueDate'] = $this->minValueDate;
-        if (isset($this->minValueDateTime)) $json['minValueDateTime'] = $this->minValueDateTime;
-        if (isset($this->minValueInstant)) $json['minValueInstant'] = $this->minValueInstant;
-        if (isset($this->minValueTime)) $json['minValueTime'] = $this->minValueTime;
-        if (isset($this->minValueDecimal)) $json['minValueDecimal'] = $this->minValueDecimal;
-        if (isset($this->minValueInteger)) $json['minValueInteger'] = $this->minValueInteger;
-        if (isset($this->minValuePositiveInt)) $json['minValuePositiveInt'] = $this->minValuePositiveInt;
-        if (isset($this->minValueUnsignedInt)) $json['minValueUnsignedInt'] = $this->minValueUnsignedInt;
-        if (isset($this->minValueQuantity)) $json['minValueQuantity'] = $this->minValueQuantity;
-        if (isset($this->maxValueDate)) $json['maxValueDate'] = $this->maxValueDate;
-        if (isset($this->maxValueDateTime)) $json['maxValueDateTime'] = $this->maxValueDateTime;
-        if (isset($this->maxValueInstant)) $json['maxValueInstant'] = $this->maxValueInstant;
-        if (isset($this->maxValueTime)) $json['maxValueTime'] = $this->maxValueTime;
-        if (isset($this->maxValueDecimal)) $json['maxValueDecimal'] = $this->maxValueDecimal;
-        if (isset($this->maxValueInteger)) $json['maxValueInteger'] = $this->maxValueInteger;
-        if (isset($this->maxValuePositiveInt)) $json['maxValuePositiveInt'] = $this->maxValuePositiveInt;
-        if (isset($this->maxValueUnsignedInt)) $json['maxValueUnsignedInt'] = $this->maxValueUnsignedInt;
-        if (isset($this->maxValueQuantity)) $json['maxValueQuantity'] = $this->maxValueQuantity;
-        if (isset($this->maxLength)) $json['maxLength'] = $this->maxLength;
+        if (isset($this->minValueDate)) {
+            $json['minValueDate'] = $this->minValueDate;
+        }
+        if (isset($this->minValueDateTime)) {
+            $json['minValueDateTime'] = $this->minValueDateTime;
+        }
+        if (isset($this->minValueInstant)) {
+            $json['minValueInstant'] = $this->minValueInstant;
+        }
+        if (isset($this->minValueTime)) {
+            $json['minValueTime'] = $this->minValueTime;
+        }
+        if (isset($this->minValueDecimal)) {
+            $json['minValueDecimal'] = $this->minValueDecimal;
+        }
+        if (isset($this->minValueInteger)) {
+            $json['minValueInteger'] = $this->minValueInteger;
+        }
+        if (isset($this->minValuePositiveInt)) {
+            $json['minValuePositiveInt'] = $this->minValuePositiveInt;
+        }
+        if (isset($this->minValueUnsignedInt)) {
+            $json['minValueUnsignedInt'] = $this->minValueUnsignedInt;
+        }
+        if (isset($this->minValueQuantity)) {
+            $json['minValueQuantity'] = $this->minValueQuantity;
+        }
+        if (isset($this->maxValueDate)) {
+            $json['maxValueDate'] = $this->maxValueDate;
+        }
+        if (isset($this->maxValueDateTime)) {
+            $json['maxValueDateTime'] = $this->maxValueDateTime;
+        }
+        if (isset($this->maxValueInstant)) {
+            $json['maxValueInstant'] = $this->maxValueInstant;
+        }
+        if (isset($this->maxValueTime)) {
+            $json['maxValueTime'] = $this->maxValueTime;
+        }
+        if (isset($this->maxValueDecimal)) {
+            $json['maxValueDecimal'] = $this->maxValueDecimal;
+        }
+        if (isset($this->maxValueInteger)) {
+            $json['maxValueInteger'] = $this->maxValueInteger;
+        }
+        if (isset($this->maxValuePositiveInt)) {
+            $json['maxValuePositiveInt'] = $this->maxValuePositiveInt;
+        }
+        if (isset($this->maxValueUnsignedInt)) {
+            $json['maxValueUnsignedInt'] = $this->maxValueUnsignedInt;
+        }
+        if (isset($this->maxValueQuantity)) {
+            $json['maxValueQuantity'] = $this->maxValueQuantity;
+        }
+        if (isset($this->maxLength)) {
+            $json['maxLength'] = $this->maxLength;
+        }
         if (0 < count($this->condition)) {
             $json['condition'] = [];
-            foreach($this->condition as $condition) {
+            foreach ($this->condition as $condition) {
                 $json['condition'][] = $condition;
             }
         }
         if (0 < count($this->constraint)) {
             $json['constraint'] = [];
-            foreach($this->constraint as $constraint) {
+            foreach ($this->constraint as $constraint) {
                 $json['constraint'][] = $constraint;
             }
         }
-        if (isset($this->mustSupport)) $json['mustSupport'] = $this->mustSupport;
-        if (isset($this->isModifier)) $json['isModifier'] = $this->isModifier;
-        if (isset($this->isModifierReason)) $json['isModifierReason'] = $this->isModifierReason;
-        if (isset($this->isSummary)) $json['isSummary'] = $this->isSummary;
-        if (isset($this->binding)) $json['binding'] = $this->binding;
+        if (isset($this->mustSupport)) {
+            $json['mustSupport'] = $this->mustSupport;
+        }
+        if (isset($this->isModifier)) {
+            $json['isModifier'] = $this->isModifier;
+        }
+        if (isset($this->isModifierReason)) {
+            $json['isModifierReason'] = $this->isModifierReason;
+        }
+        if (isset($this->isSummary)) {
+            $json['isSummary'] = $this->isSummary;
+        }
+        if (isset($this->binding)) {
+            $json['binding'] = $this->binding;
+        }
         if (0 < count($this->mapping)) {
             $json['mapping'] = [];
-            foreach($this->mapping as $mapping) {
+            foreach ($this->mapping as $mapping) {
                 $json['mapping'][] = $mapping;
             }
         }
@@ -5137,238 +5901,613 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ElementDefinition xmlns="http://hl7.org/fhir"></ElementDefinition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ElementDefinition xmlns="http://hl7.org/fhir"></ElementDefinition>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->path)) $this->path->xmlSerialize(true, $sxe->addChild('path'));
+        if (isset($this->path)) {
+            $this->path->xmlSerialize(true, $sxe->addChild('path'));
+        }
         if (0 < count($this->representation)) {
-            foreach($this->representation as $representation) {
+            foreach ($this->representation as $representation) {
                 $representation->xmlSerialize(true, $sxe->addChild('representation'));
             }
         }
-        if (isset($this->sliceName)) $this->sliceName->xmlSerialize(true, $sxe->addChild('sliceName'));
-        if (isset($this->sliceIsConstraining)) $this->sliceIsConstraining->xmlSerialize(true, $sxe->addChild('sliceIsConstraining'));
-        if (isset($this->label)) $this->label->xmlSerialize(true, $sxe->addChild('label'));
+        if (isset($this->sliceName)) {
+            $this->sliceName->xmlSerialize(true, $sxe->addChild('sliceName'));
+        }
+        if (isset($this->sliceIsConstraining)) {
+            $this->sliceIsConstraining->xmlSerialize(true, $sxe->addChild('sliceIsConstraining'));
+        }
+        if (isset($this->label)) {
+            $this->label->xmlSerialize(true, $sxe->addChild('label'));
+        }
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
-        if (isset($this->slicing)) $this->slicing->xmlSerialize(true, $sxe->addChild('slicing'));
-        if (isset($this->short)) $this->short->xmlSerialize(true, $sxe->addChild('short'));
-        if (isset($this->definition)) $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
-        if (isset($this->requirements)) $this->requirements->xmlSerialize(true, $sxe->addChild('requirements'));
+        if (isset($this->slicing)) {
+            $this->slicing->xmlSerialize(true, $sxe->addChild('slicing'));
+        }
+        if (isset($this->short)) {
+            $this->short->xmlSerialize(true, $sxe->addChild('short'));
+        }
+        if (isset($this->definition)) {
+            $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        }
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
+        if (isset($this->requirements)) {
+            $this->requirements->xmlSerialize(true, $sxe->addChild('requirements'));
+        }
         if (0 < count($this->alias)) {
-            foreach($this->alias as $alias) {
+            foreach ($this->alias as $alias) {
                 $alias->xmlSerialize(true, $sxe->addChild('alias'));
             }
         }
-        if (isset($this->min)) $this->min->xmlSerialize(true, $sxe->addChild('min'));
-        if (isset($this->max)) $this->max->xmlSerialize(true, $sxe->addChild('max'));
-        if (isset($this->base)) $this->base->xmlSerialize(true, $sxe->addChild('base'));
-        if (isset($this->contentReference)) $this->contentReference->xmlSerialize(true, $sxe->addChild('contentReference'));
+        if (isset($this->min)) {
+            $this->min->xmlSerialize(true, $sxe->addChild('min'));
+        }
+        if (isset($this->max)) {
+            $this->max->xmlSerialize(true, $sxe->addChild('max'));
+        }
+        if (isset($this->base)) {
+            $this->base->xmlSerialize(true, $sxe->addChild('base'));
+        }
+        if (isset($this->contentReference)) {
+            $this->contentReference->xmlSerialize(true, $sxe->addChild('contentReference'));
+        }
         if (0 < count($this->type)) {
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $type->xmlSerialize(true, $sxe->addChild('type'));
             }
         }
-        if (isset($this->defaultValueBase64Binary)) $this->defaultValueBase64Binary->xmlSerialize(true, $sxe->addChild('defaultValueBase64Binary'));
-        if (isset($this->defaultValueBoolean)) $this->defaultValueBoolean->xmlSerialize(true, $sxe->addChild('defaultValueBoolean'));
-        if (isset($this->defaultValueCanonical)) $this->defaultValueCanonical->xmlSerialize(true, $sxe->addChild('defaultValueCanonical'));
-        if (isset($this->defaultValueCode)) $this->defaultValueCode->xmlSerialize(true, $sxe->addChild('defaultValueCode'));
-        if (isset($this->defaultValueDate)) $this->defaultValueDate->xmlSerialize(true, $sxe->addChild('defaultValueDate'));
-        if (isset($this->defaultValueDateTime)) $this->defaultValueDateTime->xmlSerialize(true, $sxe->addChild('defaultValueDateTime'));
-        if (isset($this->defaultValueDecimal)) $this->defaultValueDecimal->xmlSerialize(true, $sxe->addChild('defaultValueDecimal'));
-        if (isset($this->defaultValueId)) $this->defaultValueId->xmlSerialize(true, $sxe->addChild('defaultValueId'));
-        if (isset($this->defaultValueInstant)) $this->defaultValueInstant->xmlSerialize(true, $sxe->addChild('defaultValueInstant'));
-        if (isset($this->defaultValueInteger)) $this->defaultValueInteger->xmlSerialize(true, $sxe->addChild('defaultValueInteger'));
-        if (isset($this->defaultValueMarkdown)) $this->defaultValueMarkdown->xmlSerialize(true, $sxe->addChild('defaultValueMarkdown'));
-        if (isset($this->defaultValueOid)) $this->defaultValueOid->xmlSerialize(true, $sxe->addChild('defaultValueOid'));
-        if (isset($this->defaultValuePositiveInt)) $this->defaultValuePositiveInt->xmlSerialize(true, $sxe->addChild('defaultValuePositiveInt'));
-        if (isset($this->defaultValueString)) $this->defaultValueString->xmlSerialize(true, $sxe->addChild('defaultValueString'));
-        if (isset($this->defaultValueTime)) $this->defaultValueTime->xmlSerialize(true, $sxe->addChild('defaultValueTime'));
-        if (isset($this->defaultValueUnsignedInt)) $this->defaultValueUnsignedInt->xmlSerialize(true, $sxe->addChild('defaultValueUnsignedInt'));
-        if (isset($this->defaultValueUri)) $this->defaultValueUri->xmlSerialize(true, $sxe->addChild('defaultValueUri'));
-        if (isset($this->defaultValueUrl)) $this->defaultValueUrl->xmlSerialize(true, $sxe->addChild('defaultValueUrl'));
-        if (isset($this->defaultValueUuid)) $this->defaultValueUuid->xmlSerialize(true, $sxe->addChild('defaultValueUuid'));
-        if (isset($this->defaultValueAddress)) $this->defaultValueAddress->xmlSerialize(true, $sxe->addChild('defaultValueAddress'));
-        if (isset($this->defaultValueAge)) $this->defaultValueAge->xmlSerialize(true, $sxe->addChild('defaultValueAge'));
-        if (isset($this->defaultValueAnnotation)) $this->defaultValueAnnotation->xmlSerialize(true, $sxe->addChild('defaultValueAnnotation'));
-        if (isset($this->defaultValueAttachment)) $this->defaultValueAttachment->xmlSerialize(true, $sxe->addChild('defaultValueAttachment'));
-        if (isset($this->defaultValueCodeableConcept)) $this->defaultValueCodeableConcept->xmlSerialize(true, $sxe->addChild('defaultValueCodeableConcept'));
-        if (isset($this->defaultValueCoding)) $this->defaultValueCoding->xmlSerialize(true, $sxe->addChild('defaultValueCoding'));
-        if (isset($this->defaultValueContactPoint)) $this->defaultValueContactPoint->xmlSerialize(true, $sxe->addChild('defaultValueContactPoint'));
-        if (isset($this->defaultValueCount)) $this->defaultValueCount->xmlSerialize(true, $sxe->addChild('defaultValueCount'));
-        if (isset($this->defaultValueDistance)) $this->defaultValueDistance->xmlSerialize(true, $sxe->addChild('defaultValueDistance'));
-        if (isset($this->defaultValueDuration)) $this->defaultValueDuration->xmlSerialize(true, $sxe->addChild('defaultValueDuration'));
-        if (isset($this->defaultValueHumanName)) $this->defaultValueHumanName->xmlSerialize(true, $sxe->addChild('defaultValueHumanName'));
-        if (isset($this->defaultValueIdentifier)) $this->defaultValueIdentifier->xmlSerialize(true, $sxe->addChild('defaultValueIdentifier'));
-        if (isset($this->defaultValueMoney)) $this->defaultValueMoney->xmlSerialize(true, $sxe->addChild('defaultValueMoney'));
-        if (isset($this->defaultValuePeriod)) $this->defaultValuePeriod->xmlSerialize(true, $sxe->addChild('defaultValuePeriod'));
-        if (isset($this->defaultValueQuantity)) $this->defaultValueQuantity->xmlSerialize(true, $sxe->addChild('defaultValueQuantity'));
-        if (isset($this->defaultValueRange)) $this->defaultValueRange->xmlSerialize(true, $sxe->addChild('defaultValueRange'));
-        if (isset($this->defaultValueRatio)) $this->defaultValueRatio->xmlSerialize(true, $sxe->addChild('defaultValueRatio'));
-        if (isset($this->defaultValueReference)) $this->defaultValueReference->xmlSerialize(true, $sxe->addChild('defaultValueReference'));
-        if (isset($this->defaultValueSampledData)) $this->defaultValueSampledData->xmlSerialize(true, $sxe->addChild('defaultValueSampledData'));
-        if (isset($this->defaultValueSignature)) $this->defaultValueSignature->xmlSerialize(true, $sxe->addChild('defaultValueSignature'));
-        if (isset($this->defaultValueTiming)) $this->defaultValueTiming->xmlSerialize(true, $sxe->addChild('defaultValueTiming'));
-        if (isset($this->defaultValueContactDetail)) $this->defaultValueContactDetail->xmlSerialize(true, $sxe->addChild('defaultValueContactDetail'));
-        if (isset($this->defaultValueContributor)) $this->defaultValueContributor->xmlSerialize(true, $sxe->addChild('defaultValueContributor'));
-        if (isset($this->defaultValueDataRequirement)) $this->defaultValueDataRequirement->xmlSerialize(true, $sxe->addChild('defaultValueDataRequirement'));
-        if (isset($this->defaultValueExpression)) $this->defaultValueExpression->xmlSerialize(true, $sxe->addChild('defaultValueExpression'));
-        if (isset($this->defaultValueParameterDefinition)) $this->defaultValueParameterDefinition->xmlSerialize(true, $sxe->addChild('defaultValueParameterDefinition'));
-        if (isset($this->defaultValueRelatedArtifact)) $this->defaultValueRelatedArtifact->xmlSerialize(true, $sxe->addChild('defaultValueRelatedArtifact'));
-        if (isset($this->defaultValueTriggerDefinition)) $this->defaultValueTriggerDefinition->xmlSerialize(true, $sxe->addChild('defaultValueTriggerDefinition'));
-        if (isset($this->defaultValueUsageContext)) $this->defaultValueUsageContext->xmlSerialize(true, $sxe->addChild('defaultValueUsageContext'));
-        if (isset($this->defaultValueDosage)) $this->defaultValueDosage->xmlSerialize(true, $sxe->addChild('defaultValueDosage'));
-        if (isset($this->meaningWhenMissing)) $this->meaningWhenMissing->xmlSerialize(true, $sxe->addChild('meaningWhenMissing'));
-        if (isset($this->orderMeaning)) $this->orderMeaning->xmlSerialize(true, $sxe->addChild('orderMeaning'));
-        if (isset($this->fixedBase64Binary)) $this->fixedBase64Binary->xmlSerialize(true, $sxe->addChild('fixedBase64Binary'));
-        if (isset($this->fixedBoolean)) $this->fixedBoolean->xmlSerialize(true, $sxe->addChild('fixedBoolean'));
-        if (isset($this->fixedCanonical)) $this->fixedCanonical->xmlSerialize(true, $sxe->addChild('fixedCanonical'));
-        if (isset($this->fixedCode)) $this->fixedCode->xmlSerialize(true, $sxe->addChild('fixedCode'));
-        if (isset($this->fixedDate)) $this->fixedDate->xmlSerialize(true, $sxe->addChild('fixedDate'));
-        if (isset($this->fixedDateTime)) $this->fixedDateTime->xmlSerialize(true, $sxe->addChild('fixedDateTime'));
-        if (isset($this->fixedDecimal)) $this->fixedDecimal->xmlSerialize(true, $sxe->addChild('fixedDecimal'));
-        if (isset($this->fixedId)) $this->fixedId->xmlSerialize(true, $sxe->addChild('fixedId'));
-        if (isset($this->fixedInstant)) $this->fixedInstant->xmlSerialize(true, $sxe->addChild('fixedInstant'));
-        if (isset($this->fixedInteger)) $this->fixedInteger->xmlSerialize(true, $sxe->addChild('fixedInteger'));
-        if (isset($this->fixedMarkdown)) $this->fixedMarkdown->xmlSerialize(true, $sxe->addChild('fixedMarkdown'));
-        if (isset($this->fixedOid)) $this->fixedOid->xmlSerialize(true, $sxe->addChild('fixedOid'));
-        if (isset($this->fixedPositiveInt)) $this->fixedPositiveInt->xmlSerialize(true, $sxe->addChild('fixedPositiveInt'));
-        if (isset($this->fixedString)) $this->fixedString->xmlSerialize(true, $sxe->addChild('fixedString'));
-        if (isset($this->fixedTime)) $this->fixedTime->xmlSerialize(true, $sxe->addChild('fixedTime'));
-        if (isset($this->fixedUnsignedInt)) $this->fixedUnsignedInt->xmlSerialize(true, $sxe->addChild('fixedUnsignedInt'));
-        if (isset($this->fixedUri)) $this->fixedUri->xmlSerialize(true, $sxe->addChild('fixedUri'));
-        if (isset($this->fixedUrl)) $this->fixedUrl->xmlSerialize(true, $sxe->addChild('fixedUrl'));
-        if (isset($this->fixedUuid)) $this->fixedUuid->xmlSerialize(true, $sxe->addChild('fixedUuid'));
-        if (isset($this->fixedAddress)) $this->fixedAddress->xmlSerialize(true, $sxe->addChild('fixedAddress'));
-        if (isset($this->fixedAge)) $this->fixedAge->xmlSerialize(true, $sxe->addChild('fixedAge'));
-        if (isset($this->fixedAnnotation)) $this->fixedAnnotation->xmlSerialize(true, $sxe->addChild('fixedAnnotation'));
-        if (isset($this->fixedAttachment)) $this->fixedAttachment->xmlSerialize(true, $sxe->addChild('fixedAttachment'));
-        if (isset($this->fixedCodeableConcept)) $this->fixedCodeableConcept->xmlSerialize(true, $sxe->addChild('fixedCodeableConcept'));
-        if (isset($this->fixedCoding)) $this->fixedCoding->xmlSerialize(true, $sxe->addChild('fixedCoding'));
-        if (isset($this->fixedContactPoint)) $this->fixedContactPoint->xmlSerialize(true, $sxe->addChild('fixedContactPoint'));
-        if (isset($this->fixedCount)) $this->fixedCount->xmlSerialize(true, $sxe->addChild('fixedCount'));
-        if (isset($this->fixedDistance)) $this->fixedDistance->xmlSerialize(true, $sxe->addChild('fixedDistance'));
-        if (isset($this->fixedDuration)) $this->fixedDuration->xmlSerialize(true, $sxe->addChild('fixedDuration'));
-        if (isset($this->fixedHumanName)) $this->fixedHumanName->xmlSerialize(true, $sxe->addChild('fixedHumanName'));
-        if (isset($this->fixedIdentifier)) $this->fixedIdentifier->xmlSerialize(true, $sxe->addChild('fixedIdentifier'));
-        if (isset($this->fixedMoney)) $this->fixedMoney->xmlSerialize(true, $sxe->addChild('fixedMoney'));
-        if (isset($this->fixedPeriod)) $this->fixedPeriod->xmlSerialize(true, $sxe->addChild('fixedPeriod'));
-        if (isset($this->fixedQuantity)) $this->fixedQuantity->xmlSerialize(true, $sxe->addChild('fixedQuantity'));
-        if (isset($this->fixedRange)) $this->fixedRange->xmlSerialize(true, $sxe->addChild('fixedRange'));
-        if (isset($this->fixedRatio)) $this->fixedRatio->xmlSerialize(true, $sxe->addChild('fixedRatio'));
-        if (isset($this->fixedReference)) $this->fixedReference->xmlSerialize(true, $sxe->addChild('fixedReference'));
-        if (isset($this->fixedSampledData)) $this->fixedSampledData->xmlSerialize(true, $sxe->addChild('fixedSampledData'));
-        if (isset($this->fixedSignature)) $this->fixedSignature->xmlSerialize(true, $sxe->addChild('fixedSignature'));
-        if (isset($this->fixedTiming)) $this->fixedTiming->xmlSerialize(true, $sxe->addChild('fixedTiming'));
-        if (isset($this->fixedContactDetail)) $this->fixedContactDetail->xmlSerialize(true, $sxe->addChild('fixedContactDetail'));
-        if (isset($this->fixedContributor)) $this->fixedContributor->xmlSerialize(true, $sxe->addChild('fixedContributor'));
-        if (isset($this->fixedDataRequirement)) $this->fixedDataRequirement->xmlSerialize(true, $sxe->addChild('fixedDataRequirement'));
-        if (isset($this->fixedExpression)) $this->fixedExpression->xmlSerialize(true, $sxe->addChild('fixedExpression'));
-        if (isset($this->fixedParameterDefinition)) $this->fixedParameterDefinition->xmlSerialize(true, $sxe->addChild('fixedParameterDefinition'));
-        if (isset($this->fixedRelatedArtifact)) $this->fixedRelatedArtifact->xmlSerialize(true, $sxe->addChild('fixedRelatedArtifact'));
-        if (isset($this->fixedTriggerDefinition)) $this->fixedTriggerDefinition->xmlSerialize(true, $sxe->addChild('fixedTriggerDefinition'));
-        if (isset($this->fixedUsageContext)) $this->fixedUsageContext->xmlSerialize(true, $sxe->addChild('fixedUsageContext'));
-        if (isset($this->fixedDosage)) $this->fixedDosage->xmlSerialize(true, $sxe->addChild('fixedDosage'));
-        if (isset($this->patternBase64Binary)) $this->patternBase64Binary->xmlSerialize(true, $sxe->addChild('patternBase64Binary'));
-        if (isset($this->patternBoolean)) $this->patternBoolean->xmlSerialize(true, $sxe->addChild('patternBoolean'));
-        if (isset($this->patternCanonical)) $this->patternCanonical->xmlSerialize(true, $sxe->addChild('patternCanonical'));
-        if (isset($this->patternCode)) $this->patternCode->xmlSerialize(true, $sxe->addChild('patternCode'));
-        if (isset($this->patternDate)) $this->patternDate->xmlSerialize(true, $sxe->addChild('patternDate'));
-        if (isset($this->patternDateTime)) $this->patternDateTime->xmlSerialize(true, $sxe->addChild('patternDateTime'));
-        if (isset($this->patternDecimal)) $this->patternDecimal->xmlSerialize(true, $sxe->addChild('patternDecimal'));
-        if (isset($this->patternId)) $this->patternId->xmlSerialize(true, $sxe->addChild('patternId'));
-        if (isset($this->patternInstant)) $this->patternInstant->xmlSerialize(true, $sxe->addChild('patternInstant'));
-        if (isset($this->patternInteger)) $this->patternInteger->xmlSerialize(true, $sxe->addChild('patternInteger'));
-        if (isset($this->patternMarkdown)) $this->patternMarkdown->xmlSerialize(true, $sxe->addChild('patternMarkdown'));
-        if (isset($this->patternOid)) $this->patternOid->xmlSerialize(true, $sxe->addChild('patternOid'));
-        if (isset($this->patternPositiveInt)) $this->patternPositiveInt->xmlSerialize(true, $sxe->addChild('patternPositiveInt'));
-        if (isset($this->patternString)) $this->patternString->xmlSerialize(true, $sxe->addChild('patternString'));
-        if (isset($this->patternTime)) $this->patternTime->xmlSerialize(true, $sxe->addChild('patternTime'));
-        if (isset($this->patternUnsignedInt)) $this->patternUnsignedInt->xmlSerialize(true, $sxe->addChild('patternUnsignedInt'));
-        if (isset($this->patternUri)) $this->patternUri->xmlSerialize(true, $sxe->addChild('patternUri'));
-        if (isset($this->patternUrl)) $this->patternUrl->xmlSerialize(true, $sxe->addChild('patternUrl'));
-        if (isset($this->patternUuid)) $this->patternUuid->xmlSerialize(true, $sxe->addChild('patternUuid'));
-        if (isset($this->patternAddress)) $this->patternAddress->xmlSerialize(true, $sxe->addChild('patternAddress'));
-        if (isset($this->patternAge)) $this->patternAge->xmlSerialize(true, $sxe->addChild('patternAge'));
-        if (isset($this->patternAnnotation)) $this->patternAnnotation->xmlSerialize(true, $sxe->addChild('patternAnnotation'));
-        if (isset($this->patternAttachment)) $this->patternAttachment->xmlSerialize(true, $sxe->addChild('patternAttachment'));
-        if (isset($this->patternCodeableConcept)) $this->patternCodeableConcept->xmlSerialize(true, $sxe->addChild('patternCodeableConcept'));
-        if (isset($this->patternCoding)) $this->patternCoding->xmlSerialize(true, $sxe->addChild('patternCoding'));
-        if (isset($this->patternContactPoint)) $this->patternContactPoint->xmlSerialize(true, $sxe->addChild('patternContactPoint'));
-        if (isset($this->patternCount)) $this->patternCount->xmlSerialize(true, $sxe->addChild('patternCount'));
-        if (isset($this->patternDistance)) $this->patternDistance->xmlSerialize(true, $sxe->addChild('patternDistance'));
-        if (isset($this->patternDuration)) $this->patternDuration->xmlSerialize(true, $sxe->addChild('patternDuration'));
-        if (isset($this->patternHumanName)) $this->patternHumanName->xmlSerialize(true, $sxe->addChild('patternHumanName'));
-        if (isset($this->patternIdentifier)) $this->patternIdentifier->xmlSerialize(true, $sxe->addChild('patternIdentifier'));
-        if (isset($this->patternMoney)) $this->patternMoney->xmlSerialize(true, $sxe->addChild('patternMoney'));
-        if (isset($this->patternPeriod)) $this->patternPeriod->xmlSerialize(true, $sxe->addChild('patternPeriod'));
-        if (isset($this->patternQuantity)) $this->patternQuantity->xmlSerialize(true, $sxe->addChild('patternQuantity'));
-        if (isset($this->patternRange)) $this->patternRange->xmlSerialize(true, $sxe->addChild('patternRange'));
-        if (isset($this->patternRatio)) $this->patternRatio->xmlSerialize(true, $sxe->addChild('patternRatio'));
-        if (isset($this->patternReference)) $this->patternReference->xmlSerialize(true, $sxe->addChild('patternReference'));
-        if (isset($this->patternSampledData)) $this->patternSampledData->xmlSerialize(true, $sxe->addChild('patternSampledData'));
-        if (isset($this->patternSignature)) $this->patternSignature->xmlSerialize(true, $sxe->addChild('patternSignature'));
-        if (isset($this->patternTiming)) $this->patternTiming->xmlSerialize(true, $sxe->addChild('patternTiming'));
-        if (isset($this->patternContactDetail)) $this->patternContactDetail->xmlSerialize(true, $sxe->addChild('patternContactDetail'));
-        if (isset($this->patternContributor)) $this->patternContributor->xmlSerialize(true, $sxe->addChild('patternContributor'));
-        if (isset($this->patternDataRequirement)) $this->patternDataRequirement->xmlSerialize(true, $sxe->addChild('patternDataRequirement'));
-        if (isset($this->patternExpression)) $this->patternExpression->xmlSerialize(true, $sxe->addChild('patternExpression'));
-        if (isset($this->patternParameterDefinition)) $this->patternParameterDefinition->xmlSerialize(true, $sxe->addChild('patternParameterDefinition'));
-        if (isset($this->patternRelatedArtifact)) $this->patternRelatedArtifact->xmlSerialize(true, $sxe->addChild('patternRelatedArtifact'));
-        if (isset($this->patternTriggerDefinition)) $this->patternTriggerDefinition->xmlSerialize(true, $sxe->addChild('patternTriggerDefinition'));
-        if (isset($this->patternUsageContext)) $this->patternUsageContext->xmlSerialize(true, $sxe->addChild('patternUsageContext'));
-        if (isset($this->patternDosage)) $this->patternDosage->xmlSerialize(true, $sxe->addChild('patternDosage'));
+        if (isset($this->defaultValueBase64Binary)) {
+            $this->defaultValueBase64Binary->xmlSerialize(true, $sxe->addChild('defaultValueBase64Binary'));
+        }
+        if (isset($this->defaultValueBoolean)) {
+            $this->defaultValueBoolean->xmlSerialize(true, $sxe->addChild('defaultValueBoolean'));
+        }
+        if (isset($this->defaultValueCanonical)) {
+            $this->defaultValueCanonical->xmlSerialize(true, $sxe->addChild('defaultValueCanonical'));
+        }
+        if (isset($this->defaultValueCode)) {
+            $this->defaultValueCode->xmlSerialize(true, $sxe->addChild('defaultValueCode'));
+        }
+        if (isset($this->defaultValueDate)) {
+            $this->defaultValueDate->xmlSerialize(true, $sxe->addChild('defaultValueDate'));
+        }
+        if (isset($this->defaultValueDateTime)) {
+            $this->defaultValueDateTime->xmlSerialize(true, $sxe->addChild('defaultValueDateTime'));
+        }
+        if (isset($this->defaultValueDecimal)) {
+            $this->defaultValueDecimal->xmlSerialize(true, $sxe->addChild('defaultValueDecimal'));
+        }
+        if (isset($this->defaultValueId)) {
+            $this->defaultValueId->xmlSerialize(true, $sxe->addChild('defaultValueId'));
+        }
+        if (isset($this->defaultValueInstant)) {
+            $this->defaultValueInstant->xmlSerialize(true, $sxe->addChild('defaultValueInstant'));
+        }
+        if (isset($this->defaultValueInteger)) {
+            $this->defaultValueInteger->xmlSerialize(true, $sxe->addChild('defaultValueInteger'));
+        }
+        if (isset($this->defaultValueMarkdown)) {
+            $this->defaultValueMarkdown->xmlSerialize(true, $sxe->addChild('defaultValueMarkdown'));
+        }
+        if (isset($this->defaultValueOid)) {
+            $this->defaultValueOid->xmlSerialize(true, $sxe->addChild('defaultValueOid'));
+        }
+        if (isset($this->defaultValuePositiveInt)) {
+            $this->defaultValuePositiveInt->xmlSerialize(true, $sxe->addChild('defaultValuePositiveInt'));
+        }
+        if (isset($this->defaultValueString)) {
+            $this->defaultValueString->xmlSerialize(true, $sxe->addChild('defaultValueString'));
+        }
+        if (isset($this->defaultValueTime)) {
+            $this->defaultValueTime->xmlSerialize(true, $sxe->addChild('defaultValueTime'));
+        }
+        if (isset($this->defaultValueUnsignedInt)) {
+            $this->defaultValueUnsignedInt->xmlSerialize(true, $sxe->addChild('defaultValueUnsignedInt'));
+        }
+        if (isset($this->defaultValueUri)) {
+            $this->defaultValueUri->xmlSerialize(true, $sxe->addChild('defaultValueUri'));
+        }
+        if (isset($this->defaultValueUrl)) {
+            $this->defaultValueUrl->xmlSerialize(true, $sxe->addChild('defaultValueUrl'));
+        }
+        if (isset($this->defaultValueUuid)) {
+            $this->defaultValueUuid->xmlSerialize(true, $sxe->addChild('defaultValueUuid'));
+        }
+        if (isset($this->defaultValueAddress)) {
+            $this->defaultValueAddress->xmlSerialize(true, $sxe->addChild('defaultValueAddress'));
+        }
+        if (isset($this->defaultValueAge)) {
+            $this->defaultValueAge->xmlSerialize(true, $sxe->addChild('defaultValueAge'));
+        }
+        if (isset($this->defaultValueAnnotation)) {
+            $this->defaultValueAnnotation->xmlSerialize(true, $sxe->addChild('defaultValueAnnotation'));
+        }
+        if (isset($this->defaultValueAttachment)) {
+            $this->defaultValueAttachment->xmlSerialize(true, $sxe->addChild('defaultValueAttachment'));
+        }
+        if (isset($this->defaultValueCodeableConcept)) {
+            $this->defaultValueCodeableConcept->xmlSerialize(true, $sxe->addChild('defaultValueCodeableConcept'));
+        }
+        if (isset($this->defaultValueCoding)) {
+            $this->defaultValueCoding->xmlSerialize(true, $sxe->addChild('defaultValueCoding'));
+        }
+        if (isset($this->defaultValueContactPoint)) {
+            $this->defaultValueContactPoint->xmlSerialize(true, $sxe->addChild('defaultValueContactPoint'));
+        }
+        if (isset($this->defaultValueCount)) {
+            $this->defaultValueCount->xmlSerialize(true, $sxe->addChild('defaultValueCount'));
+        }
+        if (isset($this->defaultValueDistance)) {
+            $this->defaultValueDistance->xmlSerialize(true, $sxe->addChild('defaultValueDistance'));
+        }
+        if (isset($this->defaultValueDuration)) {
+            $this->defaultValueDuration->xmlSerialize(true, $sxe->addChild('defaultValueDuration'));
+        }
+        if (isset($this->defaultValueHumanName)) {
+            $this->defaultValueHumanName->xmlSerialize(true, $sxe->addChild('defaultValueHumanName'));
+        }
+        if (isset($this->defaultValueIdentifier)) {
+            $this->defaultValueIdentifier->xmlSerialize(true, $sxe->addChild('defaultValueIdentifier'));
+        }
+        if (isset($this->defaultValueMoney)) {
+            $this->defaultValueMoney->xmlSerialize(true, $sxe->addChild('defaultValueMoney'));
+        }
+        if (isset($this->defaultValuePeriod)) {
+            $this->defaultValuePeriod->xmlSerialize(true, $sxe->addChild('defaultValuePeriod'));
+        }
+        if (isset($this->defaultValueQuantity)) {
+            $this->defaultValueQuantity->xmlSerialize(true, $sxe->addChild('defaultValueQuantity'));
+        }
+        if (isset($this->defaultValueRange)) {
+            $this->defaultValueRange->xmlSerialize(true, $sxe->addChild('defaultValueRange'));
+        }
+        if (isset($this->defaultValueRatio)) {
+            $this->defaultValueRatio->xmlSerialize(true, $sxe->addChild('defaultValueRatio'));
+        }
+        if (isset($this->defaultValueReference)) {
+            $this->defaultValueReference->xmlSerialize(true, $sxe->addChild('defaultValueReference'));
+        }
+        if (isset($this->defaultValueSampledData)) {
+            $this->defaultValueSampledData->xmlSerialize(true, $sxe->addChild('defaultValueSampledData'));
+        }
+        if (isset($this->defaultValueSignature)) {
+            $this->defaultValueSignature->xmlSerialize(true, $sxe->addChild('defaultValueSignature'));
+        }
+        if (isset($this->defaultValueTiming)) {
+            $this->defaultValueTiming->xmlSerialize(true, $sxe->addChild('defaultValueTiming'));
+        }
+        if (isset($this->defaultValueContactDetail)) {
+            $this->defaultValueContactDetail->xmlSerialize(true, $sxe->addChild('defaultValueContactDetail'));
+        }
+        if (isset($this->defaultValueContributor)) {
+            $this->defaultValueContributor->xmlSerialize(true, $sxe->addChild('defaultValueContributor'));
+        }
+        if (isset($this->defaultValueDataRequirement)) {
+            $this->defaultValueDataRequirement->xmlSerialize(true, $sxe->addChild('defaultValueDataRequirement'));
+        }
+        if (isset($this->defaultValueExpression)) {
+            $this->defaultValueExpression->xmlSerialize(true, $sxe->addChild('defaultValueExpression'));
+        }
+        if (isset($this->defaultValueParameterDefinition)) {
+            $this->defaultValueParameterDefinition->xmlSerialize(true, $sxe->addChild('defaultValueParameterDefinition'));
+        }
+        if (isset($this->defaultValueRelatedArtifact)) {
+            $this->defaultValueRelatedArtifact->xmlSerialize(true, $sxe->addChild('defaultValueRelatedArtifact'));
+        }
+        if (isset($this->defaultValueTriggerDefinition)) {
+            $this->defaultValueTriggerDefinition->xmlSerialize(true, $sxe->addChild('defaultValueTriggerDefinition'));
+        }
+        if (isset($this->defaultValueUsageContext)) {
+            $this->defaultValueUsageContext->xmlSerialize(true, $sxe->addChild('defaultValueUsageContext'));
+        }
+        if (isset($this->defaultValueDosage)) {
+            $this->defaultValueDosage->xmlSerialize(true, $sxe->addChild('defaultValueDosage'));
+        }
+        if (isset($this->meaningWhenMissing)) {
+            $this->meaningWhenMissing->xmlSerialize(true, $sxe->addChild('meaningWhenMissing'));
+        }
+        if (isset($this->orderMeaning)) {
+            $this->orderMeaning->xmlSerialize(true, $sxe->addChild('orderMeaning'));
+        }
+        if (isset($this->fixedBase64Binary)) {
+            $this->fixedBase64Binary->xmlSerialize(true, $sxe->addChild('fixedBase64Binary'));
+        }
+        if (isset($this->fixedBoolean)) {
+            $this->fixedBoolean->xmlSerialize(true, $sxe->addChild('fixedBoolean'));
+        }
+        if (isset($this->fixedCanonical)) {
+            $this->fixedCanonical->xmlSerialize(true, $sxe->addChild('fixedCanonical'));
+        }
+        if (isset($this->fixedCode)) {
+            $this->fixedCode->xmlSerialize(true, $sxe->addChild('fixedCode'));
+        }
+        if (isset($this->fixedDate)) {
+            $this->fixedDate->xmlSerialize(true, $sxe->addChild('fixedDate'));
+        }
+        if (isset($this->fixedDateTime)) {
+            $this->fixedDateTime->xmlSerialize(true, $sxe->addChild('fixedDateTime'));
+        }
+        if (isset($this->fixedDecimal)) {
+            $this->fixedDecimal->xmlSerialize(true, $sxe->addChild('fixedDecimal'));
+        }
+        if (isset($this->fixedId)) {
+            $this->fixedId->xmlSerialize(true, $sxe->addChild('fixedId'));
+        }
+        if (isset($this->fixedInstant)) {
+            $this->fixedInstant->xmlSerialize(true, $sxe->addChild('fixedInstant'));
+        }
+        if (isset($this->fixedInteger)) {
+            $this->fixedInteger->xmlSerialize(true, $sxe->addChild('fixedInteger'));
+        }
+        if (isset($this->fixedMarkdown)) {
+            $this->fixedMarkdown->xmlSerialize(true, $sxe->addChild('fixedMarkdown'));
+        }
+        if (isset($this->fixedOid)) {
+            $this->fixedOid->xmlSerialize(true, $sxe->addChild('fixedOid'));
+        }
+        if (isset($this->fixedPositiveInt)) {
+            $this->fixedPositiveInt->xmlSerialize(true, $sxe->addChild('fixedPositiveInt'));
+        }
+        if (isset($this->fixedString)) {
+            $this->fixedString->xmlSerialize(true, $sxe->addChild('fixedString'));
+        }
+        if (isset($this->fixedTime)) {
+            $this->fixedTime->xmlSerialize(true, $sxe->addChild('fixedTime'));
+        }
+        if (isset($this->fixedUnsignedInt)) {
+            $this->fixedUnsignedInt->xmlSerialize(true, $sxe->addChild('fixedUnsignedInt'));
+        }
+        if (isset($this->fixedUri)) {
+            $this->fixedUri->xmlSerialize(true, $sxe->addChild('fixedUri'));
+        }
+        if (isset($this->fixedUrl)) {
+            $this->fixedUrl->xmlSerialize(true, $sxe->addChild('fixedUrl'));
+        }
+        if (isset($this->fixedUuid)) {
+            $this->fixedUuid->xmlSerialize(true, $sxe->addChild('fixedUuid'));
+        }
+        if (isset($this->fixedAddress)) {
+            $this->fixedAddress->xmlSerialize(true, $sxe->addChild('fixedAddress'));
+        }
+        if (isset($this->fixedAge)) {
+            $this->fixedAge->xmlSerialize(true, $sxe->addChild('fixedAge'));
+        }
+        if (isset($this->fixedAnnotation)) {
+            $this->fixedAnnotation->xmlSerialize(true, $sxe->addChild('fixedAnnotation'));
+        }
+        if (isset($this->fixedAttachment)) {
+            $this->fixedAttachment->xmlSerialize(true, $sxe->addChild('fixedAttachment'));
+        }
+        if (isset($this->fixedCodeableConcept)) {
+            $this->fixedCodeableConcept->xmlSerialize(true, $sxe->addChild('fixedCodeableConcept'));
+        }
+        if (isset($this->fixedCoding)) {
+            $this->fixedCoding->xmlSerialize(true, $sxe->addChild('fixedCoding'));
+        }
+        if (isset($this->fixedContactPoint)) {
+            $this->fixedContactPoint->xmlSerialize(true, $sxe->addChild('fixedContactPoint'));
+        }
+        if (isset($this->fixedCount)) {
+            $this->fixedCount->xmlSerialize(true, $sxe->addChild('fixedCount'));
+        }
+        if (isset($this->fixedDistance)) {
+            $this->fixedDistance->xmlSerialize(true, $sxe->addChild('fixedDistance'));
+        }
+        if (isset($this->fixedDuration)) {
+            $this->fixedDuration->xmlSerialize(true, $sxe->addChild('fixedDuration'));
+        }
+        if (isset($this->fixedHumanName)) {
+            $this->fixedHumanName->xmlSerialize(true, $sxe->addChild('fixedHumanName'));
+        }
+        if (isset($this->fixedIdentifier)) {
+            $this->fixedIdentifier->xmlSerialize(true, $sxe->addChild('fixedIdentifier'));
+        }
+        if (isset($this->fixedMoney)) {
+            $this->fixedMoney->xmlSerialize(true, $sxe->addChild('fixedMoney'));
+        }
+        if (isset($this->fixedPeriod)) {
+            $this->fixedPeriod->xmlSerialize(true, $sxe->addChild('fixedPeriod'));
+        }
+        if (isset($this->fixedQuantity)) {
+            $this->fixedQuantity->xmlSerialize(true, $sxe->addChild('fixedQuantity'));
+        }
+        if (isset($this->fixedRange)) {
+            $this->fixedRange->xmlSerialize(true, $sxe->addChild('fixedRange'));
+        }
+        if (isset($this->fixedRatio)) {
+            $this->fixedRatio->xmlSerialize(true, $sxe->addChild('fixedRatio'));
+        }
+        if (isset($this->fixedReference)) {
+            $this->fixedReference->xmlSerialize(true, $sxe->addChild('fixedReference'));
+        }
+        if (isset($this->fixedSampledData)) {
+            $this->fixedSampledData->xmlSerialize(true, $sxe->addChild('fixedSampledData'));
+        }
+        if (isset($this->fixedSignature)) {
+            $this->fixedSignature->xmlSerialize(true, $sxe->addChild('fixedSignature'));
+        }
+        if (isset($this->fixedTiming)) {
+            $this->fixedTiming->xmlSerialize(true, $sxe->addChild('fixedTiming'));
+        }
+        if (isset($this->fixedContactDetail)) {
+            $this->fixedContactDetail->xmlSerialize(true, $sxe->addChild('fixedContactDetail'));
+        }
+        if (isset($this->fixedContributor)) {
+            $this->fixedContributor->xmlSerialize(true, $sxe->addChild('fixedContributor'));
+        }
+        if (isset($this->fixedDataRequirement)) {
+            $this->fixedDataRequirement->xmlSerialize(true, $sxe->addChild('fixedDataRequirement'));
+        }
+        if (isset($this->fixedExpression)) {
+            $this->fixedExpression->xmlSerialize(true, $sxe->addChild('fixedExpression'));
+        }
+        if (isset($this->fixedParameterDefinition)) {
+            $this->fixedParameterDefinition->xmlSerialize(true, $sxe->addChild('fixedParameterDefinition'));
+        }
+        if (isset($this->fixedRelatedArtifact)) {
+            $this->fixedRelatedArtifact->xmlSerialize(true, $sxe->addChild('fixedRelatedArtifact'));
+        }
+        if (isset($this->fixedTriggerDefinition)) {
+            $this->fixedTriggerDefinition->xmlSerialize(true, $sxe->addChild('fixedTriggerDefinition'));
+        }
+        if (isset($this->fixedUsageContext)) {
+            $this->fixedUsageContext->xmlSerialize(true, $sxe->addChild('fixedUsageContext'));
+        }
+        if (isset($this->fixedDosage)) {
+            $this->fixedDosage->xmlSerialize(true, $sxe->addChild('fixedDosage'));
+        }
+        if (isset($this->patternBase64Binary)) {
+            $this->patternBase64Binary->xmlSerialize(true, $sxe->addChild('patternBase64Binary'));
+        }
+        if (isset($this->patternBoolean)) {
+            $this->patternBoolean->xmlSerialize(true, $sxe->addChild('patternBoolean'));
+        }
+        if (isset($this->patternCanonical)) {
+            $this->patternCanonical->xmlSerialize(true, $sxe->addChild('patternCanonical'));
+        }
+        if (isset($this->patternCode)) {
+            $this->patternCode->xmlSerialize(true, $sxe->addChild('patternCode'));
+        }
+        if (isset($this->patternDate)) {
+            $this->patternDate->xmlSerialize(true, $sxe->addChild('patternDate'));
+        }
+        if (isset($this->patternDateTime)) {
+            $this->patternDateTime->xmlSerialize(true, $sxe->addChild('patternDateTime'));
+        }
+        if (isset($this->patternDecimal)) {
+            $this->patternDecimal->xmlSerialize(true, $sxe->addChild('patternDecimal'));
+        }
+        if (isset($this->patternId)) {
+            $this->patternId->xmlSerialize(true, $sxe->addChild('patternId'));
+        }
+        if (isset($this->patternInstant)) {
+            $this->patternInstant->xmlSerialize(true, $sxe->addChild('patternInstant'));
+        }
+        if (isset($this->patternInteger)) {
+            $this->patternInteger->xmlSerialize(true, $sxe->addChild('patternInteger'));
+        }
+        if (isset($this->patternMarkdown)) {
+            $this->patternMarkdown->xmlSerialize(true, $sxe->addChild('patternMarkdown'));
+        }
+        if (isset($this->patternOid)) {
+            $this->patternOid->xmlSerialize(true, $sxe->addChild('patternOid'));
+        }
+        if (isset($this->patternPositiveInt)) {
+            $this->patternPositiveInt->xmlSerialize(true, $sxe->addChild('patternPositiveInt'));
+        }
+        if (isset($this->patternString)) {
+            $this->patternString->xmlSerialize(true, $sxe->addChild('patternString'));
+        }
+        if (isset($this->patternTime)) {
+            $this->patternTime->xmlSerialize(true, $sxe->addChild('patternTime'));
+        }
+        if (isset($this->patternUnsignedInt)) {
+            $this->patternUnsignedInt->xmlSerialize(true, $sxe->addChild('patternUnsignedInt'));
+        }
+        if (isset($this->patternUri)) {
+            $this->patternUri->xmlSerialize(true, $sxe->addChild('patternUri'));
+        }
+        if (isset($this->patternUrl)) {
+            $this->patternUrl->xmlSerialize(true, $sxe->addChild('patternUrl'));
+        }
+        if (isset($this->patternUuid)) {
+            $this->patternUuid->xmlSerialize(true, $sxe->addChild('patternUuid'));
+        }
+        if (isset($this->patternAddress)) {
+            $this->patternAddress->xmlSerialize(true, $sxe->addChild('patternAddress'));
+        }
+        if (isset($this->patternAge)) {
+            $this->patternAge->xmlSerialize(true, $sxe->addChild('patternAge'));
+        }
+        if (isset($this->patternAnnotation)) {
+            $this->patternAnnotation->xmlSerialize(true, $sxe->addChild('patternAnnotation'));
+        }
+        if (isset($this->patternAttachment)) {
+            $this->patternAttachment->xmlSerialize(true, $sxe->addChild('patternAttachment'));
+        }
+        if (isset($this->patternCodeableConcept)) {
+            $this->patternCodeableConcept->xmlSerialize(true, $sxe->addChild('patternCodeableConcept'));
+        }
+        if (isset($this->patternCoding)) {
+            $this->patternCoding->xmlSerialize(true, $sxe->addChild('patternCoding'));
+        }
+        if (isset($this->patternContactPoint)) {
+            $this->patternContactPoint->xmlSerialize(true, $sxe->addChild('patternContactPoint'));
+        }
+        if (isset($this->patternCount)) {
+            $this->patternCount->xmlSerialize(true, $sxe->addChild('patternCount'));
+        }
+        if (isset($this->patternDistance)) {
+            $this->patternDistance->xmlSerialize(true, $sxe->addChild('patternDistance'));
+        }
+        if (isset($this->patternDuration)) {
+            $this->patternDuration->xmlSerialize(true, $sxe->addChild('patternDuration'));
+        }
+        if (isset($this->patternHumanName)) {
+            $this->patternHumanName->xmlSerialize(true, $sxe->addChild('patternHumanName'));
+        }
+        if (isset($this->patternIdentifier)) {
+            $this->patternIdentifier->xmlSerialize(true, $sxe->addChild('patternIdentifier'));
+        }
+        if (isset($this->patternMoney)) {
+            $this->patternMoney->xmlSerialize(true, $sxe->addChild('patternMoney'));
+        }
+        if (isset($this->patternPeriod)) {
+            $this->patternPeriod->xmlSerialize(true, $sxe->addChild('patternPeriod'));
+        }
+        if (isset($this->patternQuantity)) {
+            $this->patternQuantity->xmlSerialize(true, $sxe->addChild('patternQuantity'));
+        }
+        if (isset($this->patternRange)) {
+            $this->patternRange->xmlSerialize(true, $sxe->addChild('patternRange'));
+        }
+        if (isset($this->patternRatio)) {
+            $this->patternRatio->xmlSerialize(true, $sxe->addChild('patternRatio'));
+        }
+        if (isset($this->patternReference)) {
+            $this->patternReference->xmlSerialize(true, $sxe->addChild('patternReference'));
+        }
+        if (isset($this->patternSampledData)) {
+            $this->patternSampledData->xmlSerialize(true, $sxe->addChild('patternSampledData'));
+        }
+        if (isset($this->patternSignature)) {
+            $this->patternSignature->xmlSerialize(true, $sxe->addChild('patternSignature'));
+        }
+        if (isset($this->patternTiming)) {
+            $this->patternTiming->xmlSerialize(true, $sxe->addChild('patternTiming'));
+        }
+        if (isset($this->patternContactDetail)) {
+            $this->patternContactDetail->xmlSerialize(true, $sxe->addChild('patternContactDetail'));
+        }
+        if (isset($this->patternContributor)) {
+            $this->patternContributor->xmlSerialize(true, $sxe->addChild('patternContributor'));
+        }
+        if (isset($this->patternDataRequirement)) {
+            $this->patternDataRequirement->xmlSerialize(true, $sxe->addChild('patternDataRequirement'));
+        }
+        if (isset($this->patternExpression)) {
+            $this->patternExpression->xmlSerialize(true, $sxe->addChild('patternExpression'));
+        }
+        if (isset($this->patternParameterDefinition)) {
+            $this->patternParameterDefinition->xmlSerialize(true, $sxe->addChild('patternParameterDefinition'));
+        }
+        if (isset($this->patternRelatedArtifact)) {
+            $this->patternRelatedArtifact->xmlSerialize(true, $sxe->addChild('patternRelatedArtifact'));
+        }
+        if (isset($this->patternTriggerDefinition)) {
+            $this->patternTriggerDefinition->xmlSerialize(true, $sxe->addChild('patternTriggerDefinition'));
+        }
+        if (isset($this->patternUsageContext)) {
+            $this->patternUsageContext->xmlSerialize(true, $sxe->addChild('patternUsageContext'));
+        }
+        if (isset($this->patternDosage)) {
+            $this->patternDosage->xmlSerialize(true, $sxe->addChild('patternDosage'));
+        }
         if (0 < count($this->example)) {
-            foreach($this->example as $example) {
+            foreach ($this->example as $example) {
                 $example->xmlSerialize(true, $sxe->addChild('example'));
             }
         }
-        if (isset($this->minValueDate)) $this->minValueDate->xmlSerialize(true, $sxe->addChild('minValueDate'));
-        if (isset($this->minValueDateTime)) $this->minValueDateTime->xmlSerialize(true, $sxe->addChild('minValueDateTime'));
-        if (isset($this->minValueInstant)) $this->minValueInstant->xmlSerialize(true, $sxe->addChild('minValueInstant'));
-        if (isset($this->minValueTime)) $this->minValueTime->xmlSerialize(true, $sxe->addChild('minValueTime'));
-        if (isset($this->minValueDecimal)) $this->minValueDecimal->xmlSerialize(true, $sxe->addChild('minValueDecimal'));
-        if (isset($this->minValueInteger)) $this->minValueInteger->xmlSerialize(true, $sxe->addChild('minValueInteger'));
-        if (isset($this->minValuePositiveInt)) $this->minValuePositiveInt->xmlSerialize(true, $sxe->addChild('minValuePositiveInt'));
-        if (isset($this->minValueUnsignedInt)) $this->minValueUnsignedInt->xmlSerialize(true, $sxe->addChild('minValueUnsignedInt'));
-        if (isset($this->minValueQuantity)) $this->minValueQuantity->xmlSerialize(true, $sxe->addChild('minValueQuantity'));
-        if (isset($this->maxValueDate)) $this->maxValueDate->xmlSerialize(true, $sxe->addChild('maxValueDate'));
-        if (isset($this->maxValueDateTime)) $this->maxValueDateTime->xmlSerialize(true, $sxe->addChild('maxValueDateTime'));
-        if (isset($this->maxValueInstant)) $this->maxValueInstant->xmlSerialize(true, $sxe->addChild('maxValueInstant'));
-        if (isset($this->maxValueTime)) $this->maxValueTime->xmlSerialize(true, $sxe->addChild('maxValueTime'));
-        if (isset($this->maxValueDecimal)) $this->maxValueDecimal->xmlSerialize(true, $sxe->addChild('maxValueDecimal'));
-        if (isset($this->maxValueInteger)) $this->maxValueInteger->xmlSerialize(true, $sxe->addChild('maxValueInteger'));
-        if (isset($this->maxValuePositiveInt)) $this->maxValuePositiveInt->xmlSerialize(true, $sxe->addChild('maxValuePositiveInt'));
-        if (isset($this->maxValueUnsignedInt)) $this->maxValueUnsignedInt->xmlSerialize(true, $sxe->addChild('maxValueUnsignedInt'));
-        if (isset($this->maxValueQuantity)) $this->maxValueQuantity->xmlSerialize(true, $sxe->addChild('maxValueQuantity'));
-        if (isset($this->maxLength)) $this->maxLength->xmlSerialize(true, $sxe->addChild('maxLength'));
+        if (isset($this->minValueDate)) {
+            $this->minValueDate->xmlSerialize(true, $sxe->addChild('minValueDate'));
+        }
+        if (isset($this->minValueDateTime)) {
+            $this->minValueDateTime->xmlSerialize(true, $sxe->addChild('minValueDateTime'));
+        }
+        if (isset($this->minValueInstant)) {
+            $this->minValueInstant->xmlSerialize(true, $sxe->addChild('minValueInstant'));
+        }
+        if (isset($this->minValueTime)) {
+            $this->minValueTime->xmlSerialize(true, $sxe->addChild('minValueTime'));
+        }
+        if (isset($this->minValueDecimal)) {
+            $this->minValueDecimal->xmlSerialize(true, $sxe->addChild('minValueDecimal'));
+        }
+        if (isset($this->minValueInteger)) {
+            $this->minValueInteger->xmlSerialize(true, $sxe->addChild('minValueInteger'));
+        }
+        if (isset($this->minValuePositiveInt)) {
+            $this->minValuePositiveInt->xmlSerialize(true, $sxe->addChild('minValuePositiveInt'));
+        }
+        if (isset($this->minValueUnsignedInt)) {
+            $this->minValueUnsignedInt->xmlSerialize(true, $sxe->addChild('minValueUnsignedInt'));
+        }
+        if (isset($this->minValueQuantity)) {
+            $this->minValueQuantity->xmlSerialize(true, $sxe->addChild('minValueQuantity'));
+        }
+        if (isset($this->maxValueDate)) {
+            $this->maxValueDate->xmlSerialize(true, $sxe->addChild('maxValueDate'));
+        }
+        if (isset($this->maxValueDateTime)) {
+            $this->maxValueDateTime->xmlSerialize(true, $sxe->addChild('maxValueDateTime'));
+        }
+        if (isset($this->maxValueInstant)) {
+            $this->maxValueInstant->xmlSerialize(true, $sxe->addChild('maxValueInstant'));
+        }
+        if (isset($this->maxValueTime)) {
+            $this->maxValueTime->xmlSerialize(true, $sxe->addChild('maxValueTime'));
+        }
+        if (isset($this->maxValueDecimal)) {
+            $this->maxValueDecimal->xmlSerialize(true, $sxe->addChild('maxValueDecimal'));
+        }
+        if (isset($this->maxValueInteger)) {
+            $this->maxValueInteger->xmlSerialize(true, $sxe->addChild('maxValueInteger'));
+        }
+        if (isset($this->maxValuePositiveInt)) {
+            $this->maxValuePositiveInt->xmlSerialize(true, $sxe->addChild('maxValuePositiveInt'));
+        }
+        if (isset($this->maxValueUnsignedInt)) {
+            $this->maxValueUnsignedInt->xmlSerialize(true, $sxe->addChild('maxValueUnsignedInt'));
+        }
+        if (isset($this->maxValueQuantity)) {
+            $this->maxValueQuantity->xmlSerialize(true, $sxe->addChild('maxValueQuantity'));
+        }
+        if (isset($this->maxLength)) {
+            $this->maxLength->xmlSerialize(true, $sxe->addChild('maxLength'));
+        }
         if (0 < count($this->condition)) {
-            foreach($this->condition as $condition) {
+            foreach ($this->condition as $condition) {
                 $condition->xmlSerialize(true, $sxe->addChild('condition'));
             }
         }
         if (0 < count($this->constraint)) {
-            foreach($this->constraint as $constraint) {
+            foreach ($this->constraint as $constraint) {
                 $constraint->xmlSerialize(true, $sxe->addChild('constraint'));
             }
         }
-        if (isset($this->mustSupport)) $this->mustSupport->xmlSerialize(true, $sxe->addChild('mustSupport'));
-        if (isset($this->isModifier)) $this->isModifier->xmlSerialize(true, $sxe->addChild('isModifier'));
-        if (isset($this->isModifierReason)) $this->isModifierReason->xmlSerialize(true, $sxe->addChild('isModifierReason'));
-        if (isset($this->isSummary)) $this->isSummary->xmlSerialize(true, $sxe->addChild('isSummary'));
-        if (isset($this->binding)) $this->binding->xmlSerialize(true, $sxe->addChild('binding'));
+        if (isset($this->mustSupport)) {
+            $this->mustSupport->xmlSerialize(true, $sxe->addChild('mustSupport'));
+        }
+        if (isset($this->isModifier)) {
+            $this->isModifier->xmlSerialize(true, $sxe->addChild('isModifier'));
+        }
+        if (isset($this->isModifierReason)) {
+            $this->isModifierReason->xmlSerialize(true, $sxe->addChild('isModifierReason'));
+        }
+        if (isset($this->isSummary)) {
+            $this->isSummary->xmlSerialize(true, $sxe->addChild('isSummary'));
+        }
+        if (isset($this->binding)) {
+            $this->binding->xmlSerialize(true, $sxe->addChild('binding'));
+        }
         if (0 < count($this->mapping)) {
-            foreach($this->mapping as $mapping) {
+            foreach ($this->mapping as $mapping) {
                 $mapping->xmlSerialize(true, $sxe->addChild('mapping'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

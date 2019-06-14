@@ -144,7 +144,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * This records identifiers associated with this biologically derived product instance that are defined by business processes and/or used to refer to it when a direct URL reference to the resource itself is not appropriate (e.g. in CDA documents, or in written / printed documentation).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -153,7 +154,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -162,7 +164,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * Broad category of this product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBiologicallyDerivedProductCategory
      */
-    public function getProductCategory() {
+    public function getProductCategory()
+    {
         return $this->productCategory;
     }
 
@@ -171,7 +174,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBiologicallyDerivedProductCategory $productCategory
      * @return $this
      */
-    public function setProductCategory($productCategory) {
+    public function setProductCategory($productCategory)
+    {
         $this->productCategory = $productCategory;
         return $this;
     }
@@ -180,7 +184,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * A code that identifies the kind of this biologically derived product (SNOMED Ctcode).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getProductCode() {
+    public function getProductCode()
+    {
         return $this->productCode;
     }
 
@@ -189,7 +194,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $productCode
      * @return $this
      */
-    public function setProductCode($productCode) {
+    public function setProductCode($productCode)
+    {
         $this->productCode = $productCode;
         return $this;
     }
@@ -198,7 +204,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * Whether the product is currently available.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBiologicallyDerivedProductStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -207,7 +214,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBiologicallyDerivedProductStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -216,7 +224,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * Procedure request to obtain this biologically derived product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getRequest() {
+    public function getRequest()
+    {
         return $this->request;
     }
 
@@ -225,7 +234,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $request
      * @return $this
      */
-    public function addRequest($request) {
+    public function addRequest($request)
+    {
         $this->request[] = $request;
         return $this;
     }
@@ -234,7 +244,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * Number of discrete units within this product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -243,7 +254,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -252,7 +264,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * Parent product (if any).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getParent() {
+    public function getParent()
+    {
         return $this->parent;
     }
 
@@ -261,7 +274,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $parent
      * @return $this
      */
-    public function addParent($parent) {
+    public function addParent($parent)
+    {
         $this->parent[] = $parent;
         return $this;
     }
@@ -270,7 +284,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * How this product was collected.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRBiologicallyDerivedProduct\FHIRBiologicallyDerivedProductCollection
      */
-    public function getCollection() {
+    public function getCollection()
+    {
         return $this->collection;
     }
 
@@ -279,7 +294,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRBiologicallyDerivedProduct\FHIRBiologicallyDerivedProductCollection $collection
      * @return $this
      */
-    public function setCollection($collection) {
+    public function setCollection($collection)
+    {
         $this->collection = $collection;
         return $this;
     }
@@ -288,7 +304,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * Any processing of the product during collection that does not change the fundamental nature of the product. For example adding anti-coagulants during the collection of Peripheral Blood Stem Cells.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRBiologicallyDerivedProduct\FHIRBiologicallyDerivedProductProcessing[]
      */
-    public function getProcessing() {
+    public function getProcessing()
+    {
         return $this->processing;
     }
 
@@ -297,7 +314,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRBiologicallyDerivedProduct\FHIRBiologicallyDerivedProductProcessing $processing
      * @return $this
      */
-    public function addProcessing($processing) {
+    public function addProcessing($processing)
+    {
         $this->processing[] = $processing;
         return $this;
     }
@@ -306,7 +324,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * Any manipulation of product post-collection that is intended to alter the product.  For example a buffy-coat enrichment or CD8 reduction of Peripheral Blood Stem Cells to make it more suitable for infusion.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRBiologicallyDerivedProduct\FHIRBiologicallyDerivedProductManipulation
      */
-    public function getManipulation() {
+    public function getManipulation()
+    {
         return $this->manipulation;
     }
 
@@ -315,7 +334,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRBiologicallyDerivedProduct\FHIRBiologicallyDerivedProductManipulation $manipulation
      * @return $this
      */
-    public function setManipulation($manipulation) {
+    public function setManipulation($manipulation)
+    {
         $this->manipulation = $manipulation;
         return $this;
     }
@@ -324,7 +344,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * Product storage.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRBiologicallyDerivedProduct\FHIRBiologicallyDerivedProductStorage[]
      */
-    public function getStorage() {
+    public function getStorage()
+    {
         return $this->storage;
     }
 
@@ -333,7 +354,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRBiologicallyDerivedProduct\FHIRBiologicallyDerivedProductStorage $storage
      * @return $this
      */
-    public function addStorage($storage) {
+    public function addStorage($storage)
+    {
         $this->storage[] = $storage;
         return $this;
     }
@@ -341,18 +363,20 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -370,7 +394,7 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
             }
             if (isset($data['request'])) {
                 if (is_array($data['request'])) {
-                    foreach($data['request'] as $d) {
+                    foreach ($data['request'] as $d) {
                         $this->addRequest($d);
                     }
                 } else {
@@ -382,7 +406,7 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
             }
             if (isset($data['parent'])) {
                 if (is_array($data['parent'])) {
-                    foreach($data['parent'] as $d) {
+                    foreach ($data['parent'] as $d) {
                         $this->addParent($d);
                     }
                 } else {
@@ -394,7 +418,7 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
             }
             if (isset($data['processing'])) {
                 if (is_array($data['processing'])) {
-                    foreach($data['processing'] as $d) {
+                    foreach ($data['processing'] as $d) {
                         $this->addProcessing($d);
                     }
                 } else {
@@ -406,7 +430,7 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
             }
             if (isset($data['storage'])) {
                 if (is_array($data['storage'])) {
-                    foreach($data['storage'] as $d) {
+                    foreach ($data['storage'] as $d) {
                         $this->addStorage($d);
                     }
                 } else {
@@ -422,49 +446,63 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->productCategory)) $json['productCategory'] = $this->productCategory;
-        if (isset($this->productCode)) $json['productCode'] = $this->productCode;
-        if (isset($this->status)) $json['status'] = $this->status;
+        if (isset($this->productCategory)) {
+            $json['productCategory'] = $this->productCategory;
+        }
+        if (isset($this->productCode)) {
+            $json['productCode'] = $this->productCode;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
         if (0 < count($this->request)) {
             $json['request'] = [];
-            foreach($this->request as $request) {
+            foreach ($this->request as $request) {
                 $json['request'][] = $request;
             }
         }
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
         if (0 < count($this->parent)) {
             $json['parent'] = [];
-            foreach($this->parent as $parent) {
+            foreach ($this->parent as $parent) {
                 $json['parent'][] = $parent;
             }
         }
-        if (isset($this->collection)) $json['collection'] = $this->collection;
+        if (isset($this->collection)) {
+            $json['collection'] = $this->collection;
+        }
         if (0 < count($this->processing)) {
             $json['processing'] = [];
-            foreach($this->processing as $processing) {
+            foreach ($this->processing as $processing) {
                 $json['processing'][] = $processing;
             }
         }
-        if (isset($this->manipulation)) $json['manipulation'] = $this->manipulation;
+        if (isset($this->manipulation)) {
+            $json['manipulation'] = $this->manipulation;
+        }
         if (0 < count($this->storage)) {
             $json['storage'] = [];
-            foreach($this->storage as $storage) {
+            foreach ($this->storage as $storage) {
                 $json['storage'][] = $storage;
             }
         }
@@ -476,43 +514,58 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<BiologicallyDerivedProduct xmlns="http://hl7.org/fhir"></BiologicallyDerivedProduct>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<BiologicallyDerivedProduct xmlns="http://hl7.org/fhir"></BiologicallyDerivedProduct>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->productCategory)) $this->productCategory->xmlSerialize(true, $sxe->addChild('productCategory'));
-        if (isset($this->productCode)) $this->productCode->xmlSerialize(true, $sxe->addChild('productCode'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        if (isset($this->productCategory)) {
+            $this->productCategory->xmlSerialize(true, $sxe->addChild('productCategory'));
+        }
+        if (isset($this->productCode)) {
+            $this->productCode->xmlSerialize(true, $sxe->addChild('productCode'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
         if (0 < count($this->request)) {
-            foreach($this->request as $request) {
+            foreach ($this->request as $request) {
                 $request->xmlSerialize(true, $sxe->addChild('request'));
             }
         }
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
         if (0 < count($this->parent)) {
-            foreach($this->parent as $parent) {
+            foreach ($this->parent as $parent) {
                 $parent->xmlSerialize(true, $sxe->addChild('parent'));
             }
         }
-        if (isset($this->collection)) $this->collection->xmlSerialize(true, $sxe->addChild('collection'));
+        if (isset($this->collection)) {
+            $this->collection->xmlSerialize(true, $sxe->addChild('collection'));
+        }
         if (0 < count($this->processing)) {
-            foreach($this->processing as $processing) {
+            foreach ($this->processing as $processing) {
                 $processing->xmlSerialize(true, $sxe->addChild('processing'));
             }
         }
-        if (isset($this->manipulation)) $this->manipulation->xmlSerialize(true, $sxe->addChild('manipulation'));
+        if (isset($this->manipulation)) {
+            $this->manipulation->xmlSerialize(true, $sxe->addChild('manipulation'));
+        }
         if (0 < count($this->storage)) {
-            foreach($this->storage as $storage) {
+            foreach ($this->storage as $storage) {
                 $storage->xmlSerialize(true, $sxe->addChild('storage'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

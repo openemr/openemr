@@ -221,7 +221,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * An absolute URI that is used to identify this terminology capabilities when it is referenced in a specification, model, design or an instance; also called its canonical identifier. This SHOULD be globally unique and SHOULD be a literal address at which at which an authoritative instance of this terminology capabilities is (or will be) published. This URL can be the target of a canonical reference. It SHALL remain the same when the terminology capabilities is stored on different servers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -230,7 +231,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -239,7 +241,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * The identifier that is used to identify this version of the terminology capabilities when it is referenced in a specification, model, design or instance. This is an arbitrary value managed by the terminology capabilities author and is not expected to be globally unique. For example, it might be a timestamp (e.g. yyyymmdd) if a managed version is not available. There is also no expectation that versions can be placed in a lexicographical sequence.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -248,7 +251,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -257,7 +261,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * A natural language name identifying the terminology capabilities. This name should be usable as an identifier for the module by machine processing applications such as code generation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -266,7 +271,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -275,7 +281,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * A short, descriptive, user-friendly title for the terminology capabilities.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -284,7 +291,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -293,7 +301,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * The status of this terminology capabilities. Enables tracking the life-cycle of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -302,7 +311,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -311,7 +321,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * A Boolean value to indicate that this terminology capabilities is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExperimental() {
+    public function getExperimental()
+    {
         return $this->experimental;
     }
 
@@ -320,7 +331,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $experimental
      * @return $this
      */
-    public function setExperimental($experimental) {
+    public function setExperimental($experimental)
+    {
         $this->experimental = $experimental;
         return $this;
     }
@@ -329,7 +341,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * The date  (and optionally time) when the terminology capabilities was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the terminology capabilities changes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -338,7 +351,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -347,7 +361,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * The name of the organization or individual that published the terminology capabilities.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPublisher() {
+    public function getPublisher()
+    {
         return $this->publisher;
     }
 
@@ -356,7 +371,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $publisher
      * @return $this
      */
-    public function setPublisher($publisher) {
+    public function setPublisher($publisher)
+    {
         $this->publisher = $publisher;
         return $this;
     }
@@ -365,7 +381,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * Contact details to assist a user in finding and communicating with the publisher.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getContact() {
+    public function getContact()
+    {
         return $this->contact;
     }
 
@@ -374,7 +391,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $contact
      * @return $this
      */
-    public function addContact($contact) {
+    public function addContact($contact)
+    {
         $this->contact[] = $contact;
         return $this;
     }
@@ -383,7 +401,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * A free text natural language description of the terminology capabilities from a consumer's perspective. Typically, this is used when the capability statement describes a desired rather than an actual solution, for example as a formal expression of requirements as part of an RFP.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -392,7 +411,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -401,7 +421,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * The content was developed with a focus and intent of supporting the contexts that are listed. These contexts may be general categories (gender, age, ...) or may be references to specific programs (insurance plans, studies, ...) and may be used to assist with indexing and searching for appropriate terminology capabilities instances.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext[]
      */
-    public function getUseContext() {
+    public function getUseContext()
+    {
         return $this->useContext;
     }
 
@@ -410,7 +431,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $useContext
      * @return $this
      */
-    public function addUseContext($useContext) {
+    public function addUseContext($useContext)
+    {
         $this->useContext[] = $useContext;
         return $this;
     }
@@ -419,7 +441,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * A legal or geographic region in which the terminology capabilities is intended to be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getJurisdiction() {
+    public function getJurisdiction()
+    {
         return $this->jurisdiction;
     }
 
@@ -428,7 +451,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $jurisdiction
      * @return $this
      */
-    public function addJurisdiction($jurisdiction) {
+    public function addJurisdiction($jurisdiction)
+    {
         $this->jurisdiction[] = $jurisdiction;
         return $this;
     }
@@ -437,7 +461,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * Explanation of why this terminology capabilities is needed and why it has been designed as it has.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getPurpose() {
+    public function getPurpose()
+    {
         return $this->purpose;
     }
 
@@ -446,7 +471,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $purpose
      * @return $this
      */
-    public function setPurpose($purpose) {
+    public function setPurpose($purpose)
+    {
         $this->purpose = $purpose;
         return $this;
     }
@@ -455,7 +481,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * A copyright statement relating to the terminology capabilities and/or its contents. Copyright statements are generally legal restrictions on the use and publishing of the terminology capabilities.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getCopyright() {
+    public function getCopyright()
+    {
         return $this->copyright;
     }
 
@@ -464,7 +491,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $copyright
      * @return $this
      */
-    public function setCopyright($copyright) {
+    public function setCopyright($copyright)
+    {
         $this->copyright = $copyright;
         return $this;
     }
@@ -473,7 +501,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * The way that this statement is intended to be used, to describe an actual running instance of software, a particular product (kind, not instance of software) or a class of implementation (e.g. a desired purchase).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCapabilityStatementKind
      */
-    public function getKind() {
+    public function getKind()
+    {
         return $this->kind;
     }
 
@@ -482,7 +511,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCapabilityStatementKind $kind
      * @return $this
      */
-    public function setKind($kind) {
+    public function setKind($kind)
+    {
         $this->kind = $kind;
         return $this;
     }
@@ -491,7 +521,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * Software that is covered by this terminology capability statement.  It is used when the statement describes the capabilities of a particular software version, independent of an installation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesSoftware
      */
-    public function getSoftware() {
+    public function getSoftware()
+    {
         return $this->software;
     }
 
@@ -500,7 +531,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesSoftware $software
      * @return $this
      */
-    public function setSoftware($software) {
+    public function setSoftware($software)
+    {
         $this->software = $software;
         return $this;
     }
@@ -509,7 +541,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * Identifies a specific implementation instance that is described by the terminology capability statement - i.e. a particular installation, rather than the capabilities of a software program.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesImplementation
      */
-    public function getImplementation() {
+    public function getImplementation()
+    {
         return $this->implementation;
     }
 
@@ -518,7 +551,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesImplementation $implementation
      * @return $this
      */
-    public function setImplementation($implementation) {
+    public function setImplementation($implementation)
+    {
         $this->implementation = $implementation;
         return $this;
     }
@@ -527,7 +561,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * Whether the server supports lockedDate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getLockedDate() {
+    public function getLockedDate()
+    {
         return $this->lockedDate;
     }
 
@@ -536,7 +571,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $lockedDate
      * @return $this
      */
-    public function setLockedDate($lockedDate) {
+    public function setLockedDate($lockedDate)
+    {
         $this->lockedDate = $lockedDate;
         return $this;
     }
@@ -545,7 +581,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * Identifies a code system that is supported by the server. If there is a no code system URL, then this declares the general assumptions a client can make about support for any CodeSystem resource.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesCodeSystem[]
      */
-    public function getCodeSystem() {
+    public function getCodeSystem()
+    {
         return $this->codeSystem;
     }
 
@@ -554,7 +591,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesCodeSystem $codeSystem
      * @return $this
      */
-    public function addCodeSystem($codeSystem) {
+    public function addCodeSystem($codeSystem)
+    {
         $this->codeSystem[] = $codeSystem;
         return $this;
     }
@@ -563,7 +601,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * Information about the [ValueSet/$expand](valueset-operation-expand.html) operation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesExpansion
      */
-    public function getExpansion() {
+    public function getExpansion()
+    {
         return $this->expansion;
     }
 
@@ -572,7 +611,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesExpansion $expansion
      * @return $this
      */
-    public function setExpansion($expansion) {
+    public function setExpansion($expansion)
+    {
         $this->expansion = $expansion;
         return $this;
     }
@@ -581,7 +621,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * The degree to which the server supports the code search parameter on ValueSet, if it is supported.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeSearchSupport
      */
-    public function getCodeSearch() {
+    public function getCodeSearch()
+    {
         return $this->codeSearch;
     }
 
@@ -590,7 +631,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeSearchSupport $codeSearch
      * @return $this
      */
-    public function setCodeSearch($codeSearch) {
+    public function setCodeSearch($codeSearch)
+    {
         $this->codeSearch = $codeSearch;
         return $this;
     }
@@ -599,7 +641,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * Information about the [ValueSet/$validate-code](valueset-operation-validate-code.html) operation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesValidateCode
      */
-    public function getValidateCode() {
+    public function getValidateCode()
+    {
         return $this->validateCode;
     }
 
@@ -608,7 +651,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesValidateCode $validateCode
      * @return $this
      */
-    public function setValidateCode($validateCode) {
+    public function setValidateCode($validateCode)
+    {
         $this->validateCode = $validateCode;
         return $this;
     }
@@ -617,7 +661,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * Information about the [ConceptMap/$translate](conceptmap-operation-translate.html) operation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesTranslation
      */
-    public function getTranslation() {
+    public function getTranslation()
+    {
         return $this->translation;
     }
 
@@ -626,7 +671,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesTranslation $translation
      * @return $this
      */
-    public function setTranslation($translation) {
+    public function setTranslation($translation)
+    {
         $this->translation = $translation;
         return $this;
     }
@@ -635,7 +681,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * Whether the $closure operation is supported.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesClosure
      */
-    public function getClosure() {
+    public function getClosure()
+    {
         return $this->closure;
     }
 
@@ -644,7 +691,8 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesClosure $closure
      * @return $this
      */
-    public function setClosure($closure) {
+    public function setClosure($closure)
+    {
         $this->closure = $closure;
         return $this;
     }
@@ -652,14 +700,16 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['url'])) {
                 $this->setUrl($data['url']);
@@ -687,7 +737,7 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['contact'])) {
                 if (is_array($data['contact'])) {
-                    foreach($data['contact'] as $d) {
+                    foreach ($data['contact'] as $d) {
                         $this->addContact($d);
                     }
                 } else {
@@ -699,7 +749,7 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['useContext'])) {
                 if (is_array($data['useContext'])) {
-                    foreach($data['useContext'] as $d) {
+                    foreach ($data['useContext'] as $d) {
                         $this->addUseContext($d);
                     }
                 } else {
@@ -708,7 +758,7 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['jurisdiction'])) {
                 if (is_array($data['jurisdiction'])) {
-                    foreach($data['jurisdiction'] as $d) {
+                    foreach ($data['jurisdiction'] as $d) {
                         $this->addJurisdiction($d);
                     }
                 } else {
@@ -735,7 +785,7 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['codeSystem'])) {
                 if (is_array($data['codeSystem'])) {
-                    foreach($data['codeSystem'] as $d) {
+                    foreach ($data['codeSystem'] as $d) {
                         $this->addCodeSystem($d);
                     }
                 } else {
@@ -766,60 +816,102 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->url)) $json['url'] = $this->url;
-        if (isset($this->version)) $json['version'] = $this->version;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->experimental)) $json['experimental'] = $this->experimental;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->publisher)) $json['publisher'] = $this->publisher;
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->experimental)) {
+            $json['experimental'] = $this->experimental;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->publisher)) {
+            $json['publisher'] = $this->publisher;
+        }
         if (0 < count($this->contact)) {
             $json['contact'] = [];
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $json['contact'][] = $contact;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->useContext)) {
             $json['useContext'] = [];
-            foreach($this->useContext as $useContext) {
+            foreach ($this->useContext as $useContext) {
                 $json['useContext'][] = $useContext;
             }
         }
         if (0 < count($this->jurisdiction)) {
             $json['jurisdiction'] = [];
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $json['jurisdiction'][] = $jurisdiction;
             }
         }
-        if (isset($this->purpose)) $json['purpose'] = $this->purpose;
-        if (isset($this->copyright)) $json['copyright'] = $this->copyright;
-        if (isset($this->kind)) $json['kind'] = $this->kind;
-        if (isset($this->software)) $json['software'] = $this->software;
-        if (isset($this->implementation)) $json['implementation'] = $this->implementation;
-        if (isset($this->lockedDate)) $json['lockedDate'] = $this->lockedDate;
+        if (isset($this->purpose)) {
+            $json['purpose'] = $this->purpose;
+        }
+        if (isset($this->copyright)) {
+            $json['copyright'] = $this->copyright;
+        }
+        if (isset($this->kind)) {
+            $json['kind'] = $this->kind;
+        }
+        if (isset($this->software)) {
+            $json['software'] = $this->software;
+        }
+        if (isset($this->implementation)) {
+            $json['implementation'] = $this->implementation;
+        }
+        if (isset($this->lockedDate)) {
+            $json['lockedDate'] = $this->lockedDate;
+        }
         if (0 < count($this->codeSystem)) {
             $json['codeSystem'] = [];
-            foreach($this->codeSystem as $codeSystem) {
+            foreach ($this->codeSystem as $codeSystem) {
                 $json['codeSystem'][] = $codeSystem;
             }
         }
-        if (isset($this->expansion)) $json['expansion'] = $this->expansion;
-        if (isset($this->codeSearch)) $json['codeSearch'] = $this->codeSearch;
-        if (isset($this->validateCode)) $json['validateCode'] = $this->validateCode;
-        if (isset($this->translation)) $json['translation'] = $this->translation;
-        if (isset($this->closure)) $json['closure'] = $this->closure;
+        if (isset($this->expansion)) {
+            $json['expansion'] = $this->expansion;
+        }
+        if (isset($this->codeSearch)) {
+            $json['codeSearch'] = $this->codeSearch;
+        }
+        if (isset($this->validateCode)) {
+            $json['validateCode'] = $this->validateCode;
+        }
+        if (isset($this->translation)) {
+            $json['translation'] = $this->translation;
+        }
+        if (isset($this->closure)) {
+            $json['closure'] = $this->closure;
+        }
         return $json;
     }
 
@@ -828,52 +920,95 @@ class FHIRTerminologyCapabilities extends FHIRDomainResource implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TerminologyCapabilities xmlns="http://hl7.org/fhir"></TerminologyCapabilities>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TerminologyCapabilities xmlns="http://hl7.org/fhir"></TerminologyCapabilities>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->experimental)) $this->experimental->xmlSerialize(true, $sxe->addChild('experimental'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->publisher)) $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->experimental)) {
+            $this->experimental->xmlSerialize(true, $sxe->addChild('experimental'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->publisher)) {
+            $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        }
         if (0 < count($this->contact)) {
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $contact->xmlSerialize(true, $sxe->addChild('contact'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->useContext)) {
-            foreach($this->useContext as $useContext) {
+            foreach ($this->useContext as $useContext) {
                 $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
             }
         }
         if (0 < count($this->jurisdiction)) {
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
             }
         }
-        if (isset($this->purpose)) $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
-        if (isset($this->copyright)) $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
-        if (isset($this->kind)) $this->kind->xmlSerialize(true, $sxe->addChild('kind'));
-        if (isset($this->software)) $this->software->xmlSerialize(true, $sxe->addChild('software'));
-        if (isset($this->implementation)) $this->implementation->xmlSerialize(true, $sxe->addChild('implementation'));
-        if (isset($this->lockedDate)) $this->lockedDate->xmlSerialize(true, $sxe->addChild('lockedDate'));
+        if (isset($this->purpose)) {
+            $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
+        }
+        if (isset($this->copyright)) {
+            $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
+        }
+        if (isset($this->kind)) {
+            $this->kind->xmlSerialize(true, $sxe->addChild('kind'));
+        }
+        if (isset($this->software)) {
+            $this->software->xmlSerialize(true, $sxe->addChild('software'));
+        }
+        if (isset($this->implementation)) {
+            $this->implementation->xmlSerialize(true, $sxe->addChild('implementation'));
+        }
+        if (isset($this->lockedDate)) {
+            $this->lockedDate->xmlSerialize(true, $sxe->addChild('lockedDate'));
+        }
         if (0 < count($this->codeSystem)) {
-            foreach($this->codeSystem as $codeSystem) {
+            foreach ($this->codeSystem as $codeSystem) {
                 $codeSystem->xmlSerialize(true, $sxe->addChild('codeSystem'));
             }
         }
-        if (isset($this->expansion)) $this->expansion->xmlSerialize(true, $sxe->addChild('expansion'));
-        if (isset($this->codeSearch)) $this->codeSearch->xmlSerialize(true, $sxe->addChild('codeSearch'));
-        if (isset($this->validateCode)) $this->validateCode->xmlSerialize(true, $sxe->addChild('validateCode'));
-        if (isset($this->translation)) $this->translation->xmlSerialize(true, $sxe->addChild('translation'));
-        if (isset($this->closure)) $this->closure->xmlSerialize(true, $sxe->addChild('closure'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->expansion)) {
+            $this->expansion->xmlSerialize(true, $sxe->addChild('expansion'));
+        }
+        if (isset($this->codeSearch)) {
+            $this->codeSearch->xmlSerialize(true, $sxe->addChild('codeSearch'));
+        }
+        if (isset($this->validateCode)) {
+            $this->validateCode->xmlSerialize(true, $sxe->addChild('validateCode'));
+        }
+        if (isset($this->translation)) {
+            $this->translation->xmlSerialize(true, $sxe->addChild('translation'));
+        }
+        if (isset($this->closure)) {
+            $this->closure->xmlSerialize(true, $sxe->addChild('closure'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

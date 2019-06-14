@@ -85,7 +85,8 @@ class FHIRMedicinalProductInteractionInteractant extends FHIRBackboneElement imp
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getItemReference() {
+    public function getItemReference()
+    {
         return $this->itemReference;
     }
 
@@ -93,7 +94,8 @@ class FHIRMedicinalProductInteractionInteractant extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $itemReference
      * @return $this
      */
-    public function setItemReference($itemReference) {
+    public function setItemReference($itemReference)
+    {
         $this->itemReference = $itemReference;
         return $this;
     }
@@ -101,7 +103,8 @@ class FHIRMedicinalProductInteractionInteractant extends FHIRBackboneElement imp
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getItemCodeableConcept() {
+    public function getItemCodeableConcept()
+    {
         return $this->itemCodeableConcept;
     }
 
@@ -109,7 +112,8 @@ class FHIRMedicinalProductInteractionInteractant extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $itemCodeableConcept
      * @return $this
      */
-    public function setItemCodeableConcept($itemCodeableConcept) {
+    public function setItemCodeableConcept($itemCodeableConcept)
+    {
         $this->itemCodeableConcept = $itemCodeableConcept;
         return $this;
     }
@@ -117,14 +121,16 @@ class FHIRMedicinalProductInteractionInteractant extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['itemReference'])) {
                 $this->setItemReference($data['itemReference']);
@@ -141,17 +147,23 @@ class FHIRMedicinalProductInteractionInteractant extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->itemReference)) $json['itemReference'] = $this->itemReference;
-        if (isset($this->itemCodeableConcept)) $json['itemCodeableConcept'] = $this->itemCodeableConcept;
+        if (isset($this->itemReference)) {
+            $json['itemReference'] = $this->itemReference;
+        }
+        if (isset($this->itemCodeableConcept)) {
+            $json['itemCodeableConcept'] = $this->itemCodeableConcept;
+        }
         return $json;
     }
 
@@ -160,14 +172,21 @@ class FHIRMedicinalProductInteractionInteractant extends FHIRBackboneElement imp
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductInteractionInteractant xmlns="http://hl7.org/fhir"></MedicinalProductInteractionInteractant>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductInteractionInteractant xmlns="http://hl7.org/fhir"></MedicinalProductInteractionInteractant>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->itemReference)) $this->itemReference->xmlSerialize(true, $sxe->addChild('itemReference'));
-        if (isset($this->itemCodeableConcept)) $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->itemReference)) {
+            $this->itemReference->xmlSerialize(true, $sxe->addChild('itemReference'));
+        }
+        if (isset($this->itemCodeableConcept)) {
+            $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

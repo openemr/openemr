@@ -135,7 +135,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getValueBoolean() {
+    public function getValueBoolean()
+    {
         return $this->valueBoolean;
     }
 
@@ -143,7 +144,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $valueBoolean
      * @return $this
      */
-    public function setValueBoolean($valueBoolean) {
+    public function setValueBoolean($valueBoolean)
+    {
         $this->valueBoolean = $valueBoolean;
         return $this;
     }
@@ -151,7 +153,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getValueDecimal() {
+    public function getValueDecimal()
+    {
         return $this->valueDecimal;
     }
 
@@ -159,7 +162,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $valueDecimal
      * @return $this
      */
-    public function setValueDecimal($valueDecimal) {
+    public function setValueDecimal($valueDecimal)
+    {
         $this->valueDecimal = $valueDecimal;
         return $this;
     }
@@ -167,7 +171,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getValueInteger() {
+    public function getValueInteger()
+    {
         return $this->valueInteger;
     }
 
@@ -175,7 +180,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $valueInteger
      * @return $this
      */
-    public function setValueInteger($valueInteger) {
+    public function setValueInteger($valueInteger)
+    {
         $this->valueInteger = $valueInteger;
         return $this;
     }
@@ -183,7 +189,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getValueDate() {
+    public function getValueDate()
+    {
         return $this->valueDate;
     }
 
@@ -191,7 +198,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $valueDate
      * @return $this
      */
-    public function setValueDate($valueDate) {
+    public function setValueDate($valueDate)
+    {
         $this->valueDate = $valueDate;
         return $this;
     }
@@ -199,7 +207,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getValueDateTime() {
+    public function getValueDateTime()
+    {
         return $this->valueDateTime;
     }
 
@@ -207,7 +216,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $valueDateTime
      * @return $this
      */
-    public function setValueDateTime($valueDateTime) {
+    public function setValueDateTime($valueDateTime)
+    {
         $this->valueDateTime = $valueDateTime;
         return $this;
     }
@@ -215,7 +225,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getValueTime() {
+    public function getValueTime()
+    {
         return $this->valueTime;
     }
 
@@ -223,7 +234,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $valueTime
      * @return $this
      */
-    public function setValueTime($valueTime) {
+    public function setValueTime($valueTime)
+    {
         $this->valueTime = $valueTime;
         return $this;
     }
@@ -231,7 +243,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValueString() {
+    public function getValueString()
+    {
         return $this->valueString;
     }
 
@@ -239,7 +252,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $valueString
      * @return $this
      */
-    public function setValueString($valueString) {
+    public function setValueString($valueString)
+    {
         $this->valueString = $valueString;
         return $this;
     }
@@ -247,7 +261,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getValueUri() {
+    public function getValueUri()
+    {
         return $this->valueUri;
     }
 
@@ -255,7 +270,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $valueUri
      * @return $this
      */
-    public function setValueUri($valueUri) {
+    public function setValueUri($valueUri)
+    {
         $this->valueUri = $valueUri;
         return $this;
     }
@@ -263,7 +279,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getValueAttachment() {
+    public function getValueAttachment()
+    {
         return $this->valueAttachment;
     }
 
@@ -271,7 +288,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $valueAttachment
      * @return $this
      */
-    public function setValueAttachment($valueAttachment) {
+    public function setValueAttachment($valueAttachment)
+    {
         $this->valueAttachment = $valueAttachment;
         return $this;
     }
@@ -279,7 +297,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getValueCoding() {
+    public function getValueCoding()
+    {
         return $this->valueCoding;
     }
 
@@ -287,7 +306,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $valueCoding
      * @return $this
      */
-    public function setValueCoding($valueCoding) {
+    public function setValueCoding($valueCoding)
+    {
         $this->valueCoding = $valueCoding;
         return $this;
     }
@@ -295,7 +315,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValueQuantity() {
+    public function getValueQuantity()
+    {
         return $this->valueQuantity;
     }
 
@@ -303,7 +324,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
      * @return $this
      */
-    public function setValueQuantity($valueQuantity) {
+    public function setValueQuantity($valueQuantity)
+    {
         $this->valueQuantity = $valueQuantity;
         return $this;
     }
@@ -311,7 +333,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getValueReference() {
+    public function getValueReference()
+    {
         return $this->valueReference;
     }
 
@@ -319,7 +342,8 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $valueReference
      * @return $this
      */
-    public function setValueReference($valueReference) {
+    public function setValueReference($valueReference)
+    {
         $this->valueReference = $valueReference;
         return $this;
     }
@@ -327,14 +351,16 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['valueBoolean'])) {
                 $this->setValueBoolean($data['valueBoolean']);
@@ -381,27 +407,53 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->valueBoolean)) $json['valueBoolean'] = $this->valueBoolean;
-        if (isset($this->valueDecimal)) $json['valueDecimal'] = $this->valueDecimal;
-        if (isset($this->valueInteger)) $json['valueInteger'] = $this->valueInteger;
-        if (isset($this->valueDate)) $json['valueDate'] = $this->valueDate;
-        if (isset($this->valueDateTime)) $json['valueDateTime'] = $this->valueDateTime;
-        if (isset($this->valueTime)) $json['valueTime'] = $this->valueTime;
-        if (isset($this->valueString)) $json['valueString'] = $this->valueString;
-        if (isset($this->valueUri)) $json['valueUri'] = $this->valueUri;
-        if (isset($this->valueAttachment)) $json['valueAttachment'] = $this->valueAttachment;
-        if (isset($this->valueCoding)) $json['valueCoding'] = $this->valueCoding;
-        if (isset($this->valueQuantity)) $json['valueQuantity'] = $this->valueQuantity;
-        if (isset($this->valueReference)) $json['valueReference'] = $this->valueReference;
+        if (isset($this->valueBoolean)) {
+            $json['valueBoolean'] = $this->valueBoolean;
+        }
+        if (isset($this->valueDecimal)) {
+            $json['valueDecimal'] = $this->valueDecimal;
+        }
+        if (isset($this->valueInteger)) {
+            $json['valueInteger'] = $this->valueInteger;
+        }
+        if (isset($this->valueDate)) {
+            $json['valueDate'] = $this->valueDate;
+        }
+        if (isset($this->valueDateTime)) {
+            $json['valueDateTime'] = $this->valueDateTime;
+        }
+        if (isset($this->valueTime)) {
+            $json['valueTime'] = $this->valueTime;
+        }
+        if (isset($this->valueString)) {
+            $json['valueString'] = $this->valueString;
+        }
+        if (isset($this->valueUri)) {
+            $json['valueUri'] = $this->valueUri;
+        }
+        if (isset($this->valueAttachment)) {
+            $json['valueAttachment'] = $this->valueAttachment;
+        }
+        if (isset($this->valueCoding)) {
+            $json['valueCoding'] = $this->valueCoding;
+        }
+        if (isset($this->valueQuantity)) {
+            $json['valueQuantity'] = $this->valueQuantity;
+        }
+        if (isset($this->valueReference)) {
+            $json['valueReference'] = $this->valueReference;
+        }
         return $json;
     }
 
@@ -410,24 +462,51 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ContractAnswer xmlns="http://hl7.org/fhir"></ContractAnswer>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ContractAnswer xmlns="http://hl7.org/fhir"></ContractAnswer>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->valueBoolean)) $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
-        if (isset($this->valueDecimal)) $this->valueDecimal->xmlSerialize(true, $sxe->addChild('valueDecimal'));
-        if (isset($this->valueInteger)) $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
-        if (isset($this->valueDate)) $this->valueDate->xmlSerialize(true, $sxe->addChild('valueDate'));
-        if (isset($this->valueDateTime)) $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
-        if (isset($this->valueTime)) $this->valueTime->xmlSerialize(true, $sxe->addChild('valueTime'));
-        if (isset($this->valueString)) $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
-        if (isset($this->valueUri)) $this->valueUri->xmlSerialize(true, $sxe->addChild('valueUri'));
-        if (isset($this->valueAttachment)) $this->valueAttachment->xmlSerialize(true, $sxe->addChild('valueAttachment'));
-        if (isset($this->valueCoding)) $this->valueCoding->xmlSerialize(true, $sxe->addChild('valueCoding'));
-        if (isset($this->valueQuantity)) $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
-        if (isset($this->valueReference)) $this->valueReference->xmlSerialize(true, $sxe->addChild('valueReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->valueBoolean)) {
+            $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
+        }
+        if (isset($this->valueDecimal)) {
+            $this->valueDecimal->xmlSerialize(true, $sxe->addChild('valueDecimal'));
+        }
+        if (isset($this->valueInteger)) {
+            $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
+        }
+        if (isset($this->valueDate)) {
+            $this->valueDate->xmlSerialize(true, $sxe->addChild('valueDate'));
+        }
+        if (isset($this->valueDateTime)) {
+            $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
+        }
+        if (isset($this->valueTime)) {
+            $this->valueTime->xmlSerialize(true, $sxe->addChild('valueTime'));
+        }
+        if (isset($this->valueString)) {
+            $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
+        }
+        if (isset($this->valueUri)) {
+            $this->valueUri->xmlSerialize(true, $sxe->addChild('valueUri'));
+        }
+        if (isset($this->valueAttachment)) {
+            $this->valueAttachment->xmlSerialize(true, $sxe->addChild('valueAttachment'));
+        }
+        if (isset($this->valueCoding)) {
+            $this->valueCoding->xmlSerialize(true, $sxe->addChild('valueCoding'));
+        }
+        if (isset($this->valueQuantity)) {
+            $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
+        }
+        if (isset($this->valueReference)) {
+            $this->valueReference->xmlSerialize(true, $sxe->addChild('valueReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIRVisionPrescriptionPrism extends FHIRBackboneElement implements \JsonSe
      * Amount of prism to compensate for eye alignment in fractional units.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -97,7 +98,8 @@ class FHIRVisionPrescriptionPrism extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRVisionPrescriptionPrism extends FHIRBackboneElement implements \JsonSe
      * The relative base, or reference lens edge, for the prism.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRVisionBase
      */
-    public function getBase() {
+    public function getBase()
+    {
         return $this->base;
     }
 
@@ -115,7 +118,8 @@ class FHIRVisionPrescriptionPrism extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRVisionBase $base
      * @return $this
      */
-    public function setBase($base) {
+    public function setBase($base)
+    {
         $this->base = $base;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRVisionPrescriptionPrism extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['amount'])) {
                 $this->setAmount($data['amount']);
@@ -147,17 +153,23 @@ class FHIRVisionPrescriptionPrism extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->amount)) $json['amount'] = $this->amount;
-        if (isset($this->base)) $json['base'] = $this->base;
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
+        if (isset($this->base)) {
+            $json['base'] = $this->base;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRVisionPrescriptionPrism extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<VisionPrescriptionPrism xmlns="http://hl7.org/fhir"></VisionPrescriptionPrism>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<VisionPrescriptionPrism xmlns="http://hl7.org/fhir"></VisionPrescriptionPrism>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
-        if (isset($this->base)) $this->base->xmlSerialize(true, $sxe->addChild('base'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
+        if (isset($this->base)) {
+            $this->base->xmlSerialize(true, $sxe->addChild('base'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

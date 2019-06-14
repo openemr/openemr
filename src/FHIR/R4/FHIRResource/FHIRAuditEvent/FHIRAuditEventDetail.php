@@ -92,7 +92,8 @@ class FHIRAuditEventDetail extends FHIRBackboneElement implements \JsonSerializa
      * The type of extra detail provided in the value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -101,7 +102,8 @@ class FHIRAuditEventDetail extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -109,7 +111,8 @@ class FHIRAuditEventDetail extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValueString() {
+    public function getValueString()
+    {
         return $this->valueString;
     }
 
@@ -117,7 +120,8 @@ class FHIRAuditEventDetail extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $valueString
      * @return $this
      */
-    public function setValueString($valueString) {
+    public function setValueString($valueString)
+    {
         $this->valueString = $valueString;
         return $this;
     }
@@ -125,7 +129,8 @@ class FHIRAuditEventDetail extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary
      */
-    public function getValueBase64Binary() {
+    public function getValueBase64Binary()
+    {
         return $this->valueBase64Binary;
     }
 
@@ -133,7 +138,8 @@ class FHIRAuditEventDetail extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary $valueBase64Binary
      * @return $this
      */
-    public function setValueBase64Binary($valueBase64Binary) {
+    public function setValueBase64Binary($valueBase64Binary)
+    {
         $this->valueBase64Binary = $valueBase64Binary;
         return $this;
     }
@@ -141,14 +147,16 @@ class FHIRAuditEventDetail extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -168,18 +176,26 @@ class FHIRAuditEventDetail extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->valueString)) $json['valueString'] = $this->valueString;
-        if (isset($this->valueBase64Binary)) $json['valueBase64Binary'] = $this->valueBase64Binary;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->valueString)) {
+            $json['valueString'] = $this->valueString;
+        }
+        if (isset($this->valueBase64Binary)) {
+            $json['valueBase64Binary'] = $this->valueBase64Binary;
+        }
         return $json;
     }
 
@@ -188,15 +204,24 @@ class FHIRAuditEventDetail extends FHIRBackboneElement implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<AuditEventDetail xmlns="http://hl7.org/fhir"></AuditEventDetail>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<AuditEventDetail xmlns="http://hl7.org/fhir"></AuditEventDetail>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->valueString)) $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
-        if (isset($this->valueBase64Binary)) $this->valueBase64Binary->xmlSerialize(true, $sxe->addChild('valueBase64Binary'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->valueString)) {
+            $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
+        }
+        if (isset($this->valueBase64Binary)) {
+            $this->valueBase64Binary->xmlSerialize(true, $sxe->addChild('valueBase64Binary'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

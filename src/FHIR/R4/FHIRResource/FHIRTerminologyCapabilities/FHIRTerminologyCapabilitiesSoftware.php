@@ -88,7 +88,8 @@ class FHIRTerminologyCapabilitiesSoftware extends FHIRBackboneElement implements
      * Name the software is known by.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -97,7 +98,8 @@ class FHIRTerminologyCapabilitiesSoftware extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRTerminologyCapabilitiesSoftware extends FHIRBackboneElement implements
      * The version identifier for the software covered by this statement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -115,7 +118,8 @@ class FHIRTerminologyCapabilitiesSoftware extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRTerminologyCapabilitiesSoftware extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -147,17 +153,23 @@ class FHIRTerminologyCapabilitiesSoftware extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->version)) $json['version'] = $this->version;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRTerminologyCapabilitiesSoftware extends FHIRBackboneElement implements
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesSoftware xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesSoftware>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesSoftware xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesSoftware>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

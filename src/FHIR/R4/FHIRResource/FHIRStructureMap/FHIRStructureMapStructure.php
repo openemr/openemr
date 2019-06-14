@@ -100,7 +100,8 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
      * The canonical reference to the structure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -109,7 +110,8 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
      * How the referenced structure is used in this mapping.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRStructureMapModelMode
      */
-    public function getMode() {
+    public function getMode()
+    {
         return $this->mode;
     }
 
@@ -127,7 +130,8 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRStructureMapModelMode $mode
      * @return $this
      */
-    public function setMode($mode) {
+    public function setMode($mode)
+    {
         $this->mode = $mode;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
      * The name used for this type in the map.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAlias() {
+    public function getAlias()
+    {
         return $this->alias;
     }
 
@@ -145,7 +150,8 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $alias
      * @return $this
      */
-    public function setAlias($alias) {
+    public function setAlias($alias)
+    {
         $this->alias = $alias;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
      * Documentation that describes how the structure is used in the mapping.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDocumentation() {
+    public function getDocumentation()
+    {
         return $this->documentation;
     }
 
@@ -163,7 +170,8 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $documentation
      * @return $this
      */
-    public function setDocumentation($documentation) {
+    public function setDocumentation($documentation)
+    {
         $this->documentation = $documentation;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['url'])) {
                 $this->setUrl($data['url']);
@@ -201,19 +211,29 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->url)) $json['url'] = $this->url;
-        if (isset($this->mode)) $json['mode'] = $this->mode;
-        if (isset($this->alias)) $json['alias'] = $this->alias;
-        if (isset($this->documentation)) $json['documentation'] = $this->documentation;
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
+        if (isset($this->mode)) {
+            $json['mode'] = $this->mode;
+        }
+        if (isset($this->alias)) {
+            $json['alias'] = $this->alias;
+        }
+        if (isset($this->documentation)) {
+            $json['documentation'] = $this->documentation;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRStructureMapStructure extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<StructureMapStructure xmlns="http://hl7.org/fhir"></StructureMapStructure>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<StructureMapStructure xmlns="http://hl7.org/fhir"></StructureMapStructure>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
-        if (isset($this->mode)) $this->mode->xmlSerialize(true, $sxe->addChild('mode'));
-        if (isset($this->alias)) $this->alias->xmlSerialize(true, $sxe->addChild('alias'));
-        if (isset($this->documentation)) $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
+        if (isset($this->mode)) {
+            $this->mode->xmlSerialize(true, $sxe->addChild('mode'));
+        }
+        if (isset($this->alias)) {
+            $this->alias->xmlSerialize(true, $sxe->addChild('alias'));
+        }
+        if (isset($this->documentation)) {
+            $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

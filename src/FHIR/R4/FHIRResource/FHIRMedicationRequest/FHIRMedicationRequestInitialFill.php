@@ -88,7 +88,8 @@ class FHIRMedicationRequestInitialFill extends FHIRBackboneElement implements \J
      * The amount or quantity to provide as part of the first dispense.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -97,7 +98,8 @@ class FHIRMedicationRequestInitialFill extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMedicationRequestInitialFill extends FHIRBackboneElement implements \J
      * The length of time that the first dispense is expected to last.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getDuration() {
+    public function getDuration()
+    {
         return $this->duration;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicationRequestInitialFill extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $duration
      * @return $this
      */
-    public function setDuration($duration) {
+    public function setDuration($duration)
+    {
         $this->duration = $duration;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRMedicationRequestInitialFill extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['quantity'])) {
                 $this->setQuantity($data['quantity']);
@@ -147,17 +153,23 @@ class FHIRMedicationRequestInitialFill extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->duration)) $json['duration'] = $this->duration;
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->duration)) {
+            $json['duration'] = $this->duration;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRMedicationRequestInitialFill extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationRequestInitialFill xmlns="http://hl7.org/fhir"></MedicationRequestInitialFill>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationRequestInitialFill xmlns="http://hl7.org/fhir"></MedicationRequestInitialFill>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->duration)) $this->duration->xmlSerialize(true, $sxe->addChild('duration'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->duration)) {
+            $this->duration->xmlSerialize(true, $sxe->addChild('duration'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

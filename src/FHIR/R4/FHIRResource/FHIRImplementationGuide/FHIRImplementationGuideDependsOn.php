@@ -94,7 +94,8 @@ class FHIRImplementationGuideDependsOn extends FHIRBackboneElement implements \J
      * A canonical reference to the Implementation guide for the dependency.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getUri() {
+    public function getUri()
+    {
         return $this->uri;
     }
 
@@ -103,7 +104,8 @@ class FHIRImplementationGuideDependsOn extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $uri
      * @return $this
      */
-    public function setUri($uri) {
+    public function setUri($uri)
+    {
         $this->uri = $uri;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRImplementationGuideDependsOn extends FHIRBackboneElement implements \J
      * The NPM package name for the Implementation Guide that this IG depends on.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getPackageId() {
+    public function getPackageId()
+    {
         return $this->packageId;
     }
 
@@ -121,7 +124,8 @@ class FHIRImplementationGuideDependsOn extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $packageId
      * @return $this
      */
-    public function setPackageId($packageId) {
+    public function setPackageId($packageId)
+    {
         $this->packageId = $packageId;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRImplementationGuideDependsOn extends FHIRBackboneElement implements \J
      * The version of the IG that is depended on, when the correct version is required to understand the IG correctly.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -139,7 +144,8 @@ class FHIRImplementationGuideDependsOn extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRImplementationGuideDependsOn extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['uri'])) {
                 $this->setUri($data['uri']);
@@ -174,18 +182,26 @@ class FHIRImplementationGuideDependsOn extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->uri)) $json['uri'] = $this->uri;
-        if (isset($this->packageId)) $json['packageId'] = $this->packageId;
-        if (isset($this->version)) $json['version'] = $this->version;
+        if (isset($this->uri)) {
+            $json['uri'] = $this->uri;
+        }
+        if (isset($this->packageId)) {
+            $json['packageId'] = $this->packageId;
+        }
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRImplementationGuideDependsOn extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImplementationGuideDependsOn xmlns="http://hl7.org/fhir"></ImplementationGuideDependsOn>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImplementationGuideDependsOn xmlns="http://hl7.org/fhir"></ImplementationGuideDependsOn>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->uri)) $this->uri->xmlSerialize(true, $sxe->addChild('uri'));
-        if (isset($this->packageId)) $this->packageId->xmlSerialize(true, $sxe->addChild('packageId'));
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->uri)) {
+            $this->uri->xmlSerialize(true, $sxe->addChild('uri'));
+        }
+        if (isset($this->packageId)) {
+            $this->packageId->xmlSerialize(true, $sxe->addChild('packageId'));
+        }
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

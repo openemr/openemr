@@ -107,7 +107,8 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * The country in which the marketing authorisation has been granted shall be specified It should be specified using the ISO 3166 ‑ 1 alpha-2 code elements.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCountry() {
+    public function getCountry()
+    {
         return $this->country;
     }
 
@@ -116,7 +117,8 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $country
      * @return $this
      */
-    public function setCountry($country) {
+    public function setCountry($country)
+    {
         $this->country = $country;
         return $this;
     }
@@ -125,7 +127,8 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * Where a Medicines Regulatory Agency has granted a marketing authorisation for which specific provisions within a jurisdiction apply, the jurisdiction can be specified using an appropriate controlled terminology The controlled term and the controlled term identifier shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getJurisdiction() {
+    public function getJurisdiction()
+    {
         return $this->jurisdiction;
     }
 
@@ -134,7 +137,8 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $jurisdiction
      * @return $this
      */
-    public function setJurisdiction($jurisdiction) {
+    public function setJurisdiction($jurisdiction)
+    {
         $this->jurisdiction = $jurisdiction;
         return $this;
     }
@@ -143,7 +147,8 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * This attribute provides information on the status of the marketing of the medicinal product See ISO/TS 20443 for more information and examples.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -152,7 +157,8 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -161,7 +167,8 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * The date when the Medicinal Product is placed on the market by the Marketing Authorisation Holder (or where applicable, the manufacturer/distributor) in a country and/or jurisdiction shall be provided A complete date consisting of day, month and year shall be specified using the ISO 8601 date format NOTE “Placed on the market” refers to the release of the Medicinal Product into the distribution chain.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getDateRange() {
+    public function getDateRange()
+    {
         return $this->dateRange;
     }
 
@@ -170,7 +177,8 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $dateRange
      * @return $this
      */
-    public function setDateRange($dateRange) {
+    public function setDateRange($dateRange)
+    {
         $this->dateRange = $dateRange;
         return $this;
     }
@@ -179,7 +187,8 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * The date when the Medicinal Product is placed on the market by the Marketing Authorisation Holder (or where applicable, the manufacturer/distributor) in a country and/or jurisdiction shall be provided A complete date consisting of day, month and year shall be specified using the ISO 8601 date format NOTE “Placed on the market” refers to the release of the Medicinal Product into the distribution chain.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getRestoreDate() {
+    public function getRestoreDate()
+    {
         return $this->restoreDate;
     }
 
@@ -188,7 +197,8 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $restoreDate
      * @return $this
      */
-    public function setRestoreDate($restoreDate) {
+    public function setRestoreDate($restoreDate)
+    {
         $this->restoreDate = $restoreDate;
         return $this;
     }
@@ -196,14 +206,16 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['country'])) {
                 $this->setCountry($data['country']);
@@ -229,21 +241,33 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->country)) $json['country'] = $this->country;
-        if (isset($this->jurisdiction)) $json['jurisdiction'] = $this->jurisdiction;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->dateRange)) $json['dateRange'] = $this->dateRange;
-        if (isset($this->restoreDate)) $json['restoreDate'] = $this->restoreDate;
+        if (isset($this->country)) {
+            $json['country'] = $this->country;
+        }
+        if (isset($this->jurisdiction)) {
+            $json['jurisdiction'] = $this->jurisdiction;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->dateRange)) {
+            $json['dateRange'] = $this->dateRange;
+        }
+        if (isset($this->restoreDate)) {
+            $json['restoreDate'] = $this->restoreDate;
+        }
         return $json;
     }
 
@@ -252,17 +276,30 @@ class FHIRMarketingStatus extends FHIRBackboneElement implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MarketingStatus xmlns="http://hl7.org/fhir"></MarketingStatus>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MarketingStatus xmlns="http://hl7.org/fhir"></MarketingStatus>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->country)) $this->country->xmlSerialize(true, $sxe->addChild('country'));
-        if (isset($this->jurisdiction)) $this->jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->dateRange)) $this->dateRange->xmlSerialize(true, $sxe->addChild('dateRange'));
-        if (isset($this->restoreDate)) $this->restoreDate->xmlSerialize(true, $sxe->addChild('restoreDate'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->country)) {
+            $this->country->xmlSerialize(true, $sxe->addChild('country'));
+        }
+        if (isset($this->jurisdiction)) {
+            $this->jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->dateRange)) {
+            $this->dateRange->xmlSerialize(true, $sxe->addChild('dateRange'));
+        }
+        if (isset($this->restoreDate)) {
+            $this->restoreDate->xmlSerialize(true, $sxe->addChild('restoreDate'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

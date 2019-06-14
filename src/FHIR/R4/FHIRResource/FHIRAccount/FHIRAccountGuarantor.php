@@ -94,7 +94,8 @@ class FHIRAccountGuarantor extends FHIRBackboneElement implements \JsonSerializa
      * The entity who is responsible.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getParty() {
+    public function getParty()
+    {
         return $this->party;
     }
 
@@ -103,7 +104,8 @@ class FHIRAccountGuarantor extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $party
      * @return $this
      */
-    public function setParty($party) {
+    public function setParty($party)
+    {
         $this->party = $party;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRAccountGuarantor extends FHIRBackboneElement implements \JsonSerializa
      * A guarantor may be placed on credit hold or otherwise have their role temporarily suspended.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getOnHold() {
+    public function getOnHold()
+    {
         return $this->onHold;
     }
 
@@ -121,7 +124,8 @@ class FHIRAccountGuarantor extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $onHold
      * @return $this
      */
-    public function setOnHold($onHold) {
+    public function setOnHold($onHold)
+    {
         $this->onHold = $onHold;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRAccountGuarantor extends FHIRBackboneElement implements \JsonSerializa
      * The timeframe during which the guarantor accepts responsibility for the account.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -139,7 +144,8 @@ class FHIRAccountGuarantor extends FHIRBackboneElement implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRAccountGuarantor extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['party'])) {
                 $this->setParty($data['party']);
@@ -174,18 +182,26 @@ class FHIRAccountGuarantor extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->party)) $json['party'] = $this->party;
-        if (isset($this->onHold)) $json['onHold'] = $this->onHold;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->party)) {
+            $json['party'] = $this->party;
+        }
+        if (isset($this->onHold)) {
+            $json['onHold'] = $this->onHold;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRAccountGuarantor extends FHIRBackboneElement implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<AccountGuarantor xmlns="http://hl7.org/fhir"></AccountGuarantor>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<AccountGuarantor xmlns="http://hl7.org/fhir"></AccountGuarantor>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->party)) $this->party->xmlSerialize(true, $sxe->addChild('party'));
-        if (isset($this->onHold)) $this->onHold->xmlSerialize(true, $sxe->addChild('onHold'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->party)) {
+            $this->party->xmlSerialize(true, $sxe->addChild('party'));
+        }
+        if (isset($this->onHold)) {
+            $this->onHold->xmlSerialize(true, $sxe->addChild('onHold'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

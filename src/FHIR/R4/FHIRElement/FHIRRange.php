@@ -89,7 +89,8 @@ class FHIRRange extends FHIRElement implements \JsonSerializable
      * The low limit. The boundary is inclusive.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getLow() {
+    public function getLow()
+    {
         return $this->low;
     }
 
@@ -98,7 +99,8 @@ class FHIRRange extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $low
      * @return $this
      */
-    public function setLow($low) {
+    public function setLow($low)
+    {
         $this->low = $low;
         return $this;
     }
@@ -107,7 +109,8 @@ class FHIRRange extends FHIRElement implements \JsonSerializable
      * The high limit. The boundary is inclusive.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getHigh() {
+    public function getHigh()
+    {
         return $this->high;
     }
 
@@ -116,7 +119,8 @@ class FHIRRange extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $high
      * @return $this
      */
-    public function setHigh($high) {
+    public function setHigh($high)
+    {
         $this->high = $high;
         return $this;
     }
@@ -124,14 +128,16 @@ class FHIRRange extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['low'])) {
                 $this->setLow($data['low']);
@@ -148,17 +154,23 @@ class FHIRRange extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->low)) $json['low'] = $this->low;
-        if (isset($this->high)) $json['high'] = $this->high;
+        if (isset($this->low)) {
+            $json['low'] = $this->low;
+        }
+        if (isset($this->high)) {
+            $json['high'] = $this->high;
+        }
         return $json;
     }
 
@@ -167,14 +179,21 @@ class FHIRRange extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Range xmlns="http://hl7.org/fhir"></Range>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Range xmlns="http://hl7.org/fhir"></Range>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->low)) $this->low->xmlSerialize(true, $sxe->addChild('low'));
-        if (isset($this->high)) $this->high->xmlSerialize(true, $sxe->addChild('high'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->low)) {
+            $this->low->xmlSerialize(true, $sxe->addChild('low'));
+        }
+        if (isset($this->high)) {
+            $this->high->xmlSerialize(true, $sxe->addChild('high'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

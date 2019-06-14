@@ -215,7 +215,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * Business identifiers assigned to this communication by the performer or other systems which remain constant as the resource is updated and propagates from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -224,7 +225,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -233,7 +235,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this Communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical[]
      */
-    public function getInstantiatesCanonical() {
+    public function getInstantiatesCanonical()
+    {
         return $this->instantiatesCanonical;
     }
 
@@ -242,7 +245,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $instantiatesCanonical
      * @return $this
      */
-    public function addInstantiatesCanonical($instantiatesCanonical) {
+    public function addInstantiatesCanonical($instantiatesCanonical)
+    {
         $this->instantiatesCanonical[] = $instantiatesCanonical;
         return $this;
     }
@@ -251,7 +255,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this Communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getInstantiatesUri() {
+    public function getInstantiatesUri()
+    {
         return $this->instantiatesUri;
     }
 
@@ -260,7 +265,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $instantiatesUri
      * @return $this
      */
-    public function addInstantiatesUri($instantiatesUri) {
+    public function addInstantiatesUri($instantiatesUri)
+    {
         $this->instantiatesUri[] = $instantiatesUri;
         return $this;
     }
@@ -269,7 +275,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * An order, proposal or plan fulfilled in whole or in part by this Communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getBasedOn() {
+    public function getBasedOn()
+    {
         return $this->basedOn;
     }
 
@@ -278,7 +285,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $basedOn
      * @return $this
      */
-    public function addBasedOn($basedOn) {
+    public function addBasedOn($basedOn)
+    {
         $this->basedOn[] = $basedOn;
         return $this;
     }
@@ -287,7 +295,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * Part of this action.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPartOf() {
+    public function getPartOf()
+    {
         return $this->partOf;
     }
 
@@ -296,7 +305,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $partOf
      * @return $this
      */
-    public function addPartOf($partOf) {
+    public function addPartOf($partOf)
+    {
         $this->partOf[] = $partOf;
         return $this;
     }
@@ -305,7 +315,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * Prior communication that this communication is in response to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getInResponseTo() {
+    public function getInResponseTo()
+    {
         return $this->inResponseTo;
     }
 
@@ -314,7 +325,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $inResponseTo
      * @return $this
      */
-    public function addInResponseTo($inResponseTo) {
+    public function addInResponseTo($inResponseTo)
+    {
         $this->inResponseTo[] = $inResponseTo;
         return $this;
     }
@@ -323,7 +335,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The status of the transmission.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIREventStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -332,7 +345,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIREventStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -341,7 +355,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * Captures the reason for the current state of the Communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatusReason() {
+    public function getStatusReason()
+    {
         return $this->statusReason;
     }
 
@@ -350,7 +365,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $statusReason
      * @return $this
      */
-    public function setStatusReason($statusReason) {
+    public function setStatusReason($statusReason)
+    {
         $this->statusReason = $statusReason;
         return $this;
     }
@@ -359,7 +375,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The type of message conveyed such as alert, notification, reminder, instruction, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -368,7 +385,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function addCategory($category) {
+    public function addCategory($category)
+    {
         $this->category[] = $category;
         return $this;
     }
@@ -377,7 +395,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * Characterizes how quickly the planned or in progress communication must be addressed. Includes concepts such as stat, urgent, routine.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority
      */
-    public function getPriority() {
+    public function getPriority()
+    {
         return $this->priority;
     }
 
@@ -386,7 +405,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority $priority
      * @return $this
      */
-    public function setPriority($priority) {
+    public function setPriority($priority)
+    {
         $this->priority = $priority;
         return $this;
     }
@@ -395,7 +415,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * A channel that was used for this communication (e.g. email, fax).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getMedium() {
+    public function getMedium()
+    {
         return $this->medium;
     }
 
@@ -404,7 +425,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $medium
      * @return $this
      */
-    public function addMedium($medium) {
+    public function addMedium($medium)
+    {
         $this->medium[] = $medium;
         return $this;
     }
@@ -413,7 +435,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The patient or group that was the focus of this communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -422,7 +445,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -431,7 +455,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * Description of the purpose/content, similar to a subject line in an email.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getTopic() {
+    public function getTopic()
+    {
         return $this->topic;
     }
 
@@ -440,7 +465,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $topic
      * @return $this
      */
-    public function setTopic($topic) {
+    public function setTopic($topic)
+    {
         $this->topic = $topic;
         return $this;
     }
@@ -449,7 +475,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * Other resources that pertain to this communication and to which this communication should be associated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getAbout() {
+    public function getAbout()
+    {
         return $this->about;
     }
 
@@ -458,7 +485,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $about
      * @return $this
      */
-    public function addAbout($about) {
+    public function addAbout($about)
+    {
         $this->about[] = $about;
         return $this;
     }
@@ -467,7 +495,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The Encounter during which this Communication was created or to which the creation of this record is tightly associated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEncounter() {
+    public function getEncounter()
+    {
         return $this->encounter;
     }
 
@@ -476,7 +505,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $encounter
      * @return $this
      */
-    public function setEncounter($encounter) {
+    public function setEncounter($encounter)
+    {
         $this->encounter = $encounter;
         return $this;
     }
@@ -485,7 +515,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The time when this communication was sent.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getSent() {
+    public function getSent()
+    {
         return $this->sent;
     }
 
@@ -494,7 +525,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $sent
      * @return $this
      */
-    public function setSent($sent) {
+    public function setSent($sent)
+    {
         $this->sent = $sent;
         return $this;
     }
@@ -503,7 +535,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The time when this communication arrived at the destination.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getReceived() {
+    public function getReceived()
+    {
         return $this->received;
     }
 
@@ -512,7 +545,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $received
      * @return $this
      */
-    public function setReceived($received) {
+    public function setReceived($received)
+    {
         $this->received = $received;
         return $this;
     }
@@ -521,7 +555,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The entity (e.g. person, organization, clinical information system, care team or device) which was the target of the communication. If receipts need to be tracked by an individual, a separate resource instance will need to be created for each recipient.  Multiple recipient communications are intended where either receipts are not tracked (e.g. a mass mail-out) or a receipt is captured in aggregate (all emails confirmed received by a particular time).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getRecipient() {
+    public function getRecipient()
+    {
         return $this->recipient;
     }
 
@@ -530,7 +565,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $recipient
      * @return $this
      */
-    public function addRecipient($recipient) {
+    public function addRecipient($recipient)
+    {
         $this->recipient[] = $recipient;
         return $this;
     }
@@ -539,7 +575,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The entity (e.g. person, organization, clinical information system, or device) which was the source of the communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSender() {
+    public function getSender()
+    {
         return $this->sender;
     }
 
@@ -548,7 +585,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $sender
      * @return $this
      */
-    public function setSender($sender) {
+    public function setSender($sender)
+    {
         $this->sender = $sender;
         return $this;
     }
@@ -557,7 +595,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * The reason or justification for the communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getReasonCode() {
+    public function getReasonCode()
+    {
         return $this->reasonCode;
     }
 
@@ -566,7 +605,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reasonCode
      * @return $this
      */
-    public function addReasonCode($reasonCode) {
+    public function addReasonCode($reasonCode)
+    {
         $this->reasonCode[] = $reasonCode;
         return $this;
     }
@@ -575,7 +615,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * Indicates another resource whose existence justifies this communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReasonReference() {
+    public function getReasonReference()
+    {
         return $this->reasonReference;
     }
 
@@ -584,7 +625,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reasonReference
      * @return $this
      */
-    public function addReasonReference($reasonReference) {
+    public function addReasonReference($reasonReference)
+    {
         $this->reasonReference[] = $reasonReference;
         return $this;
     }
@@ -593,7 +635,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * Text, attachment(s), or resource(s) that was communicated to the recipient.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCommunication\FHIRCommunicationPayload[]
      */
-    public function getPayload() {
+    public function getPayload()
+    {
         return $this->payload;
     }
 
@@ -602,7 +645,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCommunication\FHIRCommunicationPayload $payload
      * @return $this
      */
-    public function addPayload($payload) {
+    public function addPayload($payload)
+    {
         $this->payload[] = $payload;
         return $this;
     }
@@ -611,7 +655,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * Additional notes or commentary about the communication by the sender, receiver or other interested parties.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -620,7 +665,8 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -628,18 +674,20 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -648,7 +696,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['instantiatesCanonical'])) {
                 if (is_array($data['instantiatesCanonical'])) {
-                    foreach($data['instantiatesCanonical'] as $d) {
+                    foreach ($data['instantiatesCanonical'] as $d) {
                         $this->addInstantiatesCanonical($d);
                     }
                 } else {
@@ -657,7 +705,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['instantiatesUri'])) {
                 if (is_array($data['instantiatesUri'])) {
-                    foreach($data['instantiatesUri'] as $d) {
+                    foreach ($data['instantiatesUri'] as $d) {
                         $this->addInstantiatesUri($d);
                     }
                 } else {
@@ -666,7 +714,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['basedOn'])) {
                 if (is_array($data['basedOn'])) {
-                    foreach($data['basedOn'] as $d) {
+                    foreach ($data['basedOn'] as $d) {
                         $this->addBasedOn($d);
                     }
                 } else {
@@ -675,7 +723,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['partOf'])) {
                 if (is_array($data['partOf'])) {
-                    foreach($data['partOf'] as $d) {
+                    foreach ($data['partOf'] as $d) {
                         $this->addPartOf($d);
                     }
                 } else {
@@ -684,7 +732,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['inResponseTo'])) {
                 if (is_array($data['inResponseTo'])) {
-                    foreach($data['inResponseTo'] as $d) {
+                    foreach ($data['inResponseTo'] as $d) {
                         $this->addInResponseTo($d);
                     }
                 } else {
@@ -699,7 +747,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['category'])) {
                 if (is_array($data['category'])) {
-                    foreach($data['category'] as $d) {
+                    foreach ($data['category'] as $d) {
                         $this->addCategory($d);
                     }
                 } else {
@@ -711,7 +759,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['medium'])) {
                 if (is_array($data['medium'])) {
-                    foreach($data['medium'] as $d) {
+                    foreach ($data['medium'] as $d) {
                         $this->addMedium($d);
                     }
                 } else {
@@ -726,7 +774,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['about'])) {
                 if (is_array($data['about'])) {
-                    foreach($data['about'] as $d) {
+                    foreach ($data['about'] as $d) {
                         $this->addAbout($d);
                     }
                 } else {
@@ -744,7 +792,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['recipient'])) {
                 if (is_array($data['recipient'])) {
-                    foreach($data['recipient'] as $d) {
+                    foreach ($data['recipient'] as $d) {
                         $this->addRecipient($d);
                     }
                 } else {
@@ -756,7 +804,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['reasonCode'])) {
                 if (is_array($data['reasonCode'])) {
-                    foreach($data['reasonCode'] as $d) {
+                    foreach ($data['reasonCode'] as $d) {
                         $this->addReasonCode($d);
                     }
                 } else {
@@ -765,7 +813,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['reasonReference'])) {
                 if (is_array($data['reasonReference'])) {
-                    foreach($data['reasonReference'] as $d) {
+                    foreach ($data['reasonReference'] as $d) {
                         $this->addReasonReference($d);
                     }
                 } else {
@@ -774,7 +822,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['payload'])) {
                 if (is_array($data['payload'])) {
-                    foreach($data['payload'] as $d) {
+                    foreach ($data['payload'] as $d) {
                         $this->addPayload($d);
                     }
                 } else {
@@ -783,7 +831,7 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -799,106 +847,126 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->instantiatesCanonical)) {
             $json['instantiatesCanonical'] = [];
-            foreach($this->instantiatesCanonical as $instantiatesCanonical) {
+            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
                 $json['instantiatesCanonical'][] = $instantiatesCanonical;
             }
         }
         if (0 < count($this->instantiatesUri)) {
             $json['instantiatesUri'] = [];
-            foreach($this->instantiatesUri as $instantiatesUri) {
+            foreach ($this->instantiatesUri as $instantiatesUri) {
                 $json['instantiatesUri'][] = $instantiatesUri;
             }
         }
         if (0 < count($this->basedOn)) {
             $json['basedOn'] = [];
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $json['basedOn'][] = $basedOn;
             }
         }
         if (0 < count($this->partOf)) {
             $json['partOf'] = [];
-            foreach($this->partOf as $partOf) {
+            foreach ($this->partOf as $partOf) {
                 $json['partOf'][] = $partOf;
             }
         }
         if (0 < count($this->inResponseTo)) {
             $json['inResponseTo'] = [];
-            foreach($this->inResponseTo as $inResponseTo) {
+            foreach ($this->inResponseTo as $inResponseTo) {
                 $json['inResponseTo'][] = $inResponseTo;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->statusReason)) $json['statusReason'] = $this->statusReason;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->statusReason)) {
+            $json['statusReason'] = $this->statusReason;
+        }
         if (0 < count($this->category)) {
             $json['category'] = [];
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $json['category'][] = $category;
             }
         }
-        if (isset($this->priority)) $json['priority'] = $this->priority;
+        if (isset($this->priority)) {
+            $json['priority'] = $this->priority;
+        }
         if (0 < count($this->medium)) {
             $json['medium'] = [];
-            foreach($this->medium as $medium) {
+            foreach ($this->medium as $medium) {
                 $json['medium'][] = $medium;
             }
         }
-        if (isset($this->subject)) $json['subject'] = $this->subject;
-        if (isset($this->topic)) $json['topic'] = $this->topic;
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
+        if (isset($this->topic)) {
+            $json['topic'] = $this->topic;
+        }
         if (0 < count($this->about)) {
             $json['about'] = [];
-            foreach($this->about as $about) {
+            foreach ($this->about as $about) {
                 $json['about'][] = $about;
             }
         }
-        if (isset($this->encounter)) $json['encounter'] = $this->encounter;
-        if (isset($this->sent)) $json['sent'] = $this->sent;
-        if (isset($this->received)) $json['received'] = $this->received;
+        if (isset($this->encounter)) {
+            $json['encounter'] = $this->encounter;
+        }
+        if (isset($this->sent)) {
+            $json['sent'] = $this->sent;
+        }
+        if (isset($this->received)) {
+            $json['received'] = $this->received;
+        }
         if (0 < count($this->recipient)) {
             $json['recipient'] = [];
-            foreach($this->recipient as $recipient) {
+            foreach ($this->recipient as $recipient) {
                 $json['recipient'][] = $recipient;
             }
         }
-        if (isset($this->sender)) $json['sender'] = $this->sender;
+        if (isset($this->sender)) {
+            $json['sender'] = $this->sender;
+        }
         if (0 < count($this->reasonCode)) {
             $json['reasonCode'] = [];
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $json['reasonCode'][] = $reasonCode;
             }
         }
         if (0 < count($this->reasonReference)) {
             $json['reasonReference'] = [];
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $json['reasonReference'][] = $reasonReference;
             }
         }
         if (0 < count($this->payload)) {
             $json['payload'] = [];
-            foreach($this->payload as $payload) {
+            foreach ($this->payload as $payload) {
                 $json['payload'][] = $payload;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
@@ -910,91 +978,112 @@ class FHIRCommunication extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Communication xmlns="http://hl7.org/fhir"></Communication>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Communication xmlns="http://hl7.org/fhir"></Communication>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->instantiatesCanonical)) {
-            foreach($this->instantiatesCanonical as $instantiatesCanonical) {
+            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
                 $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
             }
         }
         if (0 < count($this->instantiatesUri)) {
-            foreach($this->instantiatesUri as $instantiatesUri) {
+            foreach ($this->instantiatesUri as $instantiatesUri) {
                 $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
             }
         }
         if (0 < count($this->basedOn)) {
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
             }
         }
         if (0 < count($this->partOf)) {
-            foreach($this->partOf as $partOf) {
+            foreach ($this->partOf as $partOf) {
                 $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
             }
         }
         if (0 < count($this->inResponseTo)) {
-            foreach($this->inResponseTo as $inResponseTo) {
+            foreach ($this->inResponseTo as $inResponseTo) {
                 $inResponseTo->xmlSerialize(true, $sxe->addChild('inResponseTo'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->statusReason)) $this->statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->statusReason)) {
+            $this->statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
+        }
         if (0 < count($this->category)) {
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $category->xmlSerialize(true, $sxe->addChild('category'));
             }
         }
-        if (isset($this->priority)) $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        if (isset($this->priority)) {
+            $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        }
         if (0 < count($this->medium)) {
-            foreach($this->medium as $medium) {
+            foreach ($this->medium as $medium) {
                 $medium->xmlSerialize(true, $sxe->addChild('medium'));
             }
         }
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
-        if (isset($this->topic)) $this->topic->xmlSerialize(true, $sxe->addChild('topic'));
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
+        if (isset($this->topic)) {
+            $this->topic->xmlSerialize(true, $sxe->addChild('topic'));
+        }
         if (0 < count($this->about)) {
-            foreach($this->about as $about) {
+            foreach ($this->about as $about) {
                 $about->xmlSerialize(true, $sxe->addChild('about'));
             }
         }
-        if (isset($this->encounter)) $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
-        if (isset($this->sent)) $this->sent->xmlSerialize(true, $sxe->addChild('sent'));
-        if (isset($this->received)) $this->received->xmlSerialize(true, $sxe->addChild('received'));
+        if (isset($this->encounter)) {
+            $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
+        }
+        if (isset($this->sent)) {
+            $this->sent->xmlSerialize(true, $sxe->addChild('sent'));
+        }
+        if (isset($this->received)) {
+            $this->received->xmlSerialize(true, $sxe->addChild('received'));
+        }
         if (0 < count($this->recipient)) {
-            foreach($this->recipient as $recipient) {
+            foreach ($this->recipient as $recipient) {
                 $recipient->xmlSerialize(true, $sxe->addChild('recipient'));
             }
         }
-        if (isset($this->sender)) $this->sender->xmlSerialize(true, $sxe->addChild('sender'));
+        if (isset($this->sender)) {
+            $this->sender->xmlSerialize(true, $sxe->addChild('sender'));
+        }
         if (0 < count($this->reasonCode)) {
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
             }
         }
         if (0 < count($this->reasonReference)) {
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
             }
         }
         if (0 < count($this->payload)) {
-            foreach($this->payload as $payload) {
+            foreach ($this->payload as $payload) {
                 $payload->xmlSerialize(true, $sxe->addChild('payload'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

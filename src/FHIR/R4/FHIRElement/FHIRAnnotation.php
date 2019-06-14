@@ -98,7 +98,8 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAuthorReference() {
+    public function getAuthorReference()
+    {
         return $this->authorReference;
     }
 
@@ -106,7 +107,8 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $authorReference
      * @return $this
      */
-    public function setAuthorReference($authorReference) {
+    public function setAuthorReference($authorReference)
+    {
         $this->authorReference = $authorReference;
         return $this;
     }
@@ -114,7 +116,8 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAuthorString() {
+    public function getAuthorString()
+    {
         return $this->authorString;
     }
 
@@ -122,7 +125,8 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $authorString
      * @return $this
      */
-    public function setAuthorString($authorString) {
+    public function setAuthorString($authorString)
+    {
         $this->authorString = $authorString;
         return $this;
     }
@@ -131,7 +135,8 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
      * Indicates when this particular annotation was made.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getTime() {
+    public function getTime()
+    {
         return $this->time;
     }
 
@@ -140,7 +145,8 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $time
      * @return $this
      */
-    public function setTime($time) {
+    public function setTime($time)
+    {
         $this->time = $time;
         return $this;
     }
@@ -149,7 +155,8 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
      * The text of the annotation in markdown format.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -158,7 +165,8 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -166,14 +174,16 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['authorReference'])) {
                 $this->setAuthorReference($data['authorReference']);
@@ -196,19 +206,29 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->authorReference)) $json['authorReference'] = $this->authorReference;
-        if (isset($this->authorString)) $json['authorString'] = $this->authorString;
-        if (isset($this->time)) $json['time'] = $this->time;
-        if (isset($this->text)) $json['text'] = $this->text;
+        if (isset($this->authorReference)) {
+            $json['authorReference'] = $this->authorReference;
+        }
+        if (isset($this->authorString)) {
+            $json['authorString'] = $this->authorString;
+        }
+        if (isset($this->time)) {
+            $json['time'] = $this->time;
+        }
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
         return $json;
     }
 
@@ -217,16 +237,27 @@ class FHIRAnnotation extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Annotation xmlns="http://hl7.org/fhir"></Annotation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Annotation xmlns="http://hl7.org/fhir"></Annotation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->authorReference)) $this->authorReference->xmlSerialize(true, $sxe->addChild('authorReference'));
-        if (isset($this->authorString)) $this->authorString->xmlSerialize(true, $sxe->addChild('authorString'));
-        if (isset($this->time)) $this->time->xmlSerialize(true, $sxe->addChild('time'));
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->authorReference)) {
+            $this->authorReference->xmlSerialize(true, $sxe->addChild('authorReference'));
+        }
+        if (isset($this->authorString)) {
+            $this->authorString->xmlSerialize(true, $sxe->addChild('authorString'));
+        }
+        if (isset($this->time)) {
+            $this->time->xmlSerialize(true, $sxe->addChild('time'));
+        }
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

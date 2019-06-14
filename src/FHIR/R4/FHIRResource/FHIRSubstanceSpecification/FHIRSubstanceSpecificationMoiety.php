@@ -122,7 +122,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * Role that the moiety is playing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRole() {
+    public function getRole()
+    {
         return $this->role;
     }
 
@@ -131,7 +132,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $role
      * @return $this
      */
-    public function setRole($role) {
+    public function setRole($role)
+    {
         $this->role = $role;
         return $this;
     }
@@ -140,7 +142,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * Identifier by which this moiety substance is known.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -149,7 +152,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -158,7 +162,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * Textual name for this moiety substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -167,7 +172,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -176,7 +182,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * Stereochemistry type.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStereochemistry() {
+    public function getStereochemistry()
+    {
         return $this->stereochemistry;
     }
 
@@ -185,7 +192,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $stereochemistry
      * @return $this
      */
-    public function setStereochemistry($stereochemistry) {
+    public function setStereochemistry($stereochemistry)
+    {
         $this->stereochemistry = $stereochemistry;
         return $this;
     }
@@ -194,7 +202,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * Optical activity type.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getOpticalActivity() {
+    public function getOpticalActivity()
+    {
         return $this->opticalActivity;
     }
 
@@ -203,7 +212,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $opticalActivity
      * @return $this
      */
-    public function setOpticalActivity($opticalActivity) {
+    public function setOpticalActivity($opticalActivity)
+    {
         $this->opticalActivity = $opticalActivity;
         return $this;
     }
@@ -212,7 +222,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * Molecular formula.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMolecularFormula() {
+    public function getMolecularFormula()
+    {
         return $this->molecularFormula;
     }
 
@@ -221,7 +232,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $molecularFormula
      * @return $this
      */
-    public function setMolecularFormula($molecularFormula) {
+    public function setMolecularFormula($molecularFormula)
+    {
         $this->molecularFormula = $molecularFormula;
         return $this;
     }
@@ -229,7 +241,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getAmountQuantity() {
+    public function getAmountQuantity()
+    {
         return $this->amountQuantity;
     }
 
@@ -237,7 +250,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $amountQuantity
      * @return $this
      */
-    public function setAmountQuantity($amountQuantity) {
+    public function setAmountQuantity($amountQuantity)
+    {
         $this->amountQuantity = $amountQuantity;
         return $this;
     }
@@ -245,7 +259,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAmountString() {
+    public function getAmountString()
+    {
         return $this->amountString;
     }
 
@@ -253,7 +268,8 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $amountString
      * @return $this
      */
-    public function setAmountString($amountString) {
+    public function setAmountString($amountString)
+    {
         $this->amountString = $amountString;
         return $this;
     }
@@ -261,14 +277,16 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['role'])) {
                 $this->setRole($data['role']);
@@ -303,23 +321,41 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->role)) $json['role'] = $this->role;
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->stereochemistry)) $json['stereochemistry'] = $this->stereochemistry;
-        if (isset($this->opticalActivity)) $json['opticalActivity'] = $this->opticalActivity;
-        if (isset($this->molecularFormula)) $json['molecularFormula'] = $this->molecularFormula;
-        if (isset($this->amountQuantity)) $json['amountQuantity'] = $this->amountQuantity;
-        if (isset($this->amountString)) $json['amountString'] = $this->amountString;
+        if (isset($this->role)) {
+            $json['role'] = $this->role;
+        }
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->stereochemistry)) {
+            $json['stereochemistry'] = $this->stereochemistry;
+        }
+        if (isset($this->opticalActivity)) {
+            $json['opticalActivity'] = $this->opticalActivity;
+        }
+        if (isset($this->molecularFormula)) {
+            $json['molecularFormula'] = $this->molecularFormula;
+        }
+        if (isset($this->amountQuantity)) {
+            $json['amountQuantity'] = $this->amountQuantity;
+        }
+        if (isset($this->amountString)) {
+            $json['amountString'] = $this->amountString;
+        }
         return $json;
     }
 
@@ -328,20 +364,39 @@ class FHIRSubstanceSpecificationMoiety extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecificationMoiety xmlns="http://hl7.org/fhir"></SubstanceSpecificationMoiety>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecificationMoiety xmlns="http://hl7.org/fhir"></SubstanceSpecificationMoiety>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->role)) $this->role->xmlSerialize(true, $sxe->addChild('role'));
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->stereochemistry)) $this->stereochemistry->xmlSerialize(true, $sxe->addChild('stereochemistry'));
-        if (isset($this->opticalActivity)) $this->opticalActivity->xmlSerialize(true, $sxe->addChild('opticalActivity'));
-        if (isset($this->molecularFormula)) $this->molecularFormula->xmlSerialize(true, $sxe->addChild('molecularFormula'));
-        if (isset($this->amountQuantity)) $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));
-        if (isset($this->amountString)) $this->amountString->xmlSerialize(true, $sxe->addChild('amountString'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->role)) {
+            $this->role->xmlSerialize(true, $sxe->addChild('role'));
+        }
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->stereochemistry)) {
+            $this->stereochemistry->xmlSerialize(true, $sxe->addChild('stereochemistry'));
+        }
+        if (isset($this->opticalActivity)) {
+            $this->opticalActivity->xmlSerialize(true, $sxe->addChild('opticalActivity'));
+        }
+        if (isset($this->molecularFormula)) {
+            $this->molecularFormula->xmlSerialize(true, $sxe->addChild('molecularFormula'));
+        }
+        if (isset($this->amountQuantity)) {
+            $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));
+        }
+        if (isset($this->amountString)) {
+            $this->amountString->xmlSerialize(true, $sxe->addChild('amountString'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

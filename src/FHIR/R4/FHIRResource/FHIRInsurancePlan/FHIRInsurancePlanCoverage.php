@@ -94,7 +94,8 @@ class FHIRInsurancePlanCoverage extends FHIRBackboneElement implements \JsonSeri
      * Type of coverage  (Medical; Dental; Mental Health; Substance Abuse; Vision; Drug; Short Term; Long Term Care; Hospice; Home Health).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -103,7 +104,8 @@ class FHIRInsurancePlanCoverage extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRInsurancePlanCoverage extends FHIRBackboneElement implements \JsonSeri
      * Reference to the network that providing the type of coverage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getNetwork() {
+    public function getNetwork()
+    {
         return $this->network;
     }
 
@@ -121,7 +124,8 @@ class FHIRInsurancePlanCoverage extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $network
      * @return $this
      */
-    public function addNetwork($network) {
+    public function addNetwork($network)
+    {
         $this->network[] = $network;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRInsurancePlanCoverage extends FHIRBackboneElement implements \JsonSeri
      * Specific benefits under this type of coverage.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanBenefit[]
      */
-    public function getBenefit() {
+    public function getBenefit()
+    {
         return $this->benefit;
     }
 
@@ -139,7 +144,8 @@ class FHIRInsurancePlanCoverage extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanBenefit $benefit
      * @return $this
      */
-    public function addBenefit($benefit) {
+    public function addBenefit($benefit)
+    {
         $this->benefit[] = $benefit;
         return $this;
     }
@@ -147,21 +153,23 @@ class FHIRInsurancePlanCoverage extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
             }
             if (isset($data['network'])) {
                 if (is_array($data['network'])) {
-                    foreach($data['network'] as $d) {
+                    foreach ($data['network'] as $d) {
                         $this->addNetwork($d);
                     }
                 } else {
@@ -170,7 +178,7 @@ class FHIRInsurancePlanCoverage extends FHIRBackboneElement implements \JsonSeri
             }
             if (isset($data['benefit'])) {
                 if (is_array($data['benefit'])) {
-                    foreach($data['benefit'] as $d) {
+                    foreach ($data['benefit'] as $d) {
                         $this->addBenefit($d);
                     }
                 } else {
@@ -186,25 +194,29 @@ class FHIRInsurancePlanCoverage extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->network)) {
             $json['network'] = [];
-            foreach($this->network as $network) {
+            foreach ($this->network as $network) {
                 $json['network'][] = $network;
             }
         }
         if (0 < count($this->benefit)) {
             $json['benefit'] = [];
-            foreach($this->benefit as $benefit) {
+            foreach ($this->benefit as $benefit) {
                 $json['benefit'][] = $benefit;
             }
         }
@@ -216,23 +228,28 @@ class FHIRInsurancePlanCoverage extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InsurancePlanCoverage xmlns="http://hl7.org/fhir"></InsurancePlanCoverage>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InsurancePlanCoverage xmlns="http://hl7.org/fhir"></InsurancePlanCoverage>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->network)) {
-            foreach($this->network as $network) {
+            foreach ($this->network as $network) {
                 $network->xmlSerialize(true, $sxe->addChild('network'));
             }
         }
         if (0 < count($this->benefit)) {
-            foreach($this->benefit as $benefit) {
+            foreach ($this->benefit as $benefit) {
                 $benefit->xmlSerialize(true, $sxe->addChild('benefit'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

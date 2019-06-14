@@ -233,7 +233,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * An absolute URI that is used to identify this code system when it is referenced in a specification, model, design or an instance; also called its canonical identifier. This SHOULD be globally unique and SHOULD be a literal address at which at which an authoritative instance of this code system is (or will be) published. This URL can be the target of a canonical reference. It SHALL remain the same when the code system is stored on different servers. This is used in [Coding](datatypes.html#Coding).system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -242,7 +243,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -251,7 +253,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * A formal identifier that is used to identify this code system when it is represented in other formats, or referenced in a specification, model, design or an instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -260,7 +263,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -269,7 +273,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * The identifier that is used to identify this version of the code system when it is referenced in a specification, model, design or instance. This is an arbitrary value managed by the code system author and is not expected to be globally unique. For example, it might be a timestamp (e.g. yyyymmdd) if a managed version is not available. There is also no expectation that versions can be placed in a lexicographical sequence. This is used in [Coding](datatypes.html#Coding).version.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -278,7 +283,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -287,7 +293,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * A natural language name identifying the code system. This name should be usable as an identifier for the module by machine processing applications such as code generation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -296,7 +303,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -305,7 +313,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * A short, descriptive, user-friendly title for the code system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -314,7 +323,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -323,7 +333,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * The date (and optionally time) when the code system resource was created or revised.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -332,7 +343,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -341,7 +353,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * A Boolean value to indicate that this code system is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExperimental() {
+    public function getExperimental()
+    {
         return $this->experimental;
     }
 
@@ -350,7 +363,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $experimental
      * @return $this
      */
-    public function setExperimental($experimental) {
+    public function setExperimental($experimental)
+    {
         $this->experimental = $experimental;
         return $this;
     }
@@ -359,7 +373,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * The date  (and optionally time) when the code system was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the code system changes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -368,7 +383,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -377,7 +393,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * The name of the organization or individual that published the code system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPublisher() {
+    public function getPublisher()
+    {
         return $this->publisher;
     }
 
@@ -386,7 +403,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $publisher
      * @return $this
      */
-    public function setPublisher($publisher) {
+    public function setPublisher($publisher)
+    {
         $this->publisher = $publisher;
         return $this;
     }
@@ -395,7 +413,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * Contact details to assist a user in finding and communicating with the publisher.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getContact() {
+    public function getContact()
+    {
         return $this->contact;
     }
 
@@ -404,7 +423,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $contact
      * @return $this
      */
-    public function addContact($contact) {
+    public function addContact($contact)
+    {
         $this->contact[] = $contact;
         return $this;
     }
@@ -413,7 +433,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * A free text natural language description of the code system from a consumer's perspective.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -422,7 +443,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -431,7 +453,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * The content was developed with a focus and intent of supporting the contexts that are listed. These contexts may be general categories (gender, age, ...) or may be references to specific programs (insurance plans, studies, ...) and may be used to assist with indexing and searching for appropriate code system instances.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext[]
      */
-    public function getUseContext() {
+    public function getUseContext()
+    {
         return $this->useContext;
     }
 
@@ -440,7 +463,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $useContext
      * @return $this
      */
-    public function addUseContext($useContext) {
+    public function addUseContext($useContext)
+    {
         $this->useContext[] = $useContext;
         return $this;
     }
@@ -449,7 +473,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * A legal or geographic region in which the code system is intended to be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getJurisdiction() {
+    public function getJurisdiction()
+    {
         return $this->jurisdiction;
     }
 
@@ -458,7 +483,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $jurisdiction
      * @return $this
      */
-    public function addJurisdiction($jurisdiction) {
+    public function addJurisdiction($jurisdiction)
+    {
         $this->jurisdiction[] = $jurisdiction;
         return $this;
     }
@@ -467,7 +493,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * Explanation of why this code system is needed and why it has been designed as it has.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getPurpose() {
+    public function getPurpose()
+    {
         return $this->purpose;
     }
 
@@ -476,7 +503,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $purpose
      * @return $this
      */
-    public function setPurpose($purpose) {
+    public function setPurpose($purpose)
+    {
         $this->purpose = $purpose;
         return $this;
     }
@@ -485,7 +513,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * A copyright statement relating to the code system and/or its contents. Copyright statements are generally legal restrictions on the use and publishing of the code system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getCopyright() {
+    public function getCopyright()
+    {
         return $this->copyright;
     }
 
@@ -494,7 +523,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $copyright
      * @return $this
      */
-    public function setCopyright($copyright) {
+    public function setCopyright($copyright)
+    {
         $this->copyright = $copyright;
         return $this;
     }
@@ -503,7 +533,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * If code comparison is case sensitive when codes within this system are compared to each other.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getCaseSensitive() {
+    public function getCaseSensitive()
+    {
         return $this->caseSensitive;
     }
 
@@ -512,7 +543,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $caseSensitive
      * @return $this
      */
-    public function setCaseSensitive($caseSensitive) {
+    public function setCaseSensitive($caseSensitive)
+    {
         $this->caseSensitive = $caseSensitive;
         return $this;
     }
@@ -521,7 +553,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * Canonical reference to the value set that contains the entire code system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getValueSet() {
+    public function getValueSet()
+    {
         return $this->valueSet;
     }
 
@@ -530,7 +563,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $valueSet
      * @return $this
      */
-    public function setValueSet($valueSet) {
+    public function setValueSet($valueSet)
+    {
         $this->valueSet = $valueSet;
         return $this;
     }
@@ -539,7 +573,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * The meaning of the hierarchy of concepts as represented in this resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeSystemHierarchyMeaning
      */
-    public function getHierarchyMeaning() {
+    public function getHierarchyMeaning()
+    {
         return $this->hierarchyMeaning;
     }
 
@@ -548,7 +583,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeSystemHierarchyMeaning $hierarchyMeaning
      * @return $this
      */
-    public function setHierarchyMeaning($hierarchyMeaning) {
+    public function setHierarchyMeaning($hierarchyMeaning)
+    {
         $this->hierarchyMeaning = $hierarchyMeaning;
         return $this;
     }
@@ -557,7 +593,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * The code system defines a compositional (post-coordination) grammar.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getCompositional() {
+    public function getCompositional()
+    {
         return $this->compositional;
     }
 
@@ -566,7 +603,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $compositional
      * @return $this
      */
-    public function setCompositional($compositional) {
+    public function setCompositional($compositional)
+    {
         $this->compositional = $compositional;
         return $this;
     }
@@ -575,7 +613,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * This flag is used to signify that the code system does not commit to concept permanence across versions. If true, a version must be specified when referencing this code system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getVersionNeeded() {
+    public function getVersionNeeded()
+    {
         return $this->versionNeeded;
     }
 
@@ -584,7 +623,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $versionNeeded
      * @return $this
      */
-    public function setVersionNeeded($versionNeeded) {
+    public function setVersionNeeded($versionNeeded)
+    {
         $this->versionNeeded = $versionNeeded;
         return $this;
     }
@@ -593,7 +633,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * The extent of the content of the code system (the concepts and codes it defines) are represented in this resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeSystemContentMode
      */
-    public function getContent() {
+    public function getContent()
+    {
         return $this->content;
     }
 
@@ -602,7 +643,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeSystemContentMode $content
      * @return $this
      */
-    public function setContent($content) {
+    public function setContent($content)
+    {
         $this->content = $content;
         return $this;
     }
@@ -611,7 +653,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * The canonical URL of the code system that this code system supplement is adding designations and properties to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getSupplements() {
+    public function getSupplements()
+    {
         return $this->supplements;
     }
 
@@ -620,7 +663,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $supplements
      * @return $this
      */
-    public function setSupplements($supplements) {
+    public function setSupplements($supplements)
+    {
         $this->supplements = $supplements;
         return $this;
     }
@@ -629,7 +673,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * The total number of concepts defined by the code system. Where the code system has a compositional grammar, the basis of this count is defined by the system steward.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getCount() {
+    public function getCount()
+    {
         return $this->count;
     }
 
@@ -638,7 +683,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $count
      * @return $this
      */
-    public function setCount($count) {
+    public function setCount($count)
+    {
         $this->count = $count;
         return $this;
     }
@@ -647,7 +693,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * A filter that can be used in a value set compose statement when selecting concepts using a filter.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemFilter[]
      */
-    public function getFilter() {
+    public function getFilter()
+    {
         return $this->filter;
     }
 
@@ -656,7 +703,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemFilter $filter
      * @return $this
      */
-    public function addFilter($filter) {
+    public function addFilter($filter)
+    {
         $this->filter[] = $filter;
         return $this;
     }
@@ -665,7 +713,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * A property defines an additional slot through which additional information can be provided about a concept.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemProperty[]
      */
-    public function getProperty() {
+    public function getProperty()
+    {
         return $this->property;
     }
 
@@ -674,7 +723,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemProperty $property
      * @return $this
      */
-    public function addProperty($property) {
+    public function addProperty($property)
+    {
         $this->property[] = $property;
         return $this;
     }
@@ -683,7 +733,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * Concepts that are in the code system. The concept definitions are inherently hierarchical, but the definitions must be consulted to determine what the meanings of the hierarchical relationships are.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemConcept[]
      */
-    public function getConcept() {
+    public function getConcept()
+    {
         return $this->concept;
     }
 
@@ -692,7 +743,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem\FHIRCodeSystemConcept $concept
      * @return $this
      */
-    public function addConcept($concept) {
+    public function addConcept($concept)
+    {
         $this->concept[] = $concept;
         return $this;
     }
@@ -700,21 +752,23 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['url'])) {
                 $this->setUrl($data['url']);
             }
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -744,7 +798,7 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['contact'])) {
                 if (is_array($data['contact'])) {
-                    foreach($data['contact'] as $d) {
+                    foreach ($data['contact'] as $d) {
                         $this->addContact($d);
                     }
                 } else {
@@ -756,7 +810,7 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['useContext'])) {
                 if (is_array($data['useContext'])) {
-                    foreach($data['useContext'] as $d) {
+                    foreach ($data['useContext'] as $d) {
                         $this->addUseContext($d);
                     }
                 } else {
@@ -765,7 +819,7 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['jurisdiction'])) {
                 if (is_array($data['jurisdiction'])) {
-                    foreach($data['jurisdiction'] as $d) {
+                    foreach ($data['jurisdiction'] as $d) {
                         $this->addJurisdiction($d);
                     }
                 } else {
@@ -804,7 +858,7 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['filter'])) {
                 if (is_array($data['filter'])) {
-                    foreach($data['filter'] as $d) {
+                    foreach ($data['filter'] as $d) {
                         $this->addFilter($d);
                     }
                 } else {
@@ -813,7 +867,7 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['property'])) {
                 if (is_array($data['property'])) {
-                    foreach($data['property'] as $d) {
+                    foreach ($data['property'] as $d) {
                         $this->addProperty($d);
                     }
                 } else {
@@ -822,7 +876,7 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['concept'])) {
                 if (is_array($data['concept'])) {
-                    foreach($data['concept'] as $d) {
+                    foreach ($data['concept'] as $d) {
                         $this->addConcept($d);
                     }
                 } else {
@@ -838,74 +892,114 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->url)) $json['url'] = $this->url;
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->version)) $json['version'] = $this->version;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->experimental)) $json['experimental'] = $this->experimental;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->publisher)) $json['publisher'] = $this->publisher;
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->experimental)) {
+            $json['experimental'] = $this->experimental;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->publisher)) {
+            $json['publisher'] = $this->publisher;
+        }
         if (0 < count($this->contact)) {
             $json['contact'] = [];
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $json['contact'][] = $contact;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->useContext)) {
             $json['useContext'] = [];
-            foreach($this->useContext as $useContext) {
+            foreach ($this->useContext as $useContext) {
                 $json['useContext'][] = $useContext;
             }
         }
         if (0 < count($this->jurisdiction)) {
             $json['jurisdiction'] = [];
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $json['jurisdiction'][] = $jurisdiction;
             }
         }
-        if (isset($this->purpose)) $json['purpose'] = $this->purpose;
-        if (isset($this->copyright)) $json['copyright'] = $this->copyright;
-        if (isset($this->caseSensitive)) $json['caseSensitive'] = $this->caseSensitive;
-        if (isset($this->valueSet)) $json['valueSet'] = $this->valueSet;
-        if (isset($this->hierarchyMeaning)) $json['hierarchyMeaning'] = $this->hierarchyMeaning;
-        if (isset($this->compositional)) $json['compositional'] = $this->compositional;
-        if (isset($this->versionNeeded)) $json['versionNeeded'] = $this->versionNeeded;
-        if (isset($this->content)) $json['content'] = $this->content;
-        if (isset($this->supplements)) $json['supplements'] = $this->supplements;
-        if (isset($this->count)) $json['count'] = $this->count;
+        if (isset($this->purpose)) {
+            $json['purpose'] = $this->purpose;
+        }
+        if (isset($this->copyright)) {
+            $json['copyright'] = $this->copyright;
+        }
+        if (isset($this->caseSensitive)) {
+            $json['caseSensitive'] = $this->caseSensitive;
+        }
+        if (isset($this->valueSet)) {
+            $json['valueSet'] = $this->valueSet;
+        }
+        if (isset($this->hierarchyMeaning)) {
+            $json['hierarchyMeaning'] = $this->hierarchyMeaning;
+        }
+        if (isset($this->compositional)) {
+            $json['compositional'] = $this->compositional;
+        }
+        if (isset($this->versionNeeded)) {
+            $json['versionNeeded'] = $this->versionNeeded;
+        }
+        if (isset($this->content)) {
+            $json['content'] = $this->content;
+        }
+        if (isset($this->supplements)) {
+            $json['supplements'] = $this->supplements;
+        }
+        if (isset($this->count)) {
+            $json['count'] = $this->count;
+        }
         if (0 < count($this->filter)) {
             $json['filter'] = [];
-            foreach($this->filter as $filter) {
+            foreach ($this->filter as $filter) {
                 $json['filter'][] = $filter;
             }
         }
         if (0 < count($this->property)) {
             $json['property'] = [];
-            foreach($this->property as $property) {
+            foreach ($this->property as $property) {
                 $json['property'][] = $property;
             }
         }
         if (0 < count($this->concept)) {
             $json['concept'] = [];
-            foreach($this->concept as $concept) {
+            foreach ($this->concept as $concept) {
                 $json['concept'][] = $concept;
             }
         }
@@ -917,66 +1011,107 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CodeSystem xmlns="http://hl7.org/fhir"></CodeSystem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CodeSystem xmlns="http://hl7.org/fhir"></CodeSystem>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->experimental)) $this->experimental->xmlSerialize(true, $sxe->addChild('experimental'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->publisher)) $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->experimental)) {
+            $this->experimental->xmlSerialize(true, $sxe->addChild('experimental'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->publisher)) {
+            $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        }
         if (0 < count($this->contact)) {
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $contact->xmlSerialize(true, $sxe->addChild('contact'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->useContext)) {
-            foreach($this->useContext as $useContext) {
+            foreach ($this->useContext as $useContext) {
                 $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
             }
         }
         if (0 < count($this->jurisdiction)) {
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
             }
         }
-        if (isset($this->purpose)) $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
-        if (isset($this->copyright)) $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
-        if (isset($this->caseSensitive)) $this->caseSensitive->xmlSerialize(true, $sxe->addChild('caseSensitive'));
-        if (isset($this->valueSet)) $this->valueSet->xmlSerialize(true, $sxe->addChild('valueSet'));
-        if (isset($this->hierarchyMeaning)) $this->hierarchyMeaning->xmlSerialize(true, $sxe->addChild('hierarchyMeaning'));
-        if (isset($this->compositional)) $this->compositional->xmlSerialize(true, $sxe->addChild('compositional'));
-        if (isset($this->versionNeeded)) $this->versionNeeded->xmlSerialize(true, $sxe->addChild('versionNeeded'));
-        if (isset($this->content)) $this->content->xmlSerialize(true, $sxe->addChild('content'));
-        if (isset($this->supplements)) $this->supplements->xmlSerialize(true, $sxe->addChild('supplements'));
-        if (isset($this->count)) $this->count->xmlSerialize(true, $sxe->addChild('count'));
+        if (isset($this->purpose)) {
+            $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
+        }
+        if (isset($this->copyright)) {
+            $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
+        }
+        if (isset($this->caseSensitive)) {
+            $this->caseSensitive->xmlSerialize(true, $sxe->addChild('caseSensitive'));
+        }
+        if (isset($this->valueSet)) {
+            $this->valueSet->xmlSerialize(true, $sxe->addChild('valueSet'));
+        }
+        if (isset($this->hierarchyMeaning)) {
+            $this->hierarchyMeaning->xmlSerialize(true, $sxe->addChild('hierarchyMeaning'));
+        }
+        if (isset($this->compositional)) {
+            $this->compositional->xmlSerialize(true, $sxe->addChild('compositional'));
+        }
+        if (isset($this->versionNeeded)) {
+            $this->versionNeeded->xmlSerialize(true, $sxe->addChild('versionNeeded'));
+        }
+        if (isset($this->content)) {
+            $this->content->xmlSerialize(true, $sxe->addChild('content'));
+        }
+        if (isset($this->supplements)) {
+            $this->supplements->xmlSerialize(true, $sxe->addChild('supplements'));
+        }
+        if (isset($this->count)) {
+            $this->count->xmlSerialize(true, $sxe->addChild('count'));
+        }
         if (0 < count($this->filter)) {
-            foreach($this->filter as $filter) {
+            foreach ($this->filter as $filter) {
                 $filter->xmlSerialize(true, $sxe->addChild('filter'));
             }
         }
         if (0 < count($this->property)) {
-            foreach($this->property as $property) {
+            foreach ($this->property as $property) {
                 $property->xmlSerialize(true, $sxe->addChild('property'));
             }
         }
         if (0 < count($this->concept)) {
-            foreach($this->concept as $concept) {
+            foreach ($this->concept as $concept) {
                 $concept->xmlSerialize(true, $sxe->addChild('concept'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

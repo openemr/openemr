@@ -112,7 +112,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * Precusory content structure and use, i.e., a boilerplate, template, application for a contract such as an insurance policy or benefits under a program, e.g., workers compensation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -121,7 +122,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * Detailed Precusory content type.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSubType() {
+    public function getSubType()
+    {
         return $this->subType;
     }
 
@@ -139,7 +142,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $subType
      * @return $this
      */
-    public function setSubType($subType) {
+    public function setSubType($subType)
+    {
         $this->subType = $subType;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * The  individual or organization that published the Contract precursor content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPublisher() {
+    public function getPublisher()
+    {
         return $this->publisher;
     }
 
@@ -157,7 +162,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $publisher
      * @return $this
      */
-    public function setPublisher($publisher) {
+    public function setPublisher($publisher)
+    {
         $this->publisher = $publisher;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * The date (and optionally time) when the contract was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the contract changes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getPublicationDate() {
+    public function getPublicationDate()
+    {
         return $this->publicationDate;
     }
 
@@ -175,7 +182,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $publicationDate
      * @return $this
      */
-    public function setPublicationDate($publicationDate) {
+    public function setPublicationDate($publicationDate)
+    {
         $this->publicationDate = $publicationDate;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * draft | active | retired | unknown.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContractResourcePublicationStatusCodes
      */
-    public function getPublicationStatus() {
+    public function getPublicationStatus()
+    {
         return $this->publicationStatus;
     }
 
@@ -193,7 +202,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContractResourcePublicationStatusCodes $publicationStatus
      * @return $this
      */
-    public function setPublicationStatus($publicationStatus) {
+    public function setPublicationStatus($publicationStatus)
+    {
         $this->publicationStatus = $publicationStatus;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * A copyright statement relating to Contract precursor content. Copyright statements are generally legal restrictions on the use and publishing of the Contract precursor content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getCopyright() {
+    public function getCopyright()
+    {
         return $this->copyright;
     }
 
@@ -211,7 +222,8 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $copyright
      * @return $this
      */
-    public function setCopyright($copyright) {
+    public function setCopyright($copyright)
+    {
         $this->copyright = $copyright;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -255,21 +269,35 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->subType)) $json['subType'] = $this->subType;
-        if (isset($this->publisher)) $json['publisher'] = $this->publisher;
-        if (isset($this->publicationDate)) $json['publicationDate'] = $this->publicationDate;
-        if (isset($this->publicationStatus)) $json['publicationStatus'] = $this->publicationStatus;
-        if (isset($this->copyright)) $json['copyright'] = $this->copyright;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->subType)) {
+            $json['subType'] = $this->subType;
+        }
+        if (isset($this->publisher)) {
+            $json['publisher'] = $this->publisher;
+        }
+        if (isset($this->publicationDate)) {
+            $json['publicationDate'] = $this->publicationDate;
+        }
+        if (isset($this->publicationStatus)) {
+            $json['publicationStatus'] = $this->publicationStatus;
+        }
+        if (isset($this->copyright)) {
+            $json['copyright'] = $this->copyright;
+        }
         return $json;
     }
 
@@ -278,18 +306,33 @@ class FHIRContractContentDefinition extends FHIRBackboneElement implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ContractContentDefinition xmlns="http://hl7.org/fhir"></ContractContentDefinition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ContractContentDefinition xmlns="http://hl7.org/fhir"></ContractContentDefinition>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->subType)) $this->subType->xmlSerialize(true, $sxe->addChild('subType'));
-        if (isset($this->publisher)) $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
-        if (isset($this->publicationDate)) $this->publicationDate->xmlSerialize(true, $sxe->addChild('publicationDate'));
-        if (isset($this->publicationStatus)) $this->publicationStatus->xmlSerialize(true, $sxe->addChild('publicationStatus'));
-        if (isset($this->copyright)) $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->subType)) {
+            $this->subType->xmlSerialize(true, $sxe->addChild('subType'));
+        }
+        if (isset($this->publisher)) {
+            $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        }
+        if (isset($this->publicationDate)) {
+            $this->publicationDate->xmlSerialize(true, $sxe->addChild('publicationDate'));
+        }
+        if (isset($this->publicationStatus)) {
+            $this->publicationStatus->xmlSerialize(true, $sxe->addChild('publicationStatus'));
+        }
+        if (isset($this->copyright)) {
+            $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

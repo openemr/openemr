@@ -125,7 +125,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * This records identifiers associated with this appointment response concern that are defined by business processes and/ or used to refer to it when a direct URL reference to the resource itself is not appropriate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -134,7 +135,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -143,7 +145,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * Appointment that this response is replying to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAppointment() {
+    public function getAppointment()
+    {
         return $this->appointment;
     }
 
@@ -152,7 +155,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $appointment
      * @return $this
      */
-    public function setAppointment($appointment) {
+    public function setAppointment($appointment)
+    {
         $this->appointment = $appointment;
         return $this;
     }
@@ -161,7 +165,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * Date/Time that the appointment is to take place, or requested new start time.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getStart() {
+    public function getStart()
+    {
         return $this->start;
     }
 
@@ -170,7 +175,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $start
      * @return $this
      */
-    public function setStart($start) {
+    public function setStart($start)
+    {
         $this->start = $start;
         return $this;
     }
@@ -179,7 +185,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * This may be either the same as the appointment request to confirm the details of the appointment, or alternately a new time to request a re-negotiation of the end time.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getEnd() {
+    public function getEnd()
+    {
         return $this->end;
     }
 
@@ -188,7 +195,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $end
      * @return $this
      */
-    public function setEnd($end) {
+    public function setEnd($end)
+    {
         $this->end = $end;
         return $this;
     }
@@ -197,7 +205,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * Role of participant in the appointment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getParticipantType() {
+    public function getParticipantType()
+    {
         return $this->participantType;
     }
 
@@ -206,7 +215,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $participantType
      * @return $this
      */
-    public function addParticipantType($participantType) {
+    public function addParticipantType($participantType)
+    {
         $this->participantType[] = $participantType;
         return $this;
     }
@@ -215,7 +225,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * A Person, Location, HealthcareService, or Device that is participating in the appointment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getActor() {
+    public function getActor()
+    {
         return $this->actor;
     }
 
@@ -224,7 +235,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $actor
      * @return $this
      */
-    public function setActor($actor) {
+    public function setActor($actor)
+    {
         $this->actor = $actor;
         return $this;
     }
@@ -233,7 +245,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * Participation status of the participant. When the status is declined or tentative if the start/end times are different to the appointment, then these times should be interpreted as a requested time change. When the status is accepted, the times can either be the time of the appointment (as a confirmation of the time) or can be empty.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRParticipationStatus
      */
-    public function getParticipantStatus() {
+    public function getParticipantStatus()
+    {
         return $this->participantStatus;
     }
 
@@ -242,7 +255,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRParticipationStatus $participantStatus
      * @return $this
      */
-    public function setParticipantStatus($participantStatus) {
+    public function setParticipantStatus($participantStatus)
+    {
         $this->participantStatus = $participantStatus;
         return $this;
     }
@@ -251,7 +265,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * Additional comments about the appointment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -260,7 +275,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -268,18 +284,20 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -297,7 +315,7 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['participantType'])) {
                 if (is_array($data['participantType'])) {
-                    foreach($data['participantType'] as $d) {
+                    foreach ($data['participantType'] as $d) {
                         $this->addParticipantType($d);
                     }
                 } else {
@@ -322,34 +340,48 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->appointment)) $json['appointment'] = $this->appointment;
-        if (isset($this->start)) $json['start'] = $this->start;
-        if (isset($this->end)) $json['end'] = $this->end;
+        if (isset($this->appointment)) {
+            $json['appointment'] = $this->appointment;
+        }
+        if (isset($this->start)) {
+            $json['start'] = $this->start;
+        }
+        if (isset($this->end)) {
+            $json['end'] = $this->end;
+        }
         if (0 < count($this->participantType)) {
             $json['participantType'] = [];
-            foreach($this->participantType as $participantType) {
+            foreach ($this->participantType as $participantType) {
                 $json['participantType'][] = $participantType;
             }
         }
-        if (isset($this->actor)) $json['actor'] = $this->actor;
-        if (isset($this->participantStatus)) $json['participantStatus'] = $this->participantStatus;
-        if (isset($this->comment)) $json['comment'] = $this->comment;
+        if (isset($this->actor)) {
+            $json['actor'] = $this->actor;
+        }
+        if (isset($this->participantStatus)) {
+            $json['participantStatus'] = $this->participantStatus;
+        }
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
         return $json;
     }
 
@@ -358,28 +390,43 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<AppointmentResponse xmlns="http://hl7.org/fhir"></AppointmentResponse>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<AppointmentResponse xmlns="http://hl7.org/fhir"></AppointmentResponse>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->appointment)) $this->appointment->xmlSerialize(true, $sxe->addChild('appointment'));
-        if (isset($this->start)) $this->start->xmlSerialize(true, $sxe->addChild('start'));
-        if (isset($this->end)) $this->end->xmlSerialize(true, $sxe->addChild('end'));
+        if (isset($this->appointment)) {
+            $this->appointment->xmlSerialize(true, $sxe->addChild('appointment'));
+        }
+        if (isset($this->start)) {
+            $this->start->xmlSerialize(true, $sxe->addChild('start'));
+        }
+        if (isset($this->end)) {
+            $this->end->xmlSerialize(true, $sxe->addChild('end'));
+        }
         if (0 < count($this->participantType)) {
-            foreach($this->participantType as $participantType) {
+            foreach ($this->participantType as $participantType) {
                 $participantType->xmlSerialize(true, $sxe->addChild('participantType'));
             }
         }
-        if (isset($this->actor)) $this->actor->xmlSerialize(true, $sxe->addChild('actor'));
-        if (isset($this->participantStatus)) $this->participantStatus->xmlSerialize(true, $sxe->addChild('participantStatus'));
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->actor)) {
+            $this->actor->xmlSerialize(true, $sxe->addChild('actor'));
+        }
+        if (isset($this->participantStatus)) {
+            $this->participantStatus->xmlSerialize(true, $sxe->addChild('participantStatus'));
+        }
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -106,7 +106,8 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getOrientationOfPolymerisation() {
+    public function getOrientationOfPolymerisation()
+    {
         return $this->orientationOfPolymerisation;
     }
 
@@ -115,7 +116,8 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $orientationOfPolymerisation
      * @return $this
      */
-    public function setOrientationOfPolymerisation($orientationOfPolymerisation) {
+    public function setOrientationOfPolymerisation($orientationOfPolymerisation)
+    {
         $this->orientationOfPolymerisation = $orientationOfPolymerisation;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getRepeatUnit() {
+    public function getRepeatUnit()
+    {
         return $this->repeatUnit;
     }
 
@@ -133,7 +136,8 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $repeatUnit
      * @return $this
      */
-    public function setRepeatUnit($repeatUnit) {
+    public function setRepeatUnit($repeatUnit)
+    {
         $this->repeatUnit = $repeatUnit;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceAmount
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -151,7 +156,8 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceAmount $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerDegreeOfPolymerisation[]
      */
-    public function getDegreeOfPolymerisation() {
+    public function getDegreeOfPolymerisation()
+    {
         return $this->degreeOfPolymerisation;
     }
 
@@ -169,7 +176,8 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerDegreeOfPolymerisation $degreeOfPolymerisation
      * @return $this
      */
-    public function addDegreeOfPolymerisation($degreeOfPolymerisation) {
+    public function addDegreeOfPolymerisation($degreeOfPolymerisation)
+    {
         $this->degreeOfPolymerisation[] = $degreeOfPolymerisation;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerStructuralRepresentation[]
      */
-    public function getStructuralRepresentation() {
+    public function getStructuralRepresentation()
+    {
         return $this->structuralRepresentation;
     }
 
@@ -187,7 +196,8 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerStructuralRepresentation $structuralRepresentation
      * @return $this
      */
-    public function addStructuralRepresentation($structuralRepresentation) {
+    public function addStructuralRepresentation($structuralRepresentation)
+    {
         $this->structuralRepresentation[] = $structuralRepresentation;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['orientationOfPolymerisation'])) {
                 $this->setOrientationOfPolymerisation($data['orientationOfPolymerisation']);
@@ -215,7 +227,7 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['degreeOfPolymerisation'])) {
                 if (is_array($data['degreeOfPolymerisation'])) {
-                    foreach($data['degreeOfPolymerisation'] as $d) {
+                    foreach ($data['degreeOfPolymerisation'] as $d) {
                         $this->addDegreeOfPolymerisation($d);
                     }
                 } else {
@@ -224,7 +236,7 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['structuralRepresentation'])) {
                 if (is_array($data['structuralRepresentation'])) {
-                    foreach($data['structuralRepresentation'] as $d) {
+                    foreach ($data['structuralRepresentation'] as $d) {
                         $this->addStructuralRepresentation($d);
                     }
                 } else {
@@ -240,27 +252,35 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->orientationOfPolymerisation)) $json['orientationOfPolymerisation'] = $this->orientationOfPolymerisation;
-        if (isset($this->repeatUnit)) $json['repeatUnit'] = $this->repeatUnit;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
+        if (isset($this->orientationOfPolymerisation)) {
+            $json['orientationOfPolymerisation'] = $this->orientationOfPolymerisation;
+        }
+        if (isset($this->repeatUnit)) {
+            $json['repeatUnit'] = $this->repeatUnit;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
         if (0 < count($this->degreeOfPolymerisation)) {
             $json['degreeOfPolymerisation'] = [];
-            foreach($this->degreeOfPolymerisation as $degreeOfPolymerisation) {
+            foreach ($this->degreeOfPolymerisation as $degreeOfPolymerisation) {
                 $json['degreeOfPolymerisation'][] = $degreeOfPolymerisation;
             }
         }
         if (0 < count($this->structuralRepresentation)) {
             $json['structuralRepresentation'] = [];
-            foreach($this->structuralRepresentation as $structuralRepresentation) {
+            foreach ($this->structuralRepresentation as $structuralRepresentation) {
                 $json['structuralRepresentation'][] = $structuralRepresentation;
             }
         }
@@ -272,25 +292,34 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstancePolymerRepeatUnit xmlns="http://hl7.org/fhir"></SubstancePolymerRepeatUnit>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstancePolymerRepeatUnit xmlns="http://hl7.org/fhir"></SubstancePolymerRepeatUnit>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->orientationOfPolymerisation)) $this->orientationOfPolymerisation->xmlSerialize(true, $sxe->addChild('orientationOfPolymerisation'));
-        if (isset($this->repeatUnit)) $this->repeatUnit->xmlSerialize(true, $sxe->addChild('repeatUnit'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        if (isset($this->orientationOfPolymerisation)) {
+            $this->orientationOfPolymerisation->xmlSerialize(true, $sxe->addChild('orientationOfPolymerisation'));
+        }
+        if (isset($this->repeatUnit)) {
+            $this->repeatUnit->xmlSerialize(true, $sxe->addChild('repeatUnit'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
         if (0 < count($this->degreeOfPolymerisation)) {
-            foreach($this->degreeOfPolymerisation as $degreeOfPolymerisation) {
+            foreach ($this->degreeOfPolymerisation as $degreeOfPolymerisation) {
                 $degreeOfPolymerisation->xmlSerialize(true, $sxe->addChild('degreeOfPolymerisation'));
             }
         }
         if (0 < count($this->structuralRepresentation)) {
-            foreach($this->structuralRepresentation as $structuralRepresentation) {
+            foreach ($this->structuralRepresentation as $structuralRepresentation) {
                 $structuralRepresentation->xmlSerialize(true, $sxe->addChild('structuralRepresentation'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -103,7 +103,8 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it "clinically safe" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -112,7 +113,8 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -121,10 +123,11 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope.
      * @return array
      */
-    public function getContained() {
-        if (count($this->contained) > 0) { 
+    public function getContained()
+    {
+        if (count($this->contained) > 0) {
             $resources = [];
-            foreach($this->contained as $container) {
+            foreach ($this->contained as $container) {
                 if ($container instanceof FHIRResourceContainer) {
                     $resources[] = $container->jsonSerialize();
                 }
@@ -139,7 +142,8 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * @param \OpenEMR\FHIR\R4\FHIRResourceContainer $contained
      * @return $this
      */
-    public function addContained($contained) {
+    public function addContained($contained)
+    {
         $this->contained[] = $contained;
         return $this;
     }
@@ -148,7 +152,8 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExtension[]
      */
-    public function getExtension() {
+    public function getExtension()
+    {
         return $this->extension;
     }
 
@@ -157,7 +162,8 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExtension $extension
      * @return $this
      */
-    public function addExtension($extension) {
+    public function addExtension($extension)
+    {
         $this->extension[] = $extension;
         return $this;
     }
@@ -168,7 +174,8 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
 Modifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExtension[]
      */
-    public function getModifierExtension() {
+    public function getModifierExtension()
+    {
         return $this->modifierExtension;
     }
 
@@ -179,7 +186,8 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExtension $modifierExtension
      * @return $this
      */
-    public function addModifierExtension($modifierExtension) {
+    public function addModifierExtension($modifierExtension)
+    {
         $this->modifierExtension[] = $modifierExtension;
         return $this;
     }
@@ -187,21 +195,23 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['text'])) {
                 $this->setText($data['text']);
             }
             if (isset($data['contained'])) {
                 if (is_array($data['contained'])) {
-                    foreach($data['contained'] as $d) {
+                    foreach ($data['contained'] as $d) {
                         $this->addContained($d);
                     }
                 } else {
@@ -210,7 +220,7 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
             }
             if (isset($data['extension'])) {
                 if (is_array($data['extension'])) {
-                    foreach($data['extension'] as $d) {
+                    foreach ($data['extension'] as $d) {
                         $this->addExtension($d);
                     }
                 } else {
@@ -219,7 +229,7 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
             }
             if (isset($data['modifierExtension'])) {
                 if (is_array($data['modifierExtension'])) {
-                    foreach($data['modifierExtension'] as $d) {
+                    foreach ($data['modifierExtension'] as $d) {
                         $this->addModifierExtension($d);
                     }
                 } else {
@@ -235,32 +245,36 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->text)) $json['text'] = $this->text;
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
         if (0 < count($this->contained)) {
             $json['contained'] = [];
-            foreach($this->contained as $contained) {
+            foreach ($this->contained as $contained) {
                 $json['contained'][] = $contained;
             }
         }
         if (0 < count($this->extension)) {
             $json['extension'] = [];
-            foreach($this->extension as $extension) {
+            foreach ($this->extension as $extension) {
                 $json['extension'][] = $extension;
             }
         }
         if (0 < count($this->modifierExtension)) {
             $json['modifierExtension'] = [];
-            foreach($this->modifierExtension as $modifierExtension) {
+            foreach ($this->modifierExtension as $modifierExtension) {
                 $json['modifierExtension'][] = $modifierExtension;
             }
         }
@@ -272,28 +286,33 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DomainResource xmlns="http://hl7.org/fhir"></DomainResource>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DomainResource xmlns="http://hl7.org/fhir"></DomainResource>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
         if (0 < count($this->contained)) {
-            foreach($this->contained as $contained) {
+            foreach ($this->contained as $contained) {
                 $contained->xmlSerialize(true, $sxe->addChild('contained'));
             }
         }
         if (0 < count($this->extension)) {
-            foreach($this->extension as $extension) {
+            foreach ($this->extension as $extension) {
                 $extension->xmlSerialize(true, $sxe->addChild('extension'));
             }
         }
         if (0 < count($this->modifierExtension)) {
-            foreach($this->modifierExtension as $modifierExtension) {
+            foreach ($this->modifierExtension as $modifierExtension) {
                 $modifierExtension->xmlSerialize(true, $sxe->addChild('modifierExtension'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

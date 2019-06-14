@@ -119,7 +119,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * The base quantity that a measured value of zero represents. In addition, this provides the units of the entire measurement series.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getOrigin() {
+    public function getOrigin()
+    {
         return $this->origin;
     }
 
@@ -128,7 +129,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $origin
      * @return $this
      */
-    public function setOrigin($origin) {
+    public function setOrigin($origin)
+    {
         $this->origin = $origin;
         return $this;
     }
@@ -137,7 +139,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * The length of time between sampling times, measured in milliseconds.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -146,7 +149,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -155,7 +159,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * A correction factor that is applied to the sampled data points before they are added to the origin.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getFactor() {
+    public function getFactor()
+    {
         return $this->factor;
     }
 
@@ -164,7 +169,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $factor
      * @return $this
      */
-    public function setFactor($factor) {
+    public function setFactor($factor)
+    {
         $this->factor = $factor;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * The lower limit of detection of the measured points. This is needed if any of the data points have the value "L" (lower than detection limit).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getLowerLimit() {
+    public function getLowerLimit()
+    {
         return $this->lowerLimit;
     }
 
@@ -182,7 +189,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $lowerLimit
      * @return $this
      */
-    public function setLowerLimit($lowerLimit) {
+    public function setLowerLimit($lowerLimit)
+    {
         $this->lowerLimit = $lowerLimit;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * The upper limit of detection of the measured points. This is needed if any of the data points have the value "U" (higher than detection limit).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getUpperLimit() {
+    public function getUpperLimit()
+    {
         return $this->upperLimit;
     }
 
@@ -200,7 +209,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $upperLimit
      * @return $this
      */
-    public function setUpperLimit($upperLimit) {
+    public function setUpperLimit($upperLimit)
+    {
         $this->upperLimit = $upperLimit;
         return $this;
     }
@@ -209,7 +219,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * The number of sample points at each time point. If this value is greater than one, then the dimensions will be interlaced - all the sample points for a point in time will be recorded at once.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getDimensions() {
+    public function getDimensions()
+    {
         return $this->dimensions;
     }
 
@@ -218,7 +229,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $dimensions
      * @return $this
      */
-    public function setDimensions($dimensions) {
+    public function setDimensions($dimensions)
+    {
         $this->dimensions = $dimensions;
         return $this;
     }
@@ -227,7 +239,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * A series of data points which are decimal values separated by a single space (character u20). The special values "E" (error), "L" (below detection limit) and "U" (above detection limit) can also be used in place of a decimal value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledDataDataType
      */
-    public function getData() {
+    public function getData()
+    {
         return $this->data;
     }
 
@@ -236,7 +249,8 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledDataDataType $data
      * @return $this
      */
-    public function setData($data) {
+    public function setData($data)
+    {
         $this->data = $data;
         return $this;
     }
@@ -244,14 +258,16 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['origin'])) {
                 $this->setOrigin($data['origin']);
@@ -283,22 +299,38 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->origin)) $json['origin'] = $this->origin;
-        if (isset($this->period)) $json['period'] = $this->period;
-        if (isset($this->factor)) $json['factor'] = $this->factor;
-        if (isset($this->lowerLimit)) $json['lowerLimit'] = $this->lowerLimit;
-        if (isset($this->upperLimit)) $json['upperLimit'] = $this->upperLimit;
-        if (isset($this->dimensions)) $json['dimensions'] = $this->dimensions;
-        if (isset($this->data)) $json['data'] = $this->data;
+        if (isset($this->origin)) {
+            $json['origin'] = $this->origin;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
+        if (isset($this->factor)) {
+            $json['factor'] = $this->factor;
+        }
+        if (isset($this->lowerLimit)) {
+            $json['lowerLimit'] = $this->lowerLimit;
+        }
+        if (isset($this->upperLimit)) {
+            $json['upperLimit'] = $this->upperLimit;
+        }
+        if (isset($this->dimensions)) {
+            $json['dimensions'] = $this->dimensions;
+        }
+        if (isset($this->data)) {
+            $json['data'] = $this->data;
+        }
         return $json;
     }
 
@@ -307,19 +339,36 @@ class FHIRSampledData extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SampledData xmlns="http://hl7.org/fhir"></SampledData>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SampledData xmlns="http://hl7.org/fhir"></SampledData>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->origin)) $this->origin->xmlSerialize(true, $sxe->addChild('origin'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if (isset($this->factor)) $this->factor->xmlSerialize(true, $sxe->addChild('factor'));
-        if (isset($this->lowerLimit)) $this->lowerLimit->xmlSerialize(true, $sxe->addChild('lowerLimit'));
-        if (isset($this->upperLimit)) $this->upperLimit->xmlSerialize(true, $sxe->addChild('upperLimit'));
-        if (isset($this->dimensions)) $this->dimensions->xmlSerialize(true, $sxe->addChild('dimensions'));
-        if (isset($this->data)) $this->data->xmlSerialize(true, $sxe->addChild('data'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->origin)) {
+            $this->origin->xmlSerialize(true, $sxe->addChild('origin'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if (isset($this->factor)) {
+            $this->factor->xmlSerialize(true, $sxe->addChild('factor'));
+        }
+        if (isset($this->lowerLimit)) {
+            $this->lowerLimit->xmlSerialize(true, $sxe->addChild('lowerLimit'));
+        }
+        if (isset($this->upperLimit)) {
+            $this->upperLimit->xmlSerialize(true, $sxe->addChild('upperLimit'));
+        }
+        if (isset($this->dimensions)) {
+            $this->dimensions->xmlSerialize(true, $sxe->addChild('dimensions'));
+        }
+        if (isset($this->data)) {
+            $this->data->xmlSerialize(true, $sxe->addChild('data'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

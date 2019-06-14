@@ -118,7 +118,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * Indicates a category the goal falls within.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -127,7 +128,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -136,7 +138,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * Human-readable and/or coded description of a specific desired objective of care, such as "control blood pressure" or "negotiate an obstacle course" or "dance with child at wedding".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -145,7 +148,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -154,7 +158,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * Identifies the expected level of importance associated with reaching/sustaining the defined goal.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPriority() {
+    public function getPriority()
+    {
         return $this->priority;
     }
 
@@ -163,7 +168,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $priority
      * @return $this
      */
-    public function setPriority($priority) {
+    public function setPriority($priority)
+    {
         $this->priority = $priority;
         return $this;
     }
@@ -172,7 +178,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * The event after which the goal should begin being pursued.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStart() {
+    public function getStart()
+    {
         return $this->start;
     }
 
@@ -181,7 +188,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $start
      * @return $this
      */
-    public function setStart($start) {
+    public function setStart($start)
+    {
         $this->start = $start;
         return $this;
     }
@@ -190,7 +198,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * Identifies problems, conditions, issues, or concerns the goal is intended to address.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getAddresses() {
+    public function getAddresses()
+    {
         return $this->addresses;
     }
 
@@ -199,7 +208,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $addresses
      * @return $this
      */
-    public function addAddresses($addresses) {
+    public function addAddresses($addresses)
+    {
         $this->addresses[] = $addresses;
         return $this;
     }
@@ -208,7 +218,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * Didactic or other informational resources associated with the goal that provide further supporting information about the goal. Information resources can include inline text commentary and links to web resources.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact[]
      */
-    public function getDocumentation() {
+    public function getDocumentation()
+    {
         return $this->documentation;
     }
 
@@ -217,7 +228,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact $documentation
      * @return $this
      */
-    public function addDocumentation($documentation) {
+    public function addDocumentation($documentation)
+    {
         $this->documentation[] = $documentation;
         return $this;
     }
@@ -226,7 +238,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * Indicates what should be done and within what timeframe.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionTarget[]
      */
-    public function getTarget() {
+    public function getTarget()
+    {
         return $this->target;
     }
 
@@ -235,7 +248,8 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition\FHIRPlanDefinitionTarget $target
      * @return $this
      */
-    public function addTarget($target) {
+    public function addTarget($target)
+    {
         $this->target[] = $target;
         return $this;
     }
@@ -243,14 +257,16 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['category'])) {
                 $this->setCategory($data['category']);
@@ -266,7 +282,7 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['addresses'])) {
                 if (is_array($data['addresses'])) {
-                    foreach($data['addresses'] as $d) {
+                    foreach ($data['addresses'] as $d) {
                         $this->addAddresses($d);
                     }
                 } else {
@@ -275,7 +291,7 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['documentation'])) {
                 if (is_array($data['documentation'])) {
-                    foreach($data['documentation'] as $d) {
+                    foreach ($data['documentation'] as $d) {
                         $this->addDocumentation($d);
                     }
                 } else {
@@ -284,7 +300,7 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['target'])) {
                 if (is_array($data['target'])) {
-                    foreach($data['target'] as $d) {
+                    foreach ($data['target'] as $d) {
                         $this->addTarget($d);
                     }
                 } else {
@@ -300,34 +316,44 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->priority)) $json['priority'] = $this->priority;
-        if (isset($this->start)) $json['start'] = $this->start;
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->priority)) {
+            $json['priority'] = $this->priority;
+        }
+        if (isset($this->start)) {
+            $json['start'] = $this->start;
+        }
         if (0 < count($this->addresses)) {
             $json['addresses'] = [];
-            foreach($this->addresses as $addresses) {
+            foreach ($this->addresses as $addresses) {
                 $json['addresses'][] = $addresses;
             }
         }
         if (0 < count($this->documentation)) {
             $json['documentation'] = [];
-            foreach($this->documentation as $documentation) {
+            foreach ($this->documentation as $documentation) {
                 $json['documentation'][] = $documentation;
             }
         }
         if (0 < count($this->target)) {
             $json['target'] = [];
-            foreach($this->target as $target) {
+            foreach ($this->target as $target) {
                 $json['target'][] = $target;
             }
         }
@@ -339,31 +365,42 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PlanDefinitionGoal xmlns="http://hl7.org/fhir"></PlanDefinitionGoal>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PlanDefinitionGoal xmlns="http://hl7.org/fhir"></PlanDefinitionGoal>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->priority)) $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
-        if (isset($this->start)) $this->start->xmlSerialize(true, $sxe->addChild('start'));
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->priority)) {
+            $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        }
+        if (isset($this->start)) {
+            $this->start->xmlSerialize(true, $sxe->addChild('start'));
+        }
         if (0 < count($this->addresses)) {
-            foreach($this->addresses as $addresses) {
+            foreach ($this->addresses as $addresses) {
                 $addresses->xmlSerialize(true, $sxe->addChild('addresses'));
             }
         }
         if (0 < count($this->documentation)) {
-            foreach($this->documentation as $documentation) {
+            foreach ($this->documentation as $documentation) {
                 $documentation->xmlSerialize(true, $sxe->addChild('documentation'));
             }
         }
         if (0 < count($this->target)) {
-            foreach($this->target as $target) {
+            foreach ($this->target as $target) {
                 $target->xmlSerialize(true, $sxe->addChild('target'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

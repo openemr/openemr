@@ -106,7 +106,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * Role of participant in the appointment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -115,7 +116,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function addType($type) {
+    public function addType($type)
+    {
         $this->type[] = $type;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * A Person, Location/HealthcareService or Device that is participating in the appointment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getActor() {
+    public function getActor()
+    {
         return $this->actor;
     }
 
@@ -133,7 +136,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $actor
      * @return $this
      */
-    public function setActor($actor) {
+    public function setActor($actor)
+    {
         $this->actor = $actor;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * Whether this participant is required to be present at the meeting. This covers a use-case where two doctors need to meet to discuss the results for a specific patient, and the patient is not required to be present.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRParticipantRequired
      */
-    public function getRequired() {
+    public function getRequired()
+    {
         return $this->required;
     }
 
@@ -151,7 +156,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRParticipantRequired $required
      * @return $this
      */
-    public function setRequired($required) {
+    public function setRequired($required)
+    {
         $this->required = $required;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * Participation status of the actor.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRParticipationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -169,7 +176,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRParticipationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * Participation period of the actor.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -187,7 +196,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -195,18 +205,20 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 if (is_array($data['type'])) {
-                    foreach($data['type'] as $d) {
+                    foreach ($data['type'] as $d) {
                         $this->addType($d);
                     }
                 } else {
@@ -234,25 +246,35 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->type)) {
             $json['type'] = [];
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $json['type'][] = $type;
             }
         }
-        if (isset($this->actor)) $json['actor'] = $this->actor;
-        if (isset($this->required)) $json['required'] = $this->required;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->actor)) {
+            $json['actor'] = $this->actor;
+        }
+        if (isset($this->required)) {
+            $json['required'] = $this->required;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         return $json;
     }
 
@@ -261,21 +283,32 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<AppointmentParticipant xmlns="http://hl7.org/fhir"></AppointmentParticipant>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<AppointmentParticipant xmlns="http://hl7.org/fhir"></AppointmentParticipant>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->type)) {
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $type->xmlSerialize(true, $sxe->addChild('type'));
             }
         }
-        if (isset($this->actor)) $this->actor->xmlSerialize(true, $sxe->addChild('actor'));
-        if (isset($this->required)) $this->required->xmlSerialize(true, $sxe->addChild('required'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->actor)) {
+            $this->actor->xmlSerialize(true, $sxe->addChild('actor'));
+        }
+        if (isset($this->required)) {
+            $this->required->xmlSerialize(true, $sxe->addChild('required'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

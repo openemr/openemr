@@ -106,7 +106,8 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * Type of resource this link refers to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -115,7 +116,8 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * A set of parameters to look up.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getParams() {
+    public function getParams()
+    {
         return $this->params;
     }
 
@@ -133,7 +136,8 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $params
      * @return $this
      */
-    public function setParams($params) {
+    public function setParams($params)
+    {
         $this->params = $params;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * Profile for the target resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getProfile() {
+    public function getProfile()
+    {
         return $this->profile;
     }
 
@@ -151,7 +156,8 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $profile
      * @return $this
      */
-    public function setProfile($profile) {
+    public function setProfile($profile)
+    {
         $this->profile = $profile;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * Compartment Consistency Rules.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRGraphDefinition\FHIRGraphDefinitionCompartment[]
      */
-    public function getCompartment() {
+    public function getCompartment()
+    {
         return $this->compartment;
     }
 
@@ -169,7 +176,8 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRGraphDefinition\FHIRGraphDefinitionCompartment $compartment
      * @return $this
      */
-    public function addCompartment($compartment) {
+    public function addCompartment($compartment)
+    {
         $this->compartment[] = $compartment;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * Additional links from target resource.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRGraphDefinition\FHIRGraphDefinitionLink[]
      */
-    public function getLink() {
+    public function getLink()
+    {
         return $this->link;
     }
 
@@ -187,7 +196,8 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRGraphDefinition\FHIRGraphDefinitionLink $link
      * @return $this
      */
-    public function addLink($link) {
+    public function addLink($link)
+    {
         $this->link[] = $link;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -215,7 +227,7 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
             }
             if (isset($data['compartment'])) {
                 if (is_array($data['compartment'])) {
-                    foreach($data['compartment'] as $d) {
+                    foreach ($data['compartment'] as $d) {
                         $this->addCompartment($d);
                     }
                 } else {
@@ -224,7 +236,7 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
             }
             if (isset($data['link'])) {
                 if (is_array($data['link'])) {
-                    foreach($data['link'] as $d) {
+                    foreach ($data['link'] as $d) {
                         $this->addLink($d);
                     }
                 } else {
@@ -240,27 +252,35 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->params)) $json['params'] = $this->params;
-        if (isset($this->profile)) $json['profile'] = $this->profile;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->params)) {
+            $json['params'] = $this->params;
+        }
+        if (isset($this->profile)) {
+            $json['profile'] = $this->profile;
+        }
         if (0 < count($this->compartment)) {
             $json['compartment'] = [];
-            foreach($this->compartment as $compartment) {
+            foreach ($this->compartment as $compartment) {
                 $json['compartment'][] = $compartment;
             }
         }
         if (0 < count($this->link)) {
             $json['link'] = [];
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $json['link'][] = $link;
             }
         }
@@ -272,25 +292,34 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<GraphDefinitionTarget xmlns="http://hl7.org/fhir"></GraphDefinitionTarget>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<GraphDefinitionTarget xmlns="http://hl7.org/fhir"></GraphDefinitionTarget>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->params)) $this->params->xmlSerialize(true, $sxe->addChild('params'));
-        if (isset($this->profile)) $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->params)) {
+            $this->params->xmlSerialize(true, $sxe->addChild('params'));
+        }
+        if (isset($this->profile)) {
+            $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
+        }
         if (0 < count($this->compartment)) {
-            foreach($this->compartment as $compartment) {
+            foreach ($this->compartment as $compartment) {
                 $compartment->xmlSerialize(true, $sxe->addChild('compartment'));
             }
         }
         if (0 < count($this->link)) {
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $link->xmlSerialize(true, $sxe->addChild('link'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -112,7 +112,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * For version-less code systems, there should be a single version with no identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -121,7 +122,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * If this is the default version for this code system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getIsDefault() {
+    public function getIsDefault()
+    {
         return $this->isDefault;
     }
 
@@ -139,7 +142,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $isDefault
      * @return $this
      */
-    public function setIsDefault($isDefault) {
+    public function setIsDefault($isDefault)
+    {
         $this->isDefault = $isDefault;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * If the compositional grammar defined by the code system is supported.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getCompositional() {
+    public function getCompositional()
+    {
         return $this->compositional;
     }
 
@@ -157,7 +162,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $compositional
      * @return $this
      */
-    public function setCompositional($compositional) {
+    public function setCompositional($compositional)
+    {
         $this->compositional = $compositional;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * Language Displays supported.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode[]
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -175,7 +182,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $language
      * @return $this
      */
-    public function addLanguage($language) {
+    public function addLanguage($language)
+    {
         $this->language[] = $language;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * Filter Properties supported.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesFilter[]
      */
-    public function getFilter() {
+    public function getFilter()
+    {
         return $this->filter;
     }
 
@@ -193,7 +202,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesFilter $filter
      * @return $this
      */
-    public function addFilter($filter) {
+    public function addFilter($filter)
+    {
         $this->filter[] = $filter;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * Properties supported for $lookup.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode[]
      */
-    public function getProperty() {
+    public function getProperty()
+    {
         return $this->property;
     }
 
@@ -211,7 +222,8 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $property
      * @return $this
      */
-    public function addProperty($property) {
+    public function addProperty($property)
+    {
         $this->property[] = $property;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -239,7 +253,7 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
             }
             if (isset($data['language'])) {
                 if (is_array($data['language'])) {
-                    foreach($data['language'] as $d) {
+                    foreach ($data['language'] as $d) {
                         $this->addLanguage($d);
                     }
                 } else {
@@ -248,7 +262,7 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
             }
             if (isset($data['filter'])) {
                 if (is_array($data['filter'])) {
-                    foreach($data['filter'] as $d) {
+                    foreach ($data['filter'] as $d) {
                         $this->addFilter($d);
                     }
                 } else {
@@ -257,7 +271,7 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
             }
             if (isset($data['property'])) {
                 if (is_array($data['property'])) {
-                    foreach($data['property'] as $d) {
+                    foreach ($data['property'] as $d) {
                         $this->addProperty($d);
                     }
                 } else {
@@ -273,33 +287,41 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->isDefault)) $json['isDefault'] = $this->isDefault;
-        if (isset($this->compositional)) $json['compositional'] = $this->compositional;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->isDefault)) {
+            $json['isDefault'] = $this->isDefault;
+        }
+        if (isset($this->compositional)) {
+            $json['compositional'] = $this->compositional;
+        }
         if (0 < count($this->language)) {
             $json['language'] = [];
-            foreach($this->language as $language) {
+            foreach ($this->language as $language) {
                 $json['language'][] = $language;
             }
         }
         if (0 < count($this->filter)) {
             $json['filter'] = [];
-            foreach($this->filter as $filter) {
+            foreach ($this->filter as $filter) {
                 $json['filter'][] = $filter;
             }
         }
         if (0 < count($this->property)) {
             $json['property'] = [];
-            foreach($this->property as $property) {
+            foreach ($this->property as $property) {
                 $json['property'][] = $property;
             }
         }
@@ -311,30 +333,39 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesVersion xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesVersion>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesVersion xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesVersion>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->isDefault)) $this->isDefault->xmlSerialize(true, $sxe->addChild('isDefault'));
-        if (isset($this->compositional)) $this->compositional->xmlSerialize(true, $sxe->addChild('compositional'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->isDefault)) {
+            $this->isDefault->xmlSerialize(true, $sxe->addChild('isDefault'));
+        }
+        if (isset($this->compositional)) {
+            $this->compositional->xmlSerialize(true, $sxe->addChild('compositional'));
+        }
         if (0 < count($this->language)) {
-            foreach($this->language as $language) {
+            foreach ($this->language as $language) {
                 $language->xmlSerialize(true, $sxe->addChild('language'));
             }
         }
         if (0 < count($this->filter)) {
-            foreach($this->filter as $filter) {
+            foreach ($this->filter as $filter) {
                 $filter->xmlSerialize(true, $sxe->addChild('filter'));
             }
         }
         if (0 < count($this->property)) {
-            foreach($this->property as $property) {
+            foreach ($this->property as $property) {
                 $property->xmlSerialize(true, $sxe->addChild('property'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

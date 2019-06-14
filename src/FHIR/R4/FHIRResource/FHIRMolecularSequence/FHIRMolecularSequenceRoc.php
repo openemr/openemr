@@ -118,7 +118,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * Invidual data point representing the GQ (genotype quality) score threshold.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger[]
      */
-    public function getScore() {
+    public function getScore()
+    {
         return $this->score;
     }
 
@@ -127,7 +128,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $score
      * @return $this
      */
-    public function addScore($score) {
+    public function addScore($score)
+    {
         $this->score[] = $score;
         return $this;
     }
@@ -136,7 +138,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * The number of true positives if the GQ score threshold was set to "score" field value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger[]
      */
-    public function getNumTP() {
+    public function getNumTP()
+    {
         return $this->numTP;
     }
 
@@ -145,7 +148,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $numTP
      * @return $this
      */
-    public function addNumTP($numTP) {
+    public function addNumTP($numTP)
+    {
         $this->numTP[] = $numTP;
         return $this;
     }
@@ -154,7 +158,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * The number of false positives if the GQ score threshold was set to "score" field value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger[]
      */
-    public function getNumFP() {
+    public function getNumFP()
+    {
         return $this->numFP;
     }
 
@@ -163,7 +168,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $numFP
      * @return $this
      */
-    public function addNumFP($numFP) {
+    public function addNumFP($numFP)
+    {
         $this->numFP[] = $numFP;
         return $this;
     }
@@ -172,7 +178,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * The number of false negatives if the GQ score threshold was set to "score" field value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger[]
      */
-    public function getNumFN() {
+    public function getNumFN()
+    {
         return $this->numFN;
     }
 
@@ -181,7 +188,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $numFN
      * @return $this
      */
-    public function addNumFN($numFN) {
+    public function addNumFN($numFN)
+    {
         $this->numFN[] = $numFN;
         return $this;
     }
@@ -190,7 +198,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * Calculated precision if the GQ score threshold was set to "score" field value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal[]
      */
-    public function getPrecision() {
+    public function getPrecision()
+    {
         return $this->precision;
     }
 
@@ -199,7 +208,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $precision
      * @return $this
      */
-    public function addPrecision($precision) {
+    public function addPrecision($precision)
+    {
         $this->precision[] = $precision;
         return $this;
     }
@@ -208,7 +218,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * Calculated sensitivity if the GQ score threshold was set to "score" field value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal[]
      */
-    public function getSensitivity() {
+    public function getSensitivity()
+    {
         return $this->sensitivity;
     }
 
@@ -217,7 +228,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $sensitivity
      * @return $this
      */
-    public function addSensitivity($sensitivity) {
+    public function addSensitivity($sensitivity)
+    {
         $this->sensitivity[] = $sensitivity;
         return $this;
     }
@@ -226,7 +238,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * Calculated fScore if the GQ score threshold was set to "score" field value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal[]
      */
-    public function getFMeasure() {
+    public function getFMeasure()
+    {
         return $this->fMeasure;
     }
 
@@ -235,7 +248,8 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $fMeasure
      * @return $this
      */
-    public function addFMeasure($fMeasure) {
+    public function addFMeasure($fMeasure)
+    {
         $this->fMeasure[] = $fMeasure;
         return $this;
     }
@@ -243,18 +257,20 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['score'])) {
                 if (is_array($data['score'])) {
-                    foreach($data['score'] as $d) {
+                    foreach ($data['score'] as $d) {
                         $this->addScore($d);
                     }
                 } else {
@@ -263,7 +279,7 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['numTP'])) {
                 if (is_array($data['numTP'])) {
-                    foreach($data['numTP'] as $d) {
+                    foreach ($data['numTP'] as $d) {
                         $this->addNumTP($d);
                     }
                 } else {
@@ -272,7 +288,7 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['numFP'])) {
                 if (is_array($data['numFP'])) {
-                    foreach($data['numFP'] as $d) {
+                    foreach ($data['numFP'] as $d) {
                         $this->addNumFP($d);
                     }
                 } else {
@@ -281,7 +297,7 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['numFN'])) {
                 if (is_array($data['numFN'])) {
-                    foreach($data['numFN'] as $d) {
+                    foreach ($data['numFN'] as $d) {
                         $this->addNumFN($d);
                     }
                 } else {
@@ -290,7 +306,7 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['precision'])) {
                 if (is_array($data['precision'])) {
-                    foreach($data['precision'] as $d) {
+                    foreach ($data['precision'] as $d) {
                         $this->addPrecision($d);
                     }
                 } else {
@@ -299,7 +315,7 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['sensitivity'])) {
                 if (is_array($data['sensitivity'])) {
-                    foreach($data['sensitivity'] as $d) {
+                    foreach ($data['sensitivity'] as $d) {
                         $this->addSensitivity($d);
                     }
                 } else {
@@ -308,7 +324,7 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['fMeasure'])) {
                 if (is_array($data['fMeasure'])) {
-                    foreach($data['fMeasure'] as $d) {
+                    foreach ($data['fMeasure'] as $d) {
                         $this->addFMeasure($d);
                     }
                 } else {
@@ -324,54 +340,56 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->score)) {
             $json['score'] = [];
-            foreach($this->score as $score) {
+            foreach ($this->score as $score) {
                 $json['score'][] = $score;
             }
         }
         if (0 < count($this->numTP)) {
             $json['numTP'] = [];
-            foreach($this->numTP as $numTP) {
+            foreach ($this->numTP as $numTP) {
                 $json['numTP'][] = $numTP;
             }
         }
         if (0 < count($this->numFP)) {
             $json['numFP'] = [];
-            foreach($this->numFP as $numFP) {
+            foreach ($this->numFP as $numFP) {
                 $json['numFP'][] = $numFP;
             }
         }
         if (0 < count($this->numFN)) {
             $json['numFN'] = [];
-            foreach($this->numFN as $numFN) {
+            foreach ($this->numFN as $numFN) {
                 $json['numFN'][] = $numFN;
             }
         }
         if (0 < count($this->precision)) {
             $json['precision'] = [];
-            foreach($this->precision as $precision) {
+            foreach ($this->precision as $precision) {
                 $json['precision'][] = $precision;
             }
         }
         if (0 < count($this->sensitivity)) {
             $json['sensitivity'] = [];
-            foreach($this->sensitivity as $sensitivity) {
+            foreach ($this->sensitivity as $sensitivity) {
                 $json['sensitivity'][] = $sensitivity;
             }
         }
         if (0 < count($this->fMeasure)) {
             $json['fMeasure'] = [];
-            foreach($this->fMeasure as $fMeasure) {
+            foreach ($this->fMeasure as $fMeasure) {
                 $json['fMeasure'][] = $fMeasure;
             }
         }
@@ -383,47 +401,50 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MolecularSequenceRoc xmlns="http://hl7.org/fhir"></MolecularSequenceRoc>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MolecularSequenceRoc xmlns="http://hl7.org/fhir"></MolecularSequenceRoc>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->score)) {
-            foreach($this->score as $score) {
+            foreach ($this->score as $score) {
                 $score->xmlSerialize(true, $sxe->addChild('score'));
             }
         }
         if (0 < count($this->numTP)) {
-            foreach($this->numTP as $numTP) {
+            foreach ($this->numTP as $numTP) {
                 $numTP->xmlSerialize(true, $sxe->addChild('numTP'));
             }
         }
         if (0 < count($this->numFP)) {
-            foreach($this->numFP as $numFP) {
+            foreach ($this->numFP as $numFP) {
                 $numFP->xmlSerialize(true, $sxe->addChild('numFP'));
             }
         }
         if (0 < count($this->numFN)) {
-            foreach($this->numFN as $numFN) {
+            foreach ($this->numFN as $numFN) {
                 $numFN->xmlSerialize(true, $sxe->addChild('numFN'));
             }
         }
         if (0 < count($this->precision)) {
-            foreach($this->precision as $precision) {
+            foreach ($this->precision as $precision) {
                 $precision->xmlSerialize(true, $sxe->addChild('precision'));
             }
         }
         if (0 < count($this->sensitivity)) {
-            foreach($this->sensitivity as $sensitivity) {
+            foreach ($this->sensitivity as $sensitivity) {
                 $sensitivity->xmlSerialize(true, $sxe->addChild('sensitivity'));
             }
         }
         if (0 < count($this->fMeasure)) {
-            foreach($this->fMeasure as $fMeasure) {
+            foreach ($this->fMeasure as $fMeasure) {
                 $fMeasure->xmlSerialize(true, $sxe->addChild('fMeasure'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

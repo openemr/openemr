@@ -136,7 +136,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * Exceptions, special conditions and supporting information applicable for this service or product line.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
-    public function getSupportingInfoSequence() {
+    public function getSupportingInfoSequence()
+    {
         return $this->supportingInfoSequence;
     }
 
@@ -145,7 +146,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $supportingInfoSequence
      * @return $this
      */
-    public function addSupportingInfoSequence($supportingInfoSequence) {
+    public function addSupportingInfoSequence($supportingInfoSequence)
+    {
         $this->supportingInfoSequence[] = $supportingInfoSequence;
         return $this;
     }
@@ -154,7 +156,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * Code to identify the general type of benefits under which products and services are provided.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -163,7 +166,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -172,7 +176,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * This contains the product, service, drug or other billing code for the item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getProductOrService() {
+    public function getProductOrService()
+    {
         return $this->productOrService;
     }
 
@@ -181,7 +186,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $productOrService
      * @return $this
      */
-    public function setProductOrService($productOrService) {
+    public function setProductOrService($productOrService)
+    {
         $this->productOrService = $productOrService;
         return $this;
     }
@@ -190,7 +196,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * Item typification or modifiers codes to convey additional context for the product or service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getModifier() {
+    public function getModifier()
+    {
         return $this->modifier;
     }
 
@@ -199,7 +206,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $modifier
      * @return $this
      */
-    public function addModifier($modifier) {
+    public function addModifier($modifier)
+    {
         $this->modifier[] = $modifier;
         return $this;
     }
@@ -208,7 +216,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * The practitioner who is responsible for the product or service to be rendered to the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getProvider() {
+    public function getProvider()
+    {
         return $this->provider;
     }
 
@@ -217,7 +226,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $provider
      * @return $this
      */
-    public function setProvider($provider) {
+    public function setProvider($provider)
+    {
         $this->provider = $provider;
         return $this;
     }
@@ -226,7 +236,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * The number of repetitions of a service or product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -235,7 +246,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -244,7 +256,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * The amount charged to the patient by the provider for a single unit.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getUnitPrice() {
+    public function getUnitPrice()
+    {
         return $this->unitPrice;
     }
 
@@ -253,7 +266,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $unitPrice
      * @return $this
      */
-    public function setUnitPrice($unitPrice) {
+    public function setUnitPrice($unitPrice)
+    {
         $this->unitPrice = $unitPrice;
         return $this;
     }
@@ -262,7 +276,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * Facility where the services will be provided.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getFacility() {
+    public function getFacility()
+    {
         return $this->facility;
     }
 
@@ -271,7 +286,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $facility
      * @return $this
      */
-    public function setFacility($facility) {
+    public function setFacility($facility)
+    {
         $this->facility = $facility;
         return $this;
     }
@@ -280,7 +296,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * Patient diagnosis for which care is sought.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityRequest\FHIRCoverageEligibilityRequestDiagnosis[]
      */
-    public function getDiagnosis() {
+    public function getDiagnosis()
+    {
         return $this->diagnosis;
     }
 
@@ -289,7 +306,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityRequest\FHIRCoverageEligibilityRequestDiagnosis $diagnosis
      * @return $this
      */
-    public function addDiagnosis($diagnosis) {
+    public function addDiagnosis($diagnosis)
+    {
         $this->diagnosis[] = $diagnosis;
         return $this;
     }
@@ -298,7 +316,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * The plan/proposal/order describing the proposed service in detail.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getDetail() {
+    public function getDetail()
+    {
         return $this->detail;
     }
 
@@ -307,7 +326,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $detail
      * @return $this
      */
-    public function addDetail($detail) {
+    public function addDetail($detail)
+    {
         $this->detail[] = $detail;
         return $this;
     }
@@ -315,18 +335,20 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['supportingInfoSequence'])) {
                 if (is_array($data['supportingInfoSequence'])) {
-                    foreach($data['supportingInfoSequence'] as $d) {
+                    foreach ($data['supportingInfoSequence'] as $d) {
                         $this->addSupportingInfoSequence($d);
                     }
                 } else {
@@ -341,7 +363,7 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
             }
             if (isset($data['modifier'])) {
                 if (is_array($data['modifier'])) {
-                    foreach($data['modifier'] as $d) {
+                    foreach ($data['modifier'] as $d) {
                         $this->addModifier($d);
                     }
                 } else {
@@ -362,7 +384,7 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
             }
             if (isset($data['diagnosis'])) {
                 if (is_array($data['diagnosis'])) {
-                    foreach($data['diagnosis'] as $d) {
+                    foreach ($data['diagnosis'] as $d) {
                         $this->addDiagnosis($d);
                     }
                 } else {
@@ -371,7 +393,7 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
             }
             if (isset($data['detail'])) {
                 if (is_array($data['detail'])) {
-                    foreach($data['detail'] as $d) {
+                    foreach ($data['detail'] as $d) {
                         $this->addDetail($d);
                     }
                 } else {
@@ -387,42 +409,56 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->supportingInfoSequence)) {
             $json['supportingInfoSequence'] = [];
-            foreach($this->supportingInfoSequence as $supportingInfoSequence) {
+            foreach ($this->supportingInfoSequence as $supportingInfoSequence) {
                 $json['supportingInfoSequence'][] = $supportingInfoSequence;
             }
         }
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->productOrService)) $json['productOrService'] = $this->productOrService;
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->productOrService)) {
+            $json['productOrService'] = $this->productOrService;
+        }
         if (0 < count($this->modifier)) {
             $json['modifier'] = [];
-            foreach($this->modifier as $modifier) {
+            foreach ($this->modifier as $modifier) {
                 $json['modifier'][] = $modifier;
             }
         }
-        if (isset($this->provider)) $json['provider'] = $this->provider;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->unitPrice)) $json['unitPrice'] = $this->unitPrice;
-        if (isset($this->facility)) $json['facility'] = $this->facility;
+        if (isset($this->provider)) {
+            $json['provider'] = $this->provider;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->unitPrice)) {
+            $json['unitPrice'] = $this->unitPrice;
+        }
+        if (isset($this->facility)) {
+            $json['facility'] = $this->facility;
+        }
         if (0 < count($this->diagnosis)) {
             $json['diagnosis'] = [];
-            foreach($this->diagnosis as $diagnosis) {
+            foreach ($this->diagnosis as $diagnosis) {
                 $json['diagnosis'][] = $diagnosis;
             }
         }
         if (0 < count($this->detail)) {
             $json['detail'] = [];
-            foreach($this->detail as $detail) {
+            foreach ($this->detail as $detail) {
                 $json['detail'][] = $detail;
             }
         }
@@ -434,38 +470,53 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CoverageEligibilityRequestItem xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CoverageEligibilityRequestItem xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestItem>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->supportingInfoSequence)) {
-            foreach($this->supportingInfoSequence as $supportingInfoSequence) {
+            foreach ($this->supportingInfoSequence as $supportingInfoSequence) {
                 $supportingInfoSequence->xmlSerialize(true, $sxe->addChild('supportingInfoSequence'));
             }
         }
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->productOrService)) $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->productOrService)) {
+            $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
+        }
         if (0 < count($this->modifier)) {
-            foreach($this->modifier as $modifier) {
+            foreach ($this->modifier as $modifier) {
                 $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
             }
         }
-        if (isset($this->provider)) $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->unitPrice)) $this->unitPrice->xmlSerialize(true, $sxe->addChild('unitPrice'));
-        if (isset($this->facility)) $this->facility->xmlSerialize(true, $sxe->addChild('facility'));
+        if (isset($this->provider)) {
+            $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->unitPrice)) {
+            $this->unitPrice->xmlSerialize(true, $sxe->addChild('unitPrice'));
+        }
+        if (isset($this->facility)) {
+            $this->facility->xmlSerialize(true, $sxe->addChild('facility'));
+        }
         if (0 < count($this->diagnosis)) {
-            foreach($this->diagnosis as $diagnosis) {
+            foreach ($this->diagnosis as $diagnosis) {
                 $diagnosis->xmlSerialize(true, $sxe->addChild('diagnosis'));
             }
         }
         if (0 < count($this->detail)) {
-            foreach($this->detail as $detail) {
+            foreach ($this->detail as $detail) {
                 $detail->xmlSerialize(true, $sxe->addChild('detail'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -94,7 +94,8 @@ class FHIRMeasureReportPopulation extends FHIRBackboneElement implements \JsonSe
      * The type of the population.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -103,7 +104,8 @@ class FHIRMeasureReportPopulation extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRMeasureReportPopulation extends FHIRBackboneElement implements \JsonSe
      * The number of members of the population.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getCount() {
+    public function getCount()
+    {
         return $this->count;
     }
 
@@ -121,7 +124,8 @@ class FHIRMeasureReportPopulation extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $count
      * @return $this
      */
-    public function setCount($count) {
+    public function setCount($count)
+    {
         $this->count = $count;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRMeasureReportPopulation extends FHIRBackboneElement implements \JsonSe
      * This element refers to a List of subject level MeasureReport resources, one for each subject in this population.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubjectResults() {
+    public function getSubjectResults()
+    {
         return $this->subjectResults;
     }
 
@@ -139,7 +144,8 @@ class FHIRMeasureReportPopulation extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subjectResults
      * @return $this
      */
-    public function setSubjectResults($subjectResults) {
+    public function setSubjectResults($subjectResults)
+    {
         $this->subjectResults = $subjectResults;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRMeasureReportPopulation extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -174,18 +182,26 @@ class FHIRMeasureReportPopulation extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->count)) $json['count'] = $this->count;
-        if (isset($this->subjectResults)) $json['subjectResults'] = $this->subjectResults;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->count)) {
+            $json['count'] = $this->count;
+        }
+        if (isset($this->subjectResults)) {
+            $json['subjectResults'] = $this->subjectResults;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRMeasureReportPopulation extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MeasureReportPopulation xmlns="http://hl7.org/fhir"></MeasureReportPopulation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MeasureReportPopulation xmlns="http://hl7.org/fhir"></MeasureReportPopulation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->count)) $this->count->xmlSerialize(true, $sxe->addChild('count'));
-        if (isset($this->subjectResults)) $this->subjectResults->xmlSerialize(true, $sxe->addChild('subjectResults'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->count)) {
+            $this->count->xmlSerialize(true, $sxe->addChild('count'));
+        }
+        if (isset($this->subjectResults)) {
+            $this->subjectResults->xmlSerialize(true, $sxe->addChild('subjectResults'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

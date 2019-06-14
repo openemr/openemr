@@ -118,7 +118,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * Human-readable summary of risk estimate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -127,7 +128,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -136,7 +138,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * Examples include proportion and mean.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -145,7 +148,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -154,7 +158,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * The point estimate of the risk estimate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -163,7 +168,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -172,7 +178,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * Specifies the UCUM unit for the outcome.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getUnitOfMeasure() {
+    public function getUnitOfMeasure()
+    {
         return $this->unitOfMeasure;
     }
 
@@ -181,7 +188,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $unitOfMeasure
      * @return $this
      */
-    public function setUnitOfMeasure($unitOfMeasure) {
+    public function setUnitOfMeasure($unitOfMeasure)
+    {
         $this->unitOfMeasure = $unitOfMeasure;
         return $this;
     }
@@ -190,7 +198,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * The sample size for the group that was measured for this risk estimate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getDenominatorCount() {
+    public function getDenominatorCount()
+    {
         return $this->denominatorCount;
     }
 
@@ -199,7 +208,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $denominatorCount
      * @return $this
      */
-    public function setDenominatorCount($denominatorCount) {
+    public function setDenominatorCount($denominatorCount)
+    {
         $this->denominatorCount = $denominatorCount;
         return $this;
     }
@@ -208,7 +218,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * The number of group members with the outcome of interest.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getNumeratorCount() {
+    public function getNumeratorCount()
+    {
         return $this->numeratorCount;
     }
 
@@ -217,7 +228,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $numeratorCount
      * @return $this
      */
-    public function setNumeratorCount($numeratorCount) {
+    public function setNumeratorCount($numeratorCount)
+    {
         $this->numeratorCount = $numeratorCount;
         return $this;
     }
@@ -226,7 +238,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * A description of the precision of the estimate for the effect.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRRiskEvidenceSynthesis\FHIRRiskEvidenceSynthesisPrecisionEstimate[]
      */
-    public function getPrecisionEstimate() {
+    public function getPrecisionEstimate()
+    {
         return $this->precisionEstimate;
     }
 
@@ -235,7 +248,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRRiskEvidenceSynthesis\FHIRRiskEvidenceSynthesisPrecisionEstimate $precisionEstimate
      * @return $this
      */
-    public function addPrecisionEstimate($precisionEstimate) {
+    public function addPrecisionEstimate($precisionEstimate)
+    {
         $this->precisionEstimate[] = $precisionEstimate;
         return $this;
     }
@@ -243,14 +257,16 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -272,7 +288,7 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
             }
             if (isset($data['precisionEstimate'])) {
                 if (is_array($data['precisionEstimate'])) {
-                    foreach($data['precisionEstimate'] as $d) {
+                    foreach ($data['precisionEstimate'] as $d) {
                         $this->addPrecisionEstimate($d);
                     }
                 } else {
@@ -288,24 +304,38 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->value)) $json['value'] = $this->value;
-        if (isset($this->unitOfMeasure)) $json['unitOfMeasure'] = $this->unitOfMeasure;
-        if (isset($this->denominatorCount)) $json['denominatorCount'] = $this->denominatorCount;
-        if (isset($this->numeratorCount)) $json['numeratorCount'] = $this->numeratorCount;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
+        if (isset($this->unitOfMeasure)) {
+            $json['unitOfMeasure'] = $this->unitOfMeasure;
+        }
+        if (isset($this->denominatorCount)) {
+            $json['denominatorCount'] = $this->denominatorCount;
+        }
+        if (isset($this->numeratorCount)) {
+            $json['numeratorCount'] = $this->numeratorCount;
+        }
         if (0 < count($this->precisionEstimate)) {
             $json['precisionEstimate'] = [];
-            foreach($this->precisionEstimate as $precisionEstimate) {
+            foreach ($this->precisionEstimate as $precisionEstimate) {
                 $json['precisionEstimate'][] = $precisionEstimate;
             }
         }
@@ -317,23 +347,38 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesisRiskEstimate xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisRiskEstimate>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesisRiskEstimate xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisRiskEstimate>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if (isset($this->unitOfMeasure)) $this->unitOfMeasure->xmlSerialize(true, $sxe->addChild('unitOfMeasure'));
-        if (isset($this->denominatorCount)) $this->denominatorCount->xmlSerialize(true, $sxe->addChild('denominatorCount'));
-        if (isset($this->numeratorCount)) $this->numeratorCount->xmlSerialize(true, $sxe->addChild('numeratorCount'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if (isset($this->unitOfMeasure)) {
+            $this->unitOfMeasure->xmlSerialize(true, $sxe->addChild('unitOfMeasure'));
+        }
+        if (isset($this->denominatorCount)) {
+            $this->denominatorCount->xmlSerialize(true, $sxe->addChild('denominatorCount'));
+        }
+        if (isset($this->numeratorCount)) {
+            $this->numeratorCount->xmlSerialize(true, $sxe->addChild('numeratorCount'));
+        }
         if (0 < count($this->precisionEstimate)) {
-            foreach($this->precisionEstimate as $precisionEstimate) {
+            foreach ($this->precisionEstimate as $precisionEstimate) {
                 $precisionEstimate->xmlSerialize(true, $sxe->addChild('precisionEstimate'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

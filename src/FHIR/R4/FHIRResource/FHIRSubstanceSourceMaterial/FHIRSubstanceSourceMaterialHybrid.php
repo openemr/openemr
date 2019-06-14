@@ -106,7 +106,8 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * The identifier of the maternal species constituting the hybrid organism shall be specified based on a controlled vocabulary. For plants, the parents aren’t always known, and it is unlikely that it will be known which is maternal and which is paternal.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMaternalOrganismId() {
+    public function getMaternalOrganismId()
+    {
         return $this->maternalOrganismId;
     }
 
@@ -115,7 +116,8 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $maternalOrganismId
      * @return $this
      */
-    public function setMaternalOrganismId($maternalOrganismId) {
+    public function setMaternalOrganismId($maternalOrganismId)
+    {
         $this->maternalOrganismId = $maternalOrganismId;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * The name of the maternal species constituting the hybrid organism shall be specified. For plants, the parents aren’t always known, and it is unlikely that it will be known which is maternal and which is paternal.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMaternalOrganismName() {
+    public function getMaternalOrganismName()
+    {
         return $this->maternalOrganismName;
     }
 
@@ -133,7 +136,8 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $maternalOrganismName
      * @return $this
      */
-    public function setMaternalOrganismName($maternalOrganismName) {
+    public function setMaternalOrganismName($maternalOrganismName)
+    {
         $this->maternalOrganismName = $maternalOrganismName;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * The identifier of the paternal species constituting the hybrid organism shall be specified based on a controlled vocabulary.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPaternalOrganismId() {
+    public function getPaternalOrganismId()
+    {
         return $this->paternalOrganismId;
     }
 
@@ -151,7 +156,8 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $paternalOrganismId
      * @return $this
      */
-    public function setPaternalOrganismId($paternalOrganismId) {
+    public function setPaternalOrganismId($paternalOrganismId)
+    {
         $this->paternalOrganismId = $paternalOrganismId;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * The name of the paternal species constituting the hybrid organism shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPaternalOrganismName() {
+    public function getPaternalOrganismName()
+    {
         return $this->paternalOrganismName;
     }
 
@@ -169,7 +176,8 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $paternalOrganismName
      * @return $this
      */
-    public function setPaternalOrganismName($paternalOrganismName) {
+    public function setPaternalOrganismName($paternalOrganismName)
+    {
         $this->paternalOrganismName = $paternalOrganismName;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * The hybrid type of an organism shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getHybridType() {
+    public function getHybridType()
+    {
         return $this->hybridType;
     }
 
@@ -187,7 +196,8 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $hybridType
      * @return $this
      */
-    public function setHybridType($hybridType) {
+    public function setHybridType($hybridType)
+    {
         $this->hybridType = $hybridType;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['maternalOrganismId'])) {
                 $this->setMaternalOrganismId($data['maternalOrganismId']);
@@ -228,20 +240,32 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->maternalOrganismId)) $json['maternalOrganismId'] = $this->maternalOrganismId;
-        if (isset($this->maternalOrganismName)) $json['maternalOrganismName'] = $this->maternalOrganismName;
-        if (isset($this->paternalOrganismId)) $json['paternalOrganismId'] = $this->paternalOrganismId;
-        if (isset($this->paternalOrganismName)) $json['paternalOrganismName'] = $this->paternalOrganismName;
-        if (isset($this->hybridType)) $json['hybridType'] = $this->hybridType;
+        if (isset($this->maternalOrganismId)) {
+            $json['maternalOrganismId'] = $this->maternalOrganismId;
+        }
+        if (isset($this->maternalOrganismName)) {
+            $json['maternalOrganismName'] = $this->maternalOrganismName;
+        }
+        if (isset($this->paternalOrganismId)) {
+            $json['paternalOrganismId'] = $this->paternalOrganismId;
+        }
+        if (isset($this->paternalOrganismName)) {
+            $json['paternalOrganismName'] = $this->paternalOrganismName;
+        }
+        if (isset($this->hybridType)) {
+            $json['hybridType'] = $this->hybridType;
+        }
         return $json;
     }
 
@@ -250,17 +274,30 @@ class FHIRSubstanceSourceMaterialHybrid extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialHybrid xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialHybrid>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialHybrid xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialHybrid>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->maternalOrganismId)) $this->maternalOrganismId->xmlSerialize(true, $sxe->addChild('maternalOrganismId'));
-        if (isset($this->maternalOrganismName)) $this->maternalOrganismName->xmlSerialize(true, $sxe->addChild('maternalOrganismName'));
-        if (isset($this->paternalOrganismId)) $this->paternalOrganismId->xmlSerialize(true, $sxe->addChild('paternalOrganismId'));
-        if (isset($this->paternalOrganismName)) $this->paternalOrganismName->xmlSerialize(true, $sxe->addChild('paternalOrganismName'));
-        if (isset($this->hybridType)) $this->hybridType->xmlSerialize(true, $sxe->addChild('hybridType'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->maternalOrganismId)) {
+            $this->maternalOrganismId->xmlSerialize(true, $sxe->addChild('maternalOrganismId'));
+        }
+        if (isset($this->maternalOrganismName)) {
+            $this->maternalOrganismName->xmlSerialize(true, $sxe->addChild('maternalOrganismName'));
+        }
+        if (isset($this->paternalOrganismId)) {
+            $this->paternalOrganismId->xmlSerialize(true, $sxe->addChild('paternalOrganismId'));
+        }
+        if (isset($this->paternalOrganismName)) {
+            $this->paternalOrganismName->xmlSerialize(true, $sxe->addChild('paternalOrganismName'));
+        }
+        if (isset($this->hybridType)) {
+            $this->hybridType->xmlSerialize(true, $sxe->addChild('hybridType'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

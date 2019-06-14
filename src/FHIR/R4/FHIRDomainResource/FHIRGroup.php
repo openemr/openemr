@@ -137,7 +137,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * A unique business identifier for this group.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -146,7 +147,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -155,7 +157,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * Indicates whether the record for the group is available for use or is merely being retained for historical purposes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getActive() {
+    public function getActive()
+    {
         return $this->active;
     }
 
@@ -164,7 +167,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $active
      * @return $this
      */
-    public function setActive($active) {
+    public function setActive($active)
+    {
         $this->active = $active;
         return $this;
     }
@@ -173,7 +177,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * Identifies the broad classification of the kind of resources the group includes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRGroupType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -182,7 +187,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRGroupType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -191,7 +197,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * If true, indicates that the resource refers to a specific group of real individuals.  If false, the group defines a set of intended individuals.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getActual() {
+    public function getActual()
+    {
         return $this->actual;
     }
 
@@ -200,7 +207,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $actual
      * @return $this
      */
-    public function setActual($actual) {
+    public function setActual($actual)
+    {
         $this->actual = $actual;
         return $this;
     }
@@ -209,7 +217,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * Provides a specific type of resource the group includes; e.g. "cow", "syringe", etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -218,7 +227,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -227,7 +237,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * A label assigned to the group for human identification and communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -236,7 +247,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -245,7 +257,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * A count of the number of resource instances that are part of the group.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -254,7 +267,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -263,7 +277,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * Entity responsible for defining and maintaining Group characteristics and/or registered members.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getManagingEntity() {
+    public function getManagingEntity()
+    {
         return $this->managingEntity;
     }
 
@@ -272,7 +287,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $managingEntity
      * @return $this
      */
-    public function setManagingEntity($managingEntity) {
+    public function setManagingEntity($managingEntity)
+    {
         $this->managingEntity = $managingEntity;
         return $this;
     }
@@ -281,7 +297,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * Identifies traits whose presence r absence is shared by members of the group.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRGroup\FHIRGroupCharacteristic[]
      */
-    public function getCharacteristic() {
+    public function getCharacteristic()
+    {
         return $this->characteristic;
     }
 
@@ -290,7 +307,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRGroup\FHIRGroupCharacteristic $characteristic
      * @return $this
      */
-    public function addCharacteristic($characteristic) {
+    public function addCharacteristic($characteristic)
+    {
         $this->characteristic[] = $characteristic;
         return $this;
     }
@@ -299,7 +317,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * Identifies the resource instances that are members of the group.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRGroup\FHIRGroupMember[]
      */
-    public function getMember() {
+    public function getMember()
+    {
         return $this->member;
     }
 
@@ -308,7 +327,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRGroup\FHIRGroupMember $member
      * @return $this
      */
-    public function addMember($member) {
+    public function addMember($member)
+    {
         $this->member[] = $member;
         return $this;
     }
@@ -316,18 +336,20 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -357,7 +379,7 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['characteristic'])) {
                 if (is_array($data['characteristic'])) {
-                    foreach($data['characteristic'] as $d) {
+                    foreach ($data['characteristic'] as $d) {
                         $this->addCharacteristic($d);
                     }
                 } else {
@@ -366,7 +388,7 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['member'])) {
                 if (is_array($data['member'])) {
-                    foreach($data['member'] as $d) {
+                    foreach ($data['member'] as $d) {
                         $this->addMember($d);
                     }
                 } else {
@@ -382,38 +404,54 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->active)) $json['active'] = $this->active;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->actual)) $json['actual'] = $this->actual;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->managingEntity)) $json['managingEntity'] = $this->managingEntity;
+        if (isset($this->active)) {
+            $json['active'] = $this->active;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->actual)) {
+            $json['actual'] = $this->actual;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->managingEntity)) {
+            $json['managingEntity'] = $this->managingEntity;
+        }
         if (0 < count($this->characteristic)) {
             $json['characteristic'] = [];
-            foreach($this->characteristic as $characteristic) {
+            foreach ($this->characteristic as $characteristic) {
                 $json['characteristic'][] = $characteristic;
             }
         }
         if (0 < count($this->member)) {
             $json['member'] = [];
-            foreach($this->member as $member) {
+            foreach ($this->member as $member) {
                 $json['member'][] = $member;
             }
         }
@@ -425,34 +463,51 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Group xmlns="http://hl7.org/fhir"></Group>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Group xmlns="http://hl7.org/fhir"></Group>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->active)) $this->active->xmlSerialize(true, $sxe->addChild('active'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->actual)) $this->actual->xmlSerialize(true, $sxe->addChild('actual'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->managingEntity)) $this->managingEntity->xmlSerialize(true, $sxe->addChild('managingEntity'));
+        if (isset($this->active)) {
+            $this->active->xmlSerialize(true, $sxe->addChild('active'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->actual)) {
+            $this->actual->xmlSerialize(true, $sxe->addChild('actual'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->managingEntity)) {
+            $this->managingEntity->xmlSerialize(true, $sxe->addChild('managingEntity'));
+        }
         if (0 < count($this->characteristic)) {
-            foreach($this->characteristic as $characteristic) {
+            foreach ($this->characteristic as $characteristic) {
                 $characteristic->xmlSerialize(true, $sxe->addChild('characteristic'));
             }
         }
         if (0 < count($this->member)) {
-            foreach($this->member as $member) {
+            foreach ($this->member as $member) {
                 $member->xmlSerialize(true, $sxe->addChild('member'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

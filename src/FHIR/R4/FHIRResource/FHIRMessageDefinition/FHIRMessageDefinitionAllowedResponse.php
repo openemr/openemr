@@ -88,7 +88,8 @@ class FHIRMessageDefinitionAllowedResponse extends FHIRBackboneElement implement
      * A reference to the message definition that must be adhered to by this supported response.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getMessage() {
+    public function getMessage()
+    {
         return $this->message;
     }
 
@@ -97,7 +98,8 @@ class FHIRMessageDefinitionAllowedResponse extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $message
      * @return $this
      */
-    public function setMessage($message) {
+    public function setMessage($message)
+    {
         $this->message = $message;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMessageDefinitionAllowedResponse extends FHIRBackboneElement implement
      * Provides a description of the circumstances in which this response should be used (as opposed to one of the alternative responses).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getSituation() {
+    public function getSituation()
+    {
         return $this->situation;
     }
 
@@ -115,7 +118,8 @@ class FHIRMessageDefinitionAllowedResponse extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $situation
      * @return $this
      */
-    public function setSituation($situation) {
+    public function setSituation($situation)
+    {
         $this->situation = $situation;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRMessageDefinitionAllowedResponse extends FHIRBackboneElement implement
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['message'])) {
                 $this->setMessage($data['message']);
@@ -147,17 +153,23 @@ class FHIRMessageDefinitionAllowedResponse extends FHIRBackboneElement implement
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->message)) $json['message'] = $this->message;
-        if (isset($this->situation)) $json['situation'] = $this->situation;
+        if (isset($this->message)) {
+            $json['message'] = $this->message;
+        }
+        if (isset($this->situation)) {
+            $json['situation'] = $this->situation;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRMessageDefinitionAllowedResponse extends FHIRBackboneElement implement
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MessageDefinitionAllowedResponse xmlns="http://hl7.org/fhir"></MessageDefinitionAllowedResponse>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MessageDefinitionAllowedResponse xmlns="http://hl7.org/fhir"></MessageDefinitionAllowedResponse>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->message)) $this->message->xmlSerialize(true, $sxe->addChild('message'));
-        if (isset($this->situation)) $this->situation->xmlSerialize(true, $sxe->addChild('situation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->message)) {
+            $this->message->xmlSerialize(true, $sxe->addChild('message'));
+        }
+        if (isset($this->situation)) {
+            $this->situation->xmlSerialize(true, $sxe->addChild('situation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

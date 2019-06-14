@@ -112,7 +112,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * Start position of the variant on the  reference sequence. If the coordinate system is either 0-based or 1-based, then start position is inclusive.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getStart() {
+    public function getStart()
+    {
         return $this->start;
     }
 
@@ -121,7 +122,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $start
      * @return $this
      */
-    public function setStart($start) {
+    public function setStart($start)
+    {
         $this->start = $start;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * End position of the variant on the reference sequence. If the coordinate system is 0-based then end is exclusive and does not include the last position. If the coordinate system is 1-base, then end is inclusive and includes the last position.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getEnd() {
+    public function getEnd()
+    {
         return $this->end;
     }
 
@@ -139,7 +142,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $end
      * @return $this
      */
-    public function setEnd($end) {
+    public function setEnd($end)
+    {
         $this->end = $end;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](http://www.sequenceontology.org/browser/current_svn/term/SO:0001023)).  Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the observed  sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getObservedAllele() {
+    public function getObservedAllele()
+    {
         return $this->observedAllele;
     }
 
@@ -157,7 +162,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $observedAllele
      * @return $this
      */
-    public function setObservedAllele($observedAllele) {
+    public function setObservedAllele($observedAllele)
+    {
         $this->observedAllele = $observedAllele;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](http://www.sequenceontology.org/browser/current_svn/term/SO:0001023)). Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the reference sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getReferenceAllele() {
+    public function getReferenceAllele()
+    {
         return $this->referenceAllele;
     }
 
@@ -175,7 +182,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $referenceAllele
      * @return $this
      */
-    public function setReferenceAllele($referenceAllele) {
+    public function setReferenceAllele($referenceAllele)
+    {
         $this->referenceAllele = $referenceAllele;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * Extended CIGAR string for aligning the sequence with reference bases. See detailed documentation [here](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_ExtendedCIGARFormat.htm).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getCigar() {
+    public function getCigar()
+    {
         return $this->cigar;
     }
 
@@ -193,7 +202,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $cigar
      * @return $this
      */
-    public function setCigar($cigar) {
+    public function setCigar($cigar)
+    {
         $this->cigar = $cigar;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * A pointer to an Observation containing variant information.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getVariantPointer() {
+    public function getVariantPointer()
+    {
         return $this->variantPointer;
     }
 
@@ -211,7 +222,8 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $variantPointer
      * @return $this
      */
-    public function setVariantPointer($variantPointer) {
+    public function setVariantPointer($variantPointer)
+    {
         $this->variantPointer = $variantPointer;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['start'])) {
                 $this->setStart($data['start']);
@@ -255,21 +269,35 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->start)) $json['start'] = $this->start;
-        if (isset($this->end)) $json['end'] = $this->end;
-        if (isset($this->observedAllele)) $json['observedAllele'] = $this->observedAllele;
-        if (isset($this->referenceAllele)) $json['referenceAllele'] = $this->referenceAllele;
-        if (isset($this->cigar)) $json['cigar'] = $this->cigar;
-        if (isset($this->variantPointer)) $json['variantPointer'] = $this->variantPointer;
+        if (isset($this->start)) {
+            $json['start'] = $this->start;
+        }
+        if (isset($this->end)) {
+            $json['end'] = $this->end;
+        }
+        if (isset($this->observedAllele)) {
+            $json['observedAllele'] = $this->observedAllele;
+        }
+        if (isset($this->referenceAllele)) {
+            $json['referenceAllele'] = $this->referenceAllele;
+        }
+        if (isset($this->cigar)) {
+            $json['cigar'] = $this->cigar;
+        }
+        if (isset($this->variantPointer)) {
+            $json['variantPointer'] = $this->variantPointer;
+        }
         return $json;
     }
 
@@ -278,18 +306,33 @@ class FHIRMolecularSequenceVariant extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MolecularSequenceVariant xmlns="http://hl7.org/fhir"></MolecularSequenceVariant>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MolecularSequenceVariant xmlns="http://hl7.org/fhir"></MolecularSequenceVariant>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->start)) $this->start->xmlSerialize(true, $sxe->addChild('start'));
-        if (isset($this->end)) $this->end->xmlSerialize(true, $sxe->addChild('end'));
-        if (isset($this->observedAllele)) $this->observedAllele->xmlSerialize(true, $sxe->addChild('observedAllele'));
-        if (isset($this->referenceAllele)) $this->referenceAllele->xmlSerialize(true, $sxe->addChild('referenceAllele'));
-        if (isset($this->cigar)) $this->cigar->xmlSerialize(true, $sxe->addChild('cigar'));
-        if (isset($this->variantPointer)) $this->variantPointer->xmlSerialize(true, $sxe->addChild('variantPointer'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->start)) {
+            $this->start->xmlSerialize(true, $sxe->addChild('start'));
+        }
+        if (isset($this->end)) {
+            $this->end->xmlSerialize(true, $sxe->addChild('end'));
+        }
+        if (isset($this->observedAllele)) {
+            $this->observedAllele->xmlSerialize(true, $sxe->addChild('observedAllele'));
+        }
+        if (isset($this->referenceAllele)) {
+            $this->referenceAllele->xmlSerialize(true, $sxe->addChild('referenceAllele'));
+        }
+        if (isset($this->cigar)) {
+            $this->cigar->xmlSerialize(true, $sxe->addChild('cigar'));
+        }
+        if (isset($this->variantPointer)) {
+            $this->variantPointer->xmlSerialize(true, $sxe->addChild('variantPointer'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

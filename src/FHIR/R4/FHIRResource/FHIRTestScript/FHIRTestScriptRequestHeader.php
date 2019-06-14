@@ -88,7 +88,8 @@ class FHIRTestScriptRequestHeader extends FHIRBackboneElement implements \JsonSe
      * The HTTP header field e.g. "Accept".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getField() {
+    public function getField()
+    {
         return $this->field;
     }
 
@@ -97,7 +98,8 @@ class FHIRTestScriptRequestHeader extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $field
      * @return $this
      */
-    public function setField($field) {
+    public function setField($field)
+    {
         $this->field = $field;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRTestScriptRequestHeader extends FHIRBackboneElement implements \JsonSe
      * The value of the header e.g. "application/fhir+xml".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -115,7 +118,8 @@ class FHIRTestScriptRequestHeader extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRTestScriptRequestHeader extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['field'])) {
                 $this->setField($data['field']);
@@ -147,17 +153,23 @@ class FHIRTestScriptRequestHeader extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->field)) $json['field'] = $this->field;
-        if (isset($this->value)) $json['value'] = $this->value;
+        if (isset($this->field)) {
+            $json['field'] = $this->field;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRTestScriptRequestHeader extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestScriptRequestHeader xmlns="http://hl7.org/fhir"></TestScriptRequestHeader>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestScriptRequestHeader xmlns="http://hl7.org/fhir"></TestScriptRequestHeader>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->field)) $this->field->xmlSerialize(true, $sxe->addChild('field'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->field)) {
+            $this->field->xmlSerialize(true, $sxe->addChild('field'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

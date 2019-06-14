@@ -106,7 +106,8 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * Identifies the unique identifier scheme used for this particular identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRNamingSystemIdentifierType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -115,7 +116,8 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRNamingSystemIdentifierType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * The string that should be sent over the wire to identify the code system or identifier system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -133,7 +136,8 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * Indicates whether this identifier is the "preferred" identifier of this type.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getPreferred() {
+    public function getPreferred()
+    {
         return $this->preferred;
     }
 
@@ -151,7 +156,8 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $preferred
      * @return $this
      */
-    public function setPreferred($preferred) {
+    public function setPreferred($preferred)
+    {
         $this->preferred = $preferred;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * Notes about the past or intended usage of this identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -169,7 +176,8 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * Identifies the period of time over which this identifier is considered appropriate to refer to the naming system.  Outside of this window, the identifier might be non-deterministic.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -187,7 +196,8 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -228,20 +240,32 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->value)) $json['value'] = $this->value;
-        if (isset($this->preferred)) $json['preferred'] = $this->preferred;
-        if (isset($this->comment)) $json['comment'] = $this->comment;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
+        if (isset($this->preferred)) {
+            $json['preferred'] = $this->preferred;
+        }
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         return $json;
     }
 
@@ -250,17 +274,30 @@ class FHIRNamingSystemUniqueId extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<NamingSystemUniqueId xmlns="http://hl7.org/fhir"></NamingSystemUniqueId>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<NamingSystemUniqueId xmlns="http://hl7.org/fhir"></NamingSystemUniqueId>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if (isset($this->preferred)) $this->preferred->xmlSerialize(true, $sxe->addChild('preferred'));
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if (isset($this->preferred)) {
+            $this->preferred->xmlSerialize(true, $sxe->addChild('preferred'));
+        }
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

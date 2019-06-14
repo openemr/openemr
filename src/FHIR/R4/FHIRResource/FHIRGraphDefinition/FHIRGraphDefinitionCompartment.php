@@ -106,7 +106,8 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * Defines how the compartment rule is used - whether it it is used to test whether resources are subject to the rule, or whether it is a rule that must be followed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRGraphCompartmentUse
      */
-    public function getUse() {
+    public function getUse()
+    {
         return $this->use;
     }
 
@@ -115,7 +116,8 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRGraphCompartmentUse $use
      * @return $this
      */
-    public function setUse($use) {
+    public function setUse($use)
+    {
         $this->use = $use;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * Identifies the compartment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCompartmentType
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -133,7 +136,8 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCompartmentType $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * identical | matching | different | no-rule | custom.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRGraphCompartmentRule
      */
-    public function getRule() {
+    public function getRule()
+    {
         return $this->rule;
     }
 
@@ -151,7 +156,8 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRGraphCompartmentRule $rule
      * @return $this
      */
-    public function setRule($rule) {
+    public function setRule($rule)
+    {
         $this->rule = $rule;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * Custom rule, as a FHIRPath expression.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getExpression() {
+    public function getExpression()
+    {
         return $this->expression;
     }
 
@@ -169,7 +176,8 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $expression
      * @return $this
      */
-    public function setExpression($expression) {
+    public function setExpression($expression)
+    {
         $this->expression = $expression;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * Documentation for FHIRPath expression.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -187,7 +196,8 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['use'])) {
                 $this->setUse($data['use']);
@@ -228,20 +240,32 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->use)) $json['use'] = $this->use;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->rule)) $json['rule'] = $this->rule;
-        if (isset($this->expression)) $json['expression'] = $this->expression;
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->use)) {
+            $json['use'] = $this->use;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->rule)) {
+            $json['rule'] = $this->rule;
+        }
+        if (isset($this->expression)) {
+            $json['expression'] = $this->expression;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         return $json;
     }
 
@@ -250,17 +274,30 @@ class FHIRGraphDefinitionCompartment extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<GraphDefinitionCompartment xmlns="http://hl7.org/fhir"></GraphDefinitionCompartment>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<GraphDefinitionCompartment xmlns="http://hl7.org/fhir"></GraphDefinitionCompartment>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->use)) $this->use->xmlSerialize(true, $sxe->addChild('use'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->rule)) $this->rule->xmlSerialize(true, $sxe->addChild('rule'));
-        if (isset($this->expression)) $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->use)) {
+            $this->use->xmlSerialize(true, $sxe->addChild('use'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->rule)) {
+            $this->rule->xmlSerialize(true, $sxe->addChild('rule'));
+        }
+        if (isset($this->expression)) {
+            $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

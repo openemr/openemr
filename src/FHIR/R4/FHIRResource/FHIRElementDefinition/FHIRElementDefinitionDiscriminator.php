@@ -89,7 +89,8 @@ class FHIRElementDefinitionDiscriminator extends FHIRBackboneElement implements 
      * How the element value is interpreted when discrimination is evaluated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDiscriminatorType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -98,7 +99,8 @@ class FHIRElementDefinitionDiscriminator extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDiscriminatorType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -107,7 +109,8 @@ class FHIRElementDefinitionDiscriminator extends FHIRBackboneElement implements 
      * A FHIRPath expression, using [the simple subset of FHIRPath](fhirpath.html#simple), that is used to identify the element on which discrimination is based.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->path;
     }
 
@@ -116,7 +119,8 @@ class FHIRElementDefinitionDiscriminator extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $path
      * @return $this
      */
-    public function setPath($path) {
+    public function setPath($path)
+    {
         $this->path = $path;
         return $this;
     }
@@ -124,14 +128,16 @@ class FHIRElementDefinitionDiscriminator extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -148,17 +154,23 @@ class FHIRElementDefinitionDiscriminator extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->path)) $json['path'] = $this->path;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->path)) {
+            $json['path'] = $this->path;
+        }
         return $json;
     }
 
@@ -167,14 +179,21 @@ class FHIRElementDefinitionDiscriminator extends FHIRBackboneElement implements 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ElementDefinitionDiscriminator xmlns="http://hl7.org/fhir"></ElementDefinitionDiscriminator>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ElementDefinitionDiscriminator xmlns="http://hl7.org/fhir"></ElementDefinitionDiscriminator>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->path)) $this->path->xmlSerialize(true, $sxe->addChild('path'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->path)) {
+            $this->path->xmlSerialize(true, $sxe->addChild('path'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

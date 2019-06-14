@@ -152,7 +152,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * Identifier for the supply delivery event that is used to identify it across multiple disparate systems.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -161,7 +162,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -170,7 +172,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * A plan, proposal or order that is fulfilled in whole or in part by this event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getBasedOn() {
+    public function getBasedOn()
+    {
         return $this->basedOn;
     }
 
@@ -179,7 +182,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $basedOn
      * @return $this
      */
-    public function addBasedOn($basedOn) {
+    public function addBasedOn($basedOn)
+    {
         $this->basedOn[] = $basedOn;
         return $this;
     }
@@ -188,7 +192,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * A larger event of which this particular event is a component or step.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPartOf() {
+    public function getPartOf()
+    {
         return $this->partOf;
     }
 
@@ -197,7 +202,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $partOf
      * @return $this
      */
-    public function addPartOf($partOf) {
+    public function addPartOf($partOf)
+    {
         $this->partOf[] = $partOf;
         return $this;
     }
@@ -206,7 +212,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * A code specifying the state of the dispense event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSupplyDeliveryStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -215,7 +222,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSupplyDeliveryStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -224,7 +232,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * A link to a resource representing the person whom the delivered item is for.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -233,7 +242,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -242,7 +252,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * Indicates the type of dispensing event that is performed. Examples include: Trial Fill, Completion of Trial, Partial Fill, Emergency Fill, Samples, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -251,7 +262,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -260,7 +272,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * The item that is being delivered or has been supplied.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSupplyDelivery\FHIRSupplyDeliverySuppliedItem
      */
-    public function getSuppliedItem() {
+    public function getSuppliedItem()
+    {
         return $this->suppliedItem;
     }
 
@@ -269,7 +282,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSupplyDelivery\FHIRSupplyDeliverySuppliedItem $suppliedItem
      * @return $this
      */
-    public function setSuppliedItem($suppliedItem) {
+    public function setSuppliedItem($suppliedItem)
+    {
         $this->suppliedItem = $suppliedItem;
         return $this;
     }
@@ -277,7 +291,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getOccurrenceDateTime() {
+    public function getOccurrenceDateTime()
+    {
         return $this->occurrenceDateTime;
     }
 
@@ -285,7 +300,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $occurrenceDateTime
      * @return $this
      */
-    public function setOccurrenceDateTime($occurrenceDateTime) {
+    public function setOccurrenceDateTime($occurrenceDateTime)
+    {
         $this->occurrenceDateTime = $occurrenceDateTime;
         return $this;
     }
@@ -293,7 +309,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getOccurrencePeriod() {
+    public function getOccurrencePeriod()
+    {
         return $this->occurrencePeriod;
     }
 
@@ -301,7 +318,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $occurrencePeriod
      * @return $this
      */
-    public function setOccurrencePeriod($occurrencePeriod) {
+    public function setOccurrencePeriod($occurrencePeriod)
+    {
         $this->occurrencePeriod = $occurrencePeriod;
         return $this;
     }
@@ -309,7 +327,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getOccurrenceTiming() {
+    public function getOccurrenceTiming()
+    {
         return $this->occurrenceTiming;
     }
 
@@ -317,7 +336,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $occurrenceTiming
      * @return $this
      */
-    public function setOccurrenceTiming($occurrenceTiming) {
+    public function setOccurrenceTiming($occurrenceTiming)
+    {
         $this->occurrenceTiming = $occurrenceTiming;
         return $this;
     }
@@ -326,7 +346,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * The individual responsible for dispensing the medication, supplier or device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSupplier() {
+    public function getSupplier()
+    {
         return $this->supplier;
     }
 
@@ -335,7 +356,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $supplier
      * @return $this
      */
-    public function setSupplier($supplier) {
+    public function setSupplier($supplier)
+    {
         $this->supplier = $supplier;
         return $this;
     }
@@ -344,7 +366,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * Identification of the facility/location where the Supply was shipped to, as part of the dispense event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDestination() {
+    public function getDestination()
+    {
         return $this->destination;
     }
 
@@ -353,7 +376,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $destination
      * @return $this
      */
-    public function setDestination($destination) {
+    public function setDestination($destination)
+    {
         $this->destination = $destination;
         return $this;
     }
@@ -362,7 +386,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * Identifies the person who picked up the Supply.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReceiver() {
+    public function getReceiver()
+    {
         return $this->receiver;
     }
 
@@ -371,7 +396,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $receiver
      * @return $this
      */
-    public function addReceiver($receiver) {
+    public function addReceiver($receiver)
+    {
         $this->receiver[] = $receiver;
         return $this;
     }
@@ -379,18 +405,20 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -399,7 +427,7 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['basedOn'])) {
                 if (is_array($data['basedOn'])) {
-                    foreach($data['basedOn'] as $d) {
+                    foreach ($data['basedOn'] as $d) {
                         $this->addBasedOn($d);
                     }
                 } else {
@@ -408,7 +436,7 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['partOf'])) {
                 if (is_array($data['partOf'])) {
-                    foreach($data['partOf'] as $d) {
+                    foreach ($data['partOf'] as $d) {
                         $this->addPartOf($d);
                     }
                 } else {
@@ -444,7 +472,7 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['receiver'])) {
                 if (is_array($data['receiver'])) {
-                    foreach($data['receiver'] as $d) {
+                    foreach ($data['receiver'] as $d) {
                         $this->addReceiver($d);
                     }
                 } else {
@@ -460,46 +488,66 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->basedOn)) {
             $json['basedOn'] = [];
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $json['basedOn'][] = $basedOn;
             }
         }
         if (0 < count($this->partOf)) {
             $json['partOf'] = [];
-            foreach($this->partOf as $partOf) {
+            foreach ($this->partOf as $partOf) {
                 $json['partOf'][] = $partOf;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->suppliedItem)) $json['suppliedItem'] = $this->suppliedItem;
-        if (isset($this->occurrenceDateTime)) $json['occurrenceDateTime'] = $this->occurrenceDateTime;
-        if (isset($this->occurrencePeriod)) $json['occurrencePeriod'] = $this->occurrencePeriod;
-        if (isset($this->occurrenceTiming)) $json['occurrenceTiming'] = $this->occurrenceTiming;
-        if (isset($this->supplier)) $json['supplier'] = $this->supplier;
-        if (isset($this->destination)) $json['destination'] = $this->destination;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->suppliedItem)) {
+            $json['suppliedItem'] = $this->suppliedItem;
+        }
+        if (isset($this->occurrenceDateTime)) {
+            $json['occurrenceDateTime'] = $this->occurrenceDateTime;
+        }
+        if (isset($this->occurrencePeriod)) {
+            $json['occurrencePeriod'] = $this->occurrencePeriod;
+        }
+        if (isset($this->occurrenceTiming)) {
+            $json['occurrenceTiming'] = $this->occurrenceTiming;
+        }
+        if (isset($this->supplier)) {
+            $json['supplier'] = $this->supplier;
+        }
+        if (isset($this->destination)) {
+            $json['destination'] = $this->destination;
+        }
         if (0 < count($this->receiver)) {
             $json['receiver'] = [];
-            foreach($this->receiver as $receiver) {
+            foreach ($this->receiver as $receiver) {
                 $json['receiver'][] = $receiver;
             }
         }
@@ -511,41 +559,62 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SupplyDelivery xmlns="http://hl7.org/fhir"></SupplyDelivery>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SupplyDelivery xmlns="http://hl7.org/fhir"></SupplyDelivery>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->basedOn)) {
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
             }
         }
         if (0 < count($this->partOf)) {
-            foreach($this->partOf as $partOf) {
+            foreach ($this->partOf as $partOf) {
                 $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->suppliedItem)) $this->suppliedItem->xmlSerialize(true, $sxe->addChild('suppliedItem'));
-        if (isset($this->occurrenceDateTime)) $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
-        if (isset($this->occurrencePeriod)) $this->occurrencePeriod->xmlSerialize(true, $sxe->addChild('occurrencePeriod'));
-        if (isset($this->occurrenceTiming)) $this->occurrenceTiming->xmlSerialize(true, $sxe->addChild('occurrenceTiming'));
-        if (isset($this->supplier)) $this->supplier->xmlSerialize(true, $sxe->addChild('supplier'));
-        if (isset($this->destination)) $this->destination->xmlSerialize(true, $sxe->addChild('destination'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->suppliedItem)) {
+            $this->suppliedItem->xmlSerialize(true, $sxe->addChild('suppliedItem'));
+        }
+        if (isset($this->occurrenceDateTime)) {
+            $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
+        }
+        if (isset($this->occurrencePeriod)) {
+            $this->occurrencePeriod->xmlSerialize(true, $sxe->addChild('occurrencePeriod'));
+        }
+        if (isset($this->occurrenceTiming)) {
+            $this->occurrenceTiming->xmlSerialize(true, $sxe->addChild('occurrenceTiming'));
+        }
+        if (isset($this->supplier)) {
+            $this->supplier->xmlSerialize(true, $sxe->addChild('supplier'));
+        }
+        if (isset($this->destination)) {
+            $this->destination->xmlSerialize(true, $sxe->addChild('destination'));
+        }
         if (0 < count($this->receiver)) {
-            foreach($this->receiver as $receiver) {
+            foreach ($this->receiver as $receiver) {
                 $receiver->xmlSerialize(true, $sxe->addChild('receiver'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -97,7 +97,8 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getItemCodeableConcept() {
+    public function getItemCodeableConcept()
+    {
         return $this->itemCodeableConcept;
     }
 
@@ -105,7 +106,8 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $itemCodeableConcept
      * @return $this
      */
-    public function setItemCodeableConcept($itemCodeableConcept) {
+    public function setItemCodeableConcept($itemCodeableConcept)
+    {
         $this->itemCodeableConcept = $itemCodeableConcept;
         return $this;
     }
@@ -113,7 +115,8 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getItemReference() {
+    public function getItemReference()
+    {
         return $this->itemReference;
     }
 
@@ -121,7 +124,8 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $itemReference
      * @return $this
      */
-    public function setItemReference($itemReference) {
+    public function setItemReference($itemReference)
+    {
         $this->itemReference = $itemReference;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
      * Indication of whether this ingredient affects the therapeutic action of the drug.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getIsActive() {
+    public function getIsActive()
+    {
         return $this->isActive;
     }
 
@@ -139,7 +144,8 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $isActive
      * @return $this
      */
-    public function setIsActive($isActive) {
+    public function setIsActive($isActive)
+    {
         $this->isActive = $isActive;
         return $this;
     }
@@ -148,7 +154,8 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
      * Specifies how many (or how much) of the items there are in this Medication.  For example, 250 mg per tablet.  This is expressed as a ratio where the numerator is 250mg and the denominator is 1 tablet.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getStrength() {
+    public function getStrength()
+    {
         return $this->strength;
     }
 
@@ -157,7 +164,8 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $strength
      * @return $this
      */
-    public function setStrength($strength) {
+    public function setStrength($strength)
+    {
         $this->strength = $strength;
         return $this;
     }
@@ -165,14 +173,16 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['itemCodeableConcept'])) {
                 $this->setItemCodeableConcept($data['itemCodeableConcept']);
@@ -195,19 +205,29 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->itemCodeableConcept)) $json['itemCodeableConcept'] = $this->itemCodeableConcept;
-        if (isset($this->itemReference)) $json['itemReference'] = $this->itemReference;
-        if (isset($this->isActive)) $json['isActive'] = $this->isActive;
-        if (isset($this->strength)) $json['strength'] = $this->strength;
+        if (isset($this->itemCodeableConcept)) {
+            $json['itemCodeableConcept'] = $this->itemCodeableConcept;
+        }
+        if (isset($this->itemReference)) {
+            $json['itemReference'] = $this->itemReference;
+        }
+        if (isset($this->isActive)) {
+            $json['isActive'] = $this->isActive;
+        }
+        if (isset($this->strength)) {
+            $json['strength'] = $this->strength;
+        }
         return $json;
     }
 
@@ -216,16 +236,27 @@ class FHIRMedicationIngredient extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationIngredient xmlns="http://hl7.org/fhir"></MedicationIngredient>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationIngredient xmlns="http://hl7.org/fhir"></MedicationIngredient>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->itemCodeableConcept)) $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));
-        if (isset($this->itemReference)) $this->itemReference->xmlSerialize(true, $sxe->addChild('itemReference'));
-        if (isset($this->isActive)) $this->isActive->xmlSerialize(true, $sxe->addChild('isActive'));
-        if (isset($this->strength)) $this->strength->xmlSerialize(true, $sxe->addChild('strength'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->itemCodeableConcept)) {
+            $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));
+        }
+        if (isset($this->itemReference)) {
+            $this->itemReference->xmlSerialize(true, $sxe->addChild('itemReference'));
+        }
+        if (isset($this->isActive)) {
+            $this->isActive->xmlSerialize(true, $sxe->addChild('isActive'));
+        }
+        if (isset($this->strength)) {
+            $this->strength->xmlSerialize(true, $sxe->addChild('strength'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

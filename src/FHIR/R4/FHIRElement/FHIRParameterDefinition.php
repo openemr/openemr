@@ -119,7 +119,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * The name of the parameter used to allow access to the value of the parameter in evaluation contexts.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -128,7 +129,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -137,7 +139,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * Whether the parameter is input or output for the module.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getUse() {
+    public function getUse()
+    {
         return $this->use;
     }
 
@@ -146,7 +149,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $use
      * @return $this
      */
-    public function setUse($use) {
+    public function setUse($use)
+    {
         $this->use = $use;
         return $this;
     }
@@ -155,7 +159,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * The minimum number of times this parameter SHALL appear in the request or response.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getMin() {
+    public function getMin()
+    {
         return $this->min;
     }
 
@@ -164,7 +169,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $min
      * @return $this
      */
-    public function setMin($min) {
+    public function setMin($min)
+    {
         $this->min = $min;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * The maximum number of times this element is permitted to appear in the request or response.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMax() {
+    public function getMax()
+    {
         return $this->max;
     }
 
@@ -182,7 +189,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $max
      * @return $this
      */
-    public function setMax($max) {
+    public function setMax($max)
+    {
         $this->max = $max;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * A brief discussion of what the parameter is for and how it is used by the module.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDocumentation() {
+    public function getDocumentation()
+    {
         return $this->documentation;
     }
 
@@ -200,7 +209,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $documentation
      * @return $this
      */
-    public function setDocumentation($documentation) {
+    public function setDocumentation($documentation)
+    {
         $this->documentation = $documentation;
         return $this;
     }
@@ -209,7 +219,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * The type of the parameter.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -218,7 +229,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -227,7 +239,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * If specified, this indicates a profile that the input data must conform to, or that the output data will conform to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getProfile() {
+    public function getProfile()
+    {
         return $this->profile;
     }
 
@@ -236,7 +249,8 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $profile
      * @return $this
      */
-    public function setProfile($profile) {
+    public function setProfile($profile)
+    {
         $this->profile = $profile;
         return $this;
     }
@@ -244,14 +258,16 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -283,22 +299,38 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->use)) $json['use'] = $this->use;
-        if (isset($this->min)) $json['min'] = $this->min;
-        if (isset($this->max)) $json['max'] = $this->max;
-        if (isset($this->documentation)) $json['documentation'] = $this->documentation;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->profile)) $json['profile'] = $this->profile;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->use)) {
+            $json['use'] = $this->use;
+        }
+        if (isset($this->min)) {
+            $json['min'] = $this->min;
+        }
+        if (isset($this->max)) {
+            $json['max'] = $this->max;
+        }
+        if (isset($this->documentation)) {
+            $json['documentation'] = $this->documentation;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->profile)) {
+            $json['profile'] = $this->profile;
+        }
         return $json;
     }
 
@@ -307,19 +339,36 @@ class FHIRParameterDefinition extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ParameterDefinition xmlns="http://hl7.org/fhir"></ParameterDefinition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ParameterDefinition xmlns="http://hl7.org/fhir"></ParameterDefinition>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->use)) $this->use->xmlSerialize(true, $sxe->addChild('use'));
-        if (isset($this->min)) $this->min->xmlSerialize(true, $sxe->addChild('min'));
-        if (isset($this->max)) $this->max->xmlSerialize(true, $sxe->addChild('max'));
-        if (isset($this->documentation)) $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->profile)) $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->use)) {
+            $this->use->xmlSerialize(true, $sxe->addChild('use'));
+        }
+        if (isset($this->min)) {
+            $this->min->xmlSerialize(true, $sxe->addChild('min'));
+        }
+        if (isset($this->max)) {
+            $this->max->xmlSerialize(true, $sxe->addChild('max'));
+        }
+        if (isset($this->documentation)) {
+            $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->profile)) {
+            $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

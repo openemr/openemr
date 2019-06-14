@@ -118,7 +118,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * Reference to the primary source.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getWho() {
+    public function getWho()
+    {
         return $this->who;
     }
 
@@ -127,7 +128,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $who
      * @return $this
      */
-    public function setWho($who) {
+    public function setWho($who)
+    {
         $this->who = $who;
         return $this;
     }
@@ -136,7 +138,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * Type of primary source (License Board; Primary Education; Continuing Education; Postal Service; Relationship owner; Registration Authority; legal source; issuing source; authoritative source).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -145,7 +148,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function addType($type) {
+    public function addType($type)
+    {
         $this->type[] = $type;
         return $this;
     }
@@ -154,7 +158,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * Method for communicating with the primary source (manual; API; Push).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCommunicationMethod() {
+    public function getCommunicationMethod()
+    {
         return $this->communicationMethod;
     }
 
@@ -163,7 +168,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $communicationMethod
      * @return $this
      */
-    public function addCommunicationMethod($communicationMethod) {
+    public function addCommunicationMethod($communicationMethod)
+    {
         $this->communicationMethod[] = $communicationMethod;
         return $this;
     }
@@ -172,7 +178,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * Status of the validation of the target against the primary source (successful; failed; unknown).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getValidationStatus() {
+    public function getValidationStatus()
+    {
         return $this->validationStatus;
     }
 
@@ -181,7 +188,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $validationStatus
      * @return $this
      */
-    public function setValidationStatus($validationStatus) {
+    public function setValidationStatus($validationStatus)
+    {
         $this->validationStatus = $validationStatus;
         return $this;
     }
@@ -190,7 +198,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * When the target was validated against the primary source.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getValidationDate() {
+    public function getValidationDate()
+    {
         return $this->validationDate;
     }
 
@@ -199,7 +208,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $validationDate
      * @return $this
      */
-    public function setValidationDate($validationDate) {
+    public function setValidationDate($validationDate)
+    {
         $this->validationDate = $validationDate;
         return $this;
     }
@@ -208,7 +218,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * Ability of the primary source to push updates/alerts (yes; no; undetermined).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCanPushUpdates() {
+    public function getCanPushUpdates()
+    {
         return $this->canPushUpdates;
     }
 
@@ -217,7 +228,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $canPushUpdates
      * @return $this
      */
-    public function setCanPushUpdates($canPushUpdates) {
+    public function setCanPushUpdates($canPushUpdates)
+    {
         $this->canPushUpdates = $canPushUpdates;
         return $this;
     }
@@ -226,7 +238,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * Type of alerts/updates the primary source can send (specific requested changes; any changes; as defined by source).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getPushTypeAvailable() {
+    public function getPushTypeAvailable()
+    {
         return $this->pushTypeAvailable;
     }
 
@@ -235,7 +248,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $pushTypeAvailable
      * @return $this
      */
-    public function addPushTypeAvailable($pushTypeAvailable) {
+    public function addPushTypeAvailable($pushTypeAvailable)
+    {
         $this->pushTypeAvailable[] = $pushTypeAvailable;
         return $this;
     }
@@ -243,21 +257,23 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['who'])) {
                 $this->setWho($data['who']);
             }
             if (isset($data['type'])) {
                 if (is_array($data['type'])) {
-                    foreach($data['type'] as $d) {
+                    foreach ($data['type'] as $d) {
                         $this->addType($d);
                     }
                 } else {
@@ -266,7 +282,7 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
             }
             if (isset($data['communicationMethod'])) {
                 if (is_array($data['communicationMethod'])) {
-                    foreach($data['communicationMethod'] as $d) {
+                    foreach ($data['communicationMethod'] as $d) {
                         $this->addCommunicationMethod($d);
                     }
                 } else {
@@ -284,7 +300,7 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
             }
             if (isset($data['pushTypeAvailable'])) {
                 if (is_array($data['pushTypeAvailable'])) {
-                    foreach($data['pushTypeAvailable'] as $d) {
+                    foreach ($data['pushTypeAvailable'] as $d) {
                         $this->addPushTypeAvailable($d);
                     }
                 } else {
@@ -300,34 +316,44 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->who)) $json['who'] = $this->who;
+        if (isset($this->who)) {
+            $json['who'] = $this->who;
+        }
         if (0 < count($this->type)) {
             $json['type'] = [];
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $json['type'][] = $type;
             }
         }
         if (0 < count($this->communicationMethod)) {
             $json['communicationMethod'] = [];
-            foreach($this->communicationMethod as $communicationMethod) {
+            foreach ($this->communicationMethod as $communicationMethod) {
                 $json['communicationMethod'][] = $communicationMethod;
             }
         }
-        if (isset($this->validationStatus)) $json['validationStatus'] = $this->validationStatus;
-        if (isset($this->validationDate)) $json['validationDate'] = $this->validationDate;
-        if (isset($this->canPushUpdates)) $json['canPushUpdates'] = $this->canPushUpdates;
+        if (isset($this->validationStatus)) {
+            $json['validationStatus'] = $this->validationStatus;
+        }
+        if (isset($this->validationDate)) {
+            $json['validationDate'] = $this->validationDate;
+        }
+        if (isset($this->canPushUpdates)) {
+            $json['canPushUpdates'] = $this->canPushUpdates;
+        }
         if (0 < count($this->pushTypeAvailable)) {
             $json['pushTypeAvailable'] = [];
-            foreach($this->pushTypeAvailable as $pushTypeAvailable) {
+            foreach ($this->pushTypeAvailable as $pushTypeAvailable) {
                 $json['pushTypeAvailable'][] = $pushTypeAvailable;
             }
         }
@@ -339,31 +365,42 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<VerificationResultPrimarySource xmlns="http://hl7.org/fhir"></VerificationResultPrimarySource>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<VerificationResultPrimarySource xmlns="http://hl7.org/fhir"></VerificationResultPrimarySource>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->who)) $this->who->xmlSerialize(true, $sxe->addChild('who'));
+        if (isset($this->who)) {
+            $this->who->xmlSerialize(true, $sxe->addChild('who'));
+        }
         if (0 < count($this->type)) {
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $type->xmlSerialize(true, $sxe->addChild('type'));
             }
         }
         if (0 < count($this->communicationMethod)) {
-            foreach($this->communicationMethod as $communicationMethod) {
+            foreach ($this->communicationMethod as $communicationMethod) {
                 $communicationMethod->xmlSerialize(true, $sxe->addChild('communicationMethod'));
             }
         }
-        if (isset($this->validationStatus)) $this->validationStatus->xmlSerialize(true, $sxe->addChild('validationStatus'));
-        if (isset($this->validationDate)) $this->validationDate->xmlSerialize(true, $sxe->addChild('validationDate'));
-        if (isset($this->canPushUpdates)) $this->canPushUpdates->xmlSerialize(true, $sxe->addChild('canPushUpdates'));
+        if (isset($this->validationStatus)) {
+            $this->validationStatus->xmlSerialize(true, $sxe->addChild('validationStatus'));
+        }
+        if (isset($this->validationDate)) {
+            $this->validationDate->xmlSerialize(true, $sxe->addChild('validationDate'));
+        }
+        if (isset($this->canPushUpdates)) {
+            $this->canPushUpdates->xmlSerialize(true, $sxe->addChild('canPushUpdates'));
+        }
         if (0 < count($this->pushTypeAvailable)) {
-            foreach($this->pushTypeAvailable as $pushTypeAvailable) {
+            foreach ($this->pushTypeAvailable as $pushTypeAvailable) {
                 $pushTypeAvailable->xmlSerialize(true, $sxe->addChild('pushTypeAvailable'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

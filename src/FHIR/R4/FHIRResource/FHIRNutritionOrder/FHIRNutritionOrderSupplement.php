@@ -106,7 +106,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * The kind of nutritional supplement product required such as a high protein or pediatric clear liquid supplement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -115,7 +116,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * The product or brand name of the nutritional supplement such as "Acme Protein Shake".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getProductName() {
+    public function getProductName()
+    {
         return $this->productName;
     }
 
@@ -133,7 +136,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $productName
      * @return $this
      */
-    public function setProductName($productName) {
+    public function setProductName($productName)
+    {
         $this->productName = $productName;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * The time period and frequency at which the supplement(s) should be given.  The supplement should be given for the combination of all schedules if more than one schedule is present.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming[]
      */
-    public function getSchedule() {
+    public function getSchedule()
+    {
         return $this->schedule;
     }
 
@@ -151,7 +156,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $schedule
      * @return $this
      */
-    public function addSchedule($schedule) {
+    public function addSchedule($schedule)
+    {
         $this->schedule[] = $schedule;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * The amount of the nutritional supplement to be given.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -169,7 +176,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * Free text or additional instructions or information pertaining to the oral supplement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getInstruction() {
+    public function getInstruction()
+    {
         return $this->instruction;
     }
 
@@ -187,7 +196,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $instruction
      * @return $this
      */
-    public function setInstruction($instruction) {
+    public function setInstruction($instruction)
+    {
         $this->instruction = $instruction;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -212,7 +224,7 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
             }
             if (isset($data['schedule'])) {
                 if (is_array($data['schedule'])) {
-                    foreach($data['schedule'] as $d) {
+                    foreach ($data['schedule'] as $d) {
                         $this->addSchedule($d);
                     }
                 } else {
@@ -234,25 +246,35 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->productName)) $json['productName'] = $this->productName;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->productName)) {
+            $json['productName'] = $this->productName;
+        }
         if (0 < count($this->schedule)) {
             $json['schedule'] = [];
-            foreach($this->schedule as $schedule) {
+            foreach ($this->schedule as $schedule) {
                 $json['schedule'][] = $schedule;
             }
         }
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->instruction)) $json['instruction'] = $this->instruction;
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->instruction)) {
+            $json['instruction'] = $this->instruction;
+        }
         return $json;
     }
 
@@ -261,21 +283,32 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<NutritionOrderSupplement xmlns="http://hl7.org/fhir"></NutritionOrderSupplement>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<NutritionOrderSupplement xmlns="http://hl7.org/fhir"></NutritionOrderSupplement>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->productName)) $this->productName->xmlSerialize(true, $sxe->addChild('productName'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->productName)) {
+            $this->productName->xmlSerialize(true, $sxe->addChild('productName'));
+        }
         if (0 < count($this->schedule)) {
-            foreach($this->schedule as $schedule) {
+            foreach ($this->schedule as $schedule) {
                 $schedule->xmlSerialize(true, $sxe->addChild('schedule'));
             }
         }
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->instruction)) $this->instruction->xmlSerialize(true, $sxe->addChild('instruction'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->instruction)) {
+            $this->instruction->xmlSerialize(true, $sxe->addChild('instruction'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

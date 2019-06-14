@@ -100,7 +100,8 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
      * Nested process.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioProcess[]
      */
-    public function getProcess() {
+    public function getProcess()
+    {
         return $this->process;
     }
 
@@ -109,7 +110,8 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioProcess $process
      * @return $this
      */
-    public function addProcess($process) {
+    public function addProcess($process)
+    {
         $this->process[] = $process;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
      * If there is a pause in the flow.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getPause() {
+    public function getPause()
+    {
         return $this->pause;
     }
 
@@ -127,7 +130,8 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $pause
      * @return $this
      */
-    public function setPause($pause) {
+    public function setPause($pause)
+    {
         $this->pause = $pause;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
      * Each interaction or action.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioOperation
      */
-    public function getOperation() {
+    public function getOperation()
+    {
         return $this->operation;
     }
 
@@ -145,7 +150,8 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioOperation $operation
      * @return $this
      */
-    public function setOperation($operation) {
+    public function setOperation($operation)
+    {
         $this->operation = $operation;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
      * Indicates an alternative step that can be taken instead of the operations on the base step in exceptional/atypical circumstances.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioAlternative[]
      */
-    public function getAlternative() {
+    public function getAlternative()
+    {
         return $this->alternative;
     }
 
@@ -163,7 +170,8 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioAlternative $alternative
      * @return $this
      */
-    public function addAlternative($alternative) {
+    public function addAlternative($alternative)
+    {
         $this->alternative[] = $alternative;
         return $this;
     }
@@ -171,18 +179,20 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['process'])) {
                 if (is_array($data['process'])) {
-                    foreach($data['process'] as $d) {
+                    foreach ($data['process'] as $d) {
                         $this->addProcess($d);
                     }
                 } else {
@@ -197,7 +207,7 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
             }
             if (isset($data['alternative'])) {
                 if (is_array($data['alternative'])) {
-                    foreach($data['alternative'] as $d) {
+                    foreach ($data['alternative'] as $d) {
                         $this->addAlternative($d);
                     }
                 } else {
@@ -213,26 +223,32 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->process)) {
             $json['process'] = [];
-            foreach($this->process as $process) {
+            foreach ($this->process as $process) {
                 $json['process'][] = $process;
             }
         }
-        if (isset($this->pause)) $json['pause'] = $this->pause;
-        if (isset($this->operation)) $json['operation'] = $this->operation;
+        if (isset($this->pause)) {
+            $json['pause'] = $this->pause;
+        }
+        if (isset($this->operation)) {
+            $json['operation'] = $this->operation;
+        }
         if (0 < count($this->alternative)) {
             $json['alternative'] = [];
-            foreach($this->alternative as $alternative) {
+            foreach ($this->alternative as $alternative) {
                 $json['alternative'][] = $alternative;
             }
         }
@@ -244,24 +260,31 @@ class FHIRExampleScenarioStep extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExampleScenarioStep xmlns="http://hl7.org/fhir"></ExampleScenarioStep>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExampleScenarioStep xmlns="http://hl7.org/fhir"></ExampleScenarioStep>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->process)) {
-            foreach($this->process as $process) {
+            foreach ($this->process as $process) {
                 $process->xmlSerialize(true, $sxe->addChild('process'));
             }
         }
-        if (isset($this->pause)) $this->pause->xmlSerialize(true, $sxe->addChild('pause'));
-        if (isset($this->operation)) $this->operation->xmlSerialize(true, $sxe->addChild('operation'));
+        if (isset($this->pause)) {
+            $this->pause->xmlSerialize(true, $sxe->addChild('pause'));
+        }
+        if (isset($this->operation)) {
+            $this->operation->xmlSerialize(true, $sxe->addChild('operation'));
+        }
         if (0 < count($this->alternative)) {
-            foreach($this->alternative as $alternative) {
+            foreach ($this->alternative as $alternative) {
                 $alternative->xmlSerialize(true, $sxe->addChild('alternative'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

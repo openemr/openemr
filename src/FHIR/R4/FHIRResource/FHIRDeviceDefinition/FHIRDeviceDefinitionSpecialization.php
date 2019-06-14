@@ -88,7 +88,8 @@ class FHIRDeviceDefinitionSpecialization extends FHIRBackboneElement implements 
      * The standard that is used to operate and communicate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSystemType() {
+    public function getSystemType()
+    {
         return $this->systemType;
     }
 
@@ -97,7 +98,8 @@ class FHIRDeviceDefinitionSpecialization extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $systemType
      * @return $this
      */
-    public function setSystemType($systemType) {
+    public function setSystemType($systemType)
+    {
         $this->systemType = $systemType;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRDeviceDefinitionSpecialization extends FHIRBackboneElement implements 
      * The version of the standard that is used to operate and communicate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -115,7 +118,8 @@ class FHIRDeviceDefinitionSpecialization extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRDeviceDefinitionSpecialization extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['systemType'])) {
                 $this->setSystemType($data['systemType']);
@@ -147,17 +153,23 @@ class FHIRDeviceDefinitionSpecialization extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->systemType)) $json['systemType'] = $this->systemType;
-        if (isset($this->version)) $json['version'] = $this->version;
+        if (isset($this->systemType)) {
+            $json['systemType'] = $this->systemType;
+        }
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRDeviceDefinitionSpecialization extends FHIRBackboneElement implements 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DeviceDefinitionSpecialization xmlns="http://hl7.org/fhir"></DeviceDefinitionSpecialization>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DeviceDefinitionSpecialization xmlns="http://hl7.org/fhir"></DeviceDefinitionSpecialization>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->systemType)) $this->systemType->xmlSerialize(true, $sxe->addChild('systemType'));
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->systemType)) {
+            $this->systemType->xmlSerialize(true, $sxe->addChild('systemType'));
+        }
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

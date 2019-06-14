@@ -173,7 +173,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * Document identifier as assigned by the source of the document. This identifier is specific to this version of the document. This unique identifier may be used elsewhere to identify this version of the document.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getMasterIdentifier() {
+    public function getMasterIdentifier()
+    {
         return $this->masterIdentifier;
     }
 
@@ -182,7 +183,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $masterIdentifier
      * @return $this
      */
-    public function setMasterIdentifier($masterIdentifier) {
+    public function setMasterIdentifier($masterIdentifier)
+    {
         $this->masterIdentifier = $masterIdentifier;
         return $this;
     }
@@ -191,7 +193,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * Other identifiers associated with the document, including version independent identifiers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -200,7 +203,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -209,7 +213,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * The status of this document reference.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDocumentReferenceStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -218,7 +223,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDocumentReferenceStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -227,7 +233,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * The status of the underlying document.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCompositionStatus
      */
-    public function getDocStatus() {
+    public function getDocStatus()
+    {
         return $this->docStatus;
     }
 
@@ -236,7 +243,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCompositionStatus $docStatus
      * @return $this
      */
-    public function setDocStatus($docStatus) {
+    public function setDocStatus($docStatus)
+    {
         $this->docStatus = $docStatus;
         return $this;
     }
@@ -245,7 +253,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * Specifies the particular kind of document referenced  (e.g. History and Physical, Discharge Summary, Progress Note). This usually equates to the purpose of making the document referenced.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -254,7 +263,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -263,7 +273,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * A categorization for the type of document referenced - helps for indexing and searching. This may be implied by or derived from the code specified in the DocumentReference.type.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -272,7 +283,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function addCategory($category) {
+    public function addCategory($category)
+    {
         $this->category[] = $category;
         return $this;
     }
@@ -281,7 +293,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * Who or what the document is about. The document can be about a person, (patient or healthcare practitioner), a device (e.g. a machine) or even a group of subjects (such as a document about a herd of farm animals, or a set of patients that share a common exposure).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -290,7 +303,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -299,7 +313,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * When the document reference was created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -308,7 +323,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -317,7 +333,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * Identifies who is responsible for adding the information to the document.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
@@ -326,7 +343,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $author
      * @return $this
      */
-    public function addAuthor($author) {
+    public function addAuthor($author)
+    {
         $this->author[] = $author;
         return $this;
     }
@@ -335,7 +353,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * Which person or organization authenticates that this document is valid.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAuthenticator() {
+    public function getAuthenticator()
+    {
         return $this->authenticator;
     }
 
@@ -344,7 +363,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $authenticator
      * @return $this
      */
-    public function setAuthenticator($authenticator) {
+    public function setAuthenticator($authenticator)
+    {
         $this->authenticator = $authenticator;
         return $this;
     }
@@ -353,7 +373,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * Identifies the organization or group who is responsible for ongoing maintenance of and access to the document.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCustodian() {
+    public function getCustodian()
+    {
         return $this->custodian;
     }
 
@@ -362,7 +383,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $custodian
      * @return $this
      */
-    public function setCustodian($custodian) {
+    public function setCustodian($custodian)
+    {
         $this->custodian = $custodian;
         return $this;
     }
@@ -371,7 +393,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * Relationships that this document has with other document references that already exist.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceRelatesTo[]
      */
-    public function getRelatesTo() {
+    public function getRelatesTo()
+    {
         return $this->relatesTo;
     }
 
@@ -380,7 +403,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceRelatesTo $relatesTo
      * @return $this
      */
-    public function addRelatesTo($relatesTo) {
+    public function addRelatesTo($relatesTo)
+    {
         $this->relatesTo[] = $relatesTo;
         return $this;
     }
@@ -389,7 +413,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * Human-readable description of the source document.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -398,7 +423,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -407,7 +433,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * A set of Security-Tag codes specifying the level of privacy/security of the Document. Note that DocumentReference.meta.security contains the security labels of the "reference" to the document, while DocumentReference.securityLabel contains a snapshot of the security labels on the document the reference refers to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getSecurityLabel() {
+    public function getSecurityLabel()
+    {
         return $this->securityLabel;
     }
 
@@ -416,7 +443,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $securityLabel
      * @return $this
      */
-    public function addSecurityLabel($securityLabel) {
+    public function addSecurityLabel($securityLabel)
+    {
         $this->securityLabel[] = $securityLabel;
         return $this;
     }
@@ -425,7 +453,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * The document and format referenced. There may be multiple content element repetitions, each with a different format.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent[]
      */
-    public function getContent() {
+    public function getContent()
+    {
         return $this->content;
     }
 
@@ -434,7 +463,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent $content
      * @return $this
      */
-    public function addContent($content) {
+    public function addContent($content)
+    {
         $this->content[] = $content;
         return $this;
     }
@@ -443,7 +473,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * The clinical context in which the document was prepared.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContext
      */
-    public function getContext() {
+    public function getContext()
+    {
         return $this->context;
     }
 
@@ -452,7 +483,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContext $context
      * @return $this
      */
-    public function setContext($context) {
+    public function setContext($context)
+    {
         $this->context = $context;
         return $this;
     }
@@ -460,21 +492,23 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['masterIdentifier'])) {
                 $this->setMasterIdentifier($data['masterIdentifier']);
             }
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -492,7 +526,7 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
             }
             if (isset($data['category'])) {
                 if (is_array($data['category'])) {
-                    foreach($data['category'] as $d) {
+                    foreach ($data['category'] as $d) {
                         $this->addCategory($d);
                     }
                 } else {
@@ -507,7 +541,7 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
             }
             if (isset($data['author'])) {
                 if (is_array($data['author'])) {
-                    foreach($data['author'] as $d) {
+                    foreach ($data['author'] as $d) {
                         $this->addAuthor($d);
                     }
                 } else {
@@ -522,7 +556,7 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
             }
             if (isset($data['relatesTo'])) {
                 if (is_array($data['relatesTo'])) {
-                    foreach($data['relatesTo'] as $d) {
+                    foreach ($data['relatesTo'] as $d) {
                         $this->addRelatesTo($d);
                     }
                 } else {
@@ -534,7 +568,7 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
             }
             if (isset($data['securityLabel'])) {
                 if (is_array($data['securityLabel'])) {
-                    foreach($data['securityLabel'] as $d) {
+                    foreach ($data['securityLabel'] as $d) {
                         $this->addSecurityLabel($d);
                     }
                 } else {
@@ -543,7 +577,7 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
             }
             if (isset($data['content'])) {
                 if (is_array($data['content'])) {
-                    foreach($data['content'] as $d) {
+                    foreach ($data['content'] as $d) {
                         $this->addContent($d);
                     }
                 } else {
@@ -562,62 +596,84 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->masterIdentifier)) $json['masterIdentifier'] = $this->masterIdentifier;
+        if (isset($this->masterIdentifier)) {
+            $json['masterIdentifier'] = $this->masterIdentifier;
+        }
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->docStatus)) $json['docStatus'] = $this->docStatus;
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->docStatus)) {
+            $json['docStatus'] = $this->docStatus;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->category)) {
             $json['category'] = [];
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $json['category'][] = $category;
             }
         }
-        if (isset($this->subject)) $json['subject'] = $this->subject;
-        if (isset($this->date)) $json['date'] = $this->date;
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
         if (0 < count($this->author)) {
             $json['author'] = [];
-            foreach($this->author as $author) {
+            foreach ($this->author as $author) {
                 $json['author'][] = $author;
             }
         }
-        if (isset($this->authenticator)) $json['authenticator'] = $this->authenticator;
-        if (isset($this->custodian)) $json['custodian'] = $this->custodian;
+        if (isset($this->authenticator)) {
+            $json['authenticator'] = $this->authenticator;
+        }
+        if (isset($this->custodian)) {
+            $json['custodian'] = $this->custodian;
+        }
         if (0 < count($this->relatesTo)) {
             $json['relatesTo'] = [];
-            foreach($this->relatesTo as $relatesTo) {
+            foreach ($this->relatesTo as $relatesTo) {
                 $json['relatesTo'][] = $relatesTo;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->securityLabel)) {
             $json['securityLabel'] = [];
-            foreach($this->securityLabel as $securityLabel) {
+            foreach ($this->securityLabel as $securityLabel) {
                 $json['securityLabel'][] = $securityLabel;
             }
         }
         if (0 < count($this->content)) {
             $json['content'] = [];
-            foreach($this->content as $content) {
+            foreach ($this->content as $content) {
                 $json['content'][] = $content;
             }
         }
-        if (isset($this->context)) $json['context'] = $this->context;
+        if (isset($this->context)) {
+            $json['context'] = $this->context;
+        }
         return $json;
     }
 
@@ -626,52 +682,75 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DocumentReference xmlns="http://hl7.org/fhir"></DocumentReference>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DocumentReference xmlns="http://hl7.org/fhir"></DocumentReference>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->masterIdentifier)) $this->masterIdentifier->xmlSerialize(true, $sxe->addChild('masterIdentifier'));
+        if (isset($this->masterIdentifier)) {
+            $this->masterIdentifier->xmlSerialize(true, $sxe->addChild('masterIdentifier'));
+        }
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->docStatus)) $this->docStatus->xmlSerialize(true, $sxe->addChild('docStatus'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->docStatus)) {
+            $this->docStatus->xmlSerialize(true, $sxe->addChild('docStatus'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->category)) {
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $category->xmlSerialize(true, $sxe->addChild('category'));
             }
         }
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
         if (0 < count($this->author)) {
-            foreach($this->author as $author) {
+            foreach ($this->author as $author) {
                 $author->xmlSerialize(true, $sxe->addChild('author'));
             }
         }
-        if (isset($this->authenticator)) $this->authenticator->xmlSerialize(true, $sxe->addChild('authenticator'));
-        if (isset($this->custodian)) $this->custodian->xmlSerialize(true, $sxe->addChild('custodian'));
+        if (isset($this->authenticator)) {
+            $this->authenticator->xmlSerialize(true, $sxe->addChild('authenticator'));
+        }
+        if (isset($this->custodian)) {
+            $this->custodian->xmlSerialize(true, $sxe->addChild('custodian'));
+        }
         if (0 < count($this->relatesTo)) {
-            foreach($this->relatesTo as $relatesTo) {
+            foreach ($this->relatesTo as $relatesTo) {
                 $relatesTo->xmlSerialize(true, $sxe->addChild('relatesTo'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->securityLabel)) {
-            foreach($this->securityLabel as $securityLabel) {
+            foreach ($this->securityLabel as $securityLabel) {
                 $securityLabel->xmlSerialize(true, $sxe->addChild('securityLabel'));
             }
         }
         if (0 < count($this->content)) {
-            foreach($this->content as $content) {
+            foreach ($this->content as $content) {
                 $content->xmlSerialize(true, $sxe->addChild('content'));
             }
         }
-        if (isset($this->context)) $this->context->xmlSerialize(true, $sxe->addChild('context'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->context)) {
+            $this->context->xmlSerialize(true, $sxe->addChild('context'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

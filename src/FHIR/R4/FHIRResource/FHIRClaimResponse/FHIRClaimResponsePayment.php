@@ -112,7 +112,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * Whether this represents partial or complete payment of the benefits payable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -121,7 +122,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * Total amount of all adjustments to this payment included in this transaction which are not related to this claim's adjudication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getAdjustment() {
+    public function getAdjustment()
+    {
         return $this->adjustment;
     }
 
@@ -139,7 +142,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $adjustment
      * @return $this
      */
-    public function setAdjustment($adjustment) {
+    public function setAdjustment($adjustment)
+    {
         $this->adjustment = $adjustment;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * Reason for the payment adjustment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAdjustmentReason() {
+    public function getAdjustmentReason()
+    {
         return $this->adjustmentReason;
     }
 
@@ -157,7 +162,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $adjustmentReason
      * @return $this
      */
-    public function setAdjustmentReason($adjustmentReason) {
+    public function setAdjustmentReason($adjustmentReason)
+    {
         $this->adjustmentReason = $adjustmentReason;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * Estimated date the payment will be issued or the actual issue date of payment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -175,7 +182,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * Benefits payable less any payment adjustment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -193,7 +202,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * Issuer's unique identifier for the payment instrument.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -211,7 +222,8 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -255,21 +269,35 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->adjustment)) $json['adjustment'] = $this->adjustment;
-        if (isset($this->adjustmentReason)) $json['adjustmentReason'] = $this->adjustmentReason;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->adjustment)) {
+            $json['adjustment'] = $this->adjustment;
+        }
+        if (isset($this->adjustmentReason)) {
+            $json['adjustmentReason'] = $this->adjustmentReason;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
         return $json;
     }
 
@@ -278,18 +306,33 @@ class FHIRClaimResponsePayment extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimResponsePayment xmlns="http://hl7.org/fhir"></ClaimResponsePayment>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimResponsePayment xmlns="http://hl7.org/fhir"></ClaimResponsePayment>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->adjustment)) $this->adjustment->xmlSerialize(true, $sxe->addChild('adjustment'));
-        if (isset($this->adjustmentReason)) $this->adjustmentReason->xmlSerialize(true, $sxe->addChild('adjustmentReason'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->adjustment)) {
+            $this->adjustment->xmlSerialize(true, $sxe->addChild('adjustment'));
+        }
+        if (isset($this->adjustmentReason)) {
+            $this->adjustmentReason->xmlSerialize(true, $sxe->addChild('adjustmentReason'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

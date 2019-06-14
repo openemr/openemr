@@ -100,7 +100,8 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
      * The specified substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -109,7 +110,8 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
      * The group of specified substance, e.g. group 1 to 4.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getGroup() {
+    public function getGroup()
+    {
         return $this->group;
     }
 
@@ -127,7 +130,8 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $group
      * @return $this
      */
-    public function setGroup($group) {
+    public function setGroup($group)
+    {
         $this->group = $group;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
      * Confidentiality level of the specified substance as the ingredient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getConfidentiality() {
+    public function getConfidentiality()
+    {
         return $this->confidentiality;
     }
 
@@ -145,7 +150,8 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $confidentiality
      * @return $this
      */
-    public function setConfidentiality($confidentiality) {
+    public function setConfidentiality($confidentiality)
+    {
         $this->confidentiality = $confidentiality;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
      * Quantity of the substance or specified substance present in the manufactured item or pharmaceutical product.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductIngredient\FHIRMedicinalProductIngredientStrength[]
      */
-    public function getStrength() {
+    public function getStrength()
+    {
         return $this->strength;
     }
 
@@ -163,7 +170,8 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductIngredient\FHIRMedicinalProductIngredientStrength $strength
      * @return $this
      */
-    public function addStrength($strength) {
+    public function addStrength($strength)
+    {
         $this->strength[] = $strength;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -191,7 +201,7 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
             }
             if (isset($data['strength'])) {
                 if (is_array($data['strength'])) {
-                    foreach($data['strength'] as $d) {
+                    foreach ($data['strength'] as $d) {
                         $this->addStrength($d);
                     }
                 } else {
@@ -207,21 +217,29 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->group)) $json['group'] = $this->group;
-        if (isset($this->confidentiality)) $json['confidentiality'] = $this->confidentiality;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->group)) {
+            $json['group'] = $this->group;
+        }
+        if (isset($this->confidentiality)) {
+            $json['confidentiality'] = $this->confidentiality;
+        }
         if (0 < count($this->strength)) {
             $json['strength'] = [];
-            foreach($this->strength as $strength) {
+            foreach ($this->strength as $strength) {
                 $json['strength'][] = $strength;
             }
         }
@@ -233,20 +251,29 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductIngredientSpecifiedSubstance xmlns="http://hl7.org/fhir"></MedicinalProductIngredientSpecifiedSubstance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductIngredientSpecifiedSubstance xmlns="http://hl7.org/fhir"></MedicinalProductIngredientSpecifiedSubstance>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->group)) $this->group->xmlSerialize(true, $sxe->addChild('group'));
-        if (isset($this->confidentiality)) $this->confidentiality->xmlSerialize(true, $sxe->addChild('confidentiality'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->group)) {
+            $this->group->xmlSerialize(true, $sxe->addChild('group'));
+        }
+        if (isset($this->confidentiality)) {
+            $this->confidentiality->xmlSerialize(true, $sxe->addChild('confidentiality'));
+        }
         if (0 < count($this->strength)) {
-            foreach($this->strength as $strength) {
+            foreach ($this->strength as $strength) {
                 $strength->xmlSerialize(true, $sxe->addChild('strength'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -112,7 +112,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * The id of the resource for referencing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getResourceId() {
+    public function getResourceId()
+    {
         return $this->resourceId;
     }
 
@@ -121,7 +122,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $resourceId
      * @return $this
      */
-    public function setResourceId($resourceId) {
+    public function setResourceId($resourceId)
+    {
         $this->resourceId = $resourceId;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * The type of the resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRResourceType
      */
-    public function getResourceType() {
+    public function getResourceType()
+    {
         return $this->resourceType;
     }
 
@@ -139,7 +142,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRResourceType $resourceType
      * @return $this
      */
-    public function setResourceType($resourceType) {
+    public function setResourceType($resourceType)
+    {
         $this->resourceType = $resourceType;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * A short name for the resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -157,7 +162,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * Human-friendly description of the resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -175,7 +182,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * A specific version of the resource.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioVersion[]
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -193,7 +202,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioVersion $version
      * @return $this
      */
-    public function addVersion($version) {
+    public function addVersion($version)
+    {
         $this->version[] = $version;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * Resources contained in the instance (e.g. the observations contained in a bundle).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioContainedInstance[]
      */
-    public function getContainedInstance() {
+    public function getContainedInstance()
+    {
         return $this->containedInstance;
     }
 
@@ -211,7 +222,8 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioContainedInstance $containedInstance
      * @return $this
      */
-    public function addContainedInstance($containedInstance) {
+    public function addContainedInstance($containedInstance)
+    {
         $this->containedInstance[] = $containedInstance;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['resourceId'])) {
                 $this->setResourceId($data['resourceId']);
@@ -242,7 +256,7 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
             }
             if (isset($data['version'])) {
                 if (is_array($data['version'])) {
-                    foreach($data['version'] as $d) {
+                    foreach ($data['version'] as $d) {
                         $this->addVersion($d);
                     }
                 } else {
@@ -251,7 +265,7 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
             }
             if (isset($data['containedInstance'])) {
                 if (is_array($data['containedInstance'])) {
-                    foreach($data['containedInstance'] as $d) {
+                    foreach ($data['containedInstance'] as $d) {
                         $this->addContainedInstance($d);
                     }
                 } else {
@@ -267,28 +281,38 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->resourceId)) $json['resourceId'] = $this->resourceId;
-        if (isset($this->resourceType)) $json['resourceType'] = $this->resourceType;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->resourceId)) {
+            $json['resourceId'] = $this->resourceId;
+        }
+        if (isset($this->resourceType)) {
+            $json['resourceType'] = $this->resourceType;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->version)) {
             $json['version'] = [];
-            foreach($this->version as $version) {
+            foreach ($this->version as $version) {
                 $json['version'][] = $version;
             }
         }
         if (0 < count($this->containedInstance)) {
             $json['containedInstance'] = [];
-            foreach($this->containedInstance as $containedInstance) {
+            foreach ($this->containedInstance as $containedInstance) {
                 $json['containedInstance'][] = $containedInstance;
             }
         }
@@ -300,26 +324,37 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExampleScenarioInstance xmlns="http://hl7.org/fhir"></ExampleScenarioInstance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExampleScenarioInstance xmlns="http://hl7.org/fhir"></ExampleScenarioInstance>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->resourceId)) $this->resourceId->xmlSerialize(true, $sxe->addChild('resourceId'));
-        if (isset($this->resourceType)) $this->resourceType->xmlSerialize(true, $sxe->addChild('resourceType'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->resourceId)) {
+            $this->resourceId->xmlSerialize(true, $sxe->addChild('resourceId'));
+        }
+        if (isset($this->resourceType)) {
+            $this->resourceType->xmlSerialize(true, $sxe->addChild('resourceType'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->version)) {
-            foreach($this->version as $version) {
+            foreach ($this->version as $version) {
                 $version->xmlSerialize(true, $sxe->addChild('version'));
             }
         }
         if (0 < count($this->containedInstance)) {
-            foreach($this->containedInstance as $containedInstance) {
+            foreach ($this->containedInstance as $containedInstance) {
                 $containedInstance->xmlSerialize(true, $sxe->addChild('containedInstance'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

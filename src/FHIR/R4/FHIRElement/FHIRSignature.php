@@ -119,7 +119,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * An indication of the reason that the entity signed this document. This may be explicitly included as part of the signature information and can be used when determining accountability for various actions concerning the document.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -128,7 +129,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $type
      * @return $this
      */
-    public function addType($type) {
+    public function addType($type)
+    {
         $this->type[] = $type;
         return $this;
     }
@@ -137,7 +139,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * When the digital signature was signed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getWhen() {
+    public function getWhen()
+    {
         return $this->when;
     }
 
@@ -146,7 +149,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $when
      * @return $this
      */
-    public function setWhen($when) {
+    public function setWhen($when)
+    {
         $this->when = $when;
         return $this;
     }
@@ -155,7 +159,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * A reference to an application-usable description of the identity that signed  (e.g. the signature used their private key).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getWho() {
+    public function getWho()
+    {
         return $this->who;
     }
 
@@ -164,7 +169,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $who
      * @return $this
      */
-    public function setWho($who) {
+    public function setWho($who)
+    {
         $this->who = $who;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * A reference to an application-usable description of the identity that is represented by the signature.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOnBehalfOf() {
+    public function getOnBehalfOf()
+    {
         return $this->onBehalfOf;
     }
 
@@ -182,7 +189,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $onBehalfOf
      * @return $this
      */
-    public function setOnBehalfOf($onBehalfOf) {
+    public function setOnBehalfOf($onBehalfOf)
+    {
         $this->onBehalfOf = $onBehalfOf;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * A mime type that indicates the technical format of the target resources signed by the signature.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getTargetFormat() {
+    public function getTargetFormat()
+    {
         return $this->targetFormat;
     }
 
@@ -200,7 +209,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $targetFormat
      * @return $this
      */
-    public function setTargetFormat($targetFormat) {
+    public function setTargetFormat($targetFormat)
+    {
         $this->targetFormat = $targetFormat;
         return $this;
     }
@@ -209,7 +219,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * A mime type that indicates the technical format of the signature. Important mime types are application/signature+xml for X ML DigSig, application/jose for JWS, and image/* for a graphical image of a signature, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getSigFormat() {
+    public function getSigFormat()
+    {
         return $this->sigFormat;
     }
 
@@ -218,7 +229,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $sigFormat
      * @return $this
      */
-    public function setSigFormat($sigFormat) {
+    public function setSigFormat($sigFormat)
+    {
         $this->sigFormat = $sigFormat;
         return $this;
     }
@@ -227,7 +239,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * The base64 encoding of the Signature content. When signature is not recorded electronically this element would be empty.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary
      */
-    public function getData() {
+    public function getData()
+    {
         return $this->data;
     }
 
@@ -236,7 +249,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary $data
      * @return $this
      */
-    public function setData($data) {
+    public function setData($data)
+    {
         $this->data = $data;
         return $this;
     }
@@ -244,18 +258,20 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 if (is_array($data['type'])) {
-                    foreach($data['type'] as $d) {
+                    foreach ($data['type'] as $d) {
                         $this->addType($d);
                     }
                 } else {
@@ -289,27 +305,41 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->type)) {
             $json['type'] = [];
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $json['type'][] = $type;
             }
         }
-        if (isset($this->when)) $json['when'] = $this->when;
-        if (isset($this->who)) $json['who'] = $this->who;
-        if (isset($this->onBehalfOf)) $json['onBehalfOf'] = $this->onBehalfOf;
-        if (isset($this->targetFormat)) $json['targetFormat'] = $this->targetFormat;
-        if (isset($this->sigFormat)) $json['sigFormat'] = $this->sigFormat;
-        if (isset($this->data)) $json['data'] = $this->data;
+        if (isset($this->when)) {
+            $json['when'] = $this->when;
+        }
+        if (isset($this->who)) {
+            $json['who'] = $this->who;
+        }
+        if (isset($this->onBehalfOf)) {
+            $json['onBehalfOf'] = $this->onBehalfOf;
+        }
+        if (isset($this->targetFormat)) {
+            $json['targetFormat'] = $this->targetFormat;
+        }
+        if (isset($this->sigFormat)) {
+            $json['sigFormat'] = $this->sigFormat;
+        }
+        if (isset($this->data)) {
+            $json['data'] = $this->data;
+        }
         return $json;
     }
 
@@ -318,23 +348,38 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Signature xmlns="http://hl7.org/fhir"></Signature>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Signature xmlns="http://hl7.org/fhir"></Signature>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->type)) {
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $type->xmlSerialize(true, $sxe->addChild('type'));
             }
         }
-        if (isset($this->when)) $this->when->xmlSerialize(true, $sxe->addChild('when'));
-        if (isset($this->who)) $this->who->xmlSerialize(true, $sxe->addChild('who'));
-        if (isset($this->onBehalfOf)) $this->onBehalfOf->xmlSerialize(true, $sxe->addChild('onBehalfOf'));
-        if (isset($this->targetFormat)) $this->targetFormat->xmlSerialize(true, $sxe->addChild('targetFormat'));
-        if (isset($this->sigFormat)) $this->sigFormat->xmlSerialize(true, $sxe->addChild('sigFormat'));
-        if (isset($this->data)) $this->data->xmlSerialize(true, $sxe->addChild('data'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->when)) {
+            $this->when->xmlSerialize(true, $sxe->addChild('when'));
+        }
+        if (isset($this->who)) {
+            $this->who->xmlSerialize(true, $sxe->addChild('who'));
+        }
+        if (isset($this->onBehalfOf)) {
+            $this->onBehalfOf->xmlSerialize(true, $sxe->addChild('onBehalfOf'));
+        }
+        if (isset($this->targetFormat)) {
+            $this->targetFormat->xmlSerialize(true, $sxe->addChild('targetFormat'));
+        }
+        if (isset($this->sigFormat)) {
+            $this->sigFormat->xmlSerialize(true, $sxe->addChild('sigFormat'));
+        }
+        if (isset($this->data)) {
+            $this->data->xmlSerialize(true, $sxe->addChild('data'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIRTerminologyCapabilitiesParameter extends FHIRBackboneElement implement
      * Expansion Parameter name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -97,7 +98,8 @@ class FHIRTerminologyCapabilitiesParameter extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRTerminologyCapabilitiesParameter extends FHIRBackboneElement implement
      * Description of support for parameter.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDocumentation() {
+    public function getDocumentation()
+    {
         return $this->documentation;
     }
 
@@ -115,7 +118,8 @@ class FHIRTerminologyCapabilitiesParameter extends FHIRBackboneElement implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $documentation
      * @return $this
      */
-    public function setDocumentation($documentation) {
+    public function setDocumentation($documentation)
+    {
         $this->documentation = $documentation;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRTerminologyCapabilitiesParameter extends FHIRBackboneElement implement
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -147,17 +153,23 @@ class FHIRTerminologyCapabilitiesParameter extends FHIRBackboneElement implement
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->documentation)) $json['documentation'] = $this->documentation;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->documentation)) {
+            $json['documentation'] = $this->documentation;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRTerminologyCapabilitiesParameter extends FHIRBackboneElement implement
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesParameter xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesParameter>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesParameter xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesParameter>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->documentation)) $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->documentation)) {
+            $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

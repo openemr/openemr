@@ -385,7 +385,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * An absolute URI that is used to identify this activity definition when it is referenced in a specification, model, design or an instance; also called its canonical identifier. This SHOULD be globally unique and SHOULD be a literal address at which at which an authoritative instance of this activity definition is (or will be) published. This URL can be the target of a canonical reference. It SHALL remain the same when the activity definition is stored on different servers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -394,7 +395,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -403,7 +405,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A formal identifier that is used to identify this activity definition when it is represented in other formats, or referenced in a specification, model, design or an instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -412,7 +415,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -421,7 +425,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * The identifier that is used to identify this version of the activity definition when it is referenced in a specification, model, design or instance. This is an arbitrary value managed by the activity definition author and is not expected to be globally unique. For example, it might be a timestamp (e.g. yyyymmdd) if a managed version is not available. There is also no expectation that versions can be placed in a lexicographical sequence. To provide a version consistent with the Decision Support Service specification, use the format Major.Minor.Revision (e.g. 1.0.0). For more information on versioning knowledge assets, refer to the Decision Support Service specification. Note that a version is required for non-experimental active assets.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -430,7 +435,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -439,7 +445,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A natural language name identifying the activity definition. This name should be usable as an identifier for the module by machine processing applications such as code generation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -448,7 +455,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -457,7 +465,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A short, descriptive, user-friendly title for the activity definition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -466,7 +475,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -475,7 +485,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * An explanatory or alternate title for the activity definition giving additional information about its content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSubtitle() {
+    public function getSubtitle()
+    {
         return $this->subtitle;
     }
 
@@ -484,7 +495,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $subtitle
      * @return $this
      */
-    public function setSubtitle($subtitle) {
+    public function setSubtitle($subtitle)
+    {
         $this->subtitle = $subtitle;
         return $this;
     }
@@ -493,7 +505,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * The status of this activity definition. Enables tracking the life-cycle of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -502,7 +515,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -511,7 +525,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A Boolean value to indicate that this activity definition is authored for testing purposes (or education/evaluation/marketing) and is not intended to be used for genuine usage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExperimental() {
+    public function getExperimental()
+    {
         return $this->experimental;
     }
 
@@ -520,7 +535,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $experimental
      * @return $this
      */
-    public function setExperimental($experimental) {
+    public function setExperimental($experimental)
+    {
         $this->experimental = $experimental;
         return $this;
     }
@@ -528,7 +544,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSubjectCodeableConcept() {
+    public function getSubjectCodeableConcept()
+    {
         return $this->subjectCodeableConcept;
     }
 
@@ -536,7 +553,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $subjectCodeableConcept
      * @return $this
      */
-    public function setSubjectCodeableConcept($subjectCodeableConcept) {
+    public function setSubjectCodeableConcept($subjectCodeableConcept)
+    {
         $this->subjectCodeableConcept = $subjectCodeableConcept;
         return $this;
     }
@@ -544,7 +562,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubjectReference() {
+    public function getSubjectReference()
+    {
         return $this->subjectReference;
     }
 
@@ -552,7 +571,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subjectReference
      * @return $this
      */
-    public function setSubjectReference($subjectReference) {
+    public function setSubjectReference($subjectReference)
+    {
         $this->subjectReference = $subjectReference;
         return $this;
     }
@@ -561,7 +581,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * The date  (and optionally time) when the activity definition was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the activity definition changes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -570,7 +591,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -579,7 +601,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * The name of the organization or individual that published the activity definition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPublisher() {
+    public function getPublisher()
+    {
         return $this->publisher;
     }
 
@@ -588,7 +611,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $publisher
      * @return $this
      */
-    public function setPublisher($publisher) {
+    public function setPublisher($publisher)
+    {
         $this->publisher = $publisher;
         return $this;
     }
@@ -597,7 +621,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Contact details to assist a user in finding and communicating with the publisher.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getContact() {
+    public function getContact()
+    {
         return $this->contact;
     }
 
@@ -606,7 +631,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $contact
      * @return $this
      */
-    public function addContact($contact) {
+    public function addContact($contact)
+    {
         $this->contact[] = $contact;
         return $this;
     }
@@ -615,7 +641,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A free text natural language description of the activity definition from a consumer's perspective.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -624,7 +651,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -633,7 +661,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * The content was developed with a focus and intent of supporting the contexts that are listed. These contexts may be general categories (gender, age, ...) or may be references to specific programs (insurance plans, studies, ...) and may be used to assist with indexing and searching for appropriate activity definition instances.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext[]
      */
-    public function getUseContext() {
+    public function getUseContext()
+    {
         return $this->useContext;
     }
 
@@ -642,7 +671,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $useContext
      * @return $this
      */
-    public function addUseContext($useContext) {
+    public function addUseContext($useContext)
+    {
         $this->useContext[] = $useContext;
         return $this;
     }
@@ -651,7 +681,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A legal or geographic region in which the activity definition is intended to be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getJurisdiction() {
+    public function getJurisdiction()
+    {
         return $this->jurisdiction;
     }
 
@@ -660,7 +691,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $jurisdiction
      * @return $this
      */
-    public function addJurisdiction($jurisdiction) {
+    public function addJurisdiction($jurisdiction)
+    {
         $this->jurisdiction[] = $jurisdiction;
         return $this;
     }
@@ -669,7 +701,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Explanation of why this activity definition is needed and why it has been designed as it has.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getPurpose() {
+    public function getPurpose()
+    {
         return $this->purpose;
     }
 
@@ -678,7 +711,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $purpose
      * @return $this
      */
-    public function setPurpose($purpose) {
+    public function setPurpose($purpose)
+    {
         $this->purpose = $purpose;
         return $this;
     }
@@ -687,7 +721,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A detailed description of how the activity definition is used from a clinical perspective.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getUsage() {
+    public function getUsage()
+    {
         return $this->usage;
     }
 
@@ -696,7 +731,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $usage
      * @return $this
      */
-    public function setUsage($usage) {
+    public function setUsage($usage)
+    {
         $this->usage = $usage;
         return $this;
     }
@@ -705,7 +741,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A copyright statement relating to the activity definition and/or its contents. Copyright statements are generally legal restrictions on the use and publishing of the activity definition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getCopyright() {
+    public function getCopyright()
+    {
         return $this->copyright;
     }
 
@@ -714,7 +751,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $copyright
      * @return $this
      */
-    public function setCopyright($copyright) {
+    public function setCopyright($copyright)
+    {
         $this->copyright = $copyright;
         return $this;
     }
@@ -723,7 +761,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * The date on which the resource content was approved by the publisher. Approval happens once when the content is officially approved for usage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getApprovalDate() {
+    public function getApprovalDate()
+    {
         return $this->approvalDate;
     }
 
@@ -732,7 +771,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $approvalDate
      * @return $this
      */
-    public function setApprovalDate($approvalDate) {
+    public function setApprovalDate($approvalDate)
+    {
         $this->approvalDate = $approvalDate;
         return $this;
     }
@@ -741,7 +781,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * The date on which the resource content was last reviewed. Review happens periodically after approval but does not change the original approval date.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getLastReviewDate() {
+    public function getLastReviewDate()
+    {
         return $this->lastReviewDate;
     }
 
@@ -750,7 +791,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $lastReviewDate
      * @return $this
      */
-    public function setLastReviewDate($lastReviewDate) {
+    public function setLastReviewDate($lastReviewDate)
+    {
         $this->lastReviewDate = $lastReviewDate;
         return $this;
     }
@@ -759,7 +801,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * The period during which the activity definition content was or is planned to be in active use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getEffectivePeriod() {
+    public function getEffectivePeriod()
+    {
         return $this->effectivePeriod;
     }
 
@@ -768,7 +811,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $effectivePeriod
      * @return $this
      */
-    public function setEffectivePeriod($effectivePeriod) {
+    public function setEffectivePeriod($effectivePeriod)
+    {
         $this->effectivePeriod = $effectivePeriod;
         return $this;
     }
@@ -777,7 +821,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Descriptive topics related to the content of the activity. Topics provide a high-level categorization of the activity that can be useful for filtering and searching.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getTopic() {
+    public function getTopic()
+    {
         return $this->topic;
     }
 
@@ -786,7 +831,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $topic
      * @return $this
      */
-    public function addTopic($topic) {
+    public function addTopic($topic)
+    {
         $this->topic[] = $topic;
         return $this;
     }
@@ -795,7 +841,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * An individiual or organization primarily involved in the creation and maintenance of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
@@ -804,7 +851,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $author
      * @return $this
      */
-    public function addAuthor($author) {
+    public function addAuthor($author)
+    {
         $this->author[] = $author;
         return $this;
     }
@@ -813,7 +861,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * An individual or organization primarily responsible for internal coherence of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getEditor() {
+    public function getEditor()
+    {
         return $this->editor;
     }
 
@@ -822,7 +871,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $editor
      * @return $this
      */
-    public function addEditor($editor) {
+    public function addEditor($editor)
+    {
         $this->editor[] = $editor;
         return $this;
     }
@@ -831,7 +881,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * An individual or organization primarily responsible for review of some aspect of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getReviewer() {
+    public function getReviewer()
+    {
         return $this->reviewer;
     }
 
@@ -840,7 +891,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $reviewer
      * @return $this
      */
-    public function addReviewer($reviewer) {
+    public function addReviewer($reviewer)
+    {
         $this->reviewer[] = $reviewer;
         return $this;
     }
@@ -849,7 +901,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * An individual or organization responsible for officially endorsing the content for use in some setting.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getEndorser() {
+    public function getEndorser()
+    {
         return $this->endorser;
     }
 
@@ -858,7 +911,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $endorser
      * @return $this
      */
-    public function addEndorser($endorser) {
+    public function addEndorser($endorser)
+    {
         $this->endorser[] = $endorser;
         return $this;
     }
@@ -867,7 +921,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Related artifacts such as additional documentation, justification, or bibliographic references.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact[]
      */
-    public function getRelatedArtifact() {
+    public function getRelatedArtifact()
+    {
         return $this->relatedArtifact;
     }
 
@@ -876,7 +931,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact $relatedArtifact
      * @return $this
      */
-    public function addRelatedArtifact($relatedArtifact) {
+    public function addRelatedArtifact($relatedArtifact)
+    {
         $this->relatedArtifact[] = $relatedArtifact;
         return $this;
     }
@@ -885,7 +941,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A reference to a Library resource containing any formal logic used by the activity definition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical[]
      */
-    public function getLibrary() {
+    public function getLibrary()
+    {
         return $this->library;
     }
 
@@ -894,7 +951,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $library
      * @return $this
      */
-    public function addLibrary($library) {
+    public function addLibrary($library)
+    {
         $this->library[] = $library;
         return $this;
     }
@@ -903,7 +961,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A description of the kind of resource the activity definition is representing. For example, a MedicationRequest, a ServiceRequest, or a CommunicationRequest. Typically, but not always, this is a Request resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestResourceType
      */
-    public function getKind() {
+    public function getKind()
+    {
         return $this->kind;
     }
 
@@ -912,7 +971,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestResourceType $kind
      * @return $this
      */
-    public function setKind($kind) {
+    public function setKind($kind)
+    {
         $this->kind = $kind;
         return $this;
     }
@@ -921,7 +981,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A profile to which the target of the activity definition is expected to conform.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getProfile() {
+    public function getProfile()
+    {
         return $this->profile;
     }
 
@@ -930,7 +991,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $profile
      * @return $this
      */
-    public function setProfile($profile) {
+    public function setProfile($profile)
+    {
         $this->profile = $profile;
         return $this;
     }
@@ -939,7 +1001,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Detailed description of the type of activity; e.g. What lab test, what procedure, what kind of encounter.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -948,7 +1011,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -957,7 +1021,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Indicates the level of authority/intentionality associated with the activity and where the request should fit into the workflow chain.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestIntent
      */
-    public function getIntent() {
+    public function getIntent()
+    {
         return $this->intent;
     }
 
@@ -966,7 +1031,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestIntent $intent
      * @return $this
      */
-    public function setIntent($intent) {
+    public function setIntent($intent)
+    {
         $this->intent = $intent;
         return $this;
     }
@@ -975,7 +1041,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Indicates how quickly the activity  should be addressed with respect to other requests.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority
      */
-    public function getPriority() {
+    public function getPriority()
+    {
         return $this->priority;
     }
 
@@ -984,7 +1051,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority $priority
      * @return $this
      */
-    public function setPriority($priority) {
+    public function setPriority($priority)
+    {
         $this->priority = $priority;
         return $this;
     }
@@ -993,7 +1061,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Set this to true if the definition is to indicate that a particular activity should NOT be performed. If true, this element should be interpreted to reinforce a negative coding. For example NPO as a code with a doNotPerform of true would still indicate to NOT perform the action.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getDoNotPerform() {
+    public function getDoNotPerform()
+    {
         return $this->doNotPerform;
     }
 
@@ -1002,7 +1071,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $doNotPerform
      * @return $this
      */
-    public function setDoNotPerform($doNotPerform) {
+    public function setDoNotPerform($doNotPerform)
+    {
         $this->doNotPerform = $doNotPerform;
         return $this;
     }
@@ -1010,7 +1080,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getTimingTiming() {
+    public function getTimingTiming()
+    {
         return $this->timingTiming;
     }
 
@@ -1018,7 +1089,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $timingTiming
      * @return $this
      */
-    public function setTimingTiming($timingTiming) {
+    public function setTimingTiming($timingTiming)
+    {
         $this->timingTiming = $timingTiming;
         return $this;
     }
@@ -1026,7 +1098,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getTimingDateTime() {
+    public function getTimingDateTime()
+    {
         return $this->timingDateTime;
     }
 
@@ -1034,7 +1107,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $timingDateTime
      * @return $this
      */
-    public function setTimingDateTime($timingDateTime) {
+    public function setTimingDateTime($timingDateTime)
+    {
         $this->timingDateTime = $timingDateTime;
         return $this;
     }
@@ -1042,7 +1116,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getTimingAge() {
+    public function getTimingAge()
+    {
         return $this->timingAge;
     }
 
@@ -1050,7 +1125,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $timingAge
      * @return $this
      */
-    public function setTimingAge($timingAge) {
+    public function setTimingAge($timingAge)
+    {
         $this->timingAge = $timingAge;
         return $this;
     }
@@ -1058,7 +1134,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getTimingPeriod() {
+    public function getTimingPeriod()
+    {
         return $this->timingPeriod;
     }
 
@@ -1066,7 +1143,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $timingPeriod
      * @return $this
      */
-    public function setTimingPeriod($timingPeriod) {
+    public function setTimingPeriod($timingPeriod)
+    {
         $this->timingPeriod = $timingPeriod;
         return $this;
     }
@@ -1074,7 +1152,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getTimingRange() {
+    public function getTimingRange()
+    {
         return $this->timingRange;
     }
 
@@ -1082,7 +1161,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $timingRange
      * @return $this
      */
-    public function setTimingRange($timingRange) {
+    public function setTimingRange($timingRange)
+    {
         $this->timingRange = $timingRange;
         return $this;
     }
@@ -1090,7 +1170,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getTimingDuration() {
+    public function getTimingDuration()
+    {
         return $this->timingDuration;
     }
 
@@ -1098,7 +1179,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $timingDuration
      * @return $this
      */
-    public function setTimingDuration($timingDuration) {
+    public function setTimingDuration($timingDuration)
+    {
         $this->timingDuration = $timingDuration;
         return $this;
     }
@@ -1107,7 +1189,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Identifies the facility where the activity will occur; e.g. home, hospital, specific clinic, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
@@ -1116,7 +1199,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $location
      * @return $this
      */
-    public function setLocation($location) {
+    public function setLocation($location)
+    {
         $this->location = $location;
         return $this;
     }
@@ -1125,7 +1209,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Indicates who should participate in performing the action described.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRActivityDefinition\FHIRActivityDefinitionParticipant[]
      */
-    public function getParticipant() {
+    public function getParticipant()
+    {
         return $this->participant;
     }
 
@@ -1134,7 +1219,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRActivityDefinition\FHIRActivityDefinitionParticipant $participant
      * @return $this
      */
-    public function addParticipant($participant) {
+    public function addParticipant($participant)
+    {
         $this->participant[] = $participant;
         return $this;
     }
@@ -1142,7 +1228,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getProductReference() {
+    public function getProductReference()
+    {
         return $this->productReference;
     }
 
@@ -1150,7 +1237,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $productReference
      * @return $this
      */
-    public function setProductReference($productReference) {
+    public function setProductReference($productReference)
+    {
         $this->productReference = $productReference;
         return $this;
     }
@@ -1158,7 +1246,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getProductCodeableConcept() {
+    public function getProductCodeableConcept()
+    {
         return $this->productCodeableConcept;
     }
 
@@ -1166,7 +1255,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $productCodeableConcept
      * @return $this
      */
-    public function setProductCodeableConcept($productCodeableConcept) {
+    public function setProductCodeableConcept($productCodeableConcept)
+    {
         $this->productCodeableConcept = $productCodeableConcept;
         return $this;
     }
@@ -1175,7 +1265,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Identifies the quantity expected to be consumed at once (per dose, per meal, etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -1184,7 +1275,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -1193,7 +1285,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Provides detailed dosage instructions in the same way that they are described for MedicationRequest resources.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage[]
      */
-    public function getDosage() {
+    public function getDosage()
+    {
         return $this->dosage;
     }
 
@@ -1202,7 +1295,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage $dosage
      * @return $this
      */
-    public function addDosage($dosage) {
+    public function addDosage($dosage)
+    {
         $this->dosage[] = $dosage;
         return $this;
     }
@@ -1211,7 +1305,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Indicates the sites on the subject's body where the procedure should be performed (I.e. the target sites).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getBodySite() {
+    public function getBodySite()
+    {
         return $this->bodySite;
     }
 
@@ -1220,7 +1315,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $bodySite
      * @return $this
      */
-    public function addBodySite($bodySite) {
+    public function addBodySite($bodySite)
+    {
         $this->bodySite[] = $bodySite;
         return $this;
     }
@@ -1229,7 +1325,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Defines specimen requirements for the action to be performed, such as required specimens for a lab test.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSpecimenRequirement() {
+    public function getSpecimenRequirement()
+    {
         return $this->specimenRequirement;
     }
 
@@ -1238,7 +1335,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $specimenRequirement
      * @return $this
      */
-    public function addSpecimenRequirement($specimenRequirement) {
+    public function addSpecimenRequirement($specimenRequirement)
+    {
         $this->specimenRequirement[] = $specimenRequirement;
         return $this;
     }
@@ -1247,7 +1345,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Defines observation requirements for the action to be performed, such as body weight or surface area.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getObservationRequirement() {
+    public function getObservationRequirement()
+    {
         return $this->observationRequirement;
     }
 
@@ -1256,7 +1355,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $observationRequirement
      * @return $this
      */
-    public function addObservationRequirement($observationRequirement) {
+    public function addObservationRequirement($observationRequirement)
+    {
         $this->observationRequirement[] = $observationRequirement;
         return $this;
     }
@@ -1265,7 +1365,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Defines the observations that are expected to be produced by the action.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getObservationResultRequirement() {
+    public function getObservationResultRequirement()
+    {
         return $this->observationResultRequirement;
     }
 
@@ -1274,7 +1375,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $observationResultRequirement
      * @return $this
      */
-    public function addObservationResultRequirement($observationResultRequirement) {
+    public function addObservationResultRequirement($observationResultRequirement)
+    {
         $this->observationResultRequirement[] = $observationResultRequirement;
         return $this;
     }
@@ -1283,7 +1385,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * A reference to a StructureMap resource that defines a transform that can be executed to produce the intent resource using the ActivityDefinition instance as the input.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getTransform() {
+    public function getTransform()
+    {
         return $this->transform;
     }
 
@@ -1292,7 +1395,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $transform
      * @return $this
      */
-    public function setTransform($transform) {
+    public function setTransform($transform)
+    {
         $this->transform = $transform;
         return $this;
     }
@@ -1301,7 +1405,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * Dynamic values that will be evaluated to produce values for elements of the resulting resource. For example, if the dosage of a medication must be computed based on the patient's weight, a dynamic value would be used to specify an expression that calculated the weight, and the path on the request resource that would contain the result.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRActivityDefinition\FHIRActivityDefinitionDynamicValue[]
      */
-    public function getDynamicValue() {
+    public function getDynamicValue()
+    {
         return $this->dynamicValue;
     }
 
@@ -1310,7 +1415,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRActivityDefinition\FHIRActivityDefinitionDynamicValue $dynamicValue
      * @return $this
      */
-    public function addDynamicValue($dynamicValue) {
+    public function addDynamicValue($dynamicValue)
+    {
         $this->dynamicValue[] = $dynamicValue;
         return $this;
     }
@@ -1318,21 +1424,23 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['url'])) {
                 $this->setUrl($data['url']);
             }
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -1371,7 +1479,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['contact'])) {
                 if (is_array($data['contact'])) {
-                    foreach($data['contact'] as $d) {
+                    foreach ($data['contact'] as $d) {
                         $this->addContact($d);
                     }
                 } else {
@@ -1383,7 +1491,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['useContext'])) {
                 if (is_array($data['useContext'])) {
-                    foreach($data['useContext'] as $d) {
+                    foreach ($data['useContext'] as $d) {
                         $this->addUseContext($d);
                     }
                 } else {
@@ -1392,7 +1500,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['jurisdiction'])) {
                 if (is_array($data['jurisdiction'])) {
-                    foreach($data['jurisdiction'] as $d) {
+                    foreach ($data['jurisdiction'] as $d) {
                         $this->addJurisdiction($d);
                     }
                 } else {
@@ -1419,7 +1527,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['topic'])) {
                 if (is_array($data['topic'])) {
-                    foreach($data['topic'] as $d) {
+                    foreach ($data['topic'] as $d) {
                         $this->addTopic($d);
                     }
                 } else {
@@ -1428,7 +1536,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['author'])) {
                 if (is_array($data['author'])) {
-                    foreach($data['author'] as $d) {
+                    foreach ($data['author'] as $d) {
                         $this->addAuthor($d);
                     }
                 } else {
@@ -1437,7 +1545,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['editor'])) {
                 if (is_array($data['editor'])) {
-                    foreach($data['editor'] as $d) {
+                    foreach ($data['editor'] as $d) {
                         $this->addEditor($d);
                     }
                 } else {
@@ -1446,7 +1554,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['reviewer'])) {
                 if (is_array($data['reviewer'])) {
-                    foreach($data['reviewer'] as $d) {
+                    foreach ($data['reviewer'] as $d) {
                         $this->addReviewer($d);
                     }
                 } else {
@@ -1455,7 +1563,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['endorser'])) {
                 if (is_array($data['endorser'])) {
-                    foreach($data['endorser'] as $d) {
+                    foreach ($data['endorser'] as $d) {
                         $this->addEndorser($d);
                     }
                 } else {
@@ -1464,7 +1572,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['relatedArtifact'])) {
                 if (is_array($data['relatedArtifact'])) {
-                    foreach($data['relatedArtifact'] as $d) {
+                    foreach ($data['relatedArtifact'] as $d) {
                         $this->addRelatedArtifact($d);
                     }
                 } else {
@@ -1473,7 +1581,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['library'])) {
                 if (is_array($data['library'])) {
-                    foreach($data['library'] as $d) {
+                    foreach ($data['library'] as $d) {
                         $this->addLibrary($d);
                     }
                 } else {
@@ -1521,7 +1629,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['participant'])) {
                 if (is_array($data['participant'])) {
-                    foreach($data['participant'] as $d) {
+                    foreach ($data['participant'] as $d) {
                         $this->addParticipant($d);
                     }
                 } else {
@@ -1539,7 +1647,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['dosage'])) {
                 if (is_array($data['dosage'])) {
-                    foreach($data['dosage'] as $d) {
+                    foreach ($data['dosage'] as $d) {
                         $this->addDosage($d);
                     }
                 } else {
@@ -1548,7 +1656,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['bodySite'])) {
                 if (is_array($data['bodySite'])) {
-                    foreach($data['bodySite'] as $d) {
+                    foreach ($data['bodySite'] as $d) {
                         $this->addBodySite($d);
                     }
                 } else {
@@ -1557,7 +1665,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['specimenRequirement'])) {
                 if (is_array($data['specimenRequirement'])) {
-                    foreach($data['specimenRequirement'] as $d) {
+                    foreach ($data['specimenRequirement'] as $d) {
                         $this->addSpecimenRequirement($d);
                     }
                 } else {
@@ -1566,7 +1674,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['observationRequirement'])) {
                 if (is_array($data['observationRequirement'])) {
-                    foreach($data['observationRequirement'] as $d) {
+                    foreach ($data['observationRequirement'] as $d) {
                         $this->addObservationRequirement($d);
                     }
                 } else {
@@ -1575,7 +1683,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['observationResultRequirement'])) {
                 if (is_array($data['observationResultRequirement'])) {
-                    foreach($data['observationResultRequirement'] as $d) {
+                    foreach ($data['observationResultRequirement'] as $d) {
                         $this->addObservationResultRequirement($d);
                     }
                 } else {
@@ -1587,7 +1695,7 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['dynamicValue'])) {
                 if (is_array($data['dynamicValue'])) {
-                    foreach($data['dynamicValue'] as $d) {
+                    foreach ($data['dynamicValue'] as $d) {
                         $this->addDynamicValue($d);
                     }
                 } else {
@@ -1603,156 +1711,228 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->url)) $json['url'] = $this->url;
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->version)) $json['version'] = $this->version;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->subtitle)) $json['subtitle'] = $this->subtitle;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->experimental)) $json['experimental'] = $this->experimental;
-        if (isset($this->subjectCodeableConcept)) $json['subjectCodeableConcept'] = $this->subjectCodeableConcept;
-        if (isset($this->subjectReference)) $json['subjectReference'] = $this->subjectReference;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->publisher)) $json['publisher'] = $this->publisher;
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->subtitle)) {
+            $json['subtitle'] = $this->subtitle;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->experimental)) {
+            $json['experimental'] = $this->experimental;
+        }
+        if (isset($this->subjectCodeableConcept)) {
+            $json['subjectCodeableConcept'] = $this->subjectCodeableConcept;
+        }
+        if (isset($this->subjectReference)) {
+            $json['subjectReference'] = $this->subjectReference;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->publisher)) {
+            $json['publisher'] = $this->publisher;
+        }
         if (0 < count($this->contact)) {
             $json['contact'] = [];
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $json['contact'][] = $contact;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->useContext)) {
             $json['useContext'] = [];
-            foreach($this->useContext as $useContext) {
+            foreach ($this->useContext as $useContext) {
                 $json['useContext'][] = $useContext;
             }
         }
         if (0 < count($this->jurisdiction)) {
             $json['jurisdiction'] = [];
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $json['jurisdiction'][] = $jurisdiction;
             }
         }
-        if (isset($this->purpose)) $json['purpose'] = $this->purpose;
-        if (isset($this->usage)) $json['usage'] = $this->usage;
-        if (isset($this->copyright)) $json['copyright'] = $this->copyright;
-        if (isset($this->approvalDate)) $json['approvalDate'] = $this->approvalDate;
-        if (isset($this->lastReviewDate)) $json['lastReviewDate'] = $this->lastReviewDate;
-        if (isset($this->effectivePeriod)) $json['effectivePeriod'] = $this->effectivePeriod;
+        if (isset($this->purpose)) {
+            $json['purpose'] = $this->purpose;
+        }
+        if (isset($this->usage)) {
+            $json['usage'] = $this->usage;
+        }
+        if (isset($this->copyright)) {
+            $json['copyright'] = $this->copyright;
+        }
+        if (isset($this->approvalDate)) {
+            $json['approvalDate'] = $this->approvalDate;
+        }
+        if (isset($this->lastReviewDate)) {
+            $json['lastReviewDate'] = $this->lastReviewDate;
+        }
+        if (isset($this->effectivePeriod)) {
+            $json['effectivePeriod'] = $this->effectivePeriod;
+        }
         if (0 < count($this->topic)) {
             $json['topic'] = [];
-            foreach($this->topic as $topic) {
+            foreach ($this->topic as $topic) {
                 $json['topic'][] = $topic;
             }
         }
         if (0 < count($this->author)) {
             $json['author'] = [];
-            foreach($this->author as $author) {
+            foreach ($this->author as $author) {
                 $json['author'][] = $author;
             }
         }
         if (0 < count($this->editor)) {
             $json['editor'] = [];
-            foreach($this->editor as $editor) {
+            foreach ($this->editor as $editor) {
                 $json['editor'][] = $editor;
             }
         }
         if (0 < count($this->reviewer)) {
             $json['reviewer'] = [];
-            foreach($this->reviewer as $reviewer) {
+            foreach ($this->reviewer as $reviewer) {
                 $json['reviewer'][] = $reviewer;
             }
         }
         if (0 < count($this->endorser)) {
             $json['endorser'] = [];
-            foreach($this->endorser as $endorser) {
+            foreach ($this->endorser as $endorser) {
                 $json['endorser'][] = $endorser;
             }
         }
         if (0 < count($this->relatedArtifact)) {
             $json['relatedArtifact'] = [];
-            foreach($this->relatedArtifact as $relatedArtifact) {
+            foreach ($this->relatedArtifact as $relatedArtifact) {
                 $json['relatedArtifact'][] = $relatedArtifact;
             }
         }
         if (0 < count($this->library)) {
             $json['library'] = [];
-            foreach($this->library as $library) {
+            foreach ($this->library as $library) {
                 $json['library'][] = $library;
             }
         }
-        if (isset($this->kind)) $json['kind'] = $this->kind;
-        if (isset($this->profile)) $json['profile'] = $this->profile;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->intent)) $json['intent'] = $this->intent;
-        if (isset($this->priority)) $json['priority'] = $this->priority;
-        if (isset($this->doNotPerform)) $json['doNotPerform'] = $this->doNotPerform;
-        if (isset($this->timingTiming)) $json['timingTiming'] = $this->timingTiming;
-        if (isset($this->timingDateTime)) $json['timingDateTime'] = $this->timingDateTime;
-        if (isset($this->timingAge)) $json['timingAge'] = $this->timingAge;
-        if (isset($this->timingPeriod)) $json['timingPeriod'] = $this->timingPeriod;
-        if (isset($this->timingRange)) $json['timingRange'] = $this->timingRange;
-        if (isset($this->timingDuration)) $json['timingDuration'] = $this->timingDuration;
-        if (isset($this->location)) $json['location'] = $this->location;
+        if (isset($this->kind)) {
+            $json['kind'] = $this->kind;
+        }
+        if (isset($this->profile)) {
+            $json['profile'] = $this->profile;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->intent)) {
+            $json['intent'] = $this->intent;
+        }
+        if (isset($this->priority)) {
+            $json['priority'] = $this->priority;
+        }
+        if (isset($this->doNotPerform)) {
+            $json['doNotPerform'] = $this->doNotPerform;
+        }
+        if (isset($this->timingTiming)) {
+            $json['timingTiming'] = $this->timingTiming;
+        }
+        if (isset($this->timingDateTime)) {
+            $json['timingDateTime'] = $this->timingDateTime;
+        }
+        if (isset($this->timingAge)) {
+            $json['timingAge'] = $this->timingAge;
+        }
+        if (isset($this->timingPeriod)) {
+            $json['timingPeriod'] = $this->timingPeriod;
+        }
+        if (isset($this->timingRange)) {
+            $json['timingRange'] = $this->timingRange;
+        }
+        if (isset($this->timingDuration)) {
+            $json['timingDuration'] = $this->timingDuration;
+        }
+        if (isset($this->location)) {
+            $json['location'] = $this->location;
+        }
         if (0 < count($this->participant)) {
             $json['participant'] = [];
-            foreach($this->participant as $participant) {
+            foreach ($this->participant as $participant) {
                 $json['participant'][] = $participant;
             }
         }
-        if (isset($this->productReference)) $json['productReference'] = $this->productReference;
-        if (isset($this->productCodeableConcept)) $json['productCodeableConcept'] = $this->productCodeableConcept;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
+        if (isset($this->productReference)) {
+            $json['productReference'] = $this->productReference;
+        }
+        if (isset($this->productCodeableConcept)) {
+            $json['productCodeableConcept'] = $this->productCodeableConcept;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
         if (0 < count($this->dosage)) {
             $json['dosage'] = [];
-            foreach($this->dosage as $dosage) {
+            foreach ($this->dosage as $dosage) {
                 $json['dosage'][] = $dosage;
             }
         }
         if (0 < count($this->bodySite)) {
             $json['bodySite'] = [];
-            foreach($this->bodySite as $bodySite) {
+            foreach ($this->bodySite as $bodySite) {
                 $json['bodySite'][] = $bodySite;
             }
         }
         if (0 < count($this->specimenRequirement)) {
             $json['specimenRequirement'] = [];
-            foreach($this->specimenRequirement as $specimenRequirement) {
+            foreach ($this->specimenRequirement as $specimenRequirement) {
                 $json['specimenRequirement'][] = $specimenRequirement;
             }
         }
         if (0 < count($this->observationRequirement)) {
             $json['observationRequirement'] = [];
-            foreach($this->observationRequirement as $observationRequirement) {
+            foreach ($this->observationRequirement as $observationRequirement) {
                 $json['observationRequirement'][] = $observationRequirement;
             }
         }
         if (0 < count($this->observationResultRequirement)) {
             $json['observationResultRequirement'] = [];
-            foreach($this->observationResultRequirement as $observationResultRequirement) {
+            foreach ($this->observationResultRequirement as $observationResultRequirement) {
                 $json['observationResultRequirement'][] = $observationResultRequirement;
             }
         }
-        if (isset($this->transform)) $json['transform'] = $this->transform;
+        if (isset($this->transform)) {
+            $json['transform'] = $this->transform;
+        }
         if (0 < count($this->dynamicValue)) {
             $json['dynamicValue'] = [];
-            foreach($this->dynamicValue as $dynamicValue) {
+            foreach ($this->dynamicValue as $dynamicValue) {
                 $json['dynamicValue'][] = $dynamicValue;
             }
         }
@@ -1764,137 +1944,210 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ActivityDefinition xmlns="http://hl7.org/fhir"></ActivityDefinition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ActivityDefinition xmlns="http://hl7.org/fhir"></ActivityDefinition>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->subtitle)) $this->subtitle->xmlSerialize(true, $sxe->addChild('subtitle'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->experimental)) $this->experimental->xmlSerialize(true, $sxe->addChild('experimental'));
-        if (isset($this->subjectCodeableConcept)) $this->subjectCodeableConcept->xmlSerialize(true, $sxe->addChild('subjectCodeableConcept'));
-        if (isset($this->subjectReference)) $this->subjectReference->xmlSerialize(true, $sxe->addChild('subjectReference'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->publisher)) $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->subtitle)) {
+            $this->subtitle->xmlSerialize(true, $sxe->addChild('subtitle'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->experimental)) {
+            $this->experimental->xmlSerialize(true, $sxe->addChild('experimental'));
+        }
+        if (isset($this->subjectCodeableConcept)) {
+            $this->subjectCodeableConcept->xmlSerialize(true, $sxe->addChild('subjectCodeableConcept'));
+        }
+        if (isset($this->subjectReference)) {
+            $this->subjectReference->xmlSerialize(true, $sxe->addChild('subjectReference'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->publisher)) {
+            $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        }
         if (0 < count($this->contact)) {
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $contact->xmlSerialize(true, $sxe->addChild('contact'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->useContext)) {
-            foreach($this->useContext as $useContext) {
+            foreach ($this->useContext as $useContext) {
                 $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
             }
         }
         if (0 < count($this->jurisdiction)) {
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
             }
         }
-        if (isset($this->purpose)) $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
-        if (isset($this->usage)) $this->usage->xmlSerialize(true, $sxe->addChild('usage'));
-        if (isset($this->copyright)) $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
-        if (isset($this->approvalDate)) $this->approvalDate->xmlSerialize(true, $sxe->addChild('approvalDate'));
-        if (isset($this->lastReviewDate)) $this->lastReviewDate->xmlSerialize(true, $sxe->addChild('lastReviewDate'));
-        if (isset($this->effectivePeriod)) $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
+        if (isset($this->purpose)) {
+            $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
+        }
+        if (isset($this->usage)) {
+            $this->usage->xmlSerialize(true, $sxe->addChild('usage'));
+        }
+        if (isset($this->copyright)) {
+            $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
+        }
+        if (isset($this->approvalDate)) {
+            $this->approvalDate->xmlSerialize(true, $sxe->addChild('approvalDate'));
+        }
+        if (isset($this->lastReviewDate)) {
+            $this->lastReviewDate->xmlSerialize(true, $sxe->addChild('lastReviewDate'));
+        }
+        if (isset($this->effectivePeriod)) {
+            $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
+        }
         if (0 < count($this->topic)) {
-            foreach($this->topic as $topic) {
+            foreach ($this->topic as $topic) {
                 $topic->xmlSerialize(true, $sxe->addChild('topic'));
             }
         }
         if (0 < count($this->author)) {
-            foreach($this->author as $author) {
+            foreach ($this->author as $author) {
                 $author->xmlSerialize(true, $sxe->addChild('author'));
             }
         }
         if (0 < count($this->editor)) {
-            foreach($this->editor as $editor) {
+            foreach ($this->editor as $editor) {
                 $editor->xmlSerialize(true, $sxe->addChild('editor'));
             }
         }
         if (0 < count($this->reviewer)) {
-            foreach($this->reviewer as $reviewer) {
+            foreach ($this->reviewer as $reviewer) {
                 $reviewer->xmlSerialize(true, $sxe->addChild('reviewer'));
             }
         }
         if (0 < count($this->endorser)) {
-            foreach($this->endorser as $endorser) {
+            foreach ($this->endorser as $endorser) {
                 $endorser->xmlSerialize(true, $sxe->addChild('endorser'));
             }
         }
         if (0 < count($this->relatedArtifact)) {
-            foreach($this->relatedArtifact as $relatedArtifact) {
+            foreach ($this->relatedArtifact as $relatedArtifact) {
                 $relatedArtifact->xmlSerialize(true, $sxe->addChild('relatedArtifact'));
             }
         }
         if (0 < count($this->library)) {
-            foreach($this->library as $library) {
+            foreach ($this->library as $library) {
                 $library->xmlSerialize(true, $sxe->addChild('library'));
             }
         }
-        if (isset($this->kind)) $this->kind->xmlSerialize(true, $sxe->addChild('kind'));
-        if (isset($this->profile)) $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->intent)) $this->intent->xmlSerialize(true, $sxe->addChild('intent'));
-        if (isset($this->priority)) $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
-        if (isset($this->doNotPerform)) $this->doNotPerform->xmlSerialize(true, $sxe->addChild('doNotPerform'));
-        if (isset($this->timingTiming)) $this->timingTiming->xmlSerialize(true, $sxe->addChild('timingTiming'));
-        if (isset($this->timingDateTime)) $this->timingDateTime->xmlSerialize(true, $sxe->addChild('timingDateTime'));
-        if (isset($this->timingAge)) $this->timingAge->xmlSerialize(true, $sxe->addChild('timingAge'));
-        if (isset($this->timingPeriod)) $this->timingPeriod->xmlSerialize(true, $sxe->addChild('timingPeriod'));
-        if (isset($this->timingRange)) $this->timingRange->xmlSerialize(true, $sxe->addChild('timingRange'));
-        if (isset($this->timingDuration)) $this->timingDuration->xmlSerialize(true, $sxe->addChild('timingDuration'));
-        if (isset($this->location)) $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        if (isset($this->kind)) {
+            $this->kind->xmlSerialize(true, $sxe->addChild('kind'));
+        }
+        if (isset($this->profile)) {
+            $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->intent)) {
+            $this->intent->xmlSerialize(true, $sxe->addChild('intent'));
+        }
+        if (isset($this->priority)) {
+            $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        }
+        if (isset($this->doNotPerform)) {
+            $this->doNotPerform->xmlSerialize(true, $sxe->addChild('doNotPerform'));
+        }
+        if (isset($this->timingTiming)) {
+            $this->timingTiming->xmlSerialize(true, $sxe->addChild('timingTiming'));
+        }
+        if (isset($this->timingDateTime)) {
+            $this->timingDateTime->xmlSerialize(true, $sxe->addChild('timingDateTime'));
+        }
+        if (isset($this->timingAge)) {
+            $this->timingAge->xmlSerialize(true, $sxe->addChild('timingAge'));
+        }
+        if (isset($this->timingPeriod)) {
+            $this->timingPeriod->xmlSerialize(true, $sxe->addChild('timingPeriod'));
+        }
+        if (isset($this->timingRange)) {
+            $this->timingRange->xmlSerialize(true, $sxe->addChild('timingRange'));
+        }
+        if (isset($this->timingDuration)) {
+            $this->timingDuration->xmlSerialize(true, $sxe->addChild('timingDuration'));
+        }
+        if (isset($this->location)) {
+            $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        }
         if (0 < count($this->participant)) {
-            foreach($this->participant as $participant) {
+            foreach ($this->participant as $participant) {
                 $participant->xmlSerialize(true, $sxe->addChild('participant'));
             }
         }
-        if (isset($this->productReference)) $this->productReference->xmlSerialize(true, $sxe->addChild('productReference'));
-        if (isset($this->productCodeableConcept)) $this->productCodeableConcept->xmlSerialize(true, $sxe->addChild('productCodeableConcept'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        if (isset($this->productReference)) {
+            $this->productReference->xmlSerialize(true, $sxe->addChild('productReference'));
+        }
+        if (isset($this->productCodeableConcept)) {
+            $this->productCodeableConcept->xmlSerialize(true, $sxe->addChild('productCodeableConcept'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
         if (0 < count($this->dosage)) {
-            foreach($this->dosage as $dosage) {
+            foreach ($this->dosage as $dosage) {
                 $dosage->xmlSerialize(true, $sxe->addChild('dosage'));
             }
         }
         if (0 < count($this->bodySite)) {
-            foreach($this->bodySite as $bodySite) {
+            foreach ($this->bodySite as $bodySite) {
                 $bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
             }
         }
         if (0 < count($this->specimenRequirement)) {
-            foreach($this->specimenRequirement as $specimenRequirement) {
+            foreach ($this->specimenRequirement as $specimenRequirement) {
                 $specimenRequirement->xmlSerialize(true, $sxe->addChild('specimenRequirement'));
             }
         }
         if (0 < count($this->observationRequirement)) {
-            foreach($this->observationRequirement as $observationRequirement) {
+            foreach ($this->observationRequirement as $observationRequirement) {
                 $observationRequirement->xmlSerialize(true, $sxe->addChild('observationRequirement'));
             }
         }
         if (0 < count($this->observationResultRequirement)) {
-            foreach($this->observationResultRequirement as $observationResultRequirement) {
+            foreach ($this->observationResultRequirement as $observationResultRequirement) {
                 $observationResultRequirement->xmlSerialize(true, $sxe->addChild('observationResultRequirement'));
             }
         }
-        if (isset($this->transform)) $this->transform->xmlSerialize(true, $sxe->addChild('transform'));
+        if (isset($this->transform)) {
+            $this->transform->xmlSerialize(true, $sxe->addChild('transform'));
+        }
         if (0 < count($this->dynamicValue)) {
-            foreach($this->dynamicValue as $dynamicValue) {
+            foreach ($this->dynamicValue as $dynamicValue) {
                 $dynamicValue->xmlSerialize(true, $sxe->addChild('dynamicValue'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -94,7 +94,8 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
      * The substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSubstance() {
+    public function getSubstance()
+    {
         return $this->substance;
     }
 
@@ -103,7 +104,8 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $substance
      * @return $this
      */
-    public function setSubstance($substance) {
+    public function setSubstance($substance)
+    {
         $this->substance = $substance;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
      * Indicates an alternative material of the device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getAlternate() {
+    public function getAlternate()
+    {
         return $this->alternate;
     }
 
@@ -121,7 +124,8 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $alternate
      * @return $this
      */
-    public function setAlternate($alternate) {
+    public function setAlternate($alternate)
+    {
         $this->alternate = $alternate;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
      * Whether the substance is a known or suspected allergen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getAllergenicIndicator() {
+    public function getAllergenicIndicator()
+    {
         return $this->allergenicIndicator;
     }
 
@@ -139,7 +144,8 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $allergenicIndicator
      * @return $this
      */
-    public function setAllergenicIndicator($allergenicIndicator) {
+    public function setAllergenicIndicator($allergenicIndicator)
+    {
         $this->allergenicIndicator = $allergenicIndicator;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['substance'])) {
                 $this->setSubstance($data['substance']);
@@ -174,18 +182,26 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->substance)) $json['substance'] = $this->substance;
-        if (isset($this->alternate)) $json['alternate'] = $this->alternate;
-        if (isset($this->allergenicIndicator)) $json['allergenicIndicator'] = $this->allergenicIndicator;
+        if (isset($this->substance)) {
+            $json['substance'] = $this->substance;
+        }
+        if (isset($this->alternate)) {
+            $json['alternate'] = $this->alternate;
+        }
+        if (isset($this->allergenicIndicator)) {
+            $json['allergenicIndicator'] = $this->allergenicIndicator;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRDeviceDefinitionMaterial extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DeviceDefinitionMaterial xmlns="http://hl7.org/fhir"></DeviceDefinitionMaterial>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DeviceDefinitionMaterial xmlns="http://hl7.org/fhir"></DeviceDefinitionMaterial>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->substance)) $this->substance->xmlSerialize(true, $sxe->addChild('substance'));
-        if (isset($this->alternate)) $this->alternate->xmlSerialize(true, $sxe->addChild('alternate'));
-        if (isset($this->allergenicIndicator)) $this->allergenicIndicator->xmlSerialize(true, $sxe->addChild('allergenicIndicator'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->substance)) {
+            $this->substance->xmlSerialize(true, $sxe->addChild('substance'));
+        }
+        if (isset($this->alternate)) {
+            $this->alternate->xmlSerialize(true, $sxe->addChild('alternate'));
+        }
+        if (isset($this->allergenicIndicator)) {
+            $this->allergenicIndicator->xmlSerialize(true, $sxe->addChild('allergenicIndicator'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

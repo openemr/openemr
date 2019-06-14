@@ -88,7 +88,8 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
      * A link to the FHIR specification that this test is covering.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript\FHIRTestScriptLink[]
      */
-    public function getLink() {
+    public function getLink()
+    {
         return $this->link;
     }
 
@@ -97,7 +98,8 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript\FHIRTestScriptLink $link
      * @return $this
      */
-    public function addLink($link) {
+    public function addLink($link)
+    {
         $this->link[] = $link;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
      * Capabilities that must exist and are assumed to function correctly on the FHIR server being tested.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript\FHIRTestScriptCapability[]
      */
-    public function getCapability() {
+    public function getCapability()
+    {
         return $this->capability;
     }
 
@@ -115,7 +118,8 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript\FHIRTestScriptCapability $capability
      * @return $this
      */
-    public function addCapability($capability) {
+    public function addCapability($capability)
+    {
         $this->capability[] = $capability;
         return $this;
     }
@@ -123,18 +127,20 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['link'])) {
                 if (is_array($data['link'])) {
-                    foreach($data['link'] as $d) {
+                    foreach ($data['link'] as $d) {
                         $this->addLink($d);
                     }
                 } else {
@@ -143,7 +149,7 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['capability'])) {
                 if (is_array($data['capability'])) {
-                    foreach($data['capability'] as $d) {
+                    foreach ($data['capability'] as $d) {
                         $this->addCapability($d);
                     }
                 } else {
@@ -159,24 +165,26 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->link)) {
             $json['link'] = [];
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $json['link'][] = $link;
             }
         }
         if (0 < count($this->capability)) {
             $json['capability'] = [];
-            foreach($this->capability as $capability) {
+            foreach ($this->capability as $capability) {
                 $json['capability'][] = $capability;
             }
         }
@@ -188,22 +196,25 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestScriptMetadata xmlns="http://hl7.org/fhir"></TestScriptMetadata>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestScriptMetadata xmlns="http://hl7.org/fhir"></TestScriptMetadata>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->link)) {
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $link->xmlSerialize(true, $sxe->addChild('link'));
             }
         }
         if (0 < count($this->capability)) {
-            foreach($this->capability as $capability) {
+            foreach ($this->capability as $capability) {
                 $capability->xmlSerialize(true, $sxe->addChild('capability'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

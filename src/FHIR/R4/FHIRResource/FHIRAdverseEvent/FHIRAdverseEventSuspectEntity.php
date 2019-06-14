@@ -88,7 +88,8 @@ class FHIRAdverseEventSuspectEntity extends FHIRBackboneElement implements \Json
      * Identifies the actual instance of what caused the adverse event.  May be a substance, medication, medication administration, medication statement or a device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getInstance() {
+    public function getInstance()
+    {
         return $this->instance;
     }
 
@@ -97,7 +98,8 @@ class FHIRAdverseEventSuspectEntity extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $instance
      * @return $this
      */
-    public function setInstance($instance) {
+    public function setInstance($instance)
+    {
         $this->instance = $instance;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRAdverseEventSuspectEntity extends FHIRBackboneElement implements \Json
      * Information on the possible cause of the event.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRAdverseEvent\FHIRAdverseEventCausality[]
      */
-    public function getCausality() {
+    public function getCausality()
+    {
         return $this->causality;
     }
 
@@ -115,7 +118,8 @@ class FHIRAdverseEventSuspectEntity extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRAdverseEvent\FHIRAdverseEventCausality $causality
      * @return $this
      */
-    public function addCausality($causality) {
+    public function addCausality($causality)
+    {
         $this->causality[] = $causality;
         return $this;
     }
@@ -123,21 +127,23 @@ class FHIRAdverseEventSuspectEntity extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['instance'])) {
                 $this->setInstance($data['instance']);
             }
             if (isset($data['causality'])) {
                 if (is_array($data['causality'])) {
-                    foreach($data['causality'] as $d) {
+                    foreach ($data['causality'] as $d) {
                         $this->addCausality($d);
                     }
                 } else {
@@ -153,19 +159,23 @@ class FHIRAdverseEventSuspectEntity extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->instance)) $json['instance'] = $this->instance;
+        if (isset($this->instance)) {
+            $json['instance'] = $this->instance;
+        }
         if (0 < count($this->causality)) {
             $json['causality'] = [];
-            foreach($this->causality as $causality) {
+            foreach ($this->causality as $causality) {
                 $json['causality'][] = $causality;
             }
         }
@@ -177,18 +187,23 @@ class FHIRAdverseEventSuspectEntity extends FHIRBackboneElement implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<AdverseEventSuspectEntity xmlns="http://hl7.org/fhir"></AdverseEventSuspectEntity>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<AdverseEventSuspectEntity xmlns="http://hl7.org/fhir"></AdverseEventSuspectEntity>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->instance)) $this->instance->xmlSerialize(true, $sxe->addChild('instance'));
+        if (isset($this->instance)) {
+            $this->instance->xmlSerialize(true, $sxe->addChild('instance'));
+        }
         if (0 < count($this->causality)) {
-            foreach($this->causality as $causality) {
+            foreach ($this->causality as $causality) {
                 $causality->xmlSerialize(true, $sxe->addChild('causality'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

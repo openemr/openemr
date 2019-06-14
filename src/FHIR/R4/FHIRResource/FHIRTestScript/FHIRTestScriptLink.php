@@ -88,7 +88,8 @@ class FHIRTestScriptLink extends FHIRBackboneElement implements \JsonSerializabl
      * URL to a particular requirement or feature within the FHIR specification.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -97,7 +98,8 @@ class FHIRTestScriptLink extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRTestScriptLink extends FHIRBackboneElement implements \JsonSerializabl
      * Short description of the link.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -115,7 +118,8 @@ class FHIRTestScriptLink extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRTestScriptLink extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['url'])) {
                 $this->setUrl($data['url']);
@@ -147,17 +153,23 @@ class FHIRTestScriptLink extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->url)) $json['url'] = $this->url;
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRTestScriptLink extends FHIRBackboneElement implements \JsonSerializabl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestScriptLink xmlns="http://hl7.org/fhir"></TestScriptLink>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestScriptLink xmlns="http://hl7.org/fhir"></TestScriptLink>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

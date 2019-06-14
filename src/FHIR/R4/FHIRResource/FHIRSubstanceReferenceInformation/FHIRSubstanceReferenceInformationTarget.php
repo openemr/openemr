@@ -133,7 +133,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getTarget() {
+    public function getTarget()
+    {
         return $this->target;
     }
 
@@ -142,7 +143,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $target
      * @return $this
      */
-    public function setTarget($target) {
+    public function setTarget($target)
+    {
         $this->target = $target;
         return $this;
     }
@@ -151,7 +153,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -160,7 +163,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -169,7 +173,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getInteraction() {
+    public function getInteraction()
+    {
         return $this->interaction;
     }
 
@@ -178,7 +183,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $interaction
      * @return $this
      */
-    public function setInteraction($interaction) {
+    public function setInteraction($interaction)
+    {
         $this->interaction = $interaction;
         return $this;
     }
@@ -187,7 +193,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getOrganism() {
+    public function getOrganism()
+    {
         return $this->organism;
     }
 
@@ -196,7 +203,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $organism
      * @return $this
      */
-    public function setOrganism($organism) {
+    public function setOrganism($organism)
+    {
         $this->organism = $organism;
         return $this;
     }
@@ -205,7 +213,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getOrganismType() {
+    public function getOrganismType()
+    {
         return $this->organismType;
     }
 
@@ -214,7 +223,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $organismType
      * @return $this
      */
-    public function setOrganismType($organismType) {
+    public function setOrganismType($organismType)
+    {
         $this->organismType = $organismType;
         return $this;
     }
@@ -222,7 +232,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getAmountQuantity() {
+    public function getAmountQuantity()
+    {
         return $this->amountQuantity;
     }
 
@@ -230,7 +241,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $amountQuantity
      * @return $this
      */
-    public function setAmountQuantity($amountQuantity) {
+    public function setAmountQuantity($amountQuantity)
+    {
         $this->amountQuantity = $amountQuantity;
         return $this;
     }
@@ -238,7 +250,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getAmountRange() {
+    public function getAmountRange()
+    {
         return $this->amountRange;
     }
 
@@ -246,7 +259,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $amountRange
      * @return $this
      */
-    public function setAmountRange($amountRange) {
+    public function setAmountRange($amountRange)
+    {
         $this->amountRange = $amountRange;
         return $this;
     }
@@ -254,7 +268,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAmountString() {
+    public function getAmountString()
+    {
         return $this->amountString;
     }
 
@@ -262,7 +277,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $amountString
      * @return $this
      */
-    public function setAmountString($amountString) {
+    public function setAmountString($amountString)
+    {
         $this->amountString = $amountString;
         return $this;
     }
@@ -271,7 +287,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAmountType() {
+    public function getAmountType()
+    {
         return $this->amountType;
     }
 
@@ -280,7 +297,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $amountType
      * @return $this
      */
-    public function setAmountType($amountType) {
+    public function setAmountType($amountType)
+    {
         $this->amountType = $amountType;
         return $this;
     }
@@ -289,7 +307,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -298,7 +317,8 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function addSource($source) {
+    public function addSource($source)
+    {
         $this->source[] = $source;
         return $this;
     }
@@ -306,14 +326,16 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['target'])) {
                 $this->setTarget($data['target']);
@@ -344,7 +366,7 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
             }
             if (isset($data['source'])) {
                 if (is_array($data['source'])) {
-                    foreach($data['source'] as $d) {
+                    foreach ($data['source'] as $d) {
                         $this->addSource($d);
                     }
                 } else {
@@ -360,27 +382,47 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->target)) $json['target'] = $this->target;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->interaction)) $json['interaction'] = $this->interaction;
-        if (isset($this->organism)) $json['organism'] = $this->organism;
-        if (isset($this->organismType)) $json['organismType'] = $this->organismType;
-        if (isset($this->amountQuantity)) $json['amountQuantity'] = $this->amountQuantity;
-        if (isset($this->amountRange)) $json['amountRange'] = $this->amountRange;
-        if (isset($this->amountString)) $json['amountString'] = $this->amountString;
-        if (isset($this->amountType)) $json['amountType'] = $this->amountType;
+        if (isset($this->target)) {
+            $json['target'] = $this->target;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->interaction)) {
+            $json['interaction'] = $this->interaction;
+        }
+        if (isset($this->organism)) {
+            $json['organism'] = $this->organism;
+        }
+        if (isset($this->organismType)) {
+            $json['organismType'] = $this->organismType;
+        }
+        if (isset($this->amountQuantity)) {
+            $json['amountQuantity'] = $this->amountQuantity;
+        }
+        if (isset($this->amountRange)) {
+            $json['amountRange'] = $this->amountRange;
+        }
+        if (isset($this->amountString)) {
+            $json['amountString'] = $this->amountString;
+        }
+        if (isset($this->amountType)) {
+            $json['amountType'] = $this->amountType;
+        }
         if (0 < count($this->source)) {
             $json['source'] = [];
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $json['source'][] = $source;
             }
         }
@@ -392,26 +434,47 @@ class FHIRSubstanceReferenceInformationTarget extends FHIRBackboneElement implem
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationTarget xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationTarget>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationTarget xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationTarget>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->target)) $this->target->xmlSerialize(true, $sxe->addChild('target'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->interaction)) $this->interaction->xmlSerialize(true, $sxe->addChild('interaction'));
-        if (isset($this->organism)) $this->organism->xmlSerialize(true, $sxe->addChild('organism'));
-        if (isset($this->organismType)) $this->organismType->xmlSerialize(true, $sxe->addChild('organismType'));
-        if (isset($this->amountQuantity)) $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));
-        if (isset($this->amountRange)) $this->amountRange->xmlSerialize(true, $sxe->addChild('amountRange'));
-        if (isset($this->amountString)) $this->amountString->xmlSerialize(true, $sxe->addChild('amountString'));
-        if (isset($this->amountType)) $this->amountType->xmlSerialize(true, $sxe->addChild('amountType'));
+        if (isset($this->target)) {
+            $this->target->xmlSerialize(true, $sxe->addChild('target'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->interaction)) {
+            $this->interaction->xmlSerialize(true, $sxe->addChild('interaction'));
+        }
+        if (isset($this->organism)) {
+            $this->organism->xmlSerialize(true, $sxe->addChild('organism'));
+        }
+        if (isset($this->organismType)) {
+            $this->organismType->xmlSerialize(true, $sxe->addChild('organismType'));
+        }
+        if (isset($this->amountQuantity)) {
+            $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));
+        }
+        if (isset($this->amountRange)) {
+            $this->amountRange->xmlSerialize(true, $sxe->addChild('amountRange'));
+        }
+        if (isset($this->amountString)) {
+            $this->amountString->xmlSerialize(true, $sxe->addChild('amountString'));
+        }
+        if (isset($this->amountType)) {
+            $this->amountType->xmlSerialize(true, $sxe->addChild('amountType'));
+        }
         if (0 < count($this->source)) {
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $source->xmlSerialize(true, $sxe->addChild('source'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

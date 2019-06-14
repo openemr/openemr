@@ -88,7 +88,8 @@ class FHIRMedicationKnowledgeMedicineClassification extends FHIRBackboneElement 
      * The type of category for the medication (for example, therapeutic classification, therapeutic sub-classification).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -97,7 +98,8 @@ class FHIRMedicationKnowledgeMedicineClassification extends FHIRBackboneElement 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMedicationKnowledgeMedicineClassification extends FHIRBackboneElement 
      * Specific category assigned to the medication (e.g. anti-infective, anti-hypertensive, antibiotic, etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getClassification() {
+    public function getClassification()
+    {
         return $this->classification;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicationKnowledgeMedicineClassification extends FHIRBackboneElement 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $classification
      * @return $this
      */
-    public function addClassification($classification) {
+    public function addClassification($classification)
+    {
         $this->classification[] = $classification;
         return $this;
     }
@@ -123,21 +127,23 @@ class FHIRMedicationKnowledgeMedicineClassification extends FHIRBackboneElement 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
             }
             if (isset($data['classification'])) {
                 if (is_array($data['classification'])) {
-                    foreach($data['classification'] as $d) {
+                    foreach ($data['classification'] as $d) {
                         $this->addClassification($d);
                     }
                 } else {
@@ -153,19 +159,23 @@ class FHIRMedicationKnowledgeMedicineClassification extends FHIRBackboneElement 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->classification)) {
             $json['classification'] = [];
-            foreach($this->classification as $classification) {
+            foreach ($this->classification as $classification) {
                 $json['classification'][] = $classification;
             }
         }
@@ -177,18 +187,23 @@ class FHIRMedicationKnowledgeMedicineClassification extends FHIRBackboneElement 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationKnowledgeMedicineClassification xmlns="http://hl7.org/fhir"></MedicationKnowledgeMedicineClassification>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationKnowledgeMedicineClassification xmlns="http://hl7.org/fhir"></MedicationKnowledgeMedicineClassification>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->classification)) {
-            foreach($this->classification as $classification) {
+            foreach ($this->classification as $classification) {
                 $classification->xmlSerialize(true, $sxe->addChild('classification'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

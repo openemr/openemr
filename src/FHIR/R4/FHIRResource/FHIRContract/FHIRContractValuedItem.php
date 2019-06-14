@@ -163,7 +163,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getEntityCodeableConcept() {
+    public function getEntityCodeableConcept()
+    {
         return $this->entityCodeableConcept;
     }
 
@@ -171,7 +172,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $entityCodeableConcept
      * @return $this
      */
-    public function setEntityCodeableConcept($entityCodeableConcept) {
+    public function setEntityCodeableConcept($entityCodeableConcept)
+    {
         $this->entityCodeableConcept = $entityCodeableConcept;
         return $this;
     }
@@ -179,7 +181,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEntityReference() {
+    public function getEntityReference()
+    {
         return $this->entityReference;
     }
 
@@ -187,7 +190,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $entityReference
      * @return $this
      */
-    public function setEntityReference($entityReference) {
+    public function setEntityReference($entityReference)
+    {
         $this->entityReference = $entityReference;
         return $this;
     }
@@ -196,7 +200,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * Identifies a Contract Valued Item instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -205,7 +210,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -214,7 +220,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * Indicates the time during which this Contract ValuedItem information is effective.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getEffectiveTime() {
+    public function getEffectiveTime()
+    {
         return $this->effectiveTime;
     }
 
@@ -223,7 +230,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $effectiveTime
      * @return $this
      */
-    public function setEffectiveTime($effectiveTime) {
+    public function setEffectiveTime($effectiveTime)
+    {
         $this->effectiveTime = $effectiveTime;
         return $this;
     }
@@ -232,7 +240,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * Specifies the units by which the Contract Valued Item is measured or counted, and quantifies the countable or measurable Contract Valued Item instances.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -241,7 +250,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -250,7 +260,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * A Contract Valued Item unit valuation measure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getUnitPrice() {
+    public function getUnitPrice()
+    {
         return $this->unitPrice;
     }
 
@@ -259,7 +270,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $unitPrice
      * @return $this
      */
-    public function setUnitPrice($unitPrice) {
+    public function setUnitPrice($unitPrice)
+    {
         $this->unitPrice = $unitPrice;
         return $this;
     }
@@ -268,7 +280,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * A real number that represents a multiplier used in determining the overall value of the Contract Valued Item delivered. The concept of a Factor allows for a discount or surcharge multiplier to be applied to a monetary amount.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getFactor() {
+    public function getFactor()
+    {
         return $this->factor;
     }
 
@@ -277,7 +290,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $factor
      * @return $this
      */
-    public function setFactor($factor) {
+    public function setFactor($factor)
+    {
         $this->factor = $factor;
         return $this;
     }
@@ -286,7 +300,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * An amount that expresses the weighting (based on difficulty, cost and/or resource intensiveness) associated with the Contract Valued Item delivered. The concept of Points allows for assignment of point values for a Contract Valued Item, such that a monetary amount can be assigned to each point.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getPoints() {
+    public function getPoints()
+    {
         return $this->points;
     }
 
@@ -295,7 +310,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $points
      * @return $this
      */
-    public function setPoints($points) {
+    public function setPoints($points)
+    {
         $this->points = $points;
         return $this;
     }
@@ -304,7 +320,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * Expresses the product of the Contract Valued Item unitQuantity and the unitPriceAmt. For example, the formula: unit Quantity * unit Price (Cost per Point) * factor Number  * points = net Amount. Quantity, factor and points are assumed to be 1 if not supplied.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getNet() {
+    public function getNet()
+    {
         return $this->net;
     }
 
@@ -313,7 +330,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $net
      * @return $this
      */
-    public function setNet($net) {
+    public function setNet($net)
+    {
         $this->net = $net;
         return $this;
     }
@@ -322,7 +340,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * Terms of valuation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPayment() {
+    public function getPayment()
+    {
         return $this->payment;
     }
 
@@ -331,7 +350,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $payment
      * @return $this
      */
-    public function setPayment($payment) {
+    public function setPayment($payment)
+    {
         $this->payment = $payment;
         return $this;
     }
@@ -340,7 +360,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * When payment is due.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getPaymentDate() {
+    public function getPaymentDate()
+    {
         return $this->paymentDate;
     }
 
@@ -349,7 +370,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $paymentDate
      * @return $this
      */
-    public function setPaymentDate($paymentDate) {
+    public function setPaymentDate($paymentDate)
+    {
         $this->paymentDate = $paymentDate;
         return $this;
     }
@@ -358,7 +380,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * Who will make payment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getResponsible() {
+    public function getResponsible()
+    {
         return $this->responsible;
     }
 
@@ -367,7 +390,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $responsible
      * @return $this
      */
-    public function setResponsible($responsible) {
+    public function setResponsible($responsible)
+    {
         $this->responsible = $responsible;
         return $this;
     }
@@ -376,7 +400,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * Who will receive payment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRecipient() {
+    public function getRecipient()
+    {
         return $this->recipient;
     }
 
@@ -385,7 +410,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $recipient
      * @return $this
      */
-    public function setRecipient($recipient) {
+    public function setRecipient($recipient)
+    {
         $this->recipient = $recipient;
         return $this;
     }
@@ -394,7 +420,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * Id  of the clause or question text related to the context of this valuedItem in the referenced form or QuestionnaireResponse.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getLinkId() {
+    public function getLinkId()
+    {
         return $this->linkId;
     }
 
@@ -403,7 +430,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $linkId
      * @return $this
      */
-    public function addLinkId($linkId) {
+    public function addLinkId($linkId)
+    {
         $this->linkId[] = $linkId;
         return $this;
     }
@@ -412,7 +440,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * A set of security labels that define which terms are controlled by this condition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt[]
      */
-    public function getSecurityLabelNumber() {
+    public function getSecurityLabelNumber()
+    {
         return $this->securityLabelNumber;
     }
 
@@ -421,7 +450,8 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $securityLabelNumber
      * @return $this
      */
-    public function addSecurityLabelNumber($securityLabelNumber) {
+    public function addSecurityLabelNumber($securityLabelNumber)
+    {
         $this->securityLabelNumber[] = $securityLabelNumber;
         return $this;
     }
@@ -429,14 +459,16 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['entityCodeableConcept'])) {
                 $this->setEntityCodeableConcept($data['entityCodeableConcept']);
@@ -479,7 +511,7 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['linkId'])) {
                 if (is_array($data['linkId'])) {
-                    foreach($data['linkId'] as $d) {
+                    foreach ($data['linkId'] as $d) {
                         $this->addLinkId($d);
                     }
                 } else {
@@ -488,7 +520,7 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['securityLabelNumber'])) {
                 if (is_array($data['securityLabelNumber'])) {
-                    foreach($data['securityLabelNumber'] as $d) {
+                    foreach ($data['securityLabelNumber'] as $d) {
                         $this->addSecurityLabelNumber($d);
                     }
                 } else {
@@ -504,37 +536,65 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->entityCodeableConcept)) $json['entityCodeableConcept'] = $this->entityCodeableConcept;
-        if (isset($this->entityReference)) $json['entityReference'] = $this->entityReference;
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->effectiveTime)) $json['effectiveTime'] = $this->effectiveTime;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->unitPrice)) $json['unitPrice'] = $this->unitPrice;
-        if (isset($this->factor)) $json['factor'] = $this->factor;
-        if (isset($this->points)) $json['points'] = $this->points;
-        if (isset($this->net)) $json['net'] = $this->net;
-        if (isset($this->payment)) $json['payment'] = $this->payment;
-        if (isset($this->paymentDate)) $json['paymentDate'] = $this->paymentDate;
-        if (isset($this->responsible)) $json['responsible'] = $this->responsible;
-        if (isset($this->recipient)) $json['recipient'] = $this->recipient;
+        if (isset($this->entityCodeableConcept)) {
+            $json['entityCodeableConcept'] = $this->entityCodeableConcept;
+        }
+        if (isset($this->entityReference)) {
+            $json['entityReference'] = $this->entityReference;
+        }
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->effectiveTime)) {
+            $json['effectiveTime'] = $this->effectiveTime;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->unitPrice)) {
+            $json['unitPrice'] = $this->unitPrice;
+        }
+        if (isset($this->factor)) {
+            $json['factor'] = $this->factor;
+        }
+        if (isset($this->points)) {
+            $json['points'] = $this->points;
+        }
+        if (isset($this->net)) {
+            $json['net'] = $this->net;
+        }
+        if (isset($this->payment)) {
+            $json['payment'] = $this->payment;
+        }
+        if (isset($this->paymentDate)) {
+            $json['paymentDate'] = $this->paymentDate;
+        }
+        if (isset($this->responsible)) {
+            $json['responsible'] = $this->responsible;
+        }
+        if (isset($this->recipient)) {
+            $json['recipient'] = $this->recipient;
+        }
         if (0 < count($this->linkId)) {
             $json['linkId'] = [];
-            foreach($this->linkId as $linkId) {
+            foreach ($this->linkId as $linkId) {
                 $json['linkId'][] = $linkId;
             }
         }
         if (0 < count($this->securityLabelNumber)) {
             $json['securityLabelNumber'] = [];
-            foreach($this->securityLabelNumber as $securityLabelNumber) {
+            foreach ($this->securityLabelNumber as $securityLabelNumber) {
                 $json['securityLabelNumber'][] = $securityLabelNumber;
             }
         }
@@ -546,35 +606,64 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ContractValuedItem xmlns="http://hl7.org/fhir"></ContractValuedItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ContractValuedItem xmlns="http://hl7.org/fhir"></ContractValuedItem>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->entityCodeableConcept)) $this->entityCodeableConcept->xmlSerialize(true, $sxe->addChild('entityCodeableConcept'));
-        if (isset($this->entityReference)) $this->entityReference->xmlSerialize(true, $sxe->addChild('entityReference'));
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->effectiveTime)) $this->effectiveTime->xmlSerialize(true, $sxe->addChild('effectiveTime'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->unitPrice)) $this->unitPrice->xmlSerialize(true, $sxe->addChild('unitPrice'));
-        if (isset($this->factor)) $this->factor->xmlSerialize(true, $sxe->addChild('factor'));
-        if (isset($this->points)) $this->points->xmlSerialize(true, $sxe->addChild('points'));
-        if (isset($this->net)) $this->net->xmlSerialize(true, $sxe->addChild('net'));
-        if (isset($this->payment)) $this->payment->xmlSerialize(true, $sxe->addChild('payment'));
-        if (isset($this->paymentDate)) $this->paymentDate->xmlSerialize(true, $sxe->addChild('paymentDate'));
-        if (isset($this->responsible)) $this->responsible->xmlSerialize(true, $sxe->addChild('responsible'));
-        if (isset($this->recipient)) $this->recipient->xmlSerialize(true, $sxe->addChild('recipient'));
+        if (isset($this->entityCodeableConcept)) {
+            $this->entityCodeableConcept->xmlSerialize(true, $sxe->addChild('entityCodeableConcept'));
+        }
+        if (isset($this->entityReference)) {
+            $this->entityReference->xmlSerialize(true, $sxe->addChild('entityReference'));
+        }
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->effectiveTime)) {
+            $this->effectiveTime->xmlSerialize(true, $sxe->addChild('effectiveTime'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->unitPrice)) {
+            $this->unitPrice->xmlSerialize(true, $sxe->addChild('unitPrice'));
+        }
+        if (isset($this->factor)) {
+            $this->factor->xmlSerialize(true, $sxe->addChild('factor'));
+        }
+        if (isset($this->points)) {
+            $this->points->xmlSerialize(true, $sxe->addChild('points'));
+        }
+        if (isset($this->net)) {
+            $this->net->xmlSerialize(true, $sxe->addChild('net'));
+        }
+        if (isset($this->payment)) {
+            $this->payment->xmlSerialize(true, $sxe->addChild('payment'));
+        }
+        if (isset($this->paymentDate)) {
+            $this->paymentDate->xmlSerialize(true, $sxe->addChild('paymentDate'));
+        }
+        if (isset($this->responsible)) {
+            $this->responsible->xmlSerialize(true, $sxe->addChild('responsible'));
+        }
+        if (isset($this->recipient)) {
+            $this->recipient->xmlSerialize(true, $sxe->addChild('recipient'));
+        }
         if (0 < count($this->linkId)) {
-            foreach($this->linkId as $linkId) {
+            foreach ($this->linkId as $linkId) {
                 $linkId->xmlSerialize(true, $sxe->addChild('linkId'));
             }
         }
         if (0 < count($this->securityLabelNumber)) {
-            foreach($this->securityLabelNumber as $securityLabelNumber) {
+            foreach ($this->securityLabelNumber as $securityLabelNumber) {
                 $securityLabelNumber->xmlSerialize(true, $sxe->addChild('securityLabelNumber'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -112,7 +112,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * The kind of diet or dietary restriction such as fiber restricted diet or diabetic diet.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -121,7 +122,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function addType($type) {
+    public function addType($type)
+    {
         $this->type[] = $type;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * The time period and frequency at which the diet should be given.  The diet should be given for the combination of all schedules if more than one schedule is present.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming[]
      */
-    public function getSchedule() {
+    public function getSchedule()
+    {
         return $this->schedule;
     }
 
@@ -139,7 +142,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $schedule
      * @return $this
      */
-    public function addSchedule($schedule) {
+    public function addSchedule($schedule)
+    {
         $this->schedule[] = $schedule;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * Class that defines the quantity and type of nutrient modifications (for example carbohydrate, fiber or sodium) required for the oral diet.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderNutrient[]
      */
-    public function getNutrient() {
+    public function getNutrient()
+    {
         return $this->nutrient;
     }
 
@@ -157,7 +162,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderNutrient $nutrient
      * @return $this
      */
-    public function addNutrient($nutrient) {
+    public function addNutrient($nutrient)
+    {
         $this->nutrient[] = $nutrient;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * Class that describes any texture modifications required for the patient to safely consume various types of solid foods.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderTexture[]
      */
-    public function getTexture() {
+    public function getTexture()
+    {
         return $this->texture;
     }
 
@@ -175,7 +182,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder\FHIRNutritionOrderTexture $texture
      * @return $this
      */
-    public function addTexture($texture) {
+    public function addTexture($texture)
+    {
         $this->texture[] = $texture;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * The required consistency (e.g. honey-thick, nectar-thick, thin, thickened.) of liquids or fluids served to the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getFluidConsistencyType() {
+    public function getFluidConsistencyType()
+    {
         return $this->fluidConsistencyType;
     }
 
@@ -193,7 +202,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $fluidConsistencyType
      * @return $this
      */
-    public function addFluidConsistencyType($fluidConsistencyType) {
+    public function addFluidConsistencyType($fluidConsistencyType)
+    {
         $this->fluidConsistencyType[] = $fluidConsistencyType;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * Free text or additional instructions or information pertaining to the oral diet.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getInstruction() {
+    public function getInstruction()
+    {
         return $this->instruction;
     }
 
@@ -211,7 +222,8 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $instruction
      * @return $this
      */
-    public function setInstruction($instruction) {
+    public function setInstruction($instruction)
+    {
         $this->instruction = $instruction;
         return $this;
     }
@@ -219,18 +231,20 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 if (is_array($data['type'])) {
-                    foreach($data['type'] as $d) {
+                    foreach ($data['type'] as $d) {
                         $this->addType($d);
                     }
                 } else {
@@ -239,7 +253,7 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
             }
             if (isset($data['schedule'])) {
                 if (is_array($data['schedule'])) {
-                    foreach($data['schedule'] as $d) {
+                    foreach ($data['schedule'] as $d) {
                         $this->addSchedule($d);
                     }
                 } else {
@@ -248,7 +262,7 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
             }
             if (isset($data['nutrient'])) {
                 if (is_array($data['nutrient'])) {
-                    foreach($data['nutrient'] as $d) {
+                    foreach ($data['nutrient'] as $d) {
                         $this->addNutrient($d);
                     }
                 } else {
@@ -257,7 +271,7 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
             }
             if (isset($data['texture'])) {
                 if (is_array($data['texture'])) {
-                    foreach($data['texture'] as $d) {
+                    foreach ($data['texture'] as $d) {
                         $this->addTexture($d);
                     }
                 } else {
@@ -266,7 +280,7 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
             }
             if (isset($data['fluidConsistencyType'])) {
                 if (is_array($data['fluidConsistencyType'])) {
-                    foreach($data['fluidConsistencyType'] as $d) {
+                    foreach ($data['fluidConsistencyType'] as $d) {
                         $this->addFluidConsistencyType($d);
                     }
                 } else {
@@ -285,46 +299,50 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->type)) {
             $json['type'] = [];
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $json['type'][] = $type;
             }
         }
         if (0 < count($this->schedule)) {
             $json['schedule'] = [];
-            foreach($this->schedule as $schedule) {
+            foreach ($this->schedule as $schedule) {
                 $json['schedule'][] = $schedule;
             }
         }
         if (0 < count($this->nutrient)) {
             $json['nutrient'] = [];
-            foreach($this->nutrient as $nutrient) {
+            foreach ($this->nutrient as $nutrient) {
                 $json['nutrient'][] = $nutrient;
             }
         }
         if (0 < count($this->texture)) {
             $json['texture'] = [];
-            foreach($this->texture as $texture) {
+            foreach ($this->texture as $texture) {
                 $json['texture'][] = $texture;
             }
         }
         if (0 < count($this->fluidConsistencyType)) {
             $json['fluidConsistencyType'] = [];
-            foreach($this->fluidConsistencyType as $fluidConsistencyType) {
+            foreach ($this->fluidConsistencyType as $fluidConsistencyType) {
                 $json['fluidConsistencyType'][] = $fluidConsistencyType;
             }
         }
-        if (isset($this->instruction)) $json['instruction'] = $this->instruction;
+        if (isset($this->instruction)) {
+            $json['instruction'] = $this->instruction;
+        }
         return $json;
     }
 
@@ -333,38 +351,43 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<NutritionOrderOralDiet xmlns="http://hl7.org/fhir"></NutritionOrderOralDiet>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<NutritionOrderOralDiet xmlns="http://hl7.org/fhir"></NutritionOrderOralDiet>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->type)) {
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $type->xmlSerialize(true, $sxe->addChild('type'));
             }
         }
         if (0 < count($this->schedule)) {
-            foreach($this->schedule as $schedule) {
+            foreach ($this->schedule as $schedule) {
                 $schedule->xmlSerialize(true, $sxe->addChild('schedule'));
             }
         }
         if (0 < count($this->nutrient)) {
-            foreach($this->nutrient as $nutrient) {
+            foreach ($this->nutrient as $nutrient) {
                 $nutrient->xmlSerialize(true, $sxe->addChild('nutrient'));
             }
         }
         if (0 < count($this->texture)) {
-            foreach($this->texture as $texture) {
+            foreach ($this->texture as $texture) {
                 $texture->xmlSerialize(true, $sxe->addChild('texture'));
             }
         }
         if (0 < count($this->fluidConsistencyType)) {
-            foreach($this->fluidConsistencyType as $fluidConsistencyType) {
+            foreach ($this->fluidConsistencyType as $fluidConsistencyType) {
                 $fluidConsistencyType->xmlSerialize(true, $sxe->addChild('fluidConsistencyType'));
             }
         }
-        if (isset($this->instruction)) $this->instruction->xmlSerialize(true, $sxe->addChild('instruction'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->instruction)) {
+            $this->instruction->xmlSerialize(true, $sxe->addChild('instruction'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

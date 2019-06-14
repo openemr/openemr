@@ -153,7 +153,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * Business identifier associated with the detected issue record.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -162,7 +163,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -171,7 +173,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * Indicates the status of the detected issue.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -180,7 +183,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -189,7 +193,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * Identifies the general type of issue identified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -198,7 +203,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -207,7 +213,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * Indicates the degree of importance associated with the identified issue based on the potential impact on the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDetectedIssueSeverity
      */
-    public function getSeverity() {
+    public function getSeverity()
+    {
         return $this->severity;
     }
 
@@ -216,7 +223,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDetectedIssueSeverity $severity
      * @return $this
      */
-    public function setSeverity($severity) {
+    public function setSeverity($severity)
+    {
         $this->severity = $severity;
         return $this;
     }
@@ -225,7 +233,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * Indicates the patient whose record the detected issue is associated with.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -234,7 +243,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -242,7 +252,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getIdentifiedDateTime() {
+    public function getIdentifiedDateTime()
+    {
         return $this->identifiedDateTime;
     }
 
@@ -250,7 +261,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $identifiedDateTime
      * @return $this
      */
-    public function setIdentifiedDateTime($identifiedDateTime) {
+    public function setIdentifiedDateTime($identifiedDateTime)
+    {
         $this->identifiedDateTime = $identifiedDateTime;
         return $this;
     }
@@ -258,7 +270,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getIdentifiedPeriod() {
+    public function getIdentifiedPeriod()
+    {
         return $this->identifiedPeriod;
     }
 
@@ -266,7 +279,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $identifiedPeriod
      * @return $this
      */
-    public function setIdentifiedPeriod($identifiedPeriod) {
+    public function setIdentifiedPeriod($identifiedPeriod)
+    {
         $this->identifiedPeriod = $identifiedPeriod;
         return $this;
     }
@@ -275,7 +289,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * Individual or device responsible for the issue being raised.  For example, a decision support application or a pharmacist conducting a medication review.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
@@ -284,7 +299,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $author
      * @return $this
      */
-    public function setAuthor($author) {
+    public function setAuthor($author)
+    {
         $this->author = $author;
         return $this;
     }
@@ -293,7 +309,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * Indicates the resource representing the current activity or proposed activity that is potentially problematic.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getImplicated() {
+    public function getImplicated()
+    {
         return $this->implicated;
     }
 
@@ -302,7 +319,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $implicated
      * @return $this
      */
-    public function addImplicated($implicated) {
+    public function addImplicated($implicated)
+    {
         $this->implicated[] = $implicated;
         return $this;
     }
@@ -311,7 +329,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * Supporting evidence or manifestations that provide the basis for identifying the detected issue such as a GuidanceResponse or MeasureReport.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDetectedIssue\FHIRDetectedIssueEvidence[]
      */
-    public function getEvidence() {
+    public function getEvidence()
+    {
         return $this->evidence;
     }
 
@@ -320,7 +339,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDetectedIssue\FHIRDetectedIssueEvidence $evidence
      * @return $this
      */
-    public function addEvidence($evidence) {
+    public function addEvidence($evidence)
+    {
         $this->evidence[] = $evidence;
         return $this;
     }
@@ -329,7 +349,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * A textual explanation of the detected issue.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDetail() {
+    public function getDetail()
+    {
         return $this->detail;
     }
 
@@ -338,7 +359,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $detail
      * @return $this
      */
-    public function setDetail($detail) {
+    public function setDetail($detail)
+    {
         $this->detail = $detail;
         return $this;
     }
@@ -347,7 +369,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * The literature, knowledge-base or similar reference that describes the propensity for the detected issue identified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -356,7 +379,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $reference
      * @return $this
      */
-    public function setReference($reference) {
+    public function setReference($reference)
+    {
         $this->reference = $reference;
         return $this;
     }
@@ -365,7 +389,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * Indicates an action that has been taken or is committed to reduce or eliminate the likelihood of the risk identified by the detected issue from manifesting.  Can also reflect an observation of known mitigating factors that may reduce/eliminate the need for any action.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDetectedIssue\FHIRDetectedIssueMitigation[]
      */
-    public function getMitigation() {
+    public function getMitigation()
+    {
         return $this->mitigation;
     }
 
@@ -374,7 +399,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDetectedIssue\FHIRDetectedIssueMitigation $mitigation
      * @return $this
      */
-    public function addMitigation($mitigation) {
+    public function addMitigation($mitigation)
+    {
         $this->mitigation[] = $mitigation;
         return $this;
     }
@@ -382,18 +408,20 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -423,7 +451,7 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['implicated'])) {
                 if (is_array($data['implicated'])) {
-                    foreach($data['implicated'] as $d) {
+                    foreach ($data['implicated'] as $d) {
                         $this->addImplicated($d);
                     }
                 } else {
@@ -432,7 +460,7 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['evidence'])) {
                 if (is_array($data['evidence'])) {
-                    foreach($data['evidence'] as $d) {
+                    foreach ($data['evidence'] as $d) {
                         $this->addEvidence($d);
                     }
                 } else {
@@ -447,7 +475,7 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['mitigation'])) {
                 if (is_array($data['mitigation'])) {
-                    foreach($data['mitigation'] as $d) {
+                    foreach ($data['mitigation'] as $d) {
                         $this->addMitigation($d);
                     }
                 } else {
@@ -463,46 +491,66 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->severity)) $json['severity'] = $this->severity;
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->identifiedDateTime)) $json['identifiedDateTime'] = $this->identifiedDateTime;
-        if (isset($this->identifiedPeriod)) $json['identifiedPeriod'] = $this->identifiedPeriod;
-        if (isset($this->author)) $json['author'] = $this->author;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->severity)) {
+            $json['severity'] = $this->severity;
+        }
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->identifiedDateTime)) {
+            $json['identifiedDateTime'] = $this->identifiedDateTime;
+        }
+        if (isset($this->identifiedPeriod)) {
+            $json['identifiedPeriod'] = $this->identifiedPeriod;
+        }
+        if (isset($this->author)) {
+            $json['author'] = $this->author;
+        }
         if (0 < count($this->implicated)) {
             $json['implicated'] = [];
-            foreach($this->implicated as $implicated) {
+            foreach ($this->implicated as $implicated) {
                 $json['implicated'][] = $implicated;
             }
         }
         if (0 < count($this->evidence)) {
             $json['evidence'] = [];
-            foreach($this->evidence as $evidence) {
+            foreach ($this->evidence as $evidence) {
                 $json['evidence'][] = $evidence;
             }
         }
-        if (isset($this->detail)) $json['detail'] = $this->detail;
-        if (isset($this->reference)) $json['reference'] = $this->reference;
+        if (isset($this->detail)) {
+            $json['detail'] = $this->detail;
+        }
+        if (isset($this->reference)) {
+            $json['reference'] = $this->reference;
+        }
         if (0 < count($this->mitigation)) {
             $json['mitigation'] = [];
-            foreach($this->mitigation as $mitigation) {
+            foreach ($this->mitigation as $mitigation) {
                 $json['mitigation'][] = $mitigation;
             }
         }
@@ -514,41 +562,62 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DetectedIssue xmlns="http://hl7.org/fhir"></DetectedIssue>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DetectedIssue xmlns="http://hl7.org/fhir"></DetectedIssue>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->severity)) $this->severity->xmlSerialize(true, $sxe->addChild('severity'));
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->identifiedDateTime)) $this->identifiedDateTime->xmlSerialize(true, $sxe->addChild('identifiedDateTime'));
-        if (isset($this->identifiedPeriod)) $this->identifiedPeriod->xmlSerialize(true, $sxe->addChild('identifiedPeriod'));
-        if (isset($this->author)) $this->author->xmlSerialize(true, $sxe->addChild('author'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->severity)) {
+            $this->severity->xmlSerialize(true, $sxe->addChild('severity'));
+        }
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->identifiedDateTime)) {
+            $this->identifiedDateTime->xmlSerialize(true, $sxe->addChild('identifiedDateTime'));
+        }
+        if (isset($this->identifiedPeriod)) {
+            $this->identifiedPeriod->xmlSerialize(true, $sxe->addChild('identifiedPeriod'));
+        }
+        if (isset($this->author)) {
+            $this->author->xmlSerialize(true, $sxe->addChild('author'));
+        }
         if (0 < count($this->implicated)) {
-            foreach($this->implicated as $implicated) {
+            foreach ($this->implicated as $implicated) {
                 $implicated->xmlSerialize(true, $sxe->addChild('implicated'));
             }
         }
         if (0 < count($this->evidence)) {
-            foreach($this->evidence as $evidence) {
+            foreach ($this->evidence as $evidence) {
                 $evidence->xmlSerialize(true, $sxe->addChild('evidence'));
             }
         }
-        if (isset($this->detail)) $this->detail->xmlSerialize(true, $sxe->addChild('detail'));
-        if (isset($this->reference)) $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        if (isset($this->detail)) {
+            $this->detail->xmlSerialize(true, $sxe->addChild('detail'));
+        }
+        if (isset($this->reference)) {
+            $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        }
         if (0 < count($this->mitigation)) {
-            foreach($this->mitigation as $mitigation) {
+            foreach ($this->mitigation as $mitigation) {
                 $mitigation->xmlSerialize(true, $sxe->addChild('mitigation'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

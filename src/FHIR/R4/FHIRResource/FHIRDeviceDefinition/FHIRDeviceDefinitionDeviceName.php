@@ -89,7 +89,8 @@ UDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | 
      * The name of the device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -98,7 +99,8 @@ UDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -108,7 +110,8 @@ UDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | 
 UDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | ModelName.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceNameType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -118,7 +121,8 @@ UDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceNameType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -126,14 +130,16 @@ UDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -150,17 +156,23 @@ UDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         return $json;
     }
 
@@ -169,14 +181,21 @@ UDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DeviceDefinitionDeviceName xmlns="http://hl7.org/fhir"></DeviceDefinitionDeviceName>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DeviceDefinitionDeviceName xmlns="http://hl7.org/fhir"></DeviceDefinitionDeviceName>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

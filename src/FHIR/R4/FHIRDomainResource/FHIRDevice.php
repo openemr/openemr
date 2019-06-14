@@ -233,7 +233,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * Unique instance identifiers assigned to a device by manufacturers other organizations or owners.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -242,7 +243,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -251,7 +253,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The reference to the definition for the device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDefinition() {
+    public function getDefinition()
+    {
         return $this->definition;
     }
 
@@ -260,7 +263,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $definition
      * @return $this
      */
-    public function setDefinition($definition) {
+    public function setDefinition($definition)
+    {
         $this->definition = $definition;
         return $this;
     }
@@ -269,7 +273,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * Unique device identifier (UDI) assigned to device label or package.  Note that the Device may include multiple udiCarriers as it either may include just the udiCarrier for the jurisdiction it is sold, or for multiple jurisdictions it could have been sold.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceUdiCarrier[]
      */
-    public function getUdiCarrier() {
+    public function getUdiCarrier()
+    {
         return $this->udiCarrier;
     }
 
@@ -278,7 +283,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceUdiCarrier $udiCarrier
      * @return $this
      */
-    public function addUdiCarrier($udiCarrier) {
+    public function addUdiCarrier($udiCarrier)
+    {
         $this->udiCarrier[] = $udiCarrier;
         return $this;
     }
@@ -287,7 +293,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * Status of the Device availability.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRDeviceStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -296,7 +303,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRDeviceStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -305,7 +313,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * Reason for the dtatus of the Device availability.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getStatusReason() {
+    public function getStatusReason()
+    {
         return $this->statusReason;
     }
 
@@ -314,7 +323,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $statusReason
      * @return $this
      */
-    public function addStatusReason($statusReason) {
+    public function addStatusReason($statusReason)
+    {
         $this->statusReason[] = $statusReason;
         return $this;
     }
@@ -323,7 +333,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The distinct identification string as required by regulation for a human cell, tissue, or cellular and tissue-based product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDistinctIdentifier() {
+    public function getDistinctIdentifier()
+    {
         return $this->distinctIdentifier;
     }
 
@@ -332,7 +343,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $distinctIdentifier
      * @return $this
      */
-    public function setDistinctIdentifier($distinctIdentifier) {
+    public function setDistinctIdentifier($distinctIdentifier)
+    {
         $this->distinctIdentifier = $distinctIdentifier;
         return $this;
     }
@@ -341,7 +353,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * A name of the manufacturer.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getManufacturer() {
+    public function getManufacturer()
+    {
         return $this->manufacturer;
     }
 
@@ -350,7 +363,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $manufacturer
      * @return $this
      */
-    public function setManufacturer($manufacturer) {
+    public function setManufacturer($manufacturer)
+    {
         $this->manufacturer = $manufacturer;
         return $this;
     }
@@ -359,7 +373,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The date and time when the device was manufactured.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getManufactureDate() {
+    public function getManufactureDate()
+    {
         return $this->manufactureDate;
     }
 
@@ -368,7 +383,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $manufactureDate
      * @return $this
      */
-    public function setManufactureDate($manufactureDate) {
+    public function setManufactureDate($manufactureDate)
+    {
         $this->manufactureDate = $manufactureDate;
         return $this;
     }
@@ -377,7 +393,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The date and time beyond which this device is no longer valid or should not be used (if applicable).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getExpirationDate() {
+    public function getExpirationDate()
+    {
         return $this->expirationDate;
     }
 
@@ -386,7 +403,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $expirationDate
      * @return $this
      */
-    public function setExpirationDate($expirationDate) {
+    public function setExpirationDate($expirationDate)
+    {
         $this->expirationDate = $expirationDate;
         return $this;
     }
@@ -395,7 +413,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * Lot number assigned by the manufacturer.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getLotNumber() {
+    public function getLotNumber()
+    {
         return $this->lotNumber;
     }
 
@@ -404,7 +423,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $lotNumber
      * @return $this
      */
-    public function setLotNumber($lotNumber) {
+    public function setLotNumber($lotNumber)
+    {
         $this->lotNumber = $lotNumber;
         return $this;
     }
@@ -413,7 +433,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The serial number assigned by the organization when the device was manufactured.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSerialNumber() {
+    public function getSerialNumber()
+    {
         return $this->serialNumber;
     }
 
@@ -422,7 +443,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $serialNumber
      * @return $this
      */
-    public function setSerialNumber($serialNumber) {
+    public function setSerialNumber($serialNumber)
+    {
         $this->serialNumber = $serialNumber;
         return $this;
     }
@@ -431,7 +453,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * This represents the manufacturer's name of the device as provided by the device, from a UDI label, or by a person describing the Device.  This typically would be used when a person provides the name(s) or when the device represents one of the names available from DeviceDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceDeviceName[]
      */
-    public function getDeviceName() {
+    public function getDeviceName()
+    {
         return $this->deviceName;
     }
 
@@ -440,7 +463,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceDeviceName $deviceName
      * @return $this
      */
-    public function addDeviceName($deviceName) {
+    public function addDeviceName($deviceName)
+    {
         $this->deviceName[] = $deviceName;
         return $this;
     }
@@ -449,7 +473,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The model number for the device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getModelNumber() {
+    public function getModelNumber()
+    {
         return $this->modelNumber;
     }
 
@@ -458,7 +483,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $modelNumber
      * @return $this
      */
-    public function setModelNumber($modelNumber) {
+    public function setModelNumber($modelNumber)
+    {
         $this->modelNumber = $modelNumber;
         return $this;
     }
@@ -467,7 +493,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The part number of the device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPartNumber() {
+    public function getPartNumber()
+    {
         return $this->partNumber;
     }
 
@@ -476,7 +503,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $partNumber
      * @return $this
      */
-    public function setPartNumber($partNumber) {
+    public function setPartNumber($partNumber)
+    {
         $this->partNumber = $partNumber;
         return $this;
     }
@@ -485,7 +513,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The kind or type of device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -494,7 +523,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -503,7 +533,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The capabilities supported on a  device, the standards to which the device conforms for a particular purpose, and used for the communication.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceSpecialization[]
      */
-    public function getSpecialization() {
+    public function getSpecialization()
+    {
         return $this->specialization;
     }
 
@@ -512,7 +543,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceSpecialization $specialization
      * @return $this
      */
-    public function addSpecialization($specialization) {
+    public function addSpecialization($specialization)
+    {
         $this->specialization[] = $specialization;
         return $this;
     }
@@ -521,7 +553,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The actual design of the device or software version running on the device.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceVersion[]
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -530,7 +563,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceVersion $version
      * @return $this
      */
-    public function addVersion($version) {
+    public function addVersion($version)
+    {
         $this->version[] = $version;
         return $this;
     }
@@ -539,7 +573,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The actual configuration settings of a device as it actually operates, e.g., regulation status, time properties.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceProperty[]
      */
-    public function getProperty() {
+    public function getProperty()
+    {
         return $this->property;
     }
 
@@ -548,7 +583,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDevice\FHIRDeviceProperty $property
      * @return $this
      */
-    public function addProperty($property) {
+    public function addProperty($property)
+    {
         $this->property[] = $property;
         return $this;
     }
@@ -557,7 +593,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * Patient information, If the device is affixed to a person.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -566,7 +603,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -575,7 +613,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * An organization that is responsible for the provision and ongoing maintenance of the device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOwner() {
+    public function getOwner()
+    {
         return $this->owner;
     }
 
@@ -584,7 +623,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $owner
      * @return $this
      */
-    public function setOwner($owner) {
+    public function setOwner($owner)
+    {
         $this->owner = $owner;
         return $this;
     }
@@ -593,7 +633,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * Contact details for an organization or a particular human that is responsible for the device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint[]
      */
-    public function getContact() {
+    public function getContact()
+    {
         return $this->contact;
     }
 
@@ -602,7 +643,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $contact
      * @return $this
      */
-    public function addContact($contact) {
+    public function addContact($contact)
+    {
         $this->contact[] = $contact;
         return $this;
     }
@@ -611,7 +653,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The place where the device can be found.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
@@ -620,7 +663,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $location
      * @return $this
      */
-    public function setLocation($location) {
+    public function setLocation($location)
+    {
         $this->location = $location;
         return $this;
     }
@@ -629,7 +673,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * A network address on which the device may be contacted directly.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -638,7 +683,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -647,7 +693,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * Descriptive information, usage information or implantation information that is not captured in an existing element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -656,7 +703,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -665,7 +713,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * Provides additional safety characteristics about a medical device.  For example devices containing latex.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getSafety() {
+    public function getSafety()
+    {
         return $this->safety;
     }
 
@@ -674,7 +723,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $safety
      * @return $this
      */
-    public function addSafety($safety) {
+    public function addSafety($safety)
+    {
         $this->safety[] = $safety;
         return $this;
     }
@@ -683,7 +733,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * The parent device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getParent() {
+    public function getParent()
+    {
         return $this->parent;
     }
 
@@ -692,7 +743,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $parent
      * @return $this
      */
-    public function setParent($parent) {
+    public function setParent($parent)
+    {
         $this->parent = $parent;
         return $this;
     }
@@ -700,18 +752,20 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -723,7 +777,7 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['udiCarrier'])) {
                 if (is_array($data['udiCarrier'])) {
-                    foreach($data['udiCarrier'] as $d) {
+                    foreach ($data['udiCarrier'] as $d) {
                         $this->addUdiCarrier($d);
                     }
                 } else {
@@ -735,7 +789,7 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['statusReason'])) {
                 if (is_array($data['statusReason'])) {
-                    foreach($data['statusReason'] as $d) {
+                    foreach ($data['statusReason'] as $d) {
                         $this->addStatusReason($d);
                     }
                 } else {
@@ -762,7 +816,7 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['deviceName'])) {
                 if (is_array($data['deviceName'])) {
-                    foreach($data['deviceName'] as $d) {
+                    foreach ($data['deviceName'] as $d) {
                         $this->addDeviceName($d);
                     }
                 } else {
@@ -780,7 +834,7 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['specialization'])) {
                 if (is_array($data['specialization'])) {
-                    foreach($data['specialization'] as $d) {
+                    foreach ($data['specialization'] as $d) {
                         $this->addSpecialization($d);
                     }
                 } else {
@@ -789,7 +843,7 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['version'])) {
                 if (is_array($data['version'])) {
-                    foreach($data['version'] as $d) {
+                    foreach ($data['version'] as $d) {
                         $this->addVersion($d);
                     }
                 } else {
@@ -798,7 +852,7 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['property'])) {
                 if (is_array($data['property'])) {
-                    foreach($data['property'] as $d) {
+                    foreach ($data['property'] as $d) {
                         $this->addProperty($d);
                     }
                 } else {
@@ -813,7 +867,7 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['contact'])) {
                 if (is_array($data['contact'])) {
-                    foreach($data['contact'] as $d) {
+                    foreach ($data['contact'] as $d) {
                         $this->addContact($d);
                     }
                 } else {
@@ -828,7 +882,7 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -837,7 +891,7 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['safety'])) {
                 if (is_array($data['safety'])) {
-                    foreach($data['safety'] as $d) {
+                    foreach ($data['safety'] as $d) {
                         $this->addSafety($d);
                     }
                 } else {
@@ -856,92 +910,126 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->definition)) $json['definition'] = $this->definition;
+        if (isset($this->definition)) {
+            $json['definition'] = $this->definition;
+        }
         if (0 < count($this->udiCarrier)) {
             $json['udiCarrier'] = [];
-            foreach($this->udiCarrier as $udiCarrier) {
+            foreach ($this->udiCarrier as $udiCarrier) {
                 $json['udiCarrier'][] = $udiCarrier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
         if (0 < count($this->statusReason)) {
             $json['statusReason'] = [];
-            foreach($this->statusReason as $statusReason) {
+            foreach ($this->statusReason as $statusReason) {
                 $json['statusReason'][] = $statusReason;
             }
         }
-        if (isset($this->distinctIdentifier)) $json['distinctIdentifier'] = $this->distinctIdentifier;
-        if (isset($this->manufacturer)) $json['manufacturer'] = $this->manufacturer;
-        if (isset($this->manufactureDate)) $json['manufactureDate'] = $this->manufactureDate;
-        if (isset($this->expirationDate)) $json['expirationDate'] = $this->expirationDate;
-        if (isset($this->lotNumber)) $json['lotNumber'] = $this->lotNumber;
-        if (isset($this->serialNumber)) $json['serialNumber'] = $this->serialNumber;
+        if (isset($this->distinctIdentifier)) {
+            $json['distinctIdentifier'] = $this->distinctIdentifier;
+        }
+        if (isset($this->manufacturer)) {
+            $json['manufacturer'] = $this->manufacturer;
+        }
+        if (isset($this->manufactureDate)) {
+            $json['manufactureDate'] = $this->manufactureDate;
+        }
+        if (isset($this->expirationDate)) {
+            $json['expirationDate'] = $this->expirationDate;
+        }
+        if (isset($this->lotNumber)) {
+            $json['lotNumber'] = $this->lotNumber;
+        }
+        if (isset($this->serialNumber)) {
+            $json['serialNumber'] = $this->serialNumber;
+        }
         if (0 < count($this->deviceName)) {
             $json['deviceName'] = [];
-            foreach($this->deviceName as $deviceName) {
+            foreach ($this->deviceName as $deviceName) {
                 $json['deviceName'][] = $deviceName;
             }
         }
-        if (isset($this->modelNumber)) $json['modelNumber'] = $this->modelNumber;
-        if (isset($this->partNumber)) $json['partNumber'] = $this->partNumber;
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->modelNumber)) {
+            $json['modelNumber'] = $this->modelNumber;
+        }
+        if (isset($this->partNumber)) {
+            $json['partNumber'] = $this->partNumber;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->specialization)) {
             $json['specialization'] = [];
-            foreach($this->specialization as $specialization) {
+            foreach ($this->specialization as $specialization) {
                 $json['specialization'][] = $specialization;
             }
         }
         if (0 < count($this->version)) {
             $json['version'] = [];
-            foreach($this->version as $version) {
+            foreach ($this->version as $version) {
                 $json['version'][] = $version;
             }
         }
         if (0 < count($this->property)) {
             $json['property'] = [];
-            foreach($this->property as $property) {
+            foreach ($this->property as $property) {
                 $json['property'][] = $property;
             }
         }
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->owner)) $json['owner'] = $this->owner;
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->owner)) {
+            $json['owner'] = $this->owner;
+        }
         if (0 < count($this->contact)) {
             $json['contact'] = [];
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $json['contact'][] = $contact;
             }
         }
-        if (isset($this->location)) $json['location'] = $this->location;
-        if (isset($this->url)) $json['url'] = $this->url;
+        if (isset($this->location)) {
+            $json['location'] = $this->location;
+        }
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
         if (0 < count($this->safety)) {
             $json['safety'] = [];
-            foreach($this->safety as $safety) {
+            foreach ($this->safety as $safety) {
                 $json['safety'][] = $safety;
             }
         }
-        if (isset($this->parent)) $json['parent'] = $this->parent;
+        if (isset($this->parent)) {
+            $json['parent'] = $this->parent;
+        }
         return $json;
     }
 
@@ -950,78 +1038,113 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Device xmlns="http://hl7.org/fhir"></Device>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Device xmlns="http://hl7.org/fhir"></Device>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->definition)) $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        if (isset($this->definition)) {
+            $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
+        }
         if (0 < count($this->udiCarrier)) {
-            foreach($this->udiCarrier as $udiCarrier) {
+            foreach ($this->udiCarrier as $udiCarrier) {
                 $udiCarrier->xmlSerialize(true, $sxe->addChild('udiCarrier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
         if (0 < count($this->statusReason)) {
-            foreach($this->statusReason as $statusReason) {
+            foreach ($this->statusReason as $statusReason) {
                 $statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
             }
         }
-        if (isset($this->distinctIdentifier)) $this->distinctIdentifier->xmlSerialize(true, $sxe->addChild('distinctIdentifier'));
-        if (isset($this->manufacturer)) $this->manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
-        if (isset($this->manufactureDate)) $this->manufactureDate->xmlSerialize(true, $sxe->addChild('manufactureDate'));
-        if (isset($this->expirationDate)) $this->expirationDate->xmlSerialize(true, $sxe->addChild('expirationDate'));
-        if (isset($this->lotNumber)) $this->lotNumber->xmlSerialize(true, $sxe->addChild('lotNumber'));
-        if (isset($this->serialNumber)) $this->serialNumber->xmlSerialize(true, $sxe->addChild('serialNumber'));
+        if (isset($this->distinctIdentifier)) {
+            $this->distinctIdentifier->xmlSerialize(true, $sxe->addChild('distinctIdentifier'));
+        }
+        if (isset($this->manufacturer)) {
+            $this->manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
+        }
+        if (isset($this->manufactureDate)) {
+            $this->manufactureDate->xmlSerialize(true, $sxe->addChild('manufactureDate'));
+        }
+        if (isset($this->expirationDate)) {
+            $this->expirationDate->xmlSerialize(true, $sxe->addChild('expirationDate'));
+        }
+        if (isset($this->lotNumber)) {
+            $this->lotNumber->xmlSerialize(true, $sxe->addChild('lotNumber'));
+        }
+        if (isset($this->serialNumber)) {
+            $this->serialNumber->xmlSerialize(true, $sxe->addChild('serialNumber'));
+        }
         if (0 < count($this->deviceName)) {
-            foreach($this->deviceName as $deviceName) {
+            foreach ($this->deviceName as $deviceName) {
                 $deviceName->xmlSerialize(true, $sxe->addChild('deviceName'));
             }
         }
-        if (isset($this->modelNumber)) $this->modelNumber->xmlSerialize(true, $sxe->addChild('modelNumber'));
-        if (isset($this->partNumber)) $this->partNumber->xmlSerialize(true, $sxe->addChild('partNumber'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->modelNumber)) {
+            $this->modelNumber->xmlSerialize(true, $sxe->addChild('modelNumber'));
+        }
+        if (isset($this->partNumber)) {
+            $this->partNumber->xmlSerialize(true, $sxe->addChild('partNumber'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->specialization)) {
-            foreach($this->specialization as $specialization) {
+            foreach ($this->specialization as $specialization) {
                 $specialization->xmlSerialize(true, $sxe->addChild('specialization'));
             }
         }
         if (0 < count($this->version)) {
-            foreach($this->version as $version) {
+            foreach ($this->version as $version) {
                 $version->xmlSerialize(true, $sxe->addChild('version'));
             }
         }
         if (0 < count($this->property)) {
-            foreach($this->property as $property) {
+            foreach ($this->property as $property) {
                 $property->xmlSerialize(true, $sxe->addChild('property'));
             }
         }
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->owner)) $this->owner->xmlSerialize(true, $sxe->addChild('owner'));
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->owner)) {
+            $this->owner->xmlSerialize(true, $sxe->addChild('owner'));
+        }
         if (0 < count($this->contact)) {
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $contact->xmlSerialize(true, $sxe->addChild('contact'));
             }
         }
-        if (isset($this->location)) $this->location->xmlSerialize(true, $sxe->addChild('location'));
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        if (isset($this->location)) {
+            $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        }
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
         if (0 < count($this->safety)) {
-            foreach($this->safety as $safety) {
+            foreach ($this->safety as $safety) {
                 $safety->xmlSerialize(true, $sxe->addChild('safety'));
             }
         }
-        if (isset($this->parent)) $this->parent->xmlSerialize(true, $sxe->addChild('parent'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->parent)) {
+            $this->parent->xmlSerialize(true, $sxe->addChild('parent'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

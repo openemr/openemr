@@ -100,7 +100,8 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
      * The Locked Date is  the effective date that is used to determine the version of all referenced Code Systems and Value Set Definitions included in the compose that are not already tied to a specific version.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getLockedDate() {
+    public function getLockedDate()
+    {
         return $this->lockedDate;
     }
 
@@ -109,7 +110,8 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $lockedDate
      * @return $this
      */
-    public function setLockedDate($lockedDate) {
+    public function setLockedDate($lockedDate)
+    {
         $this->lockedDate = $lockedDate;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
      * Whether inactive codes - codes that are not approved for current use - are in the value set. If inactive = true, inactive codes are to be included in the expansion, if inactive = false, the inactive codes will not be included in the expansion. If absent, the behavior is determined by the implementation, or by the applicable $expand parameters (but generally, inactive codes would be expected to be included).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getInactive() {
+    public function getInactive()
+    {
         return $this->inactive;
     }
 
@@ -127,7 +130,8 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $inactive
      * @return $this
      */
-    public function setInactive($inactive) {
+    public function setInactive($inactive)
+    {
         $this->inactive = $inactive;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
      * Include one or more codes from a code system or other value set(s).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetInclude[]
      */
-    public function getInclude() {
+    public function getInclude()
+    {
         return $this->include;
     }
 
@@ -145,7 +150,8 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetInclude $include
      * @return $this
      */
-    public function addInclude($include) {
+    public function addInclude($include)
+    {
         $this->include[] = $include;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
      * Exclude one or more codes from the value set based on code system filters and/or other value sets.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetInclude[]
      */
-    public function getExclude() {
+    public function getExclude()
+    {
         return $this->exclude;
     }
 
@@ -163,7 +170,8 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetInclude $exclude
      * @return $this
      */
-    public function addExclude($exclude) {
+    public function addExclude($exclude)
+    {
         $this->exclude[] = $exclude;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['lockedDate'])) {
                 $this->setLockedDate($data['lockedDate']);
@@ -188,7 +198,7 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
             }
             if (isset($data['include'])) {
                 if (is_array($data['include'])) {
-                    foreach($data['include'] as $d) {
+                    foreach ($data['include'] as $d) {
                         $this->addInclude($d);
                     }
                 } else {
@@ -197,7 +207,7 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
             }
             if (isset($data['exclude'])) {
                 if (is_array($data['exclude'])) {
-                    foreach($data['exclude'] as $d) {
+                    foreach ($data['exclude'] as $d) {
                         $this->addExclude($d);
                     }
                 } else {
@@ -213,26 +223,32 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->lockedDate)) $json['lockedDate'] = $this->lockedDate;
-        if (isset($this->inactive)) $json['inactive'] = $this->inactive;
+        if (isset($this->lockedDate)) {
+            $json['lockedDate'] = $this->lockedDate;
+        }
+        if (isset($this->inactive)) {
+            $json['inactive'] = $this->inactive;
+        }
         if (0 < count($this->include)) {
             $json['include'] = [];
-            foreach($this->include as $include) {
+            foreach ($this->include as $include) {
                 $json['include'][] = $include;
             }
         }
         if (0 < count($this->exclude)) {
             $json['exclude'] = [];
-            foreach($this->exclude as $exclude) {
+            foreach ($this->exclude as $exclude) {
                 $json['exclude'][] = $exclude;
             }
         }
@@ -244,24 +260,31 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ValueSetCompose xmlns="http://hl7.org/fhir"></ValueSetCompose>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ValueSetCompose xmlns="http://hl7.org/fhir"></ValueSetCompose>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->lockedDate)) $this->lockedDate->xmlSerialize(true, $sxe->addChild('lockedDate'));
-        if (isset($this->inactive)) $this->inactive->xmlSerialize(true, $sxe->addChild('inactive'));
+        if (isset($this->lockedDate)) {
+            $this->lockedDate->xmlSerialize(true, $sxe->addChild('lockedDate'));
+        }
+        if (isset($this->inactive)) {
+            $this->inactive->xmlSerialize(true, $sxe->addChild('inactive'));
+        }
         if (0 < count($this->include)) {
-            foreach($this->include as $include) {
+            foreach ($this->include as $include) {
                 $include->xmlSerialize(true, $sxe->addChild('include'));
             }
         }
         if (0 < count($this->exclude)) {
-            foreach($this->exclude as $exclude) {
+            foreach ($this->exclude as $exclude) {
                 $exclude->xmlSerialize(true, $sxe->addChild('exclude'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

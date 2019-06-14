@@ -81,7 +81,8 @@ class FHIRGuidePageGeneration extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -89,7 +90,8 @@ class FHIRGuidePageGeneration extends FHIRElement implements \JsonSerializable
      * @param string $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -97,14 +99,16 @@ class FHIRGuidePageGeneration extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['value'])) {
                 $this->setValue($data['value']);
@@ -118,14 +122,16 @@ class FHIRGuidePageGeneration extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return mixed
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         return $this->value;
     }
 
@@ -134,12 +140,15 @@ class FHIRGuidePageGeneration extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<GuidePageGeneration xmlns="http://hl7.org/fhir"></GuidePageGeneration>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<GuidePageGeneration xmlns="http://hl7.org/fhir"></GuidePageGeneration>');
+        }
         $sxe->addAttribute('value', $this->value);
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -136,7 +136,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * Unique identifier for this particular Contract Provision.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -145,7 +146,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -154,7 +156,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * Offer Recipient.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractParty[]
      */
-    public function getParty() {
+    public function getParty()
+    {
         return $this->party;
     }
 
@@ -163,7 +166,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractParty $party
      * @return $this
      */
-    public function addParty($party) {
+    public function addParty($party)
+    {
         $this->party[] = $party;
         return $this;
     }
@@ -172,7 +176,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * The owner of an asset has the residual control rights over the asset: the right to decide all usages of the asset in any way not inconsistent with a prior contract, custom, or law (Hart, 1995, p. 30).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getTopic() {
+    public function getTopic()
+    {
         return $this->topic;
     }
 
@@ -181,7 +186,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $topic
      * @return $this
      */
-    public function setTopic($topic) {
+    public function setTopic($topic)
+    {
         $this->topic = $topic;
         return $this;
     }
@@ -190,7 +196,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * Type of Contract Provision such as specific requirements, purposes for actions, obligations, prohibitions, e.g. life time maximum benefit.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -199,7 +206,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -208,7 +216,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * Type of choice made by accepting party with respect to an offer made by an offeror/ grantee.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDecision() {
+    public function getDecision()
+    {
         return $this->decision;
     }
 
@@ -217,7 +226,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $decision
      * @return $this
      */
-    public function setDecision($decision) {
+    public function setDecision($decision)
+    {
         $this->decision = $decision;
         return $this;
     }
@@ -226,7 +236,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * How the decision about a Contract was conveyed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getDecisionMode() {
+    public function getDecisionMode()
+    {
         return $this->decisionMode;
     }
 
@@ -235,7 +246,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $decisionMode
      * @return $this
      */
-    public function addDecisionMode($decisionMode) {
+    public function addDecisionMode($decisionMode)
+    {
         $this->decisionMode[] = $decisionMode;
         return $this;
     }
@@ -244,7 +256,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * Response to offer text.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractAnswer[]
      */
-    public function getAnswer() {
+    public function getAnswer()
+    {
         return $this->answer;
     }
 
@@ -253,7 +266,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRContract\FHIRContractAnswer $answer
      * @return $this
      */
-    public function addAnswer($answer) {
+    public function addAnswer($answer)
+    {
         $this->answer[] = $answer;
         return $this;
     }
@@ -262,7 +276,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * Human readable form of this Contract Offer.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -271,7 +286,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -280,7 +296,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * The id of the clause or question text of the offer in the referenced questionnaire/response.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getLinkId() {
+    public function getLinkId()
+    {
         return $this->linkId;
     }
 
@@ -289,7 +306,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $linkId
      * @return $this
      */
-    public function addLinkId($linkId) {
+    public function addLinkId($linkId)
+    {
         $this->linkId[] = $linkId;
         return $this;
     }
@@ -298,7 +316,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * Security labels that protects the offer.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt[]
      */
-    public function getSecurityLabelNumber() {
+    public function getSecurityLabelNumber()
+    {
         return $this->securityLabelNumber;
     }
 
@@ -307,7 +326,8 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $securityLabelNumber
      * @return $this
      */
-    public function addSecurityLabelNumber($securityLabelNumber) {
+    public function addSecurityLabelNumber($securityLabelNumber)
+    {
         $this->securityLabelNumber[] = $securityLabelNumber;
         return $this;
     }
@@ -315,18 +335,20 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -335,7 +357,7 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
             }
             if (isset($data['party'])) {
                 if (is_array($data['party'])) {
-                    foreach($data['party'] as $d) {
+                    foreach ($data['party'] as $d) {
                         $this->addParty($d);
                     }
                 } else {
@@ -353,7 +375,7 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
             }
             if (isset($data['decisionMode'])) {
                 if (is_array($data['decisionMode'])) {
-                    foreach($data['decisionMode'] as $d) {
+                    foreach ($data['decisionMode'] as $d) {
                         $this->addDecisionMode($d);
                     }
                 } else {
@@ -362,7 +384,7 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
             }
             if (isset($data['answer'])) {
                 if (is_array($data['answer'])) {
-                    foreach($data['answer'] as $d) {
+                    foreach ($data['answer'] as $d) {
                         $this->addAnswer($d);
                     }
                 } else {
@@ -374,7 +396,7 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
             }
             if (isset($data['linkId'])) {
                 if (is_array($data['linkId'])) {
-                    foreach($data['linkId'] as $d) {
+                    foreach ($data['linkId'] as $d) {
                         $this->addLinkId($d);
                     }
                 } else {
@@ -383,7 +405,7 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
             }
             if (isset($data['securityLabelNumber'])) {
                 if (is_array($data['securityLabelNumber'])) {
-                    foreach($data['securityLabelNumber'] as $d) {
+                    foreach ($data['securityLabelNumber'] as $d) {
                         $this->addSecurityLabelNumber($d);
                     }
                 } else {
@@ -399,52 +421,62 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->party)) {
             $json['party'] = [];
-            foreach($this->party as $party) {
+            foreach ($this->party as $party) {
                 $json['party'][] = $party;
             }
         }
-        if (isset($this->topic)) $json['topic'] = $this->topic;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->decision)) $json['decision'] = $this->decision;
+        if (isset($this->topic)) {
+            $json['topic'] = $this->topic;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->decision)) {
+            $json['decision'] = $this->decision;
+        }
         if (0 < count($this->decisionMode)) {
             $json['decisionMode'] = [];
-            foreach($this->decisionMode as $decisionMode) {
+            foreach ($this->decisionMode as $decisionMode) {
                 $json['decisionMode'][] = $decisionMode;
             }
         }
         if (0 < count($this->answer)) {
             $json['answer'] = [];
-            foreach($this->answer as $answer) {
+            foreach ($this->answer as $answer) {
                 $json['answer'][] = $answer;
             }
         }
-        if (isset($this->text)) $json['text'] = $this->text;
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
         if (0 < count($this->linkId)) {
             $json['linkId'] = [];
-            foreach($this->linkId as $linkId) {
+            foreach ($this->linkId as $linkId) {
                 $json['linkId'][] = $linkId;
             }
         }
         if (0 < count($this->securityLabelNumber)) {
             $json['securityLabelNumber'] = [];
-            foreach($this->securityLabelNumber as $securityLabelNumber) {
+            foreach ($this->securityLabelNumber as $securityLabelNumber) {
                 $json['securityLabelNumber'][] = $securityLabelNumber;
             }
         }
@@ -456,46 +488,57 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ContractOffer xmlns="http://hl7.org/fhir"></ContractOffer>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ContractOffer xmlns="http://hl7.org/fhir"></ContractOffer>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->party)) {
-            foreach($this->party as $party) {
+            foreach ($this->party as $party) {
                 $party->xmlSerialize(true, $sxe->addChild('party'));
             }
         }
-        if (isset($this->topic)) $this->topic->xmlSerialize(true, $sxe->addChild('topic'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->decision)) $this->decision->xmlSerialize(true, $sxe->addChild('decision'));
+        if (isset($this->topic)) {
+            $this->topic->xmlSerialize(true, $sxe->addChild('topic'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->decision)) {
+            $this->decision->xmlSerialize(true, $sxe->addChild('decision'));
+        }
         if (0 < count($this->decisionMode)) {
-            foreach($this->decisionMode as $decisionMode) {
+            foreach ($this->decisionMode as $decisionMode) {
                 $decisionMode->xmlSerialize(true, $sxe->addChild('decisionMode'));
             }
         }
         if (0 < count($this->answer)) {
-            foreach($this->answer as $answer) {
+            foreach ($this->answer as $answer) {
                 $answer->xmlSerialize(true, $sxe->addChild('answer'));
             }
         }
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
         if (0 < count($this->linkId)) {
-            foreach($this->linkId as $linkId) {
+            foreach ($this->linkId as $linkId) {
                 $linkId->xmlSerialize(true, $sxe->addChild('linkId'));
             }
         }
         if (0 < count($this->securityLabelNumber)) {
-            foreach($this->securityLabelNumber as $securityLabelNumber) {
+            foreach ($this->securityLabelNumber as $securityLabelNumber) {
                 $securityLabelNumber->xmlSerialize(true, $sxe->addChild('securityLabelNumber'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

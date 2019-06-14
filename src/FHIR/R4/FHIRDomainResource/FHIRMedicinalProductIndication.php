@@ -131,7 +131,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * The medication for which this is an indication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -140,7 +141,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function addSubject($subject) {
+    public function addSubject($subject)
+    {
         $this->subject[] = $subject;
         return $this;
     }
@@ -149,7 +151,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * The disease, symptom or procedure that is the indication for treatment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDiseaseSymptomProcedure() {
+    public function getDiseaseSymptomProcedure()
+    {
         return $this->diseaseSymptomProcedure;
     }
 
@@ -158,7 +161,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $diseaseSymptomProcedure
      * @return $this
      */
-    public function setDiseaseSymptomProcedure($diseaseSymptomProcedure) {
+    public function setDiseaseSymptomProcedure($diseaseSymptomProcedure)
+    {
         $this->diseaseSymptomProcedure = $diseaseSymptomProcedure;
         return $this;
     }
@@ -167,7 +171,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * The status of the disease or symptom for which the indication applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDiseaseStatus() {
+    public function getDiseaseStatus()
+    {
         return $this->diseaseStatus;
     }
 
@@ -176,7 +181,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $diseaseStatus
      * @return $this
      */
-    public function setDiseaseStatus($diseaseStatus) {
+    public function setDiseaseStatus($diseaseStatus)
+    {
         $this->diseaseStatus = $diseaseStatus;
         return $this;
     }
@@ -185,7 +191,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * Comorbidity (concurrent condition) or co-infection as part of the indication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getComorbidity() {
+    public function getComorbidity()
+    {
         return $this->comorbidity;
     }
 
@@ -194,7 +201,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $comorbidity
      * @return $this
      */
-    public function addComorbidity($comorbidity) {
+    public function addComorbidity($comorbidity)
+    {
         $this->comorbidity[] = $comorbidity;
         return $this;
     }
@@ -203,7 +211,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * The intended effect, aim or strategy to be achieved by the indication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getIntendedEffect() {
+    public function getIntendedEffect()
+    {
         return $this->intendedEffect;
     }
 
@@ -212,7 +221,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $intendedEffect
      * @return $this
      */
-    public function setIntendedEffect($intendedEffect) {
+    public function setIntendedEffect($intendedEffect)
+    {
         $this->intendedEffect = $intendedEffect;
         return $this;
     }
@@ -221,7 +231,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * Timing or duration information as part of the indication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getDuration() {
+    public function getDuration()
+    {
         return $this->duration;
     }
 
@@ -230,7 +241,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $duration
      * @return $this
      */
-    public function setDuration($duration) {
+    public function setDuration($duration)
+    {
         $this->duration = $duration;
         return $this;
     }
@@ -239,7 +251,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * Information about the use of the medicinal product in relation to other therapies described as part of the indication.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductIndication\FHIRMedicinalProductIndicationOtherTherapy[]
      */
-    public function getOtherTherapy() {
+    public function getOtherTherapy()
+    {
         return $this->otherTherapy;
     }
 
@@ -248,7 +261,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductIndication\FHIRMedicinalProductIndicationOtherTherapy $otherTherapy
      * @return $this
      */
-    public function addOtherTherapy($otherTherapy) {
+    public function addOtherTherapy($otherTherapy)
+    {
         $this->otherTherapy[] = $otherTherapy;
         return $this;
     }
@@ -257,7 +271,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * Describe the undesirable effects of the medicinal product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getUndesirableEffect() {
+    public function getUndesirableEffect()
+    {
         return $this->undesirableEffect;
     }
 
@@ -266,7 +281,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $undesirableEffect
      * @return $this
      */
-    public function addUndesirableEffect($undesirableEffect) {
+    public function addUndesirableEffect($undesirableEffect)
+    {
         $this->undesirableEffect[] = $undesirableEffect;
         return $this;
     }
@@ -275,7 +291,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * The population group to which this applies.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPopulation[]
      */
-    public function getPopulation() {
+    public function getPopulation()
+    {
         return $this->population;
     }
 
@@ -284,7 +301,8 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPopulation $population
      * @return $this
      */
-    public function addPopulation($population) {
+    public function addPopulation($population)
+    {
         $this->population[] = $population;
         return $this;
     }
@@ -292,18 +310,20 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['subject'])) {
                 if (is_array($data['subject'])) {
-                    foreach($data['subject'] as $d) {
+                    foreach ($data['subject'] as $d) {
                         $this->addSubject($d);
                     }
                 } else {
@@ -318,7 +338,7 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
             }
             if (isset($data['comorbidity'])) {
                 if (is_array($data['comorbidity'])) {
-                    foreach($data['comorbidity'] as $d) {
+                    foreach ($data['comorbidity'] as $d) {
                         $this->addComorbidity($d);
                     }
                 } else {
@@ -333,7 +353,7 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
             }
             if (isset($data['otherTherapy'])) {
                 if (is_array($data['otherTherapy'])) {
-                    foreach($data['otherTherapy'] as $d) {
+                    foreach ($data['otherTherapy'] as $d) {
                         $this->addOtherTherapy($d);
                     }
                 } else {
@@ -342,7 +362,7 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
             }
             if (isset($data['undesirableEffect'])) {
                 if (is_array($data['undesirableEffect'])) {
-                    foreach($data['undesirableEffect'] as $d) {
+                    foreach ($data['undesirableEffect'] as $d) {
                         $this->addUndesirableEffect($d);
                     }
                 } else {
@@ -351,7 +371,7 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
             }
             if (isset($data['population'])) {
                 if (is_array($data['population'])) {
-                    foreach($data['population'] as $d) {
+                    foreach ($data['population'] as $d) {
                         $this->addPopulation($d);
                     }
                 } else {
@@ -367,47 +387,57 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->subject)) {
             $json['subject'] = [];
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $json['subject'][] = $subject;
             }
         }
-        if (isset($this->diseaseSymptomProcedure)) $json['diseaseSymptomProcedure'] = $this->diseaseSymptomProcedure;
-        if (isset($this->diseaseStatus)) $json['diseaseStatus'] = $this->diseaseStatus;
+        if (isset($this->diseaseSymptomProcedure)) {
+            $json['diseaseSymptomProcedure'] = $this->diseaseSymptomProcedure;
+        }
+        if (isset($this->diseaseStatus)) {
+            $json['diseaseStatus'] = $this->diseaseStatus;
+        }
         if (0 < count($this->comorbidity)) {
             $json['comorbidity'] = [];
-            foreach($this->comorbidity as $comorbidity) {
+            foreach ($this->comorbidity as $comorbidity) {
                 $json['comorbidity'][] = $comorbidity;
             }
         }
-        if (isset($this->intendedEffect)) $json['intendedEffect'] = $this->intendedEffect;
-        if (isset($this->duration)) $json['duration'] = $this->duration;
+        if (isset($this->intendedEffect)) {
+            $json['intendedEffect'] = $this->intendedEffect;
+        }
+        if (isset($this->duration)) {
+            $json['duration'] = $this->duration;
+        }
         if (0 < count($this->otherTherapy)) {
             $json['otherTherapy'] = [];
-            foreach($this->otherTherapy as $otherTherapy) {
+            foreach ($this->otherTherapy as $otherTherapy) {
                 $json['otherTherapy'][] = $otherTherapy;
             }
         }
         if (0 < count($this->undesirableEffect)) {
             $json['undesirableEffect'] = [];
-            foreach($this->undesirableEffect as $undesirableEffect) {
+            foreach ($this->undesirableEffect as $undesirableEffect) {
                 $json['undesirableEffect'][] = $undesirableEffect;
             }
         }
         if (0 < count($this->population)) {
             $json['population'] = [];
-            foreach($this->population as $population) {
+            foreach ($this->population as $population) {
                 $json['population'][] = $population;
             }
         }
@@ -419,41 +449,52 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductIndication xmlns="http://hl7.org/fhir"></MedicinalProductIndication>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductIndication xmlns="http://hl7.org/fhir"></MedicinalProductIndication>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->subject)) {
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $subject->xmlSerialize(true, $sxe->addChild('subject'));
             }
         }
-        if (isset($this->diseaseSymptomProcedure)) $this->diseaseSymptomProcedure->xmlSerialize(true, $sxe->addChild('diseaseSymptomProcedure'));
-        if (isset($this->diseaseStatus)) $this->diseaseStatus->xmlSerialize(true, $sxe->addChild('diseaseStatus'));
+        if (isset($this->diseaseSymptomProcedure)) {
+            $this->diseaseSymptomProcedure->xmlSerialize(true, $sxe->addChild('diseaseSymptomProcedure'));
+        }
+        if (isset($this->diseaseStatus)) {
+            $this->diseaseStatus->xmlSerialize(true, $sxe->addChild('diseaseStatus'));
+        }
         if (0 < count($this->comorbidity)) {
-            foreach($this->comorbidity as $comorbidity) {
+            foreach ($this->comorbidity as $comorbidity) {
                 $comorbidity->xmlSerialize(true, $sxe->addChild('comorbidity'));
             }
         }
-        if (isset($this->intendedEffect)) $this->intendedEffect->xmlSerialize(true, $sxe->addChild('intendedEffect'));
-        if (isset($this->duration)) $this->duration->xmlSerialize(true, $sxe->addChild('duration'));
+        if (isset($this->intendedEffect)) {
+            $this->intendedEffect->xmlSerialize(true, $sxe->addChild('intendedEffect'));
+        }
+        if (isset($this->duration)) {
+            $this->duration->xmlSerialize(true, $sxe->addChild('duration'));
+        }
         if (0 < count($this->otherTherapy)) {
-            foreach($this->otherTherapy as $otherTherapy) {
+            foreach ($this->otherTherapy as $otherTherapy) {
                 $otherTherapy->xmlSerialize(true, $sxe->addChild('otherTherapy'));
             }
         }
         if (0 < count($this->undesirableEffect)) {
-            foreach($this->undesirableEffect as $undesirableEffect) {
+            foreach ($this->undesirableEffect as $undesirableEffect) {
                 $undesirableEffect->xmlSerialize(true, $sxe->addChild('undesirableEffect'));
             }
         }
         if (0 < count($this->population)) {
-            foreach($this->population as $population) {
+            foreach ($this->population as $population) {
                 $population->xmlSerialize(true, $sxe->addChild('population'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

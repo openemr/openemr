@@ -120,7 +120,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * The actual condition specified. Could be a coded condition (like MI or Diabetes) or a less specific string like 'cancer' depending on how much is known about the condition and the capabilities of the creating system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -129,7 +130,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -138,7 +140,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * Indicates what happened following the condition.  If the condition resulted in death, deceased date is captured on the relation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getOutcome() {
+    public function getOutcome()
+    {
         return $this->outcome;
     }
 
@@ -147,7 +150,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $outcome
      * @return $this
      */
-    public function setOutcome($outcome) {
+    public function setOutcome($outcome)
+    {
         $this->outcome = $outcome;
         return $this;
     }
@@ -156,7 +160,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * This condition contributed to the cause of death of the related person. If contributedToDeath is not populated, then it is unknown.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getContributedToDeath() {
+    public function getContributedToDeath()
+    {
         return $this->contributedToDeath;
     }
 
@@ -165,7 +170,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $contributedToDeath
      * @return $this
      */
-    public function setContributedToDeath($contributedToDeath) {
+    public function setContributedToDeath($contributedToDeath)
+    {
         $this->contributedToDeath = $contributedToDeath;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getOnsetAge() {
+    public function getOnsetAge()
+    {
         return $this->onsetAge;
     }
 
@@ -181,7 +188,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $onsetAge
      * @return $this
      */
-    public function setOnsetAge($onsetAge) {
+    public function setOnsetAge($onsetAge)
+    {
         $this->onsetAge = $onsetAge;
         return $this;
     }
@@ -189,7 +197,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getOnsetRange() {
+    public function getOnsetRange()
+    {
         return $this->onsetRange;
     }
 
@@ -197,7 +206,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $onsetRange
      * @return $this
      */
-    public function setOnsetRange($onsetRange) {
+    public function setOnsetRange($onsetRange)
+    {
         $this->onsetRange = $onsetRange;
         return $this;
     }
@@ -205,7 +215,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getOnsetPeriod() {
+    public function getOnsetPeriod()
+    {
         return $this->onsetPeriod;
     }
 
@@ -213,7 +224,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $onsetPeriod
      * @return $this
      */
-    public function setOnsetPeriod($onsetPeriod) {
+    public function setOnsetPeriod($onsetPeriod)
+    {
         $this->onsetPeriod = $onsetPeriod;
         return $this;
     }
@@ -221,7 +233,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getOnsetString() {
+    public function getOnsetString()
+    {
         return $this->onsetString;
     }
 
@@ -229,7 +242,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $onsetString
      * @return $this
      */
-    public function setOnsetString($onsetString) {
+    public function setOnsetString($onsetString)
+    {
         $this->onsetString = $onsetString;
         return $this;
     }
@@ -238,7 +252,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * An area where general notes can be placed about this specific condition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -247,7 +262,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -255,14 +271,16 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -287,7 +305,7 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -303,25 +321,41 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->outcome)) $json['outcome'] = $this->outcome;
-        if (isset($this->contributedToDeath)) $json['contributedToDeath'] = $this->contributedToDeath;
-        if (isset($this->onsetAge)) $json['onsetAge'] = $this->onsetAge;
-        if (isset($this->onsetRange)) $json['onsetRange'] = $this->onsetRange;
-        if (isset($this->onsetPeriod)) $json['onsetPeriod'] = $this->onsetPeriod;
-        if (isset($this->onsetString)) $json['onsetString'] = $this->onsetString;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->outcome)) {
+            $json['outcome'] = $this->outcome;
+        }
+        if (isset($this->contributedToDeath)) {
+            $json['contributedToDeath'] = $this->contributedToDeath;
+        }
+        if (isset($this->onsetAge)) {
+            $json['onsetAge'] = $this->onsetAge;
+        }
+        if (isset($this->onsetRange)) {
+            $json['onsetRange'] = $this->onsetRange;
+        }
+        if (isset($this->onsetPeriod)) {
+            $json['onsetPeriod'] = $this->onsetPeriod;
+        }
+        if (isset($this->onsetString)) {
+            $json['onsetString'] = $this->onsetString;
+        }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
@@ -333,24 +367,41 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<FamilyMemberHistoryCondition xmlns="http://hl7.org/fhir"></FamilyMemberHistoryCondition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<FamilyMemberHistoryCondition xmlns="http://hl7.org/fhir"></FamilyMemberHistoryCondition>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->outcome)) $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
-        if (isset($this->contributedToDeath)) $this->contributedToDeath->xmlSerialize(true, $sxe->addChild('contributedToDeath'));
-        if (isset($this->onsetAge)) $this->onsetAge->xmlSerialize(true, $sxe->addChild('onsetAge'));
-        if (isset($this->onsetRange)) $this->onsetRange->xmlSerialize(true, $sxe->addChild('onsetRange'));
-        if (isset($this->onsetPeriod)) $this->onsetPeriod->xmlSerialize(true, $sxe->addChild('onsetPeriod'));
-        if (isset($this->onsetString)) $this->onsetString->xmlSerialize(true, $sxe->addChild('onsetString'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->outcome)) {
+            $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
+        }
+        if (isset($this->contributedToDeath)) {
+            $this->contributedToDeath->xmlSerialize(true, $sxe->addChild('contributedToDeath'));
+        }
+        if (isset($this->onsetAge)) {
+            $this->onsetAge->xmlSerialize(true, $sxe->addChild('onsetAge'));
+        }
+        if (isset($this->onsetRange)) {
+            $this->onsetRange->xmlSerialize(true, $sxe->addChild('onsetRange'));
+        }
+        if (isset($this->onsetPeriod)) {
+            $this->onsetPeriod->xmlSerialize(true, $sxe->addChild('onsetPeriod'));
+        }
+        if (isset($this->onsetString)) {
+            $this->onsetString->xmlSerialize(true, $sxe->addChild('onsetString'));
+        }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

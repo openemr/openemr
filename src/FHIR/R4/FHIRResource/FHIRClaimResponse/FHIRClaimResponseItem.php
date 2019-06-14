@@ -100,7 +100,8 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
      * A number to uniquely reference the claim item entries.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getItemSequence() {
+    public function getItemSequence()
+    {
         return $this->itemSequence;
     }
 
@@ -109,7 +110,8 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $itemSequence
      * @return $this
      */
-    public function setItemSequence($itemSequence) {
+    public function setItemSequence($itemSequence)
+    {
         $this->itemSequence = $itemSequence;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
      * The numbers associated with notes below which apply to the adjudication of this item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
-    public function getNoteNumber() {
+    public function getNoteNumber()
+    {
         return $this->noteNumber;
     }
 
@@ -127,7 +130,8 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $noteNumber
      * @return $this
      */
-    public function addNoteNumber($noteNumber) {
+    public function addNoteNumber($noteNumber)
+    {
         $this->noteNumber[] = $noteNumber;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
      * If this item is a group then the values here are a summary of the adjudication of the detail items. If this item is a simple product or service then this is the result of the adjudication of this item.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseAdjudication[]
      */
-    public function getAdjudication() {
+    public function getAdjudication()
+    {
         return $this->adjudication;
     }
 
@@ -145,7 +150,8 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseAdjudication $adjudication
      * @return $this
      */
-    public function addAdjudication($adjudication) {
+    public function addAdjudication($adjudication)
+    {
         $this->adjudication[] = $adjudication;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
      * A claim detail. Either a simple (a product or service) or a 'group' of sub-details which are simple items.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseDetail[]
      */
-    public function getDetail() {
+    public function getDetail()
+    {
         return $this->detail;
     }
 
@@ -163,7 +170,8 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseDetail $detail
      * @return $this
      */
-    public function addDetail($detail) {
+    public function addDetail($detail)
+    {
         $this->detail[] = $detail;
         return $this;
     }
@@ -171,21 +179,23 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['itemSequence'])) {
                 $this->setItemSequence($data['itemSequence']);
             }
             if (isset($data['noteNumber'])) {
                 if (is_array($data['noteNumber'])) {
-                    foreach($data['noteNumber'] as $d) {
+                    foreach ($data['noteNumber'] as $d) {
                         $this->addNoteNumber($d);
                     }
                 } else {
@@ -194,7 +204,7 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['adjudication'])) {
                 if (is_array($data['adjudication'])) {
-                    foreach($data['adjudication'] as $d) {
+                    foreach ($data['adjudication'] as $d) {
                         $this->addAdjudication($d);
                     }
                 } else {
@@ -203,7 +213,7 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['detail'])) {
                 if (is_array($data['detail'])) {
-                    foreach($data['detail'] as $d) {
+                    foreach ($data['detail'] as $d) {
                         $this->addDetail($d);
                     }
                 } else {
@@ -219,31 +229,35 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->itemSequence)) $json['itemSequence'] = $this->itemSequence;
+        if (isset($this->itemSequence)) {
+            $json['itemSequence'] = $this->itemSequence;
+        }
         if (0 < count($this->noteNumber)) {
             $json['noteNumber'] = [];
-            foreach($this->noteNumber as $noteNumber) {
+            foreach ($this->noteNumber as $noteNumber) {
                 $json['noteNumber'][] = $noteNumber;
             }
         }
         if (0 < count($this->adjudication)) {
             $json['adjudication'] = [];
-            foreach($this->adjudication as $adjudication) {
+            foreach ($this->adjudication as $adjudication) {
                 $json['adjudication'][] = $adjudication;
             }
         }
         if (0 < count($this->detail)) {
             $json['detail'] = [];
-            foreach($this->detail as $detail) {
+            foreach ($this->detail as $detail) {
                 $json['detail'][] = $detail;
             }
         }
@@ -255,28 +269,33 @@ class FHIRClaimResponseItem extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimResponseItem xmlns="http://hl7.org/fhir"></ClaimResponseItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimResponseItem xmlns="http://hl7.org/fhir"></ClaimResponseItem>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->itemSequence)) $this->itemSequence->xmlSerialize(true, $sxe->addChild('itemSequence'));
+        if (isset($this->itemSequence)) {
+            $this->itemSequence->xmlSerialize(true, $sxe->addChild('itemSequence'));
+        }
         if (0 < count($this->noteNumber)) {
-            foreach($this->noteNumber as $noteNumber) {
+            foreach ($this->noteNumber as $noteNumber) {
                 $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
             }
         }
         if (0 < count($this->adjudication)) {
-            foreach($this->adjudication as $adjudication) {
+            foreach ($this->adjudication as $adjudication) {
                 $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
             }
         }
         if (0 < count($this->detail)) {
-            foreach($this->detail as $detail) {
+            foreach ($this->detail as $detail) {
                 $detail->xmlSerialize(true, $sxe->addChild('detail'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

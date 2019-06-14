@@ -100,7 +100,8 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
      * Indicates a meaning for the supplemental data. This can be as simple as a unique identifier, or it can establish meaning in a broader context by drawing from a terminology, allowing supplemental data to be correlated across measures.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -109,7 +110,8 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
      * An indicator of the intended usage for the supplemental data element. Supplemental data indicates the data is additional information requested to augment the measure information. Risk adjustment factor indicates the data is additional information used to calculate risk adjustment factors when applying a risk model to the measure calculation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getUsage() {
+    public function getUsage()
+    {
         return $this->usage;
     }
 
@@ -127,7 +130,8 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $usage
      * @return $this
      */
-    public function addUsage($usage) {
+    public function addUsage($usage)
+    {
         $this->usage[] = $usage;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
      * The human readable description of this supplemental data.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -145,7 +150,8 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
      * The criteria for the supplemental data. This is typically the name of a valid expression defined within a referenced library, but it may also be a path to a specific data element. The criteria defines the data to be returned for this element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getCriteria() {
+    public function getCriteria()
+    {
         return $this->criteria;
     }
 
@@ -163,7 +170,8 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $criteria
      * @return $this
      */
-    public function setCriteria($criteria) {
+    public function setCriteria($criteria)
+    {
         $this->criteria = $criteria;
         return $this;
     }
@@ -171,21 +179,23 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
             }
             if (isset($data['usage'])) {
                 if (is_array($data['usage'])) {
-                    foreach($data['usage'] as $d) {
+                    foreach ($data['usage'] as $d) {
                         $this->addUsage($d);
                     }
                 } else {
@@ -207,24 +217,32 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
         if (0 < count($this->usage)) {
             $json['usage'] = [];
-            foreach($this->usage as $usage) {
+            foreach ($this->usage as $usage) {
                 $json['usage'][] = $usage;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->criteria)) $json['criteria'] = $this->criteria;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->criteria)) {
+            $json['criteria'] = $this->criteria;
+        }
         return $json;
     }
 
@@ -233,20 +251,29 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MeasureSupplementalData xmlns="http://hl7.org/fhir"></MeasureSupplementalData>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MeasureSupplementalData xmlns="http://hl7.org/fhir"></MeasureSupplementalData>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
         if (0 < count($this->usage)) {
-            foreach($this->usage as $usage) {
+            foreach ($this->usage as $usage) {
                 $usage->xmlSerialize(true, $sxe->addChild('usage'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->criteria)) $this->criteria->xmlSerialize(true, $sxe->addChild('criteria'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->criteria)) {
+            $this->criteria->xmlSerialize(true, $sxe->addChild('criteria'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

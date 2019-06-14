@@ -83,7 +83,8 @@ class FHIRParameters extends FHIRResource implements \JsonSerializable
      * A parameter passed to or received from the operation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRParameters\FHIRParametersParameter[]
      */
-    public function getParameter() {
+    public function getParameter()
+    {
         return $this->parameter;
     }
 
@@ -92,7 +93,8 @@ class FHIRParameters extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRParameters\FHIRParametersParameter $parameter
      * @return $this
      */
-    public function addParameter($parameter) {
+    public function addParameter($parameter)
+    {
         $this->parameter[] = $parameter;
         return $this;
     }
@@ -100,18 +102,20 @@ class FHIRParameters extends FHIRResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['parameter'])) {
                 if (is_array($data['parameter'])) {
-                    foreach($data['parameter'] as $d) {
+                    foreach ($data['parameter'] as $d) {
                         $this->addParameter($d);
                     }
                 } else {
@@ -127,19 +131,21 @@ class FHIRParameters extends FHIRResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->parameter)) {
             $json['parameter'] = [];
-            foreach($this->parameter as $parameter) {
+            foreach ($this->parameter as $parameter) {
                 $json['parameter'][] = $parameter;
             }
         }
@@ -151,17 +157,20 @@ class FHIRParameters extends FHIRResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Parameters xmlns="http://hl7.org/fhir"></Parameters>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Parameters xmlns="http://hl7.org/fhir"></Parameters>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->parameter)) {
-            foreach($this->parameter as $parameter) {
+            foreach ($this->parameter as $parameter) {
                 $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

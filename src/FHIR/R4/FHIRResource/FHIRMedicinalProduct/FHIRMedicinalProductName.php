@@ -94,7 +94,8 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
      * The full product name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getProductName() {
+    public function getProductName()
+    {
         return $this->productName;
     }
 
@@ -103,7 +104,8 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $productName
      * @return $this
      */
-    public function setProductName($productName) {
+    public function setProductName($productName)
+    {
         $this->productName = $productName;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
      * Coding words or phrases of the name.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductNamePart[]
      */
-    public function getNamePart() {
+    public function getNamePart()
+    {
         return $this->namePart;
     }
 
@@ -121,7 +124,8 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductNamePart $namePart
      * @return $this
      */
-    public function addNamePart($namePart) {
+    public function addNamePart($namePart)
+    {
         $this->namePart[] = $namePart;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
      * Country where the name applies.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductCountryLanguage[]
      */
-    public function getCountryLanguage() {
+    public function getCountryLanguage()
+    {
         return $this->countryLanguage;
     }
 
@@ -139,7 +144,8 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductCountryLanguage $countryLanguage
      * @return $this
      */
-    public function addCountryLanguage($countryLanguage) {
+    public function addCountryLanguage($countryLanguage)
+    {
         $this->countryLanguage[] = $countryLanguage;
         return $this;
     }
@@ -147,21 +153,23 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['productName'])) {
                 $this->setProductName($data['productName']);
             }
             if (isset($data['namePart'])) {
                 if (is_array($data['namePart'])) {
-                    foreach($data['namePart'] as $d) {
+                    foreach ($data['namePart'] as $d) {
                         $this->addNamePart($d);
                     }
                 } else {
@@ -170,7 +178,7 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['countryLanguage'])) {
                 if (is_array($data['countryLanguage'])) {
-                    foreach($data['countryLanguage'] as $d) {
+                    foreach ($data['countryLanguage'] as $d) {
                         $this->addCountryLanguage($d);
                     }
                 } else {
@@ -186,25 +194,29 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->productName)) $json['productName'] = $this->productName;
+        if (isset($this->productName)) {
+            $json['productName'] = $this->productName;
+        }
         if (0 < count($this->namePart)) {
             $json['namePart'] = [];
-            foreach($this->namePart as $namePart) {
+            foreach ($this->namePart as $namePart) {
                 $json['namePart'][] = $namePart;
             }
         }
         if (0 < count($this->countryLanguage)) {
             $json['countryLanguage'] = [];
-            foreach($this->countryLanguage as $countryLanguage) {
+            foreach ($this->countryLanguage as $countryLanguage) {
                 $json['countryLanguage'][] = $countryLanguage;
             }
         }
@@ -216,23 +228,28 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductName xmlns="http://hl7.org/fhir"></MedicinalProductName>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductName xmlns="http://hl7.org/fhir"></MedicinalProductName>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->productName)) $this->productName->xmlSerialize(true, $sxe->addChild('productName'));
+        if (isset($this->productName)) {
+            $this->productName->xmlSerialize(true, $sxe->addChild('productName'));
+        }
         if (0 < count($this->namePart)) {
-            foreach($this->namePart as $namePart) {
+            foreach ($this->namePart as $namePart) {
                 $namePart->xmlSerialize(true, $sxe->addChild('namePart'));
             }
         }
         if (0 < count($this->countryLanguage)) {
-            foreach($this->countryLanguage as $countryLanguage) {
+            foreach ($this->countryLanguage as $countryLanguage) {
                 $countryLanguage->xmlSerialize(true, $sxe->addChild('countryLanguage'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

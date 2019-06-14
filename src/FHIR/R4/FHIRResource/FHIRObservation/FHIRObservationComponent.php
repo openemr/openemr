@@ -155,7 +155,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * Describes what was observed. Sometimes this is called the observation "code".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -164,7 +165,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -172,7 +174,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValueQuantity() {
+    public function getValueQuantity()
+    {
         return $this->valueQuantity;
     }
 
@@ -180,7 +183,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
      * @return $this
      */
-    public function setValueQuantity($valueQuantity) {
+    public function setValueQuantity($valueQuantity)
+    {
         $this->valueQuantity = $valueQuantity;
         return $this;
     }
@@ -188,7 +192,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getValueCodeableConcept() {
+    public function getValueCodeableConcept()
+    {
         return $this->valueCodeableConcept;
     }
 
@@ -196,7 +201,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $valueCodeableConcept
      * @return $this
      */
-    public function setValueCodeableConcept($valueCodeableConcept) {
+    public function setValueCodeableConcept($valueCodeableConcept)
+    {
         $this->valueCodeableConcept = $valueCodeableConcept;
         return $this;
     }
@@ -204,7 +210,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValueString() {
+    public function getValueString()
+    {
         return $this->valueString;
     }
 
@@ -212,7 +219,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $valueString
      * @return $this
      */
-    public function setValueString($valueString) {
+    public function setValueString($valueString)
+    {
         $this->valueString = $valueString;
         return $this;
     }
@@ -220,7 +228,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getValueBoolean() {
+    public function getValueBoolean()
+    {
         return $this->valueBoolean;
     }
 
@@ -228,7 +237,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $valueBoolean
      * @return $this
      */
-    public function setValueBoolean($valueBoolean) {
+    public function setValueBoolean($valueBoolean)
+    {
         $this->valueBoolean = $valueBoolean;
         return $this;
     }
@@ -236,7 +246,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getValueInteger() {
+    public function getValueInteger()
+    {
         return $this->valueInteger;
     }
 
@@ -244,7 +255,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $valueInteger
      * @return $this
      */
-    public function setValueInteger($valueInteger) {
+    public function setValueInteger($valueInteger)
+    {
         $this->valueInteger = $valueInteger;
         return $this;
     }
@@ -252,7 +264,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getValueRange() {
+    public function getValueRange()
+    {
         return $this->valueRange;
     }
 
@@ -260,7 +273,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $valueRange
      * @return $this
      */
-    public function setValueRange($valueRange) {
+    public function setValueRange($valueRange)
+    {
         $this->valueRange = $valueRange;
         return $this;
     }
@@ -268,7 +282,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getValueRatio() {
+    public function getValueRatio()
+    {
         return $this->valueRatio;
     }
 
@@ -276,7 +291,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $valueRatio
      * @return $this
      */
-    public function setValueRatio($valueRatio) {
+    public function setValueRatio($valueRatio)
+    {
         $this->valueRatio = $valueRatio;
         return $this;
     }
@@ -284,7 +300,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData
      */
-    public function getValueSampledData() {
+    public function getValueSampledData()
+    {
         return $this->valueSampledData;
     }
 
@@ -292,7 +309,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData $valueSampledData
      * @return $this
      */
-    public function setValueSampledData($valueSampledData) {
+    public function setValueSampledData($valueSampledData)
+    {
         $this->valueSampledData = $valueSampledData;
         return $this;
     }
@@ -300,7 +318,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getValueTime() {
+    public function getValueTime()
+    {
         return $this->valueTime;
     }
 
@@ -308,7 +327,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $valueTime
      * @return $this
      */
-    public function setValueTime($valueTime) {
+    public function setValueTime($valueTime)
+    {
         $this->valueTime = $valueTime;
         return $this;
     }
@@ -316,7 +336,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getValueDateTime() {
+    public function getValueDateTime()
+    {
         return $this->valueDateTime;
     }
 
@@ -324,7 +345,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $valueDateTime
      * @return $this
      */
-    public function setValueDateTime($valueDateTime) {
+    public function setValueDateTime($valueDateTime)
+    {
         $this->valueDateTime = $valueDateTime;
         return $this;
     }
@@ -332,7 +354,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getValuePeriod() {
+    public function getValuePeriod()
+    {
         return $this->valuePeriod;
     }
 
@@ -340,7 +363,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $valuePeriod
      * @return $this
      */
-    public function setValuePeriod($valuePeriod) {
+    public function setValuePeriod($valuePeriod)
+    {
         $this->valuePeriod = $valuePeriod;
         return $this;
     }
@@ -349,7 +373,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * Provides a reason why the expected value in the element Observation.component.value[x] is missing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDataAbsentReason() {
+    public function getDataAbsentReason()
+    {
         return $this->dataAbsentReason;
     }
 
@@ -358,7 +383,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $dataAbsentReason
      * @return $this
      */
-    public function setDataAbsentReason($dataAbsentReason) {
+    public function setDataAbsentReason($dataAbsentReason)
+    {
         $this->dataAbsentReason = $dataAbsentReason;
         return $this;
     }
@@ -367,7 +393,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * A categorical assessment of an observation value.  For example, high, low, normal.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getInterpretation() {
+    public function getInterpretation()
+    {
         return $this->interpretation;
     }
 
@@ -376,7 +403,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $interpretation
      * @return $this
      */
-    public function addInterpretation($interpretation) {
+    public function addInterpretation($interpretation)
+    {
         $this->interpretation[] = $interpretation;
         return $this;
     }
@@ -385,7 +413,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * Guidance on how to interpret the value by comparison to a normal or recommended range.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange[]
      */
-    public function getReferenceRange() {
+    public function getReferenceRange()
+    {
         return $this->referenceRange;
     }
 
@@ -394,7 +423,8 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange $referenceRange
      * @return $this
      */
-    public function addReferenceRange($referenceRange) {
+    public function addReferenceRange($referenceRange)
+    {
         $this->referenceRange[] = $referenceRange;
         return $this;
     }
@@ -402,14 +432,16 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -452,7 +484,7 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['interpretation'])) {
                 if (is_array($data['interpretation'])) {
-                    foreach($data['interpretation'] as $d) {
+                    foreach ($data['interpretation'] as $d) {
                         $this->addInterpretation($d);
                     }
                 } else {
@@ -461,7 +493,7 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['referenceRange'])) {
                 if (is_array($data['referenceRange'])) {
-                    foreach($data['referenceRange'] as $d) {
+                    foreach ($data['referenceRange'] as $d) {
                         $this->addReferenceRange($d);
                     }
                 } else {
@@ -477,37 +509,65 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->valueQuantity)) $json['valueQuantity'] = $this->valueQuantity;
-        if (isset($this->valueCodeableConcept)) $json['valueCodeableConcept'] = $this->valueCodeableConcept;
-        if (isset($this->valueString)) $json['valueString'] = $this->valueString;
-        if (isset($this->valueBoolean)) $json['valueBoolean'] = $this->valueBoolean;
-        if (isset($this->valueInteger)) $json['valueInteger'] = $this->valueInteger;
-        if (isset($this->valueRange)) $json['valueRange'] = $this->valueRange;
-        if (isset($this->valueRatio)) $json['valueRatio'] = $this->valueRatio;
-        if (isset($this->valueSampledData)) $json['valueSampledData'] = $this->valueSampledData;
-        if (isset($this->valueTime)) $json['valueTime'] = $this->valueTime;
-        if (isset($this->valueDateTime)) $json['valueDateTime'] = $this->valueDateTime;
-        if (isset($this->valuePeriod)) $json['valuePeriod'] = $this->valuePeriod;
-        if (isset($this->dataAbsentReason)) $json['dataAbsentReason'] = $this->dataAbsentReason;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->valueQuantity)) {
+            $json['valueQuantity'] = $this->valueQuantity;
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $json['valueCodeableConcept'] = $this->valueCodeableConcept;
+        }
+        if (isset($this->valueString)) {
+            $json['valueString'] = $this->valueString;
+        }
+        if (isset($this->valueBoolean)) {
+            $json['valueBoolean'] = $this->valueBoolean;
+        }
+        if (isset($this->valueInteger)) {
+            $json['valueInteger'] = $this->valueInteger;
+        }
+        if (isset($this->valueRange)) {
+            $json['valueRange'] = $this->valueRange;
+        }
+        if (isset($this->valueRatio)) {
+            $json['valueRatio'] = $this->valueRatio;
+        }
+        if (isset($this->valueSampledData)) {
+            $json['valueSampledData'] = $this->valueSampledData;
+        }
+        if (isset($this->valueTime)) {
+            $json['valueTime'] = $this->valueTime;
+        }
+        if (isset($this->valueDateTime)) {
+            $json['valueDateTime'] = $this->valueDateTime;
+        }
+        if (isset($this->valuePeriod)) {
+            $json['valuePeriod'] = $this->valuePeriod;
+        }
+        if (isset($this->dataAbsentReason)) {
+            $json['dataAbsentReason'] = $this->dataAbsentReason;
+        }
         if (0 < count($this->interpretation)) {
             $json['interpretation'] = [];
-            foreach($this->interpretation as $interpretation) {
+            foreach ($this->interpretation as $interpretation) {
                 $json['interpretation'][] = $interpretation;
             }
         }
         if (0 < count($this->referenceRange)) {
             $json['referenceRange'] = [];
-            foreach($this->referenceRange as $referenceRange) {
+            foreach ($this->referenceRange as $referenceRange) {
                 $json['referenceRange'][] = $referenceRange;
             }
         }
@@ -519,35 +579,64 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ObservationComponent xmlns="http://hl7.org/fhir"></ObservationComponent>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ObservationComponent xmlns="http://hl7.org/fhir"></ObservationComponent>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->valueQuantity)) $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
-        if (isset($this->valueCodeableConcept)) $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
-        if (isset($this->valueString)) $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
-        if (isset($this->valueBoolean)) $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
-        if (isset($this->valueInteger)) $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
-        if (isset($this->valueRange)) $this->valueRange->xmlSerialize(true, $sxe->addChild('valueRange'));
-        if (isset($this->valueRatio)) $this->valueRatio->xmlSerialize(true, $sxe->addChild('valueRatio'));
-        if (isset($this->valueSampledData)) $this->valueSampledData->xmlSerialize(true, $sxe->addChild('valueSampledData'));
-        if (isset($this->valueTime)) $this->valueTime->xmlSerialize(true, $sxe->addChild('valueTime'));
-        if (isset($this->valueDateTime)) $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
-        if (isset($this->valuePeriod)) $this->valuePeriod->xmlSerialize(true, $sxe->addChild('valuePeriod'));
-        if (isset($this->dataAbsentReason)) $this->dataAbsentReason->xmlSerialize(true, $sxe->addChild('dataAbsentReason'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->valueQuantity)) {
+            $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
+        }
+        if (isset($this->valueString)) {
+            $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
+        }
+        if (isset($this->valueBoolean)) {
+            $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
+        }
+        if (isset($this->valueInteger)) {
+            $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
+        }
+        if (isset($this->valueRange)) {
+            $this->valueRange->xmlSerialize(true, $sxe->addChild('valueRange'));
+        }
+        if (isset($this->valueRatio)) {
+            $this->valueRatio->xmlSerialize(true, $sxe->addChild('valueRatio'));
+        }
+        if (isset($this->valueSampledData)) {
+            $this->valueSampledData->xmlSerialize(true, $sxe->addChild('valueSampledData'));
+        }
+        if (isset($this->valueTime)) {
+            $this->valueTime->xmlSerialize(true, $sxe->addChild('valueTime'));
+        }
+        if (isset($this->valueDateTime)) {
+            $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
+        }
+        if (isset($this->valuePeriod)) {
+            $this->valuePeriod->xmlSerialize(true, $sxe->addChild('valuePeriod'));
+        }
+        if (isset($this->dataAbsentReason)) {
+            $this->dataAbsentReason->xmlSerialize(true, $sxe->addChild('dataAbsentReason'));
+        }
         if (0 < count($this->interpretation)) {
-            foreach($this->interpretation as $interpretation) {
+            foreach ($this->interpretation as $interpretation) {
                 $interpretation->xmlSerialize(true, $sxe->addChild('interpretation'));
             }
         }
         if (0 < count($this->referenceRange)) {
-            foreach($this->referenceRange as $referenceRange) {
+            foreach ($this->referenceRange as $referenceRange) {
                 $referenceRange->xmlSerialize(true, $sxe->addChild('referenceRange'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -113,7 +113,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * A business identifier associated with the kind of specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -122,7 +123,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -131,7 +133,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * The kind of material to be collected.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getTypeCollected() {
+    public function getTypeCollected()
+    {
         return $this->typeCollected;
     }
 
@@ -140,7 +143,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $typeCollected
      * @return $this
      */
-    public function setTypeCollected($typeCollected) {
+    public function setTypeCollected($typeCollected)
+    {
         $this->typeCollected = $typeCollected;
         return $this;
     }
@@ -149,7 +153,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * Preparation of the patient for specimen collection.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getPatientPreparation() {
+    public function getPatientPreparation()
+    {
         return $this->patientPreparation;
     }
 
@@ -158,7 +163,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $patientPreparation
      * @return $this
      */
-    public function addPatientPreparation($patientPreparation) {
+    public function addPatientPreparation($patientPreparation)
+    {
         $this->patientPreparation[] = $patientPreparation;
         return $this;
     }
@@ -167,7 +173,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * Time aspect of specimen collection (duration or offset).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTimeAspect() {
+    public function getTimeAspect()
+    {
         return $this->timeAspect;
     }
 
@@ -176,7 +183,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $timeAspect
      * @return $this
      */
-    public function setTimeAspect($timeAspect) {
+    public function setTimeAspect($timeAspect)
+    {
         $this->timeAspect = $timeAspect;
         return $this;
     }
@@ -185,7 +193,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * The action to be performed for collecting the specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCollection() {
+    public function getCollection()
+    {
         return $this->collection;
     }
 
@@ -194,7 +203,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $collection
      * @return $this
      */
-    public function addCollection($collection) {
+    public function addCollection($collection)
+    {
         $this->collection[] = $collection;
         return $this;
     }
@@ -203,7 +213,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * Specimen conditioned in a container as expected by the testing laboratory.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimenDefinition\FHIRSpecimenDefinitionTypeTested[]
      */
-    public function getTypeTested() {
+    public function getTypeTested()
+    {
         return $this->typeTested;
     }
 
@@ -212,7 +223,8 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimenDefinition\FHIRSpecimenDefinitionTypeTested $typeTested
      * @return $this
      */
-    public function addTypeTested($typeTested) {
+    public function addTypeTested($typeTested)
+    {
         $this->typeTested[] = $typeTested;
         return $this;
     }
@@ -220,14 +232,16 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 $this->setIdentifier($data['identifier']);
@@ -237,7 +251,7 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['patientPreparation'])) {
                 if (is_array($data['patientPreparation'])) {
-                    foreach($data['patientPreparation'] as $d) {
+                    foreach ($data['patientPreparation'] as $d) {
                         $this->addPatientPreparation($d);
                     }
                 } else {
@@ -249,7 +263,7 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['collection'])) {
                 if (is_array($data['collection'])) {
-                    foreach($data['collection'] as $d) {
+                    foreach ($data['collection'] as $d) {
                         $this->addCollection($d);
                     }
                 } else {
@@ -258,7 +272,7 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['typeTested'])) {
                 if (is_array($data['typeTested'])) {
-                    foreach($data['typeTested'] as $d) {
+                    foreach ($data['typeTested'] as $d) {
                         $this->addTypeTested($d);
                     }
                 } else {
@@ -274,34 +288,42 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->typeCollected)) $json['typeCollected'] = $this->typeCollected;
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->typeCollected)) {
+            $json['typeCollected'] = $this->typeCollected;
+        }
         if (0 < count($this->patientPreparation)) {
             $json['patientPreparation'] = [];
-            foreach($this->patientPreparation as $patientPreparation) {
+            foreach ($this->patientPreparation as $patientPreparation) {
                 $json['patientPreparation'][] = $patientPreparation;
             }
         }
-        if (isset($this->timeAspect)) $json['timeAspect'] = $this->timeAspect;
+        if (isset($this->timeAspect)) {
+            $json['timeAspect'] = $this->timeAspect;
+        }
         if (0 < count($this->collection)) {
             $json['collection'] = [];
-            foreach($this->collection as $collection) {
+            foreach ($this->collection as $collection) {
                 $json['collection'][] = $collection;
             }
         }
         if (0 < count($this->typeTested)) {
             $json['typeTested'] = [];
-            foreach($this->typeTested as $typeTested) {
+            foreach ($this->typeTested as $typeTested) {
                 $json['typeTested'][] = $typeTested;
             }
         }
@@ -313,30 +335,39 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SpecimenDefinition xmlns="http://hl7.org/fhir"></SpecimenDefinition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SpecimenDefinition xmlns="http://hl7.org/fhir"></SpecimenDefinition>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->typeCollected)) $this->typeCollected->xmlSerialize(true, $sxe->addChild('typeCollected'));
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->typeCollected)) {
+            $this->typeCollected->xmlSerialize(true, $sxe->addChild('typeCollected'));
+        }
         if (0 < count($this->patientPreparation)) {
-            foreach($this->patientPreparation as $patientPreparation) {
+            foreach ($this->patientPreparation as $patientPreparation) {
                 $patientPreparation->xmlSerialize(true, $sxe->addChild('patientPreparation'));
             }
         }
-        if (isset($this->timeAspect)) $this->timeAspect->xmlSerialize(true, $sxe->addChild('timeAspect'));
+        if (isset($this->timeAspect)) {
+            $this->timeAspect->xmlSerialize(true, $sxe->addChild('timeAspect'));
+        }
         if (0 < count($this->collection)) {
-            foreach($this->collection as $collection) {
+            foreach ($this->collection as $collection) {
                 $collection->xmlSerialize(true, $sxe->addChild('collection'));
             }
         }
         if (0 < count($this->typeTested)) {
-            foreach($this->typeTested as $typeTested) {
+            foreach ($this->typeTested as $typeTested) {
                 $typeTested->xmlSerialize(true, $sxe->addChild('typeTested'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

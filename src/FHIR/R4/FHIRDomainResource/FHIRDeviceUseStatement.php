@@ -164,7 +164,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * An external identifier for this statement such as an IRI.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -173,7 +174,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -182,7 +184,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * A plan, proposal or order that is fulfilled in whole or in part by this DeviceUseStatement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getBasedOn() {
+    public function getBasedOn()
+    {
         return $this->basedOn;
     }
 
@@ -191,7 +194,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $basedOn
      * @return $this
      */
-    public function addBasedOn($basedOn) {
+    public function addBasedOn($basedOn)
+    {
         $this->basedOn[] = $basedOn;
         return $this;
     }
@@ -200,7 +204,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * A code representing the patient or other source's judgment about the state of the device used that this statement is about.  Generally this will be active or completed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceUseStatementStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -209,7 +214,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDeviceUseStatementStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -218,7 +224,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * The patient who used the device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -227,7 +234,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -236,7 +244,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * Allows linking the DeviceUseStatement to the underlying Request, or to other information that supports or is used to derive the DeviceUseStatement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getDerivedFrom() {
+    public function getDerivedFrom()
+    {
         return $this->derivedFrom;
     }
 
@@ -245,7 +254,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $derivedFrom
      * @return $this
      */
-    public function addDerivedFrom($derivedFrom) {
+    public function addDerivedFrom($derivedFrom)
+    {
         $this->derivedFrom[] = $derivedFrom;
         return $this;
     }
@@ -253,7 +263,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getTimingTiming() {
+    public function getTimingTiming()
+    {
         return $this->timingTiming;
     }
 
@@ -261,7 +272,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $timingTiming
      * @return $this
      */
-    public function setTimingTiming($timingTiming) {
+    public function setTimingTiming($timingTiming)
+    {
         $this->timingTiming = $timingTiming;
         return $this;
     }
@@ -269,7 +281,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getTimingPeriod() {
+    public function getTimingPeriod()
+    {
         return $this->timingPeriod;
     }
 
@@ -277,7 +290,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $timingPeriod
      * @return $this
      */
-    public function setTimingPeriod($timingPeriod) {
+    public function setTimingPeriod($timingPeriod)
+    {
         $this->timingPeriod = $timingPeriod;
         return $this;
     }
@@ -285,7 +299,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getTimingDateTime() {
+    public function getTimingDateTime()
+    {
         return $this->timingDateTime;
     }
 
@@ -293,7 +308,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $timingDateTime
      * @return $this
      */
-    public function setTimingDateTime($timingDateTime) {
+    public function setTimingDateTime($timingDateTime)
+    {
         $this->timingDateTime = $timingDateTime;
         return $this;
     }
@@ -302,7 +318,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * The time at which the statement was made/recorded.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getRecordedOn() {
+    public function getRecordedOn()
+    {
         return $this->recordedOn;
     }
 
@@ -311,7 +328,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $recordedOn
      * @return $this
      */
-    public function setRecordedOn($recordedOn) {
+    public function setRecordedOn($recordedOn)
+    {
         $this->recordedOn = $recordedOn;
         return $this;
     }
@@ -320,7 +338,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * Who reported the device was being used by the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -329,7 +348,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function setSource($source) {
+    public function setSource($source)
+    {
         $this->source = $source;
         return $this;
     }
@@ -338,7 +358,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * The details of the device used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDevice() {
+    public function getDevice()
+    {
         return $this->device;
     }
 
@@ -347,7 +368,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $device
      * @return $this
      */
-    public function setDevice($device) {
+    public function setDevice($device)
+    {
         $this->device = $device;
         return $this;
     }
@@ -356,7 +378,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * Reason or justification for the use of the device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getReasonCode() {
+    public function getReasonCode()
+    {
         return $this->reasonCode;
     }
 
@@ -365,7 +388,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reasonCode
      * @return $this
      */
-    public function addReasonCode($reasonCode) {
+    public function addReasonCode($reasonCode)
+    {
         $this->reasonCode[] = $reasonCode;
         return $this;
     }
@@ -374,7 +398,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * Indicates another resource whose existence justifies this DeviceUseStatement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReasonReference() {
+    public function getReasonReference()
+    {
         return $this->reasonReference;
     }
 
@@ -383,7 +408,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reasonReference
      * @return $this
      */
-    public function addReasonReference($reasonReference) {
+    public function addReasonReference($reasonReference)
+    {
         $this->reasonReference[] = $reasonReference;
         return $this;
     }
@@ -392,7 +418,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * Indicates the anotomic location on the subject's body where the device was used ( i.e. the target).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getBodySite() {
+    public function getBodySite()
+    {
         return $this->bodySite;
     }
 
@@ -401,7 +428,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $bodySite
      * @return $this
      */
-    public function setBodySite($bodySite) {
+    public function setBodySite($bodySite)
+    {
         $this->bodySite = $bodySite;
         return $this;
     }
@@ -410,7 +438,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * Details about the device statement that were not represented at all or sufficiently in one of the attributes provided in a class. These may include for example a comment, an instruction, or a note associated with the statement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -419,7 +448,8 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -427,18 +457,20 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -447,7 +479,7 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['basedOn'])) {
                 if (is_array($data['basedOn'])) {
-                    foreach($data['basedOn'] as $d) {
+                    foreach ($data['basedOn'] as $d) {
                         $this->addBasedOn($d);
                     }
                 } else {
@@ -462,7 +494,7 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['derivedFrom'])) {
                 if (is_array($data['derivedFrom'])) {
-                    foreach($data['derivedFrom'] as $d) {
+                    foreach ($data['derivedFrom'] as $d) {
                         $this->addDerivedFrom($d);
                     }
                 } else {
@@ -489,7 +521,7 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['reasonCode'])) {
                 if (is_array($data['reasonCode'])) {
-                    foreach($data['reasonCode'] as $d) {
+                    foreach ($data['reasonCode'] as $d) {
                         $this->addReasonCode($d);
                     }
                 } else {
@@ -498,7 +530,7 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['reasonReference'])) {
                 if (is_array($data['reasonReference'])) {
-                    foreach($data['reasonReference'] as $d) {
+                    foreach ($data['reasonReference'] as $d) {
                         $this->addReasonReference($d);
                     }
                 } else {
@@ -510,7 +542,7 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -526,58 +558,78 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->basedOn)) {
             $json['basedOn'] = [];
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $json['basedOn'][] = $basedOn;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->subject)) $json['subject'] = $this->subject;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
         if (0 < count($this->derivedFrom)) {
             $json['derivedFrom'] = [];
-            foreach($this->derivedFrom as $derivedFrom) {
+            foreach ($this->derivedFrom as $derivedFrom) {
                 $json['derivedFrom'][] = $derivedFrom;
             }
         }
-        if (isset($this->timingTiming)) $json['timingTiming'] = $this->timingTiming;
-        if (isset($this->timingPeriod)) $json['timingPeriod'] = $this->timingPeriod;
-        if (isset($this->timingDateTime)) $json['timingDateTime'] = $this->timingDateTime;
-        if (isset($this->recordedOn)) $json['recordedOn'] = $this->recordedOn;
-        if (isset($this->source)) $json['source'] = $this->source;
-        if (isset($this->device)) $json['device'] = $this->device;
+        if (isset($this->timingTiming)) {
+            $json['timingTiming'] = $this->timingTiming;
+        }
+        if (isset($this->timingPeriod)) {
+            $json['timingPeriod'] = $this->timingPeriod;
+        }
+        if (isset($this->timingDateTime)) {
+            $json['timingDateTime'] = $this->timingDateTime;
+        }
+        if (isset($this->recordedOn)) {
+            $json['recordedOn'] = $this->recordedOn;
+        }
+        if (isset($this->source)) {
+            $json['source'] = $this->source;
+        }
+        if (isset($this->device)) {
+            $json['device'] = $this->device;
+        }
         if (0 < count($this->reasonCode)) {
             $json['reasonCode'] = [];
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $json['reasonCode'][] = $reasonCode;
             }
         }
         if (0 < count($this->reasonReference)) {
             $json['reasonReference'] = [];
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $json['reasonReference'][] = $reasonReference;
             }
         }
-        if (isset($this->bodySite)) $json['bodySite'] = $this->bodySite;
+        if (isset($this->bodySite)) {
+            $json['bodySite'] = $this->bodySite;
+        }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
@@ -589,51 +641,72 @@ class FHIRDeviceUseStatement extends FHIRDomainResource implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DeviceUseStatement xmlns="http://hl7.org/fhir"></DeviceUseStatement>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DeviceUseStatement xmlns="http://hl7.org/fhir"></DeviceUseStatement>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->basedOn)) {
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
         if (0 < count($this->derivedFrom)) {
-            foreach($this->derivedFrom as $derivedFrom) {
+            foreach ($this->derivedFrom as $derivedFrom) {
                 $derivedFrom->xmlSerialize(true, $sxe->addChild('derivedFrom'));
             }
         }
-        if (isset($this->timingTiming)) $this->timingTiming->xmlSerialize(true, $sxe->addChild('timingTiming'));
-        if (isset($this->timingPeriod)) $this->timingPeriod->xmlSerialize(true, $sxe->addChild('timingPeriod'));
-        if (isset($this->timingDateTime)) $this->timingDateTime->xmlSerialize(true, $sxe->addChild('timingDateTime'));
-        if (isset($this->recordedOn)) $this->recordedOn->xmlSerialize(true, $sxe->addChild('recordedOn'));
-        if (isset($this->source)) $this->source->xmlSerialize(true, $sxe->addChild('source'));
-        if (isset($this->device)) $this->device->xmlSerialize(true, $sxe->addChild('device'));
+        if (isset($this->timingTiming)) {
+            $this->timingTiming->xmlSerialize(true, $sxe->addChild('timingTiming'));
+        }
+        if (isset($this->timingPeriod)) {
+            $this->timingPeriod->xmlSerialize(true, $sxe->addChild('timingPeriod'));
+        }
+        if (isset($this->timingDateTime)) {
+            $this->timingDateTime->xmlSerialize(true, $sxe->addChild('timingDateTime'));
+        }
+        if (isset($this->recordedOn)) {
+            $this->recordedOn->xmlSerialize(true, $sxe->addChild('recordedOn'));
+        }
+        if (isset($this->source)) {
+            $this->source->xmlSerialize(true, $sxe->addChild('source'));
+        }
+        if (isset($this->device)) {
+            $this->device->xmlSerialize(true, $sxe->addChild('device'));
+        }
         if (0 < count($this->reasonCode)) {
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
             }
         }
         if (0 < count($this->reasonReference)) {
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
             }
         }
-        if (isset($this->bodySite)) $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
+        if (isset($this->bodySite)) {
+            $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
+        }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIROperationDefinitionOverload extends FHIRBackboneElement implements \Js
      * Name of parameter to include in overload.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getParameterName() {
+    public function getParameterName()
+    {
         return $this->parameterName;
     }
 
@@ -97,7 +98,8 @@ class FHIROperationDefinitionOverload extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $parameterName
      * @return $this
      */
-    public function addParameterName($parameterName) {
+    public function addParameterName($parameterName)
+    {
         $this->parameterName[] = $parameterName;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIROperationDefinitionOverload extends FHIRBackboneElement implements \Js
      * Comments to go on overload.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -115,7 +118,8 @@ class FHIROperationDefinitionOverload extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -123,18 +127,20 @@ class FHIROperationDefinitionOverload extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['parameterName'])) {
                 if (is_array($data['parameterName'])) {
-                    foreach($data['parameterName'] as $d) {
+                    foreach ($data['parameterName'] as $d) {
                         $this->addParameterName($d);
                     }
                 } else {
@@ -153,22 +159,26 @@ class FHIROperationDefinitionOverload extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->parameterName)) {
             $json['parameterName'] = [];
-            foreach($this->parameterName as $parameterName) {
+            foreach ($this->parameterName as $parameterName) {
                 $json['parameterName'][] = $parameterName;
             }
         }
-        if (isset($this->comment)) $json['comment'] = $this->comment;
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
         return $json;
     }
 
@@ -177,18 +187,23 @@ class FHIROperationDefinitionOverload extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<OperationDefinitionOverload xmlns="http://hl7.org/fhir"></OperationDefinitionOverload>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<OperationDefinitionOverload xmlns="http://hl7.org/fhir"></OperationDefinitionOverload>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->parameterName)) {
-            foreach($this->parameterName as $parameterName) {
+            foreach ($this->parameterName as $parameterName) {
                 $parameterName->xmlSerialize(true, $sxe->addChild('parameterName'));
             }
         }
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

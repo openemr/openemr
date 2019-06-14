@@ -124,7 +124,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * Index of primary sequences of amino acids linked through peptide bonds in order of decreasing length. Sequences of the same length will be ordered by molecular weight. Subunits that have identical sequences will be repeated and have sequential subscripts.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getSubunit() {
+    public function getSubunit()
+    {
         return $this->subunit;
     }
 
@@ -133,7 +134,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $subunit
      * @return $this
      */
-    public function setSubunit($subunit) {
+    public function setSubunit($subunit)
+    {
         $this->subunit = $subunit;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * The sequence information shall be provided enumerating the amino acids from N- to C-terminal end using standard single-letter amino acid codes. Uppercase shall be used for L-amino acids and lowercase for D-amino acids. Transcribed SubstanceProteins will always be described using the translated sequence; for synthetic peptide containing amino acids that are not represented with a single letter code an X should be used within the sequence. The modified amino acids will be distinguished by their position in the sequence.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -151,7 +154,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * Length of linear sequences of amino acids contained in the subunit.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getLength() {
+    public function getLength()
+    {
         return $this->length;
     }
 
@@ -169,7 +174,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $length
      * @return $this
      */
-    public function setLength($length) {
+    public function setLength($length)
+    {
         $this->length = $length;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * The sequence information shall be provided enumerating the amino acids from N- to C-terminal end using standard single-letter amino acid codes. Uppercase shall be used for L-amino acids and lowercase for D-amino acids. Transcribed SubstanceProteins will always be described using the translated sequence; for synthetic peptide containing amino acids that are not represented with a single letter code an X should be used within the sequence. The modified amino acids will be distinguished by their position in the sequence.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getSequenceAttachment() {
+    public function getSequenceAttachment()
+    {
         return $this->sequenceAttachment;
     }
 
@@ -187,7 +194,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $sequenceAttachment
      * @return $this
      */
-    public function setSequenceAttachment($sequenceAttachment) {
+    public function setSequenceAttachment($sequenceAttachment)
+    {
         $this->sequenceAttachment = $sequenceAttachment;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * Unique identifier for molecular fragment modification based on the ISO 11238 Substance ID.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getNTerminalModificationId() {
+    public function getNTerminalModificationId()
+    {
         return $this->nTerminalModificationId;
     }
 
@@ -205,7 +214,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $nTerminalModificationId
      * @return $this
      */
-    public function setNTerminalModificationId($nTerminalModificationId) {
+    public function setNTerminalModificationId($nTerminalModificationId)
+    {
         $this->nTerminalModificationId = $nTerminalModificationId;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * The name of the fragment modified at the N-terminal of the SubstanceProtein shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getNTerminalModification() {
+    public function getNTerminalModification()
+    {
         return $this->nTerminalModification;
     }
 
@@ -223,7 +234,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $nTerminalModification
      * @return $this
      */
-    public function setNTerminalModification($nTerminalModification) {
+    public function setNTerminalModification($nTerminalModification)
+    {
         $this->nTerminalModification = $nTerminalModification;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * Unique identifier for molecular fragment modification based on the ISO 11238 Substance ID.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getCTerminalModificationId() {
+    public function getCTerminalModificationId()
+    {
         return $this->cTerminalModificationId;
     }
 
@@ -241,7 +254,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $cTerminalModificationId
      * @return $this
      */
-    public function setCTerminalModificationId($cTerminalModificationId) {
+    public function setCTerminalModificationId($cTerminalModificationId)
+    {
         $this->cTerminalModificationId = $cTerminalModificationId;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * The modification at the C-terminal shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getCTerminalModification() {
+    public function getCTerminalModification()
+    {
         return $this->cTerminalModification;
     }
 
@@ -259,7 +274,8 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $cTerminalModification
      * @return $this
      */
-    public function setCTerminalModification($cTerminalModification) {
+    public function setCTerminalModification($cTerminalModification)
+    {
         $this->cTerminalModification = $cTerminalModification;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['subunit'])) {
                 $this->setSubunit($data['subunit']);
@@ -309,23 +327,41 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->subunit)) $json['subunit'] = $this->subunit;
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
-        if (isset($this->length)) $json['length'] = $this->length;
-        if (isset($this->sequenceAttachment)) $json['sequenceAttachment'] = $this->sequenceAttachment;
-        if (isset($this->nTerminalModificationId)) $json['nTerminalModificationId'] = $this->nTerminalModificationId;
-        if (isset($this->nTerminalModification)) $json['nTerminalModification'] = $this->nTerminalModification;
-        if (isset($this->cTerminalModificationId)) $json['cTerminalModificationId'] = $this->cTerminalModificationId;
-        if (isset($this->cTerminalModification)) $json['cTerminalModification'] = $this->cTerminalModification;
+        if (isset($this->subunit)) {
+            $json['subunit'] = $this->subunit;
+        }
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
+        if (isset($this->length)) {
+            $json['length'] = $this->length;
+        }
+        if (isset($this->sequenceAttachment)) {
+            $json['sequenceAttachment'] = $this->sequenceAttachment;
+        }
+        if (isset($this->nTerminalModificationId)) {
+            $json['nTerminalModificationId'] = $this->nTerminalModificationId;
+        }
+        if (isset($this->nTerminalModification)) {
+            $json['nTerminalModification'] = $this->nTerminalModification;
+        }
+        if (isset($this->cTerminalModificationId)) {
+            $json['cTerminalModificationId'] = $this->cTerminalModificationId;
+        }
+        if (isset($this->cTerminalModification)) {
+            $json['cTerminalModification'] = $this->cTerminalModification;
+        }
         return $json;
     }
 
@@ -334,20 +370,39 @@ class FHIRSubstanceProteinSubunit extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceProteinSubunit xmlns="http://hl7.org/fhir"></SubstanceProteinSubunit>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceProteinSubunit xmlns="http://hl7.org/fhir"></SubstanceProteinSubunit>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->subunit)) $this->subunit->xmlSerialize(true, $sxe->addChild('subunit'));
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
-        if (isset($this->length)) $this->length->xmlSerialize(true, $sxe->addChild('length'));
-        if (isset($this->sequenceAttachment)) $this->sequenceAttachment->xmlSerialize(true, $sxe->addChild('sequenceAttachment'));
-        if (isset($this->nTerminalModificationId)) $this->nTerminalModificationId->xmlSerialize(true, $sxe->addChild('nTerminalModificationId'));
-        if (isset($this->nTerminalModification)) $this->nTerminalModification->xmlSerialize(true, $sxe->addChild('nTerminalModification'));
-        if (isset($this->cTerminalModificationId)) $this->cTerminalModificationId->xmlSerialize(true, $sxe->addChild('cTerminalModificationId'));
-        if (isset($this->cTerminalModification)) $this->cTerminalModification->xmlSerialize(true, $sxe->addChild('cTerminalModification'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->subunit)) {
+            $this->subunit->xmlSerialize(true, $sxe->addChild('subunit'));
+        }
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
+        if (isset($this->length)) {
+            $this->length->xmlSerialize(true, $sxe->addChild('length'));
+        }
+        if (isset($this->sequenceAttachment)) {
+            $this->sequenceAttachment->xmlSerialize(true, $sxe->addChild('sequenceAttachment'));
+        }
+        if (isset($this->nTerminalModificationId)) {
+            $this->nTerminalModificationId->xmlSerialize(true, $sxe->addChild('nTerminalModificationId'));
+        }
+        if (isset($this->nTerminalModification)) {
+            $this->nTerminalModification->xmlSerialize(true, $sxe->addChild('nTerminalModification'));
+        }
+        if (isset($this->cTerminalModificationId)) {
+            $this->cTerminalModificationId->xmlSerialize(true, $sxe->addChild('cTerminalModificationId'));
+        }
+        if (isset($this->cTerminalModification)) {
+            $this->cTerminalModification->xmlSerialize(true, $sxe->addChild('cTerminalModification'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

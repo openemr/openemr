@@ -94,7 +94,8 @@ class FHIRChargeItemDefinitionApplicability extends FHIRBackboneElement implemen
      * A brief, natural language description of the condition that effectively communicates the intended semantics.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -103,7 +104,8 @@ class FHIRChargeItemDefinitionApplicability extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRChargeItemDefinitionApplicability extends FHIRBackboneElement implemen
      * The media type of the language for the expression, e.g. "text/cql" for Clinical Query Language expressions or "text/fhirpath" for FHIRPath expressions.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -121,7 +124,8 @@ class FHIRChargeItemDefinitionApplicability extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $language
      * @return $this
      */
-    public function setLanguage($language) {
+    public function setLanguage($language)
+    {
         $this->language = $language;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRChargeItemDefinitionApplicability extends FHIRBackboneElement implemen
      * An expression that returns true or false, indicating whether the condition is satisfied. When using FHIRPath expressions, the %context environment variable must be replaced at runtime with the ChargeItem resource to which this definition is applied.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getExpression() {
+    public function getExpression()
+    {
         return $this->expression;
     }
 
@@ -139,7 +144,8 @@ class FHIRChargeItemDefinitionApplicability extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $expression
      * @return $this
      */
-    public function setExpression($expression) {
+    public function setExpression($expression)
+    {
         $this->expression = $expression;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRChargeItemDefinitionApplicability extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -174,18 +182,26 @@ class FHIRChargeItemDefinitionApplicability extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->language)) $json['language'] = $this->language;
-        if (isset($this->expression)) $json['expression'] = $this->expression;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->language)) {
+            $json['language'] = $this->language;
+        }
+        if (isset($this->expression)) {
+            $json['expression'] = $this->expression;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRChargeItemDefinitionApplicability extends FHIRBackboneElement implemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ChargeItemDefinitionApplicability xmlns="http://hl7.org/fhir"></ChargeItemDefinitionApplicability>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ChargeItemDefinitionApplicability xmlns="http://hl7.org/fhir"></ChargeItemDefinitionApplicability>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->language)) $this->language->xmlSerialize(true, $sxe->addChild('language'));
-        if (isset($this->expression)) $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->language)) {
+            $this->language->xmlSerialize(true, $sxe->addChild('language'));
+        }
+        if (isset($this->expression)) {
+            $this->expression->xmlSerialize(true, $sxe->addChild('expression'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

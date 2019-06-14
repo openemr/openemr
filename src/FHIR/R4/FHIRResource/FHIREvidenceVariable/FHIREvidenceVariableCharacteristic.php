@@ -156,7 +156,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * A short, natural language description of the characteristic that could be used to communicate the criteria to an end-user.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -165,7 +166,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -173,7 +175,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDefinitionReference() {
+    public function getDefinitionReference()
+    {
         return $this->definitionReference;
     }
 
@@ -181,7 +184,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $definitionReference
      * @return $this
      */
-    public function setDefinitionReference($definitionReference) {
+    public function setDefinitionReference($definitionReference)
+    {
         $this->definitionReference = $definitionReference;
         return $this;
     }
@@ -189,7 +193,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getDefinitionCanonical() {
+    public function getDefinitionCanonical()
+    {
         return $this->definitionCanonical;
     }
 
@@ -197,7 +202,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $definitionCanonical
      * @return $this
      */
-    public function setDefinitionCanonical($definitionCanonical) {
+    public function setDefinitionCanonical($definitionCanonical)
+    {
         $this->definitionCanonical = $definitionCanonical;
         return $this;
     }
@@ -205,7 +211,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDefinitionCodeableConcept() {
+    public function getDefinitionCodeableConcept()
+    {
         return $this->definitionCodeableConcept;
     }
 
@@ -213,7 +220,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $definitionCodeableConcept
      * @return $this
      */
-    public function setDefinitionCodeableConcept($definitionCodeableConcept) {
+    public function setDefinitionCodeableConcept($definitionCodeableConcept)
+    {
         $this->definitionCodeableConcept = $definitionCodeableConcept;
         return $this;
     }
@@ -221,7 +229,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getDefinitionExpression() {
+    public function getDefinitionExpression()
+    {
         return $this->definitionExpression;
     }
 
@@ -229,7 +238,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $definitionExpression
      * @return $this
      */
-    public function setDefinitionExpression($definitionExpression) {
+    public function setDefinitionExpression($definitionExpression)
+    {
         $this->definitionExpression = $definitionExpression;
         return $this;
     }
@@ -237,7 +247,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement
      */
-    public function getDefinitionDataRequirement() {
+    public function getDefinitionDataRequirement()
+    {
         return $this->definitionDataRequirement;
     }
 
@@ -245,7 +256,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement $definitionDataRequirement
      * @return $this
      */
-    public function setDefinitionDataRequirement($definitionDataRequirement) {
+    public function setDefinitionDataRequirement($definitionDataRequirement)
+    {
         $this->definitionDataRequirement = $definitionDataRequirement;
         return $this;
     }
@@ -253,7 +265,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition
      */
-    public function getDefinitionTriggerDefinition() {
+    public function getDefinitionTriggerDefinition()
+    {
         return $this->definitionTriggerDefinition;
     }
 
@@ -261,7 +274,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition $definitionTriggerDefinition
      * @return $this
      */
-    public function setDefinitionTriggerDefinition($definitionTriggerDefinition) {
+    public function setDefinitionTriggerDefinition($definitionTriggerDefinition)
+    {
         $this->definitionTriggerDefinition = $definitionTriggerDefinition;
         return $this;
     }
@@ -270,7 +284,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * Use UsageContext to define the members of the population, such as Age Ranges, Genders, Settings.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext[]
      */
-    public function getUsageContext() {
+    public function getUsageContext()
+    {
         return $this->usageContext;
     }
 
@@ -279,7 +294,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $usageContext
      * @return $this
      */
-    public function addUsageContext($usageContext) {
+    public function addUsageContext($usageContext)
+    {
         $this->usageContext[] = $usageContext;
         return $this;
     }
@@ -288,7 +304,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * When true, members with this characteristic are excluded from the element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExclude() {
+    public function getExclude()
+    {
         return $this->exclude;
     }
 
@@ -297,7 +314,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $exclude
      * @return $this
      */
-    public function setExclude($exclude) {
+    public function setExclude($exclude)
+    {
         $this->exclude = $exclude;
         return $this;
     }
@@ -305,7 +323,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getParticipantEffectiveDateTime() {
+    public function getParticipantEffectiveDateTime()
+    {
         return $this->participantEffectiveDateTime;
     }
 
@@ -313,7 +332,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $participantEffectiveDateTime
      * @return $this
      */
-    public function setParticipantEffectiveDateTime($participantEffectiveDateTime) {
+    public function setParticipantEffectiveDateTime($participantEffectiveDateTime)
+    {
         $this->participantEffectiveDateTime = $participantEffectiveDateTime;
         return $this;
     }
@@ -321,7 +341,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getParticipantEffectivePeriod() {
+    public function getParticipantEffectivePeriod()
+    {
         return $this->participantEffectivePeriod;
     }
 
@@ -329,7 +350,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $participantEffectivePeriod
      * @return $this
      */
-    public function setParticipantEffectivePeriod($participantEffectivePeriod) {
+    public function setParticipantEffectivePeriod($participantEffectivePeriod)
+    {
         $this->participantEffectivePeriod = $participantEffectivePeriod;
         return $this;
     }
@@ -337,7 +359,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getParticipantEffectiveDuration() {
+    public function getParticipantEffectiveDuration()
+    {
         return $this->participantEffectiveDuration;
     }
 
@@ -345,7 +368,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $participantEffectiveDuration
      * @return $this
      */
-    public function setParticipantEffectiveDuration($participantEffectiveDuration) {
+    public function setParticipantEffectiveDuration($participantEffectiveDuration)
+    {
         $this->participantEffectiveDuration = $participantEffectiveDuration;
         return $this;
     }
@@ -353,7 +377,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getParticipantEffectiveTiming() {
+    public function getParticipantEffectiveTiming()
+    {
         return $this->participantEffectiveTiming;
     }
 
@@ -361,7 +386,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $participantEffectiveTiming
      * @return $this
      */
-    public function setParticipantEffectiveTiming($participantEffectiveTiming) {
+    public function setParticipantEffectiveTiming($participantEffectiveTiming)
+    {
         $this->participantEffectiveTiming = $participantEffectiveTiming;
         return $this;
     }
@@ -370,7 +396,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * Indicates duration from the participant's study entry.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getTimeFromStart() {
+    public function getTimeFromStart()
+    {
         return $this->timeFromStart;
     }
 
@@ -379,7 +406,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $timeFromStart
      * @return $this
      */
-    public function setTimeFromStart($timeFromStart) {
+    public function setTimeFromStart($timeFromStart)
+    {
         $this->timeFromStart = $timeFromStart;
         return $this;
     }
@@ -388,7 +416,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * Indicates how elements are aggregated within the study effective period.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRGroupMeasure
      */
-    public function getGroupMeasure() {
+    public function getGroupMeasure()
+    {
         return $this->groupMeasure;
     }
 
@@ -397,7 +426,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRGroupMeasure $groupMeasure
      * @return $this
      */
-    public function setGroupMeasure($groupMeasure) {
+    public function setGroupMeasure($groupMeasure)
+    {
         $this->groupMeasure = $groupMeasure;
         return $this;
     }
@@ -405,14 +435,16 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -437,7 +469,7 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
             }
             if (isset($data['usageContext'])) {
                 if (is_array($data['usageContext'])) {
-                    foreach($data['usageContext'] as $d) {
+                    foreach ($data['usageContext'] as $d) {
                         $this->addUsageContext($d);
                     }
                 } else {
@@ -474,35 +506,65 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->definitionReference)) $json['definitionReference'] = $this->definitionReference;
-        if (isset($this->definitionCanonical)) $json['definitionCanonical'] = $this->definitionCanonical;
-        if (isset($this->definitionCodeableConcept)) $json['definitionCodeableConcept'] = $this->definitionCodeableConcept;
-        if (isset($this->definitionExpression)) $json['definitionExpression'] = $this->definitionExpression;
-        if (isset($this->definitionDataRequirement)) $json['definitionDataRequirement'] = $this->definitionDataRequirement;
-        if (isset($this->definitionTriggerDefinition)) $json['definitionTriggerDefinition'] = $this->definitionTriggerDefinition;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->definitionReference)) {
+            $json['definitionReference'] = $this->definitionReference;
+        }
+        if (isset($this->definitionCanonical)) {
+            $json['definitionCanonical'] = $this->definitionCanonical;
+        }
+        if (isset($this->definitionCodeableConcept)) {
+            $json['definitionCodeableConcept'] = $this->definitionCodeableConcept;
+        }
+        if (isset($this->definitionExpression)) {
+            $json['definitionExpression'] = $this->definitionExpression;
+        }
+        if (isset($this->definitionDataRequirement)) {
+            $json['definitionDataRequirement'] = $this->definitionDataRequirement;
+        }
+        if (isset($this->definitionTriggerDefinition)) {
+            $json['definitionTriggerDefinition'] = $this->definitionTriggerDefinition;
+        }
         if (0 < count($this->usageContext)) {
             $json['usageContext'] = [];
-            foreach($this->usageContext as $usageContext) {
+            foreach ($this->usageContext as $usageContext) {
                 $json['usageContext'][] = $usageContext;
             }
         }
-        if (isset($this->exclude)) $json['exclude'] = $this->exclude;
-        if (isset($this->participantEffectiveDateTime)) $json['participantEffectiveDateTime'] = $this->participantEffectiveDateTime;
-        if (isset($this->participantEffectivePeriod)) $json['participantEffectivePeriod'] = $this->participantEffectivePeriod;
-        if (isset($this->participantEffectiveDuration)) $json['participantEffectiveDuration'] = $this->participantEffectiveDuration;
-        if (isset($this->participantEffectiveTiming)) $json['participantEffectiveTiming'] = $this->participantEffectiveTiming;
-        if (isset($this->timeFromStart)) $json['timeFromStart'] = $this->timeFromStart;
-        if (isset($this->groupMeasure)) $json['groupMeasure'] = $this->groupMeasure;
+        if (isset($this->exclude)) {
+            $json['exclude'] = $this->exclude;
+        }
+        if (isset($this->participantEffectiveDateTime)) {
+            $json['participantEffectiveDateTime'] = $this->participantEffectiveDateTime;
+        }
+        if (isset($this->participantEffectivePeriod)) {
+            $json['participantEffectivePeriod'] = $this->participantEffectivePeriod;
+        }
+        if (isset($this->participantEffectiveDuration)) {
+            $json['participantEffectiveDuration'] = $this->participantEffectiveDuration;
+        }
+        if (isset($this->participantEffectiveTiming)) {
+            $json['participantEffectiveTiming'] = $this->participantEffectiveTiming;
+        }
+        if (isset($this->timeFromStart)) {
+            $json['timeFromStart'] = $this->timeFromStart;
+        }
+        if (isset($this->groupMeasure)) {
+            $json['groupMeasure'] = $this->groupMeasure;
+        }
         return $json;
     }
 
@@ -511,31 +573,62 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<EvidenceVariableCharacteristic xmlns="http://hl7.org/fhir"></EvidenceVariableCharacteristic>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<EvidenceVariableCharacteristic xmlns="http://hl7.org/fhir"></EvidenceVariableCharacteristic>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->definitionReference)) $this->definitionReference->xmlSerialize(true, $sxe->addChild('definitionReference'));
-        if (isset($this->definitionCanonical)) $this->definitionCanonical->xmlSerialize(true, $sxe->addChild('definitionCanonical'));
-        if (isset($this->definitionCodeableConcept)) $this->definitionCodeableConcept->xmlSerialize(true, $sxe->addChild('definitionCodeableConcept'));
-        if (isset($this->definitionExpression)) $this->definitionExpression->xmlSerialize(true, $sxe->addChild('definitionExpression'));
-        if (isset($this->definitionDataRequirement)) $this->definitionDataRequirement->xmlSerialize(true, $sxe->addChild('definitionDataRequirement'));
-        if (isset($this->definitionTriggerDefinition)) $this->definitionTriggerDefinition->xmlSerialize(true, $sxe->addChild('definitionTriggerDefinition'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->definitionReference)) {
+            $this->definitionReference->xmlSerialize(true, $sxe->addChild('definitionReference'));
+        }
+        if (isset($this->definitionCanonical)) {
+            $this->definitionCanonical->xmlSerialize(true, $sxe->addChild('definitionCanonical'));
+        }
+        if (isset($this->definitionCodeableConcept)) {
+            $this->definitionCodeableConcept->xmlSerialize(true, $sxe->addChild('definitionCodeableConcept'));
+        }
+        if (isset($this->definitionExpression)) {
+            $this->definitionExpression->xmlSerialize(true, $sxe->addChild('definitionExpression'));
+        }
+        if (isset($this->definitionDataRequirement)) {
+            $this->definitionDataRequirement->xmlSerialize(true, $sxe->addChild('definitionDataRequirement'));
+        }
+        if (isset($this->definitionTriggerDefinition)) {
+            $this->definitionTriggerDefinition->xmlSerialize(true, $sxe->addChild('definitionTriggerDefinition'));
+        }
         if (0 < count($this->usageContext)) {
-            foreach($this->usageContext as $usageContext) {
+            foreach ($this->usageContext as $usageContext) {
                 $usageContext->xmlSerialize(true, $sxe->addChild('usageContext'));
             }
         }
-        if (isset($this->exclude)) $this->exclude->xmlSerialize(true, $sxe->addChild('exclude'));
-        if (isset($this->participantEffectiveDateTime)) $this->participantEffectiveDateTime->xmlSerialize(true, $sxe->addChild('participantEffectiveDateTime'));
-        if (isset($this->participantEffectivePeriod)) $this->participantEffectivePeriod->xmlSerialize(true, $sxe->addChild('participantEffectivePeriod'));
-        if (isset($this->participantEffectiveDuration)) $this->participantEffectiveDuration->xmlSerialize(true, $sxe->addChild('participantEffectiveDuration'));
-        if (isset($this->participantEffectiveTiming)) $this->participantEffectiveTiming->xmlSerialize(true, $sxe->addChild('participantEffectiveTiming'));
-        if (isset($this->timeFromStart)) $this->timeFromStart->xmlSerialize(true, $sxe->addChild('timeFromStart'));
-        if (isset($this->groupMeasure)) $this->groupMeasure->xmlSerialize(true, $sxe->addChild('groupMeasure'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->exclude)) {
+            $this->exclude->xmlSerialize(true, $sxe->addChild('exclude'));
+        }
+        if (isset($this->participantEffectiveDateTime)) {
+            $this->participantEffectiveDateTime->xmlSerialize(true, $sxe->addChild('participantEffectiveDateTime'));
+        }
+        if (isset($this->participantEffectivePeriod)) {
+            $this->participantEffectivePeriod->xmlSerialize(true, $sxe->addChild('participantEffectivePeriod'));
+        }
+        if (isset($this->participantEffectiveDuration)) {
+            $this->participantEffectiveDuration->xmlSerialize(true, $sxe->addChild('participantEffectiveDuration'));
+        }
+        if (isset($this->participantEffectiveTiming)) {
+            $this->participantEffectiveTiming->xmlSerialize(true, $sxe->addChild('participantEffectiveTiming'));
+        }
+        if (isset($this->timeFromStart)) {
+            $this->timeFromStart->xmlSerialize(true, $sxe->addChild('timeFromStart'));
+        }
+        if (isset($this->groupMeasure)) {
+            $this->groupMeasure->xmlSerialize(true, $sxe->addChild('groupMeasure'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

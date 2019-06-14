@@ -113,7 +113,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getClass() {
+    public function getClass()
+    {
         return $this->class;
     }
 
@@ -122,7 +123,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $class
      * @return $this
      */
-    public function setClass($class) {
+    public function setClass($class)
+    {
         $this->class = $class;
         return $this;
     }
@@ -131,7 +133,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getGeometry() {
+    public function getGeometry()
+    {
         return $this->geometry;
     }
 
@@ -140,7 +143,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $geometry
      * @return $this
      */
-    public function setGeometry($geometry) {
+    public function setGeometry($geometry)
+    {
         $this->geometry = $geometry;
         return $this;
     }
@@ -149,7 +153,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCopolymerConnectivity() {
+    public function getCopolymerConnectivity()
+    {
         return $this->copolymerConnectivity;
     }
 
@@ -158,7 +163,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $copolymerConnectivity
      * @return $this
      */
-    public function addCopolymerConnectivity($copolymerConnectivity) {
+    public function addCopolymerConnectivity($copolymerConnectivity)
+    {
         $this->copolymerConnectivity[] = $copolymerConnectivity;
         return $this;
     }
@@ -167,7 +173,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getModification() {
+    public function getModification()
+    {
         return $this->modification;
     }
 
@@ -176,7 +183,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $modification
      * @return $this
      */
-    public function addModification($modification) {
+    public function addModification($modification)
+    {
         $this->modification[] = $modification;
         return $this;
     }
@@ -185,7 +193,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerMonomerSet[]
      */
-    public function getMonomerSet() {
+    public function getMonomerSet()
+    {
         return $this->monomerSet;
     }
 
@@ -194,7 +203,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerMonomerSet $monomerSet
      * @return $this
      */
-    public function addMonomerSet($monomerSet) {
+    public function addMonomerSet($monomerSet)
+    {
         $this->monomerSet[] = $monomerSet;
         return $this;
     }
@@ -203,7 +213,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerRepeat[]
      */
-    public function getRepeat() {
+    public function getRepeat()
+    {
         return $this->repeat;
     }
 
@@ -212,7 +223,8 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerRepeat $repeat
      * @return $this
      */
-    public function addRepeat($repeat) {
+    public function addRepeat($repeat)
+    {
         $this->repeat[] = $repeat;
         return $this;
     }
@@ -220,14 +232,16 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['class'])) {
                 $this->setClass($data['class']);
@@ -237,7 +251,7 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['copolymerConnectivity'])) {
                 if (is_array($data['copolymerConnectivity'])) {
-                    foreach($data['copolymerConnectivity'] as $d) {
+                    foreach ($data['copolymerConnectivity'] as $d) {
                         $this->addCopolymerConnectivity($d);
                     }
                 } else {
@@ -246,7 +260,7 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['modification'])) {
                 if (is_array($data['modification'])) {
-                    foreach($data['modification'] as $d) {
+                    foreach ($data['modification'] as $d) {
                         $this->addModification($d);
                     }
                 } else {
@@ -255,7 +269,7 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['monomerSet'])) {
                 if (is_array($data['monomerSet'])) {
-                    foreach($data['monomerSet'] as $d) {
+                    foreach ($data['monomerSet'] as $d) {
                         $this->addMonomerSet($d);
                     }
                 } else {
@@ -264,7 +278,7 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['repeat'])) {
                 if (is_array($data['repeat'])) {
-                    foreach($data['repeat'] as $d) {
+                    foreach ($data['repeat'] as $d) {
                         $this->addRepeat($d);
                     }
                 } else {
@@ -280,39 +294,45 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->class)) $json['class'] = $this->class;
-        if (isset($this->geometry)) $json['geometry'] = $this->geometry;
+        if (isset($this->class)) {
+            $json['class'] = $this->class;
+        }
+        if (isset($this->geometry)) {
+            $json['geometry'] = $this->geometry;
+        }
         if (0 < count($this->copolymerConnectivity)) {
             $json['copolymerConnectivity'] = [];
-            foreach($this->copolymerConnectivity as $copolymerConnectivity) {
+            foreach ($this->copolymerConnectivity as $copolymerConnectivity) {
                 $json['copolymerConnectivity'][] = $copolymerConnectivity;
             }
         }
         if (0 < count($this->modification)) {
             $json['modification'] = [];
-            foreach($this->modification as $modification) {
+            foreach ($this->modification as $modification) {
                 $json['modification'][] = $modification;
             }
         }
         if (0 < count($this->monomerSet)) {
             $json['monomerSet'] = [];
-            foreach($this->monomerSet as $monomerSet) {
+            foreach ($this->monomerSet as $monomerSet) {
                 $json['monomerSet'][] = $monomerSet;
             }
         }
         if (0 < count($this->repeat)) {
             $json['repeat'] = [];
-            foreach($this->repeat as $repeat) {
+            foreach ($this->repeat as $repeat) {
                 $json['repeat'][] = $repeat;
             }
         }
@@ -324,34 +344,41 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstancePolymer xmlns="http://hl7.org/fhir"></SubstancePolymer>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstancePolymer xmlns="http://hl7.org/fhir"></SubstancePolymer>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->class)) $this->class->xmlSerialize(true, $sxe->addChild('class'));
-        if (isset($this->geometry)) $this->geometry->xmlSerialize(true, $sxe->addChild('geometry'));
+        if (isset($this->class)) {
+            $this->class->xmlSerialize(true, $sxe->addChild('class'));
+        }
+        if (isset($this->geometry)) {
+            $this->geometry->xmlSerialize(true, $sxe->addChild('geometry'));
+        }
         if (0 < count($this->copolymerConnectivity)) {
-            foreach($this->copolymerConnectivity as $copolymerConnectivity) {
+            foreach ($this->copolymerConnectivity as $copolymerConnectivity) {
                 $copolymerConnectivity->xmlSerialize(true, $sxe->addChild('copolymerConnectivity'));
             }
         }
         if (0 < count($this->modification)) {
-            foreach($this->modification as $modification) {
+            foreach ($this->modification as $modification) {
                 $modification->xmlSerialize(true, $sxe->addChild('modification'));
             }
         }
         if (0 < count($this->monomerSet)) {
-            foreach($this->monomerSet as $monomerSet) {
+            foreach ($this->monomerSet as $monomerSet) {
                 $monomerSet->xmlSerialize(true, $sxe->addChild('monomerSet'));
             }
         }
         if (0 < count($this->repeat)) {
-            foreach($this->repeat as $repeat) {
+            foreach ($this->repeat as $repeat) {
                 $repeat->xmlSerialize(true, $sxe->addChild('repeat'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

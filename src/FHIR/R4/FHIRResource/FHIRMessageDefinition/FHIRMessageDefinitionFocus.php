@@ -100,7 +100,8 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
      * The kind of resource that must be the focus for this message.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -109,7 +110,8 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
      * A profile that reflects constraints for the focal resource (and potentially for related resources).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getProfile() {
+    public function getProfile()
+    {
         return $this->profile;
     }
 
@@ -127,7 +130,8 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $profile
      * @return $this
      */
-    public function setProfile($profile) {
+    public function setProfile($profile)
+    {
         $this->profile = $profile;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
      * Identifies the minimum number of resources of this type that must be pointed to by a message in order for it to be valid against this MessageDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getMin() {
+    public function getMin()
+    {
         return $this->min;
     }
 
@@ -145,7 +150,8 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $min
      * @return $this
      */
-    public function setMin($min) {
+    public function setMin($min)
+    {
         $this->min = $min;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
      * Identifies the maximum number of resources of this type that must be pointed to by a message in order for it to be valid against this MessageDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMax() {
+    public function getMax()
+    {
         return $this->max;
     }
 
@@ -163,7 +170,8 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $max
      * @return $this
      */
-    public function setMax($max) {
+    public function setMax($max)
+    {
         $this->max = $max;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -201,19 +211,29 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->profile)) $json['profile'] = $this->profile;
-        if (isset($this->min)) $json['min'] = $this->min;
-        if (isset($this->max)) $json['max'] = $this->max;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->profile)) {
+            $json['profile'] = $this->profile;
+        }
+        if (isset($this->min)) {
+            $json['min'] = $this->min;
+        }
+        if (isset($this->max)) {
+            $json['max'] = $this->max;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MessageDefinitionFocus xmlns="http://hl7.org/fhir"></MessageDefinitionFocus>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MessageDefinitionFocus xmlns="http://hl7.org/fhir"></MessageDefinitionFocus>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->profile)) $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
-        if (isset($this->min)) $this->min->xmlSerialize(true, $sxe->addChild('min'));
-        if (isset($this->max)) $this->max->xmlSerialize(true, $sxe->addChild('max'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->profile)) {
+            $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
+        }
+        if (isset($this->min)) {
+            $this->min->xmlSerialize(true, $sxe->addChild('min'));
+        }
+        if (isset($this->max)) {
+            $this->max->xmlSerialize(true, $sxe->addChild('max'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

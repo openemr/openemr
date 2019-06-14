@@ -94,7 +94,8 @@ class FHIRValueSetFilter extends FHIRBackboneElement implements \JsonSerializabl
      * A code that identifies a property or a filter defined in the code system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getProperty() {
+    public function getProperty()
+    {
         return $this->property;
     }
 
@@ -103,7 +104,8 @@ class FHIRValueSetFilter extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $property
      * @return $this
      */
-    public function setProperty($property) {
+    public function setProperty($property)
+    {
         $this->property = $property;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRValueSetFilter extends FHIRBackboneElement implements \JsonSerializabl
      * The kind of operation to perform as a part of the filter criteria.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFilterOperator
      */
-    public function getOp() {
+    public function getOp()
+    {
         return $this->op;
     }
 
@@ -121,7 +124,8 @@ class FHIRValueSetFilter extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFilterOperator $op
      * @return $this
      */
-    public function setOp($op) {
+    public function setOp($op)
+    {
         $this->op = $op;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRValueSetFilter extends FHIRBackboneElement implements \JsonSerializabl
      * The match value may be either a code defined by the system, or a string value, which is a regex match on the literal string of the property value  (if the filter represents a property defined in CodeSystem) or of the system filter value (if the filter represents a filter defined in CodeSystem) when the operation is 'regex', or one of the values (true and false), when the operation is 'exists'.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -139,7 +144,8 @@ class FHIRValueSetFilter extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRValueSetFilter extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['property'])) {
                 $this->setProperty($data['property']);
@@ -174,18 +182,26 @@ class FHIRValueSetFilter extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->property)) $json['property'] = $this->property;
-        if (isset($this->op)) $json['op'] = $this->op;
-        if (isset($this->value)) $json['value'] = $this->value;
+        if (isset($this->property)) {
+            $json['property'] = $this->property;
+        }
+        if (isset($this->op)) {
+            $json['op'] = $this->op;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRValueSetFilter extends FHIRBackboneElement implements \JsonSerializabl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ValueSetFilter xmlns="http://hl7.org/fhir"></ValueSetFilter>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ValueSetFilter xmlns="http://hl7.org/fhir"></ValueSetFilter>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->property)) $this->property->xmlSerialize(true, $sxe->addChild('property'));
-        if (isset($this->op)) $this->op->xmlSerialize(true, $sxe->addChild('op'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->property)) {
+            $this->property->xmlSerialize(true, $sxe->addChild('property'));
+        }
+        if (isset($this->op)) {
+            $this->op->xmlSerialize(true, $sxe->addChild('op'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

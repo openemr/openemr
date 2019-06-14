@@ -106,7 +106,8 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * Substance identifier for each non-natural or radioisotope.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -115,7 +116,8 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * Substance name for each non-natural or radioisotope.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -133,7 +136,8 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * The type of isotopic substitution present in a single substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSubstitution() {
+    public function getSubstitution()
+    {
         return $this->substitution;
     }
 
@@ -151,7 +156,8 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $substitution
      * @return $this
      */
-    public function setSubstitution($substitution) {
+    public function setSubstitution($substitution)
+    {
         $this->substitution = $substitution;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * Half life - for a non-natural nuclide.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getHalfLife() {
+    public function getHalfLife()
+    {
         return $this->halfLife;
     }
 
@@ -169,7 +176,8 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $halfLife
      * @return $this
      */
-    public function setHalfLife($halfLife) {
+    public function setHalfLife($halfLife)
+    {
         $this->halfLife = $halfLife;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * The molecular weight or weight range (for proteins, polymers or nucleic acids).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationMolecularWeight
      */
-    public function getMolecularWeight() {
+    public function getMolecularWeight()
+    {
         return $this->molecularWeight;
     }
 
@@ -187,7 +196,8 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationMolecularWeight $molecularWeight
      * @return $this
      */
-    public function setMolecularWeight($molecularWeight) {
+    public function setMolecularWeight($molecularWeight)
+    {
         $this->molecularWeight = $molecularWeight;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 $this->setIdentifier($data['identifier']);
@@ -228,20 +240,32 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->substitution)) $json['substitution'] = $this->substitution;
-        if (isset($this->halfLife)) $json['halfLife'] = $this->halfLife;
-        if (isset($this->molecularWeight)) $json['molecularWeight'] = $this->molecularWeight;
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->substitution)) {
+            $json['substitution'] = $this->substitution;
+        }
+        if (isset($this->halfLife)) {
+            $json['halfLife'] = $this->halfLife;
+        }
+        if (isset($this->molecularWeight)) {
+            $json['molecularWeight'] = $this->molecularWeight;
+        }
         return $json;
     }
 
@@ -250,17 +274,30 @@ class FHIRSubstanceSpecificationIsotope extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecificationIsotope xmlns="http://hl7.org/fhir"></SubstanceSpecificationIsotope>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecificationIsotope xmlns="http://hl7.org/fhir"></SubstanceSpecificationIsotope>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->substitution)) $this->substitution->xmlSerialize(true, $sxe->addChild('substitution'));
-        if (isset($this->halfLife)) $this->halfLife->xmlSerialize(true, $sxe->addChild('halfLife'));
-        if (isset($this->molecularWeight)) $this->molecularWeight->xmlSerialize(true, $sxe->addChild('molecularWeight'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->substitution)) {
+            $this->substitution->xmlSerialize(true, $sxe->addChild('substitution'));
+        }
+        if (isset($this->halfLife)) {
+            $this->halfLife->xmlSerialize(true, $sxe->addChild('halfLife'));
+        }
+        if (isset($this->molecularWeight)) {
+            $this->molecularWeight->xmlSerialize(true, $sxe->addChild('molecularWeight'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

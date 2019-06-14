@@ -101,7 +101,8 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
      * Description of storage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -110,7 +111,8 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -119,7 +121,8 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
      * Storage temperature.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getTemperature() {
+    public function getTemperature()
+    {
         return $this->temperature;
     }
 
@@ -128,7 +131,8 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $temperature
      * @return $this
      */
-    public function setTemperature($temperature) {
+    public function setTemperature($temperature)
+    {
         $this->temperature = $temperature;
         return $this;
     }
@@ -137,7 +141,8 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
      * Temperature scale used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBiologicallyDerivedProductStorageScale
      */
-    public function getScale() {
+    public function getScale()
+    {
         return $this->scale;
     }
 
@@ -146,7 +151,8 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBiologicallyDerivedProductStorageScale $scale
      * @return $this
      */
-    public function setScale($scale) {
+    public function setScale($scale)
+    {
         $this->scale = $scale;
         return $this;
     }
@@ -155,7 +161,8 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
      * Storage timeperiod.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getDuration() {
+    public function getDuration()
+    {
         return $this->duration;
     }
 
@@ -164,7 +171,8 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $duration
      * @return $this
      */
-    public function setDuration($duration) {
+    public function setDuration($duration)
+    {
         $this->duration = $duration;
         return $this;
     }
@@ -172,14 +180,16 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -202,19 +212,29 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->temperature)) $json['temperature'] = $this->temperature;
-        if (isset($this->scale)) $json['scale'] = $this->scale;
-        if (isset($this->duration)) $json['duration'] = $this->duration;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->temperature)) {
+            $json['temperature'] = $this->temperature;
+        }
+        if (isset($this->scale)) {
+            $json['scale'] = $this->scale;
+        }
+        if (isset($this->duration)) {
+            $json['duration'] = $this->duration;
+        }
         return $json;
     }
 
@@ -223,16 +243,27 @@ class FHIRBiologicallyDerivedProductStorage extends FHIRBackboneElement implemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<BiologicallyDerivedProductStorage xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductStorage>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<BiologicallyDerivedProductStorage xmlns="http://hl7.org/fhir"></BiologicallyDerivedProductStorage>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->temperature)) $this->temperature->xmlSerialize(true, $sxe->addChild('temperature'));
-        if (isset($this->scale)) $this->scale->xmlSerialize(true, $sxe->addChild('scale'));
-        if (isset($this->duration)) $this->duration->xmlSerialize(true, $sxe->addChild('duration'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->temperature)) {
+            $this->temperature->xmlSerialize(true, $sxe->addChild('temperature'));
+        }
+        if (isset($this->scale)) {
+            $this->scale->xmlSerialize(true, $sxe->addChild('scale'));
+        }
+        if (isset($this->duration)) {
+            $this->duration->xmlSerialize(true, $sxe->addChild('duration'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

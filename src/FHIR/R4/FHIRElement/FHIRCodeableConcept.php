@@ -89,7 +89,8 @@ class FHIRCodeableConcept extends FHIRElement implements \JsonSerializable
      * A reference to a code defined by a terminology system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getCoding() {
+    public function getCoding()
+    {
         return $this->coding;
     }
 
@@ -98,7 +99,8 @@ class FHIRCodeableConcept extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $coding
      * @return $this
      */
-    public function addCoding($coding) {
+    public function addCoding($coding)
+    {
         $this->coding[] = $coding;
         return $this;
     }
@@ -107,7 +109,8 @@ class FHIRCodeableConcept extends FHIRElement implements \JsonSerializable
      * A human language representation of the concept as seen/selected/uttered by the user who entered the data and/or which represents the intended meaning of the user.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -116,7 +119,8 @@ class FHIRCodeableConcept extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -124,18 +128,20 @@ class FHIRCodeableConcept extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['coding'])) {
                 if (is_array($data['coding'])) {
-                    foreach($data['coding'] as $d) {
+                    foreach ($data['coding'] as $d) {
                         $this->addCoding($d);
                     }
                 } else {
@@ -154,22 +160,26 @@ class FHIRCodeableConcept extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->coding)) {
             $json['coding'] = [];
-            foreach($this->coding as $coding) {
+            foreach ($this->coding as $coding) {
                 $json['coding'][] = $coding;
             }
         }
-        if (isset($this->text)) $json['text'] = $this->text;
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
         return $json;
     }
 
@@ -178,18 +188,23 @@ class FHIRCodeableConcept extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CodeableConcept xmlns="http://hl7.org/fhir"></CodeableConcept>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CodeableConcept xmlns="http://hl7.org/fhir"></CodeableConcept>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->coding)) {
-            foreach($this->coding as $coding) {
+            foreach ($this->coding as $coding) {
                 $coding->xmlSerialize(true, $sxe->addChild('coding'));
             }
         }
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

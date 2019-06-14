@@ -88,7 +88,8 @@ class FHIRSubstanceSourceMaterialFractionDescription extends FHIRBackboneElement
      * This element is capturing information about the fraction of a plant part, or human plasma for fractionation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getFraction() {
+    public function getFraction()
+    {
         return $this->fraction;
     }
 
@@ -97,7 +98,8 @@ class FHIRSubstanceSourceMaterialFractionDescription extends FHIRBackboneElement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $fraction
      * @return $this
      */
-    public function setFraction($fraction) {
+    public function setFraction($fraction)
+    {
         $this->fraction = $fraction;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRSubstanceSourceMaterialFractionDescription extends FHIRBackboneElement
      * The specific type of the material constituting the component. For Herbal preparations the particulars of the extracts (liquid/dry) is described in Specified Substance Group 1.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMaterialType() {
+    public function getMaterialType()
+    {
         return $this->materialType;
     }
 
@@ -115,7 +118,8 @@ class FHIRSubstanceSourceMaterialFractionDescription extends FHIRBackboneElement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $materialType
      * @return $this
      */
-    public function setMaterialType($materialType) {
+    public function setMaterialType($materialType)
+    {
         $this->materialType = $materialType;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRSubstanceSourceMaterialFractionDescription extends FHIRBackboneElement
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['fraction'])) {
                 $this->setFraction($data['fraction']);
@@ -147,17 +153,23 @@ class FHIRSubstanceSourceMaterialFractionDescription extends FHIRBackboneElement
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->fraction)) $json['fraction'] = $this->fraction;
-        if (isset($this->materialType)) $json['materialType'] = $this->materialType;
+        if (isset($this->fraction)) {
+            $json['fraction'] = $this->fraction;
+        }
+        if (isset($this->materialType)) {
+            $json['materialType'] = $this->materialType;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRSubstanceSourceMaterialFractionDescription extends FHIRBackboneElement
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialFractionDescription xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialFractionDescription>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialFractionDescription xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialFractionDescription>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->fraction)) $this->fraction->xmlSerialize(true, $sxe->addChild('fraction'));
-        if (isset($this->materialType)) $this->materialType->xmlSerialize(true, $sxe->addChild('materialType'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->fraction)) {
+            $this->fraction->xmlSerialize(true, $sxe->addChild('fraction'));
+        }
+        if (isset($this->materialType)) {
+            $this->materialType->xmlSerialize(true, $sxe->addChild('materialType'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

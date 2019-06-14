@@ -86,7 +86,8 @@ class FHIRElement implements \JsonSerializable
      * May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExtension[]
      */
-    public function getExtension() {
+    public function getExtension()
+    {
         return $this->extension;
     }
 
@@ -95,7 +96,8 @@ class FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExtension $extension
      * @return $this
      */
-    public function addExtension($extension) {
+    public function addExtension($extension)
+    {
         $this->extension[] = $extension;
         return $this;
     }
@@ -103,7 +105,8 @@ class FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -111,7 +114,8 @@ class FHIRElement implements \JsonSerializable
      * @param string $id
      * @return $this
      */
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
         return $this;
     }
@@ -119,18 +123,20 @@ class FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['extension'])) {
                 if (is_array($data['extension'])) {
-                    foreach($data['extension'] as $d) {
+                    foreach ($data['extension'] as $d) {
                         $this->addExtension($d);
                     }
                 } else {
@@ -148,22 +154,26 @@ class FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getId();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = [];
         if (0 < count($this->extension)) {
             $json['extension'] = [];
-            foreach($this->extension as $extension) {
+            foreach ($this->extension as $extension) {
                 $json['extension'][] = $extension;
             }
         }
-        if (isset($this->id)) $json['id'] = $this->id;
+        if (isset($this->id)) {
+            $json['id'] = $this->id;
+        }
         return $json;
     }
 
@@ -172,10 +182,13 @@ class FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Element xmlns="http://hl7.org/fhir"></Element>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Element xmlns="http://hl7.org/fhir"></Element>');
+        }
         if (0 < count($this->extension)) {
-            foreach($this->extension as $extension) {
+            foreach ($this->extension as $extension) {
                 $extension->xmlSerialize(true, $sxe->addChild('extension'));
             }
         }
@@ -183,9 +196,9 @@ class FHIRElement implements \JsonSerializable
             $idElement = $sxe->addChild('id');
             $idElement->addAttribute('value', (string)$this->id);
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

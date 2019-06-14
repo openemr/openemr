@@ -197,7 +197,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Business identifier for this product. Could be an MPID.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -206,7 +207,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -215,7 +217,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Regulatory type, e.g. Investigational or Authorized.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -224,7 +227,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -233,7 +237,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * If this medicine applies to human or veterinary uses.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getDomain() {
+    public function getDomain()
+    {
         return $this->domain;
     }
 
@@ -242,7 +247,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $domain
      * @return $this
      */
-    public function setDomain($domain) {
+    public function setDomain($domain)
+    {
         $this->domain = $domain;
         return $this;
     }
@@ -251,7 +257,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * The dose form for a single part product, or combined form of a multiple part product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCombinedPharmaceuticalDoseForm() {
+    public function getCombinedPharmaceuticalDoseForm()
+    {
         return $this->combinedPharmaceuticalDoseForm;
     }
 
@@ -260,7 +267,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $combinedPharmaceuticalDoseForm
      * @return $this
      */
-    public function setCombinedPharmaceuticalDoseForm($combinedPharmaceuticalDoseForm) {
+    public function setCombinedPharmaceuticalDoseForm($combinedPharmaceuticalDoseForm)
+    {
         $this->combinedPharmaceuticalDoseForm = $combinedPharmaceuticalDoseForm;
         return $this;
     }
@@ -269,7 +277,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * The legal status of supply of the medicinal product as classified by the regulator.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getLegalStatusOfSupply() {
+    public function getLegalStatusOfSupply()
+    {
         return $this->legalStatusOfSupply;
     }
 
@@ -278,7 +287,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $legalStatusOfSupply
      * @return $this
      */
-    public function setLegalStatusOfSupply($legalStatusOfSupply) {
+    public function setLegalStatusOfSupply($legalStatusOfSupply)
+    {
         $this->legalStatusOfSupply = $legalStatusOfSupply;
         return $this;
     }
@@ -287,7 +297,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Whether the Medicinal Product is subject to additional monitoring for regulatory reasons.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAdditionalMonitoringIndicator() {
+    public function getAdditionalMonitoringIndicator()
+    {
         return $this->additionalMonitoringIndicator;
     }
 
@@ -296,7 +307,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $additionalMonitoringIndicator
      * @return $this
      */
-    public function setAdditionalMonitoringIndicator($additionalMonitoringIndicator) {
+    public function setAdditionalMonitoringIndicator($additionalMonitoringIndicator)
+    {
         $this->additionalMonitoringIndicator = $additionalMonitoringIndicator;
         return $this;
     }
@@ -305,7 +317,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Whether the Medicinal Product is subject to special measures for regulatory reasons.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getSpecialMeasures() {
+    public function getSpecialMeasures()
+    {
         return $this->specialMeasures;
     }
 
@@ -314,7 +327,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $specialMeasures
      * @return $this
      */
-    public function addSpecialMeasures($specialMeasures) {
+    public function addSpecialMeasures($specialMeasures)
+    {
         $this->specialMeasures[] = $specialMeasures;
         return $this;
     }
@@ -323,7 +337,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * If authorised for use in children.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPaediatricUseIndicator() {
+    public function getPaediatricUseIndicator()
+    {
         return $this->paediatricUseIndicator;
     }
 
@@ -332,7 +347,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $paediatricUseIndicator
      * @return $this
      */
-    public function setPaediatricUseIndicator($paediatricUseIndicator) {
+    public function setPaediatricUseIndicator($paediatricUseIndicator)
+    {
         $this->paediatricUseIndicator = $paediatricUseIndicator;
         return $this;
     }
@@ -341,7 +357,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Allows the product to be classified by various systems.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getProductClassification() {
+    public function getProductClassification()
+    {
         return $this->productClassification;
     }
 
@@ -350,7 +367,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $productClassification
      * @return $this
      */
-    public function addProductClassification($productClassification) {
+    public function addProductClassification($productClassification)
+    {
         $this->productClassification[] = $productClassification;
         return $this;
     }
@@ -359,7 +377,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Marketing status of the medicinal product, in contrast to marketing authorizaton.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMarketingStatus[]
      */
-    public function getMarketingStatus() {
+    public function getMarketingStatus()
+    {
         return $this->marketingStatus;
     }
 
@@ -368,7 +387,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMarketingStatus $marketingStatus
      * @return $this
      */
-    public function addMarketingStatus($marketingStatus) {
+    public function addMarketingStatus($marketingStatus)
+    {
         $this->marketingStatus[] = $marketingStatus;
         return $this;
     }
@@ -377,7 +397,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Pharmaceutical aspects of product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPharmaceuticalProduct() {
+    public function getPharmaceuticalProduct()
+    {
         return $this->pharmaceuticalProduct;
     }
 
@@ -386,7 +407,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $pharmaceuticalProduct
      * @return $this
      */
-    public function addPharmaceuticalProduct($pharmaceuticalProduct) {
+    public function addPharmaceuticalProduct($pharmaceuticalProduct)
+    {
         $this->pharmaceuticalProduct[] = $pharmaceuticalProduct;
         return $this;
     }
@@ -395,7 +417,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Package representation for the product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPackagedMedicinalProduct() {
+    public function getPackagedMedicinalProduct()
+    {
         return $this->packagedMedicinalProduct;
     }
 
@@ -404,7 +427,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $packagedMedicinalProduct
      * @return $this
      */
-    public function addPackagedMedicinalProduct($packagedMedicinalProduct) {
+    public function addPackagedMedicinalProduct($packagedMedicinalProduct)
+    {
         $this->packagedMedicinalProduct[] = $packagedMedicinalProduct;
         return $this;
     }
@@ -413,7 +437,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Supporting documentation, typically for regulatory submission.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getAttachedDocument() {
+    public function getAttachedDocument()
+    {
         return $this->attachedDocument;
     }
 
@@ -422,7 +447,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $attachedDocument
      * @return $this
      */
-    public function addAttachedDocument($attachedDocument) {
+    public function addAttachedDocument($attachedDocument)
+    {
         $this->attachedDocument[] = $attachedDocument;
         return $this;
     }
@@ -431,7 +457,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * A master file for to the medicinal product (e.g. Pharmacovigilance System Master File).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getMasterFile() {
+    public function getMasterFile()
+    {
         return $this->masterFile;
     }
 
@@ -440,7 +467,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $masterFile
      * @return $this
      */
-    public function addMasterFile($masterFile) {
+    public function addMasterFile($masterFile)
+    {
         $this->masterFile[] = $masterFile;
         return $this;
     }
@@ -449,7 +477,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * A product specific contact, person (in a role), or an organization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getContact() {
+    public function getContact()
+    {
         return $this->contact;
     }
 
@@ -458,7 +487,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $contact
      * @return $this
      */
-    public function addContact($contact) {
+    public function addContact($contact)
+    {
         $this->contact[] = $contact;
         return $this;
     }
@@ -467,7 +497,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Clinical trials or studies that this product is involved in.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getClinicalTrial() {
+    public function getClinicalTrial()
+    {
         return $this->clinicalTrial;
     }
 
@@ -476,7 +507,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $clinicalTrial
      * @return $this
      */
-    public function addClinicalTrial($clinicalTrial) {
+    public function addClinicalTrial($clinicalTrial)
+    {
         $this->clinicalTrial[] = $clinicalTrial;
         return $this;
     }
@@ -485,7 +517,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * The product's name, including full name and possibly coded parts.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductName[]
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -494,7 +527,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductName $name
      * @return $this
      */
-    public function addName($name) {
+    public function addName($name)
+    {
         $this->name[] = $name;
         return $this;
     }
@@ -503,7 +537,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Reference to another product, e.g. for linking authorised to investigational product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getCrossReference() {
+    public function getCrossReference()
+    {
         return $this->crossReference;
     }
 
@@ -512,7 +547,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $crossReference
      * @return $this
      */
-    public function addCrossReference($crossReference) {
+    public function addCrossReference($crossReference)
+    {
         $this->crossReference[] = $crossReference;
         return $this;
     }
@@ -521,7 +557,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * An operation applied to the product, for manufacturing or adminsitrative purpose.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductManufacturingBusinessOperation[]
      */
-    public function getManufacturingBusinessOperation() {
+    public function getManufacturingBusinessOperation()
+    {
         return $this->manufacturingBusinessOperation;
     }
 
@@ -530,7 +567,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductManufacturingBusinessOperation $manufacturingBusinessOperation
      * @return $this
      */
-    public function addManufacturingBusinessOperation($manufacturingBusinessOperation) {
+    public function addManufacturingBusinessOperation($manufacturingBusinessOperation)
+    {
         $this->manufacturingBusinessOperation[] = $manufacturingBusinessOperation;
         return $this;
     }
@@ -539,7 +577,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * Indicates if the medicinal product has an orphan designation for the treatment of a rare disease.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductSpecialDesignation[]
      */
-    public function getSpecialDesignation() {
+    public function getSpecialDesignation()
+    {
         return $this->specialDesignation;
     }
 
@@ -548,7 +587,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct\FHIRMedicinalProductSpecialDesignation $specialDesignation
      * @return $this
      */
-    public function addSpecialDesignation($specialDesignation) {
+    public function addSpecialDesignation($specialDesignation)
+    {
         $this->specialDesignation[] = $specialDesignation;
         return $this;
     }
@@ -556,18 +596,20 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -591,7 +633,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['specialMeasures'])) {
                 if (is_array($data['specialMeasures'])) {
-                    foreach($data['specialMeasures'] as $d) {
+                    foreach ($data['specialMeasures'] as $d) {
                         $this->addSpecialMeasures($d);
                     }
                 } else {
@@ -603,7 +645,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['productClassification'])) {
                 if (is_array($data['productClassification'])) {
-                    foreach($data['productClassification'] as $d) {
+                    foreach ($data['productClassification'] as $d) {
                         $this->addProductClassification($d);
                     }
                 } else {
@@ -612,7 +654,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['marketingStatus'])) {
                 if (is_array($data['marketingStatus'])) {
-                    foreach($data['marketingStatus'] as $d) {
+                    foreach ($data['marketingStatus'] as $d) {
                         $this->addMarketingStatus($d);
                     }
                 } else {
@@ -621,7 +663,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['pharmaceuticalProduct'])) {
                 if (is_array($data['pharmaceuticalProduct'])) {
-                    foreach($data['pharmaceuticalProduct'] as $d) {
+                    foreach ($data['pharmaceuticalProduct'] as $d) {
                         $this->addPharmaceuticalProduct($d);
                     }
                 } else {
@@ -630,7 +672,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['packagedMedicinalProduct'])) {
                 if (is_array($data['packagedMedicinalProduct'])) {
-                    foreach($data['packagedMedicinalProduct'] as $d) {
+                    foreach ($data['packagedMedicinalProduct'] as $d) {
                         $this->addPackagedMedicinalProduct($d);
                     }
                 } else {
@@ -639,7 +681,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['attachedDocument'])) {
                 if (is_array($data['attachedDocument'])) {
-                    foreach($data['attachedDocument'] as $d) {
+                    foreach ($data['attachedDocument'] as $d) {
                         $this->addAttachedDocument($d);
                     }
                 } else {
@@ -648,7 +690,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['masterFile'])) {
                 if (is_array($data['masterFile'])) {
-                    foreach($data['masterFile'] as $d) {
+                    foreach ($data['masterFile'] as $d) {
                         $this->addMasterFile($d);
                     }
                 } else {
@@ -657,7 +699,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['contact'])) {
                 if (is_array($data['contact'])) {
-                    foreach($data['contact'] as $d) {
+                    foreach ($data['contact'] as $d) {
                         $this->addContact($d);
                     }
                 } else {
@@ -666,7 +708,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['clinicalTrial'])) {
                 if (is_array($data['clinicalTrial'])) {
-                    foreach($data['clinicalTrial'] as $d) {
+                    foreach ($data['clinicalTrial'] as $d) {
                         $this->addClinicalTrial($d);
                     }
                 } else {
@@ -675,7 +717,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['name'])) {
                 if (is_array($data['name'])) {
-                    foreach($data['name'] as $d) {
+                    foreach ($data['name'] as $d) {
                         $this->addName($d);
                     }
                 } else {
@@ -684,7 +726,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['crossReference'])) {
                 if (is_array($data['crossReference'])) {
-                    foreach($data['crossReference'] as $d) {
+                    foreach ($data['crossReference'] as $d) {
                         $this->addCrossReference($d);
                     }
                 } else {
@@ -693,7 +735,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['manufacturingBusinessOperation'])) {
                 if (is_array($data['manufacturingBusinessOperation'])) {
-                    foreach($data['manufacturingBusinessOperation'] as $d) {
+                    foreach ($data['manufacturingBusinessOperation'] as $d) {
                         $this->addManufacturingBusinessOperation($d);
                     }
                 } else {
@@ -702,7 +744,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             }
             if (isset($data['specialDesignation'])) {
                 if (is_array($data['specialDesignation'])) {
-                    foreach($data['specialDesignation'] as $d) {
+                    foreach ($data['specialDesignation'] as $d) {
                         $this->addSpecialDesignation($d);
                     }
                 } else {
@@ -718,103 +760,117 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->domain)) $json['domain'] = $this->domain;
-        if (isset($this->combinedPharmaceuticalDoseForm)) $json['combinedPharmaceuticalDoseForm'] = $this->combinedPharmaceuticalDoseForm;
-        if (isset($this->legalStatusOfSupply)) $json['legalStatusOfSupply'] = $this->legalStatusOfSupply;
-        if (isset($this->additionalMonitoringIndicator)) $json['additionalMonitoringIndicator'] = $this->additionalMonitoringIndicator;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->domain)) {
+            $json['domain'] = $this->domain;
+        }
+        if (isset($this->combinedPharmaceuticalDoseForm)) {
+            $json['combinedPharmaceuticalDoseForm'] = $this->combinedPharmaceuticalDoseForm;
+        }
+        if (isset($this->legalStatusOfSupply)) {
+            $json['legalStatusOfSupply'] = $this->legalStatusOfSupply;
+        }
+        if (isset($this->additionalMonitoringIndicator)) {
+            $json['additionalMonitoringIndicator'] = $this->additionalMonitoringIndicator;
+        }
         if (0 < count($this->specialMeasures)) {
             $json['specialMeasures'] = [];
-            foreach($this->specialMeasures as $specialMeasures) {
+            foreach ($this->specialMeasures as $specialMeasures) {
                 $json['specialMeasures'][] = $specialMeasures;
             }
         }
-        if (isset($this->paediatricUseIndicator)) $json['paediatricUseIndicator'] = $this->paediatricUseIndicator;
+        if (isset($this->paediatricUseIndicator)) {
+            $json['paediatricUseIndicator'] = $this->paediatricUseIndicator;
+        }
         if (0 < count($this->productClassification)) {
             $json['productClassification'] = [];
-            foreach($this->productClassification as $productClassification) {
+            foreach ($this->productClassification as $productClassification) {
                 $json['productClassification'][] = $productClassification;
             }
         }
         if (0 < count($this->marketingStatus)) {
             $json['marketingStatus'] = [];
-            foreach($this->marketingStatus as $marketingStatus) {
+            foreach ($this->marketingStatus as $marketingStatus) {
                 $json['marketingStatus'][] = $marketingStatus;
             }
         }
         if (0 < count($this->pharmaceuticalProduct)) {
             $json['pharmaceuticalProduct'] = [];
-            foreach($this->pharmaceuticalProduct as $pharmaceuticalProduct) {
+            foreach ($this->pharmaceuticalProduct as $pharmaceuticalProduct) {
                 $json['pharmaceuticalProduct'][] = $pharmaceuticalProduct;
             }
         }
         if (0 < count($this->packagedMedicinalProduct)) {
             $json['packagedMedicinalProduct'] = [];
-            foreach($this->packagedMedicinalProduct as $packagedMedicinalProduct) {
+            foreach ($this->packagedMedicinalProduct as $packagedMedicinalProduct) {
                 $json['packagedMedicinalProduct'][] = $packagedMedicinalProduct;
             }
         }
         if (0 < count($this->attachedDocument)) {
             $json['attachedDocument'] = [];
-            foreach($this->attachedDocument as $attachedDocument) {
+            foreach ($this->attachedDocument as $attachedDocument) {
                 $json['attachedDocument'][] = $attachedDocument;
             }
         }
         if (0 < count($this->masterFile)) {
             $json['masterFile'] = [];
-            foreach($this->masterFile as $masterFile) {
+            foreach ($this->masterFile as $masterFile) {
                 $json['masterFile'][] = $masterFile;
             }
         }
         if (0 < count($this->contact)) {
             $json['contact'] = [];
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $json['contact'][] = $contact;
             }
         }
         if (0 < count($this->clinicalTrial)) {
             $json['clinicalTrial'] = [];
-            foreach($this->clinicalTrial as $clinicalTrial) {
+            foreach ($this->clinicalTrial as $clinicalTrial) {
                 $json['clinicalTrial'][] = $clinicalTrial;
             }
         }
         if (0 < count($this->name)) {
             $json['name'] = [];
-            foreach($this->name as $name) {
+            foreach ($this->name as $name) {
                 $json['name'][] = $name;
             }
         }
         if (0 < count($this->crossReference)) {
             $json['crossReference'] = [];
-            foreach($this->crossReference as $crossReference) {
+            foreach ($this->crossReference as $crossReference) {
                 $json['crossReference'][] = $crossReference;
             }
         }
         if (0 < count($this->manufacturingBusinessOperation)) {
             $json['manufacturingBusinessOperation'] = [];
-            foreach($this->manufacturingBusinessOperation as $manufacturingBusinessOperation) {
+            foreach ($this->manufacturingBusinessOperation as $manufacturingBusinessOperation) {
                 $json['manufacturingBusinessOperation'][] = $manufacturingBusinessOperation;
             }
         }
         if (0 < count($this->specialDesignation)) {
             $json['specialDesignation'] = [];
-            foreach($this->specialDesignation as $specialDesignation) {
+            foreach ($this->specialDesignation as $specialDesignation) {
                 $json['specialDesignation'][] = $specialDesignation;
             }
         }
@@ -826,88 +882,103 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProduct xmlns="http://hl7.org/fhir"></MedicinalProduct>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProduct xmlns="http://hl7.org/fhir"></MedicinalProduct>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->domain)) $this->domain->xmlSerialize(true, $sxe->addChild('domain'));
-        if (isset($this->combinedPharmaceuticalDoseForm)) $this->combinedPharmaceuticalDoseForm->xmlSerialize(true, $sxe->addChild('combinedPharmaceuticalDoseForm'));
-        if (isset($this->legalStatusOfSupply)) $this->legalStatusOfSupply->xmlSerialize(true, $sxe->addChild('legalStatusOfSupply'));
-        if (isset($this->additionalMonitoringIndicator)) $this->additionalMonitoringIndicator->xmlSerialize(true, $sxe->addChild('additionalMonitoringIndicator'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->domain)) {
+            $this->domain->xmlSerialize(true, $sxe->addChild('domain'));
+        }
+        if (isset($this->combinedPharmaceuticalDoseForm)) {
+            $this->combinedPharmaceuticalDoseForm->xmlSerialize(true, $sxe->addChild('combinedPharmaceuticalDoseForm'));
+        }
+        if (isset($this->legalStatusOfSupply)) {
+            $this->legalStatusOfSupply->xmlSerialize(true, $sxe->addChild('legalStatusOfSupply'));
+        }
+        if (isset($this->additionalMonitoringIndicator)) {
+            $this->additionalMonitoringIndicator->xmlSerialize(true, $sxe->addChild('additionalMonitoringIndicator'));
+        }
         if (0 < count($this->specialMeasures)) {
-            foreach($this->specialMeasures as $specialMeasures) {
+            foreach ($this->specialMeasures as $specialMeasures) {
                 $specialMeasures->xmlSerialize(true, $sxe->addChild('specialMeasures'));
             }
         }
-        if (isset($this->paediatricUseIndicator)) $this->paediatricUseIndicator->xmlSerialize(true, $sxe->addChild('paediatricUseIndicator'));
+        if (isset($this->paediatricUseIndicator)) {
+            $this->paediatricUseIndicator->xmlSerialize(true, $sxe->addChild('paediatricUseIndicator'));
+        }
         if (0 < count($this->productClassification)) {
-            foreach($this->productClassification as $productClassification) {
+            foreach ($this->productClassification as $productClassification) {
                 $productClassification->xmlSerialize(true, $sxe->addChild('productClassification'));
             }
         }
         if (0 < count($this->marketingStatus)) {
-            foreach($this->marketingStatus as $marketingStatus) {
+            foreach ($this->marketingStatus as $marketingStatus) {
                 $marketingStatus->xmlSerialize(true, $sxe->addChild('marketingStatus'));
             }
         }
         if (0 < count($this->pharmaceuticalProduct)) {
-            foreach($this->pharmaceuticalProduct as $pharmaceuticalProduct) {
+            foreach ($this->pharmaceuticalProduct as $pharmaceuticalProduct) {
                 $pharmaceuticalProduct->xmlSerialize(true, $sxe->addChild('pharmaceuticalProduct'));
             }
         }
         if (0 < count($this->packagedMedicinalProduct)) {
-            foreach($this->packagedMedicinalProduct as $packagedMedicinalProduct) {
+            foreach ($this->packagedMedicinalProduct as $packagedMedicinalProduct) {
                 $packagedMedicinalProduct->xmlSerialize(true, $sxe->addChild('packagedMedicinalProduct'));
             }
         }
         if (0 < count($this->attachedDocument)) {
-            foreach($this->attachedDocument as $attachedDocument) {
+            foreach ($this->attachedDocument as $attachedDocument) {
                 $attachedDocument->xmlSerialize(true, $sxe->addChild('attachedDocument'));
             }
         }
         if (0 < count($this->masterFile)) {
-            foreach($this->masterFile as $masterFile) {
+            foreach ($this->masterFile as $masterFile) {
                 $masterFile->xmlSerialize(true, $sxe->addChild('masterFile'));
             }
         }
         if (0 < count($this->contact)) {
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $contact->xmlSerialize(true, $sxe->addChild('contact'));
             }
         }
         if (0 < count($this->clinicalTrial)) {
-            foreach($this->clinicalTrial as $clinicalTrial) {
+            foreach ($this->clinicalTrial as $clinicalTrial) {
                 $clinicalTrial->xmlSerialize(true, $sxe->addChild('clinicalTrial'));
             }
         }
         if (0 < count($this->name)) {
-            foreach($this->name as $name) {
+            foreach ($this->name as $name) {
                 $name->xmlSerialize(true, $sxe->addChild('name'));
             }
         }
         if (0 < count($this->crossReference)) {
-            foreach($this->crossReference as $crossReference) {
+            foreach ($this->crossReference as $crossReference) {
                 $crossReference->xmlSerialize(true, $sxe->addChild('crossReference'));
             }
         }
         if (0 < count($this->manufacturingBusinessOperation)) {
-            foreach($this->manufacturingBusinessOperation as $manufacturingBusinessOperation) {
+            foreach ($this->manufacturingBusinessOperation as $manufacturingBusinessOperation) {
                 $manufacturingBusinessOperation->xmlSerialize(true, $sxe->addChild('manufacturingBusinessOperation'));
             }
         }
         if (0 < count($this->specialDesignation)) {
-            foreach($this->specialDesignation as $specialDesignation) {
+            foreach ($this->specialDesignation as $specialDesignation) {
                 $specialDesignation->xmlSerialize(true, $sxe->addChild('specialDesignation'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIRPractitionerRoleNotAvailable extends FHIRBackboneElement implements \J
      * The reason that can be presented to the user as to why this time is not available.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -97,7 +98,8 @@ class FHIRPractitionerRoleNotAvailable extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRPractitionerRoleNotAvailable extends FHIRBackboneElement implements \J
      * Service is not available (seasonally or for a public holiday) from this date.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getDuring() {
+    public function getDuring()
+    {
         return $this->during;
     }
 
@@ -115,7 +118,8 @@ class FHIRPractitionerRoleNotAvailable extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $during
      * @return $this
      */
-    public function setDuring($during) {
+    public function setDuring($during)
+    {
         $this->during = $during;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRPractitionerRoleNotAvailable extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -147,17 +153,23 @@ class FHIRPractitionerRoleNotAvailable extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->during)) $json['during'] = $this->during;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->during)) {
+            $json['during'] = $this->during;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRPractitionerRoleNotAvailable extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PractitionerRoleNotAvailable xmlns="http://hl7.org/fhir"></PractitionerRoleNotAvailable>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PractitionerRoleNotAvailable xmlns="http://hl7.org/fhir"></PractitionerRoleNotAvailable>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->during)) $this->during->xmlSerialize(true, $sxe->addChild('during'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->during)) {
+            $this->during->xmlSerialize(true, $sxe->addChild('during'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

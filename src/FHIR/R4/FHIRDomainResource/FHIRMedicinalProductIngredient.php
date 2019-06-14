@@ -113,7 +113,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * The identifier(s) of this Ingredient that are assigned by business processes and/or used to refer to it when a direct URL reference to the resource itself is not appropriate.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -122,7 +123,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -131,7 +133,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * Ingredient role e.g. Active ingredient, excipient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRole() {
+    public function getRole()
+    {
         return $this->role;
     }
 
@@ -140,7 +143,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $role
      * @return $this
      */
-    public function setRole($role) {
+    public function setRole($role)
+    {
         $this->role = $role;
         return $this;
     }
@@ -149,7 +153,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * If the ingredient is a known or suspected allergen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getAllergenicIndicator() {
+    public function getAllergenicIndicator()
+    {
         return $this->allergenicIndicator;
     }
 
@@ -158,7 +163,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $allergenicIndicator
      * @return $this
      */
-    public function setAllergenicIndicator($allergenicIndicator) {
+    public function setAllergenicIndicator($allergenicIndicator)
+    {
         $this->allergenicIndicator = $allergenicIndicator;
         return $this;
     }
@@ -167,7 +173,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * Manufacturer of this Ingredient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getManufacturer() {
+    public function getManufacturer()
+    {
         return $this->manufacturer;
     }
 
@@ -176,7 +183,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $manufacturer
      * @return $this
      */
-    public function addManufacturer($manufacturer) {
+    public function addManufacturer($manufacturer)
+    {
         $this->manufacturer[] = $manufacturer;
         return $this;
     }
@@ -185,7 +193,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * A specified substance that comprises this ingredient.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductIngredient\FHIRMedicinalProductIngredientSpecifiedSubstance[]
      */
-    public function getSpecifiedSubstance() {
+    public function getSpecifiedSubstance()
+    {
         return $this->specifiedSubstance;
     }
 
@@ -194,7 +203,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductIngredient\FHIRMedicinalProductIngredientSpecifiedSubstance $specifiedSubstance
      * @return $this
      */
-    public function addSpecifiedSubstance($specifiedSubstance) {
+    public function addSpecifiedSubstance($specifiedSubstance)
+    {
         $this->specifiedSubstance[] = $specifiedSubstance;
         return $this;
     }
@@ -203,7 +213,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * The ingredient substance.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductIngredient\FHIRMedicinalProductIngredientSubstance
      */
-    public function getSubstance() {
+    public function getSubstance()
+    {
         return $this->substance;
     }
 
@@ -212,7 +223,8 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductIngredient\FHIRMedicinalProductIngredientSubstance $substance
      * @return $this
      */
-    public function setSubstance($substance) {
+    public function setSubstance($substance)
+    {
         $this->substance = $substance;
         return $this;
     }
@@ -220,14 +232,16 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 $this->setIdentifier($data['identifier']);
@@ -240,7 +254,7 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
             }
             if (isset($data['manufacturer'])) {
                 if (is_array($data['manufacturer'])) {
-                    foreach($data['manufacturer'] as $d) {
+                    foreach ($data['manufacturer'] as $d) {
                         $this->addManufacturer($d);
                     }
                 } else {
@@ -249,7 +263,7 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
             }
             if (isset($data['specifiedSubstance'])) {
                 if (is_array($data['specifiedSubstance'])) {
-                    foreach($data['specifiedSubstance'] as $d) {
+                    foreach ($data['specifiedSubstance'] as $d) {
                         $this->addSpecifiedSubstance($d);
                     }
                 } else {
@@ -268,32 +282,42 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->role)) $json['role'] = $this->role;
-        if (isset($this->allergenicIndicator)) $json['allergenicIndicator'] = $this->allergenicIndicator;
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->role)) {
+            $json['role'] = $this->role;
+        }
+        if (isset($this->allergenicIndicator)) {
+            $json['allergenicIndicator'] = $this->allergenicIndicator;
+        }
         if (0 < count($this->manufacturer)) {
             $json['manufacturer'] = [];
-            foreach($this->manufacturer as $manufacturer) {
+            foreach ($this->manufacturer as $manufacturer) {
                 $json['manufacturer'][] = $manufacturer;
             }
         }
         if (0 < count($this->specifiedSubstance)) {
             $json['specifiedSubstance'] = [];
-            foreach($this->specifiedSubstance as $specifiedSubstance) {
+            foreach ($this->specifiedSubstance as $specifiedSubstance) {
                 $json['specifiedSubstance'][] = $specifiedSubstance;
             }
         }
-        if (isset($this->substance)) $json['substance'] = $this->substance;
+        if (isset($this->substance)) {
+            $json['substance'] = $this->substance;
+        }
         return $json;
     }
 
@@ -302,26 +326,37 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductIngredient xmlns="http://hl7.org/fhir"></MedicinalProductIngredient>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductIngredient xmlns="http://hl7.org/fhir"></MedicinalProductIngredient>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->role)) $this->role->xmlSerialize(true, $sxe->addChild('role'));
-        if (isset($this->allergenicIndicator)) $this->allergenicIndicator->xmlSerialize(true, $sxe->addChild('allergenicIndicator'));
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->role)) {
+            $this->role->xmlSerialize(true, $sxe->addChild('role'));
+        }
+        if (isset($this->allergenicIndicator)) {
+            $this->allergenicIndicator->xmlSerialize(true, $sxe->addChild('allergenicIndicator'));
+        }
         if (0 < count($this->manufacturer)) {
-            foreach($this->manufacturer as $manufacturer) {
+            foreach ($this->manufacturer as $manufacturer) {
                 $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
             }
         }
         if (0 < count($this->specifiedSubstance)) {
-            foreach($this->specifiedSubstance as $specifiedSubstance) {
+            foreach ($this->specifiedSubstance as $specifiedSubstance) {
                 $specifiedSubstance->xmlSerialize(true, $sxe->addChild('specifiedSubstance'));
             }
         }
-        if (isset($this->substance)) $this->substance->xmlSerialize(true, $sxe->addChild('substance'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->substance)) {
+            $this->substance->xmlSerialize(true, $sxe->addChild('substance'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

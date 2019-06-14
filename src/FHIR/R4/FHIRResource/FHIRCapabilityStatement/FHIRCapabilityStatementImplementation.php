@@ -94,7 +94,8 @@ class FHIRCapabilityStatementImplementation extends FHIRBackboneElement implemen
      * Information about the specific installation that this capability statement relates to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -103,7 +104,8 @@ class FHIRCapabilityStatementImplementation extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRCapabilityStatementImplementation extends FHIRBackboneElement implemen
      * An absolute base URL for the implementation.  This forms the base for REST interfaces as well as the mailbox and document interfaces.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -121,7 +124,8 @@ class FHIRCapabilityStatementImplementation extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRCapabilityStatementImplementation extends FHIRBackboneElement implemen
      * The organization responsible for the management of the instance and oversight of the data on the server at the specified URL.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCustodian() {
+    public function getCustodian()
+    {
         return $this->custodian;
     }
 
@@ -139,7 +144,8 @@ class FHIRCapabilityStatementImplementation extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $custodian
      * @return $this
      */
-    public function setCustodian($custodian) {
+    public function setCustodian($custodian)
+    {
         $this->custodian = $custodian;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRCapabilityStatementImplementation extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['description'])) {
                 $this->setDescription($data['description']);
@@ -174,18 +182,26 @@ class FHIRCapabilityStatementImplementation extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->url)) $json['url'] = $this->url;
-        if (isset($this->custodian)) $json['custodian'] = $this->custodian;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
+        if (isset($this->custodian)) {
+            $json['custodian'] = $this->custodian;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRCapabilityStatementImplementation extends FHIRBackboneElement implemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CapabilityStatementImplementation xmlns="http://hl7.org/fhir"></CapabilityStatementImplementation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CapabilityStatementImplementation xmlns="http://hl7.org/fhir"></CapabilityStatementImplementation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
-        if (isset($this->custodian)) $this->custodian->xmlSerialize(true, $sxe->addChild('custodian'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
+        if (isset($this->custodian)) {
+            $this->custodian->xmlSerialize(true, $sxe->addChild('custodian'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

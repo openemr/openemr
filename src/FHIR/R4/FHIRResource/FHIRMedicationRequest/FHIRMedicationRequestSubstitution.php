@@ -91,7 +91,8 @@ class FHIRMedicationRequestSubstitution extends FHIRBackboneElement implements \
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getAllowedBoolean() {
+    public function getAllowedBoolean()
+    {
         return $this->allowedBoolean;
     }
 
@@ -99,7 +100,8 @@ class FHIRMedicationRequestSubstitution extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $allowedBoolean
      * @return $this
      */
-    public function setAllowedBoolean($allowedBoolean) {
+    public function setAllowedBoolean($allowedBoolean)
+    {
         $this->allowedBoolean = $allowedBoolean;
         return $this;
     }
@@ -107,7 +109,8 @@ class FHIRMedicationRequestSubstitution extends FHIRBackboneElement implements \
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAllowedCodeableConcept() {
+    public function getAllowedCodeableConcept()
+    {
         return $this->allowedCodeableConcept;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicationRequestSubstitution extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $allowedCodeableConcept
      * @return $this
      */
-    public function setAllowedCodeableConcept($allowedCodeableConcept) {
+    public function setAllowedCodeableConcept($allowedCodeableConcept)
+    {
         $this->allowedCodeableConcept = $allowedCodeableConcept;
         return $this;
     }
@@ -124,7 +128,8 @@ class FHIRMedicationRequestSubstitution extends FHIRBackboneElement implements \
      * Indicates the reason for the substitution, or why substitution must or must not be performed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getReason() {
+    public function getReason()
+    {
         return $this->reason;
     }
 
@@ -133,7 +138,8 @@ class FHIRMedicationRequestSubstitution extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reason
      * @return $this
      */
-    public function setReason($reason) {
+    public function setReason($reason)
+    {
         $this->reason = $reason;
         return $this;
     }
@@ -141,14 +147,16 @@ class FHIRMedicationRequestSubstitution extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['allowedBoolean'])) {
                 $this->setAllowedBoolean($data['allowedBoolean']);
@@ -168,18 +176,26 @@ class FHIRMedicationRequestSubstitution extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->allowedBoolean)) $json['allowedBoolean'] = $this->allowedBoolean;
-        if (isset($this->allowedCodeableConcept)) $json['allowedCodeableConcept'] = $this->allowedCodeableConcept;
-        if (isset($this->reason)) $json['reason'] = $this->reason;
+        if (isset($this->allowedBoolean)) {
+            $json['allowedBoolean'] = $this->allowedBoolean;
+        }
+        if (isset($this->allowedCodeableConcept)) {
+            $json['allowedCodeableConcept'] = $this->allowedCodeableConcept;
+        }
+        if (isset($this->reason)) {
+            $json['reason'] = $this->reason;
+        }
         return $json;
     }
 
@@ -188,15 +204,24 @@ class FHIRMedicationRequestSubstitution extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationRequestSubstitution xmlns="http://hl7.org/fhir"></MedicationRequestSubstitution>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationRequestSubstitution xmlns="http://hl7.org/fhir"></MedicationRequestSubstitution>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->allowedBoolean)) $this->allowedBoolean->xmlSerialize(true, $sxe->addChild('allowedBoolean'));
-        if (isset($this->allowedCodeableConcept)) $this->allowedCodeableConcept->xmlSerialize(true, $sxe->addChild('allowedCodeableConcept'));
-        if (isset($this->reason)) $this->reason->xmlSerialize(true, $sxe->addChild('reason'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->allowedBoolean)) {
+            $this->allowedBoolean->xmlSerialize(true, $sxe->addChild('allowedBoolean'));
+        }
+        if (isset($this->allowedCodeableConcept)) {
+            $this->allowedCodeableConcept->xmlSerialize(true, $sxe->addChild('allowedCodeableConcept'));
+        }
+        if (isset($this->reason)) {
+            $this->reason->xmlSerialize(true, $sxe->addChild('reason'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

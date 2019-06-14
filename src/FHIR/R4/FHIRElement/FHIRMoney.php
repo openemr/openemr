@@ -89,7 +89,8 @@ class FHIRMoney extends FHIRElement implements \JsonSerializable
      * Numerical value (with implicit precision).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -98,7 +99,8 @@ class FHIRMoney extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -107,7 +109,8 @@ class FHIRMoney extends FHIRElement implements \JsonSerializable
      * ISO 4217 Currency Code.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getCurrency() {
+    public function getCurrency()
+    {
         return $this->currency;
     }
 
@@ -116,7 +119,8 @@ class FHIRMoney extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $currency
      * @return $this
      */
-    public function setCurrency($currency) {
+    public function setCurrency($currency)
+    {
         $this->currency = $currency;
         return $this;
     }
@@ -124,14 +128,16 @@ class FHIRMoney extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['value'])) {
                 $this->setValue($data['value']);
@@ -148,17 +154,23 @@ class FHIRMoney extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->value)) $json['value'] = $this->value;
-        if (isset($this->currency)) $json['currency'] = $this->currency;
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
+        if (isset($this->currency)) {
+            $json['currency'] = $this->currency;
+        }
         return $json;
     }
 
@@ -167,14 +179,21 @@ class FHIRMoney extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Money xmlns="http://hl7.org/fhir"></Money>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Money xmlns="http://hl7.org/fhir"></Money>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if (isset($this->currency)) $this->currency->xmlSerialize(true, $sxe->addChild('currency'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if (isset($this->currency)) {
+            $this->currency->xmlSerialize(true, $sxe->addChild('currency'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

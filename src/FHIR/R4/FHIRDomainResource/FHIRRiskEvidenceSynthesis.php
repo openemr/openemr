@@ -263,7 +263,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * An absolute URI that is used to identify this risk evidence synthesis when it is referenced in a specification, model, design or an instance; also called its canonical identifier. This SHOULD be globally unique and SHOULD be a literal address at which at which an authoritative instance of this risk evidence synthesis is (or will be) published. This URL can be the target of a canonical reference. It SHALL remain the same when the risk evidence synthesis is stored on different servers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         return $this->url;
     }
 
@@ -272,7 +273,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $url
      * @return $this
      */
-    public function setUrl($url) {
+    public function setUrl($url)
+    {
         $this->url = $url;
         return $this;
     }
@@ -281,7 +283,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A formal identifier that is used to identify this risk evidence synthesis when it is represented in other formats, or referenced in a specification, model, design or an instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -290,7 +293,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -299,7 +303,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * The identifier that is used to identify this version of the risk evidence synthesis when it is referenced in a specification, model, design or instance. This is an arbitrary value managed by the risk evidence synthesis author and is not expected to be globally unique. For example, it might be a timestamp (e.g. yyyymmdd) if a managed version is not available. There is also no expectation that versions can be placed in a lexicographical sequence.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -308,7 +313,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $version
      * @return $this
      */
-    public function setVersion($version) {
+    public function setVersion($version)
+    {
         $this->version = $version;
         return $this;
     }
@@ -317,7 +323,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A natural language name identifying the risk evidence synthesis. This name should be usable as an identifier for the module by machine processing applications such as code generation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -326,7 +333,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -335,7 +343,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A short, descriptive, user-friendly title for the risk evidence synthesis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -344,7 +353,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -353,7 +363,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * The status of this risk evidence synthesis. Enables tracking the life-cycle of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -362,7 +373,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -371,7 +383,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * The date  (and optionally time) when the risk evidence synthesis was published. The date must change when the business version changes and it must change if the status code changes. In addition, it should change when the substantive content of the risk evidence synthesis changes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -380,7 +393,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -389,7 +403,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * The name of the organization or individual that published the risk evidence synthesis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPublisher() {
+    public function getPublisher()
+    {
         return $this->publisher;
     }
 
@@ -398,7 +413,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $publisher
      * @return $this
      */
-    public function setPublisher($publisher) {
+    public function setPublisher($publisher)
+    {
         $this->publisher = $publisher;
         return $this;
     }
@@ -407,7 +423,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * Contact details to assist a user in finding and communicating with the publisher.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getContact() {
+    public function getContact()
+    {
         return $this->contact;
     }
 
@@ -416,7 +433,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $contact
      * @return $this
      */
-    public function addContact($contact) {
+    public function addContact($contact)
+    {
         $this->contact[] = $contact;
         return $this;
     }
@@ -425,7 +443,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A free text natural language description of the risk evidence synthesis from a consumer's perspective.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -434,7 +453,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -443,7 +463,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A human-readable string to clarify or explain concepts about the resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -452,7 +473,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -461,7 +483,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * The content was developed with a focus and intent of supporting the contexts that are listed. These contexts may be general categories (gender, age, ...) or may be references to specific programs (insurance plans, studies, ...) and may be used to assist with indexing and searching for appropriate risk evidence synthesis instances.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext[]
      */
-    public function getUseContext() {
+    public function getUseContext()
+    {
         return $this->useContext;
     }
 
@@ -470,7 +493,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $useContext
      * @return $this
      */
-    public function addUseContext($useContext) {
+    public function addUseContext($useContext)
+    {
         $this->useContext[] = $useContext;
         return $this;
     }
@@ -479,7 +503,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A legal or geographic region in which the risk evidence synthesis is intended to be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getJurisdiction() {
+    public function getJurisdiction()
+    {
         return $this->jurisdiction;
     }
 
@@ -488,7 +513,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $jurisdiction
      * @return $this
      */
-    public function addJurisdiction($jurisdiction) {
+    public function addJurisdiction($jurisdiction)
+    {
         $this->jurisdiction[] = $jurisdiction;
         return $this;
     }
@@ -497,7 +523,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A copyright statement relating to the risk evidence synthesis and/or its contents. Copyright statements are generally legal restrictions on the use and publishing of the risk evidence synthesis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getCopyright() {
+    public function getCopyright()
+    {
         return $this->copyright;
     }
 
@@ -506,7 +533,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $copyright
      * @return $this
      */
-    public function setCopyright($copyright) {
+    public function setCopyright($copyright)
+    {
         $this->copyright = $copyright;
         return $this;
     }
@@ -515,7 +543,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * The date on which the resource content was approved by the publisher. Approval happens once when the content is officially approved for usage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getApprovalDate() {
+    public function getApprovalDate()
+    {
         return $this->approvalDate;
     }
 
@@ -524,7 +553,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $approvalDate
      * @return $this
      */
-    public function setApprovalDate($approvalDate) {
+    public function setApprovalDate($approvalDate)
+    {
         $this->approvalDate = $approvalDate;
         return $this;
     }
@@ -533,7 +563,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * The date on which the resource content was last reviewed. Review happens periodically after approval but does not change the original approval date.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getLastReviewDate() {
+    public function getLastReviewDate()
+    {
         return $this->lastReviewDate;
     }
 
@@ -542,7 +573,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $lastReviewDate
      * @return $this
      */
-    public function setLastReviewDate($lastReviewDate) {
+    public function setLastReviewDate($lastReviewDate)
+    {
         $this->lastReviewDate = $lastReviewDate;
         return $this;
     }
@@ -551,7 +583,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * The period during which the risk evidence synthesis content was or is planned to be in active use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getEffectivePeriod() {
+    public function getEffectivePeriod()
+    {
         return $this->effectivePeriod;
     }
 
@@ -560,7 +593,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $effectivePeriod
      * @return $this
      */
-    public function setEffectivePeriod($effectivePeriod) {
+    public function setEffectivePeriod($effectivePeriod)
+    {
         $this->effectivePeriod = $effectivePeriod;
         return $this;
     }
@@ -569,7 +603,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * Descriptive topics related to the content of the RiskEvidenceSynthesis. Topics provide a high-level categorization grouping types of EffectEvidenceSynthesiss that can be useful for filtering and searching.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getTopic() {
+    public function getTopic()
+    {
         return $this->topic;
     }
 
@@ -578,7 +613,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $topic
      * @return $this
      */
-    public function addTopic($topic) {
+    public function addTopic($topic)
+    {
         $this->topic[] = $topic;
         return $this;
     }
@@ -587,7 +623,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * An individiual or organization primarily involved in the creation and maintenance of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
@@ -596,7 +633,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $author
      * @return $this
      */
-    public function addAuthor($author) {
+    public function addAuthor($author)
+    {
         $this->author[] = $author;
         return $this;
     }
@@ -605,7 +643,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * An individual or organization primarily responsible for internal coherence of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getEditor() {
+    public function getEditor()
+    {
         return $this->editor;
     }
 
@@ -614,7 +653,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $editor
      * @return $this
      */
-    public function addEditor($editor) {
+    public function addEditor($editor)
+    {
         $this->editor[] = $editor;
         return $this;
     }
@@ -623,7 +663,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * An individual or organization primarily responsible for review of some aspect of the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getReviewer() {
+    public function getReviewer()
+    {
         return $this->reviewer;
     }
 
@@ -632,7 +673,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $reviewer
      * @return $this
      */
-    public function addReviewer($reviewer) {
+    public function addReviewer($reviewer)
+    {
         $this->reviewer[] = $reviewer;
         return $this;
     }
@@ -641,7 +683,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * An individual or organization responsible for officially endorsing the content for use in some setting.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail[]
      */
-    public function getEndorser() {
+    public function getEndorser()
+    {
         return $this->endorser;
     }
 
@@ -650,7 +693,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $endorser
      * @return $this
      */
-    public function addEndorser($endorser) {
+    public function addEndorser($endorser)
+    {
         $this->endorser[] = $endorser;
         return $this;
     }
@@ -659,7 +703,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * Related artifacts such as additional documentation, justification, or bibliographic references.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact[]
      */
-    public function getRelatedArtifact() {
+    public function getRelatedArtifact()
+    {
         return $this->relatedArtifact;
     }
 
@@ -668,7 +713,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact $relatedArtifact
      * @return $this
      */
-    public function addRelatedArtifact($relatedArtifact) {
+    public function addRelatedArtifact($relatedArtifact)
+    {
         $this->relatedArtifact[] = $relatedArtifact;
         return $this;
     }
@@ -677,7 +723,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * Type of synthesis eg meta-analysis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSynthesisType() {
+    public function getSynthesisType()
+    {
         return $this->synthesisType;
     }
 
@@ -686,7 +733,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $synthesisType
      * @return $this
      */
-    public function setSynthesisType($synthesisType) {
+    public function setSynthesisType($synthesisType)
+    {
         $this->synthesisType = $synthesisType;
         return $this;
     }
@@ -695,7 +743,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * Type of study eg randomized trial.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStudyType() {
+    public function getStudyType()
+    {
         return $this->studyType;
     }
 
@@ -704,7 +753,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $studyType
      * @return $this
      */
-    public function setStudyType($studyType) {
+    public function setStudyType($studyType)
+    {
         $this->studyType = $studyType;
         return $this;
     }
@@ -713,7 +763,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A reference to a EvidenceVariable resource that defines the population for the research.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPopulation() {
+    public function getPopulation()
+    {
         return $this->population;
     }
 
@@ -722,7 +773,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $population
      * @return $this
      */
-    public function setPopulation($population) {
+    public function setPopulation($population)
+    {
         $this->population = $population;
         return $this;
     }
@@ -731,7 +783,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A reference to a EvidenceVariable resource that defines the exposure for the research.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getExposure() {
+    public function getExposure()
+    {
         return $this->exposure;
     }
 
@@ -740,7 +793,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $exposure
      * @return $this
      */
-    public function setExposure($exposure) {
+    public function setExposure($exposure)
+    {
         $this->exposure = $exposure;
         return $this;
     }
@@ -749,7 +803,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A reference to a EvidenceVariable resomece that defines the outcome for the research.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOutcome() {
+    public function getOutcome()
+    {
         return $this->outcome;
     }
 
@@ -758,7 +813,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $outcome
      * @return $this
      */
-    public function setOutcome($outcome) {
+    public function setOutcome($outcome)
+    {
         $this->outcome = $outcome;
         return $this;
     }
@@ -767,7 +823,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A description of the size of the sample involved in the synthesis.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRRiskEvidenceSynthesis\FHIRRiskEvidenceSynthesisSampleSize
      */
-    public function getSampleSize() {
+    public function getSampleSize()
+    {
         return $this->sampleSize;
     }
 
@@ -776,7 +833,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRRiskEvidenceSynthesis\FHIRRiskEvidenceSynthesisSampleSize $sampleSize
      * @return $this
      */
-    public function setSampleSize($sampleSize) {
+    public function setSampleSize($sampleSize)
+    {
         $this->sampleSize = $sampleSize;
         return $this;
     }
@@ -785,7 +843,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * The estimated risk of the outcome.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRRiskEvidenceSynthesis\FHIRRiskEvidenceSynthesisRiskEstimate
      */
-    public function getRiskEstimate() {
+    public function getRiskEstimate()
+    {
         return $this->riskEstimate;
     }
 
@@ -794,7 +853,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRRiskEvidenceSynthesis\FHIRRiskEvidenceSynthesisRiskEstimate $riskEstimate
      * @return $this
      */
-    public function setRiskEstimate($riskEstimate) {
+    public function setRiskEstimate($riskEstimate)
+    {
         $this->riskEstimate = $riskEstimate;
         return $this;
     }
@@ -803,7 +863,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * A description of the certainty of the risk estimate.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRRiskEvidenceSynthesis\FHIRRiskEvidenceSynthesisCertainty[]
      */
-    public function getCertainty() {
+    public function getCertainty()
+    {
         return $this->certainty;
     }
 
@@ -812,7 +873,8 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRRiskEvidenceSynthesis\FHIRRiskEvidenceSynthesisCertainty $certainty
      * @return $this
      */
-    public function addCertainty($certainty) {
+    public function addCertainty($certainty)
+    {
         $this->certainty[] = $certainty;
         return $this;
     }
@@ -820,21 +882,23 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['url'])) {
                 $this->setUrl($data['url']);
             }
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -861,7 +925,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['contact'])) {
                 if (is_array($data['contact'])) {
-                    foreach($data['contact'] as $d) {
+                    foreach ($data['contact'] as $d) {
                         $this->addContact($d);
                     }
                 } else {
@@ -873,7 +937,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -882,7 +946,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['useContext'])) {
                 if (is_array($data['useContext'])) {
-                    foreach($data['useContext'] as $d) {
+                    foreach ($data['useContext'] as $d) {
                         $this->addUseContext($d);
                     }
                 } else {
@@ -891,7 +955,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['jurisdiction'])) {
                 if (is_array($data['jurisdiction'])) {
-                    foreach($data['jurisdiction'] as $d) {
+                    foreach ($data['jurisdiction'] as $d) {
                         $this->addJurisdiction($d);
                     }
                 } else {
@@ -912,7 +976,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['topic'])) {
                 if (is_array($data['topic'])) {
-                    foreach($data['topic'] as $d) {
+                    foreach ($data['topic'] as $d) {
                         $this->addTopic($d);
                     }
                 } else {
@@ -921,7 +985,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['author'])) {
                 if (is_array($data['author'])) {
-                    foreach($data['author'] as $d) {
+                    foreach ($data['author'] as $d) {
                         $this->addAuthor($d);
                     }
                 } else {
@@ -930,7 +994,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['editor'])) {
                 if (is_array($data['editor'])) {
-                    foreach($data['editor'] as $d) {
+                    foreach ($data['editor'] as $d) {
                         $this->addEditor($d);
                     }
                 } else {
@@ -939,7 +1003,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['reviewer'])) {
                 if (is_array($data['reviewer'])) {
-                    foreach($data['reviewer'] as $d) {
+                    foreach ($data['reviewer'] as $d) {
                         $this->addReviewer($d);
                     }
                 } else {
@@ -948,7 +1012,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['endorser'])) {
                 if (is_array($data['endorser'])) {
-                    foreach($data['endorser'] as $d) {
+                    foreach ($data['endorser'] as $d) {
                         $this->addEndorser($d);
                     }
                 } else {
@@ -957,7 +1021,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['relatedArtifact'])) {
                 if (is_array($data['relatedArtifact'])) {
-                    foreach($data['relatedArtifact'] as $d) {
+                    foreach ($data['relatedArtifact'] as $d) {
                         $this->addRelatedArtifact($d);
                     }
                 } else {
@@ -987,7 +1051,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['certainty'])) {
                 if (is_array($data['certainty'])) {
-                    foreach($data['certainty'] as $d) {
+                    foreach ($data['certainty'] as $d) {
                         $this->addCertainty($d);
                     }
                 } else {
@@ -1003,104 +1067,144 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->url)) $json['url'] = $this->url;
+        if (isset($this->url)) {
+            $json['url'] = $this->url;
+        }
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->version)) $json['version'] = $this->version;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->publisher)) $json['publisher'] = $this->publisher;
+        if (isset($this->version)) {
+            $json['version'] = $this->version;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->publisher)) {
+            $json['publisher'] = $this->publisher;
+        }
         if (0 < count($this->contact)) {
             $json['contact'] = [];
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $json['contact'][] = $contact;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
         if (0 < count($this->useContext)) {
             $json['useContext'] = [];
-            foreach($this->useContext as $useContext) {
+            foreach ($this->useContext as $useContext) {
                 $json['useContext'][] = $useContext;
             }
         }
         if (0 < count($this->jurisdiction)) {
             $json['jurisdiction'] = [];
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $json['jurisdiction'][] = $jurisdiction;
             }
         }
-        if (isset($this->copyright)) $json['copyright'] = $this->copyright;
-        if (isset($this->approvalDate)) $json['approvalDate'] = $this->approvalDate;
-        if (isset($this->lastReviewDate)) $json['lastReviewDate'] = $this->lastReviewDate;
-        if (isset($this->effectivePeriod)) $json['effectivePeriod'] = $this->effectivePeriod;
+        if (isset($this->copyright)) {
+            $json['copyright'] = $this->copyright;
+        }
+        if (isset($this->approvalDate)) {
+            $json['approvalDate'] = $this->approvalDate;
+        }
+        if (isset($this->lastReviewDate)) {
+            $json['lastReviewDate'] = $this->lastReviewDate;
+        }
+        if (isset($this->effectivePeriod)) {
+            $json['effectivePeriod'] = $this->effectivePeriod;
+        }
         if (0 < count($this->topic)) {
             $json['topic'] = [];
-            foreach($this->topic as $topic) {
+            foreach ($this->topic as $topic) {
                 $json['topic'][] = $topic;
             }
         }
         if (0 < count($this->author)) {
             $json['author'] = [];
-            foreach($this->author as $author) {
+            foreach ($this->author as $author) {
                 $json['author'][] = $author;
             }
         }
         if (0 < count($this->editor)) {
             $json['editor'] = [];
-            foreach($this->editor as $editor) {
+            foreach ($this->editor as $editor) {
                 $json['editor'][] = $editor;
             }
         }
         if (0 < count($this->reviewer)) {
             $json['reviewer'] = [];
-            foreach($this->reviewer as $reviewer) {
+            foreach ($this->reviewer as $reviewer) {
                 $json['reviewer'][] = $reviewer;
             }
         }
         if (0 < count($this->endorser)) {
             $json['endorser'] = [];
-            foreach($this->endorser as $endorser) {
+            foreach ($this->endorser as $endorser) {
                 $json['endorser'][] = $endorser;
             }
         }
         if (0 < count($this->relatedArtifact)) {
             $json['relatedArtifact'] = [];
-            foreach($this->relatedArtifact as $relatedArtifact) {
+            foreach ($this->relatedArtifact as $relatedArtifact) {
                 $json['relatedArtifact'][] = $relatedArtifact;
             }
         }
-        if (isset($this->synthesisType)) $json['synthesisType'] = $this->synthesisType;
-        if (isset($this->studyType)) $json['studyType'] = $this->studyType;
-        if (isset($this->population)) $json['population'] = $this->population;
-        if (isset($this->exposure)) $json['exposure'] = $this->exposure;
-        if (isset($this->outcome)) $json['outcome'] = $this->outcome;
-        if (isset($this->sampleSize)) $json['sampleSize'] = $this->sampleSize;
-        if (isset($this->riskEstimate)) $json['riskEstimate'] = $this->riskEstimate;
+        if (isset($this->synthesisType)) {
+            $json['synthesisType'] = $this->synthesisType;
+        }
+        if (isset($this->studyType)) {
+            $json['studyType'] = $this->studyType;
+        }
+        if (isset($this->population)) {
+            $json['population'] = $this->population;
+        }
+        if (isset($this->exposure)) {
+            $json['exposure'] = $this->exposure;
+        }
+        if (isset($this->outcome)) {
+            $json['outcome'] = $this->outcome;
+        }
+        if (isset($this->sampleSize)) {
+            $json['sampleSize'] = $this->sampleSize;
+        }
+        if (isset($this->riskEstimate)) {
+            $json['riskEstimate'] = $this->riskEstimate;
+        }
         if (0 < count($this->certainty)) {
             $json['certainty'] = [];
-            foreach($this->certainty as $certainty) {
+            foreach ($this->certainty as $certainty) {
                 $json['certainty'][] = $certainty;
             }
         }
@@ -1112,91 +1216,132 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesis xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesis>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesis xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesis>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->url)) $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        if (isset($this->url)) {
+            $this->url->xmlSerialize(true, $sxe->addChild('url'));
+        }
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->version)) $this->version->xmlSerialize(true, $sxe->addChild('version'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->publisher)) $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        if (isset($this->version)) {
+            $this->version->xmlSerialize(true, $sxe->addChild('version'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->publisher)) {
+            $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
+        }
         if (0 < count($this->contact)) {
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $contact->xmlSerialize(true, $sxe->addChild('contact'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
         if (0 < count($this->useContext)) {
-            foreach($this->useContext as $useContext) {
+            foreach ($this->useContext as $useContext) {
                 $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
             }
         }
         if (0 < count($this->jurisdiction)) {
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
             }
         }
-        if (isset($this->copyright)) $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
-        if (isset($this->approvalDate)) $this->approvalDate->xmlSerialize(true, $sxe->addChild('approvalDate'));
-        if (isset($this->lastReviewDate)) $this->lastReviewDate->xmlSerialize(true, $sxe->addChild('lastReviewDate'));
-        if (isset($this->effectivePeriod)) $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
+        if (isset($this->copyright)) {
+            $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
+        }
+        if (isset($this->approvalDate)) {
+            $this->approvalDate->xmlSerialize(true, $sxe->addChild('approvalDate'));
+        }
+        if (isset($this->lastReviewDate)) {
+            $this->lastReviewDate->xmlSerialize(true, $sxe->addChild('lastReviewDate'));
+        }
+        if (isset($this->effectivePeriod)) {
+            $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
+        }
         if (0 < count($this->topic)) {
-            foreach($this->topic as $topic) {
+            foreach ($this->topic as $topic) {
                 $topic->xmlSerialize(true, $sxe->addChild('topic'));
             }
         }
         if (0 < count($this->author)) {
-            foreach($this->author as $author) {
+            foreach ($this->author as $author) {
                 $author->xmlSerialize(true, $sxe->addChild('author'));
             }
         }
         if (0 < count($this->editor)) {
-            foreach($this->editor as $editor) {
+            foreach ($this->editor as $editor) {
                 $editor->xmlSerialize(true, $sxe->addChild('editor'));
             }
         }
         if (0 < count($this->reviewer)) {
-            foreach($this->reviewer as $reviewer) {
+            foreach ($this->reviewer as $reviewer) {
                 $reviewer->xmlSerialize(true, $sxe->addChild('reviewer'));
             }
         }
         if (0 < count($this->endorser)) {
-            foreach($this->endorser as $endorser) {
+            foreach ($this->endorser as $endorser) {
                 $endorser->xmlSerialize(true, $sxe->addChild('endorser'));
             }
         }
         if (0 < count($this->relatedArtifact)) {
-            foreach($this->relatedArtifact as $relatedArtifact) {
+            foreach ($this->relatedArtifact as $relatedArtifact) {
                 $relatedArtifact->xmlSerialize(true, $sxe->addChild('relatedArtifact'));
             }
         }
-        if (isset($this->synthesisType)) $this->synthesisType->xmlSerialize(true, $sxe->addChild('synthesisType'));
-        if (isset($this->studyType)) $this->studyType->xmlSerialize(true, $sxe->addChild('studyType'));
-        if (isset($this->population)) $this->population->xmlSerialize(true, $sxe->addChild('population'));
-        if (isset($this->exposure)) $this->exposure->xmlSerialize(true, $sxe->addChild('exposure'));
-        if (isset($this->outcome)) $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
-        if (isset($this->sampleSize)) $this->sampleSize->xmlSerialize(true, $sxe->addChild('sampleSize'));
-        if (isset($this->riskEstimate)) $this->riskEstimate->xmlSerialize(true, $sxe->addChild('riskEstimate'));
+        if (isset($this->synthesisType)) {
+            $this->synthesisType->xmlSerialize(true, $sxe->addChild('synthesisType'));
+        }
+        if (isset($this->studyType)) {
+            $this->studyType->xmlSerialize(true, $sxe->addChild('studyType'));
+        }
+        if (isset($this->population)) {
+            $this->population->xmlSerialize(true, $sxe->addChild('population'));
+        }
+        if (isset($this->exposure)) {
+            $this->exposure->xmlSerialize(true, $sxe->addChild('exposure'));
+        }
+        if (isset($this->outcome)) {
+            $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
+        }
+        if (isset($this->sampleSize)) {
+            $this->sampleSize->xmlSerialize(true, $sxe->addChild('sampleSize'));
+        }
+        if (isset($this->riskEstimate)) {
+            $this->riskEstimate->xmlSerialize(true, $sxe->addChild('riskEstimate'));
+        }
         if (0 < count($this->certainty)) {
-            foreach($this->certainty as $certainty) {
+            foreach ($this->certainty as $certainty) {
                 $certainty->xmlSerialize(true, $sxe->addChild('certainty'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

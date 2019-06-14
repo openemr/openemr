@@ -113,7 +113,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * The version specific identifier, as it appears in the version portion of the URL. This value changes when the resource is created, updated, or deleted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getVersionId() {
+    public function getVersionId()
+    {
         return $this->versionId;
     }
 
@@ -122,7 +123,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $versionId
      * @return $this
      */
-    public function setVersionId($versionId) {
+    public function setVersionId($versionId)
+    {
         $this->versionId = $versionId;
         return $this;
     }
@@ -131,7 +133,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * When the resource last changed - e.g. when the version changed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getLastUpdated() {
+    public function getLastUpdated()
+    {
         return $this->lastUpdated;
     }
 
@@ -140,7 +143,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $lastUpdated
      * @return $this
      */
-    public function setLastUpdated($lastUpdated) {
+    public function setLastUpdated($lastUpdated)
+    {
         $this->lastUpdated = $lastUpdated;
         return $this;
     }
@@ -149,7 +153,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * A uri that identifies the source system of the resource. This provides a minimal amount of [[[Provenance]]] information that can be used to track or differentiate the source of information in the resource. The source may identify another FHIR server, document, message, database, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -158,7 +163,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $source
      * @return $this
      */
-    public function setSource($source) {
+    public function setSource($source)
+    {
         $this->source = $source;
         return $this;
     }
@@ -167,7 +173,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * A list of profiles (references to [[[StructureDefinition]]] resources) that this resource claims to conform to. The URL is a reference to [[[StructureDefinition.url]]].
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical[]
      */
-    public function getProfile() {
+    public function getProfile()
+    {
         return $this->profile;
     }
 
@@ -176,7 +183,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $profile
      * @return $this
      */
-    public function addProfile($profile) {
+    public function addProfile($profile)
+    {
         $this->profile[] = $profile;
         return $this;
     }
@@ -185,7 +193,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * Security labels applied to this resource. These tags connect specific resources to the overall security policy and infrastructure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getSecurity() {
+    public function getSecurity()
+    {
         return $this->security;
     }
 
@@ -194,7 +203,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $security
      * @return $this
      */
-    public function addSecurity($security) {
+    public function addSecurity($security)
+    {
         $this->security[] = $security;
         return $this;
     }
@@ -203,7 +213,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * Tags applied to this resource. Tags are intended to be used to identify and relate resources to process and workflow, and applications are not required to consider the tags when interpreting the meaning of a resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getTag() {
+    public function getTag()
+    {
         return $this->tag;
     }
 
@@ -212,7 +223,8 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $tag
      * @return $this
      */
-    public function addTag($tag) {
+    public function addTag($tag)
+    {
         $this->tag[] = $tag;
         return $this;
     }
@@ -220,14 +232,16 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['versionId'])) {
                 $this->setVersionId($data['versionId']);
@@ -240,7 +254,7 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
             }
             if (isset($data['profile'])) {
                 if (is_array($data['profile'])) {
-                    foreach($data['profile'] as $d) {
+                    foreach ($data['profile'] as $d) {
                         $this->addProfile($d);
                     }
                 } else {
@@ -249,7 +263,7 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
             }
             if (isset($data['security'])) {
                 if (is_array($data['security'])) {
-                    foreach($data['security'] as $d) {
+                    foreach ($data['security'] as $d) {
                         $this->addSecurity($d);
                     }
                 } else {
@@ -258,7 +272,7 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
             }
             if (isset($data['tag'])) {
                 if (is_array($data['tag'])) {
-                    foreach($data['tag'] as $d) {
+                    foreach ($data['tag'] as $d) {
                         $this->addTag($d);
                     }
                 } else {
@@ -274,33 +288,41 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->versionId)) $json['versionId'] = $this->versionId;
-        if (isset($this->lastUpdated)) $json['lastUpdated'] = $this->lastUpdated;
-        if (isset($this->source)) $json['source'] = $this->source;
+        if (isset($this->versionId)) {
+            $json['versionId'] = $this->versionId;
+        }
+        if (isset($this->lastUpdated)) {
+            $json['lastUpdated'] = $this->lastUpdated;
+        }
+        if (isset($this->source)) {
+            $json['source'] = $this->source;
+        }
         if (0 < count($this->profile)) {
             $json['profile'] = [];
-            foreach($this->profile as $profile) {
+            foreach ($this->profile as $profile) {
                 $json['profile'][] = $profile;
             }
         }
         if (0 < count($this->security)) {
             $json['security'] = [];
-            foreach($this->security as $security) {
+            foreach ($this->security as $security) {
                 $json['security'][] = $security;
             }
         }
         if (0 < count($this->tag)) {
             $json['tag'] = [];
-            foreach($this->tag as $tag) {
+            foreach ($this->tag as $tag) {
                 $json['tag'][] = $tag;
             }
         }
@@ -312,30 +334,39 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Meta xmlns="http://hl7.org/fhir"></Meta>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Meta xmlns="http://hl7.org/fhir"></Meta>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->versionId)) $this->versionId->xmlSerialize(true, $sxe->addChild('versionId'));
-        if (isset($this->lastUpdated)) $this->lastUpdated->xmlSerialize(true, $sxe->addChild('lastUpdated'));
-        if (isset($this->source)) $this->source->xmlSerialize(true, $sxe->addChild('source'));
+        if (isset($this->versionId)) {
+            $this->versionId->xmlSerialize(true, $sxe->addChild('versionId'));
+        }
+        if (isset($this->lastUpdated)) {
+            $this->lastUpdated->xmlSerialize(true, $sxe->addChild('lastUpdated'));
+        }
+        if (isset($this->source)) {
+            $this->source->xmlSerialize(true, $sxe->addChild('source'));
+        }
         if (0 < count($this->profile)) {
-            foreach($this->profile as $profile) {
+            foreach ($this->profile as $profile) {
                 $profile->xmlSerialize(true, $sxe->addChild('profile'));
             }
         }
         if (0 < count($this->security)) {
-            foreach($this->security as $security) {
+            foreach ($this->security as $security) {
                 $security->xmlSerialize(true, $sxe->addChild('security'));
             }
         }
         if (0 < count($this->tag)) {
-            foreach($this->tag as $tag) {
+            foreach ($this->tag as $tag) {
                 $tag->xmlSerialize(true, $sxe->addChild('tag'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

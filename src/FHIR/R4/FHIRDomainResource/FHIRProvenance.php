@@ -141,7 +141,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * The Reference(s) that were generated or updated by  the activity described in this resource. A provenance can point to more than one target if multiple resources were created/updated by the same activity.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getTarget() {
+    public function getTarget()
+    {
         return $this->target;
     }
 
@@ -150,7 +151,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $target
      * @return $this
      */
-    public function addTarget($target) {
+    public function addTarget($target)
+    {
         $this->target[] = $target;
         return $this;
     }
@@ -158,7 +160,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getOccurredPeriod() {
+    public function getOccurredPeriod()
+    {
         return $this->occurredPeriod;
     }
 
@@ -166,7 +169,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $occurredPeriod
      * @return $this
      */
-    public function setOccurredPeriod($occurredPeriod) {
+    public function setOccurredPeriod($occurredPeriod)
+    {
         $this->occurredPeriod = $occurredPeriod;
         return $this;
     }
@@ -174,7 +178,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getOccurredDateTime() {
+    public function getOccurredDateTime()
+    {
         return $this->occurredDateTime;
     }
 
@@ -182,7 +187,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $occurredDateTime
      * @return $this
      */
-    public function setOccurredDateTime($occurredDateTime) {
+    public function setOccurredDateTime($occurredDateTime)
+    {
         $this->occurredDateTime = $occurredDateTime;
         return $this;
     }
@@ -191,7 +197,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * The instant of time at which the activity was recorded.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getRecorded() {
+    public function getRecorded()
+    {
         return $this->recorded;
     }
 
@@ -200,7 +207,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $recorded
      * @return $this
      */
-    public function setRecorded($recorded) {
+    public function setRecorded($recorded)
+    {
         $this->recorded = $recorded;
         return $this;
     }
@@ -209,7 +217,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * Policy or plan the activity was defined by. Typically, a single activity may have multiple applicable policy documents, such as patient consent, guarantor funding, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getPolicy() {
+    public function getPolicy()
+    {
         return $this->policy;
     }
 
@@ -218,7 +227,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $policy
      * @return $this
      */
-    public function addPolicy($policy) {
+    public function addPolicy($policy)
+    {
         $this->policy[] = $policy;
         return $this;
     }
@@ -227,7 +237,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * Where the activity occurred, if relevant.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
@@ -236,7 +247,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $location
      * @return $this
      */
-    public function setLocation($location) {
+    public function setLocation($location)
+    {
         $this->location = $location;
         return $this;
     }
@@ -245,7 +257,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * The reason that the activity was taking place.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getReason() {
+    public function getReason()
+    {
         return $this->reason;
     }
 
@@ -254,7 +267,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reason
      * @return $this
      */
-    public function addReason($reason) {
+    public function addReason($reason)
+    {
         $this->reason[] = $reason;
         return $this;
     }
@@ -263,7 +277,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * An activity is something that occurs over a period of time and acts upon or with entities; it may include consuming, processing, transforming, modifying, relocating, using, or generating entities.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getActivity() {
+    public function getActivity()
+    {
         return $this->activity;
     }
 
@@ -272,7 +287,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $activity
      * @return $this
      */
-    public function setActivity($activity) {
+    public function setActivity($activity)
+    {
         $this->activity = $activity;
         return $this;
     }
@@ -281,7 +297,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * An actor taking a role in an activity  for which it can be assigned some degree of responsibility for the activity taking place.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent[]
      */
-    public function getAgent() {
+    public function getAgent()
+    {
         return $this->agent;
     }
 
@@ -290,7 +307,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent $agent
      * @return $this
      */
-    public function addAgent($agent) {
+    public function addAgent($agent)
+    {
         $this->agent[] = $agent;
         return $this;
     }
@@ -299,7 +317,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * An entity used in this activity.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceEntity[]
      */
-    public function getEntity() {
+    public function getEntity()
+    {
         return $this->entity;
     }
 
@@ -308,7 +327,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceEntity $entity
      * @return $this
      */
-    public function addEntity($entity) {
+    public function addEntity($entity)
+    {
         $this->entity[] = $entity;
         return $this;
     }
@@ -317,7 +337,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * A digital signature on the target Reference(s). The signer should match a Provenance.agent. The purpose of the signature is indicated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature[]
      */
-    public function getSignature() {
+    public function getSignature()
+    {
         return $this->signature;
     }
 
@@ -326,7 +347,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature $signature
      * @return $this
      */
-    public function addSignature($signature) {
+    public function addSignature($signature)
+    {
         $this->signature[] = $signature;
         return $this;
     }
@@ -334,18 +356,20 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['target'])) {
                 if (is_array($data['target'])) {
-                    foreach($data['target'] as $d) {
+                    foreach ($data['target'] as $d) {
                         $this->addTarget($d);
                     }
                 } else {
@@ -363,7 +387,7 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['policy'])) {
                 if (is_array($data['policy'])) {
-                    foreach($data['policy'] as $d) {
+                    foreach ($data['policy'] as $d) {
                         $this->addPolicy($d);
                     }
                 } else {
@@ -375,7 +399,7 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['reason'])) {
                 if (is_array($data['reason'])) {
-                    foreach($data['reason'] as $d) {
+                    foreach ($data['reason'] as $d) {
                         $this->addReason($d);
                     }
                 } else {
@@ -387,7 +411,7 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['agent'])) {
                 if (is_array($data['agent'])) {
-                    foreach($data['agent'] as $d) {
+                    foreach ($data['agent'] as $d) {
                         $this->addAgent($d);
                     }
                 } else {
@@ -396,7 +420,7 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['entity'])) {
                 if (is_array($data['entity'])) {
-                    foreach($data['entity'] as $d) {
+                    foreach ($data['entity'] as $d) {
                         $this->addEntity($d);
                     }
                 } else {
@@ -405,7 +429,7 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['signature'])) {
                 if (is_array($data['signature'])) {
-                    foreach($data['signature'] as $d) {
+                    foreach ($data['signature'] as $d) {
                         $this->addSignature($d);
                     }
                 } else {
@@ -421,54 +445,66 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->target)) {
             $json['target'] = [];
-            foreach($this->target as $target) {
+            foreach ($this->target as $target) {
                 $json['target'][] = $target;
             }
         }
-        if (isset($this->occurredPeriod)) $json['occurredPeriod'] = $this->occurredPeriod;
-        if (isset($this->occurredDateTime)) $json['occurredDateTime'] = $this->occurredDateTime;
-        if (isset($this->recorded)) $json['recorded'] = $this->recorded;
+        if (isset($this->occurredPeriod)) {
+            $json['occurredPeriod'] = $this->occurredPeriod;
+        }
+        if (isset($this->occurredDateTime)) {
+            $json['occurredDateTime'] = $this->occurredDateTime;
+        }
+        if (isset($this->recorded)) {
+            $json['recorded'] = $this->recorded;
+        }
         if (0 < count($this->policy)) {
             $json['policy'] = [];
-            foreach($this->policy as $policy) {
+            foreach ($this->policy as $policy) {
                 $json['policy'][] = $policy;
             }
         }
-        if (isset($this->location)) $json['location'] = $this->location;
+        if (isset($this->location)) {
+            $json['location'] = $this->location;
+        }
         if (0 < count($this->reason)) {
             $json['reason'] = [];
-            foreach($this->reason as $reason) {
+            foreach ($this->reason as $reason) {
                 $json['reason'][] = $reason;
             }
         }
-        if (isset($this->activity)) $json['activity'] = $this->activity;
+        if (isset($this->activity)) {
+            $json['activity'] = $this->activity;
+        }
         if (0 < count($this->agent)) {
             $json['agent'] = [];
-            foreach($this->agent as $agent) {
+            foreach ($this->agent as $agent) {
                 $json['agent'][] = $agent;
             }
         }
         if (0 < count($this->entity)) {
             $json['entity'] = [];
-            foreach($this->entity as $entity) {
+            foreach ($this->entity as $entity) {
                 $json['entity'][] = $entity;
             }
         }
         if (0 < count($this->signature)) {
             $json['signature'] = [];
-            foreach($this->signature as $signature) {
+            foreach ($this->signature as $signature) {
                 $json['signature'][] = $signature;
             }
         }
@@ -480,47 +516,60 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Provenance xmlns="http://hl7.org/fhir"></Provenance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Provenance xmlns="http://hl7.org/fhir"></Provenance>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->target)) {
-            foreach($this->target as $target) {
+            foreach ($this->target as $target) {
                 $target->xmlSerialize(true, $sxe->addChild('target'));
             }
         }
-        if (isset($this->occurredPeriod)) $this->occurredPeriod->xmlSerialize(true, $sxe->addChild('occurredPeriod'));
-        if (isset($this->occurredDateTime)) $this->occurredDateTime->xmlSerialize(true, $sxe->addChild('occurredDateTime'));
-        if (isset($this->recorded)) $this->recorded->xmlSerialize(true, $sxe->addChild('recorded'));
+        if (isset($this->occurredPeriod)) {
+            $this->occurredPeriod->xmlSerialize(true, $sxe->addChild('occurredPeriod'));
+        }
+        if (isset($this->occurredDateTime)) {
+            $this->occurredDateTime->xmlSerialize(true, $sxe->addChild('occurredDateTime'));
+        }
+        if (isset($this->recorded)) {
+            $this->recorded->xmlSerialize(true, $sxe->addChild('recorded'));
+        }
         if (0 < count($this->policy)) {
-            foreach($this->policy as $policy) {
+            foreach ($this->policy as $policy) {
                 $policy->xmlSerialize(true, $sxe->addChild('policy'));
             }
         }
-        if (isset($this->location)) $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        if (isset($this->location)) {
+            $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        }
         if (0 < count($this->reason)) {
-            foreach($this->reason as $reason) {
+            foreach ($this->reason as $reason) {
                 $reason->xmlSerialize(true, $sxe->addChild('reason'));
             }
         }
-        if (isset($this->activity)) $this->activity->xmlSerialize(true, $sxe->addChild('activity'));
+        if (isset($this->activity)) {
+            $this->activity->xmlSerialize(true, $sxe->addChild('activity'));
+        }
         if (0 < count($this->agent)) {
-            foreach($this->agent as $agent) {
+            foreach ($this->agent as $agent) {
                 $agent->xmlSerialize(true, $sxe->addChild('agent'));
             }
         }
         if (0 < count($this->entity)) {
-            foreach($this->entity as $entity) {
+            foreach ($this->entity as $entity) {
                 $entity->xmlSerialize(true, $sxe->addChild('entity'));
             }
         }
         if (0 < count($this->signature)) {
-            foreach($this->signature as $signature) {
+            foreach ($this->signature as $signature) {
                 $signature->xmlSerialize(true, $sxe->addChild('signature'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

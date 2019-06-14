@@ -119,7 +119,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * The medication for which this is a described interaction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -128,7 +129,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function addSubject($subject) {
+    public function addSubject($subject)
+    {
         $this->subject[] = $subject;
         return $this;
     }
@@ -137,7 +139,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * The interaction described.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -146,7 +149,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -155,7 +159,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * The specific medication, food or laboratory test that interacts.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductInteraction\FHIRMedicinalProductInteractionInteractant[]
      */
-    public function getInteractant() {
+    public function getInteractant()
+    {
         return $this->interactant;
     }
 
@@ -164,7 +169,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductInteraction\FHIRMedicinalProductInteractionInteractant $interactant
      * @return $this
      */
-    public function addInteractant($interactant) {
+    public function addInteractant($interactant)
+    {
         $this->interactant[] = $interactant;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * The type of the interaction e.g. drug-drug interaction, drug-food interaction, drug-lab test interaction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -182,7 +189,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * The effect of the interaction, for example "reduced gastric absorption of primary medication".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getEffect() {
+    public function getEffect()
+    {
         return $this->effect;
     }
 
@@ -200,7 +209,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $effect
      * @return $this
      */
-    public function setEffect($effect) {
+    public function setEffect($effect)
+    {
         $this->effect = $effect;
         return $this;
     }
@@ -209,7 +219,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * The incidence of the interaction, e.g. theoretical, observed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getIncidence() {
+    public function getIncidence()
+    {
         return $this->incidence;
     }
 
@@ -218,7 +229,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $incidence
      * @return $this
      */
-    public function setIncidence($incidence) {
+    public function setIncidence($incidence)
+    {
         $this->incidence = $incidence;
         return $this;
     }
@@ -227,7 +239,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * Actions for managing the interaction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getManagement() {
+    public function getManagement()
+    {
         return $this->management;
     }
 
@@ -236,7 +249,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $management
      * @return $this
      */
-    public function setManagement($management) {
+    public function setManagement($management)
+    {
         $this->management = $management;
         return $this;
     }
@@ -244,18 +258,20 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['subject'])) {
                 if (is_array($data['subject'])) {
-                    foreach($data['subject'] as $d) {
+                    foreach ($data['subject'] as $d) {
                         $this->addSubject($d);
                     }
                 } else {
@@ -267,7 +283,7 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
             }
             if (isset($data['interactant'])) {
                 if (is_array($data['interactant'])) {
-                    foreach($data['interactant'] as $d) {
+                    foreach ($data['interactant'] as $d) {
                         $this->addInteractant($d);
                     }
                 } else {
@@ -295,33 +311,45 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->subject)) {
             $json['subject'] = [];
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $json['subject'][] = $subject;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->interactant)) {
             $json['interactant'] = [];
-            foreach($this->interactant as $interactant) {
+            foreach ($this->interactant as $interactant) {
                 $json['interactant'][] = $interactant;
             }
         }
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->effect)) $json['effect'] = $this->effect;
-        if (isset($this->incidence)) $json['incidence'] = $this->incidence;
-        if (isset($this->management)) $json['management'] = $this->management;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->effect)) {
+            $json['effect'] = $this->effect;
+        }
+        if (isset($this->incidence)) {
+            $json['incidence'] = $this->incidence;
+        }
+        if (isset($this->management)) {
+            $json['management'] = $this->management;
+        }
         return $json;
     }
 
@@ -330,27 +358,40 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductInteraction xmlns="http://hl7.org/fhir"></MedicinalProductInteraction>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductInteraction xmlns="http://hl7.org/fhir"></MedicinalProductInteraction>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->subject)) {
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $subject->xmlSerialize(true, $sxe->addChild('subject'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->interactant)) {
-            foreach($this->interactant as $interactant) {
+            foreach ($this->interactant as $interactant) {
                 $interactant->xmlSerialize(true, $sxe->addChild('interactant'));
             }
         }
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->effect)) $this->effect->xmlSerialize(true, $sxe->addChild('effect'));
-        if (isset($this->incidence)) $this->incidence->xmlSerialize(true, $sxe->addChild('incidence'));
-        if (isset($this->management)) $this->management->xmlSerialize(true, $sxe->addChild('management'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->effect)) {
+            $this->effect->xmlSerialize(true, $sxe->addChild('effect'));
+        }
+        if (isset($this->incidence)) {
+            $this->incidence->xmlSerialize(true, $sxe->addChild('incidence'));
+        }
+        if (isset($this->management)) {
+            $this->management->xmlSerialize(true, $sxe->addChild('management'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

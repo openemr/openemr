@@ -43,11 +43,13 @@ class PHPFHIRResponseParser
      */
     public function __construct($registerAutoloader = true)
     {
-        if (null === self::$sxeArgs)
+        if (null === self::$sxeArgs) {
             self::$sxeArgs = LIBXML_COMPACT | LIBXML_NSCLEAN;
+        }
 
-        if ($registerAutoloader)
+        if ($registerAutoloader) {
             self::_registerAutoloader();
+        }
 
         $this->_parserMap = new PHPFHIRParserMap();
     }
@@ -58,11 +60,11 @@ class PHPFHIRResponseParser
      */
     public function parse($input)
     {
-        if (!is_string($input))
+        if (!is_string($input)) {
             throw $this->_createNonStringArgumentException($input);
+        }
 
-        switch(substr($input, 0, 1))
-        {
+        switch (substr($input, 0, 1)) {
             case '<':
                 return $this->_parseXML($input);
 
@@ -86,8 +88,9 @@ class PHPFHIRResponseParser
         $decoded = json_decode($input, true);
 
         $lastError = json_last_error();
-        if (JSON_ERROR_NONE === $lastError)
+        if (JSON_ERROR_NONE === $lastError) {
             return $this->_parseJsonObject($decoded, $decoded['resourceType']);
+        }
 
         throw new \DomainException(sprintf(
             '%s::parse - Error encountered while decoding json input.  Error code: %s',
@@ -107,8 +110,9 @@ class PHPFHIRResponseParser
         $error = libxml_get_last_error();
         libxml_use_internal_errors(false);
 
-        if ($sxe instanceof \SimpleXMLElement)
+        if ($sxe instanceof \SimpleXMLElement) {
             return $this->_parseXMLNode($sxe, $sxe->getName());
+        }
 
         throw new \RuntimeException(sprintf(
             'Unable to parse response: "%s"',
@@ -121,7 +125,8 @@ class PHPFHIRResponseParser
      * @param string $fhirElementName
      * @return mixed
      */
-    private function _parseJsonObject($jsonEntry, $fhirElementName) {
+    private function _parseJsonObject($jsonEntry, $fhirElementName)
+    {
         if ('html' === $fhirElementName) {
             return $jsonEntry;
         }
@@ -152,28 +157,21 @@ class PHPFHIRResponseParser
             } else {
                 $this->_triggerPropertyNotFoundError($fhirElementName, 'value');
             }
-        }
-        // TODO: This is probably very not ok...
-        else if (isset($jsonEntry['resourceType']) && $jsonEntry['resourceType'] !== $fhirElementName)
-        {
+        } // TODO: This is probably very not ok...
+        else if (isset($jsonEntry['resourceType']) && $jsonEntry['resourceType'] !== $fhirElementName) {
             $propertyMap = $properties[$jsonEntry['resourceType']];
             $setter = $propertyMap['setter'];
             $element = $propertyMap['element'];
             $object->$setter($this->_parseJsonObject($jsonEntry, $element));
-        }
-        else
-        {
-            foreach($jsonEntry as $k=>$v)
-            {
-                switch($k)
-                {
+        } else {
+            foreach ($jsonEntry as $k => $v) {
+                switch ($k) {
                     case 'resourceType':
                     case 'fhir_comments':
                         continue 2;
                 }
 
-                if (!isset($properties[$k]))
-                {
+                if (!isset($properties[$k])) {
                     $this->_triggerPropertyNotFoundError($fhirElementName, $k);
                     continue;
                 }
@@ -182,24 +180,17 @@ class PHPFHIRResponseParser
                 $setter = $propertyMap['setter'];
                 $element = $propertyMap['element'];
 
-                if (is_array($v))
-                {
+                if (is_array($v)) {
                     $firstKey = key($v);
 
-                    if (is_string($firstKey))
-                    {
+                    if (is_string($firstKey)) {
                         $object->$setter($this->_parseJsonObject($v, $element));
-                    }
-                    else
-                    {
-                        foreach($v as $child)
-                        {
+                    } else {
+                        foreach ($v as $child) {
                             $object->$setter($this->_parseJsonObject($child, $element));
                         }
                     }
-                }
-                else
-                {
+                } else {
                     $object->$setter($this->_parseJsonObject($v, $element));
                 }
             }
@@ -215,11 +206,13 @@ class PHPFHIRResponseParser
      */
     private function _parseXMLNode(\SimpleXMLElement $element, $fhirElementName)
     {
-        if ('html' === $fhirElementName)
+        if ('html' === $fhirElementName) {
             return $element->saveXML();
+        }
 
-        if (false !== strpos($fhirElementName, '-primitive') || false !== strpos($fhirElementName, '-list'))
+        if (false !== strpos($fhirElementName, '-primitive') || false !== strpos($fhirElementName, '-list')) {
             return (string)$element;
+        }
 
         $map = $this->_tryGetMapEntry($fhirElementName);
 
@@ -229,11 +222,9 @@ class PHPFHIRResponseParser
         $object = new $fullClassName;
 
         /** @var \SimpleXMLElement $attribute */
-        foreach($element->attributes() as $attribute)
-        {
+        foreach ($element->attributes() as $attribute) {
             $childName = $attribute->getName();
-            if (!isset($properties[$childName]))
-            {
+            if (!isset($properties[$childName])) {
                 $this->_triggerPropertyNotFoundError($fhirElementName, $childName);
                 continue;
             }
@@ -245,11 +236,9 @@ class PHPFHIRResponseParser
         }
 
         /** @var \SimpleXMLElement $childElement */
-        foreach($element->children() as $childElement)
-        {
+        foreach ($element->children() as $childElement) {
             $childName = $childElement->getName();
-            if (!isset($properties[$childName]))
-            {
+            if (!isset($properties[$childName])) {
                 $this->_triggerPropertyNotFoundError($fhirElementName, $childName);
                 continue;
             }
@@ -270,8 +259,7 @@ class PHPFHIRResponseParser
      */
     private function _tryGetMapEntry($fhirElementName)
     {
-        if (!isset($this->_parserMap[$fhirElementName]))
-        {
+        if (!isset($this->_parserMap[$fhirElementName])) {
             throw new \RuntimeException(sprintf(
                 'Element map does not contain entry for "%s".  This indicates either malformed response or bug in class generation.',
                 $fhirElementName
@@ -313,10 +301,8 @@ class PHPFHIRResponseParser
         $autoloaderClass = __NAMESPACE__.'\PHPFHIRAutoloader';
         $autoloaderClassFile = __DIR__.'/PHPFHIRAutoloader.php';
 
-        if (!class_exists($autoloaderClass, false))
-        {
-            if (!file_exists($autoloaderClassFile))
-            {
+        if (!class_exists($autoloaderClass, false)) {
+            if (!file_exists($autoloaderClassFile)) {
                 throw new \RuntimeException(sprintf(
                     'PHPFHIRAutoloader class is not defined and was not found at expected location "%s".',
                     $autoloaderClassFile

@@ -88,7 +88,8 @@ class FHIRRelatedPersonCommunication extends FHIRBackboneElement implements \Jso
      * The ISO-639-1 alpha 2 code in lower case for the language, optionally followed by a hyphen and the ISO-3166-1 alpha 2 code for the region in upper case; e.g. "en" for English, or "en-US" for American English versus "en-EN" for England English.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -97,7 +98,8 @@ class FHIRRelatedPersonCommunication extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $language
      * @return $this
      */
-    public function setLanguage($language) {
+    public function setLanguage($language)
+    {
         $this->language = $language;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRRelatedPersonCommunication extends FHIRBackboneElement implements \Jso
      * Indicates whether or not the patient prefers this language (over other languages he masters up a certain level).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getPreferred() {
+    public function getPreferred()
+    {
         return $this->preferred;
     }
 
@@ -115,7 +118,8 @@ class FHIRRelatedPersonCommunication extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $preferred
      * @return $this
      */
-    public function setPreferred($preferred) {
+    public function setPreferred($preferred)
+    {
         $this->preferred = $preferred;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRRelatedPersonCommunication extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['language'])) {
                 $this->setLanguage($data['language']);
@@ -147,17 +153,23 @@ class FHIRRelatedPersonCommunication extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->language)) $json['language'] = $this->language;
-        if (isset($this->preferred)) $json['preferred'] = $this->preferred;
+        if (isset($this->language)) {
+            $json['language'] = $this->language;
+        }
+        if (isset($this->preferred)) {
+            $json['preferred'] = $this->preferred;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRRelatedPersonCommunication extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<RelatedPersonCommunication xmlns="http://hl7.org/fhir"></RelatedPersonCommunication>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<RelatedPersonCommunication xmlns="http://hl7.org/fhir"></RelatedPersonCommunication>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->language)) $this->language->xmlSerialize(true, $sxe->addChild('language'));
-        if (isset($this->preferred)) $this->preferred->xmlSerialize(true, $sxe->addChild('preferred'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->language)) {
+            $this->language->xmlSerialize(true, $sxe->addChild('language'));
+        }
+        if (isset($this->preferred)) {
+            $this->preferred->xmlSerialize(true, $sxe->addChild('preferred'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

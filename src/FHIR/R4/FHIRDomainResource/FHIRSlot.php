@@ -143,7 +143,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * External Ids for this item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -152,7 +153,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -161,7 +163,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * A broad categorization of the service that is to be performed during this appointment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getServiceCategory() {
+    public function getServiceCategory()
+    {
         return $this->serviceCategory;
     }
 
@@ -170,7 +173,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $serviceCategory
      * @return $this
      */
-    public function addServiceCategory($serviceCategory) {
+    public function addServiceCategory($serviceCategory)
+    {
         $this->serviceCategory[] = $serviceCategory;
         return $this;
     }
@@ -179,7 +183,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * The type of appointments that can be booked into this slot (ideally this would be an identifiable service - which is at a location, rather than the location itself). If provided then this overrides the value provided on the availability resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getServiceType() {
+    public function getServiceType()
+    {
         return $this->serviceType;
     }
 
@@ -188,7 +193,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $serviceType
      * @return $this
      */
-    public function addServiceType($serviceType) {
+    public function addServiceType($serviceType)
+    {
         $this->serviceType[] = $serviceType;
         return $this;
     }
@@ -197,7 +203,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * The specialty of a practitioner that would be required to perform the service requested in this appointment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getSpecialty() {
+    public function getSpecialty()
+    {
         return $this->specialty;
     }
 
@@ -206,7 +213,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $specialty
      * @return $this
      */
-    public function addSpecialty($specialty) {
+    public function addSpecialty($specialty)
+    {
         $this->specialty[] = $specialty;
         return $this;
     }
@@ -215,7 +223,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * The style of appointment or patient that may be booked in the slot (not service type).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAppointmentType() {
+    public function getAppointmentType()
+    {
         return $this->appointmentType;
     }
 
@@ -224,7 +233,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $appointmentType
      * @return $this
      */
-    public function setAppointmentType($appointmentType) {
+    public function setAppointmentType($appointmentType)
+    {
         $this->appointmentType = $appointmentType;
         return $this;
     }
@@ -233,7 +243,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * The schedule resource that this slot defines an interval of status information.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSchedule() {
+    public function getSchedule()
+    {
         return $this->schedule;
     }
 
@@ -242,7 +253,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $schedule
      * @return $this
      */
-    public function setSchedule($schedule) {
+    public function setSchedule($schedule)
+    {
         $this->schedule = $schedule;
         return $this;
     }
@@ -251,7 +263,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * busy | free | busy-unavailable | busy-tentative | entered-in-error.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSlotStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -260,7 +273,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSlotStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -269,7 +283,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * Date/Time that the slot is to begin.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getStart() {
+    public function getStart()
+    {
         return $this->start;
     }
 
@@ -278,7 +293,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $start
      * @return $this
      */
-    public function setStart($start) {
+    public function setStart($start)
+    {
         $this->start = $start;
         return $this;
     }
@@ -287,7 +303,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * Date/Time that the slot is to conclude.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getEnd() {
+    public function getEnd()
+    {
         return $this->end;
     }
 
@@ -296,7 +313,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $end
      * @return $this
      */
-    public function setEnd($end) {
+    public function setEnd($end)
+    {
         $this->end = $end;
         return $this;
     }
@@ -305,7 +323,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * This slot has already been overbooked, appointments are unlikely to be accepted for this time.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getOverbooked() {
+    public function getOverbooked()
+    {
         return $this->overbooked;
     }
 
@@ -314,7 +333,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $overbooked
      * @return $this
      */
-    public function setOverbooked($overbooked) {
+    public function setOverbooked($overbooked)
+    {
         $this->overbooked = $overbooked;
         return $this;
     }
@@ -323,7 +343,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * Comments on the slot to describe any extended information. Such as custom constraints on the slot.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -332,7 +353,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -340,18 +362,20 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -360,7 +384,7 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['serviceCategory'])) {
                 if (is_array($data['serviceCategory'])) {
-                    foreach($data['serviceCategory'] as $d) {
+                    foreach ($data['serviceCategory'] as $d) {
                         $this->addServiceCategory($d);
                     }
                 } else {
@@ -369,7 +393,7 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['serviceType'])) {
                 if (is_array($data['serviceType'])) {
-                    foreach($data['serviceType'] as $d) {
+                    foreach ($data['serviceType'] as $d) {
                         $this->addServiceType($d);
                     }
                 } else {
@@ -378,7 +402,7 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['specialty'])) {
                 if (is_array($data['specialty'])) {
-                    foreach($data['specialty'] as $d) {
+                    foreach ($data['specialty'] as $d) {
                         $this->addSpecialty($d);
                     }
                 } else {
@@ -415,47 +439,63 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->serviceCategory)) {
             $json['serviceCategory'] = [];
-            foreach($this->serviceCategory as $serviceCategory) {
+            foreach ($this->serviceCategory as $serviceCategory) {
                 $json['serviceCategory'][] = $serviceCategory;
             }
         }
         if (0 < count($this->serviceType)) {
             $json['serviceType'] = [];
-            foreach($this->serviceType as $serviceType) {
+            foreach ($this->serviceType as $serviceType) {
                 $json['serviceType'][] = $serviceType;
             }
         }
         if (0 < count($this->specialty)) {
             $json['specialty'] = [];
-            foreach($this->specialty as $specialty) {
+            foreach ($this->specialty as $specialty) {
                 $json['specialty'][] = $specialty;
             }
         }
-        if (isset($this->appointmentType)) $json['appointmentType'] = $this->appointmentType;
-        if (isset($this->schedule)) $json['schedule'] = $this->schedule;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->start)) $json['start'] = $this->start;
-        if (isset($this->end)) $json['end'] = $this->end;
-        if (isset($this->overbooked)) $json['overbooked'] = $this->overbooked;
-        if (isset($this->comment)) $json['comment'] = $this->comment;
+        if (isset($this->appointmentType)) {
+            $json['appointmentType'] = $this->appointmentType;
+        }
+        if (isset($this->schedule)) {
+            $json['schedule'] = $this->schedule;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->start)) {
+            $json['start'] = $this->start;
+        }
+        if (isset($this->end)) {
+            $json['end'] = $this->end;
+        }
+        if (isset($this->overbooked)) {
+            $json['overbooked'] = $this->overbooked;
+        }
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
         return $json;
     }
 
@@ -464,39 +504,56 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Slot xmlns="http://hl7.org/fhir"></Slot>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Slot xmlns="http://hl7.org/fhir"></Slot>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->serviceCategory)) {
-            foreach($this->serviceCategory as $serviceCategory) {
+            foreach ($this->serviceCategory as $serviceCategory) {
                 $serviceCategory->xmlSerialize(true, $sxe->addChild('serviceCategory'));
             }
         }
         if (0 < count($this->serviceType)) {
-            foreach($this->serviceType as $serviceType) {
+            foreach ($this->serviceType as $serviceType) {
                 $serviceType->xmlSerialize(true, $sxe->addChild('serviceType'));
             }
         }
         if (0 < count($this->specialty)) {
-            foreach($this->specialty as $specialty) {
+            foreach ($this->specialty as $specialty) {
                 $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
             }
         }
-        if (isset($this->appointmentType)) $this->appointmentType->xmlSerialize(true, $sxe->addChild('appointmentType'));
-        if (isset($this->schedule)) $this->schedule->xmlSerialize(true, $sxe->addChild('schedule'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->start)) $this->start->xmlSerialize(true, $sxe->addChild('start'));
-        if (isset($this->end)) $this->end->xmlSerialize(true, $sxe->addChild('end'));
-        if (isset($this->overbooked)) $this->overbooked->xmlSerialize(true, $sxe->addChild('overbooked'));
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->appointmentType)) {
+            $this->appointmentType->xmlSerialize(true, $sxe->addChild('appointmentType'));
+        }
+        if (isset($this->schedule)) {
+            $this->schedule->xmlSerialize(true, $sxe->addChild('schedule'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->start)) {
+            $this->start->xmlSerialize(true, $sxe->addChild('start'));
+        }
+        if (isset($this->end)) {
+            $this->end->xmlSerialize(true, $sxe->addChild('end'));
+        }
+        if (isset($this->overbooked)) {
+            $this->overbooked->xmlSerialize(true, $sxe->addChild('overbooked'));
+        }
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

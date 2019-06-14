@@ -75,7 +75,7 @@ class FHIRPatient extends FHIRDomainResource implements \JsonSerializable
     public $identifier = [];
 
     /**
-     * Whether this patient record is in active use. 
+     * Whether this patient record is in active use.
 Many systems use this property to mark as non-current patients, such as those that have not been seen for a period of time based on an organization's business rules.
 
 It is often used to filter patient lists to exclude inactive patients
@@ -186,7 +186,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * An identifier for this patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -195,13 +196,14 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
 
     /**
-     * Whether this patient record is in active use. 
+     * Whether this patient record is in active use.
 Many systems use this property to mark as non-current patients, such as those that have not been seen for a period of time based on an organization's business rules.
 
 It is often used to filter patient lists to exclude inactive patients
@@ -209,12 +211,13 @@ It is often used to filter patient lists to exclude inactive patients
 Deceased patients may also be marked as inactive for the same reasons, but may be active for some time after death.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getActive() {
+    public function getActive()
+    {
         return $this->active;
     }
 
     /**
-     * Whether this patient record is in active use. 
+     * Whether this patient record is in active use.
 Many systems use this property to mark as non-current patients, such as those that have not been seen for a period of time based on an organization's business rules.
 
 It is often used to filter patient lists to exclude inactive patients
@@ -223,7 +226,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $active
      * @return $this
      */
-    public function setActive($active) {
+    public function setActive($active)
+    {
         $this->active = $active;
         return $this;
     }
@@ -232,7 +236,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * A name associated with the individual.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName[]
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -241,7 +246,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName $name
      * @return $this
      */
-    public function addName($name) {
+    public function addName($name)
+    {
         $this->name[] = $name;
         return $this;
     }
@@ -250,7 +256,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * A contact detail (e.g. a telephone number or an email address) by which the individual may be contacted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint[]
      */
-    public function getTelecom() {
+    public function getTelecom()
+    {
         return $this->telecom;
     }
 
@@ -259,7 +266,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $telecom
      * @return $this
      */
-    public function addTelecom($telecom) {
+    public function addTelecom($telecom)
+    {
         $this->telecom[] = $telecom;
         return $this;
     }
@@ -268,7 +276,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * Administrative Gender - the gender that the patient is considered to have for administration and record keeping purposes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender
      */
-    public function getGender() {
+    public function getGender()
+    {
         return $this->gender;
     }
 
@@ -277,7 +286,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender $gender
      * @return $this
      */
-    public function setGender($gender) {
+    public function setGender($gender)
+    {
         $this->gender = $gender;
         return $this;
     }
@@ -286,7 +296,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * The date of birth for the individual.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getBirthDate() {
+    public function getBirthDate()
+    {
         return $this->birthDate;
     }
 
@@ -295,7 +306,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $birthDate
      * @return $this
      */
-    public function setBirthDate($birthDate) {
+    public function setBirthDate($birthDate)
+    {
         $this->birthDate = $birthDate;
         return $this;
     }
@@ -303,7 +315,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getDeceasedBoolean() {
+    public function getDeceasedBoolean()
+    {
         return $this->deceasedBoolean;
     }
 
@@ -311,7 +324,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $deceasedBoolean
      * @return $this
      */
-    public function setDeceasedBoolean($deceasedBoolean) {
+    public function setDeceasedBoolean($deceasedBoolean)
+    {
         $this->deceasedBoolean = $deceasedBoolean;
         return $this;
     }
@@ -319,7 +333,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDeceasedDateTime() {
+    public function getDeceasedDateTime()
+    {
         return $this->deceasedDateTime;
     }
 
@@ -327,7 +342,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $deceasedDateTime
      * @return $this
      */
-    public function setDeceasedDateTime($deceasedDateTime) {
+    public function setDeceasedDateTime($deceasedDateTime)
+    {
         $this->deceasedDateTime = $deceasedDateTime;
         return $this;
     }
@@ -336,7 +352,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * An address for the individual.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress[]
      */
-    public function getAddress() {
+    public function getAddress()
+    {
         return $this->address;
     }
 
@@ -345,7 +362,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $address
      * @return $this
      */
-    public function addAddress($address) {
+    public function addAddress($address)
+    {
         $this->address[] = $address;
         return $this;
     }
@@ -354,7 +372,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * This field contains a patient's most recent marital (civil) status.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMaritalStatus() {
+    public function getMaritalStatus()
+    {
         return $this->maritalStatus;
     }
 
@@ -363,7 +382,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $maritalStatus
      * @return $this
      */
-    public function setMaritalStatus($maritalStatus) {
+    public function setMaritalStatus($maritalStatus)
+    {
         $this->maritalStatus = $maritalStatus;
         return $this;
     }
@@ -371,7 +391,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getMultipleBirthBoolean() {
+    public function getMultipleBirthBoolean()
+    {
         return $this->multipleBirthBoolean;
     }
 
@@ -379,7 +400,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $multipleBirthBoolean
      * @return $this
      */
-    public function setMultipleBirthBoolean($multipleBirthBoolean) {
+    public function setMultipleBirthBoolean($multipleBirthBoolean)
+    {
         $this->multipleBirthBoolean = $multipleBirthBoolean;
         return $this;
     }
@@ -387,7 +409,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getMultipleBirthInteger() {
+    public function getMultipleBirthInteger()
+    {
         return $this->multipleBirthInteger;
     }
 
@@ -395,7 +418,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $multipleBirthInteger
      * @return $this
      */
-    public function setMultipleBirthInteger($multipleBirthInteger) {
+    public function setMultipleBirthInteger($multipleBirthInteger)
+    {
         $this->multipleBirthInteger = $multipleBirthInteger;
         return $this;
     }
@@ -404,7 +428,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * Image of the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment[]
      */
-    public function getPhoto() {
+    public function getPhoto()
+    {
         return $this->photo;
     }
 
@@ -413,7 +438,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $photo
      * @return $this
      */
-    public function addPhoto($photo) {
+    public function addPhoto($photo)
+    {
         $this->photo[] = $photo;
         return $this;
     }
@@ -422,7 +448,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * A contact party (e.g. guardian, partner, friend) for the patient.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientContact[]
      */
-    public function getContact() {
+    public function getContact()
+    {
         return $this->contact;
     }
 
@@ -431,7 +458,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientContact $contact
      * @return $this
      */
-    public function addContact($contact) {
+    public function addContact($contact)
+    {
         $this->contact[] = $contact;
         return $this;
     }
@@ -440,7 +468,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * A language which may be used to communicate with the patient about his or her health.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientCommunication[]
      */
-    public function getCommunication() {
+    public function getCommunication()
+    {
         return $this->communication;
     }
 
@@ -449,7 +478,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientCommunication $communication
      * @return $this
      */
-    public function addCommunication($communication) {
+    public function addCommunication($communication)
+    {
         $this->communication[] = $communication;
         return $this;
     }
@@ -458,7 +488,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * Patient's nominated care provider.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getGeneralPractitioner() {
+    public function getGeneralPractitioner()
+    {
         return $this->generalPractitioner;
     }
 
@@ -467,7 +498,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $generalPractitioner
      * @return $this
      */
-    public function addGeneralPractitioner($generalPractitioner) {
+    public function addGeneralPractitioner($generalPractitioner)
+    {
         $this->generalPractitioner[] = $generalPractitioner;
         return $this;
     }
@@ -476,7 +508,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * Organization that is the custodian of the patient record.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getManagingOrganization() {
+    public function getManagingOrganization()
+    {
         return $this->managingOrganization;
     }
 
@@ -485,7 +518,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $managingOrganization
      * @return $this
      */
-    public function setManagingOrganization($managingOrganization) {
+    public function setManagingOrganization($managingOrganization)
+    {
         $this->managingOrganization = $managingOrganization;
         return $this;
     }
@@ -494,7 +528,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * Link to another patient resource that concerns the same actual patient.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientLink[]
      */
-    public function getLink() {
+    public function getLink()
+    {
         return $this->link;
     }
 
@@ -503,7 +538,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPatient\FHIRPatientLink $link
      * @return $this
      */
-    public function addLink($link) {
+    public function addLink($link)
+    {
         $this->link[] = $link;
         return $this;
     }
@@ -511,18 +547,20 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -534,7 +572,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
             }
             if (isset($data['name'])) {
                 if (is_array($data['name'])) {
-                    foreach($data['name'] as $d) {
+                    foreach ($data['name'] as $d) {
                         $this->addName($d);
                     }
                 } else {
@@ -543,7 +581,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
             }
             if (isset($data['telecom'])) {
                 if (is_array($data['telecom'])) {
-                    foreach($data['telecom'] as $d) {
+                    foreach ($data['telecom'] as $d) {
                         $this->addTelecom($d);
                     }
                 } else {
@@ -564,7 +602,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
             }
             if (isset($data['address'])) {
                 if (is_array($data['address'])) {
-                    foreach($data['address'] as $d) {
+                    foreach ($data['address'] as $d) {
                         $this->addAddress($d);
                     }
                 } else {
@@ -582,7 +620,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
             }
             if (isset($data['photo'])) {
                 if (is_array($data['photo'])) {
-                    foreach($data['photo'] as $d) {
+                    foreach ($data['photo'] as $d) {
                         $this->addPhoto($d);
                     }
                 } else {
@@ -591,7 +629,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
             }
             if (isset($data['contact'])) {
                 if (is_array($data['contact'])) {
-                    foreach($data['contact'] as $d) {
+                    foreach ($data['contact'] as $d) {
                         $this->addContact($d);
                     }
                 } else {
@@ -600,7 +638,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
             }
             if (isset($data['communication'])) {
                 if (is_array($data['communication'])) {
-                    foreach($data['communication'] as $d) {
+                    foreach ($data['communication'] as $d) {
                         $this->addCommunication($d);
                     }
                 } else {
@@ -609,7 +647,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
             }
             if (isset($data['generalPractitioner'])) {
                 if (is_array($data['generalPractitioner'])) {
-                    foreach($data['generalPractitioner'] as $d) {
+                    foreach ($data['generalPractitioner'] as $d) {
                         $this->addGeneralPractitioner($d);
                     }
                 } else {
@@ -621,7 +659,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
             }
             if (isset($data['link'])) {
                 if (is_array($data['link'])) {
-                    foreach($data['link'] as $d) {
+                    foreach ($data['link'] as $d) {
                         $this->addLink($d);
                     }
                 } else {
@@ -637,76 +675,96 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->active)) $json['active'] = $this->active;
+        if (isset($this->active)) {
+            $json['active'] = $this->active;
+        }
         if (0 < count($this->name)) {
             $json['name'] = [];
-            foreach($this->name as $name) {
+            foreach ($this->name as $name) {
                 $json['name'][] = $name;
             }
         }
         if (0 < count($this->telecom)) {
             $json['telecom'] = [];
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $json['telecom'][] = $telecom;
             }
         }
-        if (isset($this->gender)) $json['gender'] = $this->gender;
-        if (isset($this->birthDate)) $json['birthDate'] = $this->birthDate;
-        if (isset($this->deceasedBoolean)) $json['deceasedBoolean'] = $this->deceasedBoolean;
-        if (isset($this->deceasedDateTime)) $json['deceasedDateTime'] = $this->deceasedDateTime;
+        if (isset($this->gender)) {
+            $json['gender'] = $this->gender;
+        }
+        if (isset($this->birthDate)) {
+            $json['birthDate'] = $this->birthDate;
+        }
+        if (isset($this->deceasedBoolean)) {
+            $json['deceasedBoolean'] = $this->deceasedBoolean;
+        }
+        if (isset($this->deceasedDateTime)) {
+            $json['deceasedDateTime'] = $this->deceasedDateTime;
+        }
         if (0 < count($this->address)) {
             $json['address'] = [];
-            foreach($this->address as $address) {
+            foreach ($this->address as $address) {
                 $json['address'][] = $address;
             }
         }
-        if (isset($this->maritalStatus)) $json['maritalStatus'] = $this->maritalStatus;
-        if (isset($this->multipleBirthBoolean)) $json['multipleBirthBoolean'] = $this->multipleBirthBoolean;
-        if (isset($this->multipleBirthInteger)) $json['multipleBirthInteger'] = $this->multipleBirthInteger;
+        if (isset($this->maritalStatus)) {
+            $json['maritalStatus'] = $this->maritalStatus;
+        }
+        if (isset($this->multipleBirthBoolean)) {
+            $json['multipleBirthBoolean'] = $this->multipleBirthBoolean;
+        }
+        if (isset($this->multipleBirthInteger)) {
+            $json['multipleBirthInteger'] = $this->multipleBirthInteger;
+        }
         if (0 < count($this->photo)) {
             $json['photo'] = [];
-            foreach($this->photo as $photo) {
+            foreach ($this->photo as $photo) {
                 $json['photo'][] = $photo;
             }
         }
         if (0 < count($this->contact)) {
             $json['contact'] = [];
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $json['contact'][] = $contact;
             }
         }
         if (0 < count($this->communication)) {
             $json['communication'] = [];
-            foreach($this->communication as $communication) {
+            foreach ($this->communication as $communication) {
                 $json['communication'][] = $communication;
             }
         }
         if (0 < count($this->generalPractitioner)) {
             $json['generalPractitioner'] = [];
-            foreach($this->generalPractitioner as $generalPractitioner) {
+            foreach ($this->generalPractitioner as $generalPractitioner) {
                 $json['generalPractitioner'][] = $generalPractitioner;
             }
         }
-        if (isset($this->managingOrganization)) $json['managingOrganization'] = $this->managingOrganization;
+        if (isset($this->managingOrganization)) {
+            $json['managingOrganization'] = $this->managingOrganization;
+        }
         if (0 < count($this->link)) {
             $json['link'] = [];
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $json['link'][] = $link;
             }
         }
@@ -718,66 +776,87 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Patient xmlns="http://hl7.org/fhir"></Patient>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Patient xmlns="http://hl7.org/fhir"></Patient>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->active)) $this->active->xmlSerialize(true, $sxe->addChild('active'));
+        if (isset($this->active)) {
+            $this->active->xmlSerialize(true, $sxe->addChild('active'));
+        }
         if (0 < count($this->name)) {
-            foreach($this->name as $name) {
+            foreach ($this->name as $name) {
                 $name->xmlSerialize(true, $sxe->addChild('name'));
             }
         }
         if (0 < count($this->telecom)) {
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
             }
         }
-        if (isset($this->gender)) $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
-        if (isset($this->birthDate)) $this->birthDate->xmlSerialize(true, $sxe->addChild('birthDate'));
-        if (isset($this->deceasedBoolean)) $this->deceasedBoolean->xmlSerialize(true, $sxe->addChild('deceasedBoolean'));
-        if (isset($this->deceasedDateTime)) $this->deceasedDateTime->xmlSerialize(true, $sxe->addChild('deceasedDateTime'));
+        if (isset($this->gender)) {
+            $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
+        }
+        if (isset($this->birthDate)) {
+            $this->birthDate->xmlSerialize(true, $sxe->addChild('birthDate'));
+        }
+        if (isset($this->deceasedBoolean)) {
+            $this->deceasedBoolean->xmlSerialize(true, $sxe->addChild('deceasedBoolean'));
+        }
+        if (isset($this->deceasedDateTime)) {
+            $this->deceasedDateTime->xmlSerialize(true, $sxe->addChild('deceasedDateTime'));
+        }
         if (0 < count($this->address)) {
-            foreach($this->address as $address) {
+            foreach ($this->address as $address) {
                 $address->xmlSerialize(true, $sxe->addChild('address'));
             }
         }
-        if (isset($this->maritalStatus)) $this->maritalStatus->xmlSerialize(true, $sxe->addChild('maritalStatus'));
-        if (isset($this->multipleBirthBoolean)) $this->multipleBirthBoolean->xmlSerialize(true, $sxe->addChild('multipleBirthBoolean'));
-        if (isset($this->multipleBirthInteger)) $this->multipleBirthInteger->xmlSerialize(true, $sxe->addChild('multipleBirthInteger'));
+        if (isset($this->maritalStatus)) {
+            $this->maritalStatus->xmlSerialize(true, $sxe->addChild('maritalStatus'));
+        }
+        if (isset($this->multipleBirthBoolean)) {
+            $this->multipleBirthBoolean->xmlSerialize(true, $sxe->addChild('multipleBirthBoolean'));
+        }
+        if (isset($this->multipleBirthInteger)) {
+            $this->multipleBirthInteger->xmlSerialize(true, $sxe->addChild('multipleBirthInteger'));
+        }
         if (0 < count($this->photo)) {
-            foreach($this->photo as $photo) {
+            foreach ($this->photo as $photo) {
                 $photo->xmlSerialize(true, $sxe->addChild('photo'));
             }
         }
         if (0 < count($this->contact)) {
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $contact->xmlSerialize(true, $sxe->addChild('contact'));
             }
         }
         if (0 < count($this->communication)) {
-            foreach($this->communication as $communication) {
+            foreach ($this->communication as $communication) {
                 $communication->xmlSerialize(true, $sxe->addChild('communication'));
             }
         }
         if (0 < count($this->generalPractitioner)) {
-            foreach($this->generalPractitioner as $generalPractitioner) {
+            foreach ($this->generalPractitioner as $generalPractitioner) {
                 $generalPractitioner->xmlSerialize(true, $sxe->addChild('generalPractitioner'));
             }
         }
-        if (isset($this->managingOrganization)) $this->managingOrganization->xmlSerialize(true, $sxe->addChild('managingOrganization'));
+        if (isset($this->managingOrganization)) {
+            $this->managingOrganization->xmlSerialize(true, $sxe->addChild('managingOrganization'));
+        }
         if (0 < count($this->link)) {
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $link->xmlSerialize(true, $sxe->addChild('link'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

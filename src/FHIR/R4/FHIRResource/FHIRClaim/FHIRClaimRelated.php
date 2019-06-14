@@ -94,7 +94,8 @@ class FHIRClaimRelated extends FHIRBackboneElement implements \JsonSerializable
      * Reference to a related claim.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getClaim() {
+    public function getClaim()
+    {
         return $this->claim;
     }
 
@@ -103,7 +104,8 @@ class FHIRClaimRelated extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $claim
      * @return $this
      */
-    public function setClaim($claim) {
+    public function setClaim($claim)
+    {
         $this->claim = $claim;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRClaimRelated extends FHIRBackboneElement implements \JsonSerializable
      * A code to convey how the claims are related.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRelationship() {
+    public function getRelationship()
+    {
         return $this->relationship;
     }
 
@@ -121,7 +124,8 @@ class FHIRClaimRelated extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $relationship
      * @return $this
      */
-    public function setRelationship($relationship) {
+    public function setRelationship($relationship)
+    {
         $this->relationship = $relationship;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRClaimRelated extends FHIRBackboneElement implements \JsonSerializable
      * An alternate organizational reference to the case or file to which this particular claim pertains.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -139,7 +144,8 @@ class FHIRClaimRelated extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $reference
      * @return $this
      */
-    public function setReference($reference) {
+    public function setReference($reference)
+    {
         $this->reference = $reference;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRClaimRelated extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['claim'])) {
                 $this->setClaim($data['claim']);
@@ -174,18 +182,26 @@ class FHIRClaimRelated extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->claim)) $json['claim'] = $this->claim;
-        if (isset($this->relationship)) $json['relationship'] = $this->relationship;
-        if (isset($this->reference)) $json['reference'] = $this->reference;
+        if (isset($this->claim)) {
+            $json['claim'] = $this->claim;
+        }
+        if (isset($this->relationship)) {
+            $json['relationship'] = $this->relationship;
+        }
+        if (isset($this->reference)) {
+            $json['reference'] = $this->reference;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRClaimRelated extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimRelated xmlns="http://hl7.org/fhir"></ClaimRelated>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimRelated xmlns="http://hl7.org/fhir"></ClaimRelated>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->claim)) $this->claim->xmlSerialize(true, $sxe->addChild('claim'));
-        if (isset($this->relationship)) $this->relationship->xmlSerialize(true, $sxe->addChild('relationship'));
-        if (isset($this->reference)) $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->claim)) {
+            $this->claim->xmlSerialize(true, $sxe->addChild('claim'));
+        }
+        if (isset($this->relationship)) {
+            $this->relationship->xmlSerialize(true, $sxe->addChild('relationship'));
+        }
+        if (isset($this->reference)) {
+            $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

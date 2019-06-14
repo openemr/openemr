@@ -125,7 +125,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * The Response business identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -134,7 +135,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -143,7 +145,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * The status of the resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -152,7 +155,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -161,7 +165,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * Original request resource reference.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequest() {
+    public function getRequest()
+    {
         return $this->request;
     }
 
@@ -170,7 +175,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $request
      * @return $this
      */
-    public function setRequest($request) {
+    public function setRequest($request)
+    {
         $this->request = $request;
         return $this;
     }
@@ -179,7 +185,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * Processing status: error, complete.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRemittanceOutcome
      */
-    public function getOutcome() {
+    public function getOutcome()
+    {
         return $this->outcome;
     }
 
@@ -188,7 +195,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRemittanceOutcome $outcome
      * @return $this
      */
-    public function setOutcome($outcome) {
+    public function setOutcome($outcome)
+    {
         $this->outcome = $outcome;
         return $this;
     }
@@ -197,7 +205,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * A description of the status of the adjudication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDisposition() {
+    public function getDisposition()
+    {
         return $this->disposition;
     }
 
@@ -206,7 +215,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $disposition
      * @return $this
      */
-    public function setDisposition($disposition) {
+    public function setDisposition($disposition)
+    {
         $this->disposition = $disposition;
         return $this;
     }
@@ -215,7 +225,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * The date when the enclosed suite of services were performed or completed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getCreated() {
+    public function getCreated()
+    {
         return $this->created;
     }
 
@@ -224,7 +235,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $created
      * @return $this
      */
-    public function setCreated($created) {
+    public function setCreated($created)
+    {
         $this->created = $created;
         return $this;
     }
@@ -233,7 +245,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * The Insurer who produced this adjudicated response.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOrganization() {
+    public function getOrganization()
+    {
         return $this->organization;
     }
 
@@ -242,7 +255,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $organization
      * @return $this
      */
-    public function setOrganization($organization) {
+    public function setOrganization($organization)
+    {
         $this->organization = $organization;
         return $this;
     }
@@ -251,7 +265,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * The practitioner who is responsible for the services rendered to the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequestProvider() {
+    public function getRequestProvider()
+    {
         return $this->requestProvider;
     }
 
@@ -260,7 +275,8 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $requestProvider
      * @return $this
      */
-    public function setRequestProvider($requestProvider) {
+    public function setRequestProvider($requestProvider)
+    {
         $this->requestProvider = $requestProvider;
         return $this;
     }
@@ -268,18 +284,20 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -316,29 +334,45 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->request)) $json['request'] = $this->request;
-        if (isset($this->outcome)) $json['outcome'] = $this->outcome;
-        if (isset($this->disposition)) $json['disposition'] = $this->disposition;
-        if (isset($this->created)) $json['created'] = $this->created;
-        if (isset($this->organization)) $json['organization'] = $this->organization;
-        if (isset($this->requestProvider)) $json['requestProvider'] = $this->requestProvider;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->request)) {
+            $json['request'] = $this->request;
+        }
+        if (isset($this->outcome)) {
+            $json['outcome'] = $this->outcome;
+        }
+        if (isset($this->disposition)) {
+            $json['disposition'] = $this->disposition;
+        }
+        if (isset($this->created)) {
+            $json['created'] = $this->created;
+        }
+        if (isset($this->organization)) {
+            $json['organization'] = $this->organization;
+        }
+        if (isset($this->requestProvider)) {
+            $json['requestProvider'] = $this->requestProvider;
+        }
         return $json;
     }
 
@@ -347,24 +381,41 @@ class FHIREnrollmentResponse extends FHIRDomainResource implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<EnrollmentResponse xmlns="http://hl7.org/fhir"></EnrollmentResponse>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<EnrollmentResponse xmlns="http://hl7.org/fhir"></EnrollmentResponse>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->request)) $this->request->xmlSerialize(true, $sxe->addChild('request'));
-        if (isset($this->outcome)) $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
-        if (isset($this->disposition)) $this->disposition->xmlSerialize(true, $sxe->addChild('disposition'));
-        if (isset($this->created)) $this->created->xmlSerialize(true, $sxe->addChild('created'));
-        if (isset($this->organization)) $this->organization->xmlSerialize(true, $sxe->addChild('organization'));
-        if (isset($this->requestProvider)) $this->requestProvider->xmlSerialize(true, $sxe->addChild('requestProvider'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->request)) {
+            $this->request->xmlSerialize(true, $sxe->addChild('request'));
+        }
+        if (isset($this->outcome)) {
+            $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
+        }
+        if (isset($this->disposition)) {
+            $this->disposition->xmlSerialize(true, $sxe->addChild('disposition'));
+        }
+        if (isset($this->created)) {
+            $this->created->xmlSerialize(true, $sxe->addChild('created'));
+        }
+        if (isset($this->organization)) {
+            $this->organization->xmlSerialize(true, $sxe->addChild('organization'));
+        }
+        if (isset($this->requestProvider)) {
+            $this->requestProvider->xmlSerialize(true, $sxe->addChild('requestProvider'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

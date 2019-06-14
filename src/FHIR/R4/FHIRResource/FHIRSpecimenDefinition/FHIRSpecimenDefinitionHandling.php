@@ -100,7 +100,8 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
      * It qualifies the interval of temperature, which characterizes an occurrence of handling. Conditions that are not related to temperature may be handled in the instruction element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getTemperatureQualifier() {
+    public function getTemperatureQualifier()
+    {
         return $this->temperatureQualifier;
     }
 
@@ -109,7 +110,8 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $temperatureQualifier
      * @return $this
      */
-    public function setTemperatureQualifier($temperatureQualifier) {
+    public function setTemperatureQualifier($temperatureQualifier)
+    {
         $this->temperatureQualifier = $temperatureQualifier;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
      * The temperature interval for this set of handling instructions.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getTemperatureRange() {
+    public function getTemperatureRange()
+    {
         return $this->temperatureRange;
     }
 
@@ -127,7 +130,8 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $temperatureRange
      * @return $this
      */
-    public function setTemperatureRange($temperatureRange) {
+    public function setTemperatureRange($temperatureRange)
+    {
         $this->temperatureRange = $temperatureRange;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
      * The maximum time interval of preservation of the specimen with these conditions.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getMaxDuration() {
+    public function getMaxDuration()
+    {
         return $this->maxDuration;
     }
 
@@ -145,7 +150,8 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $maxDuration
      * @return $this
      */
-    public function setMaxDuration($maxDuration) {
+    public function setMaxDuration($maxDuration)
+    {
         $this->maxDuration = $maxDuration;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
      * Additional textual instructions for the preservation or transport of the specimen. For instance, 'Protect from light exposure'.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getInstruction() {
+    public function getInstruction()
+    {
         return $this->instruction;
     }
 
@@ -163,7 +170,8 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $instruction
      * @return $this
      */
-    public function setInstruction($instruction) {
+    public function setInstruction($instruction)
+    {
         $this->instruction = $instruction;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['temperatureQualifier'])) {
                 $this->setTemperatureQualifier($data['temperatureQualifier']);
@@ -201,19 +211,29 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->temperatureQualifier)) $json['temperatureQualifier'] = $this->temperatureQualifier;
-        if (isset($this->temperatureRange)) $json['temperatureRange'] = $this->temperatureRange;
-        if (isset($this->maxDuration)) $json['maxDuration'] = $this->maxDuration;
-        if (isset($this->instruction)) $json['instruction'] = $this->instruction;
+        if (isset($this->temperatureQualifier)) {
+            $json['temperatureQualifier'] = $this->temperatureQualifier;
+        }
+        if (isset($this->temperatureRange)) {
+            $json['temperatureRange'] = $this->temperatureRange;
+        }
+        if (isset($this->maxDuration)) {
+            $json['maxDuration'] = $this->maxDuration;
+        }
+        if (isset($this->instruction)) {
+            $json['instruction'] = $this->instruction;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRSpecimenDefinitionHandling extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SpecimenDefinitionHandling xmlns="http://hl7.org/fhir"></SpecimenDefinitionHandling>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SpecimenDefinitionHandling xmlns="http://hl7.org/fhir"></SpecimenDefinitionHandling>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->temperatureQualifier)) $this->temperatureQualifier->xmlSerialize(true, $sxe->addChild('temperatureQualifier'));
-        if (isset($this->temperatureRange)) $this->temperatureRange->xmlSerialize(true, $sxe->addChild('temperatureRange'));
-        if (isset($this->maxDuration)) $this->maxDuration->xmlSerialize(true, $sxe->addChild('maxDuration'));
-        if (isset($this->instruction)) $this->instruction->xmlSerialize(true, $sxe->addChild('instruction'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->temperatureQualifier)) {
+            $this->temperatureQualifier->xmlSerialize(true, $sxe->addChild('temperatureQualifier'));
+        }
+        if (isset($this->temperatureRange)) {
+            $this->temperatureRange->xmlSerialize(true, $sxe->addChild('temperatureRange'));
+        }
+        if (isset($this->maxDuration)) {
+            $this->maxDuration->xmlSerialize(true, $sxe->addChild('maxDuration'));
+        }
+        if (isset($this->instruction)) {
+            $this->instruction->xmlSerialize(true, $sxe->addChild('instruction'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

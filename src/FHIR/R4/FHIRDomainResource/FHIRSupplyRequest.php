@@ -180,7 +180,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * Business identifiers assigned to this SupplyRequest by the author and/or other systems. These identifiers remain constant as the resource is updated and propagates from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -189,7 +190,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -198,7 +200,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * Status of the supply request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSupplyRequestStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -207,7 +210,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSupplyRequestStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -216,7 +220,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * Category of supply, e.g.  central, non-stock, etc. This is used to support work flows associated with the supply process.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -225,7 +230,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -234,7 +240,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * Indicates how quickly this SupplyRequest should be addressed with respect to other requests.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority
      */
-    public function getPriority() {
+    public function getPriority()
+    {
         return $this->priority;
     }
 
@@ -243,7 +250,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority $priority
      * @return $this
      */
-    public function setPriority($priority) {
+    public function setPriority($priority)
+    {
         $this->priority = $priority;
         return $this;
     }
@@ -251,7 +259,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getItemCodeableConcept() {
+    public function getItemCodeableConcept()
+    {
         return $this->itemCodeableConcept;
     }
 
@@ -259,7 +268,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $itemCodeableConcept
      * @return $this
      */
-    public function setItemCodeableConcept($itemCodeableConcept) {
+    public function setItemCodeableConcept($itemCodeableConcept)
+    {
         $this->itemCodeableConcept = $itemCodeableConcept;
         return $this;
     }
@@ -267,7 +277,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getItemReference() {
+    public function getItemReference()
+    {
         return $this->itemReference;
     }
 
@@ -275,7 +286,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $itemReference
      * @return $this
      */
-    public function setItemReference($itemReference) {
+    public function setItemReference($itemReference)
+    {
         $this->itemReference = $itemReference;
         return $this;
     }
@@ -284,7 +296,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * The amount that is being ordered of the indicated item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -293,7 +306,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -302,7 +316,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * Specific parameters for the ordered item.  For example, the size of the indicated item.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSupplyRequest\FHIRSupplyRequestParameter[]
      */
-    public function getParameter() {
+    public function getParameter()
+    {
         return $this->parameter;
     }
 
@@ -311,7 +326,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSupplyRequest\FHIRSupplyRequestParameter $parameter
      * @return $this
      */
-    public function addParameter($parameter) {
+    public function addParameter($parameter)
+    {
         $this->parameter[] = $parameter;
         return $this;
     }
@@ -319,7 +335,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getOccurrenceDateTime() {
+    public function getOccurrenceDateTime()
+    {
         return $this->occurrenceDateTime;
     }
 
@@ -327,7 +344,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $occurrenceDateTime
      * @return $this
      */
-    public function setOccurrenceDateTime($occurrenceDateTime) {
+    public function setOccurrenceDateTime($occurrenceDateTime)
+    {
         $this->occurrenceDateTime = $occurrenceDateTime;
         return $this;
     }
@@ -335,7 +353,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getOccurrencePeriod() {
+    public function getOccurrencePeriod()
+    {
         return $this->occurrencePeriod;
     }
 
@@ -343,7 +362,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $occurrencePeriod
      * @return $this
      */
-    public function setOccurrencePeriod($occurrencePeriod) {
+    public function setOccurrencePeriod($occurrencePeriod)
+    {
         $this->occurrencePeriod = $occurrencePeriod;
         return $this;
     }
@@ -351,7 +371,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getOccurrenceTiming() {
+    public function getOccurrenceTiming()
+    {
         return $this->occurrenceTiming;
     }
 
@@ -359,7 +380,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $occurrenceTiming
      * @return $this
      */
-    public function setOccurrenceTiming($occurrenceTiming) {
+    public function setOccurrenceTiming($occurrenceTiming)
+    {
         $this->occurrenceTiming = $occurrenceTiming;
         return $this;
     }
@@ -368,7 +390,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * When the request was made.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getAuthoredOn() {
+    public function getAuthoredOn()
+    {
         return $this->authoredOn;
     }
 
@@ -377,7 +400,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $authoredOn
      * @return $this
      */
-    public function setAuthoredOn($authoredOn) {
+    public function setAuthoredOn($authoredOn)
+    {
         $this->authoredOn = $authoredOn;
         return $this;
     }
@@ -386,7 +410,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * The device, practitioner, etc. who initiated the request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequester() {
+    public function getRequester()
+    {
         return $this->requester;
     }
 
@@ -395,7 +420,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $requester
      * @return $this
      */
-    public function setRequester($requester) {
+    public function setRequester($requester)
+    {
         $this->requester = $requester;
         return $this;
     }
@@ -404,7 +430,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * Who is intended to fulfill the request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSupplier() {
+    public function getSupplier()
+    {
         return $this->supplier;
     }
 
@@ -413,7 +440,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $supplier
      * @return $this
      */
-    public function addSupplier($supplier) {
+    public function addSupplier($supplier)
+    {
         $this->supplier[] = $supplier;
         return $this;
     }
@@ -422,7 +450,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * The reason why the supply item was requested.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getReasonCode() {
+    public function getReasonCode()
+    {
         return $this->reasonCode;
     }
 
@@ -431,7 +460,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reasonCode
      * @return $this
      */
-    public function addReasonCode($reasonCode) {
+    public function addReasonCode($reasonCode)
+    {
         $this->reasonCode[] = $reasonCode;
         return $this;
     }
@@ -440,7 +470,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * The reason why the supply item was requested.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReasonReference() {
+    public function getReasonReference()
+    {
         return $this->reasonReference;
     }
 
@@ -449,7 +480,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reasonReference
      * @return $this
      */
-    public function addReasonReference($reasonReference) {
+    public function addReasonReference($reasonReference)
+    {
         $this->reasonReference[] = $reasonReference;
         return $this;
     }
@@ -458,7 +490,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * Where the supply is expected to come from.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDeliverFrom() {
+    public function getDeliverFrom()
+    {
         return $this->deliverFrom;
     }
 
@@ -467,7 +500,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $deliverFrom
      * @return $this
      */
-    public function setDeliverFrom($deliverFrom) {
+    public function setDeliverFrom($deliverFrom)
+    {
         $this->deliverFrom = $deliverFrom;
         return $this;
     }
@@ -476,7 +510,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * Where the supply is destined to go.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDeliverTo() {
+    public function getDeliverTo()
+    {
         return $this->deliverTo;
     }
 
@@ -485,7 +520,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $deliverTo
      * @return $this
      */
-    public function setDeliverTo($deliverTo) {
+    public function setDeliverTo($deliverTo)
+    {
         $this->deliverTo = $deliverTo;
         return $this;
     }
@@ -493,18 +529,20 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -531,7 +569,7 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['parameter'])) {
                 if (is_array($data['parameter'])) {
-                    foreach($data['parameter'] as $d) {
+                    foreach ($data['parameter'] as $d) {
                         $this->addParameter($d);
                     }
                 } else {
@@ -555,7 +593,7 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['supplier'])) {
                 if (is_array($data['supplier'])) {
-                    foreach($data['supplier'] as $d) {
+                    foreach ($data['supplier'] as $d) {
                         $this->addSupplier($d);
                     }
                 } else {
@@ -564,7 +602,7 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['reasonCode'])) {
                 if (is_array($data['reasonCode'])) {
-                    foreach($data['reasonCode'] as $d) {
+                    foreach ($data['reasonCode'] as $d) {
                         $this->addReasonCode($d);
                     }
                 } else {
@@ -573,7 +611,7 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['reasonReference'])) {
                 if (is_array($data['reasonReference'])) {
-                    foreach($data['reasonReference'] as $d) {
+                    foreach ($data['reasonReference'] as $d) {
                         $this->addReasonReference($d);
                     }
                 } else {
@@ -595,59 +633,87 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->priority)) $json['priority'] = $this->priority;
-        if (isset($this->itemCodeableConcept)) $json['itemCodeableConcept'] = $this->itemCodeableConcept;
-        if (isset($this->itemReference)) $json['itemReference'] = $this->itemReference;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->priority)) {
+            $json['priority'] = $this->priority;
+        }
+        if (isset($this->itemCodeableConcept)) {
+            $json['itemCodeableConcept'] = $this->itemCodeableConcept;
+        }
+        if (isset($this->itemReference)) {
+            $json['itemReference'] = $this->itemReference;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
         if (0 < count($this->parameter)) {
             $json['parameter'] = [];
-            foreach($this->parameter as $parameter) {
+            foreach ($this->parameter as $parameter) {
                 $json['parameter'][] = $parameter;
             }
         }
-        if (isset($this->occurrenceDateTime)) $json['occurrenceDateTime'] = $this->occurrenceDateTime;
-        if (isset($this->occurrencePeriod)) $json['occurrencePeriod'] = $this->occurrencePeriod;
-        if (isset($this->occurrenceTiming)) $json['occurrenceTiming'] = $this->occurrenceTiming;
-        if (isset($this->authoredOn)) $json['authoredOn'] = $this->authoredOn;
-        if (isset($this->requester)) $json['requester'] = $this->requester;
+        if (isset($this->occurrenceDateTime)) {
+            $json['occurrenceDateTime'] = $this->occurrenceDateTime;
+        }
+        if (isset($this->occurrencePeriod)) {
+            $json['occurrencePeriod'] = $this->occurrencePeriod;
+        }
+        if (isset($this->occurrenceTiming)) {
+            $json['occurrenceTiming'] = $this->occurrenceTiming;
+        }
+        if (isset($this->authoredOn)) {
+            $json['authoredOn'] = $this->authoredOn;
+        }
+        if (isset($this->requester)) {
+            $json['requester'] = $this->requester;
+        }
         if (0 < count($this->supplier)) {
             $json['supplier'] = [];
-            foreach($this->supplier as $supplier) {
+            foreach ($this->supplier as $supplier) {
                 $json['supplier'][] = $supplier;
             }
         }
         if (0 < count($this->reasonCode)) {
             $json['reasonCode'] = [];
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $json['reasonCode'][] = $reasonCode;
             }
         }
         if (0 < count($this->reasonReference)) {
             $json['reasonReference'] = [];
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $json['reasonReference'][] = $reasonReference;
             }
         }
-        if (isset($this->deliverFrom)) $json['deliverFrom'] = $this->deliverFrom;
-        if (isset($this->deliverTo)) $json['deliverTo'] = $this->deliverTo;
+        if (isset($this->deliverFrom)) {
+            $json['deliverFrom'] = $this->deliverFrom;
+        }
+        if (isset($this->deliverTo)) {
+            $json['deliverTo'] = $this->deliverTo;
+        }
         return $json;
     }
 
@@ -656,50 +722,79 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SupplyRequest xmlns="http://hl7.org/fhir"></SupplyRequest>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SupplyRequest xmlns="http://hl7.org/fhir"></SupplyRequest>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->priority)) $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
-        if (isset($this->itemCodeableConcept)) $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));
-        if (isset($this->itemReference)) $this->itemReference->xmlSerialize(true, $sxe->addChild('itemReference'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->priority)) {
+            $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        }
+        if (isset($this->itemCodeableConcept)) {
+            $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));
+        }
+        if (isset($this->itemReference)) {
+            $this->itemReference->xmlSerialize(true, $sxe->addChild('itemReference'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
         if (0 < count($this->parameter)) {
-            foreach($this->parameter as $parameter) {
+            foreach ($this->parameter as $parameter) {
                 $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
             }
         }
-        if (isset($this->occurrenceDateTime)) $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
-        if (isset($this->occurrencePeriod)) $this->occurrencePeriod->xmlSerialize(true, $sxe->addChild('occurrencePeriod'));
-        if (isset($this->occurrenceTiming)) $this->occurrenceTiming->xmlSerialize(true, $sxe->addChild('occurrenceTiming'));
-        if (isset($this->authoredOn)) $this->authoredOn->xmlSerialize(true, $sxe->addChild('authoredOn'));
-        if (isset($this->requester)) $this->requester->xmlSerialize(true, $sxe->addChild('requester'));
+        if (isset($this->occurrenceDateTime)) {
+            $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
+        }
+        if (isset($this->occurrencePeriod)) {
+            $this->occurrencePeriod->xmlSerialize(true, $sxe->addChild('occurrencePeriod'));
+        }
+        if (isset($this->occurrenceTiming)) {
+            $this->occurrenceTiming->xmlSerialize(true, $sxe->addChild('occurrenceTiming'));
+        }
+        if (isset($this->authoredOn)) {
+            $this->authoredOn->xmlSerialize(true, $sxe->addChild('authoredOn'));
+        }
+        if (isset($this->requester)) {
+            $this->requester->xmlSerialize(true, $sxe->addChild('requester'));
+        }
         if (0 < count($this->supplier)) {
-            foreach($this->supplier as $supplier) {
+            foreach ($this->supplier as $supplier) {
                 $supplier->xmlSerialize(true, $sxe->addChild('supplier'));
             }
         }
         if (0 < count($this->reasonCode)) {
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
             }
         }
         if (0 < count($this->reasonReference)) {
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
             }
         }
-        if (isset($this->deliverFrom)) $this->deliverFrom->xmlSerialize(true, $sxe->addChild('deliverFrom'));
-        if (isset($this->deliverTo)) $this->deliverTo->xmlSerialize(true, $sxe->addChild('deliverTo'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->deliverFrom)) {
+            $this->deliverFrom->xmlSerialize(true, $sxe->addChild('deliverFrom'));
+        }
+        if (isset($this->deliverTo)) {
+            $this->deliverTo->xmlSerialize(true, $sxe->addChild('deliverTo'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -94,7 +94,8 @@ class FHIRClinicalImpressionFinding extends FHIRBackboneElement implements \Json
      * Specific text or code for finding or diagnosis, which may include ruled-out or resolved conditions.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getItemCodeableConcept() {
+    public function getItemCodeableConcept()
+    {
         return $this->itemCodeableConcept;
     }
 
@@ -103,7 +104,8 @@ class FHIRClinicalImpressionFinding extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $itemCodeableConcept
      * @return $this
      */
-    public function setItemCodeableConcept($itemCodeableConcept) {
+    public function setItemCodeableConcept($itemCodeableConcept)
+    {
         $this->itemCodeableConcept = $itemCodeableConcept;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRClinicalImpressionFinding extends FHIRBackboneElement implements \Json
      * Specific reference for finding or diagnosis, which may include ruled-out or resolved conditions.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getItemReference() {
+    public function getItemReference()
+    {
         return $this->itemReference;
     }
 
@@ -121,7 +124,8 @@ class FHIRClinicalImpressionFinding extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $itemReference
      * @return $this
      */
-    public function setItemReference($itemReference) {
+    public function setItemReference($itemReference)
+    {
         $this->itemReference = $itemReference;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRClinicalImpressionFinding extends FHIRBackboneElement implements \Json
      * Which investigations support finding or diagnosis.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getBasis() {
+    public function getBasis()
+    {
         return $this->basis;
     }
 
@@ -139,7 +144,8 @@ class FHIRClinicalImpressionFinding extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $basis
      * @return $this
      */
-    public function setBasis($basis) {
+    public function setBasis($basis)
+    {
         $this->basis = $basis;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRClinicalImpressionFinding extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['itemCodeableConcept'])) {
                 $this->setItemCodeableConcept($data['itemCodeableConcept']);
@@ -174,18 +182,26 @@ class FHIRClinicalImpressionFinding extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->itemCodeableConcept)) $json['itemCodeableConcept'] = $this->itemCodeableConcept;
-        if (isset($this->itemReference)) $json['itemReference'] = $this->itemReference;
-        if (isset($this->basis)) $json['basis'] = $this->basis;
+        if (isset($this->itemCodeableConcept)) {
+            $json['itemCodeableConcept'] = $this->itemCodeableConcept;
+        }
+        if (isset($this->itemReference)) {
+            $json['itemReference'] = $this->itemReference;
+        }
+        if (isset($this->basis)) {
+            $json['basis'] = $this->basis;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRClinicalImpressionFinding extends FHIRBackboneElement implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClinicalImpressionFinding xmlns="http://hl7.org/fhir"></ClinicalImpressionFinding>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClinicalImpressionFinding xmlns="http://hl7.org/fhir"></ClinicalImpressionFinding>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->itemCodeableConcept)) $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));
-        if (isset($this->itemReference)) $this->itemReference->xmlSerialize(true, $sxe->addChild('itemReference'));
-        if (isset($this->basis)) $this->basis->xmlSerialize(true, $sxe->addChild('basis'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->itemCodeableConcept)) {
+            $this->itemCodeableConcept->xmlSerialize(true, $sxe->addChild('itemCodeableConcept'));
+        }
+        if (isset($this->itemReference)) {
+            $this->itemReference->xmlSerialize(true, $sxe->addChild('itemReference'));
+        }
+        if (isset($this->basis)) {
+            $this->basis->xmlSerialize(true, $sxe->addChild('basis'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

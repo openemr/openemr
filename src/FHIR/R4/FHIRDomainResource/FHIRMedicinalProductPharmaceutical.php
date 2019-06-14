@@ -119,7 +119,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * An identifier for the pharmaceutical medicinal product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -128,7 +129,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -137,7 +139,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * The administrable dose form, after necessary reconstitution.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAdministrableDoseForm() {
+    public function getAdministrableDoseForm()
+    {
         return $this->administrableDoseForm;
     }
 
@@ -146,7 +149,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $administrableDoseForm
      * @return $this
      */
-    public function setAdministrableDoseForm($administrableDoseForm) {
+    public function setAdministrableDoseForm($administrableDoseForm)
+    {
         $this->administrableDoseForm = $administrableDoseForm;
         return $this;
     }
@@ -155,7 +159,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getUnitOfPresentation() {
+    public function getUnitOfPresentation()
+    {
         return $this->unitOfPresentation;
     }
 
@@ -164,7 +169,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $unitOfPresentation
      * @return $this
      */
-    public function setUnitOfPresentation($unitOfPresentation) {
+    public function setUnitOfPresentation($unitOfPresentation)
+    {
         $this->unitOfPresentation = $unitOfPresentation;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * Ingredient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getIngredient() {
+    public function getIngredient()
+    {
         return $this->ingredient;
     }
 
@@ -182,7 +189,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $ingredient
      * @return $this
      */
-    public function addIngredient($ingredient) {
+    public function addIngredient($ingredient)
+    {
         $this->ingredient[] = $ingredient;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * Accompanying device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getDevice() {
+    public function getDevice()
+    {
         return $this->device;
     }
 
@@ -200,7 +209,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $device
      * @return $this
      */
-    public function addDevice($device) {
+    public function addDevice($device)
+    {
         $this->device[] = $device;
         return $this;
     }
@@ -209,7 +219,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * Characteristics e.g. a products onset of action.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPharmaceutical\FHIRMedicinalProductPharmaceuticalCharacteristics[]
      */
-    public function getCharacteristics() {
+    public function getCharacteristics()
+    {
         return $this->characteristics;
     }
 
@@ -218,7 +229,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPharmaceutical\FHIRMedicinalProductPharmaceuticalCharacteristics $characteristics
      * @return $this
      */
-    public function addCharacteristics($characteristics) {
+    public function addCharacteristics($characteristics)
+    {
         $this->characteristics[] = $characteristics;
         return $this;
     }
@@ -227,7 +239,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * The path by which the pharmaceutical product is taken into or makes contact with the body.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPharmaceutical\FHIRMedicinalProductPharmaceuticalRouteOfAdministration[]
      */
-    public function getRouteOfAdministration() {
+    public function getRouteOfAdministration()
+    {
         return $this->routeOfAdministration;
     }
 
@@ -236,7 +249,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPharmaceutical\FHIRMedicinalProductPharmaceuticalRouteOfAdministration $routeOfAdministration
      * @return $this
      */
-    public function addRouteOfAdministration($routeOfAdministration) {
+    public function addRouteOfAdministration($routeOfAdministration)
+    {
         $this->routeOfAdministration[] = $routeOfAdministration;
         return $this;
     }
@@ -244,18 +258,20 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -270,7 +286,7 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
             }
             if (isset($data['ingredient'])) {
                 if (is_array($data['ingredient'])) {
-                    foreach($data['ingredient'] as $d) {
+                    foreach ($data['ingredient'] as $d) {
                         $this->addIngredient($d);
                     }
                 } else {
@@ -279,7 +295,7 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
             }
             if (isset($data['device'])) {
                 if (is_array($data['device'])) {
-                    foreach($data['device'] as $d) {
+                    foreach ($data['device'] as $d) {
                         $this->addDevice($d);
                     }
                 } else {
@@ -288,7 +304,7 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
             }
             if (isset($data['characteristics'])) {
                 if (is_array($data['characteristics'])) {
-                    foreach($data['characteristics'] as $d) {
+                    foreach ($data['characteristics'] as $d) {
                         $this->addCharacteristics($d);
                     }
                 } else {
@@ -297,7 +313,7 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
             }
             if (isset($data['routeOfAdministration'])) {
                 if (is_array($data['routeOfAdministration'])) {
-                    foreach($data['routeOfAdministration'] as $d) {
+                    foreach ($data['routeOfAdministration'] as $d) {
                         $this->addRouteOfAdministration($d);
                     }
                 } else {
@@ -313,45 +329,51 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->administrableDoseForm)) $json['administrableDoseForm'] = $this->administrableDoseForm;
-        if (isset($this->unitOfPresentation)) $json['unitOfPresentation'] = $this->unitOfPresentation;
+        if (isset($this->administrableDoseForm)) {
+            $json['administrableDoseForm'] = $this->administrableDoseForm;
+        }
+        if (isset($this->unitOfPresentation)) {
+            $json['unitOfPresentation'] = $this->unitOfPresentation;
+        }
         if (0 < count($this->ingredient)) {
             $json['ingredient'] = [];
-            foreach($this->ingredient as $ingredient) {
+            foreach ($this->ingredient as $ingredient) {
                 $json['ingredient'][] = $ingredient;
             }
         }
         if (0 < count($this->device)) {
             $json['device'] = [];
-            foreach($this->device as $device) {
+            foreach ($this->device as $device) {
                 $json['device'][] = $device;
             }
         }
         if (0 < count($this->characteristics)) {
             $json['characteristics'] = [];
-            foreach($this->characteristics as $characteristics) {
+            foreach ($this->characteristics as $characteristics) {
                 $json['characteristics'][] = $characteristics;
             }
         }
         if (0 < count($this->routeOfAdministration)) {
             $json['routeOfAdministration'] = [];
-            foreach($this->routeOfAdministration as $routeOfAdministration) {
+            foreach ($this->routeOfAdministration as $routeOfAdministration) {
                 $json['routeOfAdministration'][] = $routeOfAdministration;
             }
         }
@@ -363,39 +385,46 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceutical xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceutical>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceutical xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceutical>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->administrableDoseForm)) $this->administrableDoseForm->xmlSerialize(true, $sxe->addChild('administrableDoseForm'));
-        if (isset($this->unitOfPresentation)) $this->unitOfPresentation->xmlSerialize(true, $sxe->addChild('unitOfPresentation'));
+        if (isset($this->administrableDoseForm)) {
+            $this->administrableDoseForm->xmlSerialize(true, $sxe->addChild('administrableDoseForm'));
+        }
+        if (isset($this->unitOfPresentation)) {
+            $this->unitOfPresentation->xmlSerialize(true, $sxe->addChild('unitOfPresentation'));
+        }
         if (0 < count($this->ingredient)) {
-            foreach($this->ingredient as $ingredient) {
+            foreach ($this->ingredient as $ingredient) {
                 $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
             }
         }
         if (0 < count($this->device)) {
-            foreach($this->device as $device) {
+            foreach ($this->device as $device) {
                 $device->xmlSerialize(true, $sxe->addChild('device'));
             }
         }
         if (0 < count($this->characteristics)) {
-            foreach($this->characteristics as $characteristics) {
+            foreach ($this->characteristics as $characteristics) {
                 $characteristics->xmlSerialize(true, $sxe->addChild('characteristics'));
             }
         }
         if (0 < count($this->routeOfAdministration)) {
-            foreach($this->routeOfAdministration as $routeOfAdministration) {
+            foreach ($this->routeOfAdministration as $routeOfAdministration) {
                 $routeOfAdministration->xmlSerialize(true, $sxe->addChild('routeOfAdministration'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

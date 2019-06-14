@@ -125,7 +125,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * Business identifier for this medication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -134,7 +135,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -143,7 +145,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * A code (or set of codes) that specify this medication, or a textual description if no code is available. Usage note: This could be a standard medication code such as a code from RxNorm, SNOMED CT, IDMP etc. It could also be a national or local formulary code, optionally with translations to other code systems.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -152,7 +155,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -161,7 +165,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * A code to indicate if the medication is in active use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMedicationStatusCodes
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -170,7 +175,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMedicationStatusCodes $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -179,7 +185,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * Describes the details of the manufacturer of the medication product.  This is not intended to represent the distributor of a medication product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getManufacturer() {
+    public function getManufacturer()
+    {
         return $this->manufacturer;
     }
 
@@ -188,7 +195,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $manufacturer
      * @return $this
      */
-    public function setManufacturer($manufacturer) {
+    public function setManufacturer($manufacturer)
+    {
         $this->manufacturer = $manufacturer;
         return $this;
     }
@@ -197,7 +205,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * Describes the form of the item.  Powder; tablets; capsule.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getForm() {
+    public function getForm()
+    {
         return $this->form;
     }
 
@@ -206,7 +215,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $form
      * @return $this
      */
-    public function setForm($form) {
+    public function setForm($form)
+    {
         $this->form = $form;
         return $this;
     }
@@ -215,7 +225,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * Specific amount of the drug in the packaged product.  For example, when specifying a product that has the same strength (For example, Insulin glargine 100 unit per mL solution for injection), this attribute provides additional clarification of the package amount (For example, 3 mL, 10mL, etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -224,7 +235,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -233,7 +245,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * Identifies a particular constituent of interest in the product.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationIngredient[]
      */
-    public function getIngredient() {
+    public function getIngredient()
+    {
         return $this->ingredient;
     }
 
@@ -242,7 +255,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationIngredient $ingredient
      * @return $this
      */
-    public function addIngredient($ingredient) {
+    public function addIngredient($ingredient)
+    {
         $this->ingredient[] = $ingredient;
         return $this;
     }
@@ -251,7 +265,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * Information that only applies to packages (not products).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch
      */
-    public function getBatch() {
+    public function getBatch()
+    {
         return $this->batch;
     }
 
@@ -260,7 +275,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch $batch
      * @return $this
      */
-    public function setBatch($batch) {
+    public function setBatch($batch)
+    {
         $this->batch = $batch;
         return $this;
     }
@@ -268,18 +284,20 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -303,7 +321,7 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['ingredient'])) {
                 if (is_array($data['ingredient'])) {
-                    foreach($data['ingredient'] as $d) {
+                    foreach ($data['ingredient'] as $d) {
                         $this->addIngredient($d);
                     }
                 } else {
@@ -322,34 +340,48 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->manufacturer)) $json['manufacturer'] = $this->manufacturer;
-        if (isset($this->form)) $json['form'] = $this->form;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->manufacturer)) {
+            $json['manufacturer'] = $this->manufacturer;
+        }
+        if (isset($this->form)) {
+            $json['form'] = $this->form;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
         if (0 < count($this->ingredient)) {
             $json['ingredient'] = [];
-            foreach($this->ingredient as $ingredient) {
+            foreach ($this->ingredient as $ingredient) {
                 $json['ingredient'][] = $ingredient;
             }
         }
-        if (isset($this->batch)) $json['batch'] = $this->batch;
+        if (isset($this->batch)) {
+            $json['batch'] = $this->batch;
+        }
         return $json;
     }
 
@@ -358,28 +390,43 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Medication xmlns="http://hl7.org/fhir"></Medication>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Medication xmlns="http://hl7.org/fhir"></Medication>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->manufacturer)) $this->manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
-        if (isset($this->form)) $this->form->xmlSerialize(true, $sxe->addChild('form'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->manufacturer)) {
+            $this->manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
+        }
+        if (isset($this->form)) {
+            $this->form->xmlSerialize(true, $sxe->addChild('form'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
         if (0 < count($this->ingredient)) {
-            foreach($this->ingredient as $ingredient) {
+            foreach ($this->ingredient as $ingredient) {
                 $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
             }
         }
-        if (isset($this->batch)) $this->batch->xmlSerialize(true, $sxe->addChild('batch'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->batch)) {
+            $this->batch->xmlSerialize(true, $sxe->addChild('batch'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -94,7 +94,8 @@ class FHIRSubstanceNucleicAcidSugar extends FHIRBackboneElement implements \Json
      * The Substance ID of the sugar or sugar-like component that make up the nucleotide.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -103,7 +104,8 @@ class FHIRSubstanceNucleicAcidSugar extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRSubstanceNucleicAcidSugar extends FHIRBackboneElement implements \Json
      * The name of the sugar or sugar-like component that make up the nucleotide.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -121,7 +124,8 @@ class FHIRSubstanceNucleicAcidSugar extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRSubstanceNucleicAcidSugar extends FHIRBackboneElement implements \Json
      * The residues that contain a given sugar will be captured. The order of given residues will be captured in the 5‘-3‘direction consistent with the base sequences listed above.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getResidueSite() {
+    public function getResidueSite()
+    {
         return $this->residueSite;
     }
 
@@ -139,7 +144,8 @@ class FHIRSubstanceNucleicAcidSugar extends FHIRBackboneElement implements \Json
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $residueSite
      * @return $this
      */
-    public function setResidueSite($residueSite) {
+    public function setResidueSite($residueSite)
+    {
         $this->residueSite = $residueSite;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRSubstanceNucleicAcidSugar extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 $this->setIdentifier($data['identifier']);
@@ -174,18 +182,26 @@ class FHIRSubstanceNucleicAcidSugar extends FHIRBackboneElement implements \Json
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->residueSite)) $json['residueSite'] = $this->residueSite;
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->residueSite)) {
+            $json['residueSite'] = $this->residueSite;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRSubstanceNucleicAcidSugar extends FHIRBackboneElement implements \Json
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceNucleicAcidSugar xmlns="http://hl7.org/fhir"></SubstanceNucleicAcidSugar>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceNucleicAcidSugar xmlns="http://hl7.org/fhir"></SubstanceNucleicAcidSugar>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->residueSite)) $this->residueSite->xmlSerialize(true, $sxe->addChild('residueSite'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->residueSite)) {
+            $this->residueSite->xmlSerialize(true, $sxe->addChild('residueSite'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

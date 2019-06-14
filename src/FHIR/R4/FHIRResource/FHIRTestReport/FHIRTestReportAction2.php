@@ -82,7 +82,8 @@ class FHIRTestReportAction2 extends FHIRBackboneElement implements \JsonSerializ
      * An operation would involve a REST request to a server.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTestReport\FHIRTestReportOperation
      */
-    public function getOperation() {
+    public function getOperation()
+    {
         return $this->operation;
     }
 
@@ -91,7 +92,8 @@ class FHIRTestReportAction2 extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTestReport\FHIRTestReportOperation $operation
      * @return $this
      */
-    public function setOperation($operation) {
+    public function setOperation($operation)
+    {
         $this->operation = $operation;
         return $this;
     }
@@ -99,14 +101,16 @@ class FHIRTestReportAction2 extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['operation'])) {
                 $this->setOperation($data['operation']);
@@ -120,16 +124,20 @@ class FHIRTestReportAction2 extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->operation)) $json['operation'] = $this->operation;
+        if (isset($this->operation)) {
+            $json['operation'] = $this->operation;
+        }
         return $json;
     }
 
@@ -138,13 +146,18 @@ class FHIRTestReportAction2 extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestReportAction2 xmlns="http://hl7.org/fhir"></TestReportAction2>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestReportAction2 xmlns="http://hl7.org/fhir"></TestReportAction2>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->operation)) $this->operation->xmlSerialize(true, $sxe->addChild('operation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->operation)) {
+            $this->operation->xmlSerialize(true, $sxe->addChild('operation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

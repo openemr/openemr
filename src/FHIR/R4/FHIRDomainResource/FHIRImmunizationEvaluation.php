@@ -163,7 +163,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * A unique identifier assigned to this immunization evaluation record.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -172,7 +173,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -181,7 +183,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * Indicates the current status of the evaluation of the vaccination administration event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRImmunizationEvaluationStatusCodes
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -190,7 +193,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRImmunizationEvaluationStatusCodes $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -199,7 +203,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * The individual for whom the evaluation is being done.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -208,7 +213,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -217,7 +223,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * The date the evaluation of the vaccine administration event was performed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -226,7 +233,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -235,7 +243,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * Indicates the authority who published the protocol (e.g. ACIP).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAuthority() {
+    public function getAuthority()
+    {
         return $this->authority;
     }
 
@@ -244,7 +253,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $authority
      * @return $this
      */
-    public function setAuthority($authority) {
+    public function setAuthority($authority)
+    {
         $this->authority = $authority;
         return $this;
     }
@@ -253,7 +263,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * The vaccine preventable disease the dose is being evaluated against.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getTargetDisease() {
+    public function getTargetDisease()
+    {
         return $this->targetDisease;
     }
 
@@ -262,7 +273,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $targetDisease
      * @return $this
      */
-    public function setTargetDisease($targetDisease) {
+    public function setTargetDisease($targetDisease)
+    {
         $this->targetDisease = $targetDisease;
         return $this;
     }
@@ -271,7 +283,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * The vaccine administration event being evaluated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getImmunizationEvent() {
+    public function getImmunizationEvent()
+    {
         return $this->immunizationEvent;
     }
 
@@ -280,7 +293,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $immunizationEvent
      * @return $this
      */
-    public function setImmunizationEvent($immunizationEvent) {
+    public function setImmunizationEvent($immunizationEvent)
+    {
         $this->immunizationEvent = $immunizationEvent;
         return $this;
     }
@@ -289,7 +303,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * Indicates if the dose is valid or not valid with respect to the published recommendations.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDoseStatus() {
+    public function getDoseStatus()
+    {
         return $this->doseStatus;
     }
 
@@ -298,7 +313,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $doseStatus
      * @return $this
      */
-    public function setDoseStatus($doseStatus) {
+    public function setDoseStatus($doseStatus)
+    {
         $this->doseStatus = $doseStatus;
         return $this;
     }
@@ -307,7 +323,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * Provides an explanation as to why the vaccine administration event is valid or not relative to the published recommendations.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getDoseStatusReason() {
+    public function getDoseStatusReason()
+    {
         return $this->doseStatusReason;
     }
 
@@ -316,7 +333,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $doseStatusReason
      * @return $this
      */
-    public function addDoseStatusReason($doseStatusReason) {
+    public function addDoseStatusReason($doseStatusReason)
+    {
         $this->doseStatusReason[] = $doseStatusReason;
         return $this;
     }
@@ -325,7 +343,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * Additional information about the evaluation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -334,7 +353,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -343,7 +363,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * One possible path to achieve presumed immunity against a disease - within the context of an authority.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSeries() {
+    public function getSeries()
+    {
         return $this->series;
     }
 
@@ -352,7 +373,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $series
      * @return $this
      */
-    public function setSeries($series) {
+    public function setSeries($series)
+    {
         $this->series = $series;
         return $this;
     }
@@ -360,7 +382,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getDoseNumberPositiveInt() {
+    public function getDoseNumberPositiveInt()
+    {
         return $this->doseNumberPositiveInt;
     }
 
@@ -368,7 +391,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $doseNumberPositiveInt
      * @return $this
      */
-    public function setDoseNumberPositiveInt($doseNumberPositiveInt) {
+    public function setDoseNumberPositiveInt($doseNumberPositiveInt)
+    {
         $this->doseNumberPositiveInt = $doseNumberPositiveInt;
         return $this;
     }
@@ -376,7 +400,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDoseNumberString() {
+    public function getDoseNumberString()
+    {
         return $this->doseNumberString;
     }
 
@@ -384,7 +409,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $doseNumberString
      * @return $this
      */
-    public function setDoseNumberString($doseNumberString) {
+    public function setDoseNumberString($doseNumberString)
+    {
         $this->doseNumberString = $doseNumberString;
         return $this;
     }
@@ -392,7 +418,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSeriesDosesPositiveInt() {
+    public function getSeriesDosesPositiveInt()
+    {
         return $this->seriesDosesPositiveInt;
     }
 
@@ -400,7 +427,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $seriesDosesPositiveInt
      * @return $this
      */
-    public function setSeriesDosesPositiveInt($seriesDosesPositiveInt) {
+    public function setSeriesDosesPositiveInt($seriesDosesPositiveInt)
+    {
         $this->seriesDosesPositiveInt = $seriesDosesPositiveInt;
         return $this;
     }
@@ -408,7 +436,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSeriesDosesString() {
+    public function getSeriesDosesString()
+    {
         return $this->seriesDosesString;
     }
 
@@ -416,7 +445,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $seriesDosesString
      * @return $this
      */
-    public function setSeriesDosesString($seriesDosesString) {
+    public function setSeriesDosesString($seriesDosesString)
+    {
         $this->seriesDosesString = $seriesDosesString;
         return $this;
     }
@@ -424,18 +454,20 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -465,7 +497,7 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
             }
             if (isset($data['doseStatusReason'])) {
                 if (is_array($data['doseStatusReason'])) {
-                    foreach($data['doseStatusReason'] as $d) {
+                    foreach ($data['doseStatusReason'] as $d) {
                         $this->addDoseStatusReason($d);
                     }
                 } else {
@@ -499,41 +531,69 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->authority)) $json['authority'] = $this->authority;
-        if (isset($this->targetDisease)) $json['targetDisease'] = $this->targetDisease;
-        if (isset($this->immunizationEvent)) $json['immunizationEvent'] = $this->immunizationEvent;
-        if (isset($this->doseStatus)) $json['doseStatus'] = $this->doseStatus;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->authority)) {
+            $json['authority'] = $this->authority;
+        }
+        if (isset($this->targetDisease)) {
+            $json['targetDisease'] = $this->targetDisease;
+        }
+        if (isset($this->immunizationEvent)) {
+            $json['immunizationEvent'] = $this->immunizationEvent;
+        }
+        if (isset($this->doseStatus)) {
+            $json['doseStatus'] = $this->doseStatus;
+        }
         if (0 < count($this->doseStatusReason)) {
             $json['doseStatusReason'] = [];
-            foreach($this->doseStatusReason as $doseStatusReason) {
+            foreach ($this->doseStatusReason as $doseStatusReason) {
                 $json['doseStatusReason'][] = $doseStatusReason;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->series)) $json['series'] = $this->series;
-        if (isset($this->doseNumberPositiveInt)) $json['doseNumberPositiveInt'] = $this->doseNumberPositiveInt;
-        if (isset($this->doseNumberString)) $json['doseNumberString'] = $this->doseNumberString;
-        if (isset($this->seriesDosesPositiveInt)) $json['seriesDosesPositiveInt'] = $this->seriesDosesPositiveInt;
-        if (isset($this->seriesDosesString)) $json['seriesDosesString'] = $this->seriesDosesString;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->series)) {
+            $json['series'] = $this->series;
+        }
+        if (isset($this->doseNumberPositiveInt)) {
+            $json['doseNumberPositiveInt'] = $this->doseNumberPositiveInt;
+        }
+        if (isset($this->doseNumberString)) {
+            $json['doseNumberString'] = $this->doseNumberString;
+        }
+        if (isset($this->seriesDosesPositiveInt)) {
+            $json['seriesDosesPositiveInt'] = $this->seriesDosesPositiveInt;
+        }
+        if (isset($this->seriesDosesString)) {
+            $json['seriesDosesString'] = $this->seriesDosesString;
+        }
         return $json;
     }
 
@@ -542,35 +602,64 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImmunizationEvaluation xmlns="http://hl7.org/fhir"></ImmunizationEvaluation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImmunizationEvaluation xmlns="http://hl7.org/fhir"></ImmunizationEvaluation>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->authority)) $this->authority->xmlSerialize(true, $sxe->addChild('authority'));
-        if (isset($this->targetDisease)) $this->targetDisease->xmlSerialize(true, $sxe->addChild('targetDisease'));
-        if (isset($this->immunizationEvent)) $this->immunizationEvent->xmlSerialize(true, $sxe->addChild('immunizationEvent'));
-        if (isset($this->doseStatus)) $this->doseStatus->xmlSerialize(true, $sxe->addChild('doseStatus'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->authority)) {
+            $this->authority->xmlSerialize(true, $sxe->addChild('authority'));
+        }
+        if (isset($this->targetDisease)) {
+            $this->targetDisease->xmlSerialize(true, $sxe->addChild('targetDisease'));
+        }
+        if (isset($this->immunizationEvent)) {
+            $this->immunizationEvent->xmlSerialize(true, $sxe->addChild('immunizationEvent'));
+        }
+        if (isset($this->doseStatus)) {
+            $this->doseStatus->xmlSerialize(true, $sxe->addChild('doseStatus'));
+        }
         if (0 < count($this->doseStatusReason)) {
-            foreach($this->doseStatusReason as $doseStatusReason) {
+            foreach ($this->doseStatusReason as $doseStatusReason) {
                 $doseStatusReason->xmlSerialize(true, $sxe->addChild('doseStatusReason'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->series)) $this->series->xmlSerialize(true, $sxe->addChild('series'));
-        if (isset($this->doseNumberPositiveInt)) $this->doseNumberPositiveInt->xmlSerialize(true, $sxe->addChild('doseNumberPositiveInt'));
-        if (isset($this->doseNumberString)) $this->doseNumberString->xmlSerialize(true, $sxe->addChild('doseNumberString'));
-        if (isset($this->seriesDosesPositiveInt)) $this->seriesDosesPositiveInt->xmlSerialize(true, $sxe->addChild('seriesDosesPositiveInt'));
-        if (isset($this->seriesDosesString)) $this->seriesDosesString->xmlSerialize(true, $sxe->addChild('seriesDosesString'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->series)) {
+            $this->series->xmlSerialize(true, $sxe->addChild('series'));
+        }
+        if (isset($this->doseNumberPositiveInt)) {
+            $this->doseNumberPositiveInt->xmlSerialize(true, $sxe->addChild('doseNumberPositiveInt'));
+        }
+        if (isset($this->doseNumberString)) {
+            $this->doseNumberString->xmlSerialize(true, $sxe->addChild('doseNumberString'));
+        }
+        if (isset($this->seriesDosesPositiveInt)) {
+            $this->seriesDosesPositiveInt->xmlSerialize(true, $sxe->addChild('seriesDosesPositiveInt'));
+        }
+        if (isset($this->seriesDosesString)) {
+            $this->seriesDosesString->xmlSerialize(true, $sxe->addChild('seriesDosesString'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

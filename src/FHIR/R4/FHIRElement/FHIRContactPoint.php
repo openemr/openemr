@@ -107,7 +107,8 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * Telecommunications form for contact point - what communications system is required to make use of the contact.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem
      */
-    public function getSystem() {
+    public function getSystem()
+    {
         return $this->system;
     }
 
@@ -116,7 +117,8 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem $system
      * @return $this
      */
-    public function setSystem($system) {
+    public function setSystem($system)
+    {
         $this->system = $system;
         return $this;
     }
@@ -125,7 +127,8 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * The actual contact point details, in a form that is meaningful to the designated communication system (i.e. phone number or email address).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -134,7 +137,8 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -143,7 +147,8 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * Identifies the purpose for the contact point.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse
      */
-    public function getUse() {
+    public function getUse()
+    {
         return $this->use;
     }
 
@@ -152,7 +157,8 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse $use
      * @return $this
      */
-    public function setUse($use) {
+    public function setUse($use)
+    {
         $this->use = $use;
         return $this;
     }
@@ -161,7 +167,8 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * Specifies a preferred order in which to use a set of contacts. ContactPoints with lower rank values are more preferred than those with higher rank values.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getRank() {
+    public function getRank()
+    {
         return $this->rank;
     }
 
@@ -170,7 +177,8 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $rank
      * @return $this
      */
-    public function setRank($rank) {
+    public function setRank($rank)
+    {
         $this->rank = $rank;
         return $this;
     }
@@ -179,7 +187,8 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * Time period when the contact point was/is in use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -188,7 +197,8 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -196,14 +206,16 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['system'])) {
                 $this->setSystem($data['system']);
@@ -229,20 +241,32 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->system)) $json['system'] = $this->system;
-        if (isset($this->value)) $json['value'] = $this->value;
-        if (isset($this->use)) $json['use'] = $this->use;
-        if (isset($this->rank)) $json['rank'] = $this->rank;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->system)) {
+            $json['system'] = $this->system;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
+        if (isset($this->use)) {
+            $json['use'] = $this->use;
+        }
+        if (isset($this->rank)) {
+            $json['rank'] = $this->rank;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         return $json;
     }
 
@@ -251,17 +275,30 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ContactPoint xmlns="http://hl7.org/fhir"></ContactPoint>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ContactPoint xmlns="http://hl7.org/fhir"></ContactPoint>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->system)) $this->system->xmlSerialize(true, $sxe->addChild('system'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if (isset($this->use)) $this->use->xmlSerialize(true, $sxe->addChild('use'));
-        if (isset($this->rank)) $this->rank->xmlSerialize(true, $sxe->addChild('rank'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->system)) {
+            $this->system->xmlSerialize(true, $sxe->addChild('system'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if (isset($this->use)) {
+            $this->use->xmlSerialize(true, $sxe->addChild('use'));
+        }
+        if (isset($this->rank)) {
+            $this->rank->xmlSerialize(true, $sxe->addChild('rank'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

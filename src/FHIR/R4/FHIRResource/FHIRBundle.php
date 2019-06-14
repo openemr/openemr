@@ -119,7 +119,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * A persistent identifier for the bundle that won't change as a bundle is copied from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -128,7 +129,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -137,7 +139,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * Indicates the purpose of this bundle - how it is intended to be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBundleType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -146,7 +149,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBundleType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -155,7 +159,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * The date/time that the bundle was assembled - i.e. when the resources were placed in the bundle.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getTimestamp() {
+    public function getTimestamp()
+    {
         return $this->timestamp;
     }
 
@@ -164,7 +169,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $timestamp
      * @return $this
      */
-    public function setTimestamp($timestamp) {
+    public function setTimestamp($timestamp)
+    {
         $this->timestamp = $timestamp;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * If a set of search matches, this is the total number of entries of type 'match' across all pages in the search.  It does not include search.mode = 'include' or 'outcome' entries and it does not provide a count of the number of entries in the Bundle.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getTotal() {
+    public function getTotal()
+    {
         return $this->total;
     }
 
@@ -182,7 +189,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $total
      * @return $this
      */
-    public function setTotal($total) {
+    public function setTotal($total)
+    {
         $this->total = $total;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * A series of links that provide context to this bundle.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink[]
      */
-    public function getLink() {
+    public function getLink()
+    {
         return $this->link;
     }
 
@@ -200,7 +209,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink $link
      * @return $this
      */
-    public function addLink($link) {
+    public function addLink($link)
+    {
         $this->link[] = $link;
         return $this;
     }
@@ -209,7 +219,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * An entry in a bundle resource - will either contain a resource or information about a resource (transactions and history only).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry[]
      */
-    public function getEntry() {
+    public function getEntry()
+    {
         return $this->entry;
     }
 
@@ -218,7 +229,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry $entry
      * @return $this
      */
-    public function addEntry($entry) {
+    public function addEntry($entry)
+    {
         $this->entry[] = $entry;
         return $this;
     }
@@ -227,7 +239,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * Digital Signature - base64 encoded. XML-DSig or a JWT.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature
      */
-    public function getSignature() {
+    public function getSignature()
+    {
         return $this->signature;
     }
 
@@ -236,7 +249,8 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature $signature
      * @return $this
      */
-    public function setSignature($signature) {
+    public function setSignature($signature)
+    {
         $this->signature = $signature;
         return $this;
     }
@@ -244,14 +258,16 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 $this->setIdentifier($data['identifier']);
@@ -267,7 +283,7 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
             }
             if (isset($data['link'])) {
                 if (is_array($data['link'])) {
-                    foreach($data['link'] as $d) {
+                    foreach ($data['link'] as $d) {
                         $this->addLink($d);
                     }
                 } else {
@@ -276,7 +292,7 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
             }
             if (isset($data['entry'])) {
                 if (is_array($data['entry'])) {
-                    foreach($data['entry'] as $d) {
+                    foreach ($data['entry'] as $d) {
                         $this->addEntry($d);
                     }
                 } else {
@@ -295,33 +311,45 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->timestamp)) $json['timestamp'] = $this->timestamp;
-        if (isset($this->total)) $json['total'] = $this->total;
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->timestamp)) {
+            $json['timestamp'] = $this->timestamp;
+        }
+        if (isset($this->total)) {
+            $json['total'] = $this->total;
+        }
         if (0 < count($this->link)) {
             $json['link'] = [];
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $json['link'][] = $link;
             }
         }
         if (0 < count($this->entry)) {
             $json['entry'] = [];
-            foreach($this->entry as $entry) {
+            foreach ($this->entry as $entry) {
                 $json['entry'][] = $entry;
             }
         }
-        if (isset($this->signature)) $json['signature'] = $this->signature;
+        if (isset($this->signature)) {
+            $json['signature'] = $this->signature;
+        }
         return $json;
     }
 
@@ -330,27 +358,40 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Bundle xmlns="http://hl7.org/fhir"></Bundle>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Bundle xmlns="http://hl7.org/fhir"></Bundle>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->timestamp)) $this->timestamp->xmlSerialize(true, $sxe->addChild('timestamp'));
-        if (isset($this->total)) $this->total->xmlSerialize(true, $sxe->addChild('total'));
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->timestamp)) {
+            $this->timestamp->xmlSerialize(true, $sxe->addChild('timestamp'));
+        }
+        if (isset($this->total)) {
+            $this->total->xmlSerialize(true, $sxe->addChild('total'));
+        }
         if (0 < count($this->link)) {
-            foreach($this->link as $link) {
+            foreach ($this->link as $link) {
                 $link->xmlSerialize(true, $sxe->addChild('link'));
             }
         }
         if (0 < count($this->entry)) {
-            foreach($this->entry as $entry) {
+            foreach ($this->entry as $entry) {
                 $entry->xmlSerialize(true, $sxe->addChild('entry'));
             }
         }
-        if (isset($this->signature)) $this->signature->xmlSerialize(true, $sxe->addChild('signature'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->signature)) {
+            $this->signature->xmlSerialize(true, $sxe->addChild('signature'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

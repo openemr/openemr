@@ -113,7 +113,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * The purpose of this identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifierUse
      */
-    public function getUse() {
+    public function getUse()
+    {
         return $this->use;
     }
 
@@ -122,7 +123,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifierUse $use
      * @return $this
      */
-    public function setUse($use) {
+    public function setUse($use)
+    {
         $this->use = $use;
         return $this;
     }
@@ -131,7 +133,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * A coded type for the identifier that can be used to determine which identifier to use for a specific purpose.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -140,7 +143,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -149,7 +153,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * Establishes the namespace for the value - that is, a URL that describes a set values that are unique.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getSystem() {
+    public function getSystem()
+    {
         return $this->system;
     }
 
@@ -158,7 +163,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $system
      * @return $this
      */
-    public function setSystem($system) {
+    public function setSystem($system)
+    {
         $this->system = $system;
         return $this;
     }
@@ -167,7 +173,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * The portion of the identifier typically relevant to the user and which is unique within the context of the system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -176,7 +183,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -185,7 +193,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * Time period during which identifier is/was valid for use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -194,7 +203,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -203,7 +213,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * Organization that issued/manages the identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAssigner() {
+    public function getAssigner()
+    {
         return $this->assigner;
     }
 
@@ -212,7 +223,8 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $assigner
      * @return $this
      */
-    public function setAssigner($assigner) {
+    public function setAssigner($assigner)
+    {
         $this->assigner = $assigner;
         return $this;
     }
@@ -220,14 +232,16 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['use'])) {
                 $this->setUse($data['use']);
@@ -256,21 +270,35 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->use)) $json['use'] = $this->use;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->system)) $json['system'] = $this->system;
-        if (isset($this->value)) $json['value'] = $this->value;
-        if (isset($this->period)) $json['period'] = $this->period;
-        if (isset($this->assigner)) $json['assigner'] = $this->assigner;
+        if (isset($this->use)) {
+            $json['use'] = $this->use;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->system)) {
+            $json['system'] = $this->system;
+        }
+        if (isset($this->value)) {
+            $json['value'] = $this->value;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
+        if (isset($this->assigner)) {
+            $json['assigner'] = $this->assigner;
+        }
         return $json;
     }
 
@@ -279,18 +307,33 @@ class FHIRIdentifier extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Identifier xmlns="http://hl7.org/fhir"></Identifier>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Identifier xmlns="http://hl7.org/fhir"></Identifier>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->use)) $this->use->xmlSerialize(true, $sxe->addChild('use'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->system)) $this->system->xmlSerialize(true, $sxe->addChild('system'));
-        if (isset($this->value)) $this->value->xmlSerialize(true, $sxe->addChild('value'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if (isset($this->assigner)) $this->assigner->xmlSerialize(true, $sxe->addChild('assigner'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->use)) {
+            $this->use->xmlSerialize(true, $sxe->addChild('use'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->system)) {
+            $this->system->xmlSerialize(true, $sxe->addChild('system'));
+        }
+        if (isset($this->value)) {
+            $this->value->xmlSerialize(true, $sxe->addChild('value'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if (isset($this->assigner)) {
+            $this->assigner->xmlSerialize(true, $sxe->addChild('assigner'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

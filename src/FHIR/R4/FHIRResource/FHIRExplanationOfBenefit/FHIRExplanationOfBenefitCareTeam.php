@@ -106,7 +106,8 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * A number to uniquely identify care team entries.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -115,7 +116,8 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * Member of the team who provided the product or service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getProvider() {
+    public function getProvider()
+    {
         return $this->provider;
     }
 
@@ -133,7 +136,8 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $provider
      * @return $this
      */
-    public function setProvider($provider) {
+    public function setProvider($provider)
+    {
         $this->provider = $provider;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * The party who is billing and/or responsible for the claimed products or services.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getResponsible() {
+    public function getResponsible()
+    {
         return $this->responsible;
     }
 
@@ -151,7 +156,8 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $responsible
      * @return $this
      */
-    public function setResponsible($responsible) {
+    public function setResponsible($responsible)
+    {
         $this->responsible = $responsible;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * The lead, assisting or supervising practitioner and their discipline if a multidisciplinary team.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRole() {
+    public function getRole()
+    {
         return $this->role;
     }
 
@@ -169,7 +176,8 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $role
      * @return $this
      */
-    public function setRole($role) {
+    public function setRole($role)
+    {
         $this->role = $role;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * The qualification of the practitioner which is applicable for this service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getQualification() {
+    public function getQualification()
+    {
         return $this->qualification;
     }
 
@@ -187,7 +196,8 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $qualification
      * @return $this
      */
-    public function setQualification($qualification) {
+    public function setQualification($qualification)
+    {
         $this->qualification = $qualification;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequence'])) {
                 $this->setSequence($data['sequence']);
@@ -228,20 +240,32 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
-        if (isset($this->provider)) $json['provider'] = $this->provider;
-        if (isset($this->responsible)) $json['responsible'] = $this->responsible;
-        if (isset($this->role)) $json['role'] = $this->role;
-        if (isset($this->qualification)) $json['qualification'] = $this->qualification;
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
+        if (isset($this->provider)) {
+            $json['provider'] = $this->provider;
+        }
+        if (isset($this->responsible)) {
+            $json['responsible'] = $this->responsible;
+        }
+        if (isset($this->role)) {
+            $json['role'] = $this->role;
+        }
+        if (isset($this->qualification)) {
+            $json['qualification'] = $this->qualification;
+        }
         return $json;
     }
 
@@ -250,17 +274,30 @@ class FHIRExplanationOfBenefitCareTeam extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExplanationOfBenefitCareTeam xmlns="http://hl7.org/fhir"></ExplanationOfBenefitCareTeam>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitCareTeam xmlns="http://hl7.org/fhir"></ExplanationOfBenefitCareTeam>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
-        if (isset($this->provider)) $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
-        if (isset($this->responsible)) $this->responsible->xmlSerialize(true, $sxe->addChild('responsible'));
-        if (isset($this->role)) $this->role->xmlSerialize(true, $sxe->addChild('role'));
-        if (isset($this->qualification)) $this->qualification->xmlSerialize(true, $sxe->addChild('qualification'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
+        if (isset($this->provider)) {
+            $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
+        }
+        if (isset($this->responsible)) {
+            $this->responsible->xmlSerialize(true, $sxe->addChild('responsible'));
+        }
+        if (isset($this->role)) {
+            $this->role->xmlSerialize(true, $sxe->addChild('role'));
+        }
+        if (isset($this->qualification)) {
+            $this->qualification->xmlSerialize(true, $sxe->addChild('qualification'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -119,7 +119,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * Dose form as manufactured and before any transformation into the pharmaceutical product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getManufacturedDoseForm() {
+    public function getManufacturedDoseForm()
+    {
         return $this->manufacturedDoseForm;
     }
 
@@ -128,7 +129,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $manufacturedDoseForm
      * @return $this
      */
-    public function setManufacturedDoseForm($manufacturedDoseForm) {
+    public function setManufacturedDoseForm($manufacturedDoseForm)
+    {
         $this->manufacturedDoseForm = $manufacturedDoseForm;
         return $this;
     }
@@ -137,7 +139,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * The “real world” units in which the quantity of the manufactured item is described.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getUnitOfPresentation() {
+    public function getUnitOfPresentation()
+    {
         return $this->unitOfPresentation;
     }
 
@@ -146,7 +149,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $unitOfPresentation
      * @return $this
      */
-    public function setUnitOfPresentation($unitOfPresentation) {
+    public function setUnitOfPresentation($unitOfPresentation)
+    {
         $this->unitOfPresentation = $unitOfPresentation;
         return $this;
     }
@@ -155,7 +159,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * The quantity or "count number" of the manufactured item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -164,7 +169,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * Manufacturer of the item (Note that this should be named "manufacturer" but it currently causes technical issues).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getManufacturer() {
+    public function getManufacturer()
+    {
         return $this->manufacturer;
     }
 
@@ -182,7 +189,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $manufacturer
      * @return $this
      */
-    public function addManufacturer($manufacturer) {
+    public function addManufacturer($manufacturer)
+    {
         $this->manufacturer[] = $manufacturer;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * Ingredient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getIngredient() {
+    public function getIngredient()
+    {
         return $this->ingredient;
     }
 
@@ -200,7 +209,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $ingredient
      * @return $this
      */
-    public function addIngredient($ingredient) {
+    public function addIngredient($ingredient)
+    {
         $this->ingredient[] = $ingredient;
         return $this;
     }
@@ -209,7 +219,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * Dimensions, color etc.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRProdCharacteristic
      */
-    public function getPhysicalCharacteristics() {
+    public function getPhysicalCharacteristics()
+    {
         return $this->physicalCharacteristics;
     }
 
@@ -218,7 +229,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRProdCharacteristic $physicalCharacteristics
      * @return $this
      */
-    public function setPhysicalCharacteristics($physicalCharacteristics) {
+    public function setPhysicalCharacteristics($physicalCharacteristics)
+    {
         $this->physicalCharacteristics = $physicalCharacteristics;
         return $this;
     }
@@ -227,7 +239,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * Other codeable characteristics.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getOtherCharacteristics() {
+    public function getOtherCharacteristics()
+    {
         return $this->otherCharacteristics;
     }
 
@@ -236,7 +249,8 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $otherCharacteristics
      * @return $this
      */
-    public function addOtherCharacteristics($otherCharacteristics) {
+    public function addOtherCharacteristics($otherCharacteristics)
+    {
         $this->otherCharacteristics[] = $otherCharacteristics;
         return $this;
     }
@@ -244,14 +258,16 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['manufacturedDoseForm'])) {
                 $this->setManufacturedDoseForm($data['manufacturedDoseForm']);
@@ -264,7 +280,7 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
             }
             if (isset($data['manufacturer'])) {
                 if (is_array($data['manufacturer'])) {
-                    foreach($data['manufacturer'] as $d) {
+                    foreach ($data['manufacturer'] as $d) {
                         $this->addManufacturer($d);
                     }
                 } else {
@@ -273,7 +289,7 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
             }
             if (isset($data['ingredient'])) {
                 if (is_array($data['ingredient'])) {
-                    foreach($data['ingredient'] as $d) {
+                    foreach ($data['ingredient'] as $d) {
                         $this->addIngredient($d);
                     }
                 } else {
@@ -285,7 +301,7 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
             }
             if (isset($data['otherCharacteristics'])) {
                 if (is_array($data['otherCharacteristics'])) {
-                    foreach($data['otherCharacteristics'] as $d) {
+                    foreach ($data['otherCharacteristics'] as $d) {
                         $this->addOtherCharacteristics($d);
                     }
                 } else {
@@ -301,35 +317,45 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->manufacturedDoseForm)) $json['manufacturedDoseForm'] = $this->manufacturedDoseForm;
-        if (isset($this->unitOfPresentation)) $json['unitOfPresentation'] = $this->unitOfPresentation;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
+        if (isset($this->manufacturedDoseForm)) {
+            $json['manufacturedDoseForm'] = $this->manufacturedDoseForm;
+        }
+        if (isset($this->unitOfPresentation)) {
+            $json['unitOfPresentation'] = $this->unitOfPresentation;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
         if (0 < count($this->manufacturer)) {
             $json['manufacturer'] = [];
-            foreach($this->manufacturer as $manufacturer) {
+            foreach ($this->manufacturer as $manufacturer) {
                 $json['manufacturer'][] = $manufacturer;
             }
         }
         if (0 < count($this->ingredient)) {
             $json['ingredient'] = [];
-            foreach($this->ingredient as $ingredient) {
+            foreach ($this->ingredient as $ingredient) {
                 $json['ingredient'][] = $ingredient;
             }
         }
-        if (isset($this->physicalCharacteristics)) $json['physicalCharacteristics'] = $this->physicalCharacteristics;
+        if (isset($this->physicalCharacteristics)) {
+            $json['physicalCharacteristics'] = $this->physicalCharacteristics;
+        }
         if (0 < count($this->otherCharacteristics)) {
             $json['otherCharacteristics'] = [];
-            foreach($this->otherCharacteristics as $otherCharacteristics) {
+            foreach ($this->otherCharacteristics as $otherCharacteristics) {
                 $json['otherCharacteristics'][] = $otherCharacteristics;
             }
         }
@@ -341,31 +367,42 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductManufactured xmlns="http://hl7.org/fhir"></MedicinalProductManufactured>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductManufactured xmlns="http://hl7.org/fhir"></MedicinalProductManufactured>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->manufacturedDoseForm)) $this->manufacturedDoseForm->xmlSerialize(true, $sxe->addChild('manufacturedDoseForm'));
-        if (isset($this->unitOfPresentation)) $this->unitOfPresentation->xmlSerialize(true, $sxe->addChild('unitOfPresentation'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        if (isset($this->manufacturedDoseForm)) {
+            $this->manufacturedDoseForm->xmlSerialize(true, $sxe->addChild('manufacturedDoseForm'));
+        }
+        if (isset($this->unitOfPresentation)) {
+            $this->unitOfPresentation->xmlSerialize(true, $sxe->addChild('unitOfPresentation'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
         if (0 < count($this->manufacturer)) {
-            foreach($this->manufacturer as $manufacturer) {
+            foreach ($this->manufacturer as $manufacturer) {
                 $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
             }
         }
         if (0 < count($this->ingredient)) {
-            foreach($this->ingredient as $ingredient) {
+            foreach ($this->ingredient as $ingredient) {
                 $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
             }
         }
-        if (isset($this->physicalCharacteristics)) $this->physicalCharacteristics->xmlSerialize(true, $sxe->addChild('physicalCharacteristics'));
+        if (isset($this->physicalCharacteristics)) {
+            $this->physicalCharacteristics->xmlSerialize(true, $sxe->addChild('physicalCharacteristics'));
+        }
         if (0 < count($this->otherCharacteristics)) {
-            foreach($this->otherCharacteristics as $otherCharacteristics) {
+            foreach ($this->otherCharacteristics as $otherCharacteristics) {
                 $otherCharacteristics->xmlSerialize(true, $sxe->addChild('otherCharacteristics'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

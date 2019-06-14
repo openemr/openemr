@@ -103,7 +103,8 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
      * The parameter whose value is to be tracked, e.g. body weight, blood pressure, or hemoglobin A1c level.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMeasure() {
+    public function getMeasure()
+    {
         return $this->measure;
     }
 
@@ -112,7 +113,8 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $measure
      * @return $this
      */
-    public function setMeasure($measure) {
+    public function setMeasure($measure)
+    {
         $this->measure = $measure;
         return $this;
     }
@@ -120,7 +122,8 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getDetailQuantity() {
+    public function getDetailQuantity()
+    {
         return $this->detailQuantity;
     }
 
@@ -128,7 +131,8 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $detailQuantity
      * @return $this
      */
-    public function setDetailQuantity($detailQuantity) {
+    public function setDetailQuantity($detailQuantity)
+    {
         $this->detailQuantity = $detailQuantity;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getDetailRange() {
+    public function getDetailRange()
+    {
         return $this->detailRange;
     }
 
@@ -144,7 +149,8 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $detailRange
      * @return $this
      */
-    public function setDetailRange($detailRange) {
+    public function setDetailRange($detailRange)
+    {
         $this->detailRange = $detailRange;
         return $this;
     }
@@ -152,7 +158,8 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDetailCodeableConcept() {
+    public function getDetailCodeableConcept()
+    {
         return $this->detailCodeableConcept;
     }
 
@@ -160,7 +167,8 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $detailCodeableConcept
      * @return $this
      */
-    public function setDetailCodeableConcept($detailCodeableConcept) {
+    public function setDetailCodeableConcept($detailCodeableConcept)
+    {
         $this->detailCodeableConcept = $detailCodeableConcept;
         return $this;
     }
@@ -169,7 +177,8 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
      * Indicates the timeframe after the start of the goal in which the goal should be met.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getDue() {
+    public function getDue()
+    {
         return $this->due;
     }
 
@@ -178,7 +187,8 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $due
      * @return $this
      */
-    public function setDue($due) {
+    public function setDue($due)
+    {
         $this->due = $due;
         return $this;
     }
@@ -186,14 +196,16 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['measure'])) {
                 $this->setMeasure($data['measure']);
@@ -219,20 +231,32 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->measure)) $json['measure'] = $this->measure;
-        if (isset($this->detailQuantity)) $json['detailQuantity'] = $this->detailQuantity;
-        if (isset($this->detailRange)) $json['detailRange'] = $this->detailRange;
-        if (isset($this->detailCodeableConcept)) $json['detailCodeableConcept'] = $this->detailCodeableConcept;
-        if (isset($this->due)) $json['due'] = $this->due;
+        if (isset($this->measure)) {
+            $json['measure'] = $this->measure;
+        }
+        if (isset($this->detailQuantity)) {
+            $json['detailQuantity'] = $this->detailQuantity;
+        }
+        if (isset($this->detailRange)) {
+            $json['detailRange'] = $this->detailRange;
+        }
+        if (isset($this->detailCodeableConcept)) {
+            $json['detailCodeableConcept'] = $this->detailCodeableConcept;
+        }
+        if (isset($this->due)) {
+            $json['due'] = $this->due;
+        }
         return $json;
     }
 
@@ -241,17 +265,30 @@ class FHIRPlanDefinitionTarget extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PlanDefinitionTarget xmlns="http://hl7.org/fhir"></PlanDefinitionTarget>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PlanDefinitionTarget xmlns="http://hl7.org/fhir"></PlanDefinitionTarget>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->measure)) $this->measure->xmlSerialize(true, $sxe->addChild('measure'));
-        if (isset($this->detailQuantity)) $this->detailQuantity->xmlSerialize(true, $sxe->addChild('detailQuantity'));
-        if (isset($this->detailRange)) $this->detailRange->xmlSerialize(true, $sxe->addChild('detailRange'));
-        if (isset($this->detailCodeableConcept)) $this->detailCodeableConcept->xmlSerialize(true, $sxe->addChild('detailCodeableConcept'));
-        if (isset($this->due)) $this->due->xmlSerialize(true, $sxe->addChild('due'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->measure)) {
+            $this->measure->xmlSerialize(true, $sxe->addChild('measure'));
+        }
+        if (isset($this->detailQuantity)) {
+            $this->detailQuantity->xmlSerialize(true, $sxe->addChild('detailQuantity'));
+        }
+        if (isset($this->detailRange)) {
+            $this->detailRange->xmlSerialize(true, $sxe->addChild('detailRange'));
+        }
+        if (isset($this->detailCodeableConcept)) {
+            $this->detailCodeableConcept->xmlSerialize(true, $sxe->addChild('detailCodeableConcept'));
+        }
+        if (isset($this->due)) {
+            $this->due->xmlSerialize(true, $sxe->addChild('due'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

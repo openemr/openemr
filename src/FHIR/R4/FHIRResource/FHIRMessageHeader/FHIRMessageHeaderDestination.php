@@ -100,7 +100,8 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
      * Human-readable name for the target system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -109,7 +110,8 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
      * Identifies the target end system in situations where the initial message transmission is to an intermediary system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getTarget() {
+    public function getTarget()
+    {
         return $this->target;
     }
 
@@ -127,7 +130,8 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $target
      * @return $this
      */
-    public function setTarget($target) {
+    public function setTarget($target)
+    {
         $this->target = $target;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
      * Indicates where the message should be routed to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getEndpoint() {
+    public function getEndpoint()
+    {
         return $this->endpoint;
     }
 
@@ -145,7 +150,8 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $endpoint
      * @return $this
      */
-    public function setEndpoint($endpoint) {
+    public function setEndpoint($endpoint)
+    {
         $this->endpoint = $endpoint;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
      * Allows data conveyed by a message to be addressed to a particular person or department when routing to a specific application isn't sufficient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReceiver() {
+    public function getReceiver()
+    {
         return $this->receiver;
     }
 
@@ -163,7 +170,8 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $receiver
      * @return $this
      */
-    public function setReceiver($receiver) {
+    public function setReceiver($receiver)
+    {
         $this->receiver = $receiver;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -201,19 +211,29 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->target)) $json['target'] = $this->target;
-        if (isset($this->endpoint)) $json['endpoint'] = $this->endpoint;
-        if (isset($this->receiver)) $json['receiver'] = $this->receiver;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->target)) {
+            $json['target'] = $this->target;
+        }
+        if (isset($this->endpoint)) {
+            $json['endpoint'] = $this->endpoint;
+        }
+        if (isset($this->receiver)) {
+            $json['receiver'] = $this->receiver;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRMessageHeaderDestination extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MessageHeaderDestination xmlns="http://hl7.org/fhir"></MessageHeaderDestination>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MessageHeaderDestination xmlns="http://hl7.org/fhir"></MessageHeaderDestination>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->target)) $this->target->xmlSerialize(true, $sxe->addChild('target'));
-        if (isset($this->endpoint)) $this->endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
-        if (isset($this->receiver)) $this->receiver->xmlSerialize(true, $sxe->addChild('receiver'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->target)) {
+            $this->target->xmlSerialize(true, $sxe->addChild('target'));
+        }
+        if (isset($this->endpoint)) {
+            $this->endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
+        }
+        if (isset($this->receiver)) {
+            $this->receiver->xmlSerialize(true, $sxe->addChild('receiver'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -149,7 +149,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * A unique identifier assigned to this payment notice.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -158,7 +159,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -167,7 +169,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * The status of the resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -176,7 +179,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -185,7 +189,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * Reference of resource for which payment is being made.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequest() {
+    public function getRequest()
+    {
         return $this->request;
     }
 
@@ -194,7 +199,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $request
      * @return $this
      */
-    public function setRequest($request) {
+    public function setRequest($request)
+    {
         $this->request = $request;
         return $this;
     }
@@ -203,7 +209,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * Reference of response to resource for which payment is being made.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getResponse() {
+    public function getResponse()
+    {
         return $this->response;
     }
 
@@ -212,7 +219,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $response
      * @return $this
      */
-    public function setResponse($response) {
+    public function setResponse($response)
+    {
         $this->response = $response;
         return $this;
     }
@@ -221,7 +229,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * The date when this resource was created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getCreated() {
+    public function getCreated()
+    {
         return $this->created;
     }
 
@@ -230,7 +239,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $created
      * @return $this
      */
-    public function setCreated($created) {
+    public function setCreated($created)
+    {
         $this->created = $created;
         return $this;
     }
@@ -239,7 +249,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * The practitioner who is responsible for the services rendered to the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getProvider() {
+    public function getProvider()
+    {
         return $this->provider;
     }
 
@@ -248,7 +259,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $provider
      * @return $this
      */
-    public function setProvider($provider) {
+    public function setProvider($provider)
+    {
         $this->provider = $provider;
         return $this;
     }
@@ -257,7 +269,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * A reference to the payment which is the subject of this notice.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPayment() {
+    public function getPayment()
+    {
         return $this->payment;
     }
 
@@ -266,7 +279,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $payment
      * @return $this
      */
-    public function setPayment($payment) {
+    public function setPayment($payment)
+    {
         $this->payment = $payment;
         return $this;
     }
@@ -275,7 +289,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * The date when the above payment action occurred.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getPaymentDate() {
+    public function getPaymentDate()
+    {
         return $this->paymentDate;
     }
 
@@ -284,7 +299,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $paymentDate
      * @return $this
      */
-    public function setPaymentDate($paymentDate) {
+    public function setPaymentDate($paymentDate)
+    {
         $this->paymentDate = $paymentDate;
         return $this;
     }
@@ -293,7 +309,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * The party who will receive or has received payment that is the subject of this notification.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPayee() {
+    public function getPayee()
+    {
         return $this->payee;
     }
 
@@ -302,7 +319,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $payee
      * @return $this
      */
-    public function setPayee($payee) {
+    public function setPayee($payee)
+    {
         $this->payee = $payee;
         return $this;
     }
@@ -311,7 +329,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * The party who is notified of the payment status.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRecipient() {
+    public function getRecipient()
+    {
         return $this->recipient;
     }
 
@@ -320,7 +339,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $recipient
      * @return $this
      */
-    public function setRecipient($recipient) {
+    public function setRecipient($recipient)
+    {
         $this->recipient = $recipient;
         return $this;
     }
@@ -329,7 +349,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * The amount sent to the payee.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -338,7 +359,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -347,7 +369,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * A code indicating whether payment has been sent or cleared.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPaymentStatus() {
+    public function getPaymentStatus()
+    {
         return $this->paymentStatus;
     }
 
@@ -356,7 +379,8 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $paymentStatus
      * @return $this
      */
-    public function setPaymentStatus($paymentStatus) {
+    public function setPaymentStatus($paymentStatus)
+    {
         $this->paymentStatus = $paymentStatus;
         return $this;
     }
@@ -364,18 +388,20 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -424,33 +450,57 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->request)) $json['request'] = $this->request;
-        if (isset($this->response)) $json['response'] = $this->response;
-        if (isset($this->created)) $json['created'] = $this->created;
-        if (isset($this->provider)) $json['provider'] = $this->provider;
-        if (isset($this->payment)) $json['payment'] = $this->payment;
-        if (isset($this->paymentDate)) $json['paymentDate'] = $this->paymentDate;
-        if (isset($this->payee)) $json['payee'] = $this->payee;
-        if (isset($this->recipient)) $json['recipient'] = $this->recipient;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
-        if (isset($this->paymentStatus)) $json['paymentStatus'] = $this->paymentStatus;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->request)) {
+            $json['request'] = $this->request;
+        }
+        if (isset($this->response)) {
+            $json['response'] = $this->response;
+        }
+        if (isset($this->created)) {
+            $json['created'] = $this->created;
+        }
+        if (isset($this->provider)) {
+            $json['provider'] = $this->provider;
+        }
+        if (isset($this->payment)) {
+            $json['payment'] = $this->payment;
+        }
+        if (isset($this->paymentDate)) {
+            $json['paymentDate'] = $this->paymentDate;
+        }
+        if (isset($this->payee)) {
+            $json['payee'] = $this->payee;
+        }
+        if (isset($this->recipient)) {
+            $json['recipient'] = $this->recipient;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
+        if (isset($this->paymentStatus)) {
+            $json['paymentStatus'] = $this->paymentStatus;
+        }
         return $json;
     }
 
@@ -459,28 +509,53 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PaymentNotice xmlns="http://hl7.org/fhir"></PaymentNotice>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PaymentNotice xmlns="http://hl7.org/fhir"></PaymentNotice>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->request)) $this->request->xmlSerialize(true, $sxe->addChild('request'));
-        if (isset($this->response)) $this->response->xmlSerialize(true, $sxe->addChild('response'));
-        if (isset($this->created)) $this->created->xmlSerialize(true, $sxe->addChild('created'));
-        if (isset($this->provider)) $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
-        if (isset($this->payment)) $this->payment->xmlSerialize(true, $sxe->addChild('payment'));
-        if (isset($this->paymentDate)) $this->paymentDate->xmlSerialize(true, $sxe->addChild('paymentDate'));
-        if (isset($this->payee)) $this->payee->xmlSerialize(true, $sxe->addChild('payee'));
-        if (isset($this->recipient)) $this->recipient->xmlSerialize(true, $sxe->addChild('recipient'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
-        if (isset($this->paymentStatus)) $this->paymentStatus->xmlSerialize(true, $sxe->addChild('paymentStatus'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->request)) {
+            $this->request->xmlSerialize(true, $sxe->addChild('request'));
+        }
+        if (isset($this->response)) {
+            $this->response->xmlSerialize(true, $sxe->addChild('response'));
+        }
+        if (isset($this->created)) {
+            $this->created->xmlSerialize(true, $sxe->addChild('created'));
+        }
+        if (isset($this->provider)) {
+            $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
+        }
+        if (isset($this->payment)) {
+            $this->payment->xmlSerialize(true, $sxe->addChild('payment'));
+        }
+        if (isset($this->paymentDate)) {
+            $this->paymentDate->xmlSerialize(true, $sxe->addChild('paymentDate'));
+        }
+        if (isset($this->payee)) {
+            $this->payee->xmlSerialize(true, $sxe->addChild('payee'));
+        }
+        if (isset($this->recipient)) {
+            $this->recipient->xmlSerialize(true, $sxe->addChild('recipient'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
+        if (isset($this->paymentStatus)) {
+            $this->paymentStatus->xmlSerialize(true, $sxe->addChild('paymentStatus'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

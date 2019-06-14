@@ -106,7 +106,8 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * The status code returned by processing this entry. The status SHALL start with a 3 digit HTTP code (e.g. 404) and may contain the standard HTTP description associated with the status code.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -115,7 +116,8 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * The location header created by processing this operation, populated if the operation returns a location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
@@ -133,7 +136,8 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $location
      * @return $this
      */
-    public function setLocation($location) {
+    public function setLocation($location)
+    {
         $this->location = $location;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * The Etag for the resource, if the operation for the entry produced a versioned resource (see [Resource Metadata and Versioning](http.html#versioning) and [Managing Resource Contention](http.html#concurrency)).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getEtag() {
+    public function getEtag()
+    {
         return $this->etag;
     }
 
@@ -151,7 +156,8 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $etag
      * @return $this
      */
-    public function setEtag($etag) {
+    public function setEtag($etag)
+    {
         $this->etag = $etag;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * The date/time that the resource was modified on the server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getLastModified() {
+    public function getLastModified()
+    {
         return $this->lastModified;
     }
 
@@ -169,7 +176,8 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $lastModified
      * @return $this
      */
-    public function setLastModified($lastModified) {
+    public function setLastModified($lastModified)
+    {
         $this->lastModified = $lastModified;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * An OperationOutcome containing hints and warnings produced as part of processing this entry in a batch or transaction.
      * @return mixed
      */
-    public function getOutcome() {
+    public function getOutcome()
+    {
         return isset($this->outcome) ? $this->outcome->jsonSerialize() : null;
     }
 
@@ -187,7 +196,8 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRResourceContainer $outcome
      * @return $this
      */
-    public function setOutcome($outcome) {
+    public function setOutcome($outcome)
+    {
         $this->outcome = $outcome;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['status'])) {
                 $this->setStatus($data['status']);
@@ -228,20 +240,32 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->location)) $json['location'] = $this->location;
-        if (isset($this->etag)) $json['etag'] = $this->etag;
-        if (isset($this->lastModified)) $json['lastModified'] = $this->lastModified;
-        if (isset($this->outcome)) $json['outcome'] = $this->outcome;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->location)) {
+            $json['location'] = $this->location;
+        }
+        if (isset($this->etag)) {
+            $json['etag'] = $this->etag;
+        }
+        if (isset($this->lastModified)) {
+            $json['lastModified'] = $this->lastModified;
+        }
+        if (isset($this->outcome)) {
+            $json['outcome'] = $this->outcome;
+        }
         return $json;
     }
 
@@ -250,17 +274,30 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<BundleResponse xmlns="http://hl7.org/fhir"></BundleResponse>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<BundleResponse xmlns="http://hl7.org/fhir"></BundleResponse>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->location)) $this->location->xmlSerialize(true, $sxe->addChild('location'));
-        if (isset($this->etag)) $this->etag->xmlSerialize(true, $sxe->addChild('etag'));
-        if (isset($this->lastModified)) $this->lastModified->xmlSerialize(true, $sxe->addChild('lastModified'));
-        if (isset($this->outcome)) $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->location)) {
+            $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        }
+        if (isset($this->etag)) {
+            $this->etag->xmlSerialize(true, $sxe->addChild('etag'));
+        }
+        if (isset($this->lastModified)) {
+            $this->lastModified->xmlSerialize(true, $sxe->addChild('lastModified'));
+        }
+        if (isset($this->outcome)) {
+            $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

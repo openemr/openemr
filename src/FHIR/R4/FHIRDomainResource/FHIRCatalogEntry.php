@@ -155,7 +155,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * Used in supporting different identifiers for the same product, e.g. manufacturer code and retailer code.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -164,7 +165,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -173,7 +175,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * The type of item - medication, device, service, protocol or other.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -182,7 +185,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -191,7 +195,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * Whether the entry represents an orderable item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getOrderable() {
+    public function getOrderable()
+    {
         return $this->orderable;
     }
 
@@ -200,7 +205,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $orderable
      * @return $this
      */
-    public function setOrderable($orderable) {
+    public function setOrderable($orderable)
+    {
         $this->orderable = $orderable;
         return $this;
     }
@@ -209,7 +215,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * The item in a catalog or definition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReferencedItem() {
+    public function getReferencedItem()
+    {
         return $this->referencedItem;
     }
 
@@ -218,7 +225,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $referencedItem
      * @return $this
      */
-    public function setReferencedItem($referencedItem) {
+    public function setReferencedItem($referencedItem)
+    {
         $this->referencedItem = $referencedItem;
         return $this;
     }
@@ -227,7 +235,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * Used in supporting related concepts, e.g. NDC to RxNorm.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getAdditionalIdentifier() {
+    public function getAdditionalIdentifier()
+    {
         return $this->additionalIdentifier;
     }
 
@@ -236,7 +245,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $additionalIdentifier
      * @return $this
      */
-    public function addAdditionalIdentifier($additionalIdentifier) {
+    public function addAdditionalIdentifier($additionalIdentifier)
+    {
         $this->additionalIdentifier[] = $additionalIdentifier;
         return $this;
     }
@@ -245,7 +255,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * Classes of devices, or ATC for medication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getClassification() {
+    public function getClassification()
+    {
         return $this->classification;
     }
 
@@ -254,7 +265,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $classification
      * @return $this
      */
-    public function addClassification($classification) {
+    public function addClassification($classification)
+    {
         $this->classification[] = $classification;
         return $this;
     }
@@ -263,7 +275,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * Used to support catalog exchange even for unsupported products, e.g. getting list of medications even if not prescribable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -272,7 +285,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -281,7 +295,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * The time period in which this catalog entry is expected to be active.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getValidityPeriod() {
+    public function getValidityPeriod()
+    {
         return $this->validityPeriod;
     }
 
@@ -290,7 +305,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $validityPeriod
      * @return $this
      */
-    public function setValidityPeriod($validityPeriod) {
+    public function setValidityPeriod($validityPeriod)
+    {
         $this->validityPeriod = $validityPeriod;
         return $this;
     }
@@ -299,7 +315,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * The date until which this catalog entry is expected to be active.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getValidTo() {
+    public function getValidTo()
+    {
         return $this->validTo;
     }
 
@@ -308,7 +325,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $validTo
      * @return $this
      */
-    public function setValidTo($validTo) {
+    public function setValidTo($validTo)
+    {
         $this->validTo = $validTo;
         return $this;
     }
@@ -317,7 +335,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * Typically date of issue is different from the beginning of the validity. This can be used to see when an item was last updated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getLastUpdated() {
+    public function getLastUpdated()
+    {
         return $this->lastUpdated;
     }
 
@@ -326,7 +345,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $lastUpdated
      * @return $this
      */
-    public function setLastUpdated($lastUpdated) {
+    public function setLastUpdated($lastUpdated)
+    {
         $this->lastUpdated = $lastUpdated;
         return $this;
     }
@@ -335,7 +355,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * Used for examplefor Out of Formulary, or any specifics.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getAdditionalCharacteristic() {
+    public function getAdditionalCharacteristic()
+    {
         return $this->additionalCharacteristic;
     }
 
@@ -344,7 +365,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $additionalCharacteristic
      * @return $this
      */
-    public function addAdditionalCharacteristic($additionalCharacteristic) {
+    public function addAdditionalCharacteristic($additionalCharacteristic)
+    {
         $this->additionalCharacteristic[] = $additionalCharacteristic;
         return $this;
     }
@@ -353,7 +375,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * User for example for ATC classification, or.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getAdditionalClassification() {
+    public function getAdditionalClassification()
+    {
         return $this->additionalClassification;
     }
 
@@ -362,7 +385,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $additionalClassification
      * @return $this
      */
-    public function addAdditionalClassification($additionalClassification) {
+    public function addAdditionalClassification($additionalClassification)
+    {
         $this->additionalClassification[] = $additionalClassification;
         return $this;
     }
@@ -371,7 +395,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * Used for example, to point to a substance, or to a device used to administer a medication.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCatalogEntry\FHIRCatalogEntryRelatedEntry[]
      */
-    public function getRelatedEntry() {
+    public function getRelatedEntry()
+    {
         return $this->relatedEntry;
     }
 
@@ -380,7 +405,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCatalogEntry\FHIRCatalogEntryRelatedEntry $relatedEntry
      * @return $this
      */
-    public function addRelatedEntry($relatedEntry) {
+    public function addRelatedEntry($relatedEntry)
+    {
         $this->relatedEntry[] = $relatedEntry;
         return $this;
     }
@@ -388,18 +414,20 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -417,7 +445,7 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['additionalIdentifier'])) {
                 if (is_array($data['additionalIdentifier'])) {
-                    foreach($data['additionalIdentifier'] as $d) {
+                    foreach ($data['additionalIdentifier'] as $d) {
                         $this->addAdditionalIdentifier($d);
                     }
                 } else {
@@ -426,7 +454,7 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['classification'])) {
                 if (is_array($data['classification'])) {
-                    foreach($data['classification'] as $d) {
+                    foreach ($data['classification'] as $d) {
                         $this->addClassification($d);
                     }
                 } else {
@@ -447,7 +475,7 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['additionalCharacteristic'])) {
                 if (is_array($data['additionalCharacteristic'])) {
-                    foreach($data['additionalCharacteristic'] as $d) {
+                    foreach ($data['additionalCharacteristic'] as $d) {
                         $this->addAdditionalCharacteristic($d);
                     }
                 } else {
@@ -456,7 +484,7 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['additionalClassification'])) {
                 if (is_array($data['additionalClassification'])) {
-                    foreach($data['additionalClassification'] as $d) {
+                    foreach ($data['additionalClassification'] as $d) {
                         $this->addAdditionalClassification($d);
                     }
                 } else {
@@ -465,7 +493,7 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['relatedEntry'])) {
                 if (is_array($data['relatedEntry'])) {
-                    foreach($data['relatedEntry'] as $d) {
+                    foreach ($data['relatedEntry'] as $d) {
                         $this->addRelatedEntry($d);
                     }
                 } else {
@@ -481,56 +509,72 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->orderable)) $json['orderable'] = $this->orderable;
-        if (isset($this->referencedItem)) $json['referencedItem'] = $this->referencedItem;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->orderable)) {
+            $json['orderable'] = $this->orderable;
+        }
+        if (isset($this->referencedItem)) {
+            $json['referencedItem'] = $this->referencedItem;
+        }
         if (0 < count($this->additionalIdentifier)) {
             $json['additionalIdentifier'] = [];
-            foreach($this->additionalIdentifier as $additionalIdentifier) {
+            foreach ($this->additionalIdentifier as $additionalIdentifier) {
                 $json['additionalIdentifier'][] = $additionalIdentifier;
             }
         }
         if (0 < count($this->classification)) {
             $json['classification'] = [];
-            foreach($this->classification as $classification) {
+            foreach ($this->classification as $classification) {
                 $json['classification'][] = $classification;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->validityPeriod)) $json['validityPeriod'] = $this->validityPeriod;
-        if (isset($this->validTo)) $json['validTo'] = $this->validTo;
-        if (isset($this->lastUpdated)) $json['lastUpdated'] = $this->lastUpdated;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->validityPeriod)) {
+            $json['validityPeriod'] = $this->validityPeriod;
+        }
+        if (isset($this->validTo)) {
+            $json['validTo'] = $this->validTo;
+        }
+        if (isset($this->lastUpdated)) {
+            $json['lastUpdated'] = $this->lastUpdated;
+        }
         if (0 < count($this->additionalCharacteristic)) {
             $json['additionalCharacteristic'] = [];
-            foreach($this->additionalCharacteristic as $additionalCharacteristic) {
+            foreach ($this->additionalCharacteristic as $additionalCharacteristic) {
                 $json['additionalCharacteristic'][] = $additionalCharacteristic;
             }
         }
         if (0 < count($this->additionalClassification)) {
             $json['additionalClassification'] = [];
-            foreach($this->additionalClassification as $additionalClassification) {
+            foreach ($this->additionalClassification as $additionalClassification) {
                 $json['additionalClassification'][] = $additionalClassification;
             }
         }
         if (0 < count($this->relatedEntry)) {
             $json['relatedEntry'] = [];
-            foreach($this->relatedEntry as $relatedEntry) {
+            foreach ($this->relatedEntry as $relatedEntry) {
                 $json['relatedEntry'][] = $relatedEntry;
             }
         }
@@ -542,49 +586,66 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CatalogEntry xmlns="http://hl7.org/fhir"></CatalogEntry>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CatalogEntry xmlns="http://hl7.org/fhir"></CatalogEntry>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->orderable)) $this->orderable->xmlSerialize(true, $sxe->addChild('orderable'));
-        if (isset($this->referencedItem)) $this->referencedItem->xmlSerialize(true, $sxe->addChild('referencedItem'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->orderable)) {
+            $this->orderable->xmlSerialize(true, $sxe->addChild('orderable'));
+        }
+        if (isset($this->referencedItem)) {
+            $this->referencedItem->xmlSerialize(true, $sxe->addChild('referencedItem'));
+        }
         if (0 < count($this->additionalIdentifier)) {
-            foreach($this->additionalIdentifier as $additionalIdentifier) {
+            foreach ($this->additionalIdentifier as $additionalIdentifier) {
                 $additionalIdentifier->xmlSerialize(true, $sxe->addChild('additionalIdentifier'));
             }
         }
         if (0 < count($this->classification)) {
-            foreach($this->classification as $classification) {
+            foreach ($this->classification as $classification) {
                 $classification->xmlSerialize(true, $sxe->addChild('classification'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->validityPeriod)) $this->validityPeriod->xmlSerialize(true, $sxe->addChild('validityPeriod'));
-        if (isset($this->validTo)) $this->validTo->xmlSerialize(true, $sxe->addChild('validTo'));
-        if (isset($this->lastUpdated)) $this->lastUpdated->xmlSerialize(true, $sxe->addChild('lastUpdated'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->validityPeriod)) {
+            $this->validityPeriod->xmlSerialize(true, $sxe->addChild('validityPeriod'));
+        }
+        if (isset($this->validTo)) {
+            $this->validTo->xmlSerialize(true, $sxe->addChild('validTo'));
+        }
+        if (isset($this->lastUpdated)) {
+            $this->lastUpdated->xmlSerialize(true, $sxe->addChild('lastUpdated'));
+        }
         if (0 < count($this->additionalCharacteristic)) {
-            foreach($this->additionalCharacteristic as $additionalCharacteristic) {
+            foreach ($this->additionalCharacteristic as $additionalCharacteristic) {
                 $additionalCharacteristic->xmlSerialize(true, $sxe->addChild('additionalCharacteristic'));
             }
         }
         if (0 < count($this->additionalClassification)) {
-            foreach($this->additionalClassification as $additionalClassification) {
+            foreach ($this->additionalClassification as $additionalClassification) {
                 $additionalClassification->xmlSerialize(true, $sxe->addChild('additionalClassification'));
             }
         }
         if (0 < count($this->relatedEntry)) {
-            foreach($this->relatedEntry as $relatedEntry) {
+            foreach ($this->relatedEntry as $relatedEntry) {
                 $relatedEntry->xmlSerialize(true, $sxe->addChild('relatedEntry'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

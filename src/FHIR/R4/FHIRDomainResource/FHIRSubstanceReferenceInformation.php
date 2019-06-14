@@ -107,7 +107,8 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -116,7 +117,8 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -125,7 +127,8 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceReferenceInformation\FHIRSubstanceReferenceInformationGene[]
      */
-    public function getGene() {
+    public function getGene()
+    {
         return $this->gene;
     }
 
@@ -134,7 +137,8 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceReferenceInformation\FHIRSubstanceReferenceInformationGene $gene
      * @return $this
      */
-    public function addGene($gene) {
+    public function addGene($gene)
+    {
         $this->gene[] = $gene;
         return $this;
     }
@@ -143,7 +147,8 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceReferenceInformation\FHIRSubstanceReferenceInformationGeneElement[]
      */
-    public function getGeneElement() {
+    public function getGeneElement()
+    {
         return $this->geneElement;
     }
 
@@ -152,7 +157,8 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceReferenceInformation\FHIRSubstanceReferenceInformationGeneElement $geneElement
      * @return $this
      */
-    public function addGeneElement($geneElement) {
+    public function addGeneElement($geneElement)
+    {
         $this->geneElement[] = $geneElement;
         return $this;
     }
@@ -161,7 +167,8 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceReferenceInformation\FHIRSubstanceReferenceInformationClassification[]
      */
-    public function getClassification() {
+    public function getClassification()
+    {
         return $this->classification;
     }
 
@@ -170,7 +177,8 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceReferenceInformation\FHIRSubstanceReferenceInformationClassification $classification
      * @return $this
      */
-    public function addClassification($classification) {
+    public function addClassification($classification)
+    {
         $this->classification[] = $classification;
         return $this;
     }
@@ -179,7 +187,8 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceReferenceInformation\FHIRSubstanceReferenceInformationTarget[]
      */
-    public function getTarget() {
+    public function getTarget()
+    {
         return $this->target;
     }
 
@@ -188,7 +197,8 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceReferenceInformation\FHIRSubstanceReferenceInformationTarget $target
      * @return $this
      */
-    public function addTarget($target) {
+    public function addTarget($target)
+    {
         $this->target[] = $target;
         return $this;
     }
@@ -196,21 +206,23 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['comment'])) {
                 $this->setComment($data['comment']);
             }
             if (isset($data['gene'])) {
                 if (is_array($data['gene'])) {
-                    foreach($data['gene'] as $d) {
+                    foreach ($data['gene'] as $d) {
                         $this->addGene($d);
                     }
                 } else {
@@ -219,7 +231,7 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
             }
             if (isset($data['geneElement'])) {
                 if (is_array($data['geneElement'])) {
-                    foreach($data['geneElement'] as $d) {
+                    foreach ($data['geneElement'] as $d) {
                         $this->addGeneElement($d);
                     }
                 } else {
@@ -228,7 +240,7 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
             }
             if (isset($data['classification'])) {
                 if (is_array($data['classification'])) {
-                    foreach($data['classification'] as $d) {
+                    foreach ($data['classification'] as $d) {
                         $this->addClassification($d);
                     }
                 } else {
@@ -237,7 +249,7 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
             }
             if (isset($data['target'])) {
                 if (is_array($data['target'])) {
-                    foreach($data['target'] as $d) {
+                    foreach ($data['target'] as $d) {
                         $this->addTarget($d);
                     }
                 } else {
@@ -253,38 +265,42 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->comment)) $json['comment'] = $this->comment;
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
         if (0 < count($this->gene)) {
             $json['gene'] = [];
-            foreach($this->gene as $gene) {
+            foreach ($this->gene as $gene) {
                 $json['gene'][] = $gene;
             }
         }
         if (0 < count($this->geneElement)) {
             $json['geneElement'] = [];
-            foreach($this->geneElement as $geneElement) {
+            foreach ($this->geneElement as $geneElement) {
                 $json['geneElement'][] = $geneElement;
             }
         }
         if (0 < count($this->classification)) {
             $json['classification'] = [];
-            foreach($this->classification as $classification) {
+            foreach ($this->classification as $classification) {
                 $json['classification'][] = $classification;
             }
         }
         if (0 < count($this->target)) {
             $json['target'] = [];
-            foreach($this->target as $target) {
+            foreach ($this->target as $target) {
                 $json['target'][] = $target;
             }
         }
@@ -296,33 +312,38 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceReferenceInformation xmlns="http://hl7.org/fhir"></SubstanceReferenceInformation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceReferenceInformation xmlns="http://hl7.org/fhir"></SubstanceReferenceInformation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
         if (0 < count($this->gene)) {
-            foreach($this->gene as $gene) {
+            foreach ($this->gene as $gene) {
                 $gene->xmlSerialize(true, $sxe->addChild('gene'));
             }
         }
         if (0 < count($this->geneElement)) {
-            foreach($this->geneElement as $geneElement) {
+            foreach ($this->geneElement as $geneElement) {
                 $geneElement->xmlSerialize(true, $sxe->addChild('geneElement'));
             }
         }
         if (0 < count($this->classification)) {
-            foreach($this->classification as $classification) {
+            foreach ($this->classification as $classification) {
                 $classification->xmlSerialize(true, $sxe->addChild('classification'));
             }
         }
         if (0 < count($this->target)) {
-            foreach($this->target as $target) {
+            foreach ($this->target as $target) {
                 $target->xmlSerialize(true, $sxe->addChild('target'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -102,7 +102,8 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
      * A code specifying which characteristic of the medicine is being described (for example, colour, shape, imprint).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -111,7 +112,8 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -119,7 +121,8 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getValueCodeableConcept() {
+    public function getValueCodeableConcept()
+    {
         return $this->valueCodeableConcept;
     }
 
@@ -127,7 +130,8 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $valueCodeableConcept
      * @return $this
      */
-    public function setValueCodeableConcept($valueCodeableConcept) {
+    public function setValueCodeableConcept($valueCodeableConcept)
+    {
         $this->valueCodeableConcept = $valueCodeableConcept;
         return $this;
     }
@@ -135,7 +139,8 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValueString() {
+    public function getValueString()
+    {
         return $this->valueString;
     }
 
@@ -143,7 +148,8 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $valueString
      * @return $this
      */
-    public function setValueString($valueString) {
+    public function setValueString($valueString)
+    {
         $this->valueString = $valueString;
         return $this;
     }
@@ -151,7 +157,8 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValueQuantity() {
+    public function getValueQuantity()
+    {
         return $this->valueQuantity;
     }
 
@@ -159,7 +166,8 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
      * @return $this
      */
-    public function setValueQuantity($valueQuantity) {
+    public function setValueQuantity($valueQuantity)
+    {
         $this->valueQuantity = $valueQuantity;
         return $this;
     }
@@ -167,7 +175,8 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary
      */
-    public function getValueBase64Binary() {
+    public function getValueBase64Binary()
+    {
         return $this->valueBase64Binary;
     }
 
@@ -175,7 +184,8 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary $valueBase64Binary
      * @return $this
      */
-    public function setValueBase64Binary($valueBase64Binary) {
+    public function setValueBase64Binary($valueBase64Binary)
+    {
         $this->valueBase64Binary = $valueBase64Binary;
         return $this;
     }
@@ -183,14 +193,16 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -216,20 +228,32 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->valueCodeableConcept)) $json['valueCodeableConcept'] = $this->valueCodeableConcept;
-        if (isset($this->valueString)) $json['valueString'] = $this->valueString;
-        if (isset($this->valueQuantity)) $json['valueQuantity'] = $this->valueQuantity;
-        if (isset($this->valueBase64Binary)) $json['valueBase64Binary'] = $this->valueBase64Binary;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $json['valueCodeableConcept'] = $this->valueCodeableConcept;
+        }
+        if (isset($this->valueString)) {
+            $json['valueString'] = $this->valueString;
+        }
+        if (isset($this->valueQuantity)) {
+            $json['valueQuantity'] = $this->valueQuantity;
+        }
+        if (isset($this->valueBase64Binary)) {
+            $json['valueBase64Binary'] = $this->valueBase64Binary;
+        }
         return $json;
     }
 
@@ -238,17 +262,30 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationKnowledgeDrugCharacteristic xmlns="http://hl7.org/fhir"></MedicationKnowledgeDrugCharacteristic>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationKnowledgeDrugCharacteristic xmlns="http://hl7.org/fhir"></MedicationKnowledgeDrugCharacteristic>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->valueCodeableConcept)) $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
-        if (isset($this->valueString)) $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
-        if (isset($this->valueQuantity)) $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
-        if (isset($this->valueBase64Binary)) $this->valueBase64Binary->xmlSerialize(true, $sxe->addChild('valueBase64Binary'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
+        }
+        if (isset($this->valueString)) {
+            $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
+        }
+        if (isset($this->valueQuantity)) {
+            $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
+        }
+        if (isset($this->valueBase64Binary)) {
+            $this->valueBase64Binary->xmlSerialize(true, $sxe->addChild('valueBase64Binary'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

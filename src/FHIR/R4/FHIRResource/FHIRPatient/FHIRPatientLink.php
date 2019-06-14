@@ -88,7 +88,8 @@ class FHIRPatientLink extends FHIRBackboneElement implements \JsonSerializable
      * The other patient resource that the link refers to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOther() {
+    public function getOther()
+    {
         return $this->other;
     }
 
@@ -97,7 +98,8 @@ class FHIRPatientLink extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $other
      * @return $this
      */
-    public function setOther($other) {
+    public function setOther($other)
+    {
         $this->other = $other;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRPatientLink extends FHIRBackboneElement implements \JsonSerializable
      * The type of link between this patient resource and another patient resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRLinkType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -115,7 +118,8 @@ class FHIRPatientLink extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRLinkType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRPatientLink extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['other'])) {
                 $this->setOther($data['other']);
@@ -147,17 +153,23 @@ class FHIRPatientLink extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->other)) $json['other'] = $this->other;
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->other)) {
+            $json['other'] = $this->other;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRPatientLink extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PatientLink xmlns="http://hl7.org/fhir"></PatientLink>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PatientLink xmlns="http://hl7.org/fhir"></PatientLink>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->other)) $this->other->xmlSerialize(true, $sxe->addChild('other'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->other)) {
+            $this->other->xmlSerialize(true, $sxe->addChild('other'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -167,7 +167,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * A unique identifier assigned to this payment reconciliation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -176,7 +177,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -185,7 +187,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * The status of the resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -194,7 +197,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -203,7 +207,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * The period of time for which payments have been gathered into this bulk payment for settlement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -212,7 +217,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -221,7 +227,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * The date when the resource was created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getCreated() {
+    public function getCreated()
+    {
         return $this->created;
     }
 
@@ -230,7 +237,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $created
      * @return $this
      */
-    public function setCreated($created) {
+    public function setCreated($created)
+    {
         $this->created = $created;
         return $this;
     }
@@ -239,7 +247,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * The party who generated the payment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPaymentIssuer() {
+    public function getPaymentIssuer()
+    {
         return $this->paymentIssuer;
     }
 
@@ -248,7 +257,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $paymentIssuer
      * @return $this
      */
-    public function setPaymentIssuer($paymentIssuer) {
+    public function setPaymentIssuer($paymentIssuer)
+    {
         $this->paymentIssuer = $paymentIssuer;
         return $this;
     }
@@ -257,7 +267,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * Original request resource reference.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequest() {
+    public function getRequest()
+    {
         return $this->request;
     }
 
@@ -266,7 +277,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $request
      * @return $this
      */
-    public function setRequest($request) {
+    public function setRequest($request)
+    {
         $this->request = $request;
         return $this;
     }
@@ -275,7 +287,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * The practitioner who is responsible for the services rendered to the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequestor() {
+    public function getRequestor()
+    {
         return $this->requestor;
     }
 
@@ -284,7 +297,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $requestor
      * @return $this
      */
-    public function setRequestor($requestor) {
+    public function setRequestor($requestor)
+    {
         $this->requestor = $requestor;
         return $this;
     }
@@ -293,7 +307,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * The outcome of a request for a reconciliation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRemittanceOutcome
      */
-    public function getOutcome() {
+    public function getOutcome()
+    {
         return $this->outcome;
     }
 
@@ -302,7 +317,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRemittanceOutcome $outcome
      * @return $this
      */
-    public function setOutcome($outcome) {
+    public function setOutcome($outcome)
+    {
         $this->outcome = $outcome;
         return $this;
     }
@@ -311,7 +327,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * A human readable description of the status of the request for the reconciliation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDisposition() {
+    public function getDisposition()
+    {
         return $this->disposition;
     }
 
@@ -320,7 +337,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $disposition
      * @return $this
      */
-    public function setDisposition($disposition) {
+    public function setDisposition($disposition)
+    {
         $this->disposition = $disposition;
         return $this;
     }
@@ -329,7 +347,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * The date of payment as indicated on the financial instrument.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getPaymentDate() {
+    public function getPaymentDate()
+    {
         return $this->paymentDate;
     }
 
@@ -338,7 +357,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $paymentDate
      * @return $this
      */
-    public function setPaymentDate($paymentDate) {
+    public function setPaymentDate($paymentDate)
+    {
         $this->paymentDate = $paymentDate;
         return $this;
     }
@@ -347,7 +367,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * Total payment amount as indicated on the financial instrument.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getPaymentAmount() {
+    public function getPaymentAmount()
+    {
         return $this->paymentAmount;
     }
 
@@ -356,7 +377,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $paymentAmount
      * @return $this
      */
-    public function setPaymentAmount($paymentAmount) {
+    public function setPaymentAmount($paymentAmount)
+    {
         $this->paymentAmount = $paymentAmount;
         return $this;
     }
@@ -365,7 +387,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * Issuer's unique identifier for the payment instrument.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getPaymentIdentifier() {
+    public function getPaymentIdentifier()
+    {
         return $this->paymentIdentifier;
     }
 
@@ -374,7 +397,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $paymentIdentifier
      * @return $this
      */
-    public function setPaymentIdentifier($paymentIdentifier) {
+    public function setPaymentIdentifier($paymentIdentifier)
+    {
         $this->paymentIdentifier = $paymentIdentifier;
         return $this;
     }
@@ -383,7 +407,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * Distribution of the payment amount for a previously acknowledged payable.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPaymentReconciliation\FHIRPaymentReconciliationDetail[]
      */
-    public function getDetail() {
+    public function getDetail()
+    {
         return $this->detail;
     }
 
@@ -392,7 +417,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPaymentReconciliation\FHIRPaymentReconciliationDetail $detail
      * @return $this
      */
-    public function addDetail($detail) {
+    public function addDetail($detail)
+    {
         $this->detail[] = $detail;
         return $this;
     }
@@ -401,7 +427,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * A code for the form to be used for printing the content.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getFormCode() {
+    public function getFormCode()
+    {
         return $this->formCode;
     }
 
@@ -410,7 +437,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $formCode
      * @return $this
      */
-    public function setFormCode($formCode) {
+    public function setFormCode($formCode)
+    {
         $this->formCode = $formCode;
         return $this;
     }
@@ -419,7 +447,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * A note that describes or explains the processing in a human readable form.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPaymentReconciliation\FHIRPaymentReconciliationProcessNote[]
      */
-    public function getProcessNote() {
+    public function getProcessNote()
+    {
         return $this->processNote;
     }
 
@@ -428,7 +457,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPaymentReconciliation\FHIRPaymentReconciliationProcessNote $processNote
      * @return $this
      */
-    public function addProcessNote($processNote) {
+    public function addProcessNote($processNote)
+    {
         $this->processNote[] = $processNote;
         return $this;
     }
@@ -436,18 +466,20 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -489,7 +521,7 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['detail'])) {
                 if (is_array($data['detail'])) {
-                    foreach($data['detail'] as $d) {
+                    foreach ($data['detail'] as $d) {
                         $this->addDetail($d);
                     }
                 } else {
@@ -501,7 +533,7 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['processNote'])) {
                 if (is_array($data['processNote'])) {
-                    foreach($data['processNote'] as $d) {
+                    foreach ($data['processNote'] as $d) {
                         $this->addProcessNote($d);
                     }
                 } else {
@@ -517,43 +549,69 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->period)) $json['period'] = $this->period;
-        if (isset($this->created)) $json['created'] = $this->created;
-        if (isset($this->paymentIssuer)) $json['paymentIssuer'] = $this->paymentIssuer;
-        if (isset($this->request)) $json['request'] = $this->request;
-        if (isset($this->requestor)) $json['requestor'] = $this->requestor;
-        if (isset($this->outcome)) $json['outcome'] = $this->outcome;
-        if (isset($this->disposition)) $json['disposition'] = $this->disposition;
-        if (isset($this->paymentDate)) $json['paymentDate'] = $this->paymentDate;
-        if (isset($this->paymentAmount)) $json['paymentAmount'] = $this->paymentAmount;
-        if (isset($this->paymentIdentifier)) $json['paymentIdentifier'] = $this->paymentIdentifier;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
+        if (isset($this->created)) {
+            $json['created'] = $this->created;
+        }
+        if (isset($this->paymentIssuer)) {
+            $json['paymentIssuer'] = $this->paymentIssuer;
+        }
+        if (isset($this->request)) {
+            $json['request'] = $this->request;
+        }
+        if (isset($this->requestor)) {
+            $json['requestor'] = $this->requestor;
+        }
+        if (isset($this->outcome)) {
+            $json['outcome'] = $this->outcome;
+        }
+        if (isset($this->disposition)) {
+            $json['disposition'] = $this->disposition;
+        }
+        if (isset($this->paymentDate)) {
+            $json['paymentDate'] = $this->paymentDate;
+        }
+        if (isset($this->paymentAmount)) {
+            $json['paymentAmount'] = $this->paymentAmount;
+        }
+        if (isset($this->paymentIdentifier)) {
+            $json['paymentIdentifier'] = $this->paymentIdentifier;
+        }
         if (0 < count($this->detail)) {
             $json['detail'] = [];
-            foreach($this->detail as $detail) {
+            foreach ($this->detail as $detail) {
                 $json['detail'][] = $detail;
             }
         }
-        if (isset($this->formCode)) $json['formCode'] = $this->formCode;
+        if (isset($this->formCode)) {
+            $json['formCode'] = $this->formCode;
+        }
         if (0 < count($this->processNote)) {
             $json['processNote'] = [];
-            foreach($this->processNote as $processNote) {
+            foreach ($this->processNote as $processNote) {
                 $json['processNote'][] = $processNote;
             }
         }
@@ -565,39 +623,66 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PaymentReconciliation xmlns="http://hl7.org/fhir"></PaymentReconciliation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PaymentReconciliation xmlns="http://hl7.org/fhir"></PaymentReconciliation>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if (isset($this->created)) $this->created->xmlSerialize(true, $sxe->addChild('created'));
-        if (isset($this->paymentIssuer)) $this->paymentIssuer->xmlSerialize(true, $sxe->addChild('paymentIssuer'));
-        if (isset($this->request)) $this->request->xmlSerialize(true, $sxe->addChild('request'));
-        if (isset($this->requestor)) $this->requestor->xmlSerialize(true, $sxe->addChild('requestor'));
-        if (isset($this->outcome)) $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
-        if (isset($this->disposition)) $this->disposition->xmlSerialize(true, $sxe->addChild('disposition'));
-        if (isset($this->paymentDate)) $this->paymentDate->xmlSerialize(true, $sxe->addChild('paymentDate'));
-        if (isset($this->paymentAmount)) $this->paymentAmount->xmlSerialize(true, $sxe->addChild('paymentAmount'));
-        if (isset($this->paymentIdentifier)) $this->paymentIdentifier->xmlSerialize(true, $sxe->addChild('paymentIdentifier'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if (isset($this->created)) {
+            $this->created->xmlSerialize(true, $sxe->addChild('created'));
+        }
+        if (isset($this->paymentIssuer)) {
+            $this->paymentIssuer->xmlSerialize(true, $sxe->addChild('paymentIssuer'));
+        }
+        if (isset($this->request)) {
+            $this->request->xmlSerialize(true, $sxe->addChild('request'));
+        }
+        if (isset($this->requestor)) {
+            $this->requestor->xmlSerialize(true, $sxe->addChild('requestor'));
+        }
+        if (isset($this->outcome)) {
+            $this->outcome->xmlSerialize(true, $sxe->addChild('outcome'));
+        }
+        if (isset($this->disposition)) {
+            $this->disposition->xmlSerialize(true, $sxe->addChild('disposition'));
+        }
+        if (isset($this->paymentDate)) {
+            $this->paymentDate->xmlSerialize(true, $sxe->addChild('paymentDate'));
+        }
+        if (isset($this->paymentAmount)) {
+            $this->paymentAmount->xmlSerialize(true, $sxe->addChild('paymentAmount'));
+        }
+        if (isset($this->paymentIdentifier)) {
+            $this->paymentIdentifier->xmlSerialize(true, $sxe->addChild('paymentIdentifier'));
+        }
         if (0 < count($this->detail)) {
-            foreach($this->detail as $detail) {
+            foreach ($this->detail as $detail) {
                 $detail->xmlSerialize(true, $sxe->addChild('detail'));
             }
         }
-        if (isset($this->formCode)) $this->formCode->xmlSerialize(true, $sxe->addChild('formCode'));
+        if (isset($this->formCode)) {
+            $this->formCode->xmlSerialize(true, $sxe->addChild('formCode'));
+        }
         if (0 < count($this->processNote)) {
-            foreach($this->processNote as $processNote) {
+            foreach ($this->processNote as $processNote) {
                 $processNote->xmlSerialize(true, $sxe->addChild('processNote'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -327,7 +327,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * The name of the Output parameter.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -336,7 +337,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -344,7 +346,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary
      */
-    public function getValueBase64Binary() {
+    public function getValueBase64Binary()
+    {
         return $this->valueBase64Binary;
     }
 
@@ -352,7 +355,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary $valueBase64Binary
      * @return $this
      */
-    public function setValueBase64Binary($valueBase64Binary) {
+    public function setValueBase64Binary($valueBase64Binary)
+    {
         $this->valueBase64Binary = $valueBase64Binary;
         return $this;
     }
@@ -360,7 +364,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getValueBoolean() {
+    public function getValueBoolean()
+    {
         return $this->valueBoolean;
     }
 
@@ -368,7 +373,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $valueBoolean
      * @return $this
      */
-    public function setValueBoolean($valueBoolean) {
+    public function setValueBoolean($valueBoolean)
+    {
         $this->valueBoolean = $valueBoolean;
         return $this;
     }
@@ -376,7 +382,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getValueCanonical() {
+    public function getValueCanonical()
+    {
         return $this->valueCanonical;
     }
 
@@ -384,7 +391,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $valueCanonical
      * @return $this
      */
-    public function setValueCanonical($valueCanonical) {
+    public function setValueCanonical($valueCanonical)
+    {
         $this->valueCanonical = $valueCanonical;
         return $this;
     }
@@ -392,7 +400,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getValueCode() {
+    public function getValueCode()
+    {
         return $this->valueCode;
     }
 
@@ -400,7 +409,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $valueCode
      * @return $this
      */
-    public function setValueCode($valueCode) {
+    public function setValueCode($valueCode)
+    {
         $this->valueCode = $valueCode;
         return $this;
     }
@@ -408,7 +418,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getValueDate() {
+    public function getValueDate()
+    {
         return $this->valueDate;
     }
 
@@ -416,7 +427,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $valueDate
      * @return $this
      */
-    public function setValueDate($valueDate) {
+    public function setValueDate($valueDate)
+    {
         $this->valueDate = $valueDate;
         return $this;
     }
@@ -424,7 +436,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getValueDateTime() {
+    public function getValueDateTime()
+    {
         return $this->valueDateTime;
     }
 
@@ -432,7 +445,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $valueDateTime
      * @return $this
      */
-    public function setValueDateTime($valueDateTime) {
+    public function setValueDateTime($valueDateTime)
+    {
         $this->valueDateTime = $valueDateTime;
         return $this;
     }
@@ -440,7 +454,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getValueDecimal() {
+    public function getValueDecimal()
+    {
         return $this->valueDecimal;
     }
 
@@ -448,7 +463,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $valueDecimal
      * @return $this
      */
-    public function setValueDecimal($valueDecimal) {
+    public function setValueDecimal($valueDecimal)
+    {
         $this->valueDecimal = $valueDecimal;
         return $this;
     }
@@ -456,7 +472,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getValueId() {
+    public function getValueId()
+    {
         return $this->valueId;
     }
 
@@ -464,7 +481,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $valueId
      * @return $this
      */
-    public function setValueId($valueId) {
+    public function setValueId($valueId)
+    {
         $this->valueId = $valueId;
         return $this;
     }
@@ -472,7 +490,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getValueInstant() {
+    public function getValueInstant()
+    {
         return $this->valueInstant;
     }
 
@@ -480,7 +499,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $valueInstant
      * @return $this
      */
-    public function setValueInstant($valueInstant) {
+    public function setValueInstant($valueInstant)
+    {
         $this->valueInstant = $valueInstant;
         return $this;
     }
@@ -488,7 +508,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getValueInteger() {
+    public function getValueInteger()
+    {
         return $this->valueInteger;
     }
 
@@ -496,7 +517,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $valueInteger
      * @return $this
      */
-    public function setValueInteger($valueInteger) {
+    public function setValueInteger($valueInteger)
+    {
         $this->valueInteger = $valueInteger;
         return $this;
     }
@@ -504,7 +526,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getValueMarkdown() {
+    public function getValueMarkdown()
+    {
         return $this->valueMarkdown;
     }
 
@@ -512,7 +535,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $valueMarkdown
      * @return $this
      */
-    public function setValueMarkdown($valueMarkdown) {
+    public function setValueMarkdown($valueMarkdown)
+    {
         $this->valueMarkdown = $valueMarkdown;
         return $this;
     }
@@ -520,7 +544,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIROid
      */
-    public function getValueOid() {
+    public function getValueOid()
+    {
         return $this->valueOid;
     }
 
@@ -528,7 +553,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIROid $valueOid
      * @return $this
      */
-    public function setValueOid($valueOid) {
+    public function setValueOid($valueOid)
+    {
         $this->valueOid = $valueOid;
         return $this;
     }
@@ -536,7 +562,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getValuePositiveInt() {
+    public function getValuePositiveInt()
+    {
         return $this->valuePositiveInt;
     }
 
@@ -544,7 +571,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $valuePositiveInt
      * @return $this
      */
-    public function setValuePositiveInt($valuePositiveInt) {
+    public function setValuePositiveInt($valuePositiveInt)
+    {
         $this->valuePositiveInt = $valuePositiveInt;
         return $this;
     }
@@ -552,7 +580,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValueString() {
+    public function getValueString()
+    {
         return $this->valueString;
     }
 
@@ -560,7 +589,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $valueString
      * @return $this
      */
-    public function setValueString($valueString) {
+    public function setValueString($valueString)
+    {
         $this->valueString = $valueString;
         return $this;
     }
@@ -568,7 +598,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getValueTime() {
+    public function getValueTime()
+    {
         return $this->valueTime;
     }
 
@@ -576,7 +607,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $valueTime
      * @return $this
      */
-    public function setValueTime($valueTime) {
+    public function setValueTime($valueTime)
+    {
         $this->valueTime = $valueTime;
         return $this;
     }
@@ -584,7 +616,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getValueUnsignedInt() {
+    public function getValueUnsignedInt()
+    {
         return $this->valueUnsignedInt;
     }
 
@@ -592,7 +625,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $valueUnsignedInt
      * @return $this
      */
-    public function setValueUnsignedInt($valueUnsignedInt) {
+    public function setValueUnsignedInt($valueUnsignedInt)
+    {
         $this->valueUnsignedInt = $valueUnsignedInt;
         return $this;
     }
@@ -600,7 +634,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getValueUri() {
+    public function getValueUri()
+    {
         return $this->valueUri;
     }
 
@@ -608,7 +643,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $valueUri
      * @return $this
      */
-    public function setValueUri($valueUri) {
+    public function setValueUri($valueUri)
+    {
         $this->valueUri = $valueUri;
         return $this;
     }
@@ -616,7 +652,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl
      */
-    public function getValueUrl() {
+    public function getValueUrl()
+    {
         return $this->valueUrl;
     }
 
@@ -624,7 +661,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUrl $valueUrl
      * @return $this
      */
-    public function setValueUrl($valueUrl) {
+    public function setValueUrl($valueUrl)
+    {
         $this->valueUrl = $valueUrl;
         return $this;
     }
@@ -632,7 +670,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUuid
      */
-    public function getValueUuid() {
+    public function getValueUuid()
+    {
         return $this->valueUuid;
     }
 
@@ -640,7 +679,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUuid $valueUuid
      * @return $this
      */
-    public function setValueUuid($valueUuid) {
+    public function setValueUuid($valueUuid)
+    {
         $this->valueUuid = $valueUuid;
         return $this;
     }
@@ -648,7 +688,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress
      */
-    public function getValueAddress() {
+    public function getValueAddress()
+    {
         return $this->valueAddress;
     }
 
@@ -656,7 +697,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $valueAddress
      * @return $this
      */
-    public function setValueAddress($valueAddress) {
+    public function setValueAddress($valueAddress)
+    {
         $this->valueAddress = $valueAddress;
         return $this;
     }
@@ -664,7 +706,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getValueAge() {
+    public function getValueAge()
+    {
         return $this->valueAge;
     }
 
@@ -672,7 +715,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $valueAge
      * @return $this
      */
-    public function setValueAge($valueAge) {
+    public function setValueAge($valueAge)
+    {
         $this->valueAge = $valueAge;
         return $this;
     }
@@ -680,7 +724,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation
      */
-    public function getValueAnnotation() {
+    public function getValueAnnotation()
+    {
         return $this->valueAnnotation;
     }
 
@@ -688,7 +733,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $valueAnnotation
      * @return $this
      */
-    public function setValueAnnotation($valueAnnotation) {
+    public function setValueAnnotation($valueAnnotation)
+    {
         $this->valueAnnotation = $valueAnnotation;
         return $this;
     }
@@ -696,7 +742,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment
      */
-    public function getValueAttachment() {
+    public function getValueAttachment()
+    {
         return $this->valueAttachment;
     }
 
@@ -704,7 +751,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $valueAttachment
      * @return $this
      */
-    public function setValueAttachment($valueAttachment) {
+    public function setValueAttachment($valueAttachment)
+    {
         $this->valueAttachment = $valueAttachment;
         return $this;
     }
@@ -712,7 +760,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getValueCodeableConcept() {
+    public function getValueCodeableConcept()
+    {
         return $this->valueCodeableConcept;
     }
 
@@ -720,7 +769,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $valueCodeableConcept
      * @return $this
      */
-    public function setValueCodeableConcept($valueCodeableConcept) {
+    public function setValueCodeableConcept($valueCodeableConcept)
+    {
         $this->valueCodeableConcept = $valueCodeableConcept;
         return $this;
     }
@@ -728,7 +778,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getValueCoding() {
+    public function getValueCoding()
+    {
         return $this->valueCoding;
     }
 
@@ -736,7 +787,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $valueCoding
      * @return $this
      */
-    public function setValueCoding($valueCoding) {
+    public function setValueCoding($valueCoding)
+    {
         $this->valueCoding = $valueCoding;
         return $this;
     }
@@ -744,7 +796,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint
      */
-    public function getValueContactPoint() {
+    public function getValueContactPoint()
+    {
         return $this->valueContactPoint;
     }
 
@@ -752,7 +805,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $valueContactPoint
      * @return $this
      */
-    public function setValueContactPoint($valueContactPoint) {
+    public function setValueContactPoint($valueContactPoint)
+    {
         $this->valueContactPoint = $valueContactPoint;
         return $this;
     }
@@ -760,7 +814,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRCount
      */
-    public function getValueCount() {
+    public function getValueCount()
+    {
         return $this->valueCount;
     }
 
@@ -768,7 +823,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRCount $valueCount
      * @return $this
      */
-    public function setValueCount($valueCount) {
+    public function setValueCount($valueCount)
+    {
         $this->valueCount = $valueCount;
         return $this;
     }
@@ -776,7 +832,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDistance
      */
-    public function getValueDistance() {
+    public function getValueDistance()
+    {
         return $this->valueDistance;
     }
 
@@ -784,7 +841,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDistance $valueDistance
      * @return $this
      */
-    public function setValueDistance($valueDistance) {
+    public function setValueDistance($valueDistance)
+    {
         $this->valueDistance = $valueDistance;
         return $this;
     }
@@ -792,7 +850,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getValueDuration() {
+    public function getValueDuration()
+    {
         return $this->valueDuration;
     }
 
@@ -800,7 +859,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $valueDuration
      * @return $this
      */
-    public function setValueDuration($valueDuration) {
+    public function setValueDuration($valueDuration)
+    {
         $this->valueDuration = $valueDuration;
         return $this;
     }
@@ -808,7 +868,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName
      */
-    public function getValueHumanName() {
+    public function getValueHumanName()
+    {
         return $this->valueHumanName;
     }
 
@@ -816,7 +877,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName $valueHumanName
      * @return $this
      */
-    public function setValueHumanName($valueHumanName) {
+    public function setValueHumanName($valueHumanName)
+    {
         $this->valueHumanName = $valueHumanName;
         return $this;
     }
@@ -824,7 +886,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getValueIdentifier() {
+    public function getValueIdentifier()
+    {
         return $this->valueIdentifier;
     }
 
@@ -832,7 +895,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $valueIdentifier
      * @return $this
      */
-    public function setValueIdentifier($valueIdentifier) {
+    public function setValueIdentifier($valueIdentifier)
+    {
         $this->valueIdentifier = $valueIdentifier;
         return $this;
     }
@@ -840,7 +904,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getValueMoney() {
+    public function getValueMoney()
+    {
         return $this->valueMoney;
     }
 
@@ -848,7 +913,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $valueMoney
      * @return $this
      */
-    public function setValueMoney($valueMoney) {
+    public function setValueMoney($valueMoney)
+    {
         $this->valueMoney = $valueMoney;
         return $this;
     }
@@ -856,7 +922,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getValuePeriod() {
+    public function getValuePeriod()
+    {
         return $this->valuePeriod;
     }
 
@@ -864,7 +931,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $valuePeriod
      * @return $this
      */
-    public function setValuePeriod($valuePeriod) {
+    public function setValuePeriod($valuePeriod)
+    {
         $this->valuePeriod = $valuePeriod;
         return $this;
     }
@@ -872,7 +940,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValueQuantity() {
+    public function getValueQuantity()
+    {
         return $this->valueQuantity;
     }
 
@@ -880,7 +949,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
      * @return $this
      */
-    public function setValueQuantity($valueQuantity) {
+    public function setValueQuantity($valueQuantity)
+    {
         $this->valueQuantity = $valueQuantity;
         return $this;
     }
@@ -888,7 +958,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getValueRange() {
+    public function getValueRange()
+    {
         return $this->valueRange;
     }
 
@@ -896,7 +967,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $valueRange
      * @return $this
      */
-    public function setValueRange($valueRange) {
+    public function setValueRange($valueRange)
+    {
         $this->valueRange = $valueRange;
         return $this;
     }
@@ -904,7 +976,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getValueRatio() {
+    public function getValueRatio()
+    {
         return $this->valueRatio;
     }
 
@@ -912,7 +985,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $valueRatio
      * @return $this
      */
-    public function setValueRatio($valueRatio) {
+    public function setValueRatio($valueRatio)
+    {
         $this->valueRatio = $valueRatio;
         return $this;
     }
@@ -920,7 +994,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getValueReference() {
+    public function getValueReference()
+    {
         return $this->valueReference;
     }
 
@@ -928,7 +1003,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $valueReference
      * @return $this
      */
-    public function setValueReference($valueReference) {
+    public function setValueReference($valueReference)
+    {
         $this->valueReference = $valueReference;
         return $this;
     }
@@ -936,7 +1012,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData
      */
-    public function getValueSampledData() {
+    public function getValueSampledData()
+    {
         return $this->valueSampledData;
     }
 
@@ -944,7 +1021,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData $valueSampledData
      * @return $this
      */
-    public function setValueSampledData($valueSampledData) {
+    public function setValueSampledData($valueSampledData)
+    {
         $this->valueSampledData = $valueSampledData;
         return $this;
     }
@@ -952,7 +1030,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature
      */
-    public function getValueSignature() {
+    public function getValueSignature()
+    {
         return $this->valueSignature;
     }
 
@@ -960,7 +1039,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSignature $valueSignature
      * @return $this
      */
-    public function setValueSignature($valueSignature) {
+    public function setValueSignature($valueSignature)
+    {
         $this->valueSignature = $valueSignature;
         return $this;
     }
@@ -968,7 +1048,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getValueTiming() {
+    public function getValueTiming()
+    {
         return $this->valueTiming;
     }
 
@@ -976,7 +1057,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $valueTiming
      * @return $this
      */
-    public function setValueTiming($valueTiming) {
+    public function setValueTiming($valueTiming)
+    {
         $this->valueTiming = $valueTiming;
         return $this;
     }
@@ -984,7 +1066,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail
      */
-    public function getValueContactDetail() {
+    public function getValueContactDetail()
+    {
         return $this->valueContactDetail;
     }
 
@@ -992,7 +1075,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactDetail $valueContactDetail
      * @return $this
      */
-    public function setValueContactDetail($valueContactDetail) {
+    public function setValueContactDetail($valueContactDetail)
+    {
         $this->valueContactDetail = $valueContactDetail;
         return $this;
     }
@@ -1000,7 +1084,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContributor
      */
-    public function getValueContributor() {
+    public function getValueContributor()
+    {
         return $this->valueContributor;
     }
 
@@ -1008,7 +1093,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContributor $valueContributor
      * @return $this
      */
-    public function setValueContributor($valueContributor) {
+    public function setValueContributor($valueContributor)
+    {
         $this->valueContributor = $valueContributor;
         return $this;
     }
@@ -1016,7 +1102,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement
      */
-    public function getValueDataRequirement() {
+    public function getValueDataRequirement()
+    {
         return $this->valueDataRequirement;
     }
 
@@ -1024,7 +1111,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement $valueDataRequirement
      * @return $this
      */
-    public function setValueDataRequirement($valueDataRequirement) {
+    public function setValueDataRequirement($valueDataRequirement)
+    {
         $this->valueDataRequirement = $valueDataRequirement;
         return $this;
     }
@@ -1032,7 +1120,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getValueExpression() {
+    public function getValueExpression()
+    {
         return $this->valueExpression;
     }
 
@@ -1040,7 +1129,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $valueExpression
      * @return $this
      */
-    public function setValueExpression($valueExpression) {
+    public function setValueExpression($valueExpression)
+    {
         $this->valueExpression = $valueExpression;
         return $this;
     }
@@ -1048,7 +1138,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRParameterDefinition
      */
-    public function getValueParameterDefinition() {
+    public function getValueParameterDefinition()
+    {
         return $this->valueParameterDefinition;
     }
 
@@ -1056,7 +1147,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRParameterDefinition $valueParameterDefinition
      * @return $this
      */
-    public function setValueParameterDefinition($valueParameterDefinition) {
+    public function setValueParameterDefinition($valueParameterDefinition)
+    {
         $this->valueParameterDefinition = $valueParameterDefinition;
         return $this;
     }
@@ -1064,7 +1156,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact
      */
-    public function getValueRelatedArtifact() {
+    public function getValueRelatedArtifact()
+    {
         return $this->valueRelatedArtifact;
     }
 
@@ -1072,7 +1165,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRelatedArtifact $valueRelatedArtifact
      * @return $this
      */
-    public function setValueRelatedArtifact($valueRelatedArtifact) {
+    public function setValueRelatedArtifact($valueRelatedArtifact)
+    {
         $this->valueRelatedArtifact = $valueRelatedArtifact;
         return $this;
     }
@@ -1080,7 +1174,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition
      */
-    public function getValueTriggerDefinition() {
+    public function getValueTriggerDefinition()
+    {
         return $this->valueTriggerDefinition;
     }
 
@@ -1088,7 +1183,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTriggerDefinition $valueTriggerDefinition
      * @return $this
      */
-    public function setValueTriggerDefinition($valueTriggerDefinition) {
+    public function setValueTriggerDefinition($valueTriggerDefinition)
+    {
         $this->valueTriggerDefinition = $valueTriggerDefinition;
         return $this;
     }
@@ -1096,7 +1192,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext
      */
-    public function getValueUsageContext() {
+    public function getValueUsageContext()
+    {
         return $this->valueUsageContext;
     }
 
@@ -1104,7 +1201,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $valueUsageContext
      * @return $this
      */
-    public function setValueUsageContext($valueUsageContext) {
+    public function setValueUsageContext($valueUsageContext)
+    {
         $this->valueUsageContext = $valueUsageContext;
         return $this;
     }
@@ -1112,7 +1210,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage
      */
-    public function getValueDosage() {
+    public function getValueDosage()
+    {
         return $this->valueDosage;
     }
 
@@ -1120,7 +1219,8 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage $valueDosage
      * @return $this
      */
-    public function setValueDosage($valueDosage) {
+    public function setValueDosage($valueDosage)
+    {
         $this->valueDosage = $valueDosage;
         return $this;
     }
@@ -1128,14 +1228,16 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -1296,65 +1398,167 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->valueBase64Binary)) $json['valueBase64Binary'] = $this->valueBase64Binary;
-        if (isset($this->valueBoolean)) $json['valueBoolean'] = $this->valueBoolean;
-        if (isset($this->valueCanonical)) $json['valueCanonical'] = $this->valueCanonical;
-        if (isset($this->valueCode)) $json['valueCode'] = $this->valueCode;
-        if (isset($this->valueDate)) $json['valueDate'] = $this->valueDate;
-        if (isset($this->valueDateTime)) $json['valueDateTime'] = $this->valueDateTime;
-        if (isset($this->valueDecimal)) $json['valueDecimal'] = $this->valueDecimal;
-        if (isset($this->valueId)) $json['valueId'] = $this->valueId;
-        if (isset($this->valueInstant)) $json['valueInstant'] = $this->valueInstant;
-        if (isset($this->valueInteger)) $json['valueInteger'] = $this->valueInteger;
-        if (isset($this->valueMarkdown)) $json['valueMarkdown'] = $this->valueMarkdown;
-        if (isset($this->valueOid)) $json['valueOid'] = $this->valueOid;
-        if (isset($this->valuePositiveInt)) $json['valuePositiveInt'] = $this->valuePositiveInt;
-        if (isset($this->valueString)) $json['valueString'] = $this->valueString;
-        if (isset($this->valueTime)) $json['valueTime'] = $this->valueTime;
-        if (isset($this->valueUnsignedInt)) $json['valueUnsignedInt'] = $this->valueUnsignedInt;
-        if (isset($this->valueUri)) $json['valueUri'] = $this->valueUri;
-        if (isset($this->valueUrl)) $json['valueUrl'] = $this->valueUrl;
-        if (isset($this->valueUuid)) $json['valueUuid'] = $this->valueUuid;
-        if (isset($this->valueAddress)) $json['valueAddress'] = $this->valueAddress;
-        if (isset($this->valueAge)) $json['valueAge'] = $this->valueAge;
-        if (isset($this->valueAnnotation)) $json['valueAnnotation'] = $this->valueAnnotation;
-        if (isset($this->valueAttachment)) $json['valueAttachment'] = $this->valueAttachment;
-        if (isset($this->valueCodeableConcept)) $json['valueCodeableConcept'] = $this->valueCodeableConcept;
-        if (isset($this->valueCoding)) $json['valueCoding'] = $this->valueCoding;
-        if (isset($this->valueContactPoint)) $json['valueContactPoint'] = $this->valueContactPoint;
-        if (isset($this->valueCount)) $json['valueCount'] = $this->valueCount;
-        if (isset($this->valueDistance)) $json['valueDistance'] = $this->valueDistance;
-        if (isset($this->valueDuration)) $json['valueDuration'] = $this->valueDuration;
-        if (isset($this->valueHumanName)) $json['valueHumanName'] = $this->valueHumanName;
-        if (isset($this->valueIdentifier)) $json['valueIdentifier'] = $this->valueIdentifier;
-        if (isset($this->valueMoney)) $json['valueMoney'] = $this->valueMoney;
-        if (isset($this->valuePeriod)) $json['valuePeriod'] = $this->valuePeriod;
-        if (isset($this->valueQuantity)) $json['valueQuantity'] = $this->valueQuantity;
-        if (isset($this->valueRange)) $json['valueRange'] = $this->valueRange;
-        if (isset($this->valueRatio)) $json['valueRatio'] = $this->valueRatio;
-        if (isset($this->valueReference)) $json['valueReference'] = $this->valueReference;
-        if (isset($this->valueSampledData)) $json['valueSampledData'] = $this->valueSampledData;
-        if (isset($this->valueSignature)) $json['valueSignature'] = $this->valueSignature;
-        if (isset($this->valueTiming)) $json['valueTiming'] = $this->valueTiming;
-        if (isset($this->valueContactDetail)) $json['valueContactDetail'] = $this->valueContactDetail;
-        if (isset($this->valueContributor)) $json['valueContributor'] = $this->valueContributor;
-        if (isset($this->valueDataRequirement)) $json['valueDataRequirement'] = $this->valueDataRequirement;
-        if (isset($this->valueExpression)) $json['valueExpression'] = $this->valueExpression;
-        if (isset($this->valueParameterDefinition)) $json['valueParameterDefinition'] = $this->valueParameterDefinition;
-        if (isset($this->valueRelatedArtifact)) $json['valueRelatedArtifact'] = $this->valueRelatedArtifact;
-        if (isset($this->valueTriggerDefinition)) $json['valueTriggerDefinition'] = $this->valueTriggerDefinition;
-        if (isset($this->valueUsageContext)) $json['valueUsageContext'] = $this->valueUsageContext;
-        if (isset($this->valueDosage)) $json['valueDosage'] = $this->valueDosage;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->valueBase64Binary)) {
+            $json['valueBase64Binary'] = $this->valueBase64Binary;
+        }
+        if (isset($this->valueBoolean)) {
+            $json['valueBoolean'] = $this->valueBoolean;
+        }
+        if (isset($this->valueCanonical)) {
+            $json['valueCanonical'] = $this->valueCanonical;
+        }
+        if (isset($this->valueCode)) {
+            $json['valueCode'] = $this->valueCode;
+        }
+        if (isset($this->valueDate)) {
+            $json['valueDate'] = $this->valueDate;
+        }
+        if (isset($this->valueDateTime)) {
+            $json['valueDateTime'] = $this->valueDateTime;
+        }
+        if (isset($this->valueDecimal)) {
+            $json['valueDecimal'] = $this->valueDecimal;
+        }
+        if (isset($this->valueId)) {
+            $json['valueId'] = $this->valueId;
+        }
+        if (isset($this->valueInstant)) {
+            $json['valueInstant'] = $this->valueInstant;
+        }
+        if (isset($this->valueInteger)) {
+            $json['valueInteger'] = $this->valueInteger;
+        }
+        if (isset($this->valueMarkdown)) {
+            $json['valueMarkdown'] = $this->valueMarkdown;
+        }
+        if (isset($this->valueOid)) {
+            $json['valueOid'] = $this->valueOid;
+        }
+        if (isset($this->valuePositiveInt)) {
+            $json['valuePositiveInt'] = $this->valuePositiveInt;
+        }
+        if (isset($this->valueString)) {
+            $json['valueString'] = $this->valueString;
+        }
+        if (isset($this->valueTime)) {
+            $json['valueTime'] = $this->valueTime;
+        }
+        if (isset($this->valueUnsignedInt)) {
+            $json['valueUnsignedInt'] = $this->valueUnsignedInt;
+        }
+        if (isset($this->valueUri)) {
+            $json['valueUri'] = $this->valueUri;
+        }
+        if (isset($this->valueUrl)) {
+            $json['valueUrl'] = $this->valueUrl;
+        }
+        if (isset($this->valueUuid)) {
+            $json['valueUuid'] = $this->valueUuid;
+        }
+        if (isset($this->valueAddress)) {
+            $json['valueAddress'] = $this->valueAddress;
+        }
+        if (isset($this->valueAge)) {
+            $json['valueAge'] = $this->valueAge;
+        }
+        if (isset($this->valueAnnotation)) {
+            $json['valueAnnotation'] = $this->valueAnnotation;
+        }
+        if (isset($this->valueAttachment)) {
+            $json['valueAttachment'] = $this->valueAttachment;
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $json['valueCodeableConcept'] = $this->valueCodeableConcept;
+        }
+        if (isset($this->valueCoding)) {
+            $json['valueCoding'] = $this->valueCoding;
+        }
+        if (isset($this->valueContactPoint)) {
+            $json['valueContactPoint'] = $this->valueContactPoint;
+        }
+        if (isset($this->valueCount)) {
+            $json['valueCount'] = $this->valueCount;
+        }
+        if (isset($this->valueDistance)) {
+            $json['valueDistance'] = $this->valueDistance;
+        }
+        if (isset($this->valueDuration)) {
+            $json['valueDuration'] = $this->valueDuration;
+        }
+        if (isset($this->valueHumanName)) {
+            $json['valueHumanName'] = $this->valueHumanName;
+        }
+        if (isset($this->valueIdentifier)) {
+            $json['valueIdentifier'] = $this->valueIdentifier;
+        }
+        if (isset($this->valueMoney)) {
+            $json['valueMoney'] = $this->valueMoney;
+        }
+        if (isset($this->valuePeriod)) {
+            $json['valuePeriod'] = $this->valuePeriod;
+        }
+        if (isset($this->valueQuantity)) {
+            $json['valueQuantity'] = $this->valueQuantity;
+        }
+        if (isset($this->valueRange)) {
+            $json['valueRange'] = $this->valueRange;
+        }
+        if (isset($this->valueRatio)) {
+            $json['valueRatio'] = $this->valueRatio;
+        }
+        if (isset($this->valueReference)) {
+            $json['valueReference'] = $this->valueReference;
+        }
+        if (isset($this->valueSampledData)) {
+            $json['valueSampledData'] = $this->valueSampledData;
+        }
+        if (isset($this->valueSignature)) {
+            $json['valueSignature'] = $this->valueSignature;
+        }
+        if (isset($this->valueTiming)) {
+            $json['valueTiming'] = $this->valueTiming;
+        }
+        if (isset($this->valueContactDetail)) {
+            $json['valueContactDetail'] = $this->valueContactDetail;
+        }
+        if (isset($this->valueContributor)) {
+            $json['valueContributor'] = $this->valueContributor;
+        }
+        if (isset($this->valueDataRequirement)) {
+            $json['valueDataRequirement'] = $this->valueDataRequirement;
+        }
+        if (isset($this->valueExpression)) {
+            $json['valueExpression'] = $this->valueExpression;
+        }
+        if (isset($this->valueParameterDefinition)) {
+            $json['valueParameterDefinition'] = $this->valueParameterDefinition;
+        }
+        if (isset($this->valueRelatedArtifact)) {
+            $json['valueRelatedArtifact'] = $this->valueRelatedArtifact;
+        }
+        if (isset($this->valueTriggerDefinition)) {
+            $json['valueTriggerDefinition'] = $this->valueTriggerDefinition;
+        }
+        if (isset($this->valueUsageContext)) {
+            $json['valueUsageContext'] = $this->valueUsageContext;
+        }
+        if (isset($this->valueDosage)) {
+            $json['valueDosage'] = $this->valueDosage;
+        }
         return $json;
     }
 
@@ -1363,62 +1567,165 @@ class FHIRTaskOutput extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TaskOutput xmlns="http://hl7.org/fhir"></TaskOutput>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TaskOutput xmlns="http://hl7.org/fhir"></TaskOutput>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->valueBase64Binary)) $this->valueBase64Binary->xmlSerialize(true, $sxe->addChild('valueBase64Binary'));
-        if (isset($this->valueBoolean)) $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
-        if (isset($this->valueCanonical)) $this->valueCanonical->xmlSerialize(true, $sxe->addChild('valueCanonical'));
-        if (isset($this->valueCode)) $this->valueCode->xmlSerialize(true, $sxe->addChild('valueCode'));
-        if (isset($this->valueDate)) $this->valueDate->xmlSerialize(true, $sxe->addChild('valueDate'));
-        if (isset($this->valueDateTime)) $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
-        if (isset($this->valueDecimal)) $this->valueDecimal->xmlSerialize(true, $sxe->addChild('valueDecimal'));
-        if (isset($this->valueId)) $this->valueId->xmlSerialize(true, $sxe->addChild('valueId'));
-        if (isset($this->valueInstant)) $this->valueInstant->xmlSerialize(true, $sxe->addChild('valueInstant'));
-        if (isset($this->valueInteger)) $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
-        if (isset($this->valueMarkdown)) $this->valueMarkdown->xmlSerialize(true, $sxe->addChild('valueMarkdown'));
-        if (isset($this->valueOid)) $this->valueOid->xmlSerialize(true, $sxe->addChild('valueOid'));
-        if (isset($this->valuePositiveInt)) $this->valuePositiveInt->xmlSerialize(true, $sxe->addChild('valuePositiveInt'));
-        if (isset($this->valueString)) $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
-        if (isset($this->valueTime)) $this->valueTime->xmlSerialize(true, $sxe->addChild('valueTime'));
-        if (isset($this->valueUnsignedInt)) $this->valueUnsignedInt->xmlSerialize(true, $sxe->addChild('valueUnsignedInt'));
-        if (isset($this->valueUri)) $this->valueUri->xmlSerialize(true, $sxe->addChild('valueUri'));
-        if (isset($this->valueUrl)) $this->valueUrl->xmlSerialize(true, $sxe->addChild('valueUrl'));
-        if (isset($this->valueUuid)) $this->valueUuid->xmlSerialize(true, $sxe->addChild('valueUuid'));
-        if (isset($this->valueAddress)) $this->valueAddress->xmlSerialize(true, $sxe->addChild('valueAddress'));
-        if (isset($this->valueAge)) $this->valueAge->xmlSerialize(true, $sxe->addChild('valueAge'));
-        if (isset($this->valueAnnotation)) $this->valueAnnotation->xmlSerialize(true, $sxe->addChild('valueAnnotation'));
-        if (isset($this->valueAttachment)) $this->valueAttachment->xmlSerialize(true, $sxe->addChild('valueAttachment'));
-        if (isset($this->valueCodeableConcept)) $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
-        if (isset($this->valueCoding)) $this->valueCoding->xmlSerialize(true, $sxe->addChild('valueCoding'));
-        if (isset($this->valueContactPoint)) $this->valueContactPoint->xmlSerialize(true, $sxe->addChild('valueContactPoint'));
-        if (isset($this->valueCount)) $this->valueCount->xmlSerialize(true, $sxe->addChild('valueCount'));
-        if (isset($this->valueDistance)) $this->valueDistance->xmlSerialize(true, $sxe->addChild('valueDistance'));
-        if (isset($this->valueDuration)) $this->valueDuration->xmlSerialize(true, $sxe->addChild('valueDuration'));
-        if (isset($this->valueHumanName)) $this->valueHumanName->xmlSerialize(true, $sxe->addChild('valueHumanName'));
-        if (isset($this->valueIdentifier)) $this->valueIdentifier->xmlSerialize(true, $sxe->addChild('valueIdentifier'));
-        if (isset($this->valueMoney)) $this->valueMoney->xmlSerialize(true, $sxe->addChild('valueMoney'));
-        if (isset($this->valuePeriod)) $this->valuePeriod->xmlSerialize(true, $sxe->addChild('valuePeriod'));
-        if (isset($this->valueQuantity)) $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
-        if (isset($this->valueRange)) $this->valueRange->xmlSerialize(true, $sxe->addChild('valueRange'));
-        if (isset($this->valueRatio)) $this->valueRatio->xmlSerialize(true, $sxe->addChild('valueRatio'));
-        if (isset($this->valueReference)) $this->valueReference->xmlSerialize(true, $sxe->addChild('valueReference'));
-        if (isset($this->valueSampledData)) $this->valueSampledData->xmlSerialize(true, $sxe->addChild('valueSampledData'));
-        if (isset($this->valueSignature)) $this->valueSignature->xmlSerialize(true, $sxe->addChild('valueSignature'));
-        if (isset($this->valueTiming)) $this->valueTiming->xmlSerialize(true, $sxe->addChild('valueTiming'));
-        if (isset($this->valueContactDetail)) $this->valueContactDetail->xmlSerialize(true, $sxe->addChild('valueContactDetail'));
-        if (isset($this->valueContributor)) $this->valueContributor->xmlSerialize(true, $sxe->addChild('valueContributor'));
-        if (isset($this->valueDataRequirement)) $this->valueDataRequirement->xmlSerialize(true, $sxe->addChild('valueDataRequirement'));
-        if (isset($this->valueExpression)) $this->valueExpression->xmlSerialize(true, $sxe->addChild('valueExpression'));
-        if (isset($this->valueParameterDefinition)) $this->valueParameterDefinition->xmlSerialize(true, $sxe->addChild('valueParameterDefinition'));
-        if (isset($this->valueRelatedArtifact)) $this->valueRelatedArtifact->xmlSerialize(true, $sxe->addChild('valueRelatedArtifact'));
-        if (isset($this->valueTriggerDefinition)) $this->valueTriggerDefinition->xmlSerialize(true, $sxe->addChild('valueTriggerDefinition'));
-        if (isset($this->valueUsageContext)) $this->valueUsageContext->xmlSerialize(true, $sxe->addChild('valueUsageContext'));
-        if (isset($this->valueDosage)) $this->valueDosage->xmlSerialize(true, $sxe->addChild('valueDosage'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->valueBase64Binary)) {
+            $this->valueBase64Binary->xmlSerialize(true, $sxe->addChild('valueBase64Binary'));
+        }
+        if (isset($this->valueBoolean)) {
+            $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
+        }
+        if (isset($this->valueCanonical)) {
+            $this->valueCanonical->xmlSerialize(true, $sxe->addChild('valueCanonical'));
+        }
+        if (isset($this->valueCode)) {
+            $this->valueCode->xmlSerialize(true, $sxe->addChild('valueCode'));
+        }
+        if (isset($this->valueDate)) {
+            $this->valueDate->xmlSerialize(true, $sxe->addChild('valueDate'));
+        }
+        if (isset($this->valueDateTime)) {
+            $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
+        }
+        if (isset($this->valueDecimal)) {
+            $this->valueDecimal->xmlSerialize(true, $sxe->addChild('valueDecimal'));
+        }
+        if (isset($this->valueId)) {
+            $this->valueId->xmlSerialize(true, $sxe->addChild('valueId'));
+        }
+        if (isset($this->valueInstant)) {
+            $this->valueInstant->xmlSerialize(true, $sxe->addChild('valueInstant'));
+        }
+        if (isset($this->valueInteger)) {
+            $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
+        }
+        if (isset($this->valueMarkdown)) {
+            $this->valueMarkdown->xmlSerialize(true, $sxe->addChild('valueMarkdown'));
+        }
+        if (isset($this->valueOid)) {
+            $this->valueOid->xmlSerialize(true, $sxe->addChild('valueOid'));
+        }
+        if (isset($this->valuePositiveInt)) {
+            $this->valuePositiveInt->xmlSerialize(true, $sxe->addChild('valuePositiveInt'));
+        }
+        if (isset($this->valueString)) {
+            $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
+        }
+        if (isset($this->valueTime)) {
+            $this->valueTime->xmlSerialize(true, $sxe->addChild('valueTime'));
+        }
+        if (isset($this->valueUnsignedInt)) {
+            $this->valueUnsignedInt->xmlSerialize(true, $sxe->addChild('valueUnsignedInt'));
+        }
+        if (isset($this->valueUri)) {
+            $this->valueUri->xmlSerialize(true, $sxe->addChild('valueUri'));
+        }
+        if (isset($this->valueUrl)) {
+            $this->valueUrl->xmlSerialize(true, $sxe->addChild('valueUrl'));
+        }
+        if (isset($this->valueUuid)) {
+            $this->valueUuid->xmlSerialize(true, $sxe->addChild('valueUuid'));
+        }
+        if (isset($this->valueAddress)) {
+            $this->valueAddress->xmlSerialize(true, $sxe->addChild('valueAddress'));
+        }
+        if (isset($this->valueAge)) {
+            $this->valueAge->xmlSerialize(true, $sxe->addChild('valueAge'));
+        }
+        if (isset($this->valueAnnotation)) {
+            $this->valueAnnotation->xmlSerialize(true, $sxe->addChild('valueAnnotation'));
+        }
+        if (isset($this->valueAttachment)) {
+            $this->valueAttachment->xmlSerialize(true, $sxe->addChild('valueAttachment'));
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
+        }
+        if (isset($this->valueCoding)) {
+            $this->valueCoding->xmlSerialize(true, $sxe->addChild('valueCoding'));
+        }
+        if (isset($this->valueContactPoint)) {
+            $this->valueContactPoint->xmlSerialize(true, $sxe->addChild('valueContactPoint'));
+        }
+        if (isset($this->valueCount)) {
+            $this->valueCount->xmlSerialize(true, $sxe->addChild('valueCount'));
+        }
+        if (isset($this->valueDistance)) {
+            $this->valueDistance->xmlSerialize(true, $sxe->addChild('valueDistance'));
+        }
+        if (isset($this->valueDuration)) {
+            $this->valueDuration->xmlSerialize(true, $sxe->addChild('valueDuration'));
+        }
+        if (isset($this->valueHumanName)) {
+            $this->valueHumanName->xmlSerialize(true, $sxe->addChild('valueHumanName'));
+        }
+        if (isset($this->valueIdentifier)) {
+            $this->valueIdentifier->xmlSerialize(true, $sxe->addChild('valueIdentifier'));
+        }
+        if (isset($this->valueMoney)) {
+            $this->valueMoney->xmlSerialize(true, $sxe->addChild('valueMoney'));
+        }
+        if (isset($this->valuePeriod)) {
+            $this->valuePeriod->xmlSerialize(true, $sxe->addChild('valuePeriod'));
+        }
+        if (isset($this->valueQuantity)) {
+            $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
+        }
+        if (isset($this->valueRange)) {
+            $this->valueRange->xmlSerialize(true, $sxe->addChild('valueRange'));
+        }
+        if (isset($this->valueRatio)) {
+            $this->valueRatio->xmlSerialize(true, $sxe->addChild('valueRatio'));
+        }
+        if (isset($this->valueReference)) {
+            $this->valueReference->xmlSerialize(true, $sxe->addChild('valueReference'));
+        }
+        if (isset($this->valueSampledData)) {
+            $this->valueSampledData->xmlSerialize(true, $sxe->addChild('valueSampledData'));
+        }
+        if (isset($this->valueSignature)) {
+            $this->valueSignature->xmlSerialize(true, $sxe->addChild('valueSignature'));
+        }
+        if (isset($this->valueTiming)) {
+            $this->valueTiming->xmlSerialize(true, $sxe->addChild('valueTiming'));
+        }
+        if (isset($this->valueContactDetail)) {
+            $this->valueContactDetail->xmlSerialize(true, $sxe->addChild('valueContactDetail'));
+        }
+        if (isset($this->valueContributor)) {
+            $this->valueContributor->xmlSerialize(true, $sxe->addChild('valueContributor'));
+        }
+        if (isset($this->valueDataRequirement)) {
+            $this->valueDataRequirement->xmlSerialize(true, $sxe->addChild('valueDataRequirement'));
+        }
+        if (isset($this->valueExpression)) {
+            $this->valueExpression->xmlSerialize(true, $sxe->addChild('valueExpression'));
+        }
+        if (isset($this->valueParameterDefinition)) {
+            $this->valueParameterDefinition->xmlSerialize(true, $sxe->addChild('valueParameterDefinition'));
+        }
+        if (isset($this->valueRelatedArtifact)) {
+            $this->valueRelatedArtifact->xmlSerialize(true, $sxe->addChild('valueRelatedArtifact'));
+        }
+        if (isset($this->valueTriggerDefinition)) {
+            $this->valueTriggerDefinition->xmlSerialize(true, $sxe->addChild('valueTriggerDefinition'));
+        }
+        if (isset($this->valueUsageContext)) {
+            $this->valueUsageContext->xmlSerialize(true, $sxe->addChild('valueUsageContext'));
+        }
+        if (isset($this->valueDosage)) {
+            $this->valueDosage->xmlSerialize(true, $sxe->addChild('valueDosage'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

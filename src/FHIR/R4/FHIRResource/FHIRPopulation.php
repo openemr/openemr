@@ -104,7 +104,8 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getAgeRange() {
+    public function getAgeRange()
+    {
         return $this->ageRange;
     }
 
@@ -112,7 +113,8 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $ageRange
      * @return $this
      */
-    public function setAgeRange($ageRange) {
+    public function setAgeRange($ageRange)
+    {
         $this->ageRange = $ageRange;
         return $this;
     }
@@ -120,7 +122,8 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAgeCodeableConcept() {
+    public function getAgeCodeableConcept()
+    {
         return $this->ageCodeableConcept;
     }
 
@@ -128,7 +131,8 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $ageCodeableConcept
      * @return $this
      */
-    public function setAgeCodeableConcept($ageCodeableConcept) {
+    public function setAgeCodeableConcept($ageCodeableConcept)
+    {
         $this->ageCodeableConcept = $ageCodeableConcept;
         return $this;
     }
@@ -137,7 +141,8 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
      * The gender of the specific population.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getGender() {
+    public function getGender()
+    {
         return $this->gender;
     }
 
@@ -146,7 +151,8 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $gender
      * @return $this
      */
-    public function setGender($gender) {
+    public function setGender($gender)
+    {
         $this->gender = $gender;
         return $this;
     }
@@ -155,7 +161,8 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
      * Race of the specific population.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRace() {
+    public function getRace()
+    {
         return $this->race;
     }
 
@@ -164,7 +171,8 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $race
      * @return $this
      */
-    public function setRace($race) {
+    public function setRace($race)
+    {
         $this->race = $race;
         return $this;
     }
@@ -173,7 +181,8 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
      * The existing physiological conditions of the specific population to which this applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPhysiologicalCondition() {
+    public function getPhysiologicalCondition()
+    {
         return $this->physiologicalCondition;
     }
 
@@ -182,7 +191,8 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $physiologicalCondition
      * @return $this
      */
-    public function setPhysiologicalCondition($physiologicalCondition) {
+    public function setPhysiologicalCondition($physiologicalCondition)
+    {
         $this->physiologicalCondition = $physiologicalCondition;
         return $this;
     }
@@ -190,14 +200,16 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['ageRange'])) {
                 $this->setAgeRange($data['ageRange']);
@@ -223,21 +235,33 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->ageRange)) $json['ageRange'] = $this->ageRange;
-        if (isset($this->ageCodeableConcept)) $json['ageCodeableConcept'] = $this->ageCodeableConcept;
-        if (isset($this->gender)) $json['gender'] = $this->gender;
-        if (isset($this->race)) $json['race'] = $this->race;
-        if (isset($this->physiologicalCondition)) $json['physiologicalCondition'] = $this->physiologicalCondition;
+        if (isset($this->ageRange)) {
+            $json['ageRange'] = $this->ageRange;
+        }
+        if (isset($this->ageCodeableConcept)) {
+            $json['ageCodeableConcept'] = $this->ageCodeableConcept;
+        }
+        if (isset($this->gender)) {
+            $json['gender'] = $this->gender;
+        }
+        if (isset($this->race)) {
+            $json['race'] = $this->race;
+        }
+        if (isset($this->physiologicalCondition)) {
+            $json['physiologicalCondition'] = $this->physiologicalCondition;
+        }
         return $json;
     }
 
@@ -246,17 +270,30 @@ class FHIRPopulation extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Population xmlns="http://hl7.org/fhir"></Population>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Population xmlns="http://hl7.org/fhir"></Population>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->ageRange)) $this->ageRange->xmlSerialize(true, $sxe->addChild('ageRange'));
-        if (isset($this->ageCodeableConcept)) $this->ageCodeableConcept->xmlSerialize(true, $sxe->addChild('ageCodeableConcept'));
-        if (isset($this->gender)) $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
-        if (isset($this->race)) $this->race->xmlSerialize(true, $sxe->addChild('race'));
-        if (isset($this->physiologicalCondition)) $this->physiologicalCondition->xmlSerialize(true, $sxe->addChild('physiologicalCondition'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->ageRange)) {
+            $this->ageRange->xmlSerialize(true, $sxe->addChild('ageRange'));
+        }
+        if (isset($this->ageCodeableConcept)) {
+            $this->ageCodeableConcept->xmlSerialize(true, $sxe->addChild('ageCodeableConcept'));
+        }
+        if (isset($this->gender)) {
+            $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
+        }
+        if (isset($this->race)) {
+            $this->race->xmlSerialize(true, $sxe->addChild('race'));
+        }
+        if (isset($this->physiologicalCondition)) {
+            $this->physiologicalCondition->xmlSerialize(true, $sxe->addChild('physiologicalCondition'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

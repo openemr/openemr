@@ -81,7 +81,8 @@ class FHIRStructureDefinitionKind extends FHIRElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -89,7 +90,8 @@ class FHIRStructureDefinitionKind extends FHIRElement implements \JsonSerializab
      * @param string $value
      * @return $this
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -97,14 +99,16 @@ class FHIRStructureDefinitionKind extends FHIRElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['value'])) {
                 $this->setValue($data['value']);
@@ -118,14 +122,16 @@ class FHIRStructureDefinitionKind extends FHIRElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->getValue();
     }
 
     /**
      * @return mixed
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         return $this->value;
     }
 
@@ -134,12 +140,15 @@ class FHIRStructureDefinitionKind extends FHIRElement implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<StructureDefinitionKind xmlns="http://hl7.org/fhir"></StructureDefinitionKind>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<StructureDefinitionKind xmlns="http://hl7.org/fhir"></StructureDefinitionKind>');
+        }
         $sxe->addAttribute('value', $this->value);
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

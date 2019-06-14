@@ -148,7 +148,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * The DICOM Series Instance UID for the series.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getUid() {
+    public function getUid()
+    {
         return $this->uid;
     }
 
@@ -157,7 +158,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $uid
      * @return $this
      */
-    public function setUid($uid) {
+    public function setUid($uid)
+    {
         $this->uid = $uid;
         return $this;
     }
@@ -166,7 +168,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * The numeric identifier of this series in the study.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getNumber() {
+    public function getNumber()
+    {
         return $this->number;
     }
 
@@ -175,7 +178,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $number
      * @return $this
      */
-    public function setNumber($number) {
+    public function setNumber($number)
+    {
         $this->number = $number;
         return $this;
     }
@@ -184,7 +188,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * The modality of this series sequence.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getModality() {
+    public function getModality()
+    {
         return $this->modality;
     }
 
@@ -193,7 +198,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $modality
      * @return $this
      */
-    public function setModality($modality) {
+    public function setModality($modality)
+    {
         $this->modality = $modality;
         return $this;
     }
@@ -202,7 +208,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * A description of the series.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -211,7 +218,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -220,7 +228,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * Number of SOP Instances in the Study. The value given may be larger than the number of instance elements this resource contains due to resource availability, security, or other factors. This element should be present if any instance elements are present.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getNumberOfInstances() {
+    public function getNumberOfInstances()
+    {
         return $this->numberOfInstances;
     }
 
@@ -229,7 +238,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $numberOfInstances
      * @return $this
      */
-    public function setNumberOfInstances($numberOfInstances) {
+    public function setNumberOfInstances($numberOfInstances)
+    {
         $this->numberOfInstances = $numberOfInstances;
         return $this;
     }
@@ -238,7 +248,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * The network service providing access (e.g., query, view, or retrieval) for this series. See implementation notes for information about using DICOM endpoints. A series-level endpoint, if present, has precedence over a study-level endpoint with the same Endpoint.connectionType.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getEndpoint() {
+    public function getEndpoint()
+    {
         return $this->endpoint;
     }
 
@@ -247,7 +258,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $endpoint
      * @return $this
      */
-    public function addEndpoint($endpoint) {
+    public function addEndpoint($endpoint)
+    {
         $this->endpoint[] = $endpoint;
         return $this;
     }
@@ -256,7 +268,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * The anatomic structures examined. See DICOM Part 16 Annex L (http://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html) for DICOM to SNOMED-CT mappings. The bodySite may indicate the laterality of body part imaged; if so, it shall be consistent with any content of ImagingStudy.series.laterality.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getBodySite() {
+    public function getBodySite()
+    {
         return $this->bodySite;
     }
 
@@ -265,7 +278,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $bodySite
      * @return $this
      */
-    public function setBodySite($bodySite) {
+    public function setBodySite($bodySite)
+    {
         $this->bodySite = $bodySite;
         return $this;
     }
@@ -274,7 +288,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * The laterality of the (possibly paired) anatomic structures examined. E.g., the left knee, both lungs, or unpaired abdomen. If present, shall be consistent with any laterality information indicated in ImagingStudy.series.bodySite.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getLaterality() {
+    public function getLaterality()
+    {
         return $this->laterality;
     }
 
@@ -283,7 +298,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $laterality
      * @return $this
      */
-    public function setLaterality($laterality) {
+    public function setLaterality($laterality)
+    {
         $this->laterality = $laterality;
         return $this;
     }
@@ -292,7 +308,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * The specimen imaged, e.g., for whole slide imaging of a biopsy.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSpecimen() {
+    public function getSpecimen()
+    {
         return $this->specimen;
     }
 
@@ -301,7 +318,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $specimen
      * @return $this
      */
-    public function addSpecimen($specimen) {
+    public function addSpecimen($specimen)
+    {
         $this->specimen[] = $specimen;
         return $this;
     }
@@ -310,7 +328,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * The date and time the series was started.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getStarted() {
+    public function getStarted()
+    {
         return $this->started;
     }
 
@@ -319,7 +338,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $started
      * @return $this
      */
-    public function setStarted($started) {
+    public function setStarted($started)
+    {
         $this->started = $started;
         return $this;
     }
@@ -328,7 +348,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * Indicates who or what performed the series and how they were involved.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImagingStudy\FHIRImagingStudyPerformer[]
      */
-    public function getPerformer() {
+    public function getPerformer()
+    {
         return $this->performer;
     }
 
@@ -337,7 +358,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImagingStudy\FHIRImagingStudyPerformer $performer
      * @return $this
      */
-    public function addPerformer($performer) {
+    public function addPerformer($performer)
+    {
         $this->performer[] = $performer;
         return $this;
     }
@@ -346,7 +368,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * A single SOP instance within the series, e.g. an image, or presentation state.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRImagingStudy\FHIRImagingStudyInstance[]
      */
-    public function getInstance() {
+    public function getInstance()
+    {
         return $this->instance;
     }
 
@@ -355,7 +378,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRImagingStudy\FHIRImagingStudyInstance $instance
      * @return $this
      */
-    public function addInstance($instance) {
+    public function addInstance($instance)
+    {
         $this->instance[] = $instance;
         return $this;
     }
@@ -363,14 +387,16 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['uid'])) {
                 $this->setUid($data['uid']);
@@ -389,7 +415,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['endpoint'])) {
                 if (is_array($data['endpoint'])) {
-                    foreach($data['endpoint'] as $d) {
+                    foreach ($data['endpoint'] as $d) {
                         $this->addEndpoint($d);
                     }
                 } else {
@@ -404,7 +430,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['specimen'])) {
                 if (is_array($data['specimen'])) {
-                    foreach($data['specimen'] as $d) {
+                    foreach ($data['specimen'] as $d) {
                         $this->addSpecimen($d);
                     }
                 } else {
@@ -416,7 +442,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['performer'])) {
                 if (is_array($data['performer'])) {
-                    foreach($data['performer'] as $d) {
+                    foreach ($data['performer'] as $d) {
                         $this->addPerformer($d);
                     }
                 } else {
@@ -425,7 +451,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['instance'])) {
                 if (is_array($data['instance'])) {
-                    foreach($data['instance'] as $d) {
+                    foreach ($data['instance'] as $d) {
                         $this->addInstance($d);
                     }
                 } else {
@@ -441,44 +467,62 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->uid)) $json['uid'] = $this->uid;
-        if (isset($this->number)) $json['number'] = $this->number;
-        if (isset($this->modality)) $json['modality'] = $this->modality;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->numberOfInstances)) $json['numberOfInstances'] = $this->numberOfInstances;
+        if (isset($this->uid)) {
+            $json['uid'] = $this->uid;
+        }
+        if (isset($this->number)) {
+            $json['number'] = $this->number;
+        }
+        if (isset($this->modality)) {
+            $json['modality'] = $this->modality;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->numberOfInstances)) {
+            $json['numberOfInstances'] = $this->numberOfInstances;
+        }
         if (0 < count($this->endpoint)) {
             $json['endpoint'] = [];
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $json['endpoint'][] = $endpoint;
             }
         }
-        if (isset($this->bodySite)) $json['bodySite'] = $this->bodySite;
-        if (isset($this->laterality)) $json['laterality'] = $this->laterality;
+        if (isset($this->bodySite)) {
+            $json['bodySite'] = $this->bodySite;
+        }
+        if (isset($this->laterality)) {
+            $json['laterality'] = $this->laterality;
+        }
         if (0 < count($this->specimen)) {
             $json['specimen'] = [];
-            foreach($this->specimen as $specimen) {
+            foreach ($this->specimen as $specimen) {
                 $json['specimen'][] = $specimen;
             }
         }
-        if (isset($this->started)) $json['started'] = $this->started;
+        if (isset($this->started)) {
+            $json['started'] = $this->started;
+        }
         if (0 < count($this->performer)) {
             $json['performer'] = [];
-            foreach($this->performer as $performer) {
+            foreach ($this->performer as $performer) {
                 $json['performer'][] = $performer;
             }
         }
         if (0 < count($this->instance)) {
             $json['instance'] = [];
-            foreach($this->instance as $instance) {
+            foreach ($this->instance as $instance) {
                 $json['instance'][] = $instance;
             }
         }
@@ -490,40 +534,59 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImagingStudySeries xmlns="http://hl7.org/fhir"></ImagingStudySeries>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImagingStudySeries xmlns="http://hl7.org/fhir"></ImagingStudySeries>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->uid)) $this->uid->xmlSerialize(true, $sxe->addChild('uid'));
-        if (isset($this->number)) $this->number->xmlSerialize(true, $sxe->addChild('number'));
-        if (isset($this->modality)) $this->modality->xmlSerialize(true, $sxe->addChild('modality'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->numberOfInstances)) $this->numberOfInstances->xmlSerialize(true, $sxe->addChild('numberOfInstances'));
+        if (isset($this->uid)) {
+            $this->uid->xmlSerialize(true, $sxe->addChild('uid'));
+        }
+        if (isset($this->number)) {
+            $this->number->xmlSerialize(true, $sxe->addChild('number'));
+        }
+        if (isset($this->modality)) {
+            $this->modality->xmlSerialize(true, $sxe->addChild('modality'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->numberOfInstances)) {
+            $this->numberOfInstances->xmlSerialize(true, $sxe->addChild('numberOfInstances'));
+        }
         if (0 < count($this->endpoint)) {
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
             }
         }
-        if (isset($this->bodySite)) $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
-        if (isset($this->laterality)) $this->laterality->xmlSerialize(true, $sxe->addChild('laterality'));
+        if (isset($this->bodySite)) {
+            $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
+        }
+        if (isset($this->laterality)) {
+            $this->laterality->xmlSerialize(true, $sxe->addChild('laterality'));
+        }
         if (0 < count($this->specimen)) {
-            foreach($this->specimen as $specimen) {
+            foreach ($this->specimen as $specimen) {
                 $specimen->xmlSerialize(true, $sxe->addChild('specimen'));
             }
         }
-        if (isset($this->started)) $this->started->xmlSerialize(true, $sxe->addChild('started'));
+        if (isset($this->started)) {
+            $this->started->xmlSerialize(true, $sxe->addChild('started'));
+        }
         if (0 < count($this->performer)) {
-            foreach($this->performer as $performer) {
+            foreach ($this->performer as $performer) {
                 $performer->xmlSerialize(true, $sxe->addChild('performer'));
             }
         }
         if (0 < count($this->instance)) {
-            foreach($this->instance as $instance) {
+            foreach ($this->instance as $instance) {
                 $instance->xmlSerialize(true, $sxe->addChild('instance'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -100,7 +100,8 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
      * The entity that links the sugar residues together should also be captured for nearly all naturally occurring nucleic acid the linkage is a phosphate group. For many synthetic oligonucleotides phosphorothioate linkages are often seen. Linkage connectivity is assumed to be 3’-5’. If the linkage is either 3’-3’ or 5’-5’ this should be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getConnectivity() {
+    public function getConnectivity()
+    {
         return $this->connectivity;
     }
 
@@ -109,7 +110,8 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $connectivity
      * @return $this
      */
-    public function setConnectivity($connectivity) {
+    public function setConnectivity($connectivity)
+    {
         $this->connectivity = $connectivity;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
      * Each linkage will be registered as a fragment and have an ID.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -127,7 +130,8 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
      * Each linkage will be registered as a fragment and have at least one name. A single name shall be assigned to each linkage.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -145,7 +150,8 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
      * Residues shall be captured as described in 5.3.6.8.3.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getResidueSite() {
+    public function getResidueSite()
+    {
         return $this->residueSite;
     }
 
@@ -163,7 +170,8 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $residueSite
      * @return $this
      */
-    public function setResidueSite($residueSite) {
+    public function setResidueSite($residueSite)
+    {
         $this->residueSite = $residueSite;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['connectivity'])) {
                 $this->setConnectivity($data['connectivity']);
@@ -201,19 +211,29 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->connectivity)) $json['connectivity'] = $this->connectivity;
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->residueSite)) $json['residueSite'] = $this->residueSite;
+        if (isset($this->connectivity)) {
+            $json['connectivity'] = $this->connectivity;
+        }
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->residueSite)) {
+            $json['residueSite'] = $this->residueSite;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRSubstanceNucleicAcidLinkage extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceNucleicAcidLinkage xmlns="http://hl7.org/fhir"></SubstanceNucleicAcidLinkage>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceNucleicAcidLinkage xmlns="http://hl7.org/fhir"></SubstanceNucleicAcidLinkage>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->connectivity)) $this->connectivity->xmlSerialize(true, $sxe->addChild('connectivity'));
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->residueSite)) $this->residueSite->xmlSerialize(true, $sxe->addChild('residueSite'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->connectivity)) {
+            $this->connectivity->xmlSerialize(true, $sxe->addChild('connectivity'));
+        }
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->residueSite)) {
+            $this->residueSite->xmlSerialize(true, $sxe->addChild('residueSite'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

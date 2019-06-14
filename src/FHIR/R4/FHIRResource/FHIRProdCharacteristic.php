@@ -143,7 +143,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the height can be specified using a numerical value and its unit of measurement The unit of measurement shall be specified in accordance with ISO 11240 and the resulting terminology The symbol and the symbol identifier shall be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getHeight() {
+    public function getHeight()
+    {
         return $this->height;
     }
 
@@ -152,7 +153,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $height
      * @return $this
      */
-    public function setHeight($height) {
+    public function setHeight($height)
+    {
         $this->height = $height;
         return $this;
     }
@@ -161,7 +163,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the width can be specified using a numerical value and its unit of measurement The unit of measurement shall be specified in accordance with ISO 11240 and the resulting terminology The symbol and the symbol identifier shall be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getWidth() {
+    public function getWidth()
+    {
         return $this->width;
     }
 
@@ -170,7 +173,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $width
      * @return $this
      */
-    public function setWidth($width) {
+    public function setWidth($width)
+    {
         $this->width = $width;
         return $this;
     }
@@ -179,7 +183,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the depth can be specified using a numerical value and its unit of measurement The unit of measurement shall be specified in accordance with ISO 11240 and the resulting terminology The symbol and the symbol identifier shall be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getDepth() {
+    public function getDepth()
+    {
         return $this->depth;
     }
 
@@ -188,7 +193,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $depth
      * @return $this
      */
-    public function setDepth($depth) {
+    public function setDepth($depth)
+    {
         $this->depth = $depth;
         return $this;
     }
@@ -197,7 +203,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the weight can be specified using a numerical value and its unit of measurement The unit of measurement shall be specified in accordance with ISO 11240 and the resulting terminology The symbol and the symbol identifier shall be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getWeight() {
+    public function getWeight()
+    {
         return $this->weight;
     }
 
@@ -206,7 +213,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $weight
      * @return $this
      */
-    public function setWeight($weight) {
+    public function setWeight($weight)
+    {
         $this->weight = $weight;
         return $this;
     }
@@ -215,7 +223,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the nominal volume can be specified using a numerical value and its unit of measurement The unit of measurement shall be specified in accordance with ISO 11240 and the resulting terminology The symbol and the symbol identifier shall be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getNominalVolume() {
+    public function getNominalVolume()
+    {
         return $this->nominalVolume;
     }
 
@@ -224,7 +233,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $nominalVolume
      * @return $this
      */
-    public function setNominalVolume($nominalVolume) {
+    public function setNominalVolume($nominalVolume)
+    {
         $this->nominalVolume = $nominalVolume;
         return $this;
     }
@@ -233,7 +243,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the external diameter can be specified using a numerical value and its unit of measurement The unit of measurement shall be specified in accordance with ISO 11240 and the resulting terminology The symbol and the symbol identifier shall be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getExternalDiameter() {
+    public function getExternalDiameter()
+    {
         return $this->externalDiameter;
     }
 
@@ -242,7 +253,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $externalDiameter
      * @return $this
      */
-    public function setExternalDiameter($externalDiameter) {
+    public function setExternalDiameter($externalDiameter)
+    {
         $this->externalDiameter = $externalDiameter;
         return $this;
     }
@@ -251,7 +263,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the shape can be specified An appropriate controlled vocabulary shall be used The term and the term identifier shall be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getShape() {
+    public function getShape()
+    {
         return $this->shape;
     }
 
@@ -260,7 +273,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $shape
      * @return $this
      */
-    public function setShape($shape) {
+    public function setShape($shape)
+    {
         $this->shape = $shape;
         return $this;
     }
@@ -269,7 +283,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the color can be specified An appropriate controlled vocabulary shall be used The term and the term identifier shall be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getColor() {
+    public function getColor()
+    {
         return $this->color;
     }
 
@@ -278,7 +293,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $color
      * @return $this
      */
-    public function addColor($color) {
+    public function addColor($color)
+    {
         $this->color[] = $color;
         return $this;
     }
@@ -287,7 +303,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the imprint can be specified as text.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getImprint() {
+    public function getImprint()
+    {
         return $this->imprint;
     }
 
@@ -296,7 +313,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $imprint
      * @return $this
      */
-    public function addImprint($imprint) {
+    public function addImprint($imprint)
+    {
         $this->imprint[] = $imprint;
         return $this;
     }
@@ -305,7 +323,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the image can be provided The format of the image attachment shall be specified by regional implementations.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment[]
      */
-    public function getImage() {
+    public function getImage()
+    {
         return $this->image;
     }
 
@@ -314,7 +333,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $image
      * @return $this
      */
-    public function addImage($image) {
+    public function addImage($image)
+    {
         $this->image[] = $image;
         return $this;
     }
@@ -323,7 +343,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * Where applicable, the scoring can be specified An appropriate controlled vocabulary shall be used The term and the term identifier shall be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getScoring() {
+    public function getScoring()
+    {
         return $this->scoring;
     }
 
@@ -332,7 +353,8 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $scoring
      * @return $this
      */
-    public function setScoring($scoring) {
+    public function setScoring($scoring)
+    {
         $this->scoring = $scoring;
         return $this;
     }
@@ -340,14 +362,16 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['height'])) {
                 $this->setHeight($data['height']);
@@ -372,7 +396,7 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['color'])) {
                 if (is_array($data['color'])) {
-                    foreach($data['color'] as $d) {
+                    foreach ($data['color'] as $d) {
                         $this->addColor($d);
                     }
                 } else {
@@ -381,7 +405,7 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['imprint'])) {
                 if (is_array($data['imprint'])) {
-                    foreach($data['imprint'] as $d) {
+                    foreach ($data['imprint'] as $d) {
                         $this->addImprint($d);
                     }
                 } else {
@@ -390,7 +414,7 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['image'])) {
                 if (is_array($data['image'])) {
-                    foreach($data['image'] as $d) {
+                    foreach ($data['image'] as $d) {
                         $this->addImage($d);
                     }
                 } else {
@@ -409,42 +433,60 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->height)) $json['height'] = $this->height;
-        if (isset($this->width)) $json['width'] = $this->width;
-        if (isset($this->depth)) $json['depth'] = $this->depth;
-        if (isset($this->weight)) $json['weight'] = $this->weight;
-        if (isset($this->nominalVolume)) $json['nominalVolume'] = $this->nominalVolume;
-        if (isset($this->externalDiameter)) $json['externalDiameter'] = $this->externalDiameter;
-        if (isset($this->shape)) $json['shape'] = $this->shape;
+        if (isset($this->height)) {
+            $json['height'] = $this->height;
+        }
+        if (isset($this->width)) {
+            $json['width'] = $this->width;
+        }
+        if (isset($this->depth)) {
+            $json['depth'] = $this->depth;
+        }
+        if (isset($this->weight)) {
+            $json['weight'] = $this->weight;
+        }
+        if (isset($this->nominalVolume)) {
+            $json['nominalVolume'] = $this->nominalVolume;
+        }
+        if (isset($this->externalDiameter)) {
+            $json['externalDiameter'] = $this->externalDiameter;
+        }
+        if (isset($this->shape)) {
+            $json['shape'] = $this->shape;
+        }
         if (0 < count($this->color)) {
             $json['color'] = [];
-            foreach($this->color as $color) {
+            foreach ($this->color as $color) {
                 $json['color'][] = $color;
             }
         }
         if (0 < count($this->imprint)) {
             $json['imprint'] = [];
-            foreach($this->imprint as $imprint) {
+            foreach ($this->imprint as $imprint) {
                 $json['imprint'][] = $imprint;
             }
         }
         if (0 < count($this->image)) {
             $json['image'] = [];
-            foreach($this->image as $image) {
+            foreach ($this->image as $image) {
                 $json['image'][] = $image;
             }
         }
-        if (isset($this->scoring)) $json['scoring'] = $this->scoring;
+        if (isset($this->scoring)) {
+            $json['scoring'] = $this->scoring;
+        }
         return $json;
     }
 
@@ -453,35 +495,54 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ProdCharacteristic xmlns="http://hl7.org/fhir"></ProdCharacteristic>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ProdCharacteristic xmlns="http://hl7.org/fhir"></ProdCharacteristic>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->height)) $this->height->xmlSerialize(true, $sxe->addChild('height'));
-        if (isset($this->width)) $this->width->xmlSerialize(true, $sxe->addChild('width'));
-        if (isset($this->depth)) $this->depth->xmlSerialize(true, $sxe->addChild('depth'));
-        if (isset($this->weight)) $this->weight->xmlSerialize(true, $sxe->addChild('weight'));
-        if (isset($this->nominalVolume)) $this->nominalVolume->xmlSerialize(true, $sxe->addChild('nominalVolume'));
-        if (isset($this->externalDiameter)) $this->externalDiameter->xmlSerialize(true, $sxe->addChild('externalDiameter'));
-        if (isset($this->shape)) $this->shape->xmlSerialize(true, $sxe->addChild('shape'));
+        if (isset($this->height)) {
+            $this->height->xmlSerialize(true, $sxe->addChild('height'));
+        }
+        if (isset($this->width)) {
+            $this->width->xmlSerialize(true, $sxe->addChild('width'));
+        }
+        if (isset($this->depth)) {
+            $this->depth->xmlSerialize(true, $sxe->addChild('depth'));
+        }
+        if (isset($this->weight)) {
+            $this->weight->xmlSerialize(true, $sxe->addChild('weight'));
+        }
+        if (isset($this->nominalVolume)) {
+            $this->nominalVolume->xmlSerialize(true, $sxe->addChild('nominalVolume'));
+        }
+        if (isset($this->externalDiameter)) {
+            $this->externalDiameter->xmlSerialize(true, $sxe->addChild('externalDiameter'));
+        }
+        if (isset($this->shape)) {
+            $this->shape->xmlSerialize(true, $sxe->addChild('shape'));
+        }
         if (0 < count($this->color)) {
-            foreach($this->color as $color) {
+            foreach ($this->color as $color) {
                 $color->xmlSerialize(true, $sxe->addChild('color'));
             }
         }
         if (0 < count($this->imprint)) {
-            foreach($this->imprint as $imprint) {
+            foreach ($this->imprint as $imprint) {
                 $imprint->xmlSerialize(true, $sxe->addChild('imprint'));
             }
         }
         if (0 < count($this->image)) {
-            foreach($this->image as $image) {
+            foreach ($this->image as $image) {
                 $image->xmlSerialize(true, $sxe->addChild('image'));
             }
         }
-        if (isset($this->scoring)) $this->scoring->xmlSerialize(true, $sxe->addChild('scoring'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->scoring)) {
+            $this->scoring->xmlSerialize(true, $sxe->addChild('scoring'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

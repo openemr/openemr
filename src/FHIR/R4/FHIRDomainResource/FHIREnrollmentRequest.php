@@ -119,7 +119,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * The Response business identifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -128,7 +129,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -137,7 +139,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * The status of the resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -146,7 +149,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -155,7 +159,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * The date when this resource was created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getCreated() {
+    public function getCreated()
+    {
         return $this->created;
     }
 
@@ -164,7 +169,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $created
      * @return $this
      */
-    public function setCreated($created) {
+    public function setCreated($created)
+    {
         $this->created = $created;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * The Insurer who is target  of the request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getInsurer() {
+    public function getInsurer()
+    {
         return $this->insurer;
     }
 
@@ -182,7 +189,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $insurer
      * @return $this
      */
-    public function setInsurer($insurer) {
+    public function setInsurer($insurer)
+    {
         $this->insurer = $insurer;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * The practitioner who is responsible for the services rendered to the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getProvider() {
+    public function getProvider()
+    {
         return $this->provider;
     }
 
@@ -200,7 +209,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $provider
      * @return $this
      */
-    public function setProvider($provider) {
+    public function setProvider($provider)
+    {
         $this->provider = $provider;
         return $this;
     }
@@ -209,7 +219,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * Patient Resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCandidate() {
+    public function getCandidate()
+    {
         return $this->candidate;
     }
 
@@ -218,7 +229,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $candidate
      * @return $this
      */
-    public function setCandidate($candidate) {
+    public function setCandidate($candidate)
+    {
         $this->candidate = $candidate;
         return $this;
     }
@@ -227,7 +239,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * Reference to the program or plan identification, underwriter or payor.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCoverage() {
+    public function getCoverage()
+    {
         return $this->coverage;
     }
 
@@ -236,7 +249,8 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $coverage
      * @return $this
      */
-    public function setCoverage($coverage) {
+    public function setCoverage($coverage)
+    {
         $this->coverage = $coverage;
         return $this;
     }
@@ -244,18 +258,20 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -289,28 +305,42 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->created)) $json['created'] = $this->created;
-        if (isset($this->insurer)) $json['insurer'] = $this->insurer;
-        if (isset($this->provider)) $json['provider'] = $this->provider;
-        if (isset($this->candidate)) $json['candidate'] = $this->candidate;
-        if (isset($this->coverage)) $json['coverage'] = $this->coverage;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->created)) {
+            $json['created'] = $this->created;
+        }
+        if (isset($this->insurer)) {
+            $json['insurer'] = $this->insurer;
+        }
+        if (isset($this->provider)) {
+            $json['provider'] = $this->provider;
+        }
+        if (isset($this->candidate)) {
+            $json['candidate'] = $this->candidate;
+        }
+        if (isset($this->coverage)) {
+            $json['coverage'] = $this->coverage;
+        }
         return $json;
     }
 
@@ -319,23 +349,38 @@ class FHIREnrollmentRequest extends FHIRDomainResource implements \JsonSerializa
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<EnrollmentRequest xmlns="http://hl7.org/fhir"></EnrollmentRequest>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<EnrollmentRequest xmlns="http://hl7.org/fhir"></EnrollmentRequest>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->created)) $this->created->xmlSerialize(true, $sxe->addChild('created'));
-        if (isset($this->insurer)) $this->insurer->xmlSerialize(true, $sxe->addChild('insurer'));
-        if (isset($this->provider)) $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
-        if (isset($this->candidate)) $this->candidate->xmlSerialize(true, $sxe->addChild('candidate'));
-        if (isset($this->coverage)) $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->created)) {
+            $this->created->xmlSerialize(true, $sxe->addChild('created'));
+        }
+        if (isset($this->insurer)) {
+            $this->insurer->xmlSerialize(true, $sxe->addChild('insurer'));
+        }
+        if (isset($this->provider)) {
+            $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
+        }
+        if (isset($this->candidate)) {
+            $this->candidate->xmlSerialize(true, $sxe->addChild('candidate'));
+        }
+        if (isset($this->coverage)) {
+            $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

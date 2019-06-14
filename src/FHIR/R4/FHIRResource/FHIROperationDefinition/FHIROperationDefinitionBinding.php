@@ -88,7 +88,8 @@ class FHIROperationDefinitionBinding extends FHIRBackboneElement implements \Jso
      * Indicates the degree of conformance expectations associated with this binding - that is, the degree to which the provided value set must be adhered to in the instances.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBindingStrength
      */
-    public function getStrength() {
+    public function getStrength()
+    {
         return $this->strength;
     }
 
@@ -97,7 +98,8 @@ class FHIROperationDefinitionBinding extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBindingStrength $strength
      * @return $this
      */
-    public function setStrength($strength) {
+    public function setStrength($strength)
+    {
         $this->strength = $strength;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIROperationDefinitionBinding extends FHIRBackboneElement implements \Jso
      * Points to the value set or external definition (e.g. implicit value set) that identifies the set of codes to be used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getValueSet() {
+    public function getValueSet()
+    {
         return $this->valueSet;
     }
 
@@ -115,7 +118,8 @@ class FHIROperationDefinitionBinding extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $valueSet
      * @return $this
      */
-    public function setValueSet($valueSet) {
+    public function setValueSet($valueSet)
+    {
         $this->valueSet = $valueSet;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIROperationDefinitionBinding extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['strength'])) {
                 $this->setStrength($data['strength']);
@@ -147,17 +153,23 @@ class FHIROperationDefinitionBinding extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->strength)) $json['strength'] = $this->strength;
-        if (isset($this->valueSet)) $json['valueSet'] = $this->valueSet;
+        if (isset($this->strength)) {
+            $json['strength'] = $this->strength;
+        }
+        if (isset($this->valueSet)) {
+            $json['valueSet'] = $this->valueSet;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIROperationDefinitionBinding extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<OperationDefinitionBinding xmlns="http://hl7.org/fhir"></OperationDefinitionBinding>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<OperationDefinitionBinding xmlns="http://hl7.org/fhir"></OperationDefinitionBinding>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->strength)) $this->strength->xmlSerialize(true, $sxe->addChild('strength'));
-        if (isset($this->valueSet)) $this->valueSet->xmlSerialize(true, $sxe->addChild('valueSet'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->strength)) {
+            $this->strength->xmlSerialize(true, $sxe->addChild('strength'));
+        }
+        if (isset($this->valueSet)) {
+            $this->valueSet->xmlSerialize(true, $sxe->addChild('valueSet'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -149,7 +149,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * Business identifiers that are specific to this role.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -158,7 +159,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -167,7 +169,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * Whether this organization affiliation record is in active use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getActive() {
+    public function getActive()
+    {
         return $this->active;
     }
 
@@ -176,7 +179,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $active
      * @return $this
      */
-    public function setActive($active) {
+    public function setActive($active)
+    {
         $this->active = $active;
         return $this;
     }
@@ -185,7 +189,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * The period during which the participatingOrganization is affiliated with the primary organization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -194,7 +199,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -203,7 +209,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * Organization where the role is available (primary organization/has members).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOrganization() {
+    public function getOrganization()
+    {
         return $this->organization;
     }
 
@@ -212,7 +219,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $organization
      * @return $this
      */
-    public function setOrganization($organization) {
+    public function setOrganization($organization)
+    {
         $this->organization = $organization;
         return $this;
     }
@@ -221,7 +229,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * The Participating Organization provides/performs the role(s) defined by the code to the Primary Organization (e.g. providing services or is a member of).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getParticipatingOrganization() {
+    public function getParticipatingOrganization()
+    {
         return $this->participatingOrganization;
     }
 
@@ -230,7 +239,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $participatingOrganization
      * @return $this
      */
-    public function setParticipatingOrganization($participatingOrganization) {
+    public function setParticipatingOrganization($participatingOrganization)
+    {
         $this->participatingOrganization = $participatingOrganization;
         return $this;
     }
@@ -239,7 +249,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * Health insurance provider network in which the participatingOrganization provides the role's services (if defined) at the indicated locations (if defined).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getNetwork() {
+    public function getNetwork()
+    {
         return $this->network;
     }
 
@@ -248,7 +259,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $network
      * @return $this
      */
-    public function addNetwork($network) {
+    public function addNetwork($network)
+    {
         $this->network[] = $network;
         return $this;
     }
@@ -257,7 +269,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * Definition of the role the participatingOrganization plays in the association.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -266,7 +279,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -275,7 +289,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * Specific specialty of the participatingOrganization in the context of the role.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getSpecialty() {
+    public function getSpecialty()
+    {
         return $this->specialty;
     }
 
@@ -284,7 +299,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $specialty
      * @return $this
      */
-    public function addSpecialty($specialty) {
+    public function addSpecialty($specialty)
+    {
         $this->specialty[] = $specialty;
         return $this;
     }
@@ -293,7 +309,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * The location(s) at which the role occurs.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
@@ -302,7 +319,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $location
      * @return $this
      */
-    public function addLocation($location) {
+    public function addLocation($location)
+    {
         $this->location[] = $location;
         return $this;
     }
@@ -311,7 +329,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * Healthcare services provided through the role.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getHealthcareService() {
+    public function getHealthcareService()
+    {
         return $this->healthcareService;
     }
 
@@ -320,7 +339,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $healthcareService
      * @return $this
      */
-    public function addHealthcareService($healthcareService) {
+    public function addHealthcareService($healthcareService)
+    {
         $this->healthcareService[] = $healthcareService;
         return $this;
     }
@@ -329,7 +349,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * Contact details at the participatingOrganization relevant to this Affiliation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint[]
      */
-    public function getTelecom() {
+    public function getTelecom()
+    {
         return $this->telecom;
     }
 
@@ -338,7 +359,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $telecom
      * @return $this
      */
-    public function addTelecom($telecom) {
+    public function addTelecom($telecom)
+    {
         $this->telecom[] = $telecom;
         return $this;
     }
@@ -347,7 +369,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * Technical endpoints providing access to services operated for this role.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getEndpoint() {
+    public function getEndpoint()
+    {
         return $this->endpoint;
     }
 
@@ -356,7 +379,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $endpoint
      * @return $this
      */
-    public function addEndpoint($endpoint) {
+    public function addEndpoint($endpoint)
+    {
         $this->endpoint[] = $endpoint;
         return $this;
     }
@@ -364,18 +388,20 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -396,7 +422,7 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['network'])) {
                 if (is_array($data['network'])) {
-                    foreach($data['network'] as $d) {
+                    foreach ($data['network'] as $d) {
                         $this->addNetwork($d);
                     }
                 } else {
@@ -405,7 +431,7 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -414,7 +440,7 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['specialty'])) {
                 if (is_array($data['specialty'])) {
-                    foreach($data['specialty'] as $d) {
+                    foreach ($data['specialty'] as $d) {
                         $this->addSpecialty($d);
                     }
                 } else {
@@ -423,7 +449,7 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['location'])) {
                 if (is_array($data['location'])) {
-                    foreach($data['location'] as $d) {
+                    foreach ($data['location'] as $d) {
                         $this->addLocation($d);
                     }
                 } else {
@@ -432,7 +458,7 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['healthcareService'])) {
                 if (is_array($data['healthcareService'])) {
-                    foreach($data['healthcareService'] as $d) {
+                    foreach ($data['healthcareService'] as $d) {
                         $this->addHealthcareService($d);
                     }
                 } else {
@@ -441,7 +467,7 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['telecom'])) {
                 if (is_array($data['telecom'])) {
-                    foreach($data['telecom'] as $d) {
+                    foreach ($data['telecom'] as $d) {
                         $this->addTelecom($d);
                     }
                 } else {
@@ -450,7 +476,7 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
             }
             if (isset($data['endpoint'])) {
                 if (is_array($data['endpoint'])) {
-                    foreach($data['endpoint'] as $d) {
+                    foreach ($data['endpoint'] as $d) {
                         $this->addEndpoint($d);
                     }
                 } else {
@@ -466,65 +492,75 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->active)) $json['active'] = $this->active;
-        if (isset($this->period)) $json['period'] = $this->period;
-        if (isset($this->organization)) $json['organization'] = $this->organization;
-        if (isset($this->participatingOrganization)) $json['participatingOrganization'] = $this->participatingOrganization;
+        if (isset($this->active)) {
+            $json['active'] = $this->active;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
+        if (isset($this->organization)) {
+            $json['organization'] = $this->organization;
+        }
+        if (isset($this->participatingOrganization)) {
+            $json['participatingOrganization'] = $this->participatingOrganization;
+        }
         if (0 < count($this->network)) {
             $json['network'] = [];
-            foreach($this->network as $network) {
+            foreach ($this->network as $network) {
                 $json['network'][] = $network;
             }
         }
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
         if (0 < count($this->specialty)) {
             $json['specialty'] = [];
-            foreach($this->specialty as $specialty) {
+            foreach ($this->specialty as $specialty) {
                 $json['specialty'][] = $specialty;
             }
         }
         if (0 < count($this->location)) {
             $json['location'] = [];
-            foreach($this->location as $location) {
+            foreach ($this->location as $location) {
                 $json['location'][] = $location;
             }
         }
         if (0 < count($this->healthcareService)) {
             $json['healthcareService'] = [];
-            foreach($this->healthcareService as $healthcareService) {
+            foreach ($this->healthcareService as $healthcareService) {
                 $json['healthcareService'][] = $healthcareService;
             }
         }
         if (0 < count($this->telecom)) {
             $json['telecom'] = [];
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $json['telecom'][] = $telecom;
             }
         }
         if (0 < count($this->endpoint)) {
             $json['endpoint'] = [];
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $json['endpoint'][] = $endpoint;
             }
         }
@@ -536,56 +572,67 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<OrganizationAffiliation xmlns="http://hl7.org/fhir"></OrganizationAffiliation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<OrganizationAffiliation xmlns="http://hl7.org/fhir"></OrganizationAffiliation>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->active)) $this->active->xmlSerialize(true, $sxe->addChild('active'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if (isset($this->organization)) $this->organization->xmlSerialize(true, $sxe->addChild('organization'));
-        if (isset($this->participatingOrganization)) $this->participatingOrganization->xmlSerialize(true, $sxe->addChild('participatingOrganization'));
+        if (isset($this->active)) {
+            $this->active->xmlSerialize(true, $sxe->addChild('active'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if (isset($this->organization)) {
+            $this->organization->xmlSerialize(true, $sxe->addChild('organization'));
+        }
+        if (isset($this->participatingOrganization)) {
+            $this->participatingOrganization->xmlSerialize(true, $sxe->addChild('participatingOrganization'));
+        }
         if (0 < count($this->network)) {
-            foreach($this->network as $network) {
+            foreach ($this->network as $network) {
                 $network->xmlSerialize(true, $sxe->addChild('network'));
             }
         }
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
         if (0 < count($this->specialty)) {
-            foreach($this->specialty as $specialty) {
+            foreach ($this->specialty as $specialty) {
                 $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
             }
         }
         if (0 < count($this->location)) {
-            foreach($this->location as $location) {
+            foreach ($this->location as $location) {
                 $location->xmlSerialize(true, $sxe->addChild('location'));
             }
         }
         if (0 < count($this->healthcareService)) {
-            foreach($this->healthcareService as $healthcareService) {
+            foreach ($this->healthcareService as $healthcareService) {
                 $healthcareService->xmlSerialize(true, $sxe->addChild('healthcareService'));
             }
         }
         if (0 < count($this->telecom)) {
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
             }
         }
         if (0 < count($this->endpoint)) {
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

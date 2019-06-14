@@ -124,7 +124,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * The category of interval of values for continuous or ordinal observations conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRObservationRangeCategory
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -133,7 +134,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRObservationRangeCategory $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * The low and high values determining the interval. There may be only one of the two.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getRange() {
+    public function getRange()
+    {
         return $this->range;
     }
 
@@ -151,7 +154,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $range
      * @return $this
      */
-    public function setRange($range) {
+    public function setRange($range)
+    {
         $this->range = $range;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * Codes to indicate the health context the range applies to. For example, the normal or therapeutic range.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getContext() {
+    public function getContext()
+    {
         return $this->context;
     }
 
@@ -169,7 +174,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $context
      * @return $this
      */
-    public function setContext($context) {
+    public function setContext($context)
+    {
         $this->context = $context;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * Codes to indicate the target population this reference range applies to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getAppliesTo() {
+    public function getAppliesTo()
+    {
         return $this->appliesTo;
     }
 
@@ -187,7 +194,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $appliesTo
      * @return $this
      */
-    public function addAppliesTo($appliesTo) {
+    public function addAppliesTo($appliesTo)
+    {
         $this->appliesTo[] = $appliesTo;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * Sex of the population the range applies to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender
      */
-    public function getGender() {
+    public function getGender()
+    {
         return $this->gender;
     }
 
@@ -205,7 +214,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender $gender
      * @return $this
      */
-    public function setGender($gender) {
+    public function setGender($gender)
+    {
         $this->gender = $gender;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * The age at which this reference range is applicable. This is a neonatal age (e.g. number of weeks at term) if the meaning says so.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getAge() {
+    public function getAge()
+    {
         return $this->age;
     }
 
@@ -223,7 +234,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $age
      * @return $this
      */
-    public function setAge($age) {
+    public function setAge($age)
+    {
         $this->age = $age;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * The gestational age to which this reference range is applicable, in the context of pregnancy.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getGestationalAge() {
+    public function getGestationalAge()
+    {
         return $this->gestationalAge;
     }
 
@@ -241,7 +254,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $gestationalAge
      * @return $this
      */
-    public function setGestationalAge($gestationalAge) {
+    public function setGestationalAge($gestationalAge)
+    {
         $this->gestationalAge = $gestationalAge;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * Text based condition for which the reference range is valid.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getCondition() {
+    public function getCondition()
+    {
         return $this->condition;
     }
 
@@ -259,7 +274,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $condition
      * @return $this
      */
-    public function setCondition($condition) {
+    public function setCondition($condition)
+    {
         $this->condition = $condition;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['category'])) {
                 $this->setCategory($data['category']);
@@ -287,7 +305,7 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
             }
             if (isset($data['appliesTo'])) {
                 if (is_array($data['appliesTo'])) {
-                    foreach($data['appliesTo'] as $d) {
+                    foreach ($data['appliesTo'] as $d) {
                         $this->addAppliesTo($d);
                     }
                 } else {
@@ -315,28 +333,44 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->range)) $json['range'] = $this->range;
-        if (isset($this->context)) $json['context'] = $this->context;
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->range)) {
+            $json['range'] = $this->range;
+        }
+        if (isset($this->context)) {
+            $json['context'] = $this->context;
+        }
         if (0 < count($this->appliesTo)) {
             $json['appliesTo'] = [];
-            foreach($this->appliesTo as $appliesTo) {
+            foreach ($this->appliesTo as $appliesTo) {
                 $json['appliesTo'][] = $appliesTo;
             }
         }
-        if (isset($this->gender)) $json['gender'] = $this->gender;
-        if (isset($this->age)) $json['age'] = $this->age;
-        if (isset($this->gestationalAge)) $json['gestationalAge'] = $this->gestationalAge;
-        if (isset($this->condition)) $json['condition'] = $this->condition;
+        if (isset($this->gender)) {
+            $json['gender'] = $this->gender;
+        }
+        if (isset($this->age)) {
+            $json['age'] = $this->age;
+        }
+        if (isset($this->gestationalAge)) {
+            $json['gestationalAge'] = $this->gestationalAge;
+        }
+        if (isset($this->condition)) {
+            $json['condition'] = $this->condition;
+        }
         return $json;
     }
 
@@ -345,24 +379,41 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ObservationDefinitionQualifiedInterval xmlns="http://hl7.org/fhir"></ObservationDefinitionQualifiedInterval>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ObservationDefinitionQualifiedInterval xmlns="http://hl7.org/fhir"></ObservationDefinitionQualifiedInterval>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->range)) $this->range->xmlSerialize(true, $sxe->addChild('range'));
-        if (isset($this->context)) $this->context->xmlSerialize(true, $sxe->addChild('context'));
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->range)) {
+            $this->range->xmlSerialize(true, $sxe->addChild('range'));
+        }
+        if (isset($this->context)) {
+            $this->context->xmlSerialize(true, $sxe->addChild('context'));
+        }
         if (0 < count($this->appliesTo)) {
-            foreach($this->appliesTo as $appliesTo) {
+            foreach ($this->appliesTo as $appliesTo) {
                 $appliesTo->xmlSerialize(true, $sxe->addChild('appliesTo'));
             }
         }
-        if (isset($this->gender)) $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
-        if (isset($this->age)) $this->age->xmlSerialize(true, $sxe->addChild('age'));
-        if (isset($this->gestationalAge)) $this->gestationalAge->xmlSerialize(true, $sxe->addChild('gestationalAge'));
-        if (isset($this->condition)) $this->condition->xmlSerialize(true, $sxe->addChild('condition'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->gender)) {
+            $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
+        }
+        if (isset($this->age)) {
+            $this->age->xmlSerialize(true, $sxe->addChild('age'));
+        }
+        if (isset($this->gestationalAge)) {
+            $this->gestationalAge->xmlSerialize(true, $sxe->addChild('gestationalAge'));
+        }
+        if (isset($this->condition)) {
+            $this->condition->xmlSerialize(true, $sxe->addChild('condition'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -94,7 +94,8 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
      * Type of benefit (primary care; speciality care; inpatient; outpatient).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -103,7 +104,8 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
      * The referral requirements to have access/coverage for this benefit.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getRequirement() {
+    public function getRequirement()
+    {
         return $this->requirement;
     }
 
@@ -121,7 +124,8 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $requirement
      * @return $this
      */
-    public function setRequirement($requirement) {
+    public function setRequirement($requirement)
+    {
         $this->requirement = $requirement;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
      * The specific limits on the benefit.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanLimit[]
      */
-    public function getLimit() {
+    public function getLimit()
+    {
         return $this->limit;
     }
 
@@ -139,7 +144,8 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanLimit $limit
      * @return $this
      */
-    public function addLimit($limit) {
+    public function addLimit($limit)
+    {
         $this->limit[] = $limit;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -164,7 +172,7 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['limit'])) {
                 if (is_array($data['limit'])) {
-                    foreach($data['limit'] as $d) {
+                    foreach ($data['limit'] as $d) {
                         $this->addLimit($d);
                     }
                 } else {
@@ -180,20 +188,26 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->requirement)) $json['requirement'] = $this->requirement;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->requirement)) {
+            $json['requirement'] = $this->requirement;
+        }
         if (0 < count($this->limit)) {
             $json['limit'] = [];
-            foreach($this->limit as $limit) {
+            foreach ($this->limit as $limit) {
                 $json['limit'][] = $limit;
             }
         }
@@ -205,19 +219,26 @@ class FHIRInsurancePlanBenefit extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InsurancePlanBenefit xmlns="http://hl7.org/fhir"></InsurancePlanBenefit>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InsurancePlanBenefit xmlns="http://hl7.org/fhir"></InsurancePlanBenefit>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->requirement)) $this->requirement->xmlSerialize(true, $sxe->addChild('requirement'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->requirement)) {
+            $this->requirement->xmlSerialize(true, $sxe->addChild('requirement'));
+        }
         if (0 < count($this->limit)) {
-            foreach($this->limit as $limit) {
+            foreach ($this->limit as $limit) {
                 $limit->xmlSerialize(true, $sxe->addChild('limit'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

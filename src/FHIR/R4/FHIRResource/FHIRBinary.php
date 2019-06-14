@@ -95,7 +95,8 @@ class FHIRBinary extends FHIRResource implements \JsonSerializable
      * MimeType of the binary content represented as a standard MimeType (BCP 13).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getContentType() {
+    public function getContentType()
+    {
         return $this->contentType;
     }
 
@@ -104,7 +105,8 @@ class FHIRBinary extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $contentType
      * @return $this
      */
-    public function setContentType($contentType) {
+    public function setContentType($contentType)
+    {
         $this->contentType = $contentType;
         return $this;
     }
@@ -113,7 +115,8 @@ class FHIRBinary extends FHIRResource implements \JsonSerializable
      * This element identifies another resource that can be used as a proxy of the security sensitivity to use when deciding and enforcing access control rules for the Binary resource. Given that the Binary resource contains very few elements that can be used to determine the sensitivity of the data and relationships to individuals, the referenced resource stands in as a proxy equivalent for this purpose. This referenced resource may be related to the Binary (e.g. Media, DocumentReference), or may be some non-related Resource purely as a security proxy. E.g. to identify that the binary resource relates to a patient, and access should only be granted to applications that have access to the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSecurityContext() {
+    public function getSecurityContext()
+    {
         return $this->securityContext;
     }
 
@@ -122,7 +125,8 @@ class FHIRBinary extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $securityContext
      * @return $this
      */
-    public function setSecurityContext($securityContext) {
+    public function setSecurityContext($securityContext)
+    {
         $this->securityContext = $securityContext;
         return $this;
     }
@@ -131,7 +135,8 @@ class FHIRBinary extends FHIRResource implements \JsonSerializable
      * The actual content, base64 encoded.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary
      */
-    public function getData() {
+    public function getData()
+    {
         return $this->data;
     }
 
@@ -140,7 +145,8 @@ class FHIRBinary extends FHIRResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBase64Binary $data
      * @return $this
      */
-    public function setData($data) {
+    public function setData($data)
+    {
         $this->data = $data;
         return $this;
     }
@@ -148,14 +154,16 @@ class FHIRBinary extends FHIRResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['contentType'])) {
                 $this->setContentType($data['contentType']);
@@ -175,19 +183,27 @@ class FHIRBinary extends FHIRResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->contentType)) $json['contentType'] = $this->contentType;
-        if (isset($this->securityContext)) $json['securityContext'] = $this->securityContext;
-        if (isset($this->data)) $json['data'] = $this->data;
+        if (isset($this->contentType)) {
+            $json['contentType'] = $this->contentType;
+        }
+        if (isset($this->securityContext)) {
+            $json['securityContext'] = $this->securityContext;
+        }
+        if (isset($this->data)) {
+            $json['data'] = $this->data;
+        }
         return $json;
     }
 
@@ -196,15 +212,24 @@ class FHIRBinary extends FHIRResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Binary xmlns="http://hl7.org/fhir"></Binary>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Binary xmlns="http://hl7.org/fhir"></Binary>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->contentType)) $this->contentType->xmlSerialize(true, $sxe->addChild('contentType'));
-        if (isset($this->securityContext)) $this->securityContext->xmlSerialize(true, $sxe->addChild('securityContext'));
-        if (isset($this->data)) $this->data->xmlSerialize(true, $sxe->addChild('data'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->contentType)) {
+            $this->contentType->xmlSerialize(true, $sxe->addChild('contentType'));
+        }
+        if (isset($this->securityContext)) {
+            $this->securityContext->xmlSerialize(true, $sxe->addChild('securityContext'));
+        }
+        if (isset($this->data)) {
+            $this->data->xmlSerialize(true, $sxe->addChild('data'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -100,7 +100,8 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
      * The participation the agent had with respect to the activity.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -109,7 +110,8 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
      * The function of the agent with respect to the activity. The security role enabling the agent with respect to the activity.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getRole() {
+    public function getRole()
+    {
         return $this->role;
     }
 
@@ -127,7 +130,8 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $role
      * @return $this
      */
-    public function addRole($role) {
+    public function addRole($role)
+    {
         $this->role[] = $role;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
      * The individual, device or organization that participated in the event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getWho() {
+    public function getWho()
+    {
         return $this->who;
     }
 
@@ -145,7 +150,8 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $who
      * @return $this
      */
-    public function setWho($who) {
+    public function setWho($who)
+    {
         $this->who = $who;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
      * The individual, device, or organization for whom the change was made.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOnBehalfOf() {
+    public function getOnBehalfOf()
+    {
         return $this->onBehalfOf;
     }
 
@@ -163,7 +170,8 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $onBehalfOf
      * @return $this
      */
-    public function setOnBehalfOf($onBehalfOf) {
+    public function setOnBehalfOf($onBehalfOf)
+    {
         $this->onBehalfOf = $onBehalfOf;
         return $this;
     }
@@ -171,21 +179,23 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
             }
             if (isset($data['role'])) {
                 if (is_array($data['role'])) {
-                    foreach($data['role'] as $d) {
+                    foreach ($data['role'] as $d) {
                         $this->addRole($d);
                     }
                 } else {
@@ -207,24 +217,32 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->role)) {
             $json['role'] = [];
-            foreach($this->role as $role) {
+            foreach ($this->role as $role) {
                 $json['role'][] = $role;
             }
         }
-        if (isset($this->who)) $json['who'] = $this->who;
-        if (isset($this->onBehalfOf)) $json['onBehalfOf'] = $this->onBehalfOf;
+        if (isset($this->who)) {
+            $json['who'] = $this->who;
+        }
+        if (isset($this->onBehalfOf)) {
+            $json['onBehalfOf'] = $this->onBehalfOf;
+        }
         return $json;
     }
 
@@ -233,20 +251,29 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ProvenanceAgent xmlns="http://hl7.org/fhir"></ProvenanceAgent>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ProvenanceAgent xmlns="http://hl7.org/fhir"></ProvenanceAgent>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->role)) {
-            foreach($this->role as $role) {
+            foreach ($this->role as $role) {
                 $role->xmlSerialize(true, $sxe->addChild('role'));
             }
         }
-        if (isset($this->who)) $this->who->xmlSerialize(true, $sxe->addChild('who'));
-        if (isset($this->onBehalfOf)) $this->onBehalfOf->xmlSerialize(true, $sxe->addChild('onBehalfOf'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->who)) {
+            $this->who->xmlSerialize(true, $sxe->addChild('who'));
+        }
+        if (isset($this->onBehalfOf)) {
+            $this->onBehalfOf->xmlSerialize(true, $sxe->addChild('onBehalfOf'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

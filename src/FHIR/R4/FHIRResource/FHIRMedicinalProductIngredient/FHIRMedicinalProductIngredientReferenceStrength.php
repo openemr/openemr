@@ -106,7 +106,8 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * Relevant reference substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSubstance() {
+    public function getSubstance()
+    {
         return $this->substance;
     }
 
@@ -115,7 +116,8 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $substance
      * @return $this
      */
-    public function setSubstance($substance) {
+    public function setSubstance($substance)
+    {
         $this->substance = $substance;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * Strength expressed in terms of a reference substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getStrength() {
+    public function getStrength()
+    {
         return $this->strength;
     }
 
@@ -133,7 +136,8 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $strength
      * @return $this
      */
-    public function setStrength($strength) {
+    public function setStrength($strength)
+    {
         $this->strength = $strength;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * Strength expressed in terms of a reference substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getStrengthLowLimit() {
+    public function getStrengthLowLimit()
+    {
         return $this->strengthLowLimit;
     }
 
@@ -151,7 +156,8 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $strengthLowLimit
      * @return $this
      */
-    public function setStrengthLowLimit($strengthLowLimit) {
+    public function setStrengthLowLimit($strengthLowLimit)
+    {
         $this->strengthLowLimit = $strengthLowLimit;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * For when strength is measured at a particular point or distance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMeasurementPoint() {
+    public function getMeasurementPoint()
+    {
         return $this->measurementPoint;
     }
 
@@ -169,7 +176,8 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $measurementPoint
      * @return $this
      */
-    public function setMeasurementPoint($measurementPoint) {
+    public function setMeasurementPoint($measurementPoint)
+    {
         $this->measurementPoint = $measurementPoint;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * The country or countries for which the strength range applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCountry() {
+    public function getCountry()
+    {
         return $this->country;
     }
 
@@ -187,7 +196,8 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $country
      * @return $this
      */
-    public function addCountry($country) {
+    public function addCountry($country)
+    {
         $this->country[] = $country;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['substance'])) {
                 $this->setSubstance($data['substance']);
@@ -218,7 +230,7 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
             }
             if (isset($data['country'])) {
                 if (is_array($data['country'])) {
-                    foreach($data['country'] as $d) {
+                    foreach ($data['country'] as $d) {
                         $this->addCountry($d);
                     }
                 } else {
@@ -234,22 +246,32 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->substance)) $json['substance'] = $this->substance;
-        if (isset($this->strength)) $json['strength'] = $this->strength;
-        if (isset($this->strengthLowLimit)) $json['strengthLowLimit'] = $this->strengthLowLimit;
-        if (isset($this->measurementPoint)) $json['measurementPoint'] = $this->measurementPoint;
+        if (isset($this->substance)) {
+            $json['substance'] = $this->substance;
+        }
+        if (isset($this->strength)) {
+            $json['strength'] = $this->strength;
+        }
+        if (isset($this->strengthLowLimit)) {
+            $json['strengthLowLimit'] = $this->strengthLowLimit;
+        }
+        if (isset($this->measurementPoint)) {
+            $json['measurementPoint'] = $this->measurementPoint;
+        }
         if (0 < count($this->country)) {
             $json['country'] = [];
-            foreach($this->country as $country) {
+            foreach ($this->country as $country) {
                 $json['country'][] = $country;
             }
         }
@@ -261,21 +283,32 @@ class FHIRMedicinalProductIngredientReferenceStrength extends FHIRBackboneElemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductIngredientReferenceStrength xmlns="http://hl7.org/fhir"></MedicinalProductIngredientReferenceStrength>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductIngredientReferenceStrength xmlns="http://hl7.org/fhir"></MedicinalProductIngredientReferenceStrength>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->substance)) $this->substance->xmlSerialize(true, $sxe->addChild('substance'));
-        if (isset($this->strength)) $this->strength->xmlSerialize(true, $sxe->addChild('strength'));
-        if (isset($this->strengthLowLimit)) $this->strengthLowLimit->xmlSerialize(true, $sxe->addChild('strengthLowLimit'));
-        if (isset($this->measurementPoint)) $this->measurementPoint->xmlSerialize(true, $sxe->addChild('measurementPoint'));
+        if (isset($this->substance)) {
+            $this->substance->xmlSerialize(true, $sxe->addChild('substance'));
+        }
+        if (isset($this->strength)) {
+            $this->strength->xmlSerialize(true, $sxe->addChild('strength'));
+        }
+        if (isset($this->strengthLowLimit)) {
+            $this->strengthLowLimit->xmlSerialize(true, $sxe->addChild('strengthLowLimit'));
+        }
+        if (isset($this->measurementPoint)) {
+            $this->measurementPoint->xmlSerialize(true, $sxe->addChild('measurementPoint'));
+        }
         if (0 < count($this->country)) {
-            foreach($this->country as $country) {
+            foreach ($this->country as $country) {
                 $country->xmlSerialize(true, $sxe->addChild('country'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

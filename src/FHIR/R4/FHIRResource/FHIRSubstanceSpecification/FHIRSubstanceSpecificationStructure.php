@@ -124,7 +124,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * Stereochemistry type.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStereochemistry() {
+    public function getStereochemistry()
+    {
         return $this->stereochemistry;
     }
 
@@ -133,7 +134,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $stereochemistry
      * @return $this
      */
-    public function setStereochemistry($stereochemistry) {
+    public function setStereochemistry($stereochemistry)
+    {
         $this->stereochemistry = $stereochemistry;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * Optical activity type.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getOpticalActivity() {
+    public function getOpticalActivity()
+    {
         return $this->opticalActivity;
     }
 
@@ -151,7 +154,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $opticalActivity
      * @return $this
      */
-    public function setOpticalActivity($opticalActivity) {
+    public function setOpticalActivity($opticalActivity)
+    {
         $this->opticalActivity = $opticalActivity;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * Molecular formula.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMolecularFormula() {
+    public function getMolecularFormula()
+    {
         return $this->molecularFormula;
     }
 
@@ -169,7 +174,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $molecularFormula
      * @return $this
      */
-    public function setMolecularFormula($molecularFormula) {
+    public function setMolecularFormula($molecularFormula)
+    {
         $this->molecularFormula = $molecularFormula;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * Specified per moiety according to the Hill system, i.e. first C, then H, then alphabetical, each moiety separated by a dot.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMolecularFormulaByMoiety() {
+    public function getMolecularFormulaByMoiety()
+    {
         return $this->molecularFormulaByMoiety;
     }
 
@@ -187,7 +194,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $molecularFormulaByMoiety
      * @return $this
      */
-    public function setMolecularFormulaByMoiety($molecularFormulaByMoiety) {
+    public function setMolecularFormulaByMoiety($molecularFormulaByMoiety)
+    {
         $this->molecularFormulaByMoiety = $molecularFormulaByMoiety;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * Applicable for single substances that contain a radionuclide or a non-natural isotopic ratio.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationIsotope[]
      */
-    public function getIsotope() {
+    public function getIsotope()
+    {
         return $this->isotope;
     }
 
@@ -205,7 +214,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationIsotope $isotope
      * @return $this
      */
-    public function addIsotope($isotope) {
+    public function addIsotope($isotope)
+    {
         $this->isotope[] = $isotope;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * The molecular weight or weight range (for proteins, polymers or nucleic acids).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationMolecularWeight
      */
-    public function getMolecularWeight() {
+    public function getMolecularWeight()
+    {
         return $this->molecularWeight;
     }
 
@@ -223,7 +234,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationMolecularWeight $molecularWeight
      * @return $this
      */
-    public function setMolecularWeight($molecularWeight) {
+    public function setMolecularWeight($molecularWeight)
+    {
         $this->molecularWeight = $molecularWeight;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * Supporting literature.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -241,7 +254,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function addSource($source) {
+    public function addSource($source)
+    {
         $this->source[] = $source;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * Molecular structural representation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationRepresentation[]
      */
-    public function getRepresentation() {
+    public function getRepresentation()
+    {
         return $this->representation;
     }
 
@@ -259,7 +274,8 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationRepresentation $representation
      * @return $this
      */
-    public function addRepresentation($representation) {
+    public function addRepresentation($representation)
+    {
         $this->representation[] = $representation;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['stereochemistry'])) {
                 $this->setStereochemistry($data['stereochemistry']);
@@ -290,7 +308,7 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
             }
             if (isset($data['isotope'])) {
                 if (is_array($data['isotope'])) {
-                    foreach($data['isotope'] as $d) {
+                    foreach ($data['isotope'] as $d) {
                         $this->addIsotope($d);
                     }
                 } else {
@@ -302,7 +320,7 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
             }
             if (isset($data['source'])) {
                 if (is_array($data['source'])) {
-                    foreach($data['source'] as $d) {
+                    foreach ($data['source'] as $d) {
                         $this->addSource($d);
                     }
                 } else {
@@ -311,7 +329,7 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
             }
             if (isset($data['representation'])) {
                 if (is_array($data['representation'])) {
-                    foreach($data['representation'] as $d) {
+                    foreach ($data['representation'] as $d) {
                         $this->addRepresentation($d);
                     }
                 } else {
@@ -327,35 +345,47 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->stereochemistry)) $json['stereochemistry'] = $this->stereochemistry;
-        if (isset($this->opticalActivity)) $json['opticalActivity'] = $this->opticalActivity;
-        if (isset($this->molecularFormula)) $json['molecularFormula'] = $this->molecularFormula;
-        if (isset($this->molecularFormulaByMoiety)) $json['molecularFormulaByMoiety'] = $this->molecularFormulaByMoiety;
+        if (isset($this->stereochemistry)) {
+            $json['stereochemistry'] = $this->stereochemistry;
+        }
+        if (isset($this->opticalActivity)) {
+            $json['opticalActivity'] = $this->opticalActivity;
+        }
+        if (isset($this->molecularFormula)) {
+            $json['molecularFormula'] = $this->molecularFormula;
+        }
+        if (isset($this->molecularFormulaByMoiety)) {
+            $json['molecularFormulaByMoiety'] = $this->molecularFormulaByMoiety;
+        }
         if (0 < count($this->isotope)) {
             $json['isotope'] = [];
-            foreach($this->isotope as $isotope) {
+            foreach ($this->isotope as $isotope) {
                 $json['isotope'][] = $isotope;
             }
         }
-        if (isset($this->molecularWeight)) $json['molecularWeight'] = $this->molecularWeight;
+        if (isset($this->molecularWeight)) {
+            $json['molecularWeight'] = $this->molecularWeight;
+        }
         if (0 < count($this->source)) {
             $json['source'] = [];
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $json['source'][] = $source;
             }
         }
         if (0 < count($this->representation)) {
             $json['representation'] = [];
-            foreach($this->representation as $representation) {
+            foreach ($this->representation as $representation) {
                 $json['representation'][] = $representation;
             }
         }
@@ -367,32 +397,45 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecificationStructure xmlns="http://hl7.org/fhir"></SubstanceSpecificationStructure>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecificationStructure xmlns="http://hl7.org/fhir"></SubstanceSpecificationStructure>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->stereochemistry)) $this->stereochemistry->xmlSerialize(true, $sxe->addChild('stereochemistry'));
-        if (isset($this->opticalActivity)) $this->opticalActivity->xmlSerialize(true, $sxe->addChild('opticalActivity'));
-        if (isset($this->molecularFormula)) $this->molecularFormula->xmlSerialize(true, $sxe->addChild('molecularFormula'));
-        if (isset($this->molecularFormulaByMoiety)) $this->molecularFormulaByMoiety->xmlSerialize(true, $sxe->addChild('molecularFormulaByMoiety'));
+        if (isset($this->stereochemistry)) {
+            $this->stereochemistry->xmlSerialize(true, $sxe->addChild('stereochemistry'));
+        }
+        if (isset($this->opticalActivity)) {
+            $this->opticalActivity->xmlSerialize(true, $sxe->addChild('opticalActivity'));
+        }
+        if (isset($this->molecularFormula)) {
+            $this->molecularFormula->xmlSerialize(true, $sxe->addChild('molecularFormula'));
+        }
+        if (isset($this->molecularFormulaByMoiety)) {
+            $this->molecularFormulaByMoiety->xmlSerialize(true, $sxe->addChild('molecularFormulaByMoiety'));
+        }
         if (0 < count($this->isotope)) {
-            foreach($this->isotope as $isotope) {
+            foreach ($this->isotope as $isotope) {
                 $isotope->xmlSerialize(true, $sxe->addChild('isotope'));
             }
         }
-        if (isset($this->molecularWeight)) $this->molecularWeight->xmlSerialize(true, $sxe->addChild('molecularWeight'));
+        if (isset($this->molecularWeight)) {
+            $this->molecularWeight->xmlSerialize(true, $sxe->addChild('molecularWeight'));
+        }
         if (0 < count($this->source)) {
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $source->xmlSerialize(true, $sxe->addChild('source'));
             }
         }
         if (0 < count($this->representation)) {
-            foreach($this->representation as $representation) {
+            foreach ($this->representation as $representation) {
                 $representation->xmlSerialize(true, $sxe->addChild('representation'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -130,7 +130,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * Structural unit composed of a nucleic acid molecule which controls its own replication through the interaction of specific proteins at one or more origins of replication ([SO:0000340](http://www.sequenceontology.org/browser/current_svn/term/SO:0000340)).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getChromosome() {
+    public function getChromosome()
+    {
         return $this->chromosome;
     }
 
@@ -139,7 +140,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $chromosome
      * @return $this
      */
-    public function setChromosome($chromosome) {
+    public function setChromosome($chromosome)
+    {
         $this->chromosome = $chromosome;
         return $this;
     }
@@ -148,7 +150,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * The Genome Build used for reference, following GRCh build versions e.g. 'GRCh 37'.  Version number must be included if a versioned release of a primary build was used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getGenomeBuild() {
+    public function getGenomeBuild()
+    {
         return $this->genomeBuild;
     }
 
@@ -157,7 +160,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $genomeBuild
      * @return $this
      */
-    public function setGenomeBuild($genomeBuild) {
+    public function setGenomeBuild($genomeBuild)
+    {
         $this->genomeBuild = $genomeBuild;
         return $this;
     }
@@ -166,7 +170,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * A relative reference to a DNA strand based on gene orientation. The strand that contains the open reading frame of the gene is the "sense" strand, and the opposite complementary strand is the "antisense" strand.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIROrientationType
      */
-    public function getOrientation() {
+    public function getOrientation()
+    {
         return $this->orientation;
     }
 
@@ -175,7 +180,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIROrientationType $orientation
      * @return $this
      */
-    public function setOrientation($orientation) {
+    public function setOrientation($orientation)
+    {
         $this->orientation = $orientation;
         return $this;
     }
@@ -184,7 +190,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * Reference identifier of reference sequence submitted to NCBI. It must match the type in the MolecularSequence.type field. For example, the prefix, “NG_” identifies reference sequence for genes, “NM_” for messenger RNA transcripts, and “NP_” for amino acid sequences.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getReferenceSeqId() {
+    public function getReferenceSeqId()
+    {
         return $this->referenceSeqId;
     }
 
@@ -193,7 +200,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $referenceSeqId
      * @return $this
      */
-    public function setReferenceSeqId($referenceSeqId) {
+    public function setReferenceSeqId($referenceSeqId)
+    {
         $this->referenceSeqId = $referenceSeqId;
         return $this;
     }
@@ -202,7 +210,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * A pointer to another MolecularSequence entity as reference sequence.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReferenceSeqPointer() {
+    public function getReferenceSeqPointer()
+    {
         return $this->referenceSeqPointer;
     }
 
@@ -211,7 +220,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $referenceSeqPointer
      * @return $this
      */
-    public function setReferenceSeqPointer($referenceSeqPointer) {
+    public function setReferenceSeqPointer($referenceSeqPointer)
+    {
         $this->referenceSeqPointer = $referenceSeqPointer;
         return $this;
     }
@@ -220,7 +230,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * A string like "ACGT".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getReferenceSeqString() {
+    public function getReferenceSeqString()
+    {
         return $this->referenceSeqString;
     }
 
@@ -229,7 +240,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $referenceSeqString
      * @return $this
      */
-    public function setReferenceSeqString($referenceSeqString) {
+    public function setReferenceSeqString($referenceSeqString)
+    {
         $this->referenceSeqString = $referenceSeqString;
         return $this;
     }
@@ -238,7 +250,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * An absolute reference to a strand. The Watson strand is the strand whose 5'-end is on the short arm of the chromosome, and the Crick strand as the one whose 5'-end is on the long arm.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRStrandType
      */
-    public function getStrand() {
+    public function getStrand()
+    {
         return $this->strand;
     }
 
@@ -247,7 +260,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRStrandType $strand
      * @return $this
      */
-    public function setStrand($strand) {
+    public function setStrand($strand)
+    {
         $this->strand = $strand;
         return $this;
     }
@@ -256,7 +270,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * Start position of the window on the reference sequence. If the coordinate system is either 0-based or 1-based, then start position is inclusive.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getWindowStart() {
+    public function getWindowStart()
+    {
         return $this->windowStart;
     }
 
@@ -265,7 +280,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $windowStart
      * @return $this
      */
-    public function setWindowStart($windowStart) {
+    public function setWindowStart($windowStart)
+    {
         $this->windowStart = $windowStart;
         return $this;
     }
@@ -274,7 +290,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * End position of the window on the reference sequence. If the coordinate system is 0-based then end is exclusive and does not include the last position. If the coordinate system is 1-base, then end is inclusive and includes the last position.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getWindowEnd() {
+    public function getWindowEnd()
+    {
         return $this->windowEnd;
     }
 
@@ -283,7 +300,8 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $windowEnd
      * @return $this
      */
-    public function setWindowEnd($windowEnd) {
+    public function setWindowEnd($windowEnd)
+    {
         $this->windowEnd = $windowEnd;
         return $this;
     }
@@ -291,14 +309,16 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['chromosome'])) {
                 $this->setChromosome($data['chromosome']);
@@ -336,24 +356,44 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->chromosome)) $json['chromosome'] = $this->chromosome;
-        if (isset($this->genomeBuild)) $json['genomeBuild'] = $this->genomeBuild;
-        if (isset($this->orientation)) $json['orientation'] = $this->orientation;
-        if (isset($this->referenceSeqId)) $json['referenceSeqId'] = $this->referenceSeqId;
-        if (isset($this->referenceSeqPointer)) $json['referenceSeqPointer'] = $this->referenceSeqPointer;
-        if (isset($this->referenceSeqString)) $json['referenceSeqString'] = $this->referenceSeqString;
-        if (isset($this->strand)) $json['strand'] = $this->strand;
-        if (isset($this->windowStart)) $json['windowStart'] = $this->windowStart;
-        if (isset($this->windowEnd)) $json['windowEnd'] = $this->windowEnd;
+        if (isset($this->chromosome)) {
+            $json['chromosome'] = $this->chromosome;
+        }
+        if (isset($this->genomeBuild)) {
+            $json['genomeBuild'] = $this->genomeBuild;
+        }
+        if (isset($this->orientation)) {
+            $json['orientation'] = $this->orientation;
+        }
+        if (isset($this->referenceSeqId)) {
+            $json['referenceSeqId'] = $this->referenceSeqId;
+        }
+        if (isset($this->referenceSeqPointer)) {
+            $json['referenceSeqPointer'] = $this->referenceSeqPointer;
+        }
+        if (isset($this->referenceSeqString)) {
+            $json['referenceSeqString'] = $this->referenceSeqString;
+        }
+        if (isset($this->strand)) {
+            $json['strand'] = $this->strand;
+        }
+        if (isset($this->windowStart)) {
+            $json['windowStart'] = $this->windowStart;
+        }
+        if (isset($this->windowEnd)) {
+            $json['windowEnd'] = $this->windowEnd;
+        }
         return $json;
     }
 
@@ -362,21 +402,42 @@ class FHIRMolecularSequenceReferenceSeq extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MolecularSequenceReferenceSeq xmlns="http://hl7.org/fhir"></MolecularSequenceReferenceSeq>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MolecularSequenceReferenceSeq xmlns="http://hl7.org/fhir"></MolecularSequenceReferenceSeq>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->chromosome)) $this->chromosome->xmlSerialize(true, $sxe->addChild('chromosome'));
-        if (isset($this->genomeBuild)) $this->genomeBuild->xmlSerialize(true, $sxe->addChild('genomeBuild'));
-        if (isset($this->orientation)) $this->orientation->xmlSerialize(true, $sxe->addChild('orientation'));
-        if (isset($this->referenceSeqId)) $this->referenceSeqId->xmlSerialize(true, $sxe->addChild('referenceSeqId'));
-        if (isset($this->referenceSeqPointer)) $this->referenceSeqPointer->xmlSerialize(true, $sxe->addChild('referenceSeqPointer'));
-        if (isset($this->referenceSeqString)) $this->referenceSeqString->xmlSerialize(true, $sxe->addChild('referenceSeqString'));
-        if (isset($this->strand)) $this->strand->xmlSerialize(true, $sxe->addChild('strand'));
-        if (isset($this->windowStart)) $this->windowStart->xmlSerialize(true, $sxe->addChild('windowStart'));
-        if (isset($this->windowEnd)) $this->windowEnd->xmlSerialize(true, $sxe->addChild('windowEnd'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->chromosome)) {
+            $this->chromosome->xmlSerialize(true, $sxe->addChild('chromosome'));
+        }
+        if (isset($this->genomeBuild)) {
+            $this->genomeBuild->xmlSerialize(true, $sxe->addChild('genomeBuild'));
+        }
+        if (isset($this->orientation)) {
+            $this->orientation->xmlSerialize(true, $sxe->addChild('orientation'));
+        }
+        if (isset($this->referenceSeqId)) {
+            $this->referenceSeqId->xmlSerialize(true, $sxe->addChild('referenceSeqId'));
+        }
+        if (isset($this->referenceSeqPointer)) {
+            $this->referenceSeqPointer->xmlSerialize(true, $sxe->addChild('referenceSeqPointer'));
+        }
+        if (isset($this->referenceSeqString)) {
+            $this->referenceSeqString->xmlSerialize(true, $sxe->addChild('referenceSeqString'));
+        }
+        if (isset($this->strand)) {
+            $this->strand->xmlSerialize(true, $sxe->addChild('strand'));
+        }
+        if (isset($this->windowStart)) {
+            $this->windowStart->xmlSerialize(true, $sxe->addChild('windowStart'));
+        }
+        if (isset($this->windowEnd)) {
+            $this->windowEnd->xmlSerialize(true, $sxe->addChild('windowEnd'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

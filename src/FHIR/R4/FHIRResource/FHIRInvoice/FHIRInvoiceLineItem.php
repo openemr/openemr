@@ -98,7 +98,8 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
      * Sequence in which the items appear on the invoice.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -107,7 +108,8 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -115,7 +117,8 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getChargeItemReference() {
+    public function getChargeItemReference()
+    {
         return $this->chargeItemReference;
     }
 
@@ -123,7 +126,8 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $chargeItemReference
      * @return $this
      */
-    public function setChargeItemReference($chargeItemReference) {
+    public function setChargeItemReference($chargeItemReference)
+    {
         $this->chargeItemReference = $chargeItemReference;
         return $this;
     }
@@ -131,7 +135,8 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getChargeItemCodeableConcept() {
+    public function getChargeItemCodeableConcept()
+    {
         return $this->chargeItemCodeableConcept;
     }
 
@@ -139,7 +144,8 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $chargeItemCodeableConcept
      * @return $this
      */
-    public function setChargeItemCodeableConcept($chargeItemCodeableConcept) {
+    public function setChargeItemCodeableConcept($chargeItemCodeableConcept)
+    {
         $this->chargeItemCodeableConcept = $chargeItemCodeableConcept;
         return $this;
     }
@@ -148,7 +154,8 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
      * The price for a ChargeItem may be calculated as a base price with surcharges/deductions that apply in certain conditions. A ChargeItemDefinition resource that defines the prices, factors and conditions that apply to a billing code is currently under development. The priceComponent element can be used to offer transparency to the recipient of the Invoice as to how the prices have been calculated.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInvoice\FHIRInvoicePriceComponent[]
      */
-    public function getPriceComponent() {
+    public function getPriceComponent()
+    {
         return $this->priceComponent;
     }
 
@@ -157,7 +164,8 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInvoice\FHIRInvoicePriceComponent $priceComponent
      * @return $this
      */
-    public function addPriceComponent($priceComponent) {
+    public function addPriceComponent($priceComponent)
+    {
         $this->priceComponent[] = $priceComponent;
         return $this;
     }
@@ -165,14 +173,16 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequence'])) {
                 $this->setSequence($data['sequence']);
@@ -185,7 +195,7 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
             }
             if (isset($data['priceComponent'])) {
                 if (is_array($data['priceComponent'])) {
-                    foreach($data['priceComponent'] as $d) {
+                    foreach ($data['priceComponent'] as $d) {
                         $this->addPriceComponent($d);
                     }
                 } else {
@@ -201,21 +211,29 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
-        if (isset($this->chargeItemReference)) $json['chargeItemReference'] = $this->chargeItemReference;
-        if (isset($this->chargeItemCodeableConcept)) $json['chargeItemCodeableConcept'] = $this->chargeItemCodeableConcept;
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
+        if (isset($this->chargeItemReference)) {
+            $json['chargeItemReference'] = $this->chargeItemReference;
+        }
+        if (isset($this->chargeItemCodeableConcept)) {
+            $json['chargeItemCodeableConcept'] = $this->chargeItemCodeableConcept;
+        }
         if (0 < count($this->priceComponent)) {
             $json['priceComponent'] = [];
-            foreach($this->priceComponent as $priceComponent) {
+            foreach ($this->priceComponent as $priceComponent) {
                 $json['priceComponent'][] = $priceComponent;
             }
         }
@@ -227,20 +245,29 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InvoiceLineItem xmlns="http://hl7.org/fhir"></InvoiceLineItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InvoiceLineItem xmlns="http://hl7.org/fhir"></InvoiceLineItem>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
-        if (isset($this->chargeItemReference)) $this->chargeItemReference->xmlSerialize(true, $sxe->addChild('chargeItemReference'));
-        if (isset($this->chargeItemCodeableConcept)) $this->chargeItemCodeableConcept->xmlSerialize(true, $sxe->addChild('chargeItemCodeableConcept'));
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
+        if (isset($this->chargeItemReference)) {
+            $this->chargeItemReference->xmlSerialize(true, $sxe->addChild('chargeItemReference'));
+        }
+        if (isset($this->chargeItemCodeableConcept)) {
+            $this->chargeItemCodeableConcept->xmlSerialize(true, $sxe->addChild('chargeItemCodeableConcept'));
+        }
         if (0 < count($this->priceComponent)) {
-            foreach($this->priceComponent as $priceComponent) {
+            foreach ($this->priceComponent as $priceComponent) {
                 $priceComponent->xmlSerialize(true, $sxe->addChild('priceComponent'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

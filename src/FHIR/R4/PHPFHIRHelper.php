@@ -24,18 +24,21 @@
  * 
  */
 
-class PHPFHIRHelper {
+class PHPFHIRHelper
+{
 
-    public static function recursiveXMLImport(\SimpleXMLElement $sxe, $data) {
+    public static function recursiveXMLImport(\SimpleXMLElement $sxe, $data)
+    {
         $new = simplexml_load_string((string)$data, '\SimpleXMLElement', LIBXML_NOEMPTYTAG);
 
         self::doImport($sxe, $new);
     }
     
-    private static function doImport(\SimpleXMLElement $sxe, \SimpleXMLElement $new) {
+    private static function doImport(\SimpleXMLElement $sxe, \SimpleXMLElement $new)
+    {
         $namespaces = $new->getNamespaces(true);
         
-        foreach($namespaces as $prefix => $uri) {
+        foreach ($namespaces as $prefix => $uri) {
             $sxe->registerXPathNamespace($prefix, $uri);
         }
                 
@@ -45,11 +48,11 @@ class PHPFHIRHelper {
             $node = $sxe->addChild($new->getName(), (string)$new);
         }
                 
-        foreach($new->attributes() as $attr => $value) {
+        foreach ($new->attributes() as $attr => $value) {
             $node->addAttribute($attr, $value);
         }
                 
-        foreach($namespaces as $space) {
+        foreach ($namespaces as $space) {
             foreach ($new->children($space) as $child) {
                 self::doImport($node, $child);
             }

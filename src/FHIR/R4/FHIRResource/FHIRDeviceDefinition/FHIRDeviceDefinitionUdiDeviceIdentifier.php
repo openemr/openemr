@@ -94,7 +94,8 @@ class FHIRDeviceDefinitionUdiDeviceIdentifier extends FHIRBackboneElement implem
      * The identifier that is to be associated with every Device that references this DeviceDefintiion for the issuer and jurisdication porvided in the DeviceDefinition.udiDeviceIdentifier.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDeviceIdentifier() {
+    public function getDeviceIdentifier()
+    {
         return $this->deviceIdentifier;
     }
 
@@ -103,7 +104,8 @@ class FHIRDeviceDefinitionUdiDeviceIdentifier extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $deviceIdentifier
      * @return $this
      */
-    public function setDeviceIdentifier($deviceIdentifier) {
+    public function setDeviceIdentifier($deviceIdentifier)
+    {
         $this->deviceIdentifier = $deviceIdentifier;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRDeviceDefinitionUdiDeviceIdentifier extends FHIRBackboneElement implem
      * The organization that assigns the identifier algorithm.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getIssuer() {
+    public function getIssuer()
+    {
         return $this->issuer;
     }
 
@@ -121,7 +124,8 @@ class FHIRDeviceDefinitionUdiDeviceIdentifier extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $issuer
      * @return $this
      */
-    public function setIssuer($issuer) {
+    public function setIssuer($issuer)
+    {
         $this->issuer = $issuer;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRDeviceDefinitionUdiDeviceIdentifier extends FHIRBackboneElement implem
      * The jurisdiction to which the deviceIdentifier applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getJurisdiction() {
+    public function getJurisdiction()
+    {
         return $this->jurisdiction;
     }
 
@@ -139,7 +144,8 @@ class FHIRDeviceDefinitionUdiDeviceIdentifier extends FHIRBackboneElement implem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $jurisdiction
      * @return $this
      */
-    public function setJurisdiction($jurisdiction) {
+    public function setJurisdiction($jurisdiction)
+    {
         $this->jurisdiction = $jurisdiction;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRDeviceDefinitionUdiDeviceIdentifier extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['deviceIdentifier'])) {
                 $this->setDeviceIdentifier($data['deviceIdentifier']);
@@ -174,18 +182,26 @@ class FHIRDeviceDefinitionUdiDeviceIdentifier extends FHIRBackboneElement implem
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->deviceIdentifier)) $json['deviceIdentifier'] = $this->deviceIdentifier;
-        if (isset($this->issuer)) $json['issuer'] = $this->issuer;
-        if (isset($this->jurisdiction)) $json['jurisdiction'] = $this->jurisdiction;
+        if (isset($this->deviceIdentifier)) {
+            $json['deviceIdentifier'] = $this->deviceIdentifier;
+        }
+        if (isset($this->issuer)) {
+            $json['issuer'] = $this->issuer;
+        }
+        if (isset($this->jurisdiction)) {
+            $json['jurisdiction'] = $this->jurisdiction;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRDeviceDefinitionUdiDeviceIdentifier extends FHIRBackboneElement implem
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DeviceDefinitionUdiDeviceIdentifier xmlns="http://hl7.org/fhir"></DeviceDefinitionUdiDeviceIdentifier>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DeviceDefinitionUdiDeviceIdentifier xmlns="http://hl7.org/fhir"></DeviceDefinitionUdiDeviceIdentifier>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->deviceIdentifier)) $this->deviceIdentifier->xmlSerialize(true, $sxe->addChild('deviceIdentifier'));
-        if (isset($this->issuer)) $this->issuer->xmlSerialize(true, $sxe->addChild('issuer'));
-        if (isset($this->jurisdiction)) $this->jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->deviceIdentifier)) {
+            $this->deviceIdentifier->xmlSerialize(true, $sxe->addChild('deviceIdentifier'));
+        }
+        if (isset($this->issuer)) {
+            $this->issuer->xmlSerialize(true, $sxe->addChild('issuer'));
+        }
+        if (isset($this->jurisdiction)) {
+            $this->jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

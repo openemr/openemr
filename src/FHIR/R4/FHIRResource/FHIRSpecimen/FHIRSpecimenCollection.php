@@ -126,7 +126,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * Person who collected the specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCollector() {
+    public function getCollector()
+    {
         return $this->collector;
     }
 
@@ -135,7 +136,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $collector
      * @return $this
      */
-    public function setCollector($collector) {
+    public function setCollector($collector)
+    {
         $this->collector = $collector;
         return $this;
     }
@@ -143,7 +145,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getCollectedDateTime() {
+    public function getCollectedDateTime()
+    {
         return $this->collectedDateTime;
     }
 
@@ -151,7 +154,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $collectedDateTime
      * @return $this
      */
-    public function setCollectedDateTime($collectedDateTime) {
+    public function setCollectedDateTime($collectedDateTime)
+    {
         $this->collectedDateTime = $collectedDateTime;
         return $this;
     }
@@ -159,7 +163,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getCollectedPeriod() {
+    public function getCollectedPeriod()
+    {
         return $this->collectedPeriod;
     }
 
@@ -167,7 +172,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $collectedPeriod
      * @return $this
      */
-    public function setCollectedPeriod($collectedPeriod) {
+    public function setCollectedPeriod($collectedPeriod)
+    {
         $this->collectedPeriod = $collectedPeriod;
         return $this;
     }
@@ -176,7 +182,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * The span of time over which the collection of a specimen occurred.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getDuration() {
+    public function getDuration()
+    {
         return $this->duration;
     }
 
@@ -185,7 +192,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $duration
      * @return $this
      */
-    public function setDuration($duration) {
+    public function setDuration($duration)
+    {
         $this->duration = $duration;
         return $this;
     }
@@ -194,7 +202,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * The quantity of specimen collected; for instance the volume of a blood sample, or the physical measurement of an anatomic pathology sample.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -203,7 +212,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -212,7 +222,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * A coded value specifying the technique that is used to perform the procedure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method;
     }
 
@@ -221,7 +232,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $method
      * @return $this
      */
-    public function setMethod($method) {
+    public function setMethod($method)
+    {
         $this->method = $method;
         return $this;
     }
@@ -230,7 +242,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * Anatomical location from which the specimen was collected (if subject is a patient). This is the target site.  This element is not used for environmental specimens.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getBodySite() {
+    public function getBodySite()
+    {
         return $this->bodySite;
     }
 
@@ -239,7 +252,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $bodySite
      * @return $this
      */
-    public function setBodySite($bodySite) {
+    public function setBodySite($bodySite)
+    {
         $this->bodySite = $bodySite;
         return $this;
     }
@@ -247,7 +261,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getFastingStatusCodeableConcept() {
+    public function getFastingStatusCodeableConcept()
+    {
         return $this->fastingStatusCodeableConcept;
     }
 
@@ -255,7 +270,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $fastingStatusCodeableConcept
      * @return $this
      */
-    public function setFastingStatusCodeableConcept($fastingStatusCodeableConcept) {
+    public function setFastingStatusCodeableConcept($fastingStatusCodeableConcept)
+    {
         $this->fastingStatusCodeableConcept = $fastingStatusCodeableConcept;
         return $this;
     }
@@ -263,7 +279,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getFastingStatusDuration() {
+    public function getFastingStatusDuration()
+    {
         return $this->fastingStatusDuration;
     }
 
@@ -271,7 +288,8 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $fastingStatusDuration
      * @return $this
      */
-    public function setFastingStatusDuration($fastingStatusDuration) {
+    public function setFastingStatusDuration($fastingStatusDuration)
+    {
         $this->fastingStatusDuration = $fastingStatusDuration;
         return $this;
     }
@@ -279,14 +297,16 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['collector'])) {
                 $this->setCollector($data['collector']);
@@ -324,24 +344,44 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->collector)) $json['collector'] = $this->collector;
-        if (isset($this->collectedDateTime)) $json['collectedDateTime'] = $this->collectedDateTime;
-        if (isset($this->collectedPeriod)) $json['collectedPeriod'] = $this->collectedPeriod;
-        if (isset($this->duration)) $json['duration'] = $this->duration;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->method)) $json['method'] = $this->method;
-        if (isset($this->bodySite)) $json['bodySite'] = $this->bodySite;
-        if (isset($this->fastingStatusCodeableConcept)) $json['fastingStatusCodeableConcept'] = $this->fastingStatusCodeableConcept;
-        if (isset($this->fastingStatusDuration)) $json['fastingStatusDuration'] = $this->fastingStatusDuration;
+        if (isset($this->collector)) {
+            $json['collector'] = $this->collector;
+        }
+        if (isset($this->collectedDateTime)) {
+            $json['collectedDateTime'] = $this->collectedDateTime;
+        }
+        if (isset($this->collectedPeriod)) {
+            $json['collectedPeriod'] = $this->collectedPeriod;
+        }
+        if (isset($this->duration)) {
+            $json['duration'] = $this->duration;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->method)) {
+            $json['method'] = $this->method;
+        }
+        if (isset($this->bodySite)) {
+            $json['bodySite'] = $this->bodySite;
+        }
+        if (isset($this->fastingStatusCodeableConcept)) {
+            $json['fastingStatusCodeableConcept'] = $this->fastingStatusCodeableConcept;
+        }
+        if (isset($this->fastingStatusDuration)) {
+            $json['fastingStatusDuration'] = $this->fastingStatusDuration;
+        }
         return $json;
     }
 
@@ -350,21 +390,42 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SpecimenCollection xmlns="http://hl7.org/fhir"></SpecimenCollection>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SpecimenCollection xmlns="http://hl7.org/fhir"></SpecimenCollection>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->collector)) $this->collector->xmlSerialize(true, $sxe->addChild('collector'));
-        if (isset($this->collectedDateTime)) $this->collectedDateTime->xmlSerialize(true, $sxe->addChild('collectedDateTime'));
-        if (isset($this->collectedPeriod)) $this->collectedPeriod->xmlSerialize(true, $sxe->addChild('collectedPeriod'));
-        if (isset($this->duration)) $this->duration->xmlSerialize(true, $sxe->addChild('duration'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->method)) $this->method->xmlSerialize(true, $sxe->addChild('method'));
-        if (isset($this->bodySite)) $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
-        if (isset($this->fastingStatusCodeableConcept)) $this->fastingStatusCodeableConcept->xmlSerialize(true, $sxe->addChild('fastingStatusCodeableConcept'));
-        if (isset($this->fastingStatusDuration)) $this->fastingStatusDuration->xmlSerialize(true, $sxe->addChild('fastingStatusDuration'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->collector)) {
+            $this->collector->xmlSerialize(true, $sxe->addChild('collector'));
+        }
+        if (isset($this->collectedDateTime)) {
+            $this->collectedDateTime->xmlSerialize(true, $sxe->addChild('collectedDateTime'));
+        }
+        if (isset($this->collectedPeriod)) {
+            $this->collectedPeriod->xmlSerialize(true, $sxe->addChild('collectedPeriod'));
+        }
+        if (isset($this->duration)) {
+            $this->duration->xmlSerialize(true, $sxe->addChild('duration'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->method)) {
+            $this->method->xmlSerialize(true, $sxe->addChild('method'));
+        }
+        if (isset($this->bodySite)) {
+            $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
+        }
+        if (isset($this->fastingStatusCodeableConcept)) {
+            $this->fastingStatusCodeableConcept->xmlSerialize(true, $sxe->addChild('fastingStatusCodeableConcept'));
+        }
+        if (isset($this->fastingStatusDuration)) {
+            $this->fastingStatusDuration->xmlSerialize(true, $sxe->addChild('fastingStatusDuration'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -159,7 +159,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * Indicates the order in which the dosage instructions should be applied or interpreted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -168,7 +169,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -177,7 +179,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * Free text dosage instructions e.g. SIG.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -186,7 +189,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -195,7 +199,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * Supplemental instructions to the patient on how to take the medication  (e.g. "with meals" or"take half to one hour before food") or warnings for the patient about the medication (e.g. "may cause drowsiness" or "avoid exposure of skin to direct sunlight or sunlamps").
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getAdditionalInstruction() {
+    public function getAdditionalInstruction()
+    {
         return $this->additionalInstruction;
     }
 
@@ -204,7 +209,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $additionalInstruction
      * @return $this
      */
-    public function addAdditionalInstruction($additionalInstruction) {
+    public function addAdditionalInstruction($additionalInstruction)
+    {
         $this->additionalInstruction[] = $additionalInstruction;
         return $this;
     }
@@ -213,7 +219,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * Instructions in terms that are understood by the patient or consumer.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPatientInstruction() {
+    public function getPatientInstruction()
+    {
         return $this->patientInstruction;
     }
 
@@ -222,7 +229,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $patientInstruction
      * @return $this
      */
-    public function setPatientInstruction($patientInstruction) {
+    public function setPatientInstruction($patientInstruction)
+    {
         $this->patientInstruction = $patientInstruction;
         return $this;
     }
@@ -231,7 +239,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * When medication should be administered.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getTiming() {
+    public function getTiming()
+    {
         return $this->timing;
     }
 
@@ -240,7 +249,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $timing
      * @return $this
      */
-    public function setTiming($timing) {
+    public function setTiming($timing)
+    {
         $this->timing = $timing;
         return $this;
     }
@@ -248,7 +258,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getAsNeededBoolean() {
+    public function getAsNeededBoolean()
+    {
         return $this->asNeededBoolean;
     }
 
@@ -256,7 +267,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $asNeededBoolean
      * @return $this
      */
-    public function setAsNeededBoolean($asNeededBoolean) {
+    public function setAsNeededBoolean($asNeededBoolean)
+    {
         $this->asNeededBoolean = $asNeededBoolean;
         return $this;
     }
@@ -264,7 +276,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAsNeededCodeableConcept() {
+    public function getAsNeededCodeableConcept()
+    {
         return $this->asNeededCodeableConcept;
     }
 
@@ -272,7 +285,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $asNeededCodeableConcept
      * @return $this
      */
-    public function setAsNeededCodeableConcept($asNeededCodeableConcept) {
+    public function setAsNeededCodeableConcept($asNeededCodeableConcept)
+    {
         $this->asNeededCodeableConcept = $asNeededCodeableConcept;
         return $this;
     }
@@ -281,7 +295,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * Body site to administer to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSite() {
+    public function getSite()
+    {
         return $this->site;
     }
 
@@ -290,7 +305,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $site
      * @return $this
      */
-    public function setSite($site) {
+    public function setSite($site)
+    {
         $this->site = $site;
         return $this;
     }
@@ -299,7 +315,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * How drug should enter body.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRoute() {
+    public function getRoute()
+    {
         return $this->route;
     }
 
@@ -308,7 +325,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $route
      * @return $this
      */
-    public function setRoute($route) {
+    public function setRoute($route)
+    {
         $this->route = $route;
         return $this;
     }
@@ -317,7 +335,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * Technique for administering medication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method;
     }
 
@@ -326,7 +345,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $method
      * @return $this
      */
-    public function setMethod($method) {
+    public function setMethod($method)
+    {
         $this->method = $method;
         return $this;
     }
@@ -335,7 +355,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * The amount of medication administered.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage\FHIRDosageDoseAndRate[]
      */
-    public function getDoseAndRate() {
+    public function getDoseAndRate()
+    {
         return $this->doseAndRate;
     }
 
@@ -344,7 +365,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRDosage\FHIRDosageDoseAndRate $doseAndRate
      * @return $this
      */
-    public function addDoseAndRate($doseAndRate) {
+    public function addDoseAndRate($doseAndRate)
+    {
         $this->doseAndRate[] = $doseAndRate;
         return $this;
     }
@@ -353,7 +375,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * Upper limit on medication per unit of time.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getMaxDosePerPeriod() {
+    public function getMaxDosePerPeriod()
+    {
         return $this->maxDosePerPeriod;
     }
 
@@ -362,7 +385,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $maxDosePerPeriod
      * @return $this
      */
-    public function setMaxDosePerPeriod($maxDosePerPeriod) {
+    public function setMaxDosePerPeriod($maxDosePerPeriod)
+    {
         $this->maxDosePerPeriod = $maxDosePerPeriod;
         return $this;
     }
@@ -371,7 +395,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * Upper limit on medication per administration.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getMaxDosePerAdministration() {
+    public function getMaxDosePerAdministration()
+    {
         return $this->maxDosePerAdministration;
     }
 
@@ -380,7 +405,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $maxDosePerAdministration
      * @return $this
      */
-    public function setMaxDosePerAdministration($maxDosePerAdministration) {
+    public function setMaxDosePerAdministration($maxDosePerAdministration)
+    {
         $this->maxDosePerAdministration = $maxDosePerAdministration;
         return $this;
     }
@@ -389,7 +415,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * Upper limit on medication per lifetime of the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getMaxDosePerLifetime() {
+    public function getMaxDosePerLifetime()
+    {
         return $this->maxDosePerLifetime;
     }
 
@@ -398,7 +425,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $maxDosePerLifetime
      * @return $this
      */
-    public function setMaxDosePerLifetime($maxDosePerLifetime) {
+    public function setMaxDosePerLifetime($maxDosePerLifetime)
+    {
         $this->maxDosePerLifetime = $maxDosePerLifetime;
         return $this;
     }
@@ -406,14 +434,16 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequence'])) {
                 $this->setSequence($data['sequence']);
@@ -423,7 +453,7 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
             }
             if (isset($data['additionalInstruction'])) {
                 if (is_array($data['additionalInstruction'])) {
-                    foreach($data['additionalInstruction'] as $d) {
+                    foreach ($data['additionalInstruction'] as $d) {
                         $this->addAdditionalInstruction($d);
                     }
                 } else {
@@ -453,7 +483,7 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
             }
             if (isset($data['doseAndRate'])) {
                 if (is_array($data['doseAndRate'])) {
-                    foreach($data['doseAndRate'] as $d) {
+                    foreach ($data['doseAndRate'] as $d) {
                         $this->addDoseAndRate($d);
                     }
                 } else {
@@ -478,40 +508,66 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
-        if (isset($this->text)) $json['text'] = $this->text;
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
         if (0 < count($this->additionalInstruction)) {
             $json['additionalInstruction'] = [];
-            foreach($this->additionalInstruction as $additionalInstruction) {
+            foreach ($this->additionalInstruction as $additionalInstruction) {
                 $json['additionalInstruction'][] = $additionalInstruction;
             }
         }
-        if (isset($this->patientInstruction)) $json['patientInstruction'] = $this->patientInstruction;
-        if (isset($this->timing)) $json['timing'] = $this->timing;
-        if (isset($this->asNeededBoolean)) $json['asNeededBoolean'] = $this->asNeededBoolean;
-        if (isset($this->asNeededCodeableConcept)) $json['asNeededCodeableConcept'] = $this->asNeededCodeableConcept;
-        if (isset($this->site)) $json['site'] = $this->site;
-        if (isset($this->route)) $json['route'] = $this->route;
-        if (isset($this->method)) $json['method'] = $this->method;
+        if (isset($this->patientInstruction)) {
+            $json['patientInstruction'] = $this->patientInstruction;
+        }
+        if (isset($this->timing)) {
+            $json['timing'] = $this->timing;
+        }
+        if (isset($this->asNeededBoolean)) {
+            $json['asNeededBoolean'] = $this->asNeededBoolean;
+        }
+        if (isset($this->asNeededCodeableConcept)) {
+            $json['asNeededCodeableConcept'] = $this->asNeededCodeableConcept;
+        }
+        if (isset($this->site)) {
+            $json['site'] = $this->site;
+        }
+        if (isset($this->route)) {
+            $json['route'] = $this->route;
+        }
+        if (isset($this->method)) {
+            $json['method'] = $this->method;
+        }
         if (0 < count($this->doseAndRate)) {
             $json['doseAndRate'] = [];
-            foreach($this->doseAndRate as $doseAndRate) {
+            foreach ($this->doseAndRate as $doseAndRate) {
                 $json['doseAndRate'][] = $doseAndRate;
             }
         }
-        if (isset($this->maxDosePerPeriod)) $json['maxDosePerPeriod'] = $this->maxDosePerPeriod;
-        if (isset($this->maxDosePerAdministration)) $json['maxDosePerAdministration'] = $this->maxDosePerAdministration;
-        if (isset($this->maxDosePerLifetime)) $json['maxDosePerLifetime'] = $this->maxDosePerLifetime;
+        if (isset($this->maxDosePerPeriod)) {
+            $json['maxDosePerPeriod'] = $this->maxDosePerPeriod;
+        }
+        if (isset($this->maxDosePerAdministration)) {
+            $json['maxDosePerAdministration'] = $this->maxDosePerAdministration;
+        }
+        if (isset($this->maxDosePerLifetime)) {
+            $json['maxDosePerLifetime'] = $this->maxDosePerLifetime;
+        }
         return $json;
     }
 
@@ -520,34 +576,61 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Dosage xmlns="http://hl7.org/fhir"></Dosage>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Dosage xmlns="http://hl7.org/fhir"></Dosage>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
         if (0 < count($this->additionalInstruction)) {
-            foreach($this->additionalInstruction as $additionalInstruction) {
+            foreach ($this->additionalInstruction as $additionalInstruction) {
                 $additionalInstruction->xmlSerialize(true, $sxe->addChild('additionalInstruction'));
             }
         }
-        if (isset($this->patientInstruction)) $this->patientInstruction->xmlSerialize(true, $sxe->addChild('patientInstruction'));
-        if (isset($this->timing)) $this->timing->xmlSerialize(true, $sxe->addChild('timing'));
-        if (isset($this->asNeededBoolean)) $this->asNeededBoolean->xmlSerialize(true, $sxe->addChild('asNeededBoolean'));
-        if (isset($this->asNeededCodeableConcept)) $this->asNeededCodeableConcept->xmlSerialize(true, $sxe->addChild('asNeededCodeableConcept'));
-        if (isset($this->site)) $this->site->xmlSerialize(true, $sxe->addChild('site'));
-        if (isset($this->route)) $this->route->xmlSerialize(true, $sxe->addChild('route'));
-        if (isset($this->method)) $this->method->xmlSerialize(true, $sxe->addChild('method'));
+        if (isset($this->patientInstruction)) {
+            $this->patientInstruction->xmlSerialize(true, $sxe->addChild('patientInstruction'));
+        }
+        if (isset($this->timing)) {
+            $this->timing->xmlSerialize(true, $sxe->addChild('timing'));
+        }
+        if (isset($this->asNeededBoolean)) {
+            $this->asNeededBoolean->xmlSerialize(true, $sxe->addChild('asNeededBoolean'));
+        }
+        if (isset($this->asNeededCodeableConcept)) {
+            $this->asNeededCodeableConcept->xmlSerialize(true, $sxe->addChild('asNeededCodeableConcept'));
+        }
+        if (isset($this->site)) {
+            $this->site->xmlSerialize(true, $sxe->addChild('site'));
+        }
+        if (isset($this->route)) {
+            $this->route->xmlSerialize(true, $sxe->addChild('route'));
+        }
+        if (isset($this->method)) {
+            $this->method->xmlSerialize(true, $sxe->addChild('method'));
+        }
         if (0 < count($this->doseAndRate)) {
-            foreach($this->doseAndRate as $doseAndRate) {
+            foreach ($this->doseAndRate as $doseAndRate) {
                 $doseAndRate->xmlSerialize(true, $sxe->addChild('doseAndRate'));
             }
         }
-        if (isset($this->maxDosePerPeriod)) $this->maxDosePerPeriod->xmlSerialize(true, $sxe->addChild('maxDosePerPeriod'));
-        if (isset($this->maxDosePerAdministration)) $this->maxDosePerAdministration->xmlSerialize(true, $sxe->addChild('maxDosePerAdministration'));
-        if (isset($this->maxDosePerLifetime)) $this->maxDosePerLifetime->xmlSerialize(true, $sxe->addChild('maxDosePerLifetime'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->maxDosePerPeriod)) {
+            $this->maxDosePerPeriod->xmlSerialize(true, $sxe->addChild('maxDosePerPeriod'));
+        }
+        if (isset($this->maxDosePerAdministration)) {
+            $this->maxDosePerAdministration->xmlSerialize(true, $sxe->addChild('maxDosePerAdministration'));
+        }
+        if (isset($this->maxDosePerLifetime)) {
+            $this->maxDosePerLifetime->xmlSerialize(true, $sxe->addChild('maxDosePerLifetime'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

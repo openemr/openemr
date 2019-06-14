@@ -136,7 +136,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * Unique identifier for the current payment item for the referenced payable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -145,7 +146,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -154,7 +156,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * Unique identifier for the prior payment item for the referenced payable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getPredecessor() {
+    public function getPredecessor()
+    {
         return $this->predecessor;
     }
 
@@ -163,7 +166,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $predecessor
      * @return $this
      */
-    public function setPredecessor($predecessor) {
+    public function setPredecessor($predecessor)
+    {
         $this->predecessor = $predecessor;
         return $this;
     }
@@ -172,7 +176,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * Code to indicate the nature of the payment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -181,7 +186,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -190,7 +196,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * A resource, such as a Claim, the evaluation of which could lead to payment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequest() {
+    public function getRequest()
+    {
         return $this->request;
     }
 
@@ -199,7 +206,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $request
      * @return $this
      */
-    public function setRequest($request) {
+    public function setRequest($request)
+    {
         $this->request = $request;
         return $this;
     }
@@ -208,7 +216,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * The party which submitted the claim or financial transaction.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubmitter() {
+    public function getSubmitter()
+    {
         return $this->submitter;
     }
 
@@ -217,7 +226,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $submitter
      * @return $this
      */
-    public function setSubmitter($submitter) {
+    public function setSubmitter($submitter)
+    {
         $this->submitter = $submitter;
         return $this;
     }
@@ -226,7 +236,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * A resource, such as a ClaimResponse, which contains a commitment to payment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getResponse() {
+    public function getResponse()
+    {
         return $this->response;
     }
 
@@ -235,7 +246,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $response
      * @return $this
      */
-    public function setResponse($response) {
+    public function setResponse($response)
+    {
         $this->response = $response;
         return $this;
     }
@@ -244,7 +256,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * The date from the response resource containing a commitment to pay.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -253,7 +266,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -262,7 +276,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * A reference to the individual who is responsible for inquiries regarding the response and its payment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getResponsible() {
+    public function getResponsible()
+    {
         return $this->responsible;
     }
 
@@ -271,7 +286,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $responsible
      * @return $this
      */
-    public function setResponsible($responsible) {
+    public function setResponsible($responsible)
+    {
         $this->responsible = $responsible;
         return $this;
     }
@@ -280,7 +296,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * The party which is receiving the payment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPayee() {
+    public function getPayee()
+    {
         return $this->payee;
     }
 
@@ -289,7 +306,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $payee
      * @return $this
      */
-    public function setPayee($payee) {
+    public function setPayee($payee)
+    {
         $this->payee = $payee;
         return $this;
     }
@@ -298,7 +316,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * The monetary amount allocated from the total payment to the payable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getAmount() {
+    public function getAmount()
+    {
         return $this->amount;
     }
 
@@ -307,7 +326,8 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $amount
      * @return $this
      */
-    public function setAmount($amount) {
+    public function setAmount($amount)
+    {
         $this->amount = $amount;
         return $this;
     }
@@ -315,14 +335,16 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 $this->setIdentifier($data['identifier']);
@@ -363,25 +385,47 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->predecessor)) $json['predecessor'] = $this->predecessor;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->request)) $json['request'] = $this->request;
-        if (isset($this->submitter)) $json['submitter'] = $this->submitter;
-        if (isset($this->response)) $json['response'] = $this->response;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->responsible)) $json['responsible'] = $this->responsible;
-        if (isset($this->payee)) $json['payee'] = $this->payee;
-        if (isset($this->amount)) $json['amount'] = $this->amount;
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->predecessor)) {
+            $json['predecessor'] = $this->predecessor;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->request)) {
+            $json['request'] = $this->request;
+        }
+        if (isset($this->submitter)) {
+            $json['submitter'] = $this->submitter;
+        }
+        if (isset($this->response)) {
+            $json['response'] = $this->response;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->responsible)) {
+            $json['responsible'] = $this->responsible;
+        }
+        if (isset($this->payee)) {
+            $json['payee'] = $this->payee;
+        }
+        if (isset($this->amount)) {
+            $json['amount'] = $this->amount;
+        }
         return $json;
     }
 
@@ -390,22 +434,45 @@ class FHIRPaymentReconciliationDetail extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PaymentReconciliationDetail xmlns="http://hl7.org/fhir"></PaymentReconciliationDetail>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PaymentReconciliationDetail xmlns="http://hl7.org/fhir"></PaymentReconciliationDetail>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->predecessor)) $this->predecessor->xmlSerialize(true, $sxe->addChild('predecessor'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->request)) $this->request->xmlSerialize(true, $sxe->addChild('request'));
-        if (isset($this->submitter)) $this->submitter->xmlSerialize(true, $sxe->addChild('submitter'));
-        if (isset($this->response)) $this->response->xmlSerialize(true, $sxe->addChild('response'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->responsible)) $this->responsible->xmlSerialize(true, $sxe->addChild('responsible'));
-        if (isset($this->payee)) $this->payee->xmlSerialize(true, $sxe->addChild('payee'));
-        if (isset($this->amount)) $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->predecessor)) {
+            $this->predecessor->xmlSerialize(true, $sxe->addChild('predecessor'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->request)) {
+            $this->request->xmlSerialize(true, $sxe->addChild('request'));
+        }
+        if (isset($this->submitter)) {
+            $this->submitter->xmlSerialize(true, $sxe->addChild('submitter'));
+        }
+        if (isset($this->response)) {
+            $this->response->xmlSerialize(true, $sxe->addChild('response'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->responsible)) {
+            $this->responsible->xmlSerialize(true, $sxe->addChild('responsible'));
+        }
+        if (isset($this->payee)) {
+            $this->payee->xmlSerialize(true, $sxe->addChild('payee'));
+        }
+        if (isset($this->amount)) {
+            $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

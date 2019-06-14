@@ -88,7 +88,8 @@ class FHIRDocumentManifestRelated extends FHIRBackboneElement implements \JsonSe
      * Related identifier to this DocumentManifest.  For example, Order numbers, accession numbers, XDW workflow numbers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -97,7 +98,8 @@ class FHIRDocumentManifestRelated extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRDocumentManifestRelated extends FHIRBackboneElement implements \JsonSe
      * Related Resource to this DocumentManifest. For example, Order, ServiceRequest,  Procedure, EligibilityRequest, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRef() {
+    public function getRef()
+    {
         return $this->ref;
     }
 
@@ -115,7 +118,8 @@ class FHIRDocumentManifestRelated extends FHIRBackboneElement implements \JsonSe
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $ref
      * @return $this
      */
-    public function setRef($ref) {
+    public function setRef($ref)
+    {
         $this->ref = $ref;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRDocumentManifestRelated extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 $this->setIdentifier($data['identifier']);
@@ -147,17 +153,23 @@ class FHIRDocumentManifestRelated extends FHIRBackboneElement implements \JsonSe
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->ref)) $json['ref'] = $this->ref;
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->ref)) {
+            $json['ref'] = $this->ref;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRDocumentManifestRelated extends FHIRBackboneElement implements \JsonSe
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DocumentManifestRelated xmlns="http://hl7.org/fhir"></DocumentManifestRelated>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DocumentManifestRelated xmlns="http://hl7.org/fhir"></DocumentManifestRelated>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->ref)) $this->ref->xmlSerialize(true, $sxe->addChild('ref'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->ref)) {
+            $this->ref->xmlSerialize(true, $sxe->addChild('ref'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

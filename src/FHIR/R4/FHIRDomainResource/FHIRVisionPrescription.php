@@ -125,7 +125,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * A unique identifier assigned to this vision prescription.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -134,7 +135,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -143,7 +145,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * The status of the resource instance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -152,7 +155,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFinancialResourceStatusCodes $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -161,7 +165,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * The date this resource was created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getCreated() {
+    public function getCreated()
+    {
         return $this->created;
     }
 
@@ -170,7 +175,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $created
      * @return $this
      */
-    public function setCreated($created) {
+    public function setCreated($created)
+    {
         $this->created = $created;
         return $this;
     }
@@ -179,7 +185,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * A resource reference to the person to whom the vision prescription applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -188,7 +195,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -197,7 +205,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * A reference to a resource that identifies the particular occurrence of contact between patient and health care provider during which the prescription was issued.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEncounter() {
+    public function getEncounter()
+    {
         return $this->encounter;
     }
 
@@ -206,7 +215,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $encounter
      * @return $this
      */
-    public function setEncounter($encounter) {
+    public function setEncounter($encounter)
+    {
         $this->encounter = $encounter;
         return $this;
     }
@@ -215,7 +225,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * The date (and perhaps time) when the prescription was written.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDateWritten() {
+    public function getDateWritten()
+    {
         return $this->dateWritten;
     }
 
@@ -224,7 +235,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $dateWritten
      * @return $this
      */
-    public function setDateWritten($dateWritten) {
+    public function setDateWritten($dateWritten)
+    {
         $this->dateWritten = $dateWritten;
         return $this;
     }
@@ -233,7 +245,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * The healthcare professional responsible for authorizing the prescription.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPrescriber() {
+    public function getPrescriber()
+    {
         return $this->prescriber;
     }
 
@@ -242,7 +255,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $prescriber
      * @return $this
      */
-    public function setPrescriber($prescriber) {
+    public function setPrescriber($prescriber)
+    {
         $this->prescriber = $prescriber;
         return $this;
     }
@@ -251,7 +265,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * Contain the details of  the individual lens specifications and serves as the authorization for the fullfillment by certified professionals.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRVisionPrescription\FHIRVisionPrescriptionLensSpecification[]
      */
-    public function getLensSpecification() {
+    public function getLensSpecification()
+    {
         return $this->lensSpecification;
     }
 
@@ -260,7 +275,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRVisionPrescription\FHIRVisionPrescriptionLensSpecification $lensSpecification
      * @return $this
      */
-    public function addLensSpecification($lensSpecification) {
+    public function addLensSpecification($lensSpecification)
+    {
         $this->lensSpecification[] = $lensSpecification;
         return $this;
     }
@@ -268,18 +284,20 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -306,7 +324,7 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
             }
             if (isset($data['lensSpecification'])) {
                 if (is_array($data['lensSpecification'])) {
-                    foreach($data['lensSpecification'] as $d) {
+                    foreach ($data['lensSpecification'] as $d) {
                         $this->addLensSpecification($d);
                     }
                 } else {
@@ -322,31 +340,45 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->created)) $json['created'] = $this->created;
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->encounter)) $json['encounter'] = $this->encounter;
-        if (isset($this->dateWritten)) $json['dateWritten'] = $this->dateWritten;
-        if (isset($this->prescriber)) $json['prescriber'] = $this->prescriber;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->created)) {
+            $json['created'] = $this->created;
+        }
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->encounter)) {
+            $json['encounter'] = $this->encounter;
+        }
+        if (isset($this->dateWritten)) {
+            $json['dateWritten'] = $this->dateWritten;
+        }
+        if (isset($this->prescriber)) {
+            $json['prescriber'] = $this->prescriber;
+        }
         if (0 < count($this->lensSpecification)) {
             $json['lensSpecification'] = [];
-            foreach($this->lensSpecification as $lensSpecification) {
+            foreach ($this->lensSpecification as $lensSpecification) {
                 $json['lensSpecification'][] = $lensSpecification;
             }
         }
@@ -358,28 +390,43 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<VisionPrescription xmlns="http://hl7.org/fhir"></VisionPrescription>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<VisionPrescription xmlns="http://hl7.org/fhir"></VisionPrescription>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->created)) $this->created->xmlSerialize(true, $sxe->addChild('created'));
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->encounter)) $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
-        if (isset($this->dateWritten)) $this->dateWritten->xmlSerialize(true, $sxe->addChild('dateWritten'));
-        if (isset($this->prescriber)) $this->prescriber->xmlSerialize(true, $sxe->addChild('prescriber'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->created)) {
+            $this->created->xmlSerialize(true, $sxe->addChild('created'));
+        }
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->encounter)) {
+            $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
+        }
+        if (isset($this->dateWritten)) {
+            $this->dateWritten->xmlSerialize(true, $sxe->addChild('dateWritten'));
+        }
+        if (isset($this->prescriber)) {
+            $this->prescriber->xmlSerialize(true, $sxe->addChild('prescriber'));
+        }
         if (0 < count($this->lensSpecification)) {
-            foreach($this->lensSpecification as $lensSpecification) {
+            foreach ($this->lensSpecification as $lensSpecification) {
                 $lensSpecification->xmlSerialize(true, $sxe->addChild('lensSpecification'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

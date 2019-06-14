@@ -107,7 +107,8 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * The medication for which this is an indication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -116,7 +117,8 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function addSubject($subject) {
+    public function addSubject($subject)
+    {
         $this->subject[] = $subject;
         return $this;
     }
@@ -125,7 +127,8 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * The symptom, condition or undesirable effect.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSymptomConditionEffect() {
+    public function getSymptomConditionEffect()
+    {
         return $this->symptomConditionEffect;
     }
 
@@ -134,7 +137,8 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $symptomConditionEffect
      * @return $this
      */
-    public function setSymptomConditionEffect($symptomConditionEffect) {
+    public function setSymptomConditionEffect($symptomConditionEffect)
+    {
         $this->symptomConditionEffect = $symptomConditionEffect;
         return $this;
     }
@@ -143,7 +147,8 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * Classification of the effect.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getClassification() {
+    public function getClassification()
+    {
         return $this->classification;
     }
 
@@ -152,7 +157,8 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $classification
      * @return $this
      */
-    public function setClassification($classification) {
+    public function setClassification($classification)
+    {
         $this->classification = $classification;
         return $this;
     }
@@ -161,7 +167,8 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * The frequency of occurrence of the effect.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getFrequencyOfOccurrence() {
+    public function getFrequencyOfOccurrence()
+    {
         return $this->frequencyOfOccurrence;
     }
 
@@ -170,7 +177,8 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $frequencyOfOccurrence
      * @return $this
      */
-    public function setFrequencyOfOccurrence($frequencyOfOccurrence) {
+    public function setFrequencyOfOccurrence($frequencyOfOccurrence)
+    {
         $this->frequencyOfOccurrence = $frequencyOfOccurrence;
         return $this;
     }
@@ -179,7 +187,8 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * The population group to which this applies.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRPopulation[]
      */
-    public function getPopulation() {
+    public function getPopulation()
+    {
         return $this->population;
     }
 
@@ -188,7 +197,8 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRPopulation $population
      * @return $this
      */
-    public function addPopulation($population) {
+    public function addPopulation($population)
+    {
         $this->population[] = $population;
         return $this;
     }
@@ -196,18 +206,20 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['subject'])) {
                 if (is_array($data['subject'])) {
-                    foreach($data['subject'] as $d) {
+                    foreach ($data['subject'] as $d) {
                         $this->addSubject($d);
                     }
                 } else {
@@ -225,7 +237,7 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
             }
             if (isset($data['population'])) {
                 if (is_array($data['population'])) {
-                    foreach($data['population'] as $d) {
+                    foreach ($data['population'] as $d) {
                         $this->addPopulation($d);
                     }
                 } else {
@@ -241,28 +253,36 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->subject)) {
             $json['subject'] = [];
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $json['subject'][] = $subject;
             }
         }
-        if (isset($this->symptomConditionEffect)) $json['symptomConditionEffect'] = $this->symptomConditionEffect;
-        if (isset($this->classification)) $json['classification'] = $this->classification;
-        if (isset($this->frequencyOfOccurrence)) $json['frequencyOfOccurrence'] = $this->frequencyOfOccurrence;
+        if (isset($this->symptomConditionEffect)) {
+            $json['symptomConditionEffect'] = $this->symptomConditionEffect;
+        }
+        if (isset($this->classification)) {
+            $json['classification'] = $this->classification;
+        }
+        if (isset($this->frequencyOfOccurrence)) {
+            $json['frequencyOfOccurrence'] = $this->frequencyOfOccurrence;
+        }
         if (0 < count($this->population)) {
             $json['population'] = [];
-            foreach($this->population as $population) {
+            foreach ($this->population as $population) {
                 $json['population'][] = $population;
             }
         }
@@ -274,25 +294,34 @@ class FHIRMedicinalProductUndesirableEffect extends FHIRDomainResource implement
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductUndesirableEffect xmlns="http://hl7.org/fhir"></MedicinalProductUndesirableEffect>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductUndesirableEffect xmlns="http://hl7.org/fhir"></MedicinalProductUndesirableEffect>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->subject)) {
-            foreach($this->subject as $subject) {
+            foreach ($this->subject as $subject) {
                 $subject->xmlSerialize(true, $sxe->addChild('subject'));
             }
         }
-        if (isset($this->symptomConditionEffect)) $this->symptomConditionEffect->xmlSerialize(true, $sxe->addChild('symptomConditionEffect'));
-        if (isset($this->classification)) $this->classification->xmlSerialize(true, $sxe->addChild('classification'));
-        if (isset($this->frequencyOfOccurrence)) $this->frequencyOfOccurrence->xmlSerialize(true, $sxe->addChild('frequencyOfOccurrence'));
+        if (isset($this->symptomConditionEffect)) {
+            $this->symptomConditionEffect->xmlSerialize(true, $sxe->addChild('symptomConditionEffect'));
+        }
+        if (isset($this->classification)) {
+            $this->classification->xmlSerialize(true, $sxe->addChild('classification'));
+        }
+        if (isset($this->frequencyOfOccurrence)) {
+            $this->frequencyOfOccurrence->xmlSerialize(true, $sxe->addChild('frequencyOfOccurrence'));
+        }
         if (0 < count($this->population)) {
-            foreach($this->population as $population) {
+            foreach ($this->population as $population) {
                 $population->xmlSerialize(true, $sxe->addChild('population'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIRExampleScenarioVersion extends FHIRBackboneElement implements \JsonSer
      * The identifier of a specific version of a resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getVersionId() {
+    public function getVersionId()
+    {
         return $this->versionId;
     }
 
@@ -97,7 +98,8 @@ class FHIRExampleScenarioVersion extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $versionId
      * @return $this
      */
-    public function setVersionId($versionId) {
+    public function setVersionId($versionId)
+    {
         $this->versionId = $versionId;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRExampleScenarioVersion extends FHIRBackboneElement implements \JsonSer
      * The description of the resource version.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -115,7 +118,8 @@ class FHIRExampleScenarioVersion extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRExampleScenarioVersion extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['versionId'])) {
                 $this->setVersionId($data['versionId']);
@@ -147,17 +153,23 @@ class FHIRExampleScenarioVersion extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->versionId)) $json['versionId'] = $this->versionId;
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->versionId)) {
+            $json['versionId'] = $this->versionId;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRExampleScenarioVersion extends FHIRBackboneElement implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExampleScenarioVersion xmlns="http://hl7.org/fhir"></ExampleScenarioVersion>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExampleScenarioVersion xmlns="http://hl7.org/fhir"></ExampleScenarioVersion>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->versionId)) $this->versionId->xmlSerialize(true, $sxe->addChild('versionId'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->versionId)) {
+            $this->versionId->xmlSerialize(true, $sxe->addChild('versionId'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -94,7 +94,8 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -103,7 +104,8 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getElement() {
+    public function getElement()
+    {
         return $this->element;
     }
 
@@ -121,7 +124,8 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $element
      * @return $this
      */
-    public function setElement($element) {
+    public function setElement($element)
+    {
         $this->element = $element;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -139,7 +144,8 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function addSource($source) {
+    public function addSource($source)
+    {
         $this->source[] = $source;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -164,7 +172,7 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
             }
             if (isset($data['source'])) {
                 if (is_array($data['source'])) {
-                    foreach($data['source'] as $d) {
+                    foreach ($data['source'] as $d) {
                         $this->addSource($d);
                     }
                 } else {
@@ -180,20 +188,26 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->element)) $json['element'] = $this->element;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->element)) {
+            $json['element'] = $this->element;
+        }
         if (0 < count($this->source)) {
             $json['source'] = [];
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $json['source'][] = $source;
             }
         }
@@ -205,19 +219,26 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationGeneElement xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationGeneElement>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationGeneElement xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationGeneElement>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->element)) $this->element->xmlSerialize(true, $sxe->addChild('element'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->element)) {
+            $this->element->xmlSerialize(true, $sxe->addChild('element'));
+        }
         if (0 < count($this->source)) {
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $source->xmlSerialize(true, $sxe->addChild('source'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

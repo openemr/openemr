@@ -104,7 +104,8 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
      * The date-valued attribute of the filter. The specified path SHALL be a FHIRPath resolveable on the specified type of the DataRequirement, and SHALL consist only of identifiers, constant indexers, and .resolve(). The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as indexers ([x]) to traverse multiple-cardinality sub-elements (see the [Simple FHIRPath Profile](fhirpath.html#simple) for full details). Note that the index must be an integer constant. The path must resolve to an element of type date, dateTime, Period, Schedule, or Timing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->path;
     }
 
@@ -113,7 +114,8 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $path
      * @return $this
      */
-    public function setPath($path) {
+    public function setPath($path)
+    {
         $this->path = $path;
         return $this;
     }
@@ -122,7 +124,8 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
      * A date parameter that refers to a search parameter defined on the specified type of the DataRequirement, and which searches on elements of type date, dateTime, Period, Schedule, or Timing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSearchParam() {
+    public function getSearchParam()
+    {
         return $this->searchParam;
     }
 
@@ -131,7 +134,8 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $searchParam
      * @return $this
      */
-    public function setSearchParam($searchParam) {
+    public function setSearchParam($searchParam)
+    {
         $this->searchParam = $searchParam;
         return $this;
     }
@@ -139,7 +143,8 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getValueDateTime() {
+    public function getValueDateTime()
+    {
         return $this->valueDateTime;
     }
 
@@ -147,7 +152,8 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $valueDateTime
      * @return $this
      */
-    public function setValueDateTime($valueDateTime) {
+    public function setValueDateTime($valueDateTime)
+    {
         $this->valueDateTime = $valueDateTime;
         return $this;
     }
@@ -155,7 +161,8 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getValuePeriod() {
+    public function getValuePeriod()
+    {
         return $this->valuePeriod;
     }
 
@@ -163,7 +170,8 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $valuePeriod
      * @return $this
      */
-    public function setValuePeriod($valuePeriod) {
+    public function setValuePeriod($valuePeriod)
+    {
         $this->valuePeriod = $valuePeriod;
         return $this;
     }
@@ -171,7 +179,8 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getValueDuration() {
+    public function getValueDuration()
+    {
         return $this->valueDuration;
     }
 
@@ -179,7 +188,8 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $valueDuration
      * @return $this
      */
-    public function setValueDuration($valueDuration) {
+    public function setValueDuration($valueDuration)
+    {
         $this->valueDuration = $valueDuration;
         return $this;
     }
@@ -187,14 +197,16 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['path'])) {
                 $this->setPath($data['path']);
@@ -220,20 +232,32 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->path)) $json['path'] = $this->path;
-        if (isset($this->searchParam)) $json['searchParam'] = $this->searchParam;
-        if (isset($this->valueDateTime)) $json['valueDateTime'] = $this->valueDateTime;
-        if (isset($this->valuePeriod)) $json['valuePeriod'] = $this->valuePeriod;
-        if (isset($this->valueDuration)) $json['valueDuration'] = $this->valueDuration;
+        if (isset($this->path)) {
+            $json['path'] = $this->path;
+        }
+        if (isset($this->searchParam)) {
+            $json['searchParam'] = $this->searchParam;
+        }
+        if (isset($this->valueDateTime)) {
+            $json['valueDateTime'] = $this->valueDateTime;
+        }
+        if (isset($this->valuePeriod)) {
+            $json['valuePeriod'] = $this->valuePeriod;
+        }
+        if (isset($this->valueDuration)) {
+            $json['valueDuration'] = $this->valueDuration;
+        }
         return $json;
     }
 
@@ -242,17 +266,30 @@ class FHIRDataRequirementDateFilter extends FHIRElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DataRequirementDateFilter xmlns="http://hl7.org/fhir"></DataRequirementDateFilter>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DataRequirementDateFilter xmlns="http://hl7.org/fhir"></DataRequirementDateFilter>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->path)) $this->path->xmlSerialize(true, $sxe->addChild('path'));
-        if (isset($this->searchParam)) $this->searchParam->xmlSerialize(true, $sxe->addChild('searchParam'));
-        if (isset($this->valueDateTime)) $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
-        if (isset($this->valuePeriod)) $this->valuePeriod->xmlSerialize(true, $sxe->addChild('valuePeriod'));
-        if (isset($this->valueDuration)) $this->valueDuration->xmlSerialize(true, $sxe->addChild('valueDuration'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->path)) {
+            $this->path->xmlSerialize(true, $sxe->addChild('path'));
+        }
+        if (isset($this->searchParam)) {
+            $this->searchParam->xmlSerialize(true, $sxe->addChild('searchParam'));
+        }
+        if (isset($this->valueDateTime)) {
+            $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
+        }
+        if (isset($this->valuePeriod)) {
+            $this->valuePeriod->xmlSerialize(true, $sxe->addChild('valuePeriod'));
+        }
+        if (isset($this->valueDuration)) {
+            $this->valueDuration->xmlSerialize(true, $sxe->addChild('valueDuration'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -85,7 +85,8 @@ class FHIRSpecimenDefinitionAdditive extends FHIRBackboneElement implements \Jso
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAdditiveCodeableConcept() {
+    public function getAdditiveCodeableConcept()
+    {
         return $this->additiveCodeableConcept;
     }
 
@@ -93,7 +94,8 @@ class FHIRSpecimenDefinitionAdditive extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $additiveCodeableConcept
      * @return $this
      */
-    public function setAdditiveCodeableConcept($additiveCodeableConcept) {
+    public function setAdditiveCodeableConcept($additiveCodeableConcept)
+    {
         $this->additiveCodeableConcept = $additiveCodeableConcept;
         return $this;
     }
@@ -101,7 +103,8 @@ class FHIRSpecimenDefinitionAdditive extends FHIRBackboneElement implements \Jso
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAdditiveReference() {
+    public function getAdditiveReference()
+    {
         return $this->additiveReference;
     }
 
@@ -109,7 +112,8 @@ class FHIRSpecimenDefinitionAdditive extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $additiveReference
      * @return $this
      */
-    public function setAdditiveReference($additiveReference) {
+    public function setAdditiveReference($additiveReference)
+    {
         $this->additiveReference = $additiveReference;
         return $this;
     }
@@ -117,14 +121,16 @@ class FHIRSpecimenDefinitionAdditive extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['additiveCodeableConcept'])) {
                 $this->setAdditiveCodeableConcept($data['additiveCodeableConcept']);
@@ -141,17 +147,23 @@ class FHIRSpecimenDefinitionAdditive extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->additiveCodeableConcept)) $json['additiveCodeableConcept'] = $this->additiveCodeableConcept;
-        if (isset($this->additiveReference)) $json['additiveReference'] = $this->additiveReference;
+        if (isset($this->additiveCodeableConcept)) {
+            $json['additiveCodeableConcept'] = $this->additiveCodeableConcept;
+        }
+        if (isset($this->additiveReference)) {
+            $json['additiveReference'] = $this->additiveReference;
+        }
         return $json;
     }
 
@@ -160,14 +172,21 @@ class FHIRSpecimenDefinitionAdditive extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SpecimenDefinitionAdditive xmlns="http://hl7.org/fhir"></SpecimenDefinitionAdditive>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SpecimenDefinitionAdditive xmlns="http://hl7.org/fhir"></SpecimenDefinitionAdditive>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->additiveCodeableConcept)) $this->additiveCodeableConcept->xmlSerialize(true, $sxe->addChild('additiveCodeableConcept'));
-        if (isset($this->additiveReference)) $this->additiveReference->xmlSerialize(true, $sxe->addChild('additiveReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->additiveCodeableConcept)) {
+            $this->additiveCodeableConcept->xmlSerialize(true, $sxe->addChild('additiveCodeableConcept'));
+        }
+        if (isset($this->additiveReference)) {
+            $this->additiveReference->xmlSerialize(true, $sxe->addChild('additiveReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

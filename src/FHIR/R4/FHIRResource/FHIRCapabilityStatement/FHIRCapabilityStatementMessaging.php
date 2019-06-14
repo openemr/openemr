@@ -100,7 +100,8 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
      * An endpoint (network accessible address) to which messages and/or replies are to be sent.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementEndpoint[]
      */
-    public function getEndpoint() {
+    public function getEndpoint()
+    {
         return $this->endpoint;
     }
 
@@ -109,7 +110,8 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementEndpoint $endpoint
      * @return $this
      */
-    public function addEndpoint($endpoint) {
+    public function addEndpoint($endpoint)
+    {
         $this->endpoint[] = $endpoint;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
      * Length if the receiver's reliable messaging cache in minutes (if a receiver) or how long the cache length on the receiver should be (if a sender).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt
      */
-    public function getReliableCache() {
+    public function getReliableCache()
+    {
         return $this->reliableCache;
     }
 
@@ -127,7 +130,8 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $reliableCache
      * @return $this
      */
-    public function setReliableCache($reliableCache) {
+    public function setReliableCache($reliableCache)
+    {
         $this->reliableCache = $reliableCache;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
      * Documentation about the system's messaging capabilities for this endpoint not otherwise documented by the capability statement.  For example, the process for becoming an authorized messaging exchange partner.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDocumentation() {
+    public function getDocumentation()
+    {
         return $this->documentation;
     }
 
@@ -145,7 +150,8 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $documentation
      * @return $this
      */
-    public function setDocumentation($documentation) {
+    public function setDocumentation($documentation)
+    {
         $this->documentation = $documentation;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
      * References to message definitions for messages this system can send or receive.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSupportedMessage[]
      */
-    public function getSupportedMessage() {
+    public function getSupportedMessage()
+    {
         return $this->supportedMessage;
     }
 
@@ -163,7 +170,8 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSupportedMessage $supportedMessage
      * @return $this
      */
-    public function addSupportedMessage($supportedMessage) {
+    public function addSupportedMessage($supportedMessage)
+    {
         $this->supportedMessage[] = $supportedMessage;
         return $this;
     }
@@ -171,18 +179,20 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['endpoint'])) {
                 if (is_array($data['endpoint'])) {
-                    foreach($data['endpoint'] as $d) {
+                    foreach ($data['endpoint'] as $d) {
                         $this->addEndpoint($d);
                     }
                 } else {
@@ -197,7 +207,7 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
             }
             if (isset($data['supportedMessage'])) {
                 if (is_array($data['supportedMessage'])) {
-                    foreach($data['supportedMessage'] as $d) {
+                    foreach ($data['supportedMessage'] as $d) {
                         $this->addSupportedMessage($d);
                     }
                 } else {
@@ -213,26 +223,32 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->endpoint)) {
             $json['endpoint'] = [];
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $json['endpoint'][] = $endpoint;
             }
         }
-        if (isset($this->reliableCache)) $json['reliableCache'] = $this->reliableCache;
-        if (isset($this->documentation)) $json['documentation'] = $this->documentation;
+        if (isset($this->reliableCache)) {
+            $json['reliableCache'] = $this->reliableCache;
+        }
+        if (isset($this->documentation)) {
+            $json['documentation'] = $this->documentation;
+        }
         if (0 < count($this->supportedMessage)) {
             $json['supportedMessage'] = [];
-            foreach($this->supportedMessage as $supportedMessage) {
+            foreach ($this->supportedMessage as $supportedMessage) {
                 $json['supportedMessage'][] = $supportedMessage;
             }
         }
@@ -244,24 +260,31 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CapabilityStatementMessaging xmlns="http://hl7.org/fhir"></CapabilityStatementMessaging>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CapabilityStatementMessaging xmlns="http://hl7.org/fhir"></CapabilityStatementMessaging>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->endpoint)) {
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
             }
         }
-        if (isset($this->reliableCache)) $this->reliableCache->xmlSerialize(true, $sxe->addChild('reliableCache'));
-        if (isset($this->documentation)) $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
+        if (isset($this->reliableCache)) {
+            $this->reliableCache->xmlSerialize(true, $sxe->addChild('reliableCache'));
+        }
+        if (isset($this->documentation)) {
+            $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
+        }
         if (0 < count($this->supportedMessage)) {
-            foreach($this->supportedMessage as $supportedMessage) {
+            foreach ($this->supportedMessage as $supportedMessage) {
                 $supportedMessage->xmlSerialize(true, $sxe->addChild('supportedMessage'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

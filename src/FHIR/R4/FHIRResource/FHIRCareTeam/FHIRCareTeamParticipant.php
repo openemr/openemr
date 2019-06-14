@@ -100,7 +100,8 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
      * Indicates specific responsibility of an individual within the care team, such as "Primary care physician", "Trained social worker counselor", "Caregiver", etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getRole() {
+    public function getRole()
+    {
         return $this->role;
     }
 
@@ -109,7 +110,8 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $role
      * @return $this
      */
-    public function addRole($role) {
+    public function addRole($role)
+    {
         $this->role[] = $role;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
      * The specific person or organization who is participating/expected to participate in the care team.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getMember() {
+    public function getMember()
+    {
         return $this->member;
     }
 
@@ -127,7 +130,8 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $member
      * @return $this
      */
-    public function setMember($member) {
+    public function setMember($member)
+    {
         $this->member = $member;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
      * The organization of the practitioner.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOnBehalfOf() {
+    public function getOnBehalfOf()
+    {
         return $this->onBehalfOf;
     }
 
@@ -145,7 +150,8 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $onBehalfOf
      * @return $this
      */
-    public function setOnBehalfOf($onBehalfOf) {
+    public function setOnBehalfOf($onBehalfOf)
+    {
         $this->onBehalfOf = $onBehalfOf;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
      * Indicates when the specific member or organization did (or is intended to) come into effect and end.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -163,7 +170,8 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -171,18 +179,20 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['role'])) {
                 if (is_array($data['role'])) {
-                    foreach($data['role'] as $d) {
+                    foreach ($data['role'] as $d) {
                         $this->addRole($d);
                     }
                 } else {
@@ -207,24 +217,32 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->role)) {
             $json['role'] = [];
-            foreach($this->role as $role) {
+            foreach ($this->role as $role) {
                 $json['role'][] = $role;
             }
         }
-        if (isset($this->member)) $json['member'] = $this->member;
-        if (isset($this->onBehalfOf)) $json['onBehalfOf'] = $this->onBehalfOf;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->member)) {
+            $json['member'] = $this->member;
+        }
+        if (isset($this->onBehalfOf)) {
+            $json['onBehalfOf'] = $this->onBehalfOf;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         return $json;
     }
 
@@ -233,20 +251,29 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CareTeamParticipant xmlns="http://hl7.org/fhir"></CareTeamParticipant>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CareTeamParticipant xmlns="http://hl7.org/fhir"></CareTeamParticipant>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->role)) {
-            foreach($this->role as $role) {
+            foreach ($this->role as $role) {
                 $role->xmlSerialize(true, $sxe->addChild('role'));
             }
         }
-        if (isset($this->member)) $this->member->xmlSerialize(true, $sxe->addChild('member'));
-        if (isset($this->onBehalfOf)) $this->onBehalfOf->xmlSerialize(true, $sxe->addChild('onBehalfOf'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->member)) {
+            $this->member->xmlSerialize(true, $sxe->addChild('member'));
+        }
+        if (isset($this->onBehalfOf)) {
+            $this->onBehalfOf->xmlSerialize(true, $sxe->addChild('onBehalfOf'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -94,7 +94,8 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
      * The label to display for the alternative that gives a sense of the circumstance in which the alternative should be invoked.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -103,7 +104,8 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
      * A human-readable description of the alternative explaining when the alternative should occur rather than the base step.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -121,7 +124,8 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
      * What happens in each alternative option.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioStep[]
      */
-    public function getStep() {
+    public function getStep()
+    {
         return $this->step;
     }
 
@@ -139,7 +144,8 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario\FHIRExampleScenarioStep $step
      * @return $this
      */
-    public function addStep($step) {
+    public function addStep($step)
+    {
         $this->step[] = $step;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['title'])) {
                 $this->setTitle($data['title']);
@@ -164,7 +172,7 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['step'])) {
                 if (is_array($data['step'])) {
-                    foreach($data['step'] as $d) {
+                    foreach ($data['step'] as $d) {
                         $this->addStep($d);
                     }
                 } else {
@@ -180,20 +188,26 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->title)) $json['title'] = $this->title;
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->step)) {
             $json['step'] = [];
-            foreach($this->step as $step) {
+            foreach ($this->step as $step) {
                 $json['step'][] = $step;
             }
         }
@@ -205,19 +219,26 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ExampleScenarioAlternative xmlns="http://hl7.org/fhir"></ExampleScenarioAlternative>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ExampleScenarioAlternative xmlns="http://hl7.org/fhir"></ExampleScenarioAlternative>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->step)) {
-            foreach($this->step as $step) {
+            foreach ($this->step as $step) {
                 $step->xmlSerialize(true, $sxe->addChild('step'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -116,7 +116,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * Where this resource is found.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -125,7 +126,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reference
      * @return $this
      */
-    public function setReference($reference) {
+    public function setReference($reference)
+    {
         $this->reference = $reference;
         return $this;
     }
@@ -134,7 +136,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * Indicates the FHIR Version(s) this artifact is intended to apply to. If no versions are specified, the resource is assumed to apply to all the versions stated in ImplementationGuide.fhirVersion.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRVersion[]
      */
-    public function getFhirVersion() {
+    public function getFhirVersion()
+    {
         return $this->fhirVersion;
     }
 
@@ -143,7 +146,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRVersion $fhirVersion
      * @return $this
      */
-    public function addFhirVersion($fhirVersion) {
+    public function addFhirVersion($fhirVersion)
+    {
         $this->fhirVersion[] = $fhirVersion;
         return $this;
     }
@@ -152,7 +156,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * A human assigned name for the resource. All resources SHOULD have a name, but the name may be extracted from the resource (e.g. ValueSet.name).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -161,7 +166,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -170,7 +176,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * A description of the reason that a resource has been included in the implementation guide.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -179,7 +186,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -187,7 +195,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExampleBoolean() {
+    public function getExampleBoolean()
+    {
         return $this->exampleBoolean;
     }
 
@@ -195,7 +204,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $exampleBoolean
      * @return $this
      */
-    public function setExampleBoolean($exampleBoolean) {
+    public function setExampleBoolean($exampleBoolean)
+    {
         $this->exampleBoolean = $exampleBoolean;
         return $this;
     }
@@ -203,7 +213,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getExampleCanonical() {
+    public function getExampleCanonical()
+    {
         return $this->exampleCanonical;
     }
 
@@ -211,7 +222,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $exampleCanonical
      * @return $this
      */
-    public function setExampleCanonical($exampleCanonical) {
+    public function setExampleCanonical($exampleCanonical)
+    {
         $this->exampleCanonical = $exampleCanonical;
         return $this;
     }
@@ -220,7 +232,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * Reference to the id of the grouping this resource appears in.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getGroupingId() {
+    public function getGroupingId()
+    {
         return $this->groupingId;
     }
 
@@ -229,7 +242,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $groupingId
      * @return $this
      */
-    public function setGroupingId($groupingId) {
+    public function setGroupingId($groupingId)
+    {
         $this->groupingId = $groupingId;
         return $this;
     }
@@ -237,21 +251,23 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['reference'])) {
                 $this->setReference($data['reference']);
             }
             if (isset($data['fhirVersion'])) {
                 if (is_array($data['fhirVersion'])) {
-                    foreach($data['fhirVersion'] as $d) {
+                    foreach ($data['fhirVersion'] as $d) {
                         $this->addFhirVersion($d);
                     }
                 } else {
@@ -282,27 +298,41 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->reference)) $json['reference'] = $this->reference;
+        if (isset($this->reference)) {
+            $json['reference'] = $this->reference;
+        }
         if (0 < count($this->fhirVersion)) {
             $json['fhirVersion'] = [];
-            foreach($this->fhirVersion as $fhirVersion) {
+            foreach ($this->fhirVersion as $fhirVersion) {
                 $json['fhirVersion'][] = $fhirVersion;
             }
         }
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->description)) $json['description'] = $this->description;
-        if (isset($this->exampleBoolean)) $json['exampleBoolean'] = $this->exampleBoolean;
-        if (isset($this->exampleCanonical)) $json['exampleCanonical'] = $this->exampleCanonical;
-        if (isset($this->groupingId)) $json['groupingId'] = $this->groupingId;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        if (isset($this->exampleBoolean)) {
+            $json['exampleBoolean'] = $this->exampleBoolean;
+        }
+        if (isset($this->exampleCanonical)) {
+            $json['exampleCanonical'] = $this->exampleCanonical;
+        }
+        if (isset($this->groupingId)) {
+            $json['groupingId'] = $this->groupingId;
+        }
         return $json;
     }
 
@@ -311,23 +341,38 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImplementationGuideResource xmlns="http://hl7.org/fhir"></ImplementationGuideResource>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImplementationGuideResource xmlns="http://hl7.org/fhir"></ImplementationGuideResource>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->reference)) $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        if (isset($this->reference)) {
+            $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        }
         if (0 < count($this->fhirVersion)) {
-            foreach($this->fhirVersion as $fhirVersion) {
+            foreach ($this->fhirVersion as $fhirVersion) {
                 $fhirVersion->xmlSerialize(true, $sxe->addChild('fhirVersion'));
             }
         }
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
-        if (isset($this->exampleBoolean)) $this->exampleBoolean->xmlSerialize(true, $sxe->addChild('exampleBoolean'));
-        if (isset($this->exampleCanonical)) $this->exampleCanonical->xmlSerialize(true, $sxe->addChild('exampleCanonical'));
-        if (isset($this->groupingId)) $this->groupingId->xmlSerialize(true, $sxe->addChild('groupingId'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
+        if (isset($this->exampleBoolean)) {
+            $this->exampleBoolean->xmlSerialize(true, $sxe->addChild('exampleBoolean'));
+        }
+        if (isset($this->exampleCanonical)) {
+            $this->exampleCanonical->xmlSerialize(true, $sxe->addChild('exampleCanonical'));
+        }
+        if (isset($this->groupingId)) {
+            $this->groupingId->xmlSerialize(true, $sxe->addChild('groupingId'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

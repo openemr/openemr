@@ -88,7 +88,8 @@ class FHIRMolecularSequenceInner extends FHIRBackboneElement implements \JsonSer
      * Structural variant inner start. If the coordinate system is either 0-based or 1-based, then start position is inclusive.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getStart() {
+    public function getStart()
+    {
         return $this->start;
     }
 
@@ -97,7 +98,8 @@ class FHIRMolecularSequenceInner extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $start
      * @return $this
      */
-    public function setStart($start) {
+    public function setStart($start)
+    {
         $this->start = $start;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMolecularSequenceInner extends FHIRBackboneElement implements \JsonSer
      * Structural variant inner end. If the coordinate system is 0-based then end is exclusive and does not include the last position. If the coordinate system is 1-base, then end is inclusive and includes the last position.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getEnd() {
+    public function getEnd()
+    {
         return $this->end;
     }
 
@@ -115,7 +118,8 @@ class FHIRMolecularSequenceInner extends FHIRBackboneElement implements \JsonSer
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $end
      * @return $this
      */
-    public function setEnd($end) {
+    public function setEnd($end)
+    {
         $this->end = $end;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRMolecularSequenceInner extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['start'])) {
                 $this->setStart($data['start']);
@@ -147,17 +153,23 @@ class FHIRMolecularSequenceInner extends FHIRBackboneElement implements \JsonSer
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->start)) $json['start'] = $this->start;
-        if (isset($this->end)) $json['end'] = $this->end;
+        if (isset($this->start)) {
+            $json['start'] = $this->start;
+        }
+        if (isset($this->end)) {
+            $json['end'] = $this->end;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRMolecularSequenceInner extends FHIRBackboneElement implements \JsonSer
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MolecularSequenceInner xmlns="http://hl7.org/fhir"></MolecularSequenceInner>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MolecularSequenceInner xmlns="http://hl7.org/fhir"></MolecularSequenceInner>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->start)) $this->start->xmlSerialize(true, $sxe->addChild('start'));
-        if (isset($this->end)) $this->end->xmlSerialize(true, $sxe->addChild('end'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->start)) {
+            $this->start->xmlSerialize(true, $sxe->addChild('start'));
+        }
+        if (isset($this->end)) {
+            $this->end->xmlSerialize(true, $sxe->addChild('end'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

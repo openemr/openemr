@@ -112,7 +112,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * A unique name for the group for the convenience of human readers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -121,7 +122,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -130,7 +132,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * Another group that this group adds rules to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getExtends() {
+    public function getExtends()
+    {
         return $this->extends;
     }
 
@@ -139,7 +142,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $extends
      * @return $this
      */
-    public function setExtends($extends) {
+    public function setExtends($extends)
+    {
         $this->extends = $extends;
         return $this;
     }
@@ -148,7 +152,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * If this is the default rule set to apply for the source type or this combination of types.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRStructureMapGroupTypeMode
      */
-    public function getTypeMode() {
+    public function getTypeMode()
+    {
         return $this->typeMode;
     }
 
@@ -157,7 +162,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRStructureMapGroupTypeMode $typeMode
      * @return $this
      */
-    public function setTypeMode($typeMode) {
+    public function setTypeMode($typeMode)
+    {
         $this->typeMode = $typeMode;
         return $this;
     }
@@ -166,7 +172,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * Additional supporting documentation that explains the purpose of the group and the types of mappings within it.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDocumentation() {
+    public function getDocumentation()
+    {
         return $this->documentation;
     }
 
@@ -175,7 +182,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $documentation
      * @return $this
      */
-    public function setDocumentation($documentation) {
+    public function setDocumentation($documentation)
+    {
         $this->documentation = $documentation;
         return $this;
     }
@@ -184,7 +192,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * A name assigned to an instance of data. The instance must be provided when the mapping is invoked.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRStructureMap\FHIRStructureMapInput[]
      */
-    public function getInput() {
+    public function getInput()
+    {
         return $this->input;
     }
 
@@ -193,7 +202,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRStructureMap\FHIRStructureMapInput $input
      * @return $this
      */
-    public function addInput($input) {
+    public function addInput($input)
+    {
         $this->input[] = $input;
         return $this;
     }
@@ -202,7 +212,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * Transform Rule from source to target.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRStructureMap\FHIRStructureMapRule[]
      */
-    public function getRule() {
+    public function getRule()
+    {
         return $this->rule;
     }
 
@@ -211,7 +222,8 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRStructureMap\FHIRStructureMapRule $rule
      * @return $this
      */
-    public function addRule($rule) {
+    public function addRule($rule)
+    {
         $this->rule[] = $rule;
         return $this;
     }
@@ -219,14 +231,16 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -242,7 +256,7 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['input'])) {
                 if (is_array($data['input'])) {
-                    foreach($data['input'] as $d) {
+                    foreach ($data['input'] as $d) {
                         $this->addInput($d);
                     }
                 } else {
@@ -251,7 +265,7 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
             }
             if (isset($data['rule'])) {
                 if (is_array($data['rule'])) {
-                    foreach($data['rule'] as $d) {
+                    foreach ($data['rule'] as $d) {
                         $this->addRule($d);
                     }
                 } else {
@@ -267,28 +281,38 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->extends)) $json['extends'] = $this->extends;
-        if (isset($this->typeMode)) $json['typeMode'] = $this->typeMode;
-        if (isset($this->documentation)) $json['documentation'] = $this->documentation;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->extends)) {
+            $json['extends'] = $this->extends;
+        }
+        if (isset($this->typeMode)) {
+            $json['typeMode'] = $this->typeMode;
+        }
+        if (isset($this->documentation)) {
+            $json['documentation'] = $this->documentation;
+        }
         if (0 < count($this->input)) {
             $json['input'] = [];
-            foreach($this->input as $input) {
+            foreach ($this->input as $input) {
                 $json['input'][] = $input;
             }
         }
         if (0 < count($this->rule)) {
             $json['rule'] = [];
-            foreach($this->rule as $rule) {
+            foreach ($this->rule as $rule) {
                 $json['rule'][] = $rule;
             }
         }
@@ -300,26 +324,37 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<StructureMapGroup xmlns="http://hl7.org/fhir"></StructureMapGroup>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<StructureMapGroup xmlns="http://hl7.org/fhir"></StructureMapGroup>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->extends)) $this->extends->xmlSerialize(true, $sxe->addChild('extends'));
-        if (isset($this->typeMode)) $this->typeMode->xmlSerialize(true, $sxe->addChild('typeMode'));
-        if (isset($this->documentation)) $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->extends)) {
+            $this->extends->xmlSerialize(true, $sxe->addChild('extends'));
+        }
+        if (isset($this->typeMode)) {
+            $this->typeMode->xmlSerialize(true, $sxe->addChild('typeMode'));
+        }
+        if (isset($this->documentation)) {
+            $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
+        }
         if (0 < count($this->input)) {
-            foreach($this->input as $input) {
+            foreach ($this->input as $input) {
                 $input->xmlSerialize(true, $sxe->addChild('input'));
             }
         }
         if (0 < count($this->rule)) {
-            foreach($this->rule as $rule) {
+            foreach ($this->rule as $rule) {
                 $rule->xmlSerialize(true, $sxe->addChild('rule'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

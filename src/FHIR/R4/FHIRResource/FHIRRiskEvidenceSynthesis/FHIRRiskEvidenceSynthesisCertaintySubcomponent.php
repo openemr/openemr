@@ -94,7 +94,8 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
      * Type of subcomponent of certainty rating.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -103,7 +104,8 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
      * A rating of a subcomponent of rating certainty.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getRating() {
+    public function getRating()
+    {
         return $this->rating;
     }
 
@@ -121,7 +124,8 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $rating
      * @return $this
      */
-    public function addRating($rating) {
+    public function addRating($rating)
+    {
         $this->rating[] = $rating;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
      * A human-readable string to clarify or explain concepts about the resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -139,7 +144,8 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -147,21 +153,23 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
             }
             if (isset($data['rating'])) {
                 if (is_array($data['rating'])) {
-                    foreach($data['rating'] as $d) {
+                    foreach ($data['rating'] as $d) {
                         $this->addRating($d);
                     }
                 } else {
@@ -170,7 +178,7 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -186,25 +194,29 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->rating)) {
             $json['rating'] = [];
-            foreach($this->rating as $rating) {
+            foreach ($this->rating as $rating) {
                 $json['rating'][] = $rating;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
@@ -216,23 +228,28 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesisCertaintySubcomponent xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisCertaintySubcomponent>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesisCertaintySubcomponent xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisCertaintySubcomponent>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->rating)) {
-            foreach($this->rating as $rating) {
+            foreach ($this->rating as $rating) {
                 $rating->xmlSerialize(true, $sxe->addChild('rating'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

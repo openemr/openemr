@@ -94,7 +94,8 @@ class FHIRTestReportParticipant extends FHIRBackboneElement implements \JsonSeri
      * The type of participant.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTestReportParticipantType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -103,7 +104,8 @@ class FHIRTestReportParticipant extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTestReportParticipantType $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRTestReportParticipant extends FHIRBackboneElement implements \JsonSeri
      * The uri of the participant. An absolute URL is preferred.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getUri() {
+    public function getUri()
+    {
         return $this->uri;
     }
 
@@ -121,7 +124,8 @@ class FHIRTestReportParticipant extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $uri
      * @return $this
      */
-    public function setUri($uri) {
+    public function setUri($uri)
+    {
         $this->uri = $uri;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRTestReportParticipant extends FHIRBackboneElement implements \JsonSeri
      * The display name of the participant.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDisplay() {
+    public function getDisplay()
+    {
         return $this->display;
     }
 
@@ -139,7 +144,8 @@ class FHIRTestReportParticipant extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $display
      * @return $this
      */
-    public function setDisplay($display) {
+    public function setDisplay($display)
+    {
         $this->display = $display;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRTestReportParticipant extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
@@ -174,18 +182,26 @@ class FHIRTestReportParticipant extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->uri)) $json['uri'] = $this->uri;
-        if (isset($this->display)) $json['display'] = $this->display;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->uri)) {
+            $json['uri'] = $this->uri;
+        }
+        if (isset($this->display)) {
+            $json['display'] = $this->display;
+        }
         return $json;
     }
 
@@ -194,15 +210,24 @@ class FHIRTestReportParticipant extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TestReportParticipant xmlns="http://hl7.org/fhir"></TestReportParticipant>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TestReportParticipant xmlns="http://hl7.org/fhir"></TestReportParticipant>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->uri)) $this->uri->xmlSerialize(true, $sxe->addChild('uri'));
-        if (isset($this->display)) $this->display->xmlSerialize(true, $sxe->addChild('display'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->uri)) {
+            $this->uri->xmlSerialize(true, $sxe->addChild('uri'));
+        }
+        if (isset($this->display)) {
+            $this->display->xmlSerialize(true, $sxe->addChild('display'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -189,7 +189,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDefinitionCodeableConcept() {
+    public function getDefinitionCodeableConcept()
+    {
         return $this->definitionCodeableConcept;
     }
 
@@ -197,7 +198,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $definitionCodeableConcept
      * @return $this
      */
-    public function setDefinitionCodeableConcept($definitionCodeableConcept) {
+    public function setDefinitionCodeableConcept($definitionCodeableConcept)
+    {
         $this->definitionCodeableConcept = $definitionCodeableConcept;
         return $this;
     }
@@ -205,7 +207,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getDefinitionCanonical() {
+    public function getDefinitionCanonical()
+    {
         return $this->definitionCanonical;
     }
 
@@ -213,7 +216,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $definitionCanonical
      * @return $this
      */
-    public function setDefinitionCanonical($definitionCanonical) {
+    public function setDefinitionCanonical($definitionCanonical)
+    {
         $this->definitionCanonical = $definitionCanonical;
         return $this;
     }
@@ -221,7 +225,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression
      */
-    public function getDefinitionExpression() {
+    public function getDefinitionExpression()
+    {
         return $this->definitionExpression;
     }
 
@@ -229,7 +234,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRExpression $definitionExpression
      * @return $this
      */
-    public function setDefinitionExpression($definitionExpression) {
+    public function setDefinitionExpression($definitionExpression)
+    {
         $this->definitionExpression = $definitionExpression;
         return $this;
     }
@@ -237,7 +243,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement
      */
-    public function getDefinitionDataRequirement() {
+    public function getDefinitionDataRequirement()
+    {
         return $this->definitionDataRequirement;
     }
 
@@ -245,7 +252,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDataRequirement $definitionDataRequirement
      * @return $this
      */
-    public function setDefinitionDataRequirement($definitionDataRequirement) {
+    public function setDefinitionDataRequirement($definitionDataRequirement)
+    {
         $this->definitionDataRequirement = $definitionDataRequirement;
         return $this;
     }
@@ -254,7 +262,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * Use UsageContext to define the members of the population, such as Age Ranges, Genders, Settings.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext[]
      */
-    public function getUsageContext() {
+    public function getUsageContext()
+    {
         return $this->usageContext;
     }
 
@@ -263,7 +272,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUsageContext $usageContext
      * @return $this
      */
-    public function addUsageContext($usageContext) {
+    public function addUsageContext($usageContext)
+    {
         $this->usageContext[] = $usageContext;
         return $this;
     }
@@ -272,7 +282,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * When true, members with this characteristic are excluded from the element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getExclude() {
+    public function getExclude()
+    {
         return $this->exclude;
     }
 
@@ -281,7 +292,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $exclude
      * @return $this
      */
-    public function setExclude($exclude) {
+    public function setExclude($exclude)
+    {
         $this->exclude = $exclude;
         return $this;
     }
@@ -290,7 +302,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * Specifies the UCUM unit for the outcome.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getUnitOfMeasure() {
+    public function getUnitOfMeasure()
+    {
         return $this->unitOfMeasure;
     }
 
@@ -299,7 +312,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $unitOfMeasure
      * @return $this
      */
-    public function setUnitOfMeasure($unitOfMeasure) {
+    public function setUnitOfMeasure($unitOfMeasure)
+    {
         $this->unitOfMeasure = $unitOfMeasure;
         return $this;
     }
@@ -308,7 +322,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * A narrative description of the time period the study covers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getStudyEffectiveDescription() {
+    public function getStudyEffectiveDescription()
+    {
         return $this->studyEffectiveDescription;
     }
 
@@ -317,7 +332,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $studyEffectiveDescription
      * @return $this
      */
-    public function setStudyEffectiveDescription($studyEffectiveDescription) {
+    public function setStudyEffectiveDescription($studyEffectiveDescription)
+    {
         $this->studyEffectiveDescription = $studyEffectiveDescription;
         return $this;
     }
@@ -325,7 +341,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getStudyEffectiveDateTime() {
+    public function getStudyEffectiveDateTime()
+    {
         return $this->studyEffectiveDateTime;
     }
 
@@ -333,7 +350,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $studyEffectiveDateTime
      * @return $this
      */
-    public function setStudyEffectiveDateTime($studyEffectiveDateTime) {
+    public function setStudyEffectiveDateTime($studyEffectiveDateTime)
+    {
         $this->studyEffectiveDateTime = $studyEffectiveDateTime;
         return $this;
     }
@@ -341,7 +359,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getStudyEffectivePeriod() {
+    public function getStudyEffectivePeriod()
+    {
         return $this->studyEffectivePeriod;
     }
 
@@ -349,7 +368,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $studyEffectivePeriod
      * @return $this
      */
-    public function setStudyEffectivePeriod($studyEffectivePeriod) {
+    public function setStudyEffectivePeriod($studyEffectivePeriod)
+    {
         $this->studyEffectivePeriod = $studyEffectivePeriod;
         return $this;
     }
@@ -357,7 +377,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getStudyEffectiveDuration() {
+    public function getStudyEffectiveDuration()
+    {
         return $this->studyEffectiveDuration;
     }
 
@@ -365,7 +386,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $studyEffectiveDuration
      * @return $this
      */
-    public function setStudyEffectiveDuration($studyEffectiveDuration) {
+    public function setStudyEffectiveDuration($studyEffectiveDuration)
+    {
         $this->studyEffectiveDuration = $studyEffectiveDuration;
         return $this;
     }
@@ -373,7 +395,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getStudyEffectiveTiming() {
+    public function getStudyEffectiveTiming()
+    {
         return $this->studyEffectiveTiming;
     }
 
@@ -381,7 +404,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $studyEffectiveTiming
      * @return $this
      */
-    public function setStudyEffectiveTiming($studyEffectiveTiming) {
+    public function setStudyEffectiveTiming($studyEffectiveTiming)
+    {
         $this->studyEffectiveTiming = $studyEffectiveTiming;
         return $this;
     }
@@ -390,7 +414,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * Indicates duration from the study initiation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getStudyEffectiveTimeFromStart() {
+    public function getStudyEffectiveTimeFromStart()
+    {
         return $this->studyEffectiveTimeFromStart;
     }
 
@@ -399,7 +424,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $studyEffectiveTimeFromStart
      * @return $this
      */
-    public function setStudyEffectiveTimeFromStart($studyEffectiveTimeFromStart) {
+    public function setStudyEffectiveTimeFromStart($studyEffectiveTimeFromStart)
+    {
         $this->studyEffectiveTimeFromStart = $studyEffectiveTimeFromStart;
         return $this;
     }
@@ -408,7 +434,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * Indicates how elements are aggregated within the study effective period.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRGroupMeasure
      */
-    public function getStudyEffectiveGroupMeasure() {
+    public function getStudyEffectiveGroupMeasure()
+    {
         return $this->studyEffectiveGroupMeasure;
     }
 
@@ -417,7 +444,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRGroupMeasure $studyEffectiveGroupMeasure
      * @return $this
      */
-    public function setStudyEffectiveGroupMeasure($studyEffectiveGroupMeasure) {
+    public function setStudyEffectiveGroupMeasure($studyEffectiveGroupMeasure)
+    {
         $this->studyEffectiveGroupMeasure = $studyEffectiveGroupMeasure;
         return $this;
     }
@@ -426,7 +454,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * A narrative description of the time period the study covers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getParticipantEffectiveDescription() {
+    public function getParticipantEffectiveDescription()
+    {
         return $this->participantEffectiveDescription;
     }
 
@@ -435,7 +464,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $participantEffectiveDescription
      * @return $this
      */
-    public function setParticipantEffectiveDescription($participantEffectiveDescription) {
+    public function setParticipantEffectiveDescription($participantEffectiveDescription)
+    {
         $this->participantEffectiveDescription = $participantEffectiveDescription;
         return $this;
     }
@@ -443,7 +473,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getParticipantEffectiveDateTime() {
+    public function getParticipantEffectiveDateTime()
+    {
         return $this->participantEffectiveDateTime;
     }
 
@@ -451,7 +482,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $participantEffectiveDateTime
      * @return $this
      */
-    public function setParticipantEffectiveDateTime($participantEffectiveDateTime) {
+    public function setParticipantEffectiveDateTime($participantEffectiveDateTime)
+    {
         $this->participantEffectiveDateTime = $participantEffectiveDateTime;
         return $this;
     }
@@ -459,7 +491,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getParticipantEffectivePeriod() {
+    public function getParticipantEffectivePeriod()
+    {
         return $this->participantEffectivePeriod;
     }
 
@@ -467,7 +500,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $participantEffectivePeriod
      * @return $this
      */
-    public function setParticipantEffectivePeriod($participantEffectivePeriod) {
+    public function setParticipantEffectivePeriod($participantEffectivePeriod)
+    {
         $this->participantEffectivePeriod = $participantEffectivePeriod;
         return $this;
     }
@@ -475,7 +509,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getParticipantEffectiveDuration() {
+    public function getParticipantEffectiveDuration()
+    {
         return $this->participantEffectiveDuration;
     }
 
@@ -483,7 +518,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $participantEffectiveDuration
      * @return $this
      */
-    public function setParticipantEffectiveDuration($participantEffectiveDuration) {
+    public function setParticipantEffectiveDuration($participantEffectiveDuration)
+    {
         $this->participantEffectiveDuration = $participantEffectiveDuration;
         return $this;
     }
@@ -491,7 +527,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getParticipantEffectiveTiming() {
+    public function getParticipantEffectiveTiming()
+    {
         return $this->participantEffectiveTiming;
     }
 
@@ -499,7 +536,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $participantEffectiveTiming
      * @return $this
      */
-    public function setParticipantEffectiveTiming($participantEffectiveTiming) {
+    public function setParticipantEffectiveTiming($participantEffectiveTiming)
+    {
         $this->participantEffectiveTiming = $participantEffectiveTiming;
         return $this;
     }
@@ -508,7 +546,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * Indicates duration from the participant's study entry.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getParticipantEffectiveTimeFromStart() {
+    public function getParticipantEffectiveTimeFromStart()
+    {
         return $this->participantEffectiveTimeFromStart;
     }
 
@@ -517,7 +556,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $participantEffectiveTimeFromStart
      * @return $this
      */
-    public function setParticipantEffectiveTimeFromStart($participantEffectiveTimeFromStart) {
+    public function setParticipantEffectiveTimeFromStart($participantEffectiveTimeFromStart)
+    {
         $this->participantEffectiveTimeFromStart = $participantEffectiveTimeFromStart;
         return $this;
     }
@@ -526,7 +566,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * Indicates how elements are aggregated within the study effective period.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRGroupMeasure
      */
-    public function getParticipantEffectiveGroupMeasure() {
+    public function getParticipantEffectiveGroupMeasure()
+    {
         return $this->participantEffectiveGroupMeasure;
     }
 
@@ -535,7 +576,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRGroupMeasure $participantEffectiveGroupMeasure
      * @return $this
      */
-    public function setParticipantEffectiveGroupMeasure($participantEffectiveGroupMeasure) {
+    public function setParticipantEffectiveGroupMeasure($participantEffectiveGroupMeasure)
+    {
         $this->participantEffectiveGroupMeasure = $participantEffectiveGroupMeasure;
         return $this;
     }
@@ -543,14 +585,16 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['definitionCodeableConcept'])) {
                 $this->setDefinitionCodeableConcept($data['definitionCodeableConcept']);
@@ -566,7 +610,7 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
             }
             if (isset($data['usageContext'])) {
                 if (is_array($data['usageContext'])) {
-                    foreach($data['usageContext'] as $d) {
+                    foreach ($data['usageContext'] as $d) {
                         $this->addUsageContext($d);
                     }
                 } else {
@@ -630,41 +674,83 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->definitionCodeableConcept)) $json['definitionCodeableConcept'] = $this->definitionCodeableConcept;
-        if (isset($this->definitionCanonical)) $json['definitionCanonical'] = $this->definitionCanonical;
-        if (isset($this->definitionExpression)) $json['definitionExpression'] = $this->definitionExpression;
-        if (isset($this->definitionDataRequirement)) $json['definitionDataRequirement'] = $this->definitionDataRequirement;
+        if (isset($this->definitionCodeableConcept)) {
+            $json['definitionCodeableConcept'] = $this->definitionCodeableConcept;
+        }
+        if (isset($this->definitionCanonical)) {
+            $json['definitionCanonical'] = $this->definitionCanonical;
+        }
+        if (isset($this->definitionExpression)) {
+            $json['definitionExpression'] = $this->definitionExpression;
+        }
+        if (isset($this->definitionDataRequirement)) {
+            $json['definitionDataRequirement'] = $this->definitionDataRequirement;
+        }
         if (0 < count($this->usageContext)) {
             $json['usageContext'] = [];
-            foreach($this->usageContext as $usageContext) {
+            foreach ($this->usageContext as $usageContext) {
                 $json['usageContext'][] = $usageContext;
             }
         }
-        if (isset($this->exclude)) $json['exclude'] = $this->exclude;
-        if (isset($this->unitOfMeasure)) $json['unitOfMeasure'] = $this->unitOfMeasure;
-        if (isset($this->studyEffectiveDescription)) $json['studyEffectiveDescription'] = $this->studyEffectiveDescription;
-        if (isset($this->studyEffectiveDateTime)) $json['studyEffectiveDateTime'] = $this->studyEffectiveDateTime;
-        if (isset($this->studyEffectivePeriod)) $json['studyEffectivePeriod'] = $this->studyEffectivePeriod;
-        if (isset($this->studyEffectiveDuration)) $json['studyEffectiveDuration'] = $this->studyEffectiveDuration;
-        if (isset($this->studyEffectiveTiming)) $json['studyEffectiveTiming'] = $this->studyEffectiveTiming;
-        if (isset($this->studyEffectiveTimeFromStart)) $json['studyEffectiveTimeFromStart'] = $this->studyEffectiveTimeFromStart;
-        if (isset($this->studyEffectiveGroupMeasure)) $json['studyEffectiveGroupMeasure'] = $this->studyEffectiveGroupMeasure;
-        if (isset($this->participantEffectiveDescription)) $json['participantEffectiveDescription'] = $this->participantEffectiveDescription;
-        if (isset($this->participantEffectiveDateTime)) $json['participantEffectiveDateTime'] = $this->participantEffectiveDateTime;
-        if (isset($this->participantEffectivePeriod)) $json['participantEffectivePeriod'] = $this->participantEffectivePeriod;
-        if (isset($this->participantEffectiveDuration)) $json['participantEffectiveDuration'] = $this->participantEffectiveDuration;
-        if (isset($this->participantEffectiveTiming)) $json['participantEffectiveTiming'] = $this->participantEffectiveTiming;
-        if (isset($this->participantEffectiveTimeFromStart)) $json['participantEffectiveTimeFromStart'] = $this->participantEffectiveTimeFromStart;
-        if (isset($this->participantEffectiveGroupMeasure)) $json['participantEffectiveGroupMeasure'] = $this->participantEffectiveGroupMeasure;
+        if (isset($this->exclude)) {
+            $json['exclude'] = $this->exclude;
+        }
+        if (isset($this->unitOfMeasure)) {
+            $json['unitOfMeasure'] = $this->unitOfMeasure;
+        }
+        if (isset($this->studyEffectiveDescription)) {
+            $json['studyEffectiveDescription'] = $this->studyEffectiveDescription;
+        }
+        if (isset($this->studyEffectiveDateTime)) {
+            $json['studyEffectiveDateTime'] = $this->studyEffectiveDateTime;
+        }
+        if (isset($this->studyEffectivePeriod)) {
+            $json['studyEffectivePeriod'] = $this->studyEffectivePeriod;
+        }
+        if (isset($this->studyEffectiveDuration)) {
+            $json['studyEffectiveDuration'] = $this->studyEffectiveDuration;
+        }
+        if (isset($this->studyEffectiveTiming)) {
+            $json['studyEffectiveTiming'] = $this->studyEffectiveTiming;
+        }
+        if (isset($this->studyEffectiveTimeFromStart)) {
+            $json['studyEffectiveTimeFromStart'] = $this->studyEffectiveTimeFromStart;
+        }
+        if (isset($this->studyEffectiveGroupMeasure)) {
+            $json['studyEffectiveGroupMeasure'] = $this->studyEffectiveGroupMeasure;
+        }
+        if (isset($this->participantEffectiveDescription)) {
+            $json['participantEffectiveDescription'] = $this->participantEffectiveDescription;
+        }
+        if (isset($this->participantEffectiveDateTime)) {
+            $json['participantEffectiveDateTime'] = $this->participantEffectiveDateTime;
+        }
+        if (isset($this->participantEffectivePeriod)) {
+            $json['participantEffectivePeriod'] = $this->participantEffectivePeriod;
+        }
+        if (isset($this->participantEffectiveDuration)) {
+            $json['participantEffectiveDuration'] = $this->participantEffectiveDuration;
+        }
+        if (isset($this->participantEffectiveTiming)) {
+            $json['participantEffectiveTiming'] = $this->participantEffectiveTiming;
+        }
+        if (isset($this->participantEffectiveTimeFromStart)) {
+            $json['participantEffectiveTimeFromStart'] = $this->participantEffectiveTimeFromStart;
+        }
+        if (isset($this->participantEffectiveGroupMeasure)) {
+            $json['participantEffectiveGroupMeasure'] = $this->participantEffectiveGroupMeasure;
+        }
         return $json;
     }
 
@@ -673,37 +759,80 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ResearchElementDefinitionCharacteristic xmlns="http://hl7.org/fhir"></ResearchElementDefinitionCharacteristic>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ResearchElementDefinitionCharacteristic xmlns="http://hl7.org/fhir"></ResearchElementDefinitionCharacteristic>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->definitionCodeableConcept)) $this->definitionCodeableConcept->xmlSerialize(true, $sxe->addChild('definitionCodeableConcept'));
-        if (isset($this->definitionCanonical)) $this->definitionCanonical->xmlSerialize(true, $sxe->addChild('definitionCanonical'));
-        if (isset($this->definitionExpression)) $this->definitionExpression->xmlSerialize(true, $sxe->addChild('definitionExpression'));
-        if (isset($this->definitionDataRequirement)) $this->definitionDataRequirement->xmlSerialize(true, $sxe->addChild('definitionDataRequirement'));
+        if (isset($this->definitionCodeableConcept)) {
+            $this->definitionCodeableConcept->xmlSerialize(true, $sxe->addChild('definitionCodeableConcept'));
+        }
+        if (isset($this->definitionCanonical)) {
+            $this->definitionCanonical->xmlSerialize(true, $sxe->addChild('definitionCanonical'));
+        }
+        if (isset($this->definitionExpression)) {
+            $this->definitionExpression->xmlSerialize(true, $sxe->addChild('definitionExpression'));
+        }
+        if (isset($this->definitionDataRequirement)) {
+            $this->definitionDataRequirement->xmlSerialize(true, $sxe->addChild('definitionDataRequirement'));
+        }
         if (0 < count($this->usageContext)) {
-            foreach($this->usageContext as $usageContext) {
+            foreach ($this->usageContext as $usageContext) {
                 $usageContext->xmlSerialize(true, $sxe->addChild('usageContext'));
             }
         }
-        if (isset($this->exclude)) $this->exclude->xmlSerialize(true, $sxe->addChild('exclude'));
-        if (isset($this->unitOfMeasure)) $this->unitOfMeasure->xmlSerialize(true, $sxe->addChild('unitOfMeasure'));
-        if (isset($this->studyEffectiveDescription)) $this->studyEffectiveDescription->xmlSerialize(true, $sxe->addChild('studyEffectiveDescription'));
-        if (isset($this->studyEffectiveDateTime)) $this->studyEffectiveDateTime->xmlSerialize(true, $sxe->addChild('studyEffectiveDateTime'));
-        if (isset($this->studyEffectivePeriod)) $this->studyEffectivePeriod->xmlSerialize(true, $sxe->addChild('studyEffectivePeriod'));
-        if (isset($this->studyEffectiveDuration)) $this->studyEffectiveDuration->xmlSerialize(true, $sxe->addChild('studyEffectiveDuration'));
-        if (isset($this->studyEffectiveTiming)) $this->studyEffectiveTiming->xmlSerialize(true, $sxe->addChild('studyEffectiveTiming'));
-        if (isset($this->studyEffectiveTimeFromStart)) $this->studyEffectiveTimeFromStart->xmlSerialize(true, $sxe->addChild('studyEffectiveTimeFromStart'));
-        if (isset($this->studyEffectiveGroupMeasure)) $this->studyEffectiveGroupMeasure->xmlSerialize(true, $sxe->addChild('studyEffectiveGroupMeasure'));
-        if (isset($this->participantEffectiveDescription)) $this->participantEffectiveDescription->xmlSerialize(true, $sxe->addChild('participantEffectiveDescription'));
-        if (isset($this->participantEffectiveDateTime)) $this->participantEffectiveDateTime->xmlSerialize(true, $sxe->addChild('participantEffectiveDateTime'));
-        if (isset($this->participantEffectivePeriod)) $this->participantEffectivePeriod->xmlSerialize(true, $sxe->addChild('participantEffectivePeriod'));
-        if (isset($this->participantEffectiveDuration)) $this->participantEffectiveDuration->xmlSerialize(true, $sxe->addChild('participantEffectiveDuration'));
-        if (isset($this->participantEffectiveTiming)) $this->participantEffectiveTiming->xmlSerialize(true, $sxe->addChild('participantEffectiveTiming'));
-        if (isset($this->participantEffectiveTimeFromStart)) $this->participantEffectiveTimeFromStart->xmlSerialize(true, $sxe->addChild('participantEffectiveTimeFromStart'));
-        if (isset($this->participantEffectiveGroupMeasure)) $this->participantEffectiveGroupMeasure->xmlSerialize(true, $sxe->addChild('participantEffectiveGroupMeasure'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->exclude)) {
+            $this->exclude->xmlSerialize(true, $sxe->addChild('exclude'));
+        }
+        if (isset($this->unitOfMeasure)) {
+            $this->unitOfMeasure->xmlSerialize(true, $sxe->addChild('unitOfMeasure'));
+        }
+        if (isset($this->studyEffectiveDescription)) {
+            $this->studyEffectiveDescription->xmlSerialize(true, $sxe->addChild('studyEffectiveDescription'));
+        }
+        if (isset($this->studyEffectiveDateTime)) {
+            $this->studyEffectiveDateTime->xmlSerialize(true, $sxe->addChild('studyEffectiveDateTime'));
+        }
+        if (isset($this->studyEffectivePeriod)) {
+            $this->studyEffectivePeriod->xmlSerialize(true, $sxe->addChild('studyEffectivePeriod'));
+        }
+        if (isset($this->studyEffectiveDuration)) {
+            $this->studyEffectiveDuration->xmlSerialize(true, $sxe->addChild('studyEffectiveDuration'));
+        }
+        if (isset($this->studyEffectiveTiming)) {
+            $this->studyEffectiveTiming->xmlSerialize(true, $sxe->addChild('studyEffectiveTiming'));
+        }
+        if (isset($this->studyEffectiveTimeFromStart)) {
+            $this->studyEffectiveTimeFromStart->xmlSerialize(true, $sxe->addChild('studyEffectiveTimeFromStart'));
+        }
+        if (isset($this->studyEffectiveGroupMeasure)) {
+            $this->studyEffectiveGroupMeasure->xmlSerialize(true, $sxe->addChild('studyEffectiveGroupMeasure'));
+        }
+        if (isset($this->participantEffectiveDescription)) {
+            $this->participantEffectiveDescription->xmlSerialize(true, $sxe->addChild('participantEffectiveDescription'));
+        }
+        if (isset($this->participantEffectiveDateTime)) {
+            $this->participantEffectiveDateTime->xmlSerialize(true, $sxe->addChild('participantEffectiveDateTime'));
+        }
+        if (isset($this->participantEffectivePeriod)) {
+            $this->participantEffectivePeriod->xmlSerialize(true, $sxe->addChild('participantEffectivePeriod'));
+        }
+        if (isset($this->participantEffectiveDuration)) {
+            $this->participantEffectiveDuration->xmlSerialize(true, $sxe->addChild('participantEffectiveDuration'));
+        }
+        if (isset($this->participantEffectiveTiming)) {
+            $this->participantEffectiveTiming->xmlSerialize(true, $sxe->addChild('participantEffectiveTiming'));
+        }
+        if (isset($this->participantEffectiveTimeFromStart)) {
+            $this->participantEffectiveTimeFromStart->xmlSerialize(true, $sxe->addChild('participantEffectiveTimeFromStart'));
+        }
+        if (isset($this->participantEffectiveGroupMeasure)) {
+            $this->participantEffectiveGroupMeasure->xmlSerialize(true, $sxe->addChild('participantEffectiveGroupMeasure'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

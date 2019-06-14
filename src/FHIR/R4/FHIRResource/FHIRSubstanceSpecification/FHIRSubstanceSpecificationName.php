@@ -142,7 +142,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * The actual name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -151,7 +152,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -160,7 +162,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * Name type.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -169,7 +172,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -178,7 +182,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * The status of the name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -187,7 +192,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -196,7 +202,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * If this is the preferred name for this substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getPreferred() {
+    public function getPreferred()
+    {
         return $this->preferred;
     }
 
@@ -205,7 +212,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $preferred
      * @return $this
      */
-    public function setPreferred($preferred) {
+    public function setPreferred($preferred)
+    {
         $this->preferred = $preferred;
         return $this;
     }
@@ -214,7 +222,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * Language of the name.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -223,7 +232,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $language
      * @return $this
      */
-    public function addLanguage($language) {
+    public function addLanguage($language)
+    {
         $this->language[] = $language;
         return $this;
     }
@@ -232,7 +242,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * The use context of this name for example if there is a different name a drug active ingredient as opposed to a food colour additive.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getDomain() {
+    public function getDomain()
+    {
         return $this->domain;
     }
 
@@ -241,7 +252,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $domain
      * @return $this
      */
-    public function addDomain($domain) {
+    public function addDomain($domain)
+    {
         $this->domain[] = $domain;
         return $this;
     }
@@ -250,7 +262,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * The jurisdiction where this name applies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getJurisdiction() {
+    public function getJurisdiction()
+    {
         return $this->jurisdiction;
     }
 
@@ -259,7 +272,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $jurisdiction
      * @return $this
      */
-    public function addJurisdiction($jurisdiction) {
+    public function addJurisdiction($jurisdiction)
+    {
         $this->jurisdiction[] = $jurisdiction;
         return $this;
     }
@@ -268,7 +282,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * A synonym of this name.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationName[]
      */
-    public function getSynonym() {
+    public function getSynonym()
+    {
         return $this->synonym;
     }
 
@@ -277,7 +292,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationName $synonym
      * @return $this
      */
-    public function addSynonym($synonym) {
+    public function addSynonym($synonym)
+    {
         $this->synonym[] = $synonym;
         return $this;
     }
@@ -286,7 +302,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * A translation for this name.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationName[]
      */
-    public function getTranslation() {
+    public function getTranslation()
+    {
         return $this->translation;
     }
 
@@ -295,7 +312,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationName $translation
      * @return $this
      */
-    public function addTranslation($translation) {
+    public function addTranslation($translation)
+    {
         $this->translation[] = $translation;
         return $this;
     }
@@ -304,7 +322,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * Details of the official nature of this name.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationOfficial[]
      */
-    public function getOfficial() {
+    public function getOfficial()
+    {
         return $this->official;
     }
 
@@ -313,7 +332,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationOfficial $official
      * @return $this
      */
-    public function addOfficial($official) {
+    public function addOfficial($official)
+    {
         $this->official[] = $official;
         return $this;
     }
@@ -322,7 +342,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * Supporting literature.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -331,7 +352,8 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function addSource($source) {
+    public function addSource($source)
+    {
         $this->source[] = $source;
         return $this;
     }
@@ -339,14 +361,16 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -362,7 +386,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['language'])) {
                 if (is_array($data['language'])) {
-                    foreach($data['language'] as $d) {
+                    foreach ($data['language'] as $d) {
                         $this->addLanguage($d);
                     }
                 } else {
@@ -371,7 +395,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['domain'])) {
                 if (is_array($data['domain'])) {
-                    foreach($data['domain'] as $d) {
+                    foreach ($data['domain'] as $d) {
                         $this->addDomain($d);
                     }
                 } else {
@@ -380,7 +404,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['jurisdiction'])) {
                 if (is_array($data['jurisdiction'])) {
-                    foreach($data['jurisdiction'] as $d) {
+                    foreach ($data['jurisdiction'] as $d) {
                         $this->addJurisdiction($d);
                     }
                 } else {
@@ -389,7 +413,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['synonym'])) {
                 if (is_array($data['synonym'])) {
-                    foreach($data['synonym'] as $d) {
+                    foreach ($data['synonym'] as $d) {
                         $this->addSynonym($d);
                     }
                 } else {
@@ -398,7 +422,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['translation'])) {
                 if (is_array($data['translation'])) {
-                    foreach($data['translation'] as $d) {
+                    foreach ($data['translation'] as $d) {
                         $this->addTranslation($d);
                     }
                 } else {
@@ -407,7 +431,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['official'])) {
                 if (is_array($data['official'])) {
-                    foreach($data['official'] as $d) {
+                    foreach ($data['official'] as $d) {
                         $this->addOfficial($d);
                     }
                 } else {
@@ -416,7 +440,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['source'])) {
                 if (is_array($data['source'])) {
-                    foreach($data['source'] as $d) {
+                    foreach ($data['source'] as $d) {
                         $this->addSource($d);
                     }
                 } else {
@@ -432,58 +456,68 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->preferred)) $json['preferred'] = $this->preferred;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->preferred)) {
+            $json['preferred'] = $this->preferred;
+        }
         if (0 < count($this->language)) {
             $json['language'] = [];
-            foreach($this->language as $language) {
+            foreach ($this->language as $language) {
                 $json['language'][] = $language;
             }
         }
         if (0 < count($this->domain)) {
             $json['domain'] = [];
-            foreach($this->domain as $domain) {
+            foreach ($this->domain as $domain) {
                 $json['domain'][] = $domain;
             }
         }
         if (0 < count($this->jurisdiction)) {
             $json['jurisdiction'] = [];
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $json['jurisdiction'][] = $jurisdiction;
             }
         }
         if (0 < count($this->synonym)) {
             $json['synonym'] = [];
-            foreach($this->synonym as $synonym) {
+            foreach ($this->synonym as $synonym) {
                 $json['synonym'][] = $synonym;
             }
         }
         if (0 < count($this->translation)) {
             $json['translation'] = [];
-            foreach($this->translation as $translation) {
+            foreach ($this->translation as $translation) {
                 $json['translation'][] = $translation;
             }
         }
         if (0 < count($this->official)) {
             $json['official'] = [];
-            foreach($this->official as $official) {
+            foreach ($this->official as $official) {
                 $json['official'][] = $official;
             }
         }
         if (0 < count($this->source)) {
             $json['source'] = [];
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $json['source'][] = $source;
             }
         }
@@ -495,51 +529,62 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecificationName xmlns="http://hl7.org/fhir"></SubstanceSpecificationName>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecificationName xmlns="http://hl7.org/fhir"></SubstanceSpecificationName>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->preferred)) $this->preferred->xmlSerialize(true, $sxe->addChild('preferred'));
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->preferred)) {
+            $this->preferred->xmlSerialize(true, $sxe->addChild('preferred'));
+        }
         if (0 < count($this->language)) {
-            foreach($this->language as $language) {
+            foreach ($this->language as $language) {
                 $language->xmlSerialize(true, $sxe->addChild('language'));
             }
         }
         if (0 < count($this->domain)) {
-            foreach($this->domain as $domain) {
+            foreach ($this->domain as $domain) {
                 $domain->xmlSerialize(true, $sxe->addChild('domain'));
             }
         }
         if (0 < count($this->jurisdiction)) {
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
             }
         }
         if (0 < count($this->synonym)) {
-            foreach($this->synonym as $synonym) {
+            foreach ($this->synonym as $synonym) {
                 $synonym->xmlSerialize(true, $sxe->addChild('synonym'));
             }
         }
         if (0 < count($this->translation)) {
-            foreach($this->translation as $translation) {
+            foreach ($this->translation as $translation) {
                 $translation->xmlSerialize(true, $sxe->addChild('translation'));
             }
         }
         if (0 < count($this->official)) {
-            foreach($this->official as $official) {
+            foreach ($this->official as $official) {
                 $official->xmlSerialize(true, $sxe->addChild('official'));
             }
         }
         if (0 < count($this->source)) {
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $source->xmlSerialize(true, $sxe->addChild('source'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

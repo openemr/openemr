@@ -88,7 +88,8 @@ class FHIRContractParty extends FHIRBackboneElement implements \JsonSerializable
      * Participant in the offer.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -97,7 +98,8 @@ class FHIRContractParty extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reference
      * @return $this
      */
-    public function addReference($reference) {
+    public function addReference($reference)
+    {
         $this->reference[] = $reference;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRContractParty extends FHIRBackboneElement implements \JsonSerializable
      * How the party participates in the offer.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRole() {
+    public function getRole()
+    {
         return $this->role;
     }
 
@@ -115,7 +118,8 @@ class FHIRContractParty extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $role
      * @return $this
      */
-    public function setRole($role) {
+    public function setRole($role)
+    {
         $this->role = $role;
         return $this;
     }
@@ -123,18 +127,20 @@ class FHIRContractParty extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['reference'])) {
                 if (is_array($data['reference'])) {
-                    foreach($data['reference'] as $d) {
+                    foreach ($data['reference'] as $d) {
                         $this->addReference($d);
                     }
                 } else {
@@ -153,22 +159,26 @@ class FHIRContractParty extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->reference)) {
             $json['reference'] = [];
-            foreach($this->reference as $reference) {
+            foreach ($this->reference as $reference) {
                 $json['reference'][] = $reference;
             }
         }
-        if (isset($this->role)) $json['role'] = $this->role;
+        if (isset($this->role)) {
+            $json['role'] = $this->role;
+        }
         return $json;
     }
 
@@ -177,18 +187,23 @@ class FHIRContractParty extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ContractParty xmlns="http://hl7.org/fhir"></ContractParty>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ContractParty xmlns="http://hl7.org/fhir"></ContractParty>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->reference)) {
-            foreach($this->reference as $reference) {
+            foreach ($this->reference as $reference) {
                 $reference->xmlSerialize(true, $sxe->addChild('reference'));
             }
         }
-        if (isset($this->role)) $this->role->xmlSerialize(true, $sxe->addChild('role'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->role)) {
+            $this->role->xmlSerialize(true, $sxe->addChild('role'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

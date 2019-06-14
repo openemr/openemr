@@ -284,7 +284,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * A unique identifier assigned to this observation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -293,7 +294,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -302,7 +304,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * A plan, proposal or order that is fulfilled in whole or in part by this event.  For example, a MedicationRequest may require a patient to have laboratory test performed before  it is dispensed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getBasedOn() {
+    public function getBasedOn()
+    {
         return $this->basedOn;
     }
 
@@ -311,7 +314,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $basedOn
      * @return $this
      */
-    public function addBasedOn($basedOn) {
+    public function addBasedOn($basedOn)
+    {
         $this->basedOn[] = $basedOn;
         return $this;
     }
@@ -320,7 +324,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * A larger event of which this particular Observation is a component or step.  For example,  an observation as part of a procedure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPartOf() {
+    public function getPartOf()
+    {
         return $this->partOf;
     }
 
@@ -329,7 +334,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $partOf
      * @return $this
      */
-    public function addPartOf($partOf) {
+    public function addPartOf($partOf)
+    {
         $this->partOf[] = $partOf;
         return $this;
     }
@@ -338,7 +344,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * The status of the result value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -347,7 +354,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRObservationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -356,7 +364,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * A code that classifies the general type of observation being made.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -365,7 +374,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function addCategory($category) {
+    public function addCategory($category)
+    {
         $this->category[] = $category;
         return $this;
     }
@@ -374,7 +384,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * Describes what was observed. Sometimes this is called the observation "name".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -383,7 +394,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -392,7 +404,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * The patient, or group of patients, location, or device this observation is about and into whose record the observation is placed. If the actual focus of the observation is different from the subject (or a sample of, part, or region of the subject), the `focus` element or the `code` itself specifies the actual focus of the observation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -401,7 +414,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -410,7 +424,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * The actual focus of an observation when it is not the patient of record representing something or someone associated with the patient such as a spouse, parent, fetus, or donor. For example, fetus observations in a mother's record.  The focus of an observation could also be an existing condition,  an intervention, the subject's diet,  another observation of the subject,  or a body structure such as tumor or implanted device.   An example use case would be using the Observation resource to capture whether the mother is trained to change her child's tracheostomy tube. In this example, the child is the patient of record and the mother is the focus.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getFocus() {
+    public function getFocus()
+    {
         return $this->focus;
     }
 
@@ -419,7 +434,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $focus
      * @return $this
      */
-    public function addFocus($focus) {
+    public function addFocus($focus)
+    {
         $this->focus[] = $focus;
         return $this;
     }
@@ -428,7 +444,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * The healthcare event  (e.g. a patient and healthcare provider interaction) during which this observation is made.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEncounter() {
+    public function getEncounter()
+    {
         return $this->encounter;
     }
 
@@ -437,7 +454,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $encounter
      * @return $this
      */
-    public function setEncounter($encounter) {
+    public function setEncounter($encounter)
+    {
         $this->encounter = $encounter;
         return $this;
     }
@@ -445,7 +463,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getEffectiveDateTime() {
+    public function getEffectiveDateTime()
+    {
         return $this->effectiveDateTime;
     }
 
@@ -453,7 +472,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $effectiveDateTime
      * @return $this
      */
-    public function setEffectiveDateTime($effectiveDateTime) {
+    public function setEffectiveDateTime($effectiveDateTime)
+    {
         $this->effectiveDateTime = $effectiveDateTime;
         return $this;
     }
@@ -461,7 +481,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getEffectivePeriod() {
+    public function getEffectivePeriod()
+    {
         return $this->effectivePeriod;
     }
 
@@ -469,7 +490,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $effectivePeriod
      * @return $this
      */
-    public function setEffectivePeriod($effectivePeriod) {
+    public function setEffectivePeriod($effectivePeriod)
+    {
         $this->effectivePeriod = $effectivePeriod;
         return $this;
     }
@@ -477,7 +499,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming
      */
-    public function getEffectiveTiming() {
+    public function getEffectiveTiming()
+    {
         return $this->effectiveTiming;
     }
 
@@ -485,7 +508,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTiming $effectiveTiming
      * @return $this
      */
-    public function setEffectiveTiming($effectiveTiming) {
+    public function setEffectiveTiming($effectiveTiming)
+    {
         $this->effectiveTiming = $effectiveTiming;
         return $this;
     }
@@ -493,7 +517,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getEffectiveInstant() {
+    public function getEffectiveInstant()
+    {
         return $this->effectiveInstant;
     }
 
@@ -501,7 +526,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $effectiveInstant
      * @return $this
      */
-    public function setEffectiveInstant($effectiveInstant) {
+    public function setEffectiveInstant($effectiveInstant)
+    {
         $this->effectiveInstant = $effectiveInstant;
         return $this;
     }
@@ -510,7 +536,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * The date and time this version of the observation was made available to providers, typically after the results have been reviewed and verified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant
      */
-    public function getIssued() {
+    public function getIssued()
+    {
         return $this->issued;
     }
 
@@ -519,7 +546,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInstant $issued
      * @return $this
      */
-    public function setIssued($issued) {
+    public function setIssued($issued)
+    {
         $this->issued = $issued;
         return $this;
     }
@@ -528,7 +556,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * Who was responsible for asserting the observed value as "true".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getPerformer() {
+    public function getPerformer()
+    {
         return $this->performer;
     }
 
@@ -537,7 +566,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $performer
      * @return $this
      */
-    public function addPerformer($performer) {
+    public function addPerformer($performer)
+    {
         $this->performer[] = $performer;
         return $this;
     }
@@ -545,7 +575,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getValueQuantity() {
+    public function getValueQuantity()
+    {
         return $this->valueQuantity;
     }
 
@@ -553,7 +584,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
      * @return $this
      */
-    public function setValueQuantity($valueQuantity) {
+    public function setValueQuantity($valueQuantity)
+    {
         $this->valueQuantity = $valueQuantity;
         return $this;
     }
@@ -561,7 +593,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getValueCodeableConcept() {
+    public function getValueCodeableConcept()
+    {
         return $this->valueCodeableConcept;
     }
 
@@ -569,7 +602,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $valueCodeableConcept
      * @return $this
      */
-    public function setValueCodeableConcept($valueCodeableConcept) {
+    public function setValueCodeableConcept($valueCodeableConcept)
+    {
         $this->valueCodeableConcept = $valueCodeableConcept;
         return $this;
     }
@@ -577,7 +611,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getValueString() {
+    public function getValueString()
+    {
         return $this->valueString;
     }
 
@@ -585,7 +620,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $valueString
      * @return $this
      */
-    public function setValueString($valueString) {
+    public function setValueString($valueString)
+    {
         $this->valueString = $valueString;
         return $this;
     }
@@ -593,7 +629,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getValueBoolean() {
+    public function getValueBoolean()
+    {
         return $this->valueBoolean;
     }
 
@@ -601,7 +638,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $valueBoolean
      * @return $this
      */
-    public function setValueBoolean($valueBoolean) {
+    public function setValueBoolean($valueBoolean)
+    {
         $this->valueBoolean = $valueBoolean;
         return $this;
     }
@@ -609,7 +647,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getValueInteger() {
+    public function getValueInteger()
+    {
         return $this->valueInteger;
     }
 
@@ -617,7 +656,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $valueInteger
      * @return $this
      */
-    public function setValueInteger($valueInteger) {
+    public function setValueInteger($valueInteger)
+    {
         $this->valueInteger = $valueInteger;
         return $this;
     }
@@ -625,7 +665,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getValueRange() {
+    public function getValueRange()
+    {
         return $this->valueRange;
     }
 
@@ -633,7 +674,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $valueRange
      * @return $this
      */
-    public function setValueRange($valueRange) {
+    public function setValueRange($valueRange)
+    {
         $this->valueRange = $valueRange;
         return $this;
     }
@@ -641,7 +683,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getValueRatio() {
+    public function getValueRatio()
+    {
         return $this->valueRatio;
     }
 
@@ -649,7 +692,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $valueRatio
      * @return $this
      */
-    public function setValueRatio($valueRatio) {
+    public function setValueRatio($valueRatio)
+    {
         $this->valueRatio = $valueRatio;
         return $this;
     }
@@ -657,7 +701,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData
      */
-    public function getValueSampledData() {
+    public function getValueSampledData()
+    {
         return $this->valueSampledData;
     }
 
@@ -665,7 +710,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData $valueSampledData
      * @return $this
      */
-    public function setValueSampledData($valueSampledData) {
+    public function setValueSampledData($valueSampledData)
+    {
         $this->valueSampledData = $valueSampledData;
         return $this;
     }
@@ -673,7 +719,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
      */
-    public function getValueTime() {
+    public function getValueTime()
+    {
         return $this->valueTime;
     }
 
@@ -681,7 +728,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $valueTime
      * @return $this
      */
-    public function setValueTime($valueTime) {
+    public function setValueTime($valueTime)
+    {
         $this->valueTime = $valueTime;
         return $this;
     }
@@ -689,7 +737,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getValueDateTime() {
+    public function getValueDateTime()
+    {
         return $this->valueDateTime;
     }
 
@@ -697,7 +746,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $valueDateTime
      * @return $this
      */
-    public function setValueDateTime($valueDateTime) {
+    public function setValueDateTime($valueDateTime)
+    {
         $this->valueDateTime = $valueDateTime;
         return $this;
     }
@@ -705,7 +755,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getValuePeriod() {
+    public function getValuePeriod()
+    {
         return $this->valuePeriod;
     }
 
@@ -713,7 +764,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $valuePeriod
      * @return $this
      */
-    public function setValuePeriod($valuePeriod) {
+    public function setValuePeriod($valuePeriod)
+    {
         $this->valuePeriod = $valuePeriod;
         return $this;
     }
@@ -722,7 +774,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * Provides a reason why the expected value in the element Observation.value[x] is missing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDataAbsentReason() {
+    public function getDataAbsentReason()
+    {
         return $this->dataAbsentReason;
     }
 
@@ -731,7 +784,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $dataAbsentReason
      * @return $this
      */
-    public function setDataAbsentReason($dataAbsentReason) {
+    public function setDataAbsentReason($dataAbsentReason)
+    {
         $this->dataAbsentReason = $dataAbsentReason;
         return $this;
     }
@@ -740,7 +794,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * A categorical assessment of an observation value.  For example, high, low, normal.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getInterpretation() {
+    public function getInterpretation()
+    {
         return $this->interpretation;
     }
 
@@ -749,7 +804,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $interpretation
      * @return $this
      */
-    public function addInterpretation($interpretation) {
+    public function addInterpretation($interpretation)
+    {
         $this->interpretation[] = $interpretation;
         return $this;
     }
@@ -758,7 +814,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * Comments about the observation or the results.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -767,7 +824,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -776,7 +834,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * Indicates the site on the subject's body where the observation was made (i.e. the target site).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getBodySite() {
+    public function getBodySite()
+    {
         return $this->bodySite;
     }
 
@@ -785,7 +844,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $bodySite
      * @return $this
      */
-    public function setBodySite($bodySite) {
+    public function setBodySite($bodySite)
+    {
         $this->bodySite = $bodySite;
         return $this;
     }
@@ -794,7 +854,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * Indicates the mechanism used to perform the observation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method;
     }
 
@@ -803,7 +864,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $method
      * @return $this
      */
-    public function setMethod($method) {
+    public function setMethod($method)
+    {
         $this->method = $method;
         return $this;
     }
@@ -812,7 +874,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * The specimen that was used when this observation was made.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSpecimen() {
+    public function getSpecimen()
+    {
         return $this->specimen;
     }
 
@@ -821,7 +884,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $specimen
      * @return $this
      */
-    public function setSpecimen($specimen) {
+    public function setSpecimen($specimen)
+    {
         $this->specimen = $specimen;
         return $this;
     }
@@ -830,7 +894,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * The device used to generate the observation data.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDevice() {
+    public function getDevice()
+    {
         return $this->device;
     }
 
@@ -839,7 +904,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $device
      * @return $this
      */
-    public function setDevice($device) {
+    public function setDevice($device)
+    {
         $this->device = $device;
         return $this;
     }
@@ -848,7 +914,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * Guidance on how to interpret the value by comparison to a normal or recommended range.  Multiple reference ranges are interpreted as an "OR".   In other words, to represent two distinct target populations, two `referenceRange` elements would be used.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange[]
      */
-    public function getReferenceRange() {
+    public function getReferenceRange()
+    {
         return $this->referenceRange;
     }
 
@@ -857,7 +924,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationReferenceRange $referenceRange
      * @return $this
      */
-    public function addReferenceRange($referenceRange) {
+    public function addReferenceRange($referenceRange)
+    {
         $this->referenceRange[] = $referenceRange;
         return $this;
     }
@@ -866,7 +934,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * This observation is a group observation (e.g. a battery, a panel of tests, a set of vital sign measurements) that includes the target as a member of the group.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getHasMember() {
+    public function getHasMember()
+    {
         return $this->hasMember;
     }
 
@@ -875,7 +944,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $hasMember
      * @return $this
      */
-    public function addHasMember($hasMember) {
+    public function addHasMember($hasMember)
+    {
         $this->hasMember[] = $hasMember;
         return $this;
     }
@@ -884,7 +954,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * The target resource that represents a measurement from which this observation value is derived. For example, a calculated anion gap or a fetal measurement based on an ultrasound image.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getDerivedFrom() {
+    public function getDerivedFrom()
+    {
         return $this->derivedFrom;
     }
 
@@ -893,7 +964,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $derivedFrom
      * @return $this
      */
-    public function addDerivedFrom($derivedFrom) {
+    public function addDerivedFrom($derivedFrom)
+    {
         $this->derivedFrom[] = $derivedFrom;
         return $this;
     }
@@ -902,7 +974,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * Some observations have multiple component observations.  These component observations are expressed as separate code value pairs that share the same attributes.  Examples include systolic and diastolic component observations for blood pressure measurement and multiple component observations for genetics observations.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent[]
      */
-    public function getComponent() {
+    public function getComponent()
+    {
         return $this->component;
     }
 
@@ -911,7 +984,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent $component
      * @return $this
      */
-    public function addComponent($component) {
+    public function addComponent($component)
+    {
         $this->component[] = $component;
         return $this;
     }
@@ -919,18 +993,20 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -939,7 +1015,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['basedOn'])) {
                 if (is_array($data['basedOn'])) {
-                    foreach($data['basedOn'] as $d) {
+                    foreach ($data['basedOn'] as $d) {
                         $this->addBasedOn($d);
                     }
                 } else {
@@ -948,7 +1024,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['partOf'])) {
                 if (is_array($data['partOf'])) {
-                    foreach($data['partOf'] as $d) {
+                    foreach ($data['partOf'] as $d) {
                         $this->addPartOf($d);
                     }
                 } else {
@@ -960,7 +1036,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['category'])) {
                 if (is_array($data['category'])) {
-                    foreach($data['category'] as $d) {
+                    foreach ($data['category'] as $d) {
                         $this->addCategory($d);
                     }
                 } else {
@@ -975,7 +1051,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['focus'])) {
                 if (is_array($data['focus'])) {
-                    foreach($data['focus'] as $d) {
+                    foreach ($data['focus'] as $d) {
                         $this->addFocus($d);
                     }
                 } else {
@@ -1002,7 +1078,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['performer'])) {
                 if (is_array($data['performer'])) {
-                    foreach($data['performer'] as $d) {
+                    foreach ($data['performer'] as $d) {
                         $this->addPerformer($d);
                     }
                 } else {
@@ -1047,7 +1123,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['interpretation'])) {
                 if (is_array($data['interpretation'])) {
-                    foreach($data['interpretation'] as $d) {
+                    foreach ($data['interpretation'] as $d) {
                         $this->addInterpretation($d);
                     }
                 } else {
@@ -1056,7 +1132,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -1077,7 +1153,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['referenceRange'])) {
                 if (is_array($data['referenceRange'])) {
-                    foreach($data['referenceRange'] as $d) {
+                    foreach ($data['referenceRange'] as $d) {
                         $this->addReferenceRange($d);
                     }
                 } else {
@@ -1086,7 +1162,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['hasMember'])) {
                 if (is_array($data['hasMember'])) {
-                    foreach($data['hasMember'] as $d) {
+                    foreach ($data['hasMember'] as $d) {
                         $this->addHasMember($d);
                     }
                 } else {
@@ -1095,7 +1171,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['derivedFrom'])) {
                 if (is_array($data['derivedFrom'])) {
-                    foreach($data['derivedFrom'] as $d) {
+                    foreach ($data['derivedFrom'] as $d) {
                         $this->addDerivedFrom($d);
                     }
                 } else {
@@ -1104,7 +1180,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['component'])) {
                 if (is_array($data['component'])) {
-                    foreach($data['component'] as $d) {
+                    foreach ($data['component'] as $d) {
                         $this->addComponent($d);
                     }
                 } else {
@@ -1120,110 +1196,162 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->basedOn)) {
             $json['basedOn'] = [];
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $json['basedOn'][] = $basedOn;
             }
         }
         if (0 < count($this->partOf)) {
             $json['partOf'] = [];
-            foreach($this->partOf as $partOf) {
+            foreach ($this->partOf as $partOf) {
                 $json['partOf'][] = $partOf;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
         if (0 < count($this->category)) {
             $json['category'] = [];
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $json['category'][] = $category;
             }
         }
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->subject)) $json['subject'] = $this->subject;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
         if (0 < count($this->focus)) {
             $json['focus'] = [];
-            foreach($this->focus as $focus) {
+            foreach ($this->focus as $focus) {
                 $json['focus'][] = $focus;
             }
         }
-        if (isset($this->encounter)) $json['encounter'] = $this->encounter;
-        if (isset($this->effectiveDateTime)) $json['effectiveDateTime'] = $this->effectiveDateTime;
-        if (isset($this->effectivePeriod)) $json['effectivePeriod'] = $this->effectivePeriod;
-        if (isset($this->effectiveTiming)) $json['effectiveTiming'] = $this->effectiveTiming;
-        if (isset($this->effectiveInstant)) $json['effectiveInstant'] = $this->effectiveInstant;
-        if (isset($this->issued)) $json['issued'] = $this->issued;
+        if (isset($this->encounter)) {
+            $json['encounter'] = $this->encounter;
+        }
+        if (isset($this->effectiveDateTime)) {
+            $json['effectiveDateTime'] = $this->effectiveDateTime;
+        }
+        if (isset($this->effectivePeriod)) {
+            $json['effectivePeriod'] = $this->effectivePeriod;
+        }
+        if (isset($this->effectiveTiming)) {
+            $json['effectiveTiming'] = $this->effectiveTiming;
+        }
+        if (isset($this->effectiveInstant)) {
+            $json['effectiveInstant'] = $this->effectiveInstant;
+        }
+        if (isset($this->issued)) {
+            $json['issued'] = $this->issued;
+        }
         if (0 < count($this->performer)) {
             $json['performer'] = [];
-            foreach($this->performer as $performer) {
+            foreach ($this->performer as $performer) {
                 $json['performer'][] = $performer;
             }
         }
-        if (isset($this->valueQuantity)) $json['valueQuantity'] = $this->valueQuantity;
-        if (isset($this->valueCodeableConcept)) $json['valueCodeableConcept'] = $this->valueCodeableConcept;
-        if (isset($this->valueString)) $json['valueString'] = $this->valueString;
-        if (isset($this->valueBoolean)) $json['valueBoolean'] = $this->valueBoolean;
-        if (isset($this->valueInteger)) $json['valueInteger'] = $this->valueInteger;
-        if (isset($this->valueRange)) $json['valueRange'] = $this->valueRange;
-        if (isset($this->valueRatio)) $json['valueRatio'] = $this->valueRatio;
-        if (isset($this->valueSampledData)) $json['valueSampledData'] = $this->valueSampledData;
-        if (isset($this->valueTime)) $json['valueTime'] = $this->valueTime;
-        if (isset($this->valueDateTime)) $json['valueDateTime'] = $this->valueDateTime;
-        if (isset($this->valuePeriod)) $json['valuePeriod'] = $this->valuePeriod;
-        if (isset($this->dataAbsentReason)) $json['dataAbsentReason'] = $this->dataAbsentReason;
+        if (isset($this->valueQuantity)) {
+            $json['valueQuantity'] = $this->valueQuantity;
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $json['valueCodeableConcept'] = $this->valueCodeableConcept;
+        }
+        if (isset($this->valueString)) {
+            $json['valueString'] = $this->valueString;
+        }
+        if (isset($this->valueBoolean)) {
+            $json['valueBoolean'] = $this->valueBoolean;
+        }
+        if (isset($this->valueInteger)) {
+            $json['valueInteger'] = $this->valueInteger;
+        }
+        if (isset($this->valueRange)) {
+            $json['valueRange'] = $this->valueRange;
+        }
+        if (isset($this->valueRatio)) {
+            $json['valueRatio'] = $this->valueRatio;
+        }
+        if (isset($this->valueSampledData)) {
+            $json['valueSampledData'] = $this->valueSampledData;
+        }
+        if (isset($this->valueTime)) {
+            $json['valueTime'] = $this->valueTime;
+        }
+        if (isset($this->valueDateTime)) {
+            $json['valueDateTime'] = $this->valueDateTime;
+        }
+        if (isset($this->valuePeriod)) {
+            $json['valuePeriod'] = $this->valuePeriod;
+        }
+        if (isset($this->dataAbsentReason)) {
+            $json['dataAbsentReason'] = $this->dataAbsentReason;
+        }
         if (0 < count($this->interpretation)) {
             $json['interpretation'] = [];
-            foreach($this->interpretation as $interpretation) {
+            foreach ($this->interpretation as $interpretation) {
                 $json['interpretation'][] = $interpretation;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
-        if (isset($this->bodySite)) $json['bodySite'] = $this->bodySite;
-        if (isset($this->method)) $json['method'] = $this->method;
-        if (isset($this->specimen)) $json['specimen'] = $this->specimen;
-        if (isset($this->device)) $json['device'] = $this->device;
+        if (isset($this->bodySite)) {
+            $json['bodySite'] = $this->bodySite;
+        }
+        if (isset($this->method)) {
+            $json['method'] = $this->method;
+        }
+        if (isset($this->specimen)) {
+            $json['specimen'] = $this->specimen;
+        }
+        if (isset($this->device)) {
+            $json['device'] = $this->device;
+        }
         if (0 < count($this->referenceRange)) {
             $json['referenceRange'] = [];
-            foreach($this->referenceRange as $referenceRange) {
+            foreach ($this->referenceRange as $referenceRange) {
                 $json['referenceRange'][] = $referenceRange;
             }
         }
         if (0 < count($this->hasMember)) {
             $json['hasMember'] = [];
-            foreach($this->hasMember as $hasMember) {
+            foreach ($this->hasMember as $hasMember) {
                 $json['hasMember'][] = $hasMember;
             }
         }
         if (0 < count($this->derivedFrom)) {
             $json['derivedFrom'] = [];
-            foreach($this->derivedFrom as $derivedFrom) {
+            foreach ($this->derivedFrom as $derivedFrom) {
                 $json['derivedFrom'][] = $derivedFrom;
             }
         }
         if (0 < count($this->component)) {
             $json['component'] = [];
-            foreach($this->component as $component) {
+            foreach ($this->component as $component) {
                 $json['component'][] = $component;
             }
         }
@@ -1235,97 +1363,150 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Observation xmlns="http://hl7.org/fhir"></Observation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Observation xmlns="http://hl7.org/fhir"></Observation>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->basedOn)) {
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
             }
         }
         if (0 < count($this->partOf)) {
-            foreach($this->partOf as $partOf) {
+            foreach ($this->partOf as $partOf) {
                 $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
         if (0 < count($this->category)) {
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $category->xmlSerialize(true, $sxe->addChild('category'));
             }
         }
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
         if (0 < count($this->focus)) {
-            foreach($this->focus as $focus) {
+            foreach ($this->focus as $focus) {
                 $focus->xmlSerialize(true, $sxe->addChild('focus'));
             }
         }
-        if (isset($this->encounter)) $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
-        if (isset($this->effectiveDateTime)) $this->effectiveDateTime->xmlSerialize(true, $sxe->addChild('effectiveDateTime'));
-        if (isset($this->effectivePeriod)) $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
-        if (isset($this->effectiveTiming)) $this->effectiveTiming->xmlSerialize(true, $sxe->addChild('effectiveTiming'));
-        if (isset($this->effectiveInstant)) $this->effectiveInstant->xmlSerialize(true, $sxe->addChild('effectiveInstant'));
-        if (isset($this->issued)) $this->issued->xmlSerialize(true, $sxe->addChild('issued'));
+        if (isset($this->encounter)) {
+            $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
+        }
+        if (isset($this->effectiveDateTime)) {
+            $this->effectiveDateTime->xmlSerialize(true, $sxe->addChild('effectiveDateTime'));
+        }
+        if (isset($this->effectivePeriod)) {
+            $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
+        }
+        if (isset($this->effectiveTiming)) {
+            $this->effectiveTiming->xmlSerialize(true, $sxe->addChild('effectiveTiming'));
+        }
+        if (isset($this->effectiveInstant)) {
+            $this->effectiveInstant->xmlSerialize(true, $sxe->addChild('effectiveInstant'));
+        }
+        if (isset($this->issued)) {
+            $this->issued->xmlSerialize(true, $sxe->addChild('issued'));
+        }
         if (0 < count($this->performer)) {
-            foreach($this->performer as $performer) {
+            foreach ($this->performer as $performer) {
                 $performer->xmlSerialize(true, $sxe->addChild('performer'));
             }
         }
-        if (isset($this->valueQuantity)) $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
-        if (isset($this->valueCodeableConcept)) $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
-        if (isset($this->valueString)) $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
-        if (isset($this->valueBoolean)) $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
-        if (isset($this->valueInteger)) $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
-        if (isset($this->valueRange)) $this->valueRange->xmlSerialize(true, $sxe->addChild('valueRange'));
-        if (isset($this->valueRatio)) $this->valueRatio->xmlSerialize(true, $sxe->addChild('valueRatio'));
-        if (isset($this->valueSampledData)) $this->valueSampledData->xmlSerialize(true, $sxe->addChild('valueSampledData'));
-        if (isset($this->valueTime)) $this->valueTime->xmlSerialize(true, $sxe->addChild('valueTime'));
-        if (isset($this->valueDateTime)) $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
-        if (isset($this->valuePeriod)) $this->valuePeriod->xmlSerialize(true, $sxe->addChild('valuePeriod'));
-        if (isset($this->dataAbsentReason)) $this->dataAbsentReason->xmlSerialize(true, $sxe->addChild('dataAbsentReason'));
+        if (isset($this->valueQuantity)) {
+            $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
+        }
+        if (isset($this->valueCodeableConcept)) {
+            $this->valueCodeableConcept->xmlSerialize(true, $sxe->addChild('valueCodeableConcept'));
+        }
+        if (isset($this->valueString)) {
+            $this->valueString->xmlSerialize(true, $sxe->addChild('valueString'));
+        }
+        if (isset($this->valueBoolean)) {
+            $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));
+        }
+        if (isset($this->valueInteger)) {
+            $this->valueInteger->xmlSerialize(true, $sxe->addChild('valueInteger'));
+        }
+        if (isset($this->valueRange)) {
+            $this->valueRange->xmlSerialize(true, $sxe->addChild('valueRange'));
+        }
+        if (isset($this->valueRatio)) {
+            $this->valueRatio->xmlSerialize(true, $sxe->addChild('valueRatio'));
+        }
+        if (isset($this->valueSampledData)) {
+            $this->valueSampledData->xmlSerialize(true, $sxe->addChild('valueSampledData'));
+        }
+        if (isset($this->valueTime)) {
+            $this->valueTime->xmlSerialize(true, $sxe->addChild('valueTime'));
+        }
+        if (isset($this->valueDateTime)) {
+            $this->valueDateTime->xmlSerialize(true, $sxe->addChild('valueDateTime'));
+        }
+        if (isset($this->valuePeriod)) {
+            $this->valuePeriod->xmlSerialize(true, $sxe->addChild('valuePeriod'));
+        }
+        if (isset($this->dataAbsentReason)) {
+            $this->dataAbsentReason->xmlSerialize(true, $sxe->addChild('dataAbsentReason'));
+        }
         if (0 < count($this->interpretation)) {
-            foreach($this->interpretation as $interpretation) {
+            foreach ($this->interpretation as $interpretation) {
                 $interpretation->xmlSerialize(true, $sxe->addChild('interpretation'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if (isset($this->bodySite)) $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
-        if (isset($this->method)) $this->method->xmlSerialize(true, $sxe->addChild('method'));
-        if (isset($this->specimen)) $this->specimen->xmlSerialize(true, $sxe->addChild('specimen'));
-        if (isset($this->device)) $this->device->xmlSerialize(true, $sxe->addChild('device'));
+        if (isset($this->bodySite)) {
+            $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
+        }
+        if (isset($this->method)) {
+            $this->method->xmlSerialize(true, $sxe->addChild('method'));
+        }
+        if (isset($this->specimen)) {
+            $this->specimen->xmlSerialize(true, $sxe->addChild('specimen'));
+        }
+        if (isset($this->device)) {
+            $this->device->xmlSerialize(true, $sxe->addChild('device'));
+        }
         if (0 < count($this->referenceRange)) {
-            foreach($this->referenceRange as $referenceRange) {
+            foreach ($this->referenceRange as $referenceRange) {
                 $referenceRange->xmlSerialize(true, $sxe->addChild('referenceRange'));
             }
         }
         if (0 < count($this->hasMember)) {
-            foreach($this->hasMember as $hasMember) {
+            foreach ($this->hasMember as $hasMember) {
                 $hasMember->xmlSerialize(true, $sxe->addChild('hasMember'));
             }
         }
         if (0 < count($this->derivedFrom)) {
-            foreach($this->derivedFrom as $derivedFrom) {
+            foreach ($this->derivedFrom as $derivedFrom) {
                 $derivedFrom->xmlSerialize(true, $sxe->addChild('derivedFrom'));
             }
         }
         if (0 < count($this->component)) {
-            foreach($this->component as $component) {
+            foreach ($this->component as $component) {
                 $component->xmlSerialize(true, $sxe->addChild('component'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

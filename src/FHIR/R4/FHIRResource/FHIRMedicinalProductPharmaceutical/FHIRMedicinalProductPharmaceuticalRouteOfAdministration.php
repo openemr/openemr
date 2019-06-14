@@ -118,7 +118,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * Coded expression for the route.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -127,7 +128,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -136,7 +138,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * The first dose (dose quantity) administered in humans can be specified, for a product under investigation, using a numerical value and its unit of measurement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getFirstDose() {
+    public function getFirstDose()
+    {
         return $this->firstDose;
     }
 
@@ -145,7 +148,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $firstDose
      * @return $this
      */
-    public function setFirstDose($firstDose) {
+    public function setFirstDose($firstDose)
+    {
         $this->firstDose = $firstDose;
         return $this;
     }
@@ -154,7 +158,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * The maximum single dose that can be administered as per the protocol of a clinical trial can be specified using a numerical value and its unit of measurement.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getMaxSingleDose() {
+    public function getMaxSingleDose()
+    {
         return $this->maxSingleDose;
     }
 
@@ -163,7 +168,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $maxSingleDose
      * @return $this
      */
-    public function setMaxSingleDose($maxSingleDose) {
+    public function setMaxSingleDose($maxSingleDose)
+    {
         $this->maxSingleDose = $maxSingleDose;
         return $this;
     }
@@ -172,7 +178,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * The maximum dose per day (maximum dose quantity to be administered in any one 24-h period) that can be administered as per the protocol referenced in the clinical trial authorisation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getMaxDosePerDay() {
+    public function getMaxDosePerDay()
+    {
         return $this->maxDosePerDay;
     }
 
@@ -181,7 +188,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $maxDosePerDay
      * @return $this
      */
-    public function setMaxDosePerDay($maxDosePerDay) {
+    public function setMaxDosePerDay($maxDosePerDay)
+    {
         $this->maxDosePerDay = $maxDosePerDay;
         return $this;
     }
@@ -190,7 +198,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * The maximum dose per treatment period that can be administered as per the protocol referenced in the clinical trial authorisation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getMaxDosePerTreatmentPeriod() {
+    public function getMaxDosePerTreatmentPeriod()
+    {
         return $this->maxDosePerTreatmentPeriod;
     }
 
@@ -199,7 +208,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $maxDosePerTreatmentPeriod
      * @return $this
      */
-    public function setMaxDosePerTreatmentPeriod($maxDosePerTreatmentPeriod) {
+    public function setMaxDosePerTreatmentPeriod($maxDosePerTreatmentPeriod)
+    {
         $this->maxDosePerTreatmentPeriod = $maxDosePerTreatmentPeriod;
         return $this;
     }
@@ -208,7 +218,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * The maximum treatment period during which an Investigational Medicinal Product can be administered as per the protocol referenced in the clinical trial authorisation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getMaxTreatmentPeriod() {
+    public function getMaxTreatmentPeriod()
+    {
         return $this->maxTreatmentPeriod;
     }
 
@@ -217,7 +228,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $maxTreatmentPeriod
      * @return $this
      */
-    public function setMaxTreatmentPeriod($maxTreatmentPeriod) {
+    public function setMaxTreatmentPeriod($maxTreatmentPeriod)
+    {
         $this->maxTreatmentPeriod = $maxTreatmentPeriod;
         return $this;
     }
@@ -226,7 +238,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * A species for which this route applies.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPharmaceutical\FHIRMedicinalProductPharmaceuticalTargetSpecies[]
      */
-    public function getTargetSpecies() {
+    public function getTargetSpecies()
+    {
         return $this->targetSpecies;
     }
 
@@ -235,7 +248,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPharmaceutical\FHIRMedicinalProductPharmaceuticalTargetSpecies $targetSpecies
      * @return $this
      */
-    public function addTargetSpecies($targetSpecies) {
+    public function addTargetSpecies($targetSpecies)
+    {
         $this->targetSpecies[] = $targetSpecies;
         return $this;
     }
@@ -243,14 +257,16 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -272,7 +288,7 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
             }
             if (isset($data['targetSpecies'])) {
                 if (is_array($data['targetSpecies'])) {
-                    foreach($data['targetSpecies'] as $d) {
+                    foreach ($data['targetSpecies'] as $d) {
                         $this->addTargetSpecies($d);
                     }
                 } else {
@@ -288,24 +304,38 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->firstDose)) $json['firstDose'] = $this->firstDose;
-        if (isset($this->maxSingleDose)) $json['maxSingleDose'] = $this->maxSingleDose;
-        if (isset($this->maxDosePerDay)) $json['maxDosePerDay'] = $this->maxDosePerDay;
-        if (isset($this->maxDosePerTreatmentPeriod)) $json['maxDosePerTreatmentPeriod'] = $this->maxDosePerTreatmentPeriod;
-        if (isset($this->maxTreatmentPeriod)) $json['maxTreatmentPeriod'] = $this->maxTreatmentPeriod;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->firstDose)) {
+            $json['firstDose'] = $this->firstDose;
+        }
+        if (isset($this->maxSingleDose)) {
+            $json['maxSingleDose'] = $this->maxSingleDose;
+        }
+        if (isset($this->maxDosePerDay)) {
+            $json['maxDosePerDay'] = $this->maxDosePerDay;
+        }
+        if (isset($this->maxDosePerTreatmentPeriod)) {
+            $json['maxDosePerTreatmentPeriod'] = $this->maxDosePerTreatmentPeriod;
+        }
+        if (isset($this->maxTreatmentPeriod)) {
+            $json['maxTreatmentPeriod'] = $this->maxTreatmentPeriod;
+        }
         if (0 < count($this->targetSpecies)) {
             $json['targetSpecies'] = [];
-            foreach($this->targetSpecies as $targetSpecies) {
+            foreach ($this->targetSpecies as $targetSpecies) {
                 $json['targetSpecies'][] = $targetSpecies;
             }
         }
@@ -317,23 +347,38 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalRouteOfAdministration xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalRouteOfAdministration>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalRouteOfAdministration xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalRouteOfAdministration>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->firstDose)) $this->firstDose->xmlSerialize(true, $sxe->addChild('firstDose'));
-        if (isset($this->maxSingleDose)) $this->maxSingleDose->xmlSerialize(true, $sxe->addChild('maxSingleDose'));
-        if (isset($this->maxDosePerDay)) $this->maxDosePerDay->xmlSerialize(true, $sxe->addChild('maxDosePerDay'));
-        if (isset($this->maxDosePerTreatmentPeriod)) $this->maxDosePerTreatmentPeriod->xmlSerialize(true, $sxe->addChild('maxDosePerTreatmentPeriod'));
-        if (isset($this->maxTreatmentPeriod)) $this->maxTreatmentPeriod->xmlSerialize(true, $sxe->addChild('maxTreatmentPeriod'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->firstDose)) {
+            $this->firstDose->xmlSerialize(true, $sxe->addChild('firstDose'));
+        }
+        if (isset($this->maxSingleDose)) {
+            $this->maxSingleDose->xmlSerialize(true, $sxe->addChild('maxSingleDose'));
+        }
+        if (isset($this->maxDosePerDay)) {
+            $this->maxDosePerDay->xmlSerialize(true, $sxe->addChild('maxDosePerDay'));
+        }
+        if (isset($this->maxDosePerTreatmentPeriod)) {
+            $this->maxDosePerTreatmentPeriod->xmlSerialize(true, $sxe->addChild('maxDosePerTreatmentPeriod'));
+        }
+        if (isset($this->maxTreatmentPeriod)) {
+            $this->maxTreatmentPeriod->xmlSerialize(true, $sxe->addChild('maxTreatmentPeriod'));
+        }
         if (0 < count($this->targetSpecies)) {
-            foreach($this->targetSpecies as $targetSpecies) {
+            foreach ($this->targetSpecies as $targetSpecies) {
                 $targetSpecies->xmlSerialize(true, $sxe->addChild('targetSpecies'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

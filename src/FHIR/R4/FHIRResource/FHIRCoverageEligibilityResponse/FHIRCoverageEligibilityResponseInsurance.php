@@ -100,7 +100,8 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
      * Reference to the insurance card level information contained in the Coverage resource. The coverage issuing insurer will use these details to locate the patient's actual coverage within the insurer's information system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCoverage() {
+    public function getCoverage()
+    {
         return $this->coverage;
     }
 
@@ -109,7 +110,8 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $coverage
      * @return $this
      */
-    public function setCoverage($coverage) {
+    public function setCoverage($coverage)
+    {
         $this->coverage = $coverage;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
      * Flag indicating if the coverage provided is inforce currently if no service date(s) specified or for the whole duration of the service dates.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getInforce() {
+    public function getInforce()
+    {
         return $this->inforce;
     }
 
@@ -127,7 +130,8 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $inforce
      * @return $this
      */
-    public function setInforce($inforce) {
+    public function setInforce($inforce)
+    {
         $this->inforce = $inforce;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
      * The term of the benefits documented in this response.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getBenefitPeriod() {
+    public function getBenefitPeriod()
+    {
         return $this->benefitPeriod;
     }
 
@@ -145,7 +150,8 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $benefitPeriod
      * @return $this
      */
-    public function setBenefitPeriod($benefitPeriod) {
+    public function setBenefitPeriod($benefitPeriod)
+    {
         $this->benefitPeriod = $benefitPeriod;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
      * Benefits and optionally current balances, and authorization details by category or service.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityResponse\FHIRCoverageEligibilityResponseItem[]
      */
-    public function getItem() {
+    public function getItem()
+    {
         return $this->item;
     }
 
@@ -163,7 +170,8 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityResponse\FHIRCoverageEligibilityResponseItem $item
      * @return $this
      */
-    public function addItem($item) {
+    public function addItem($item)
+    {
         $this->item[] = $item;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['coverage'])) {
                 $this->setCoverage($data['coverage']);
@@ -191,7 +201,7 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
             }
             if (isset($data['item'])) {
                 if (is_array($data['item'])) {
-                    foreach($data['item'] as $d) {
+                    foreach ($data['item'] as $d) {
                         $this->addItem($d);
                     }
                 } else {
@@ -207,21 +217,29 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->coverage)) $json['coverage'] = $this->coverage;
-        if (isset($this->inforce)) $json['inforce'] = $this->inforce;
-        if (isset($this->benefitPeriod)) $json['benefitPeriod'] = $this->benefitPeriod;
+        if (isset($this->coverage)) {
+            $json['coverage'] = $this->coverage;
+        }
+        if (isset($this->inforce)) {
+            $json['inforce'] = $this->inforce;
+        }
+        if (isset($this->benefitPeriod)) {
+            $json['benefitPeriod'] = $this->benefitPeriod;
+        }
         if (0 < count($this->item)) {
             $json['item'] = [];
-            foreach($this->item as $item) {
+            foreach ($this->item as $item) {
                 $json['item'][] = $item;
             }
         }
@@ -233,20 +251,29 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CoverageEligibilityResponseInsurance xmlns="http://hl7.org/fhir"></CoverageEligibilityResponseInsurance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CoverageEligibilityResponseInsurance xmlns="http://hl7.org/fhir"></CoverageEligibilityResponseInsurance>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->coverage)) $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
-        if (isset($this->inforce)) $this->inforce->xmlSerialize(true, $sxe->addChild('inforce'));
-        if (isset($this->benefitPeriod)) $this->benefitPeriod->xmlSerialize(true, $sxe->addChild('benefitPeriod'));
+        if (isset($this->coverage)) {
+            $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
+        }
+        if (isset($this->inforce)) {
+            $this->inforce->xmlSerialize(true, $sxe->addChild('inforce'));
+        }
+        if (isset($this->benefitPeriod)) {
+            $this->benefitPeriod->xmlSerialize(true, $sxe->addChild('benefitPeriod'));
+        }
         if (0 < count($this->item)) {
-            foreach($this->item as $item) {
+            foreach ($this->item as $item) {
                 $item->xmlSerialize(true, $sxe->addChild('item'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -101,7 +101,8 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
      * An internal reference to the definition of a mapping.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getIdentity() {
+    public function getIdentity()
+    {
         return $this->identity;
     }
 
@@ -110,7 +111,8 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $identity
      * @return $this
      */
-    public function setIdentity($identity) {
+    public function setIdentity($identity)
+    {
         $this->identity = $identity;
         return $this;
     }
@@ -119,7 +121,8 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
      * Identifies the computable language in which mapping.map is expressed.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
@@ -128,7 +131,8 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $language
      * @return $this
      */
-    public function setLanguage($language) {
+    public function setLanguage($language)
+    {
         $this->language = $language;
         return $this;
     }
@@ -137,7 +141,8 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
      * Expresses what part of the target specification corresponds to this element.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getMap() {
+    public function getMap()
+    {
         return $this->map;
     }
 
@@ -146,7 +151,8 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $map
      * @return $this
      */
-    public function setMap($map) {
+    public function setMap($map)
+    {
         $this->map = $map;
         return $this;
     }
@@ -155,7 +161,8 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
      * Comments that provide information about the mapping or its use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -164,7 +171,8 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -172,14 +180,16 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identity'])) {
                 $this->setIdentity($data['identity']);
@@ -202,19 +212,29 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->identity)) $json['identity'] = $this->identity;
-        if (isset($this->language)) $json['language'] = $this->language;
-        if (isset($this->map)) $json['map'] = $this->map;
-        if (isset($this->comment)) $json['comment'] = $this->comment;
+        if (isset($this->identity)) {
+            $json['identity'] = $this->identity;
+        }
+        if (isset($this->language)) {
+            $json['language'] = $this->language;
+        }
+        if (isset($this->map)) {
+            $json['map'] = $this->map;
+        }
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
         return $json;
     }
 
@@ -223,16 +243,27 @@ class FHIRElementDefinitionMapping extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ElementDefinitionMapping xmlns="http://hl7.org/fhir"></ElementDefinitionMapping>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ElementDefinitionMapping xmlns="http://hl7.org/fhir"></ElementDefinitionMapping>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identity)) $this->identity->xmlSerialize(true, $sxe->addChild('identity'));
-        if (isset($this->language)) $this->language->xmlSerialize(true, $sxe->addChild('language'));
-        if (isset($this->map)) $this->map->xmlSerialize(true, $sxe->addChild('map'));
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->identity)) {
+            $this->identity->xmlSerialize(true, $sxe->addChild('identity'));
+        }
+        if (isset($this->language)) {
+            $this->language->xmlSerialize(true, $sxe->addChild('language'));
+        }
+        if (isset($this->map)) {
+            $this->map->xmlSerialize(true, $sxe->addChild('map'));
+        }
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

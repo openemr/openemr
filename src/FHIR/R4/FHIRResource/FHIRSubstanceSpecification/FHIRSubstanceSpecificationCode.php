@@ -106,7 +106,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * The specific code.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -115,7 +116,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -124,7 +126,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * Status of the code assignment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -133,7 +136,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -142,7 +146,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * The date at which the code status is changed as part of the terminology maintenance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getStatusDate() {
+    public function getStatusDate()
+    {
         return $this->statusDate;
     }
 
@@ -151,7 +156,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $statusDate
      * @return $this
      */
-    public function setStatusDate($statusDate) {
+    public function setStatusDate($statusDate)
+    {
         $this->statusDate = $statusDate;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * Any comment can be provided in this field, if necessary.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -169,7 +176,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * Supporting literature.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -187,7 +196,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function addSource($source) {
+    public function addSource($source)
+    {
         $this->source[] = $source;
         return $this;
     }
@@ -195,14 +205,16 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -218,7 +230,7 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
             }
             if (isset($data['source'])) {
                 if (is_array($data['source'])) {
-                    foreach($data['source'] as $d) {
+                    foreach ($data['source'] as $d) {
                         $this->addSource($d);
                     }
                 } else {
@@ -234,22 +246,32 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->statusDate)) $json['statusDate'] = $this->statusDate;
-        if (isset($this->comment)) $json['comment'] = $this->comment;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->statusDate)) {
+            $json['statusDate'] = $this->statusDate;
+        }
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
         if (0 < count($this->source)) {
             $json['source'] = [];
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $json['source'][] = $source;
             }
         }
@@ -261,21 +283,32 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecificationCode xmlns="http://hl7.org/fhir"></SubstanceSpecificationCode>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecificationCode xmlns="http://hl7.org/fhir"></SubstanceSpecificationCode>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->statusDate)) $this->statusDate->xmlSerialize(true, $sxe->addChild('statusDate'));
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->statusDate)) {
+            $this->statusDate->xmlSerialize(true, $sxe->addChild('statusDate'));
+        }
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
         if (0 < count($this->source)) {
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $source->xmlSerialize(true, $sxe->addChild('source'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

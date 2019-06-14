@@ -120,7 +120,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
 The dosage instructions should reflect the dosage of the medication that was administered.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
@@ -131,7 +132,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $text
      * @return $this
      */
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
         return $this;
     }
@@ -140,7 +142,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * A coded specification of the anatomic site where the medication first entered the body.  For example, "left arm".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSite() {
+    public function getSite()
+    {
         return $this->site;
     }
 
@@ -149,7 +152,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $site
      * @return $this
      */
-    public function setSite($site) {
+    public function setSite($site)
+    {
         $this->site = $site;
         return $this;
     }
@@ -158,7 +162,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * A code specifying the route or physiological path of administration of a therapeutic agent into or onto the patient.  For example, topical, intravenous, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRoute() {
+    public function getRoute()
+    {
         return $this->route;
     }
 
@@ -167,7 +172,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $route
      * @return $this
      */
-    public function setRoute($route) {
+    public function setRoute($route)
+    {
         $this->route = $route;
         return $this;
     }
@@ -176,7 +182,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * A coded value indicating the method by which the medication is intended to be or was introduced into or on the body.  This attribute will most often NOT be populated.  It is most commonly used for injections.  For example, Slow Push, Deep IV.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method;
     }
 
@@ -185,7 +192,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $method
      * @return $this
      */
-    public function setMethod($method) {
+    public function setMethod($method)
+    {
         $this->method = $method;
         return $this;
     }
@@ -194,7 +202,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * The amount of the medication given at one administration event.   Use this value when the administration is essentially an instantaneous event such as a swallowing a tablet or giving an injection.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getDose() {
+    public function getDose()
+    {
         return $this->dose;
     }
 
@@ -203,7 +212,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $dose
      * @return $this
      */
-    public function setDose($dose) {
+    public function setDose($dose)
+    {
         $this->dose = $dose;
         return $this;
     }
@@ -211,7 +221,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getRateRatio() {
+    public function getRateRatio()
+    {
         return $this->rateRatio;
     }
 
@@ -219,7 +230,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $rateRatio
      * @return $this
      */
-    public function setRateRatio($rateRatio) {
+    public function setRateRatio($rateRatio)
+    {
         $this->rateRatio = $rateRatio;
         return $this;
     }
@@ -227,7 +239,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getRateQuantity() {
+    public function getRateQuantity()
+    {
         return $this->rateQuantity;
     }
 
@@ -235,7 +248,8 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $rateQuantity
      * @return $this
      */
-    public function setRateQuantity($rateQuantity) {
+    public function setRateQuantity($rateQuantity)
+    {
         $this->rateQuantity = $rateQuantity;
         return $this;
     }
@@ -243,14 +257,16 @@ The dosage instructions should reflect the dosage of the medication that was adm
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['text'])) {
                 $this->setText($data['text']);
@@ -282,22 +298,38 @@ The dosage instructions should reflect the dosage of the medication that was adm
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->text)) $json['text'] = $this->text;
-        if (isset($this->site)) $json['site'] = $this->site;
-        if (isset($this->route)) $json['route'] = $this->route;
-        if (isset($this->method)) $json['method'] = $this->method;
-        if (isset($this->dose)) $json['dose'] = $this->dose;
-        if (isset($this->rateRatio)) $json['rateRatio'] = $this->rateRatio;
-        if (isset($this->rateQuantity)) $json['rateQuantity'] = $this->rateQuantity;
+        if (isset($this->text)) {
+            $json['text'] = $this->text;
+        }
+        if (isset($this->site)) {
+            $json['site'] = $this->site;
+        }
+        if (isset($this->route)) {
+            $json['route'] = $this->route;
+        }
+        if (isset($this->method)) {
+            $json['method'] = $this->method;
+        }
+        if (isset($this->dose)) {
+            $json['dose'] = $this->dose;
+        }
+        if (isset($this->rateRatio)) {
+            $json['rateRatio'] = $this->rateRatio;
+        }
+        if (isset($this->rateQuantity)) {
+            $json['rateQuantity'] = $this->rateQuantity;
+        }
         return $json;
     }
 
@@ -306,19 +338,36 @@ The dosage instructions should reflect the dosage of the medication that was adm
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicationAdministrationDosage xmlns="http://hl7.org/fhir"></MedicationAdministrationDosage>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicationAdministrationDosage xmlns="http://hl7.org/fhir"></MedicationAdministrationDosage>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->text)) $this->text->xmlSerialize(true, $sxe->addChild('text'));
-        if (isset($this->site)) $this->site->xmlSerialize(true, $sxe->addChild('site'));
-        if (isset($this->route)) $this->route->xmlSerialize(true, $sxe->addChild('route'));
-        if (isset($this->method)) $this->method->xmlSerialize(true, $sxe->addChild('method'));
-        if (isset($this->dose)) $this->dose->xmlSerialize(true, $sxe->addChild('dose'));
-        if (isset($this->rateRatio)) $this->rateRatio->xmlSerialize(true, $sxe->addChild('rateRatio'));
-        if (isset($this->rateQuantity)) $this->rateQuantity->xmlSerialize(true, $sxe->addChild('rateQuantity'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->text)) {
+            $this->text->xmlSerialize(true, $sxe->addChild('text'));
+        }
+        if (isset($this->site)) {
+            $this->site->xmlSerialize(true, $sxe->addChild('site'));
+        }
+        if (isset($this->route)) {
+            $this->route->xmlSerialize(true, $sxe->addChild('route'));
+        }
+        if (isset($this->method)) {
+            $this->method->xmlSerialize(true, $sxe->addChild('method'));
+        }
+        if (isset($this->dose)) {
+            $this->dose->xmlSerialize(true, $sxe->addChild('dose'));
+        }
+        if (isset($this->rateRatio)) {
+            $this->rateRatio->xmlSerialize(true, $sxe->addChild('rateRatio'));
+        }
+        if (isset($this->rateQuantity)) {
+            $this->rateQuantity->xmlSerialize(true, $sxe->addChild('rateQuantity'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

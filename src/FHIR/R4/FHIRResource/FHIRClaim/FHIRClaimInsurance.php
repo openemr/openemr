@@ -118,7 +118,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * A number to uniquely identify insurance entries and provide a sequence of coverages to convey coordination of benefit order.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -127,7 +128,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -136,7 +138,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * A flag to indicate that this Coverage is to be used for adjudication of this claim when set to true.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getFocal() {
+    public function getFocal()
+    {
         return $this->focal;
     }
 
@@ -145,7 +148,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $focal
      * @return $this
      */
-    public function setFocal($focal) {
+    public function setFocal($focal)
+    {
         $this->focal = $focal;
         return $this;
     }
@@ -154,7 +158,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * The business identifier to be used when the claim is sent for adjudication against this insurance policy.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -163,7 +168,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -172,7 +178,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * Reference to the insurance card level information contained in the Coverage resource. The coverage issuing insurer will use these details to locate the patient's actual coverage within the insurer's information system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCoverage() {
+    public function getCoverage()
+    {
         return $this->coverage;
     }
 
@@ -181,7 +188,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $coverage
      * @return $this
      */
-    public function setCoverage($coverage) {
+    public function setCoverage($coverage)
+    {
         $this->coverage = $coverage;
         return $this;
     }
@@ -190,7 +198,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * A business agreement number established between the provider and the insurer for special business processing purposes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getBusinessArrangement() {
+    public function getBusinessArrangement()
+    {
         return $this->businessArrangement;
     }
 
@@ -199,7 +208,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $businessArrangement
      * @return $this
      */
-    public function setBusinessArrangement($businessArrangement) {
+    public function setBusinessArrangement($businessArrangement)
+    {
         $this->businessArrangement = $businessArrangement;
         return $this;
     }
@@ -208,7 +218,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * Reference numbers previously provided by the insurer to the provider to be quoted on subsequent claims containing services or products related to the prior authorization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getPreAuthRef() {
+    public function getPreAuthRef()
+    {
         return $this->preAuthRef;
     }
 
@@ -217,7 +228,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $preAuthRef
      * @return $this
      */
-    public function addPreAuthRef($preAuthRef) {
+    public function addPreAuthRef($preAuthRef)
+    {
         $this->preAuthRef[] = $preAuthRef;
         return $this;
     }
@@ -226,7 +238,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * The result of the adjudication of the line items for the Coverage specified in this insurance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getClaimResponse() {
+    public function getClaimResponse()
+    {
         return $this->claimResponse;
     }
 
@@ -235,7 +248,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $claimResponse
      * @return $this
      */
-    public function setClaimResponse($claimResponse) {
+    public function setClaimResponse($claimResponse)
+    {
         $this->claimResponse = $claimResponse;
         return $this;
     }
@@ -243,14 +257,16 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequence'])) {
                 $this->setSequence($data['sequence']);
@@ -269,7 +285,7 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
             }
             if (isset($data['preAuthRef'])) {
                 if (is_array($data['preAuthRef'])) {
-                    foreach($data['preAuthRef'] as $d) {
+                    foreach ($data['preAuthRef'] as $d) {
                         $this->addPreAuthRef($d);
                     }
                 } else {
@@ -288,27 +304,41 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
-        if (isset($this->focal)) $json['focal'] = $this->focal;
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->coverage)) $json['coverage'] = $this->coverage;
-        if (isset($this->businessArrangement)) $json['businessArrangement'] = $this->businessArrangement;
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
+        if (isset($this->focal)) {
+            $json['focal'] = $this->focal;
+        }
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->coverage)) {
+            $json['coverage'] = $this->coverage;
+        }
+        if (isset($this->businessArrangement)) {
+            $json['businessArrangement'] = $this->businessArrangement;
+        }
         if (0 < count($this->preAuthRef)) {
             $json['preAuthRef'] = [];
-            foreach($this->preAuthRef as $preAuthRef) {
+            foreach ($this->preAuthRef as $preAuthRef) {
                 $json['preAuthRef'][] = $preAuthRef;
             }
         }
-        if (isset($this->claimResponse)) $json['claimResponse'] = $this->claimResponse;
+        if (isset($this->claimResponse)) {
+            $json['claimResponse'] = $this->claimResponse;
+        }
         return $json;
     }
 
@@ -317,23 +347,38 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimInsurance xmlns="http://hl7.org/fhir"></ClaimInsurance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimInsurance xmlns="http://hl7.org/fhir"></ClaimInsurance>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
-        if (isset($this->focal)) $this->focal->xmlSerialize(true, $sxe->addChild('focal'));
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->coverage)) $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
-        if (isset($this->businessArrangement)) $this->businessArrangement->xmlSerialize(true, $sxe->addChild('businessArrangement'));
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
+        if (isset($this->focal)) {
+            $this->focal->xmlSerialize(true, $sxe->addChild('focal'));
+        }
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->coverage)) {
+            $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
+        }
+        if (isset($this->businessArrangement)) {
+            $this->businessArrangement->xmlSerialize(true, $sxe->addChild('businessArrangement'));
+        }
         if (0 < count($this->preAuthRef)) {
-            foreach($this->preAuthRef as $preAuthRef) {
+            foreach ($this->preAuthRef as $preAuthRef) {
                 $preAuthRef->xmlSerialize(true, $sxe->addChild('preAuthRef'));
             }
         }
-        if (isset($this->claimResponse)) $this->claimResponse->xmlSerialize(true, $sxe->addChild('claimResponse'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->claimResponse)) {
+            $this->claimResponse->xmlSerialize(true, $sxe->addChild('claimResponse'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

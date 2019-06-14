@@ -155,7 +155,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * A code that classifies the general type of observation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -164,7 +165,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function addCategory($category) {
+    public function addCategory($category)
+    {
         $this->category[] = $category;
         return $this;
     }
@@ -173,7 +175,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * Describes what will be observed. Sometimes this is called the observation "name".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -182,7 +185,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -191,7 +195,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * A unique identifier assigned to this ObservationDefinition artifact.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -200,7 +205,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -209,7 +215,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * The data types allowed for the value element of the instance observations conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRObservationDataType[]
      */
-    public function getPermittedDataType() {
+    public function getPermittedDataType()
+    {
         return $this->permittedDataType;
     }
 
@@ -218,7 +225,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRObservationDataType $permittedDataType
      * @return $this
      */
-    public function addPermittedDataType($permittedDataType) {
+    public function addPermittedDataType($permittedDataType)
+    {
         $this->permittedDataType[] = $permittedDataType;
         return $this;
     }
@@ -227,7 +235,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * Multiple results allowed for observations conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getMultipleResultsAllowed() {
+    public function getMultipleResultsAllowed()
+    {
         return $this->multipleResultsAllowed;
     }
 
@@ -236,7 +245,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $multipleResultsAllowed
      * @return $this
      */
-    public function setMultipleResultsAllowed($multipleResultsAllowed) {
+    public function setMultipleResultsAllowed($multipleResultsAllowed)
+    {
         $this->multipleResultsAllowed = $multipleResultsAllowed;
         return $this;
     }
@@ -245,7 +255,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * The method or technique used to perform the observation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method;
     }
 
@@ -254,7 +265,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $method
      * @return $this
      */
-    public function setMethod($method) {
+    public function setMethod($method)
+    {
         $this->method = $method;
         return $this;
     }
@@ -263,7 +275,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * The preferred name to be used when reporting the results of observations conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPreferredReportName() {
+    public function getPreferredReportName()
+    {
         return $this->preferredReportName;
     }
 
@@ -272,7 +285,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $preferredReportName
      * @return $this
      */
-    public function setPreferredReportName($preferredReportName) {
+    public function setPreferredReportName($preferredReportName)
+    {
         $this->preferredReportName = $preferredReportName;
         return $this;
     }
@@ -281,7 +295,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * Characteristics for quantitative results of this observation.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRObservationDefinition\FHIRObservationDefinitionQuantitativeDetails
      */
-    public function getQuantitativeDetails() {
+    public function getQuantitativeDetails()
+    {
         return $this->quantitativeDetails;
     }
 
@@ -290,7 +305,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRObservationDefinition\FHIRObservationDefinitionQuantitativeDetails $quantitativeDetails
      * @return $this
      */
-    public function setQuantitativeDetails($quantitativeDetails) {
+    public function setQuantitativeDetails($quantitativeDetails)
+    {
         $this->quantitativeDetails = $quantitativeDetails;
         return $this;
     }
@@ -299,7 +315,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * Multiple  ranges of results qualified by different contexts for ordinal or continuous observations conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRObservationDefinition\FHIRObservationDefinitionQualifiedInterval[]
      */
-    public function getQualifiedInterval() {
+    public function getQualifiedInterval()
+    {
         return $this->qualifiedInterval;
     }
 
@@ -308,7 +325,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRObservationDefinition\FHIRObservationDefinitionQualifiedInterval $qualifiedInterval
      * @return $this
      */
-    public function addQualifiedInterval($qualifiedInterval) {
+    public function addQualifiedInterval($qualifiedInterval)
+    {
         $this->qualifiedInterval[] = $qualifiedInterval;
         return $this;
     }
@@ -317,7 +335,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * The set of valid coded results for the observations  conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getValidCodedValueSet() {
+    public function getValidCodedValueSet()
+    {
         return $this->validCodedValueSet;
     }
 
@@ -326,7 +345,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $validCodedValueSet
      * @return $this
      */
-    public function setValidCodedValueSet($validCodedValueSet) {
+    public function setValidCodedValueSet($validCodedValueSet)
+    {
         $this->validCodedValueSet = $validCodedValueSet;
         return $this;
     }
@@ -335,7 +355,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * The set of normal coded results for the observations conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getNormalCodedValueSet() {
+    public function getNormalCodedValueSet()
+    {
         return $this->normalCodedValueSet;
     }
 
@@ -344,7 +365,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $normalCodedValueSet
      * @return $this
      */
-    public function setNormalCodedValueSet($normalCodedValueSet) {
+    public function setNormalCodedValueSet($normalCodedValueSet)
+    {
         $this->normalCodedValueSet = $normalCodedValueSet;
         return $this;
     }
@@ -353,7 +375,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * The set of abnormal coded results for the observation conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAbnormalCodedValueSet() {
+    public function getAbnormalCodedValueSet()
+    {
         return $this->abnormalCodedValueSet;
     }
 
@@ -362,7 +385,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $abnormalCodedValueSet
      * @return $this
      */
-    public function setAbnormalCodedValueSet($abnormalCodedValueSet) {
+    public function setAbnormalCodedValueSet($abnormalCodedValueSet)
+    {
         $this->abnormalCodedValueSet = $abnormalCodedValueSet;
         return $this;
     }
@@ -371,7 +395,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * The set of critical coded results for the observation conforming to this ObservationDefinition.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getCriticalCodedValueSet() {
+    public function getCriticalCodedValueSet()
+    {
         return $this->criticalCodedValueSet;
     }
 
@@ -380,7 +405,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $criticalCodedValueSet
      * @return $this
      */
-    public function setCriticalCodedValueSet($criticalCodedValueSet) {
+    public function setCriticalCodedValueSet($criticalCodedValueSet)
+    {
         $this->criticalCodedValueSet = $criticalCodedValueSet;
         return $this;
     }
@@ -388,18 +414,20 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['category'])) {
                 if (is_array($data['category'])) {
-                    foreach($data['category'] as $d) {
+                    foreach ($data['category'] as $d) {
                         $this->addCategory($d);
                     }
                 } else {
@@ -411,7 +439,7 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -420,7 +448,7 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['permittedDataType'])) {
                 if (is_array($data['permittedDataType'])) {
-                    foreach($data['permittedDataType'] as $d) {
+                    foreach ($data['permittedDataType'] as $d) {
                         $this->addPermittedDataType($d);
                     }
                 } else {
@@ -441,7 +469,7 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
             }
             if (isset($data['qualifiedInterval'])) {
                 if (is_array($data['qualifiedInterval'])) {
-                    foreach($data['qualifiedInterval'] as $d) {
+                    foreach ($data['qualifiedInterval'] as $d) {
                         $this->addQualifiedInterval($d);
                     }
                 } else {
@@ -469,49 +497,69 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->category)) {
             $json['category'] = [];
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $json['category'][] = $category;
             }
         }
-        if (isset($this->code)) $json['code'] = $this->code;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->permittedDataType)) {
             $json['permittedDataType'] = [];
-            foreach($this->permittedDataType as $permittedDataType) {
+            foreach ($this->permittedDataType as $permittedDataType) {
                 $json['permittedDataType'][] = $permittedDataType;
             }
         }
-        if (isset($this->multipleResultsAllowed)) $json['multipleResultsAllowed'] = $this->multipleResultsAllowed;
-        if (isset($this->method)) $json['method'] = $this->method;
-        if (isset($this->preferredReportName)) $json['preferredReportName'] = $this->preferredReportName;
-        if (isset($this->quantitativeDetails)) $json['quantitativeDetails'] = $this->quantitativeDetails;
+        if (isset($this->multipleResultsAllowed)) {
+            $json['multipleResultsAllowed'] = $this->multipleResultsAllowed;
+        }
+        if (isset($this->method)) {
+            $json['method'] = $this->method;
+        }
+        if (isset($this->preferredReportName)) {
+            $json['preferredReportName'] = $this->preferredReportName;
+        }
+        if (isset($this->quantitativeDetails)) {
+            $json['quantitativeDetails'] = $this->quantitativeDetails;
+        }
         if (0 < count($this->qualifiedInterval)) {
             $json['qualifiedInterval'] = [];
-            foreach($this->qualifiedInterval as $qualifiedInterval) {
+            foreach ($this->qualifiedInterval as $qualifiedInterval) {
                 $json['qualifiedInterval'][] = $qualifiedInterval;
             }
         }
-        if (isset($this->validCodedValueSet)) $json['validCodedValueSet'] = $this->validCodedValueSet;
-        if (isset($this->normalCodedValueSet)) $json['normalCodedValueSet'] = $this->normalCodedValueSet;
-        if (isset($this->abnormalCodedValueSet)) $json['abnormalCodedValueSet'] = $this->abnormalCodedValueSet;
-        if (isset($this->criticalCodedValueSet)) $json['criticalCodedValueSet'] = $this->criticalCodedValueSet;
+        if (isset($this->validCodedValueSet)) {
+            $json['validCodedValueSet'] = $this->validCodedValueSet;
+        }
+        if (isset($this->normalCodedValueSet)) {
+            $json['normalCodedValueSet'] = $this->normalCodedValueSet;
+        }
+        if (isset($this->abnormalCodedValueSet)) {
+            $json['abnormalCodedValueSet'] = $this->abnormalCodedValueSet;
+        }
+        if (isset($this->criticalCodedValueSet)) {
+            $json['criticalCodedValueSet'] = $this->criticalCodedValueSet;
+        }
         return $json;
     }
 
@@ -520,41 +568,62 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ObservationDefinition xmlns="http://hl7.org/fhir"></ObservationDefinition>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ObservationDefinition xmlns="http://hl7.org/fhir"></ObservationDefinition>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->category)) {
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $category->xmlSerialize(true, $sxe->addChild('category'));
             }
         }
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->permittedDataType)) {
-            foreach($this->permittedDataType as $permittedDataType) {
+            foreach ($this->permittedDataType as $permittedDataType) {
                 $permittedDataType->xmlSerialize(true, $sxe->addChild('permittedDataType'));
             }
         }
-        if (isset($this->multipleResultsAllowed)) $this->multipleResultsAllowed->xmlSerialize(true, $sxe->addChild('multipleResultsAllowed'));
-        if (isset($this->method)) $this->method->xmlSerialize(true, $sxe->addChild('method'));
-        if (isset($this->preferredReportName)) $this->preferredReportName->xmlSerialize(true, $sxe->addChild('preferredReportName'));
-        if (isset($this->quantitativeDetails)) $this->quantitativeDetails->xmlSerialize(true, $sxe->addChild('quantitativeDetails'));
+        if (isset($this->multipleResultsAllowed)) {
+            $this->multipleResultsAllowed->xmlSerialize(true, $sxe->addChild('multipleResultsAllowed'));
+        }
+        if (isset($this->method)) {
+            $this->method->xmlSerialize(true, $sxe->addChild('method'));
+        }
+        if (isset($this->preferredReportName)) {
+            $this->preferredReportName->xmlSerialize(true, $sxe->addChild('preferredReportName'));
+        }
+        if (isset($this->quantitativeDetails)) {
+            $this->quantitativeDetails->xmlSerialize(true, $sxe->addChild('quantitativeDetails'));
+        }
         if (0 < count($this->qualifiedInterval)) {
-            foreach($this->qualifiedInterval as $qualifiedInterval) {
+            foreach ($this->qualifiedInterval as $qualifiedInterval) {
                 $qualifiedInterval->xmlSerialize(true, $sxe->addChild('qualifiedInterval'));
             }
         }
-        if (isset($this->validCodedValueSet)) $this->validCodedValueSet->xmlSerialize(true, $sxe->addChild('validCodedValueSet'));
-        if (isset($this->normalCodedValueSet)) $this->normalCodedValueSet->xmlSerialize(true, $sxe->addChild('normalCodedValueSet'));
-        if (isset($this->abnormalCodedValueSet)) $this->abnormalCodedValueSet->xmlSerialize(true, $sxe->addChild('abnormalCodedValueSet'));
-        if (isset($this->criticalCodedValueSet)) $this->criticalCodedValueSet->xmlSerialize(true, $sxe->addChild('criticalCodedValueSet'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->validCodedValueSet)) {
+            $this->validCodedValueSet->xmlSerialize(true, $sxe->addChild('validCodedValueSet'));
+        }
+        if (isset($this->normalCodedValueSet)) {
+            $this->normalCodedValueSet->xmlSerialize(true, $sxe->addChild('normalCodedValueSet'));
+        }
+        if (isset($this->abnormalCodedValueSet)) {
+            $this->abnormalCodedValueSet->xmlSerialize(true, $sxe->addChild('abnormalCodedValueSet'));
+        }
+        if (isset($this->criticalCodedValueSet)) {
+            $this->criticalCodedValueSet->xmlSerialize(true, $sxe->addChild('criticalCodedValueSet'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

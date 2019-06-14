@@ -94,7 +94,8 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
      * A simple summary of the stage such as "Stage 3". The determination of the stage is disease-specific.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSummary() {
+    public function getSummary()
+    {
         return $this->summary;
     }
 
@@ -103,7 +104,8 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $summary
      * @return $this
      */
-    public function setSummary($summary) {
+    public function setSummary($summary)
+    {
         $this->summary = $summary;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
      * Reference to a formal record of the evidence on which the staging assessment is based.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getAssessment() {
+    public function getAssessment()
+    {
         return $this->assessment;
     }
 
@@ -121,7 +124,8 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $assessment
      * @return $this
      */
-    public function addAssessment($assessment) {
+    public function addAssessment($assessment)
+    {
         $this->assessment[] = $assessment;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
      * The kind of staging, such as pathological or clinical staging.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -139,7 +144,8 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -147,21 +153,23 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['summary'])) {
                 $this->setSummary($data['summary']);
             }
             if (isset($data['assessment'])) {
                 if (is_array($data['assessment'])) {
-                    foreach($data['assessment'] as $d) {
+                    foreach ($data['assessment'] as $d) {
                         $this->addAssessment($d);
                     }
                 } else {
@@ -180,23 +188,29 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->summary)) $json['summary'] = $this->summary;
+        if (isset($this->summary)) {
+            $json['summary'] = $this->summary;
+        }
         if (0 < count($this->assessment)) {
             $json['assessment'] = [];
-            foreach($this->assessment as $assessment) {
+            foreach ($this->assessment as $assessment) {
                 $json['assessment'][] = $assessment;
             }
         }
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         return $json;
     }
 
@@ -205,19 +219,26 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ConditionStage xmlns="http://hl7.org/fhir"></ConditionStage>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ConditionStage xmlns="http://hl7.org/fhir"></ConditionStage>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->summary)) $this->summary->xmlSerialize(true, $sxe->addChild('summary'));
+        if (isset($this->summary)) {
+            $this->summary->xmlSerialize(true, $sxe->addChild('summary'));
+        }
         if (0 < count($this->assessment)) {
-            foreach($this->assessment as $assessment) {
+            foreach ($this->assessment as $assessment) {
                 $assessment->xmlSerialize(true, $sxe->addChild('assessment'));
             }
         }
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

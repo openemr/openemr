@@ -88,7 +88,8 @@ class FHIRInvoiceParticipant extends FHIRBackboneElement implements \JsonSeriali
      * Describes the type of involvement (e.g. transcriptionist, creator etc.). If the invoice has been created automatically, the Participant may be a billing engine or another kind of device.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRole() {
+    public function getRole()
+    {
         return $this->role;
     }
 
@@ -97,7 +98,8 @@ class FHIRInvoiceParticipant extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $role
      * @return $this
      */
-    public function setRole($role) {
+    public function setRole($role)
+    {
         $this->role = $role;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRInvoiceParticipant extends FHIRBackboneElement implements \JsonSeriali
      * The device, practitioner, etc. who performed or participated in the service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getActor() {
+    public function getActor()
+    {
         return $this->actor;
     }
 
@@ -115,7 +118,8 @@ class FHIRInvoiceParticipant extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $actor
      * @return $this
      */
-    public function setActor($actor) {
+    public function setActor($actor)
+    {
         $this->actor = $actor;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRInvoiceParticipant extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['role'])) {
                 $this->setRole($data['role']);
@@ -147,17 +153,23 @@ class FHIRInvoiceParticipant extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->role)) $json['role'] = $this->role;
-        if (isset($this->actor)) $json['actor'] = $this->actor;
+        if (isset($this->role)) {
+            $json['role'] = $this->role;
+        }
+        if (isset($this->actor)) {
+            $json['actor'] = $this->actor;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRInvoiceParticipant extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InvoiceParticipant xmlns="http://hl7.org/fhir"></InvoiceParticipant>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InvoiceParticipant xmlns="http://hl7.org/fhir"></InvoiceParticipant>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->role)) $this->role->xmlSerialize(true, $sxe->addChild('role'));
-        if (isset($this->actor)) $this->actor->xmlSerialize(true, $sxe->addChild('actor'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->role)) {
+            $this->role->xmlSerialize(true, $sxe->addChild('role'));
+        }
+        if (isset($this->actor)) {
+            $this->actor->xmlSerialize(true, $sxe->addChild('actor'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

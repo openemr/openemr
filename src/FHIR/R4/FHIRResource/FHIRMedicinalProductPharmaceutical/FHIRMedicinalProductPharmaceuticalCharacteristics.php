@@ -88,7 +88,8 @@ class FHIRMedicinalProductPharmaceuticalCharacteristics extends FHIRBackboneElem
      * A coded characteristic.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -97,7 +98,8 @@ class FHIRMedicinalProductPharmaceuticalCharacteristics extends FHIRBackboneElem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRMedicinalProductPharmaceuticalCharacteristics extends FHIRBackboneElem
      * The status of characteristic e.g. assigned or pending.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -115,7 +118,8 @@ class FHIRMedicinalProductPharmaceuticalCharacteristics extends FHIRBackboneElem
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRMedicinalProductPharmaceuticalCharacteristics extends FHIRBackboneElem
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
@@ -147,17 +153,23 @@ class FHIRMedicinalProductPharmaceuticalCharacteristics extends FHIRBackboneElem
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->status)) $json['status'] = $this->status;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRMedicinalProductPharmaceuticalCharacteristics extends FHIRBackboneElem
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalCharacteristics xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalCharacteristics>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceuticalCharacteristics xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceuticalCharacteristics>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

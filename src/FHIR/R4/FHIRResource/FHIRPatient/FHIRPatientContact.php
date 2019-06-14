@@ -118,7 +118,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * The nature of the relationship between the patient and the contact person.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getRelationship() {
+    public function getRelationship()
+    {
         return $this->relationship;
     }
 
@@ -127,7 +128,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $relationship
      * @return $this
      */
-    public function addRelationship($relationship) {
+    public function addRelationship($relationship)
+    {
         $this->relationship[] = $relationship;
         return $this;
     }
@@ -136,7 +138,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * A name associated with the contact person.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -145,7 +148,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -154,7 +158,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * A contact detail for the person, e.g. a telephone number or an email address.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint[]
      */
-    public function getTelecom() {
+    public function getTelecom()
+    {
         return $this->telecom;
     }
 
@@ -163,7 +168,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint $telecom
      * @return $this
      */
-    public function addTelecom($telecom) {
+    public function addTelecom($telecom)
+    {
         $this->telecom[] = $telecom;
         return $this;
     }
@@ -172,7 +178,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * Address for the contact person.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress
      */
-    public function getAddress() {
+    public function getAddress()
+    {
         return $this->address;
     }
 
@@ -181,7 +188,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $address
      * @return $this
      */
-    public function setAddress($address) {
+    public function setAddress($address)
+    {
         $this->address = $address;
         return $this;
     }
@@ -190,7 +198,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * Administrative Gender - the gender that the contact person is considered to have for administration and record keeping purposes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender
      */
-    public function getGender() {
+    public function getGender()
+    {
         return $this->gender;
     }
 
@@ -199,7 +208,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender $gender
      * @return $this
      */
-    public function setGender($gender) {
+    public function setGender($gender)
+    {
         $this->gender = $gender;
         return $this;
     }
@@ -208,7 +218,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * Organization on behalf of which the contact is acting or for which the contact is working.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOrganization() {
+    public function getOrganization()
+    {
         return $this->organization;
     }
 
@@ -217,7 +228,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $organization
      * @return $this
      */
-    public function setOrganization($organization) {
+    public function setOrganization($organization)
+    {
         $this->organization = $organization;
         return $this;
     }
@@ -226,7 +238,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * The period during which this contact person or organization is valid to be contacted relating to this patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -235,7 +248,8 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -243,18 +257,20 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['relationship'])) {
                 if (is_array($data['relationship'])) {
-                    foreach($data['relationship'] as $d) {
+                    foreach ($data['relationship'] as $d) {
                         $this->addRelationship($d);
                     }
                 } else {
@@ -266,7 +282,7 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
             }
             if (isset($data['telecom'])) {
                 if (is_array($data['telecom'])) {
-                    foreach($data['telecom'] as $d) {
+                    foreach ($data['telecom'] as $d) {
                         $this->addTelecom($d);
                     }
                 } else {
@@ -294,32 +310,44 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->relationship)) {
             $json['relationship'] = [];
-            foreach($this->relationship as $relationship) {
+            foreach ($this->relationship as $relationship) {
                 $json['relationship'][] = $relationship;
             }
         }
-        if (isset($this->name)) $json['name'] = $this->name;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
         if (0 < count($this->telecom)) {
             $json['telecom'] = [];
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $json['telecom'][] = $telecom;
             }
         }
-        if (isset($this->address)) $json['address'] = $this->address;
-        if (isset($this->gender)) $json['gender'] = $this->gender;
-        if (isset($this->organization)) $json['organization'] = $this->organization;
-        if (isset($this->period)) $json['period'] = $this->period;
+        if (isset($this->address)) {
+            $json['address'] = $this->address;
+        }
+        if (isset($this->gender)) {
+            $json['gender'] = $this->gender;
+        }
+        if (isset($this->organization)) {
+            $json['organization'] = $this->organization;
+        }
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
         return $json;
     }
 
@@ -328,27 +356,40 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PatientContact xmlns="http://hl7.org/fhir"></PatientContact>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PatientContact xmlns="http://hl7.org/fhir"></PatientContact>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->relationship)) {
-            foreach($this->relationship as $relationship) {
+            foreach ($this->relationship as $relationship) {
                 $relationship->xmlSerialize(true, $sxe->addChild('relationship'));
             }
         }
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
         if (0 < count($this->telecom)) {
-            foreach($this->telecom as $telecom) {
+            foreach ($this->telecom as $telecom) {
                 $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
             }
         }
-        if (isset($this->address)) $this->address->xmlSerialize(true, $sxe->addChild('address'));
-        if (isset($this->gender)) $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
-        if (isset($this->organization)) $this->organization->xmlSerialize(true, $sxe->addChild('organization'));
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->address)) {
+            $this->address->xmlSerialize(true, $sxe->addChild('address'));
+        }
+        if (isset($this->gender)) {
+            $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
+        }
+        if (isset($this->organization)) {
+            $this->organization->xmlSerialize(true, $sxe->addChild('organization'));
+        }
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

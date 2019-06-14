@@ -142,7 +142,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * Specification of the participation type the user plays when performing the event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -151,7 +152,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -160,7 +162,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * The security role that the user was acting under, that come from local codes defined by the access control security system (e.g. RBAC, ABAC) used in the local context.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getRole() {
+    public function getRole()
+    {
         return $this->role;
     }
 
@@ -169,7 +172,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $role
      * @return $this
      */
-    public function addRole($role) {
+    public function addRole($role)
+    {
         $this->role[] = $role;
         return $this;
     }
@@ -178,7 +182,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * Reference to who this agent is that was involved in the event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getWho() {
+    public function getWho()
+    {
         return $this->who;
     }
 
@@ -187,7 +192,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $who
      * @return $this
      */
-    public function setWho($who) {
+    public function setWho($who)
+    {
         $this->who = $who;
         return $this;
     }
@@ -196,7 +202,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * Alternative agent Identifier. For a human, this should be a user identifier text string from authentication system. This identifier would be one known to a common authentication system (e.g. single sign-on), if available.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAltId() {
+    public function getAltId()
+    {
         return $this->altId;
     }
 
@@ -205,7 +212,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $altId
      * @return $this
      */
-    public function setAltId($altId) {
+    public function setAltId($altId)
+    {
         $this->altId = $altId;
         return $this;
     }
@@ -214,7 +222,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * Human-meaningful name for the agent.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -223,7 +232,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -232,7 +242,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * Indicator that the user is or is not the requestor, or initiator, for the event being audited.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getRequestor() {
+    public function getRequestor()
+    {
         return $this->requestor;
     }
 
@@ -241,7 +252,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $requestor
      * @return $this
      */
-    public function setRequestor($requestor) {
+    public function setRequestor($requestor)
+    {
         $this->requestor = $requestor;
         return $this;
     }
@@ -250,7 +262,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * Where the event occurred.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
@@ -259,7 +272,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $location
      * @return $this
      */
-    public function setLocation($location) {
+    public function setLocation($location)
+    {
         $this->location = $location;
         return $this;
     }
@@ -268,7 +282,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * The policy or plan that authorized the activity being recorded. Typically, a single activity may have multiple applicable policies, such as patient consent, guarantor funding, etc. The policy would also indicate the security token used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getPolicy() {
+    public function getPolicy()
+    {
         return $this->policy;
     }
 
@@ -277,7 +292,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $policy
      * @return $this
      */
-    public function addPolicy($policy) {
+    public function addPolicy($policy)
+    {
         $this->policy[] = $policy;
         return $this;
     }
@@ -286,7 +302,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * Type of media involved. Used when the event is about exporting/importing onto media.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getMedia() {
+    public function getMedia()
+    {
         return $this->media;
     }
 
@@ -295,7 +312,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $media
      * @return $this
      */
-    public function setMedia($media) {
+    public function setMedia($media)
+    {
         $this->media = $media;
         return $this;
     }
@@ -304,7 +322,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * Logical network location for application activity, if the activity has a network location.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRAuditEvent\FHIRAuditEventNetwork
      */
-    public function getNetwork() {
+    public function getNetwork()
+    {
         return $this->network;
     }
 
@@ -313,7 +332,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRAuditEvent\FHIRAuditEventNetwork $network
      * @return $this
      */
-    public function setNetwork($network) {
+    public function setNetwork($network)
+    {
         $this->network = $network;
         return $this;
     }
@@ -322,7 +342,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * The reason (purpose of use), specific to this agent, that was used during the event being recorded.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getPurposeOfUse() {
+    public function getPurposeOfUse()
+    {
         return $this->purposeOfUse;
     }
 
@@ -331,7 +352,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $purposeOfUse
      * @return $this
      */
-    public function addPurposeOfUse($purposeOfUse) {
+    public function addPurposeOfUse($purposeOfUse)
+    {
         $this->purposeOfUse[] = $purposeOfUse;
         return $this;
     }
@@ -339,21 +361,23 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['type'])) {
                 $this->setType($data['type']);
             }
             if (isset($data['role'])) {
                 if (is_array($data['role'])) {
-                    foreach($data['role'] as $d) {
+                    foreach ($data['role'] as $d) {
                         $this->addRole($d);
                     }
                 } else {
@@ -377,7 +401,7 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
             }
             if (isset($data['policy'])) {
                 if (is_array($data['policy'])) {
-                    foreach($data['policy'] as $d) {
+                    foreach ($data['policy'] as $d) {
                         $this->addPolicy($d);
                     }
                 } else {
@@ -392,7 +416,7 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
             }
             if (isset($data['purposeOfUse'])) {
                 if (is_array($data['purposeOfUse'])) {
-                    foreach($data['purposeOfUse'] as $d) {
+                    foreach ($data['purposeOfUse'] as $d) {
                         $this->addPurposeOfUse($d);
                     }
                 } else {
@@ -408,38 +432,56 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->type)) $json['type'] = $this->type;
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
         if (0 < count($this->role)) {
             $json['role'] = [];
-            foreach($this->role as $role) {
+            foreach ($this->role as $role) {
                 $json['role'][] = $role;
             }
         }
-        if (isset($this->who)) $json['who'] = $this->who;
-        if (isset($this->altId)) $json['altId'] = $this->altId;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->requestor)) $json['requestor'] = $this->requestor;
-        if (isset($this->location)) $json['location'] = $this->location;
+        if (isset($this->who)) {
+            $json['who'] = $this->who;
+        }
+        if (isset($this->altId)) {
+            $json['altId'] = $this->altId;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->requestor)) {
+            $json['requestor'] = $this->requestor;
+        }
+        if (isset($this->location)) {
+            $json['location'] = $this->location;
+        }
         if (0 < count($this->policy)) {
             $json['policy'] = [];
-            foreach($this->policy as $policy) {
+            foreach ($this->policy as $policy) {
                 $json['policy'][] = $policy;
             }
         }
-        if (isset($this->media)) $json['media'] = $this->media;
-        if (isset($this->network)) $json['network'] = $this->network;
+        if (isset($this->media)) {
+            $json['media'] = $this->media;
+        }
+        if (isset($this->network)) {
+            $json['network'] = $this->network;
+        }
         if (0 < count($this->purposeOfUse)) {
             $json['purposeOfUse'] = [];
-            foreach($this->purposeOfUse as $purposeOfUse) {
+            foreach ($this->purposeOfUse as $purposeOfUse) {
                 $json['purposeOfUse'][] = $purposeOfUse;
             }
         }
@@ -451,35 +493,54 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<AuditEventAgent xmlns="http://hl7.org/fhir"></AuditEventAgent>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<AuditEventAgent xmlns="http://hl7.org/fhir"></AuditEventAgent>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
         if (0 < count($this->role)) {
-            foreach($this->role as $role) {
+            foreach ($this->role as $role) {
                 $role->xmlSerialize(true, $sxe->addChild('role'));
             }
         }
-        if (isset($this->who)) $this->who->xmlSerialize(true, $sxe->addChild('who'));
-        if (isset($this->altId)) $this->altId->xmlSerialize(true, $sxe->addChild('altId'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->requestor)) $this->requestor->xmlSerialize(true, $sxe->addChild('requestor'));
-        if (isset($this->location)) $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        if (isset($this->who)) {
+            $this->who->xmlSerialize(true, $sxe->addChild('who'));
+        }
+        if (isset($this->altId)) {
+            $this->altId->xmlSerialize(true, $sxe->addChild('altId'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->requestor)) {
+            $this->requestor->xmlSerialize(true, $sxe->addChild('requestor'));
+        }
+        if (isset($this->location)) {
+            $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        }
         if (0 < count($this->policy)) {
-            foreach($this->policy as $policy) {
+            foreach ($this->policy as $policy) {
                 $policy->xmlSerialize(true, $sxe->addChild('policy'));
             }
         }
-        if (isset($this->media)) $this->media->xmlSerialize(true, $sxe->addChild('media'));
-        if (isset($this->network)) $this->network->xmlSerialize(true, $sxe->addChild('network'));
+        if (isset($this->media)) {
+            $this->media->xmlSerialize(true, $sxe->addChild('media'));
+        }
+        if (isset($this->network)) {
+            $this->network->xmlSerialize(true, $sxe->addChild('network'));
+        }
         if (0 < count($this->purposeOfUse)) {
-            foreach($this->purposeOfUse as $purposeOfUse) {
+            foreach ($this->purposeOfUse as $purposeOfUse) {
                 $purposeOfUse->xmlSerialize(true, $sxe->addChild('purposeOfUse'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

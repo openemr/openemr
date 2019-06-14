@@ -191,7 +191,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Identifier by which this substance is known.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -200,7 +201,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function setIdentifier($identifier) {
+    public function setIdentifier($identifier)
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -209,7 +211,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * High level categorization, e.g. polymer or nucleic acid.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -218,7 +221,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -227,7 +231,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Status of substance within the catalogue e.g. approved.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -236,7 +241,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -245,7 +251,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * If the substance applies to only human or veterinary use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDomain() {
+    public function getDomain()
+    {
         return $this->domain;
     }
 
@@ -254,7 +261,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $domain
      * @return $this
      */
-    public function setDomain($domain) {
+    public function setDomain($domain)
+    {
         $this->domain = $domain;
         return $this;
     }
@@ -263,7 +271,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Textual description of the substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -272,7 +281,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -281,7 +291,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Supporting literature.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -290,7 +301,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function addSource($source) {
+    public function addSource($source)
+    {
         $this->source[] = $source;
         return $this;
     }
@@ -299,7 +311,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Textual comment about this record of a substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getComment() {
+    public function getComment()
+    {
         return $this->comment;
     }
 
@@ -308,7 +321,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $comment
      * @return $this
      */
-    public function setComment($comment) {
+    public function setComment($comment)
+    {
         $this->comment = $comment;
         return $this;
     }
@@ -317,7 +331,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Moiety, for structural modifications.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationMoiety[]
      */
-    public function getMoiety() {
+    public function getMoiety()
+    {
         return $this->moiety;
     }
 
@@ -326,7 +341,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationMoiety $moiety
      * @return $this
      */
-    public function addMoiety($moiety) {
+    public function addMoiety($moiety)
+    {
         $this->moiety[] = $moiety;
         return $this;
     }
@@ -335,7 +351,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * General specifications for this substance, including how it is related to other substances.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationProperty[]
      */
-    public function getProperty() {
+    public function getProperty()
+    {
         return $this->property;
     }
 
@@ -344,7 +361,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationProperty $property
      * @return $this
      */
-    public function addProperty($property) {
+    public function addProperty($property)
+    {
         $this->property[] = $property;
         return $this;
     }
@@ -353,7 +371,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * General information detailing this substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getReferenceInformation() {
+    public function getReferenceInformation()
+    {
         return $this->referenceInformation;
     }
 
@@ -362,7 +381,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $referenceInformation
      * @return $this
      */
-    public function setReferenceInformation($referenceInformation) {
+    public function setReferenceInformation($referenceInformation)
+    {
         $this->referenceInformation = $referenceInformation;
         return $this;
     }
@@ -371,7 +391,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Structural information.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationStructure
      */
-    public function getStructure() {
+    public function getStructure()
+    {
         return $this->structure;
     }
 
@@ -380,7 +401,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationStructure $structure
      * @return $this
      */
-    public function setStructure($structure) {
+    public function setStructure($structure)
+    {
         $this->structure = $structure;
         return $this;
     }
@@ -389,7 +411,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Codes associated with the substance.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationCode[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -398,7 +421,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationCode $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -407,7 +431,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Names applicable to this substance.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationName[]
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -416,7 +441,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationName $name
      * @return $this
      */
-    public function addName($name) {
+    public function addName($name)
+    {
         $this->name[] = $name;
         return $this;
     }
@@ -425,7 +451,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * The molecular weight or weight range (for proteins, polymers or nucleic acids).
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationMolecularWeight[]
      */
-    public function getMolecularWeight() {
+    public function getMolecularWeight()
+    {
         return $this->molecularWeight;
     }
 
@@ -434,7 +461,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationMolecularWeight $molecularWeight
      * @return $this
      */
-    public function addMolecularWeight($molecularWeight) {
+    public function addMolecularWeight($molecularWeight)
+    {
         $this->molecularWeight[] = $molecularWeight;
         return $this;
     }
@@ -443,7 +471,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * A link between this substance and another, with details of the relationship.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationRelationship[]
      */
-    public function getRelationship() {
+    public function getRelationship()
+    {
         return $this->relationship;
     }
 
@@ -452,7 +481,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification\FHIRSubstanceSpecificationRelationship $relationship
      * @return $this
      */
-    public function addRelationship($relationship) {
+    public function addRelationship($relationship)
+    {
         $this->relationship[] = $relationship;
         return $this;
     }
@@ -461,7 +491,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Data items specific to nucleic acids.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getNucleicAcid() {
+    public function getNucleicAcid()
+    {
         return $this->nucleicAcid;
     }
 
@@ -470,7 +501,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $nucleicAcid
      * @return $this
      */
-    public function setNucleicAcid($nucleicAcid) {
+    public function setNucleicAcid($nucleicAcid)
+    {
         $this->nucleicAcid = $nucleicAcid;
         return $this;
     }
@@ -479,7 +511,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Data items specific to polymers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPolymer() {
+    public function getPolymer()
+    {
         return $this->polymer;
     }
 
@@ -488,7 +521,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $polymer
      * @return $this
      */
-    public function setPolymer($polymer) {
+    public function setPolymer($polymer)
+    {
         $this->polymer = $polymer;
         return $this;
     }
@@ -497,7 +531,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Data items specific to proteins.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getProtein() {
+    public function getProtein()
+    {
         return $this->protein;
     }
 
@@ -506,7 +541,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $protein
      * @return $this
      */
-    public function setProtein($protein) {
+    public function setProtein($protein)
+    {
         $this->protein = $protein;
         return $this;
     }
@@ -515,7 +551,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * Material or taxonomic/anatomical source for the substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSourceMaterial() {
+    public function getSourceMaterial()
+    {
         return $this->sourceMaterial;
     }
 
@@ -524,7 +561,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $sourceMaterial
      * @return $this
      */
-    public function setSourceMaterial($sourceMaterial) {
+    public function setSourceMaterial($sourceMaterial)
+    {
         $this->sourceMaterial = $sourceMaterial;
         return $this;
     }
@@ -532,14 +570,16 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 $this->setIdentifier($data['identifier']);
@@ -558,7 +598,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
             }
             if (isset($data['source'])) {
                 if (is_array($data['source'])) {
-                    foreach($data['source'] as $d) {
+                    foreach ($data['source'] as $d) {
                         $this->addSource($d);
                     }
                 } else {
@@ -570,7 +610,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
             }
             if (isset($data['moiety'])) {
                 if (is_array($data['moiety'])) {
-                    foreach($data['moiety'] as $d) {
+                    foreach ($data['moiety'] as $d) {
                         $this->addMoiety($d);
                     }
                 } else {
@@ -579,7 +619,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
             }
             if (isset($data['property'])) {
                 if (is_array($data['property'])) {
-                    foreach($data['property'] as $d) {
+                    foreach ($data['property'] as $d) {
                         $this->addProperty($d);
                     }
                 } else {
@@ -594,7 +634,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
             }
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -603,7 +643,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
             }
             if (isset($data['name'])) {
                 if (is_array($data['name'])) {
-                    foreach($data['name'] as $d) {
+                    foreach ($data['name'] as $d) {
                         $this->addName($d);
                     }
                 } else {
@@ -612,7 +652,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
             }
             if (isset($data['molecularWeight'])) {
                 if (is_array($data['molecularWeight'])) {
-                    foreach($data['molecularWeight'] as $d) {
+                    foreach ($data['molecularWeight'] as $d) {
                         $this->addMolecularWeight($d);
                     }
                 } else {
@@ -621,7 +661,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
             }
             if (isset($data['relationship'])) {
                 if (is_array($data['relationship'])) {
-                    foreach($data['relationship'] as $d) {
+                    foreach ($data['relationship'] as $d) {
                         $this->addRelationship($d);
                     }
                 } else {
@@ -649,70 +689,96 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->identifier)) $json['identifier'] = $this->identifier;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->domain)) $json['domain'] = $this->domain;
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->identifier)) {
+            $json['identifier'] = $this->identifier;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->domain)) {
+            $json['domain'] = $this->domain;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->source)) {
             $json['source'] = [];
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $json['source'][] = $source;
             }
         }
-        if (isset($this->comment)) $json['comment'] = $this->comment;
+        if (isset($this->comment)) {
+            $json['comment'] = $this->comment;
+        }
         if (0 < count($this->moiety)) {
             $json['moiety'] = [];
-            foreach($this->moiety as $moiety) {
+            foreach ($this->moiety as $moiety) {
                 $json['moiety'][] = $moiety;
             }
         }
         if (0 < count($this->property)) {
             $json['property'] = [];
-            foreach($this->property as $property) {
+            foreach ($this->property as $property) {
                 $json['property'][] = $property;
             }
         }
-        if (isset($this->referenceInformation)) $json['referenceInformation'] = $this->referenceInformation;
-        if (isset($this->structure)) $json['structure'] = $this->structure;
+        if (isset($this->referenceInformation)) {
+            $json['referenceInformation'] = $this->referenceInformation;
+        }
+        if (isset($this->structure)) {
+            $json['structure'] = $this->structure;
+        }
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
         if (0 < count($this->name)) {
             $json['name'] = [];
-            foreach($this->name as $name) {
+            foreach ($this->name as $name) {
                 $json['name'][] = $name;
             }
         }
         if (0 < count($this->molecularWeight)) {
             $json['molecularWeight'] = [];
-            foreach($this->molecularWeight as $molecularWeight) {
+            foreach ($this->molecularWeight as $molecularWeight) {
                 $json['molecularWeight'][] = $molecularWeight;
             }
         }
         if (0 < count($this->relationship)) {
             $json['relationship'] = [];
-            foreach($this->relationship as $relationship) {
+            foreach ($this->relationship as $relationship) {
                 $json['relationship'][] = $relationship;
             }
         }
-        if (isset($this->nucleicAcid)) $json['nucleicAcid'] = $this->nucleicAcid;
-        if (isset($this->polymer)) $json['polymer'] = $this->polymer;
-        if (isset($this->protein)) $json['protein'] = $this->protein;
-        if (isset($this->sourceMaterial)) $json['sourceMaterial'] = $this->sourceMaterial;
+        if (isset($this->nucleicAcid)) {
+            $json['nucleicAcid'] = $this->nucleicAcid;
+        }
+        if (isset($this->polymer)) {
+            $json['polymer'] = $this->polymer;
+        }
+        if (isset($this->protein)) {
+            $json['protein'] = $this->protein;
+        }
+        if (isset($this->sourceMaterial)) {
+            $json['sourceMaterial'] = $this->sourceMaterial;
+        }
         return $json;
     }
 
@@ -721,59 +787,86 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecification xmlns="http://hl7.org/fhir"></SubstanceSpecification>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecification xmlns="http://hl7.org/fhir"></SubstanceSpecification>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->identifier)) $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->domain)) $this->domain->xmlSerialize(true, $sxe->addChild('domain'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->identifier)) {
+            $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->domain)) {
+            $this->domain->xmlSerialize(true, $sxe->addChild('domain'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->source)) {
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $source->xmlSerialize(true, $sxe->addChild('source'));
             }
         }
-        if (isset($this->comment)) $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        if (isset($this->comment)) {
+            $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
+        }
         if (0 < count($this->moiety)) {
-            foreach($this->moiety as $moiety) {
+            foreach ($this->moiety as $moiety) {
                 $moiety->xmlSerialize(true, $sxe->addChild('moiety'));
             }
         }
         if (0 < count($this->property)) {
-            foreach($this->property as $property) {
+            foreach ($this->property as $property) {
                 $property->xmlSerialize(true, $sxe->addChild('property'));
             }
         }
-        if (isset($this->referenceInformation)) $this->referenceInformation->xmlSerialize(true, $sxe->addChild('referenceInformation'));
-        if (isset($this->structure)) $this->structure->xmlSerialize(true, $sxe->addChild('structure'));
+        if (isset($this->referenceInformation)) {
+            $this->referenceInformation->xmlSerialize(true, $sxe->addChild('referenceInformation'));
+        }
+        if (isset($this->structure)) {
+            $this->structure->xmlSerialize(true, $sxe->addChild('structure'));
+        }
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
         if (0 < count($this->name)) {
-            foreach($this->name as $name) {
+            foreach ($this->name as $name) {
                 $name->xmlSerialize(true, $sxe->addChild('name'));
             }
         }
         if (0 < count($this->molecularWeight)) {
-            foreach($this->molecularWeight as $molecularWeight) {
+            foreach ($this->molecularWeight as $molecularWeight) {
                 $molecularWeight->xmlSerialize(true, $sxe->addChild('molecularWeight'));
             }
         }
         if (0 < count($this->relationship)) {
-            foreach($this->relationship as $relationship) {
+            foreach ($this->relationship as $relationship) {
                 $relationship->xmlSerialize(true, $sxe->addChild('relationship'));
             }
         }
-        if (isset($this->nucleicAcid)) $this->nucleicAcid->xmlSerialize(true, $sxe->addChild('nucleicAcid'));
-        if (isset($this->polymer)) $this->polymer->xmlSerialize(true, $sxe->addChild('polymer'));
-        if (isset($this->protein)) $this->protein->xmlSerialize(true, $sxe->addChild('protein'));
-        if (isset($this->sourceMaterial)) $this->sourceMaterial->xmlSerialize(true, $sxe->addChild('sourceMaterial'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->nucleicAcid)) {
+            $this->nucleicAcid->xmlSerialize(true, $sxe->addChild('nucleicAcid'));
+        }
+        if (isset($this->polymer)) {
+            $this->polymer->xmlSerialize(true, $sxe->addChild('polymer'));
+        }
+        if (isset($this->protein)) {
+            $this->protein->xmlSerialize(true, $sxe->addChild('protein'));
+        }
+        if (isset($this->sourceMaterial)) {
+            $this->sourceMaterial->xmlSerialize(true, $sxe->addChild('sourceMaterial'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

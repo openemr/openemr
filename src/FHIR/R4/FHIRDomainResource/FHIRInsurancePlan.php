@@ -161,7 +161,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * Business identifiers assigned to this health insurance product which remain constant as the resource is updated and propagates from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -170,7 +171,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -179,7 +181,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * The current state of the health insurance product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -188,7 +191,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -197,7 +201,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * The kind of health insurance product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -206,7 +211,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function addType($type) {
+    public function addType($type)
+    {
         $this->type[] = $type;
         return $this;
     }
@@ -215,7 +221,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * Official name of the health insurance product as designated by the owner.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -224,7 +231,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -233,7 +241,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * A list of alternate names that the product is known as, or was known as in the past.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getAlias() {
+    public function getAlias()
+    {
         return $this->alias;
     }
 
@@ -242,7 +251,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $alias
      * @return $this
      */
-    public function addAlias($alias) {
+    public function addAlias($alias)
+    {
         $this->alias[] = $alias;
         return $this;
     }
@@ -251,7 +261,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * The period of time that the health insurance product is available.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getPeriod() {
+    public function getPeriod()
+    {
         return $this->period;
     }
 
@@ -260,7 +271,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $period
      * @return $this
      */
-    public function setPeriod($period) {
+    public function setPeriod($period)
+    {
         $this->period = $period;
         return $this;
     }
@@ -269,7 +281,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * The entity that is providing  the health insurance product and underwriting the risk.  This is typically an insurance carriers, other third-party payers, or health plan sponsors comonly referred to as 'payers'.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getOwnedBy() {
+    public function getOwnedBy()
+    {
         return $this->ownedBy;
     }
 
@@ -278,7 +291,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $ownedBy
      * @return $this
      */
-    public function setOwnedBy($ownedBy) {
+    public function setOwnedBy($ownedBy)
+    {
         $this->ownedBy = $ownedBy;
         return $this;
     }
@@ -287,7 +301,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * An organization which administer other services such as underwriting, customer service and/or claims processing on behalf of the health insurance product owner.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getAdministeredBy() {
+    public function getAdministeredBy()
+    {
         return $this->administeredBy;
     }
 
@@ -296,7 +311,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $administeredBy
      * @return $this
      */
-    public function setAdministeredBy($administeredBy) {
+    public function setAdministeredBy($administeredBy)
+    {
         $this->administeredBy = $administeredBy;
         return $this;
     }
@@ -305,7 +321,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * The geographic region in which a health insurance product's benefits apply.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getCoverageArea() {
+    public function getCoverageArea()
+    {
         return $this->coverageArea;
     }
 
@@ -314,7 +331,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $coverageArea
      * @return $this
      */
-    public function addCoverageArea($coverageArea) {
+    public function addCoverageArea($coverageArea)
+    {
         $this->coverageArea[] = $coverageArea;
         return $this;
     }
@@ -323,7 +341,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * The contact for the health insurance product for a certain purpose.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanContact[]
      */
-    public function getContact() {
+    public function getContact()
+    {
         return $this->contact;
     }
 
@@ -332,7 +351,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanContact $contact
      * @return $this
      */
-    public function addContact($contact) {
+    public function addContact($contact)
+    {
         $this->contact[] = $contact;
         return $this;
     }
@@ -341,7 +361,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * The technical endpoints providing access to services operated for the health insurance product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getEndpoint() {
+    public function getEndpoint()
+    {
         return $this->endpoint;
     }
 
@@ -350,7 +371,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $endpoint
      * @return $this
      */
-    public function addEndpoint($endpoint) {
+    public function addEndpoint($endpoint)
+    {
         $this->endpoint[] = $endpoint;
         return $this;
     }
@@ -359,7 +381,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * Reference to the network included in the health insurance product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getNetwork() {
+    public function getNetwork()
+    {
         return $this->network;
     }
 
@@ -368,7 +391,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $network
      * @return $this
      */
-    public function addNetwork($network) {
+    public function addNetwork($network)
+    {
         $this->network[] = $network;
         return $this;
     }
@@ -377,7 +401,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * Details about the coverage offered by the insurance product.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanCoverage[]
      */
-    public function getCoverage() {
+    public function getCoverage()
+    {
         return $this->coverage;
     }
 
@@ -386,7 +411,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanCoverage $coverage
      * @return $this
      */
-    public function addCoverage($coverage) {
+    public function addCoverage($coverage)
+    {
         $this->coverage[] = $coverage;
         return $this;
     }
@@ -395,7 +421,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * Details about an insurance plan.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanPlan[]
      */
-    public function getPlan() {
+    public function getPlan()
+    {
         return $this->plan;
     }
 
@@ -404,7 +431,8 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRInsurancePlan\FHIRInsurancePlanPlan $plan
      * @return $this
      */
-    public function addPlan($plan) {
+    public function addPlan($plan)
+    {
         $this->plan[] = $plan;
         return $this;
     }
@@ -412,18 +440,20 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -435,7 +465,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['type'])) {
                 if (is_array($data['type'])) {
-                    foreach($data['type'] as $d) {
+                    foreach ($data['type'] as $d) {
                         $this->addType($d);
                     }
                 } else {
@@ -447,7 +477,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['alias'])) {
                 if (is_array($data['alias'])) {
-                    foreach($data['alias'] as $d) {
+                    foreach ($data['alias'] as $d) {
                         $this->addAlias($d);
                     }
                 } else {
@@ -465,7 +495,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['coverageArea'])) {
                 if (is_array($data['coverageArea'])) {
-                    foreach($data['coverageArea'] as $d) {
+                    foreach ($data['coverageArea'] as $d) {
                         $this->addCoverageArea($d);
                     }
                 } else {
@@ -474,7 +504,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['contact'])) {
                 if (is_array($data['contact'])) {
-                    foreach($data['contact'] as $d) {
+                    foreach ($data['contact'] as $d) {
                         $this->addContact($d);
                     }
                 } else {
@@ -483,7 +513,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['endpoint'])) {
                 if (is_array($data['endpoint'])) {
-                    foreach($data['endpoint'] as $d) {
+                    foreach ($data['endpoint'] as $d) {
                         $this->addEndpoint($d);
                     }
                 } else {
@@ -492,7 +522,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['network'])) {
                 if (is_array($data['network'])) {
-                    foreach($data['network'] as $d) {
+                    foreach ($data['network'] as $d) {
                         $this->addNetwork($d);
                     }
                 } else {
@@ -501,7 +531,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['coverage'])) {
                 if (is_array($data['coverage'])) {
-                    foreach($data['coverage'] as $d) {
+                    foreach ($data['coverage'] as $d) {
                         $this->addCoverage($d);
                     }
                 } else {
@@ -510,7 +540,7 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['plan'])) {
                 if (is_array($data['plan'])) {
-                    foreach($data['plan'] as $d) {
+                    foreach ($data['plan'] as $d) {
                         $this->addPlan($d);
                     }
                 } else {
@@ -526,72 +556,84 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
         if (0 < count($this->type)) {
             $json['type'] = [];
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $json['type'][] = $type;
             }
         }
-        if (isset($this->name)) $json['name'] = $this->name;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
         if (0 < count($this->alias)) {
             $json['alias'] = [];
-            foreach($this->alias as $alias) {
+            foreach ($this->alias as $alias) {
                 $json['alias'][] = $alias;
             }
         }
-        if (isset($this->period)) $json['period'] = $this->period;
-        if (isset($this->ownedBy)) $json['ownedBy'] = $this->ownedBy;
-        if (isset($this->administeredBy)) $json['administeredBy'] = $this->administeredBy;
+        if (isset($this->period)) {
+            $json['period'] = $this->period;
+        }
+        if (isset($this->ownedBy)) {
+            $json['ownedBy'] = $this->ownedBy;
+        }
+        if (isset($this->administeredBy)) {
+            $json['administeredBy'] = $this->administeredBy;
+        }
         if (0 < count($this->coverageArea)) {
             $json['coverageArea'] = [];
-            foreach($this->coverageArea as $coverageArea) {
+            foreach ($this->coverageArea as $coverageArea) {
                 $json['coverageArea'][] = $coverageArea;
             }
         }
         if (0 < count($this->contact)) {
             $json['contact'] = [];
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $json['contact'][] = $contact;
             }
         }
         if (0 < count($this->endpoint)) {
             $json['endpoint'] = [];
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $json['endpoint'][] = $endpoint;
             }
         }
         if (0 < count($this->network)) {
             $json['network'] = [];
-            foreach($this->network as $network) {
+            foreach ($this->network as $network) {
                 $json['network'][] = $network;
             }
         }
         if (0 < count($this->coverage)) {
             $json['coverage'] = [];
-            foreach($this->coverage as $coverage) {
+            foreach ($this->coverage as $coverage) {
                 $json['coverage'][] = $coverage;
             }
         }
         if (0 < count($this->plan)) {
             $json['plan'] = [];
-            foreach($this->plan as $plan) {
+            foreach ($this->plan as $plan) {
                 $json['plan'][] = $plan;
             }
         }
@@ -603,62 +645,75 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<InsurancePlan xmlns="http://hl7.org/fhir"></InsurancePlan>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<InsurancePlan xmlns="http://hl7.org/fhir"></InsurancePlan>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
         if (0 < count($this->type)) {
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $type->xmlSerialize(true, $sxe->addChild('type'));
             }
         }
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
         if (0 < count($this->alias)) {
-            foreach($this->alias as $alias) {
+            foreach ($this->alias as $alias) {
                 $alias->xmlSerialize(true, $sxe->addChild('alias'));
             }
         }
-        if (isset($this->period)) $this->period->xmlSerialize(true, $sxe->addChild('period'));
-        if (isset($this->ownedBy)) $this->ownedBy->xmlSerialize(true, $sxe->addChild('ownedBy'));
-        if (isset($this->administeredBy)) $this->administeredBy->xmlSerialize(true, $sxe->addChild('administeredBy'));
+        if (isset($this->period)) {
+            $this->period->xmlSerialize(true, $sxe->addChild('period'));
+        }
+        if (isset($this->ownedBy)) {
+            $this->ownedBy->xmlSerialize(true, $sxe->addChild('ownedBy'));
+        }
+        if (isset($this->administeredBy)) {
+            $this->administeredBy->xmlSerialize(true, $sxe->addChild('administeredBy'));
+        }
         if (0 < count($this->coverageArea)) {
-            foreach($this->coverageArea as $coverageArea) {
+            foreach ($this->coverageArea as $coverageArea) {
                 $coverageArea->xmlSerialize(true, $sxe->addChild('coverageArea'));
             }
         }
         if (0 < count($this->contact)) {
-            foreach($this->contact as $contact) {
+            foreach ($this->contact as $contact) {
                 $contact->xmlSerialize(true, $sxe->addChild('contact'));
             }
         }
         if (0 < count($this->endpoint)) {
-            foreach($this->endpoint as $endpoint) {
+            foreach ($this->endpoint as $endpoint) {
                 $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
             }
         }
         if (0 < count($this->network)) {
-            foreach($this->network as $network) {
+            foreach ($this->network as $network) {
                 $network->xmlSerialize(true, $sxe->addChild('network'));
             }
         }
         if (0 < count($this->coverage)) {
-            foreach($this->coverage as $coverage) {
+            foreach ($this->coverage as $coverage) {
                 $coverage->xmlSerialize(true, $sxe->addChild('coverage'));
             }
         }
         if (0 < count($this->plan)) {
-            foreach($this->plan as $plan) {
+            foreach ($this->plan as $plan) {
                 $plan->xmlSerialize(true, $sxe->addChild('plan'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -142,7 +142,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * A number to uniquely identify item entries.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -151,7 +152,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -160,7 +162,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * The type of revenue or cost center providing the product and/or service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRevenue() {
+    public function getRevenue()
+    {
         return $this->revenue;
     }
 
@@ -169,7 +172,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $revenue
      * @return $this
      */
-    public function setRevenue($revenue) {
+    public function setRevenue($revenue)
+    {
         $this->revenue = $revenue;
         return $this;
     }
@@ -178,7 +182,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * Code to identify the general type of benefits under which products and services are provided.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -187,7 +192,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function setCategory($category) {
+    public function setCategory($category)
+    {
         $this->category = $category;
         return $this;
     }
@@ -196,7 +202,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * When the value is a group code then this item collects a set of related claim details, otherwise this contains the product, service, drug or other billing code for the item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getProductOrService() {
+    public function getProductOrService()
+    {
         return $this->productOrService;
     }
 
@@ -205,7 +212,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $productOrService
      * @return $this
      */
-    public function setProductOrService($productOrService) {
+    public function setProductOrService($productOrService)
+    {
         $this->productOrService = $productOrService;
         return $this;
     }
@@ -214,7 +222,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * Item typification or modifiers codes to convey additional context for the product or service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getModifier() {
+    public function getModifier()
+    {
         return $this->modifier;
     }
 
@@ -223,7 +232,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $modifier
      * @return $this
      */
-    public function addModifier($modifier) {
+    public function addModifier($modifier)
+    {
         $this->modifier[] = $modifier;
         return $this;
     }
@@ -232,7 +242,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * Identifies the program under which this may be recovered.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getProgramCode() {
+    public function getProgramCode()
+    {
         return $this->programCode;
     }
 
@@ -241,7 +252,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $programCode
      * @return $this
      */
-    public function addProgramCode($programCode) {
+    public function addProgramCode($programCode)
+    {
         $this->programCode[] = $programCode;
         return $this;
     }
@@ -250,7 +262,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * The number of repetitions of a service or product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -259,7 +272,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -268,7 +282,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * If the item is not a group then this is the fee for the product or service, otherwise this is the total of the fees for the details of the group.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getUnitPrice() {
+    public function getUnitPrice()
+    {
         return $this->unitPrice;
     }
 
@@ -277,7 +292,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $unitPrice
      * @return $this
      */
-    public function setUnitPrice($unitPrice) {
+    public function setUnitPrice($unitPrice)
+    {
         $this->unitPrice = $unitPrice;
         return $this;
     }
@@ -286,7 +302,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * A real number that represents a multiplier used in determining the overall value of services delivered and/or goods received. The concept of a Factor allows for a discount or surcharge multiplier to be applied to a monetary amount.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getFactor() {
+    public function getFactor()
+    {
         return $this->factor;
     }
 
@@ -295,7 +312,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $factor
      * @return $this
      */
-    public function setFactor($factor) {
+    public function setFactor($factor)
+    {
         $this->factor = $factor;
         return $this;
     }
@@ -304,7 +322,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * The quantity times the unit price for an additional service or product or charge.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getNet() {
+    public function getNet()
+    {
         return $this->net;
     }
 
@@ -313,7 +332,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $net
      * @return $this
      */
-    public function setNet($net) {
+    public function setNet($net)
+    {
         $this->net = $net;
         return $this;
     }
@@ -322,7 +342,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * Unique Device Identifiers associated with this line item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getUdi() {
+    public function getUdi()
+    {
         return $this->udi;
     }
 
@@ -331,7 +352,8 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $udi
      * @return $this
      */
-    public function addUdi($udi) {
+    public function addUdi($udi)
+    {
         $this->udi[] = $udi;
         return $this;
     }
@@ -339,14 +361,16 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequence'])) {
                 $this->setSequence($data['sequence']);
@@ -362,7 +386,7 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
             }
             if (isset($data['modifier'])) {
                 if (is_array($data['modifier'])) {
-                    foreach($data['modifier'] as $d) {
+                    foreach ($data['modifier'] as $d) {
                         $this->addModifier($d);
                     }
                 } else {
@@ -371,7 +395,7 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
             }
             if (isset($data['programCode'])) {
                 if (is_array($data['programCode'])) {
-                    foreach($data['programCode'] as $d) {
+                    foreach ($data['programCode'] as $d) {
                         $this->addProgramCode($d);
                     }
                 } else {
@@ -392,7 +416,7 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
             }
             if (isset($data['udi'])) {
                 if (is_array($data['udi'])) {
-                    foreach($data['udi'] as $d) {
+                    foreach ($data['udi'] as $d) {
                         $this->addUdi($d);
                     }
                 } else {
@@ -408,38 +432,56 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
-        if (isset($this->revenue)) $json['revenue'] = $this->revenue;
-        if (isset($this->category)) $json['category'] = $this->category;
-        if (isset($this->productOrService)) $json['productOrService'] = $this->productOrService;
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
+        if (isset($this->revenue)) {
+            $json['revenue'] = $this->revenue;
+        }
+        if (isset($this->category)) {
+            $json['category'] = $this->category;
+        }
+        if (isset($this->productOrService)) {
+            $json['productOrService'] = $this->productOrService;
+        }
         if (0 < count($this->modifier)) {
             $json['modifier'] = [];
-            foreach($this->modifier as $modifier) {
+            foreach ($this->modifier as $modifier) {
                 $json['modifier'][] = $modifier;
             }
         }
         if (0 < count($this->programCode)) {
             $json['programCode'] = [];
-            foreach($this->programCode as $programCode) {
+            foreach ($this->programCode as $programCode) {
                 $json['programCode'][] = $programCode;
             }
         }
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->unitPrice)) $json['unitPrice'] = $this->unitPrice;
-        if (isset($this->factor)) $json['factor'] = $this->factor;
-        if (isset($this->net)) $json['net'] = $this->net;
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->unitPrice)) {
+            $json['unitPrice'] = $this->unitPrice;
+        }
+        if (isset($this->factor)) {
+            $json['factor'] = $this->factor;
+        }
+        if (isset($this->net)) {
+            $json['net'] = $this->net;
+        }
         if (0 < count($this->udi)) {
             $json['udi'] = [];
-            foreach($this->udi as $udi) {
+            foreach ($this->udi as $udi) {
                 $json['udi'][] = $udi;
             }
         }
@@ -451,35 +493,54 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimSubDetail xmlns="http://hl7.org/fhir"></ClaimSubDetail>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimSubDetail xmlns="http://hl7.org/fhir"></ClaimSubDetail>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
-        if (isset($this->revenue)) $this->revenue->xmlSerialize(true, $sxe->addChild('revenue'));
-        if (isset($this->category)) $this->category->xmlSerialize(true, $sxe->addChild('category'));
-        if (isset($this->productOrService)) $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
+        if (isset($this->revenue)) {
+            $this->revenue->xmlSerialize(true, $sxe->addChild('revenue'));
+        }
+        if (isset($this->category)) {
+            $this->category->xmlSerialize(true, $sxe->addChild('category'));
+        }
+        if (isset($this->productOrService)) {
+            $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
+        }
         if (0 < count($this->modifier)) {
-            foreach($this->modifier as $modifier) {
+            foreach ($this->modifier as $modifier) {
                 $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
             }
         }
         if (0 < count($this->programCode)) {
-            foreach($this->programCode as $programCode) {
+            foreach ($this->programCode as $programCode) {
                 $programCode->xmlSerialize(true, $sxe->addChild('programCode'));
             }
         }
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->unitPrice)) $this->unitPrice->xmlSerialize(true, $sxe->addChild('unitPrice'));
-        if (isset($this->factor)) $this->factor->xmlSerialize(true, $sxe->addChild('factor'));
-        if (isset($this->net)) $this->net->xmlSerialize(true, $sxe->addChild('net'));
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->unitPrice)) {
+            $this->unitPrice->xmlSerialize(true, $sxe->addChild('unitPrice'));
+        }
+        if (isset($this->factor)) {
+            $this->factor->xmlSerialize(true, $sxe->addChild('factor'));
+        }
+        if (isset($this->net)) {
+            $this->net->xmlSerialize(true, $sxe->addChild('net'));
+        }
         if (0 < count($this->udi)) {
-            foreach($this->udi as $udi) {
+            foreach ($this->udi as $udi) {
                 $udi->xmlSerialize(true, $sxe->addChild('udi'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

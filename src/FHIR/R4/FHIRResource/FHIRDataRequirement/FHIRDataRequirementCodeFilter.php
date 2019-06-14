@@ -101,7 +101,8 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
      * The code-valued attribute of the filter. The specified path SHALL be a FHIRPath resolveable on the specified type of the DataRequirement, and SHALL consist only of identifiers, constant indexers, and .resolve(). The path is allowed to contain qualifiers (.) to traverse sub-elements, as well as indexers ([x]) to traverse multiple-cardinality sub-elements (see the [Simple FHIRPath Profile](fhirpath.html#simple) for full details). Note that the index must be an integer constant. The path must resolve to an element of type code, Coding, or CodeableConcept.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->path;
     }
 
@@ -110,7 +111,8 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $path
      * @return $this
      */
-    public function setPath($path) {
+    public function setPath($path)
+    {
         $this->path = $path;
         return $this;
     }
@@ -119,7 +121,8 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
      * A token parameter that refers to a search parameter defined on the specified type of the DataRequirement, and which searches on elements of type code, Coding, or CodeableConcept.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getSearchParam() {
+    public function getSearchParam()
+    {
         return $this->searchParam;
     }
 
@@ -128,7 +131,8 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $searchParam
      * @return $this
      */
-    public function setSearchParam($searchParam) {
+    public function setSearchParam($searchParam)
+    {
         $this->searchParam = $searchParam;
         return $this;
     }
@@ -137,7 +141,8 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
      * The valueset for the code filter. The valueSet and code elements are additive. If valueSet is specified, the filter will return only those data items for which the value of the code-valued element specified in the path is a member of the specified valueset.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getValueSet() {
+    public function getValueSet()
+    {
         return $this->valueSet;
     }
 
@@ -146,7 +151,8 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $valueSet
      * @return $this
      */
-    public function setValueSet($valueSet) {
+    public function setValueSet($valueSet)
+    {
         $this->valueSet = $valueSet;
         return $this;
     }
@@ -155,7 +161,8 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
      * The codes for the code filter. If values are given, the filter will return only those data items for which the code-valued attribute specified by the path has a value that is one of the specified codes. If codes are specified in addition to a value set, the filter returns items matching a code in the value set or one of the specified codes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -164,7 +171,8 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $code
      * @return $this
      */
-    public function addCode($code) {
+    public function addCode($code)
+    {
         $this->code[] = $code;
         return $this;
     }
@@ -172,14 +180,16 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['path'])) {
                 $this->setPath($data['path']);
@@ -192,7 +202,7 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
             }
             if (isset($data['code'])) {
                 if (is_array($data['code'])) {
-                    foreach($data['code'] as $d) {
+                    foreach ($data['code'] as $d) {
                         $this->addCode($d);
                     }
                 } else {
@@ -208,21 +218,29 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->path)) $json['path'] = $this->path;
-        if (isset($this->searchParam)) $json['searchParam'] = $this->searchParam;
-        if (isset($this->valueSet)) $json['valueSet'] = $this->valueSet;
+        if (isset($this->path)) {
+            $json['path'] = $this->path;
+        }
+        if (isset($this->searchParam)) {
+            $json['searchParam'] = $this->searchParam;
+        }
+        if (isset($this->valueSet)) {
+            $json['valueSet'] = $this->valueSet;
+        }
         if (0 < count($this->code)) {
             $json['code'] = [];
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $json['code'][] = $code;
             }
         }
@@ -234,20 +252,29 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<DataRequirementCodeFilter xmlns="http://hl7.org/fhir"></DataRequirementCodeFilter>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<DataRequirementCodeFilter xmlns="http://hl7.org/fhir"></DataRequirementCodeFilter>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->path)) $this->path->xmlSerialize(true, $sxe->addChild('path'));
-        if (isset($this->searchParam)) $this->searchParam->xmlSerialize(true, $sxe->addChild('searchParam'));
-        if (isset($this->valueSet)) $this->valueSet->xmlSerialize(true, $sxe->addChild('valueSet'));
+        if (isset($this->path)) {
+            $this->path->xmlSerialize(true, $sxe->addChild('path'));
+        }
+        if (isset($this->searchParam)) {
+            $this->searchParam->xmlSerialize(true, $sxe->addChild('searchParam'));
+        }
+        if (isset($this->valueSet)) {
+            $this->valueSet->xmlSerialize(true, $sxe->addChild('valueSet'));
+        }
         if (0 < count($this->code)) {
-            foreach($this->code as $code) {
+            foreach ($this->code as $code) {
                 $code->xmlSerialize(true, $sxe->addChild('code'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

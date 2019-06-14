@@ -119,7 +119,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * Unique identifier for the substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -128,7 +129,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -137,7 +139,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * A code to indicate if the substance is actively used.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRSubstanceStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -146,7 +149,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRSubstanceStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -155,7 +159,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * A code that classifies the general type of substance.  This is used  for searching, sorting and display purposes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -164,7 +169,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function addCategory($category) {
+    public function addCategory($category)
+    {
         $this->category[] = $category;
         return $this;
     }
@@ -173,7 +179,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * A code (or set of codes) that identify this substance.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -182,7 +189,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -191,7 +199,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * A description of the substance - its appearance, handling requirements, and other usage notes.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -200,7 +209,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -209,7 +219,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * Substance may be used to describe a kind of substance, or a specific package/container of the substance: an instance.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstance\FHIRSubstanceInstance[]
      */
-    public function getInstance() {
+    public function getInstance()
+    {
         return $this->instance;
     }
 
@@ -218,7 +229,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstance\FHIRSubstanceInstance $instance
      * @return $this
      */
-    public function addInstance($instance) {
+    public function addInstance($instance)
+    {
         $this->instance[] = $instance;
         return $this;
     }
@@ -227,7 +239,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * A substance can be composed of other substances.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstance\FHIRSubstanceIngredient[]
      */
-    public function getIngredient() {
+    public function getIngredient()
+    {
         return $this->ingredient;
     }
 
@@ -236,7 +249,8 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstance\FHIRSubstanceIngredient $ingredient
      * @return $this
      */
-    public function addIngredient($ingredient) {
+    public function addIngredient($ingredient)
+    {
         $this->ingredient[] = $ingredient;
         return $this;
     }
@@ -244,18 +258,20 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -267,7 +283,7 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['category'])) {
                 if (is_array($data['category'])) {
-                    foreach($data['category'] as $d) {
+                    foreach ($data['category'] as $d) {
                         $this->addCategory($d);
                     }
                 } else {
@@ -282,7 +298,7 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['instance'])) {
                 if (is_array($data['instance'])) {
-                    foreach($data['instance'] as $d) {
+                    foreach ($data['instance'] as $d) {
                         $this->addInstance($d);
                     }
                 } else {
@@ -291,7 +307,7 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['ingredient'])) {
                 if (is_array($data['ingredient'])) {
-                    foreach($data['ingredient'] as $d) {
+                    foreach ($data['ingredient'] as $d) {
                         $this->addIngredient($d);
                     }
                 } else {
@@ -307,40 +323,48 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
         if (0 < count($this->category)) {
             $json['category'] = [];
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $json['category'][] = $category;
             }
         }
-        if (isset($this->code)) $json['code'] = $this->code;
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->instance)) {
             $json['instance'] = [];
-            foreach($this->instance as $instance) {
+            foreach ($this->instance as $instance) {
                 $json['instance'][] = $instance;
             }
         }
         if (0 < count($this->ingredient)) {
             $json['ingredient'] = [];
-            foreach($this->ingredient as $ingredient) {
+            foreach ($this->ingredient as $ingredient) {
                 $json['ingredient'][] = $ingredient;
             }
         }
@@ -352,35 +376,44 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Substance xmlns="http://hl7.org/fhir"></Substance>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Substance xmlns="http://hl7.org/fhir"></Substance>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
         if (0 < count($this->category)) {
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $category->xmlSerialize(true, $sxe->addChild('category'));
             }
         }
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->instance)) {
-            foreach($this->instance as $instance) {
+            foreach ($this->instance as $instance) {
                 $instance->xmlSerialize(true, $sxe->addChild('instance'));
             }
         }
         if (0 < count($this->ingredient)) {
-            foreach($this->ingredient as $ingredient) {
+            foreach ($this->ingredient as $ingredient) {
                 $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

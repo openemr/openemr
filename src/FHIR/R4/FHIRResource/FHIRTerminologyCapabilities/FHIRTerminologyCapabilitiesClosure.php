@@ -82,7 +82,8 @@ class FHIRTerminologyCapabilitiesClosure extends FHIRBackboneElement implements 
      * If cross-system closure is supported.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getTranslation() {
+    public function getTranslation()
+    {
         return $this->translation;
     }
 
@@ -91,7 +92,8 @@ class FHIRTerminologyCapabilitiesClosure extends FHIRBackboneElement implements 
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $translation
      * @return $this
      */
-    public function setTranslation($translation) {
+    public function setTranslation($translation)
+    {
         $this->translation = $translation;
         return $this;
     }
@@ -99,14 +101,16 @@ class FHIRTerminologyCapabilitiesClosure extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['translation'])) {
                 $this->setTranslation($data['translation']);
@@ -120,16 +124,20 @@ class FHIRTerminologyCapabilitiesClosure extends FHIRBackboneElement implements 
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->translation)) $json['translation'] = $this->translation;
+        if (isset($this->translation)) {
+            $json['translation'] = $this->translation;
+        }
         return $json;
     }
 
@@ -138,13 +146,18 @@ class FHIRTerminologyCapabilitiesClosure extends FHIRBackboneElement implements 
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesClosure xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesClosure>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesClosure xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesClosure>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->translation)) $this->translation->xmlSerialize(true, $sxe->addChild('translation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->translation)) {
+            $this->translation->xmlSerialize(true, $sxe->addChild('translation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

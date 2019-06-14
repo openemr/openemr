@@ -94,7 +94,8 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
      * Relative path to the page.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -103,7 +104,8 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
      * Label for the page intended for human display.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -121,7 +124,8 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $title
      * @return $this
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
      * The name of an anchor available on the page.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getAnchor() {
+    public function getAnchor()
+    {
         return $this->anchor;
     }
 
@@ -139,7 +144,8 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $anchor
      * @return $this
      */
-    public function addAnchor($anchor) {
+    public function addAnchor($anchor)
+    {
         $this->anchor[] = $anchor;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['name'])) {
                 $this->setName($data['name']);
@@ -164,7 +172,7 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
             }
             if (isset($data['anchor'])) {
                 if (is_array($data['anchor'])) {
-                    foreach($data['anchor'] as $d) {
+                    foreach ($data['anchor'] as $d) {
                         $this->addAnchor($d);
                     }
                 } else {
@@ -180,20 +188,26 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->title)) $json['title'] = $this->title;
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->title)) {
+            $json['title'] = $this->title;
+        }
         if (0 < count($this->anchor)) {
             $json['anchor'] = [];
-            foreach($this->anchor as $anchor) {
+            foreach ($this->anchor as $anchor) {
                 $json['anchor'][] = $anchor;
             }
         }
@@ -205,19 +219,26 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImplementationGuidePage1 xmlns="http://hl7.org/fhir"></ImplementationGuidePage1>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImplementationGuidePage1 xmlns="http://hl7.org/fhir"></ImplementationGuidePage1>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->title)) $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->title)) {
+            $this->title->xmlSerialize(true, $sxe->addChild('title'));
+        }
         if (0 < count($this->anchor)) {
-            foreach($this->anchor as $anchor) {
+            foreach ($this->anchor as $anchor) {
                 $anchor->xmlSerialize(true, $sxe->addChild('anchor'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

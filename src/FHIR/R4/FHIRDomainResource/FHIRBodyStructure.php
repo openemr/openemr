@@ -125,7 +125,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * Identifier for this instance of the anatomical structure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -134,7 +135,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -143,7 +145,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * Whether this body site is in active use.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getActive() {
+    public function getActive()
+    {
         return $this->active;
     }
 
@@ -152,7 +155,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $active
      * @return $this
      */
-    public function setActive($active) {
+    public function setActive($active)
+    {
         $this->active = $active;
         return $this;
     }
@@ -161,7 +165,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * The kind of structure being represented by the body structure at `BodyStructure.location`.  This can define both normal and abnormal morphologies.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getMorphology() {
+    public function getMorphology()
+    {
         return $this->morphology;
     }
 
@@ -170,7 +175,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $morphology
      * @return $this
      */
-    public function setMorphology($morphology) {
+    public function setMorphology($morphology)
+    {
         $this->morphology = $morphology;
         return $this;
     }
@@ -179,7 +185,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * The anatomical location or region of the specimen, lesion, or body structure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
@@ -188,7 +195,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $location
      * @return $this
      */
-    public function setLocation($location) {
+    public function setLocation($location)
+    {
         $this->location = $location;
         return $this;
     }
@@ -197,7 +205,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * Qualifier to refine the anatomical location.  These include qualifiers for laterality, relative location, directionality, number, and plane.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getLocationQualifier() {
+    public function getLocationQualifier()
+    {
         return $this->locationQualifier;
     }
 
@@ -206,7 +215,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $locationQualifier
      * @return $this
      */
-    public function addLocationQualifier($locationQualifier) {
+    public function addLocationQualifier($locationQualifier)
+    {
         $this->locationQualifier[] = $locationQualifier;
         return $this;
     }
@@ -215,7 +225,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * A summary, characterization or explanation of the body structure.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
@@ -224,7 +235,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $description
      * @return $this
      */
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
         return $this;
     }
@@ -233,7 +245,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * Image or images used to identify a location.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment[]
      */
-    public function getImage() {
+    public function getImage()
+    {
         return $this->image;
     }
 
@@ -242,7 +255,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment $image
      * @return $this
      */
-    public function addImage($image) {
+    public function addImage($image)
+    {
         $this->image[] = $image;
         return $this;
     }
@@ -251,7 +265,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * The person to which the body site belongs.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -260,7 +275,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -268,18 +284,20 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -297,7 +315,7 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['locationQualifier'])) {
                 if (is_array($data['locationQualifier'])) {
-                    foreach($data['locationQualifier'] as $d) {
+                    foreach ($data['locationQualifier'] as $d) {
                         $this->addLocationQualifier($d);
                     }
                 } else {
@@ -309,7 +327,7 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
             }
             if (isset($data['image'])) {
                 if (is_array($data['image'])) {
-                    foreach($data['image'] as $d) {
+                    foreach ($data['image'] as $d) {
                         $this->addImage($d);
                     }
                 } else {
@@ -328,39 +346,51 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->active)) $json['active'] = $this->active;
-        if (isset($this->morphology)) $json['morphology'] = $this->morphology;
-        if (isset($this->location)) $json['location'] = $this->location;
+        if (isset($this->active)) {
+            $json['active'] = $this->active;
+        }
+        if (isset($this->morphology)) {
+            $json['morphology'] = $this->morphology;
+        }
+        if (isset($this->location)) {
+            $json['location'] = $this->location;
+        }
         if (0 < count($this->locationQualifier)) {
             $json['locationQualifier'] = [];
-            foreach($this->locationQualifier as $locationQualifier) {
+            foreach ($this->locationQualifier as $locationQualifier) {
                 $json['locationQualifier'][] = $locationQualifier;
             }
         }
-        if (isset($this->description)) $json['description'] = $this->description;
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
         if (0 < count($this->image)) {
             $json['image'] = [];
-            foreach($this->image as $image) {
+            foreach ($this->image as $image) {
                 $json['image'][] = $image;
             }
         }
-        if (isset($this->patient)) $json['patient'] = $this->patient;
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
         return $json;
     }
 
@@ -369,32 +399,45 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<BodyStructure xmlns="http://hl7.org/fhir"></BodyStructure>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<BodyStructure xmlns="http://hl7.org/fhir"></BodyStructure>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->active)) $this->active->xmlSerialize(true, $sxe->addChild('active'));
-        if (isset($this->morphology)) $this->morphology->xmlSerialize(true, $sxe->addChild('morphology'));
-        if (isset($this->location)) $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        if (isset($this->active)) {
+            $this->active->xmlSerialize(true, $sxe->addChild('active'));
+        }
+        if (isset($this->morphology)) {
+            $this->morphology->xmlSerialize(true, $sxe->addChild('morphology'));
+        }
+        if (isset($this->location)) {
+            $this->location->xmlSerialize(true, $sxe->addChild('location'));
+        }
         if (0 < count($this->locationQualifier)) {
-            foreach($this->locationQualifier as $locationQualifier) {
+            foreach ($this->locationQualifier as $locationQualifier) {
                 $locationQualifier->xmlSerialize(true, $sxe->addChild('locationQualifier'));
             }
         }
-        if (isset($this->description)) $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        if (isset($this->description)) {
+            $this->description->xmlSerialize(true, $sxe->addChild('description'));
+        }
         if (0 < count($this->image)) {
-            foreach($this->image as $image) {
+            foreach ($this->image as $image) {
                 $image->xmlSerialize(true, $sxe->addChild('image'));
             }
         }
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -88,7 +88,8 @@ class FHIRPersonLink extends FHIRBackboneElement implements \JsonSerializable
      * The resource to which this actual person is associated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getTarget() {
+    public function getTarget()
+    {
         return $this->target;
     }
 
@@ -97,7 +98,8 @@ class FHIRPersonLink extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $target
      * @return $this
      */
-    public function setTarget($target) {
+    public function setTarget($target)
+    {
         $this->target = $target;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRPersonLink extends FHIRBackboneElement implements \JsonSerializable
      * Level of assurance that this link is associated with the target resource.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentityAssuranceLevel
      */
-    public function getAssurance() {
+    public function getAssurance()
+    {
         return $this->assurance;
     }
 
@@ -115,7 +118,8 @@ class FHIRPersonLink extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentityAssuranceLevel $assurance
      * @return $this
      */
-    public function setAssurance($assurance) {
+    public function setAssurance($assurance)
+    {
         $this->assurance = $assurance;
         return $this;
     }
@@ -123,14 +127,16 @@ class FHIRPersonLink extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['target'])) {
                 $this->setTarget($data['target']);
@@ -147,17 +153,23 @@ class FHIRPersonLink extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->target)) $json['target'] = $this->target;
-        if (isset($this->assurance)) $json['assurance'] = $this->assurance;
+        if (isset($this->target)) {
+            $json['target'] = $this->target;
+        }
+        if (isset($this->assurance)) {
+            $json['assurance'] = $this->assurance;
+        }
         return $json;
     }
 
@@ -166,14 +178,21 @@ class FHIRPersonLink extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<PersonLink xmlns="http://hl7.org/fhir"></PersonLink>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<PersonLink xmlns="http://hl7.org/fhir"></PersonLink>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->target)) $this->target->xmlSerialize(true, $sxe->addChild('target'));
-        if (isset($this->assurance)) $this->assurance->xmlSerialize(true, $sxe->addChild('assurance'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->target)) {
+            $this->target->xmlSerialize(true, $sxe->addChild('target'));
+        }
+        if (isset($this->assurance)) {
+            $this->assurance->xmlSerialize(true, $sxe->addChild('assurance'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

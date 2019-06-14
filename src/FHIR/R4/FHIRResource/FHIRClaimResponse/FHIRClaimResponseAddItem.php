@@ -197,7 +197,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * Claim items which this service line is intended to replace.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
-    public function getItemSequence() {
+    public function getItemSequence()
+    {
         return $this->itemSequence;
     }
 
@@ -206,7 +207,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $itemSequence
      * @return $this
      */
-    public function addItemSequence($itemSequence) {
+    public function addItemSequence($itemSequence)
+    {
         $this->itemSequence[] = $itemSequence;
         return $this;
     }
@@ -215,7 +217,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * The sequence number of the details within the claim item which this line is intended to replace.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
-    public function getDetailSequence() {
+    public function getDetailSequence()
+    {
         return $this->detailSequence;
     }
 
@@ -224,7 +227,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $detailSequence
      * @return $this
      */
-    public function addDetailSequence($detailSequence) {
+    public function addDetailSequence($detailSequence)
+    {
         $this->detailSequence[] = $detailSequence;
         return $this;
     }
@@ -233,7 +237,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * The sequence number of the sub-details within the details within the claim item which this line is intended to replace.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
-    public function getSubdetailSequence() {
+    public function getSubdetailSequence()
+    {
         return $this->subdetailSequence;
     }
 
@@ -242,7 +247,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $subdetailSequence
      * @return $this
      */
-    public function addSubdetailSequence($subdetailSequence) {
+    public function addSubdetailSequence($subdetailSequence)
+    {
         $this->subdetailSequence[] = $subdetailSequence;
         return $this;
     }
@@ -251,7 +257,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * The providers who are authorized for the services rendered to the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getProvider() {
+    public function getProvider()
+    {
         return $this->provider;
     }
 
@@ -260,7 +267,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $provider
      * @return $this
      */
-    public function addProvider($provider) {
+    public function addProvider($provider)
+    {
         $this->provider[] = $provider;
         return $this;
     }
@@ -269,7 +277,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * When the value is a group code then this item collects a set of related claim details, otherwise this contains the product, service, drug or other billing code for the item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getProductOrService() {
+    public function getProductOrService()
+    {
         return $this->productOrService;
     }
 
@@ -278,7 +287,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $productOrService
      * @return $this
      */
-    public function setProductOrService($productOrService) {
+    public function setProductOrService($productOrService)
+    {
         $this->productOrService = $productOrService;
         return $this;
     }
@@ -287,7 +297,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * Item typification or modifiers codes to convey additional context for the product or service.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getModifier() {
+    public function getModifier()
+    {
         return $this->modifier;
     }
 
@@ -296,7 +307,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $modifier
      * @return $this
      */
-    public function addModifier($modifier) {
+    public function addModifier($modifier)
+    {
         $this->modifier[] = $modifier;
         return $this;
     }
@@ -305,7 +317,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * Identifies the program under which this may be recovered.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getProgramCode() {
+    public function getProgramCode()
+    {
         return $this->programCode;
     }
 
@@ -314,7 +327,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $programCode
      * @return $this
      */
-    public function addProgramCode($programCode) {
+    public function addProgramCode($programCode)
+    {
         $this->programCode[] = $programCode;
         return $this;
     }
@@ -322,7 +336,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getServicedDate() {
+    public function getServicedDate()
+    {
         return $this->servicedDate;
     }
 
@@ -330,7 +345,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $servicedDate
      * @return $this
      */
-    public function setServicedDate($servicedDate) {
+    public function setServicedDate($servicedDate)
+    {
         $this->servicedDate = $servicedDate;
         return $this;
     }
@@ -338,7 +354,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getServicedPeriod() {
+    public function getServicedPeriod()
+    {
         return $this->servicedPeriod;
     }
 
@@ -346,7 +363,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $servicedPeriod
      * @return $this
      */
-    public function setServicedPeriod($servicedPeriod) {
+    public function setServicedPeriod($servicedPeriod)
+    {
         $this->servicedPeriod = $servicedPeriod;
         return $this;
     }
@@ -354,7 +372,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getLocationCodeableConcept() {
+    public function getLocationCodeableConcept()
+    {
         return $this->locationCodeableConcept;
     }
 
@@ -362,7 +381,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $locationCodeableConcept
      * @return $this
      */
-    public function setLocationCodeableConcept($locationCodeableConcept) {
+    public function setLocationCodeableConcept($locationCodeableConcept)
+    {
         $this->locationCodeableConcept = $locationCodeableConcept;
         return $this;
     }
@@ -370,7 +390,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress
      */
-    public function getLocationAddress() {
+    public function getLocationAddress()
+    {
         return $this->locationAddress;
     }
 
@@ -378,7 +399,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $locationAddress
      * @return $this
      */
-    public function setLocationAddress($locationAddress) {
+    public function setLocationAddress($locationAddress)
+    {
         $this->locationAddress = $locationAddress;
         return $this;
     }
@@ -386,7 +408,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getLocationReference() {
+    public function getLocationReference()
+    {
         return $this->locationReference;
     }
 
@@ -394,7 +417,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $locationReference
      * @return $this
      */
-    public function setLocationReference($locationReference) {
+    public function setLocationReference($locationReference)
+    {
         $this->locationReference = $locationReference;
         return $this;
     }
@@ -403,7 +427,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * The number of repetitions of a service or product.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->quantity;
     }
 
@@ -412,7 +437,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $quantity
      * @return $this
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->quantity = $quantity;
         return $this;
     }
@@ -421,7 +447,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * If the item is not a group then this is the fee for the product or service, otherwise this is the total of the fees for the details of the group.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getUnitPrice() {
+    public function getUnitPrice()
+    {
         return $this->unitPrice;
     }
 
@@ -430,7 +457,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $unitPrice
      * @return $this
      */
-    public function setUnitPrice($unitPrice) {
+    public function setUnitPrice($unitPrice)
+    {
         $this->unitPrice = $unitPrice;
         return $this;
     }
@@ -439,7 +467,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * A real number that represents a multiplier used in determining the overall value of services delivered and/or goods received. The concept of a Factor allows for a discount or surcharge multiplier to be applied to a monetary amount.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal
      */
-    public function getFactor() {
+    public function getFactor()
+    {
         return $this->factor;
     }
 
@@ -448,7 +477,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal $factor
      * @return $this
      */
-    public function setFactor($factor) {
+    public function setFactor($factor)
+    {
         $this->factor = $factor;
         return $this;
     }
@@ -457,7 +487,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * The quantity times the unit price for an additional service or product or charge.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney
      */
-    public function getNet() {
+    public function getNet()
+    {
         return $this->net;
     }
 
@@ -466,7 +497,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRMoney $net
      * @return $this
      */
-    public function setNet($net) {
+    public function setNet($net)
+    {
         $this->net = $net;
         return $this;
     }
@@ -475,7 +507,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * Physical service site on the patient (limb, tooth, etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getBodySite() {
+    public function getBodySite()
+    {
         return $this->bodySite;
     }
 
@@ -484,7 +517,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $bodySite
      * @return $this
      */
-    public function setBodySite($bodySite) {
+    public function setBodySite($bodySite)
+    {
         $this->bodySite = $bodySite;
         return $this;
     }
@@ -493,7 +527,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * A region or surface of the bodySite, e.g. limb region or tooth surface(s).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getSubSite() {
+    public function getSubSite()
+    {
         return $this->subSite;
     }
 
@@ -502,7 +537,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $subSite
      * @return $this
      */
-    public function addSubSite($subSite) {
+    public function addSubSite($subSite)
+    {
         $this->subSite[] = $subSite;
         return $this;
     }
@@ -511,7 +547,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * The numbers associated with notes below which apply to the adjudication of this item.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt[]
      */
-    public function getNoteNumber() {
+    public function getNoteNumber()
+    {
         return $this->noteNumber;
     }
 
@@ -520,7 +557,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $noteNumber
      * @return $this
      */
-    public function addNoteNumber($noteNumber) {
+    public function addNoteNumber($noteNumber)
+    {
         $this->noteNumber[] = $noteNumber;
         return $this;
     }
@@ -529,7 +567,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * The adjudication results.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseAdjudication[]
      */
-    public function getAdjudication() {
+    public function getAdjudication()
+    {
         return $this->adjudication;
     }
 
@@ -538,7 +577,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseAdjudication $adjudication
      * @return $this
      */
-    public function addAdjudication($adjudication) {
+    public function addAdjudication($adjudication)
+    {
         $this->adjudication[] = $adjudication;
         return $this;
     }
@@ -547,7 +587,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * The second-tier service adjudications for payor added services.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseDetail1[]
      */
-    public function getDetail() {
+    public function getDetail()
+    {
         return $this->detail;
     }
 
@@ -556,7 +597,8 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRClaimResponse\FHIRClaimResponseDetail1 $detail
      * @return $this
      */
-    public function addDetail($detail) {
+    public function addDetail($detail)
+    {
         $this->detail[] = $detail;
         return $this;
     }
@@ -564,18 +606,20 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['itemSequence'])) {
                 if (is_array($data['itemSequence'])) {
-                    foreach($data['itemSequence'] as $d) {
+                    foreach ($data['itemSequence'] as $d) {
                         $this->addItemSequence($d);
                     }
                 } else {
@@ -584,7 +628,7 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['detailSequence'])) {
                 if (is_array($data['detailSequence'])) {
-                    foreach($data['detailSequence'] as $d) {
+                    foreach ($data['detailSequence'] as $d) {
                         $this->addDetailSequence($d);
                     }
                 } else {
@@ -593,7 +637,7 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['subdetailSequence'])) {
                 if (is_array($data['subdetailSequence'])) {
-                    foreach($data['subdetailSequence'] as $d) {
+                    foreach ($data['subdetailSequence'] as $d) {
                         $this->addSubdetailSequence($d);
                     }
                 } else {
@@ -602,7 +646,7 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['provider'])) {
                 if (is_array($data['provider'])) {
-                    foreach($data['provider'] as $d) {
+                    foreach ($data['provider'] as $d) {
                         $this->addProvider($d);
                     }
                 } else {
@@ -614,7 +658,7 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['modifier'])) {
                 if (is_array($data['modifier'])) {
-                    foreach($data['modifier'] as $d) {
+                    foreach ($data['modifier'] as $d) {
                         $this->addModifier($d);
                     }
                 } else {
@@ -623,7 +667,7 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['programCode'])) {
                 if (is_array($data['programCode'])) {
-                    foreach($data['programCode'] as $d) {
+                    foreach ($data['programCode'] as $d) {
                         $this->addProgramCode($d);
                     }
                 } else {
@@ -662,7 +706,7 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['subSite'])) {
                 if (is_array($data['subSite'])) {
-                    foreach($data['subSite'] as $d) {
+                    foreach ($data['subSite'] as $d) {
                         $this->addSubSite($d);
                     }
                 } else {
@@ -671,7 +715,7 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['noteNumber'])) {
                 if (is_array($data['noteNumber'])) {
-                    foreach($data['noteNumber'] as $d) {
+                    foreach ($data['noteNumber'] as $d) {
                         $this->addNoteNumber($d);
                     }
                 } else {
@@ -680,7 +724,7 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['adjudication'])) {
                 if (is_array($data['adjudication'])) {
-                    foreach($data['adjudication'] as $d) {
+                    foreach ($data['adjudication'] as $d) {
                         $this->addAdjudication($d);
                     }
                 } else {
@@ -689,7 +733,7 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
             }
             if (isset($data['detail'])) {
                 if (is_array($data['detail'])) {
-                    foreach($data['detail'] as $d) {
+                    foreach ($data['detail'] as $d) {
                         $this->addDetail($d);
                     }
                 } else {
@@ -705,83 +749,107 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->itemSequence)) {
             $json['itemSequence'] = [];
-            foreach($this->itemSequence as $itemSequence) {
+            foreach ($this->itemSequence as $itemSequence) {
                 $json['itemSequence'][] = $itemSequence;
             }
         }
         if (0 < count($this->detailSequence)) {
             $json['detailSequence'] = [];
-            foreach($this->detailSequence as $detailSequence) {
+            foreach ($this->detailSequence as $detailSequence) {
                 $json['detailSequence'][] = $detailSequence;
             }
         }
         if (0 < count($this->subdetailSequence)) {
             $json['subdetailSequence'] = [];
-            foreach($this->subdetailSequence as $subdetailSequence) {
+            foreach ($this->subdetailSequence as $subdetailSequence) {
                 $json['subdetailSequence'][] = $subdetailSequence;
             }
         }
         if (0 < count($this->provider)) {
             $json['provider'] = [];
-            foreach($this->provider as $provider) {
+            foreach ($this->provider as $provider) {
                 $json['provider'][] = $provider;
             }
         }
-        if (isset($this->productOrService)) $json['productOrService'] = $this->productOrService;
+        if (isset($this->productOrService)) {
+            $json['productOrService'] = $this->productOrService;
+        }
         if (0 < count($this->modifier)) {
             $json['modifier'] = [];
-            foreach($this->modifier as $modifier) {
+            foreach ($this->modifier as $modifier) {
                 $json['modifier'][] = $modifier;
             }
         }
         if (0 < count($this->programCode)) {
             $json['programCode'] = [];
-            foreach($this->programCode as $programCode) {
+            foreach ($this->programCode as $programCode) {
                 $json['programCode'][] = $programCode;
             }
         }
-        if (isset($this->servicedDate)) $json['servicedDate'] = $this->servicedDate;
-        if (isset($this->servicedPeriod)) $json['servicedPeriod'] = $this->servicedPeriod;
-        if (isset($this->locationCodeableConcept)) $json['locationCodeableConcept'] = $this->locationCodeableConcept;
-        if (isset($this->locationAddress)) $json['locationAddress'] = $this->locationAddress;
-        if (isset($this->locationReference)) $json['locationReference'] = $this->locationReference;
-        if (isset($this->quantity)) $json['quantity'] = $this->quantity;
-        if (isset($this->unitPrice)) $json['unitPrice'] = $this->unitPrice;
-        if (isset($this->factor)) $json['factor'] = $this->factor;
-        if (isset($this->net)) $json['net'] = $this->net;
-        if (isset($this->bodySite)) $json['bodySite'] = $this->bodySite;
+        if (isset($this->servicedDate)) {
+            $json['servicedDate'] = $this->servicedDate;
+        }
+        if (isset($this->servicedPeriod)) {
+            $json['servicedPeriod'] = $this->servicedPeriod;
+        }
+        if (isset($this->locationCodeableConcept)) {
+            $json['locationCodeableConcept'] = $this->locationCodeableConcept;
+        }
+        if (isset($this->locationAddress)) {
+            $json['locationAddress'] = $this->locationAddress;
+        }
+        if (isset($this->locationReference)) {
+            $json['locationReference'] = $this->locationReference;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity'] = $this->quantity;
+        }
+        if (isset($this->unitPrice)) {
+            $json['unitPrice'] = $this->unitPrice;
+        }
+        if (isset($this->factor)) {
+            $json['factor'] = $this->factor;
+        }
+        if (isset($this->net)) {
+            $json['net'] = $this->net;
+        }
+        if (isset($this->bodySite)) {
+            $json['bodySite'] = $this->bodySite;
+        }
         if (0 < count($this->subSite)) {
             $json['subSite'] = [];
-            foreach($this->subSite as $subSite) {
+            foreach ($this->subSite as $subSite) {
                 $json['subSite'][] = $subSite;
             }
         }
         if (0 < count($this->noteNumber)) {
             $json['noteNumber'] = [];
-            foreach($this->noteNumber as $noteNumber) {
+            foreach ($this->noteNumber as $noteNumber) {
                 $json['noteNumber'][] = $noteNumber;
             }
         }
         if (0 < count($this->adjudication)) {
             $json['adjudication'] = [];
-            foreach($this->adjudication as $adjudication) {
+            foreach ($this->adjudication as $adjudication) {
                 $json['adjudication'][] = $adjudication;
             }
         }
         if (0 < count($this->detail)) {
             $json['detail'] = [];
-            foreach($this->detail as $detail) {
+            foreach ($this->detail as $detail) {
                 $json['detail'][] = $detail;
             }
         }
@@ -793,73 +861,98 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimResponseAddItem xmlns="http://hl7.org/fhir"></ClaimResponseAddItem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimResponseAddItem xmlns="http://hl7.org/fhir"></ClaimResponseAddItem>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->itemSequence)) {
-            foreach($this->itemSequence as $itemSequence) {
+            foreach ($this->itemSequence as $itemSequence) {
                 $itemSequence->xmlSerialize(true, $sxe->addChild('itemSequence'));
             }
         }
         if (0 < count($this->detailSequence)) {
-            foreach($this->detailSequence as $detailSequence) {
+            foreach ($this->detailSequence as $detailSequence) {
                 $detailSequence->xmlSerialize(true, $sxe->addChild('detailSequence'));
             }
         }
         if (0 < count($this->subdetailSequence)) {
-            foreach($this->subdetailSequence as $subdetailSequence) {
+            foreach ($this->subdetailSequence as $subdetailSequence) {
                 $subdetailSequence->xmlSerialize(true, $sxe->addChild('subdetailSequence'));
             }
         }
         if (0 < count($this->provider)) {
-            foreach($this->provider as $provider) {
+            foreach ($this->provider as $provider) {
                 $provider->xmlSerialize(true, $sxe->addChild('provider'));
             }
         }
-        if (isset($this->productOrService)) $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
+        if (isset($this->productOrService)) {
+            $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
+        }
         if (0 < count($this->modifier)) {
-            foreach($this->modifier as $modifier) {
+            foreach ($this->modifier as $modifier) {
                 $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
             }
         }
         if (0 < count($this->programCode)) {
-            foreach($this->programCode as $programCode) {
+            foreach ($this->programCode as $programCode) {
                 $programCode->xmlSerialize(true, $sxe->addChild('programCode'));
             }
         }
-        if (isset($this->servicedDate)) $this->servicedDate->xmlSerialize(true, $sxe->addChild('servicedDate'));
-        if (isset($this->servicedPeriod)) $this->servicedPeriod->xmlSerialize(true, $sxe->addChild('servicedPeriod'));
-        if (isset($this->locationCodeableConcept)) $this->locationCodeableConcept->xmlSerialize(true, $sxe->addChild('locationCodeableConcept'));
-        if (isset($this->locationAddress)) $this->locationAddress->xmlSerialize(true, $sxe->addChild('locationAddress'));
-        if (isset($this->locationReference)) $this->locationReference->xmlSerialize(true, $sxe->addChild('locationReference'));
-        if (isset($this->quantity)) $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
-        if (isset($this->unitPrice)) $this->unitPrice->xmlSerialize(true, $sxe->addChild('unitPrice'));
-        if (isset($this->factor)) $this->factor->xmlSerialize(true, $sxe->addChild('factor'));
-        if (isset($this->net)) $this->net->xmlSerialize(true, $sxe->addChild('net'));
-        if (isset($this->bodySite)) $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
+        if (isset($this->servicedDate)) {
+            $this->servicedDate->xmlSerialize(true, $sxe->addChild('servicedDate'));
+        }
+        if (isset($this->servicedPeriod)) {
+            $this->servicedPeriod->xmlSerialize(true, $sxe->addChild('servicedPeriod'));
+        }
+        if (isset($this->locationCodeableConcept)) {
+            $this->locationCodeableConcept->xmlSerialize(true, $sxe->addChild('locationCodeableConcept'));
+        }
+        if (isset($this->locationAddress)) {
+            $this->locationAddress->xmlSerialize(true, $sxe->addChild('locationAddress'));
+        }
+        if (isset($this->locationReference)) {
+            $this->locationReference->xmlSerialize(true, $sxe->addChild('locationReference'));
+        }
+        if (isset($this->quantity)) {
+            $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
+        }
+        if (isset($this->unitPrice)) {
+            $this->unitPrice->xmlSerialize(true, $sxe->addChild('unitPrice'));
+        }
+        if (isset($this->factor)) {
+            $this->factor->xmlSerialize(true, $sxe->addChild('factor'));
+        }
+        if (isset($this->net)) {
+            $this->net->xmlSerialize(true, $sxe->addChild('net'));
+        }
+        if (isset($this->bodySite)) {
+            $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
+        }
         if (0 < count($this->subSite)) {
-            foreach($this->subSite as $subSite) {
+            foreach ($this->subSite as $subSite) {
                 $subSite->xmlSerialize(true, $sxe->addChild('subSite'));
             }
         }
         if (0 < count($this->noteNumber)) {
-            foreach($this->noteNumber as $noteNumber) {
+            foreach ($this->noteNumber as $noteNumber) {
                 $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
             }
         }
         if (0 < count($this->adjudication)) {
-            foreach($this->adjudication as $adjudication) {
+            foreach ($this->adjudication as $adjudication) {
                 $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
             }
         }
         if (0 < count($this->detail)) {
-            foreach($this->detail as $detail) {
+            foreach ($this->detail as $detail) {
                 $detail->xmlSerialize(true, $sxe->addChild('detail'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

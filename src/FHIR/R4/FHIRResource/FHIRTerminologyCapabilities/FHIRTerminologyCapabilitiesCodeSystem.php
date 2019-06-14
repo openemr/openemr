@@ -94,7 +94,8 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
      * URI for the Code System.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical
      */
-    public function getUri() {
+    public function getUri()
+    {
         return $this->uri;
     }
 
@@ -103,7 +104,8 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $uri
      * @return $this
      */
-    public function setUri($uri) {
+    public function setUri($uri)
+    {
         $this->uri = $uri;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
      * For the code system, a list of versions that are supported by the server.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesVersion[]
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return $this->version;
     }
 
@@ -121,7 +124,8 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities\FHIRTerminologyCapabilitiesVersion $version
      * @return $this
      */
-    public function addVersion($version) {
+    public function addVersion($version)
+    {
         $this->version[] = $version;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
      * True if subsumption is supported for this version of the code system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getSubsumption() {
+    public function getSubsumption()
+    {
         return $this->subsumption;
     }
 
@@ -139,7 +144,8 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $subsumption
      * @return $this
      */
-    public function setSubsumption($subsumption) {
+    public function setSubsumption($subsumption)
+    {
         $this->subsumption = $subsumption;
         return $this;
     }
@@ -147,21 +153,23 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['uri'])) {
                 $this->setUri($data['uri']);
             }
             if (isset($data['version'])) {
                 if (is_array($data['version'])) {
-                    foreach($data['version'] as $d) {
+                    foreach ($data['version'] as $d) {
                         $this->addVersion($d);
                     }
                 } else {
@@ -180,23 +188,29 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->uri)) $json['uri'] = $this->uri;
+        if (isset($this->uri)) {
+            $json['uri'] = $this->uri;
+        }
         if (0 < count($this->version)) {
             $json['version'] = [];
-            foreach($this->version as $version) {
+            foreach ($this->version as $version) {
                 $json['version'][] = $version;
             }
         }
-        if (isset($this->subsumption)) $json['subsumption'] = $this->subsumption;
+        if (isset($this->subsumption)) {
+            $json['subsumption'] = $this->subsumption;
+        }
         return $json;
     }
 
@@ -205,19 +219,26 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesCodeSystem xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesCodeSystem>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<TerminologyCapabilitiesCodeSystem xmlns="http://hl7.org/fhir"></TerminologyCapabilitiesCodeSystem>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->uri)) $this->uri->xmlSerialize(true, $sxe->addChild('uri'));
+        if (isset($this->uri)) {
+            $this->uri->xmlSerialize(true, $sxe->addChild('uri'));
+        }
         if (0 < count($this->version)) {
-            foreach($this->version as $version) {
+            foreach ($this->version as $version) {
                 $version->xmlSerialize(true, $sxe->addChild('version'));
             }
         }
-        if (isset($this->subsumption)) $this->subsumption->xmlSerialize(true, $sxe->addChild('subsumption'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->subsumption)) {
+            $this->subsumption->xmlSerialize(true, $sxe->addChild('subsumption'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -89,7 +89,8 @@ class FHIRRatio extends FHIRElement implements \JsonSerializable
      * The value of the numerator.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getNumerator() {
+    public function getNumerator()
+    {
         return $this->numerator;
     }
 
@@ -98,7 +99,8 @@ class FHIRRatio extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $numerator
      * @return $this
      */
-    public function setNumerator($numerator) {
+    public function setNumerator($numerator)
+    {
         $this->numerator = $numerator;
         return $this;
     }
@@ -107,7 +109,8 @@ class FHIRRatio extends FHIRElement implements \JsonSerializable
      * The value of the denominator.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getDenominator() {
+    public function getDenominator()
+    {
         return $this->denominator;
     }
 
@@ -116,7 +119,8 @@ class FHIRRatio extends FHIRElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $denominator
      * @return $this
      */
-    public function setDenominator($denominator) {
+    public function setDenominator($denominator)
+    {
         $this->denominator = $denominator;
         return $this;
     }
@@ -124,14 +128,16 @@ class FHIRRatio extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['numerator'])) {
                 $this->setNumerator($data['numerator']);
@@ -148,17 +154,23 @@ class FHIRRatio extends FHIRElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->numerator)) $json['numerator'] = $this->numerator;
-        if (isset($this->denominator)) $json['denominator'] = $this->denominator;
+        if (isset($this->numerator)) {
+            $json['numerator'] = $this->numerator;
+        }
+        if (isset($this->denominator)) {
+            $json['denominator'] = $this->denominator;
+        }
         return $json;
     }
 
@@ -167,14 +179,21 @@ class FHIRRatio extends FHIRElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<Ratio xmlns="http://hl7.org/fhir"></Ratio>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<Ratio xmlns="http://hl7.org/fhir"></Ratio>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->numerator)) $this->numerator->xmlSerialize(true, $sxe->addChild('numerator'));
-        if (isset($this->denominator)) $this->denominator->xmlSerialize(true, $sxe->addChild('denominator'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->numerator)) {
+            $this->numerator->xmlSerialize(true, $sxe->addChild('numerator'));
+        }
+        if (isset($this->denominator)) {
+            $this->denominator->xmlSerialize(true, $sxe->addChild('denominator'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

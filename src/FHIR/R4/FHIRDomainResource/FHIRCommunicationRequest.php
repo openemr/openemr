@@ -213,7 +213,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * Business identifiers assigned to this communication request by the performer or other systems which remain constant as the resource is updated and propagates from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -222,7 +223,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -231,7 +233,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * A plan or proposal that is fulfilled in whole or in part by this request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getBasedOn() {
+    public function getBasedOn()
+    {
         return $this->basedOn;
     }
 
@@ -240,7 +243,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $basedOn
      * @return $this
      */
-    public function addBasedOn($basedOn) {
+    public function addBasedOn($basedOn)
+    {
         $this->basedOn[] = $basedOn;
         return $this;
     }
@@ -249,7 +253,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * Completed or terminated request(s) whose function is taken by this new request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReplaces() {
+    public function getReplaces()
+    {
         return $this->replaces;
     }
 
@@ -258,7 +263,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $replaces
      * @return $this
      */
-    public function addReplaces($replaces) {
+    public function addReplaces($replaces)
+    {
         $this->replaces[] = $replaces;
         return $this;
     }
@@ -267,7 +273,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * A shared identifier common to all requests that were authorized more or less simultaneously by a single author, representing the identifier of the requisition, prescription or similar form.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier
      */
-    public function getGroupIdentifier() {
+    public function getGroupIdentifier()
+    {
         return $this->groupIdentifier;
     }
 
@@ -276,7 +283,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $groupIdentifier
      * @return $this
      */
-    public function setGroupIdentifier($groupIdentifier) {
+    public function setGroupIdentifier($groupIdentifier)
+    {
         $this->groupIdentifier = $groupIdentifier;
         return $this;
     }
@@ -285,7 +293,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * The status of the proposal or order.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -294,7 +303,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -303,7 +313,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * Captures the reason for the current state of the CommunicationRequest.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatusReason() {
+    public function getStatusReason()
+    {
         return $this->statusReason;
     }
 
@@ -312,7 +323,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $statusReason
      * @return $this
      */
-    public function setStatusReason($statusReason) {
+    public function setStatusReason($statusReason)
+    {
         $this->statusReason = $statusReason;
         return $this;
     }
@@ -321,7 +333,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * The type of message to be sent such as alert, notification, reminder, instruction, etc.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -330,7 +343,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $category
      * @return $this
      */
-    public function addCategory($category) {
+    public function addCategory($category)
+    {
         $this->category[] = $category;
         return $this;
     }
@@ -339,7 +353,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * Characterizes how quickly the proposed act must be initiated. Includes concepts such as stat, urgent, routine.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority
      */
-    public function getPriority() {
+    public function getPriority()
+    {
         return $this->priority;
     }
 
@@ -348,7 +363,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority $priority
      * @return $this
      */
-    public function setPriority($priority) {
+    public function setPriority($priority)
+    {
         $this->priority = $priority;
         return $this;
     }
@@ -357,7 +373,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * If true indicates that the CommunicationRequest is asking for the specified action to *not* occur.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getDoNotPerform() {
+    public function getDoNotPerform()
+    {
         return $this->doNotPerform;
     }
 
@@ -366,7 +383,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $doNotPerform
      * @return $this
      */
-    public function setDoNotPerform($doNotPerform) {
+    public function setDoNotPerform($doNotPerform)
+    {
         $this->doNotPerform = $doNotPerform;
         return $this;
     }
@@ -375,7 +393,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * A channel that was used for this communication (e.g. email, fax).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getMedium() {
+    public function getMedium()
+    {
         return $this->medium;
     }
 
@@ -384,7 +403,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $medium
      * @return $this
      */
-    public function addMedium($medium) {
+    public function addMedium($medium)
+    {
         $this->medium[] = $medium;
         return $this;
     }
@@ -393,7 +413,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * The patient or group that is the focus of this communication request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -402,7 +423,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -411,7 +433,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * Other resources that pertain to this communication request and to which this communication request should be associated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getAbout() {
+    public function getAbout()
+    {
         return $this->about;
     }
 
@@ -420,7 +443,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $about
      * @return $this
      */
-    public function addAbout($about) {
+    public function addAbout($about)
+    {
         $this->about[] = $about;
         return $this;
     }
@@ -429,7 +453,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * The Encounter during which this CommunicationRequest was created or to which the creation of this record is tightly associated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getEncounter() {
+    public function getEncounter()
+    {
         return $this->encounter;
     }
 
@@ -438,7 +463,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $encounter
      * @return $this
      */
-    public function setEncounter($encounter) {
+    public function setEncounter($encounter)
+    {
         $this->encounter = $encounter;
         return $this;
     }
@@ -447,7 +473,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * Text, attachment(s), or resource(s) to be communicated to the recipient.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRCommunicationRequest\FHIRCommunicationRequestPayload[]
      */
-    public function getPayload() {
+    public function getPayload()
+    {
         return $this->payload;
     }
 
@@ -456,7 +483,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRCommunicationRequest\FHIRCommunicationRequestPayload $payload
      * @return $this
      */
-    public function addPayload($payload) {
+    public function addPayload($payload)
+    {
         $this->payload[] = $payload;
         return $this;
     }
@@ -464,7 +492,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getOccurrenceDateTime() {
+    public function getOccurrenceDateTime()
+    {
         return $this->occurrenceDateTime;
     }
 
@@ -472,7 +501,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $occurrenceDateTime
      * @return $this
      */
-    public function setOccurrenceDateTime($occurrenceDateTime) {
+    public function setOccurrenceDateTime($occurrenceDateTime)
+    {
         $this->occurrenceDateTime = $occurrenceDateTime;
         return $this;
     }
@@ -480,7 +510,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getOccurrencePeriod() {
+    public function getOccurrencePeriod()
+    {
         return $this->occurrencePeriod;
     }
 
@@ -488,7 +519,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $occurrencePeriod
      * @return $this
      */
-    public function setOccurrencePeriod($occurrencePeriod) {
+    public function setOccurrencePeriod($occurrencePeriod)
+    {
         $this->occurrencePeriod = $occurrencePeriod;
         return $this;
     }
@@ -497,7 +529,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * For draft requests, indicates the date of initial creation.  For requests with other statuses, indicates the date of activation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getAuthoredOn() {
+    public function getAuthoredOn()
+    {
         return $this->authoredOn;
     }
 
@@ -506,7 +539,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $authoredOn
      * @return $this
      */
-    public function setAuthoredOn($authoredOn) {
+    public function setAuthoredOn($authoredOn)
+    {
         $this->authoredOn = $authoredOn;
         return $this;
     }
@@ -515,7 +549,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * The device, individual, or organization who initiated the request and has responsibility for its activation.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRequester() {
+    public function getRequester()
+    {
         return $this->requester;
     }
 
@@ -524,7 +559,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $requester
      * @return $this
      */
-    public function setRequester($requester) {
+    public function setRequester($requester)
+    {
         $this->requester = $requester;
         return $this;
     }
@@ -533,7 +569,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * The entity (e.g. person, organization, clinical information system, device, group, or care team) which is the intended target of the communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getRecipient() {
+    public function getRecipient()
+    {
         return $this->recipient;
     }
 
@@ -542,7 +579,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $recipient
      * @return $this
      */
-    public function addRecipient($recipient) {
+    public function addRecipient($recipient)
+    {
         $this->recipient[] = $recipient;
         return $this;
     }
@@ -551,7 +589,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * The entity (e.g. person, organization, clinical information system, or device) which is to be the source of the communication.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSender() {
+    public function getSender()
+    {
         return $this->sender;
     }
 
@@ -560,7 +599,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $sender
      * @return $this
      */
-    public function setSender($sender) {
+    public function setSender($sender)
+    {
         $this->sender = $sender;
         return $this;
     }
@@ -569,7 +609,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * Describes why the request is being made in coded or textual form.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getReasonCode() {
+    public function getReasonCode()
+    {
         return $this->reasonCode;
     }
 
@@ -578,7 +619,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reasonCode
      * @return $this
      */
-    public function addReasonCode($reasonCode) {
+    public function addReasonCode($reasonCode)
+    {
         $this->reasonCode[] = $reasonCode;
         return $this;
     }
@@ -587,7 +629,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * Indicates another resource whose existence justifies this request.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReasonReference() {
+    public function getReasonReference()
+    {
         return $this->reasonReference;
     }
 
@@ -596,7 +639,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reasonReference
      * @return $this
      */
-    public function addReasonReference($reasonReference) {
+    public function addReasonReference($reasonReference)
+    {
         $this->reasonReference[] = $reasonReference;
         return $this;
     }
@@ -605,7 +649,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * Comments made about the request by the requester, sender, recipient, subject or other participants.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -614,7 +659,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -622,18 +668,20 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -642,7 +690,7 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['basedOn'])) {
                 if (is_array($data['basedOn'])) {
-                    foreach($data['basedOn'] as $d) {
+                    foreach ($data['basedOn'] as $d) {
                         $this->addBasedOn($d);
                     }
                 } else {
@@ -651,7 +699,7 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['replaces'])) {
                 if (is_array($data['replaces'])) {
-                    foreach($data['replaces'] as $d) {
+                    foreach ($data['replaces'] as $d) {
                         $this->addReplaces($d);
                     }
                 } else {
@@ -669,7 +717,7 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['category'])) {
                 if (is_array($data['category'])) {
-                    foreach($data['category'] as $d) {
+                    foreach ($data['category'] as $d) {
                         $this->addCategory($d);
                     }
                 } else {
@@ -684,7 +732,7 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['medium'])) {
                 if (is_array($data['medium'])) {
-                    foreach($data['medium'] as $d) {
+                    foreach ($data['medium'] as $d) {
                         $this->addMedium($d);
                     }
                 } else {
@@ -696,7 +744,7 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['about'])) {
                 if (is_array($data['about'])) {
-                    foreach($data['about'] as $d) {
+                    foreach ($data['about'] as $d) {
                         $this->addAbout($d);
                     }
                 } else {
@@ -708,7 +756,7 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['payload'])) {
                 if (is_array($data['payload'])) {
-                    foreach($data['payload'] as $d) {
+                    foreach ($data['payload'] as $d) {
                         $this->addPayload($d);
                     }
                 } else {
@@ -729,7 +777,7 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['recipient'])) {
                 if (is_array($data['recipient'])) {
-                    foreach($data['recipient'] as $d) {
+                    foreach ($data['recipient'] as $d) {
                         $this->addRecipient($d);
                     }
                 } else {
@@ -741,7 +789,7 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['reasonCode'])) {
                 if (is_array($data['reasonCode'])) {
-                    foreach($data['reasonCode'] as $d) {
+                    foreach ($data['reasonCode'] as $d) {
                         $this->addReasonCode($d);
                     }
                 } else {
@@ -750,7 +798,7 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['reasonReference'])) {
                 if (is_array($data['reasonReference'])) {
-                    foreach($data['reasonReference'] as $d) {
+                    foreach ($data['reasonReference'] as $d) {
                         $this->addReasonReference($d);
                     }
                 } else {
@@ -759,7 +807,7 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -775,91 +823,117 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->basedOn)) {
             $json['basedOn'] = [];
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $json['basedOn'][] = $basedOn;
             }
         }
         if (0 < count($this->replaces)) {
             $json['replaces'] = [];
-            foreach($this->replaces as $replaces) {
+            foreach ($this->replaces as $replaces) {
                 $json['replaces'][] = $replaces;
             }
         }
-        if (isset($this->groupIdentifier)) $json['groupIdentifier'] = $this->groupIdentifier;
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->statusReason)) $json['statusReason'] = $this->statusReason;
+        if (isset($this->groupIdentifier)) {
+            $json['groupIdentifier'] = $this->groupIdentifier;
+        }
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->statusReason)) {
+            $json['statusReason'] = $this->statusReason;
+        }
         if (0 < count($this->category)) {
             $json['category'] = [];
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $json['category'][] = $category;
             }
         }
-        if (isset($this->priority)) $json['priority'] = $this->priority;
-        if (isset($this->doNotPerform)) $json['doNotPerform'] = $this->doNotPerform;
+        if (isset($this->priority)) {
+            $json['priority'] = $this->priority;
+        }
+        if (isset($this->doNotPerform)) {
+            $json['doNotPerform'] = $this->doNotPerform;
+        }
         if (0 < count($this->medium)) {
             $json['medium'] = [];
-            foreach($this->medium as $medium) {
+            foreach ($this->medium as $medium) {
                 $json['medium'][] = $medium;
             }
         }
-        if (isset($this->subject)) $json['subject'] = $this->subject;
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
         if (0 < count($this->about)) {
             $json['about'] = [];
-            foreach($this->about as $about) {
+            foreach ($this->about as $about) {
                 $json['about'][] = $about;
             }
         }
-        if (isset($this->encounter)) $json['encounter'] = $this->encounter;
+        if (isset($this->encounter)) {
+            $json['encounter'] = $this->encounter;
+        }
         if (0 < count($this->payload)) {
             $json['payload'] = [];
-            foreach($this->payload as $payload) {
+            foreach ($this->payload as $payload) {
                 $json['payload'][] = $payload;
             }
         }
-        if (isset($this->occurrenceDateTime)) $json['occurrenceDateTime'] = $this->occurrenceDateTime;
-        if (isset($this->occurrencePeriod)) $json['occurrencePeriod'] = $this->occurrencePeriod;
-        if (isset($this->authoredOn)) $json['authoredOn'] = $this->authoredOn;
-        if (isset($this->requester)) $json['requester'] = $this->requester;
+        if (isset($this->occurrenceDateTime)) {
+            $json['occurrenceDateTime'] = $this->occurrenceDateTime;
+        }
+        if (isset($this->occurrencePeriod)) {
+            $json['occurrencePeriod'] = $this->occurrencePeriod;
+        }
+        if (isset($this->authoredOn)) {
+            $json['authoredOn'] = $this->authoredOn;
+        }
+        if (isset($this->requester)) {
+            $json['requester'] = $this->requester;
+        }
         if (0 < count($this->recipient)) {
             $json['recipient'] = [];
-            foreach($this->recipient as $recipient) {
+            foreach ($this->recipient as $recipient) {
                 $json['recipient'][] = $recipient;
             }
         }
-        if (isset($this->sender)) $json['sender'] = $this->sender;
+        if (isset($this->sender)) {
+            $json['sender'] = $this->sender;
+        }
         if (0 < count($this->reasonCode)) {
             $json['reasonCode'] = [];
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $json['reasonCode'][] = $reasonCode;
             }
         }
         if (0 < count($this->reasonReference)) {
             $json['reasonReference'] = [];
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $json['reasonReference'][] = $reasonReference;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
@@ -871,79 +945,106 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CommunicationRequest xmlns="http://hl7.org/fhir"></CommunicationRequest>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CommunicationRequest xmlns="http://hl7.org/fhir"></CommunicationRequest>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->basedOn)) {
-            foreach($this->basedOn as $basedOn) {
+            foreach ($this->basedOn as $basedOn) {
                 $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
             }
         }
         if (0 < count($this->replaces)) {
-            foreach($this->replaces as $replaces) {
+            foreach ($this->replaces as $replaces) {
                 $replaces->xmlSerialize(true, $sxe->addChild('replaces'));
             }
         }
-        if (isset($this->groupIdentifier)) $this->groupIdentifier->xmlSerialize(true, $sxe->addChild('groupIdentifier'));
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->statusReason)) $this->statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
+        if (isset($this->groupIdentifier)) {
+            $this->groupIdentifier->xmlSerialize(true, $sxe->addChild('groupIdentifier'));
+        }
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->statusReason)) {
+            $this->statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
+        }
         if (0 < count($this->category)) {
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $category->xmlSerialize(true, $sxe->addChild('category'));
             }
         }
-        if (isset($this->priority)) $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
-        if (isset($this->doNotPerform)) $this->doNotPerform->xmlSerialize(true, $sxe->addChild('doNotPerform'));
+        if (isset($this->priority)) {
+            $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
+        }
+        if (isset($this->doNotPerform)) {
+            $this->doNotPerform->xmlSerialize(true, $sxe->addChild('doNotPerform'));
+        }
         if (0 < count($this->medium)) {
-            foreach($this->medium as $medium) {
+            foreach ($this->medium as $medium) {
                 $medium->xmlSerialize(true, $sxe->addChild('medium'));
             }
         }
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
         if (0 < count($this->about)) {
-            foreach($this->about as $about) {
+            foreach ($this->about as $about) {
                 $about->xmlSerialize(true, $sxe->addChild('about'));
             }
         }
-        if (isset($this->encounter)) $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
+        if (isset($this->encounter)) {
+            $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
+        }
         if (0 < count($this->payload)) {
-            foreach($this->payload as $payload) {
+            foreach ($this->payload as $payload) {
                 $payload->xmlSerialize(true, $sxe->addChild('payload'));
             }
         }
-        if (isset($this->occurrenceDateTime)) $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
-        if (isset($this->occurrencePeriod)) $this->occurrencePeriod->xmlSerialize(true, $sxe->addChild('occurrencePeriod'));
-        if (isset($this->authoredOn)) $this->authoredOn->xmlSerialize(true, $sxe->addChild('authoredOn'));
-        if (isset($this->requester)) $this->requester->xmlSerialize(true, $sxe->addChild('requester'));
+        if (isset($this->occurrenceDateTime)) {
+            $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
+        }
+        if (isset($this->occurrencePeriod)) {
+            $this->occurrencePeriod->xmlSerialize(true, $sxe->addChild('occurrencePeriod'));
+        }
+        if (isset($this->authoredOn)) {
+            $this->authoredOn->xmlSerialize(true, $sxe->addChild('authoredOn'));
+        }
+        if (isset($this->requester)) {
+            $this->requester->xmlSerialize(true, $sxe->addChild('requester'));
+        }
         if (0 < count($this->recipient)) {
-            foreach($this->recipient as $recipient) {
+            foreach ($this->recipient as $recipient) {
                 $recipient->xmlSerialize(true, $sxe->addChild('recipient'));
             }
         }
-        if (isset($this->sender)) $this->sender->xmlSerialize(true, $sxe->addChild('sender'));
+        if (isset($this->sender)) {
+            $this->sender->xmlSerialize(true, $sxe->addChild('sender'));
+        }
         if (0 < count($this->reasonCode)) {
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
             }
         }
         if (0 < count($this->reasonReference)) {
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

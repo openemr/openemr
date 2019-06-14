@@ -94,7 +94,8 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
      * The name of a resource supported by the server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCode
      */
-    public function getCode() {
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -103,7 +104,8 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCode $code
      * @return $this
      */
-    public function setCode($code) {
+    public function setCode($code)
+    {
         $this->code = $code;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
      * The name of a search parameter that represents the link to the compartment. More than one may be listed because a resource may be linked to a compartment in more than one way,.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString[]
      */
-    public function getParam() {
+    public function getParam()
+    {
         return $this->param;
     }
 
@@ -121,7 +124,8 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $param
      * @return $this
      */
-    public function addParam($param) {
+    public function addParam($param)
+    {
         $this->param[] = $param;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
      * Additional documentation about the resource and compartment.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDocumentation() {
+    public function getDocumentation()
+    {
         return $this->documentation;
     }
 
@@ -139,7 +144,8 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $documentation
      * @return $this
      */
-    public function setDocumentation($documentation) {
+    public function setDocumentation($documentation)
+    {
         $this->documentation = $documentation;
         return $this;
     }
@@ -147,21 +153,23 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
             }
             if (isset($data['param'])) {
                 if (is_array($data['param'])) {
-                    foreach($data['param'] as $d) {
+                    foreach ($data['param'] as $d) {
                         $this->addParam($d);
                     }
                 } else {
@@ -180,23 +188,29 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->code)) $json['code'] = $this->code;
+        if (isset($this->code)) {
+            $json['code'] = $this->code;
+        }
         if (0 < count($this->param)) {
             $json['param'] = [];
-            foreach($this->param as $param) {
+            foreach ($this->param as $param) {
                 $json['param'][] = $param;
             }
         }
-        if (isset($this->documentation)) $json['documentation'] = $this->documentation;
+        if (isset($this->documentation)) {
+            $json['documentation'] = $this->documentation;
+        }
         return $json;
     }
 
@@ -205,19 +219,26 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<CompartmentDefinitionResource xmlns="http://hl7.org/fhir"></CompartmentDefinitionResource>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<CompartmentDefinitionResource xmlns="http://hl7.org/fhir"></CompartmentDefinitionResource>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->code)) $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        if (isset($this->code)) {
+            $this->code->xmlSerialize(true, $sxe->addChild('code'));
+        }
         if (0 < count($this->param)) {
-            foreach($this->param as $param) {
+            foreach ($this->param as $param) {
                 $param->xmlSerialize(true, $sxe->addChild('param'));
             }
         }
-        if (isset($this->documentation)) $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->documentation)) {
+            $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

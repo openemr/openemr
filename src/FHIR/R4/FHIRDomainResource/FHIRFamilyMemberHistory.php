@@ -222,7 +222,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * Business identifiers assigned to this family member history by the performer or other systems which remain constant as the resource is updated and propagates from server to server.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -231,7 +232,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -240,7 +242,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this FamilyMemberHistory.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical[]
      */
-    public function getInstantiatesCanonical() {
+    public function getInstantiatesCanonical()
+    {
         return $this->instantiatesCanonical;
     }
 
@@ -249,7 +252,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical $instantiatesCanonical
      * @return $this
      */
-    public function addInstantiatesCanonical($instantiatesCanonical) {
+    public function addInstantiatesCanonical($instantiatesCanonical)
+    {
         $this->instantiatesCanonical[] = $instantiatesCanonical;
         return $this;
     }
@@ -258,7 +262,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this FamilyMemberHistory.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri[]
      */
-    public function getInstantiatesUri() {
+    public function getInstantiatesUri()
+    {
         return $this->instantiatesUri;
     }
 
@@ -267,7 +272,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $instantiatesUri
      * @return $this
      */
-    public function addInstantiatesUri($instantiatesUri) {
+    public function addInstantiatesUri($instantiatesUri)
+    {
         $this->instantiatesUri[] = $instantiatesUri;
         return $this;
     }
@@ -276,7 +282,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * A code specifying the status of the record of the family history of a specific family member.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRFamilyHistoryStatus
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -285,7 +292,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRFamilyHistoryStatus $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -294,7 +302,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * Describes why the family member's history is not available.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDataAbsentReason() {
+    public function getDataAbsentReason()
+    {
         return $this->dataAbsentReason;
     }
 
@@ -303,7 +312,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $dataAbsentReason
      * @return $this
      */
-    public function setDataAbsentReason($dataAbsentReason) {
+    public function setDataAbsentReason($dataAbsentReason)
+    {
         $this->dataAbsentReason = $dataAbsentReason;
         return $this;
     }
@@ -312,7 +322,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * The person who this history concerns.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getPatient() {
+    public function getPatient()
+    {
         return $this->patient;
     }
 
@@ -321,7 +332,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $patient
      * @return $this
      */
-    public function setPatient($patient) {
+    public function setPatient($patient)
+    {
         $this->patient = $patient;
         return $this;
     }
@@ -330,7 +342,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * The date (and possibly time) when the family member history was recorded or last updated.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -339,7 +352,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -348,7 +362,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * This will either be a name or a description; e.g. "Aunt Susan", "my cousin with the red hair".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -357,7 +372,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $name
      * @return $this
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
         return $this;
     }
@@ -366,7 +382,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * The type of relationship this person has to the patient (father, mother, brother etc.).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRelationship() {
+    public function getRelationship()
+    {
         return $this->relationship;
     }
 
@@ -375,7 +392,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $relationship
      * @return $this
      */
-    public function setRelationship($relationship) {
+    public function setRelationship($relationship)
+    {
         $this->relationship = $relationship;
         return $this;
     }
@@ -384,7 +402,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * The birth sex of the family member.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSex() {
+    public function getSex()
+    {
         return $this->sex;
     }
 
@@ -393,7 +412,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $sex
      * @return $this
      */
-    public function setSex($sex) {
+    public function setSex($sex)
+    {
         $this->sex = $sex;
         return $this;
     }
@@ -401,7 +421,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getBornPeriod() {
+    public function getBornPeriod()
+    {
         return $this->bornPeriod;
     }
 
@@ -409,7 +430,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $bornPeriod
      * @return $this
      */
-    public function setBornPeriod($bornPeriod) {
+    public function setBornPeriod($bornPeriod)
+    {
         $this->bornPeriod = $bornPeriod;
         return $this;
     }
@@ -417,7 +439,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getBornDate() {
+    public function getBornDate()
+    {
         return $this->bornDate;
     }
 
@@ -425,7 +448,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $bornDate
      * @return $this
      */
-    public function setBornDate($bornDate) {
+    public function setBornDate($bornDate)
+    {
         $this->bornDate = $bornDate;
         return $this;
     }
@@ -433,7 +457,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getBornString() {
+    public function getBornString()
+    {
         return $this->bornString;
     }
 
@@ -441,7 +466,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $bornString
      * @return $this
      */
-    public function setBornString($bornString) {
+    public function setBornString($bornString)
+    {
         $this->bornString = $bornString;
         return $this;
     }
@@ -449,7 +475,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getAgeAge() {
+    public function getAgeAge()
+    {
         return $this->ageAge;
     }
 
@@ -457,7 +484,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $ageAge
      * @return $this
      */
-    public function setAgeAge($ageAge) {
+    public function setAgeAge($ageAge)
+    {
         $this->ageAge = $ageAge;
         return $this;
     }
@@ -465,7 +493,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getAgeRange() {
+    public function getAgeRange()
+    {
         return $this->ageRange;
     }
 
@@ -473,7 +502,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $ageRange
      * @return $this
      */
-    public function setAgeRange($ageRange) {
+    public function setAgeRange($ageRange)
+    {
         $this->ageRange = $ageRange;
         return $this;
     }
@@ -481,7 +511,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAgeString() {
+    public function getAgeString()
+    {
         return $this->ageString;
     }
 
@@ -489,7 +520,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $ageString
      * @return $this
      */
-    public function setAgeString($ageString) {
+    public function setAgeString($ageString)
+    {
         $this->ageString = $ageString;
         return $this;
     }
@@ -498,7 +530,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * If true, indicates that the age value specified is an estimated value.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getEstimatedAge() {
+    public function getEstimatedAge()
+    {
         return $this->estimatedAge;
     }
 
@@ -507,7 +540,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $estimatedAge
      * @return $this
      */
-    public function setEstimatedAge($estimatedAge) {
+    public function setEstimatedAge($estimatedAge)
+    {
         $this->estimatedAge = $estimatedAge;
         return $this;
     }
@@ -515,7 +549,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getDeceasedBoolean() {
+    public function getDeceasedBoolean()
+    {
         return $this->deceasedBoolean;
     }
 
@@ -523,7 +558,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $deceasedBoolean
      * @return $this
      */
-    public function setDeceasedBoolean($deceasedBoolean) {
+    public function setDeceasedBoolean($deceasedBoolean)
+    {
         $this->deceasedBoolean = $deceasedBoolean;
         return $this;
     }
@@ -531,7 +567,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge
      */
-    public function getDeceasedAge() {
+    public function getDeceasedAge()
+    {
         return $this->deceasedAge;
     }
 
@@ -539,7 +576,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRAge $deceasedAge
      * @return $this
      */
-    public function setDeceasedAge($deceasedAge) {
+    public function setDeceasedAge($deceasedAge)
+    {
         $this->deceasedAge = $deceasedAge;
         return $this;
     }
@@ -547,7 +585,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getDeceasedRange() {
+    public function getDeceasedRange()
+    {
         return $this->deceasedRange;
     }
 
@@ -555,7 +594,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $deceasedRange
      * @return $this
      */
-    public function setDeceasedRange($deceasedRange) {
+    public function setDeceasedRange($deceasedRange)
+    {
         $this->deceasedRange = $deceasedRange;
         return $this;
     }
@@ -563,7 +603,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getDeceasedDate() {
+    public function getDeceasedDate()
+    {
         return $this->deceasedDate;
     }
 
@@ -571,7 +612,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $deceasedDate
      * @return $this
      */
-    public function setDeceasedDate($deceasedDate) {
+    public function setDeceasedDate($deceasedDate)
+    {
         $this->deceasedDate = $deceasedDate;
         return $this;
     }
@@ -579,7 +621,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDeceasedString() {
+    public function getDeceasedString()
+    {
         return $this->deceasedString;
     }
 
@@ -587,7 +630,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $deceasedString
      * @return $this
      */
-    public function setDeceasedString($deceasedString) {
+    public function setDeceasedString($deceasedString)
+    {
         $this->deceasedString = $deceasedString;
         return $this;
     }
@@ -596,7 +640,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * Describes why the family member history occurred in coded or textual form.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getReasonCode() {
+    public function getReasonCode()
+    {
         return $this->reasonCode;
     }
 
@@ -605,7 +650,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reasonCode
      * @return $this
      */
-    public function addReasonCode($reasonCode) {
+    public function addReasonCode($reasonCode)
+    {
         $this->reasonCode[] = $reasonCode;
         return $this;
     }
@@ -614,7 +660,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * Indicates a Condition, Observation, AllergyIntolerance, or QuestionnaireResponse that justifies this family member history event.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getReasonReference() {
+    public function getReasonReference()
+    {
         return $this->reasonReference;
     }
 
@@ -623,7 +670,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $reasonReference
      * @return $this
      */
-    public function addReasonReference($reasonReference) {
+    public function addReasonReference($reasonReference)
+    {
         $this->reasonReference[] = $reasonReference;
         return $this;
     }
@@ -632,7 +680,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * This property allows a non condition-specific note to the made about the related person. Ideally, the note would be in the condition property, but this is not always possible.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation[]
      */
-    public function getNote() {
+    public function getNote()
+    {
         return $this->note;
     }
 
@@ -641,7 +690,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
      */
-    public function addNote($note) {
+    public function addNote($note)
+    {
         $this->note[] = $note;
         return $this;
     }
@@ -650,7 +700,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * The significant Conditions (or condition) that the family member had. This is a repeating section to allow a system to represent more than one condition per resource, though there is nothing stopping multiple resources - one per condition.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRFamilyMemberHistory\FHIRFamilyMemberHistoryCondition[]
      */
-    public function getCondition() {
+    public function getCondition()
+    {
         return $this->condition;
     }
 
@@ -659,7 +710,8 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRFamilyMemberHistory\FHIRFamilyMemberHistoryCondition $condition
      * @return $this
      */
-    public function addCondition($condition) {
+    public function addCondition($condition)
+    {
         $this->condition[] = $condition;
         return $this;
     }
@@ -667,18 +719,20 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -687,7 +741,7 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['instantiatesCanonical'])) {
                 if (is_array($data['instantiatesCanonical'])) {
-                    foreach($data['instantiatesCanonical'] as $d) {
+                    foreach ($data['instantiatesCanonical'] as $d) {
                         $this->addInstantiatesCanonical($d);
                     }
                 } else {
@@ -696,7 +750,7 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['instantiatesUri'])) {
                 if (is_array($data['instantiatesUri'])) {
-                    foreach($data['instantiatesUri'] as $d) {
+                    foreach ($data['instantiatesUri'] as $d) {
                         $this->addInstantiatesUri($d);
                     }
                 } else {
@@ -762,7 +816,7 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['reasonCode'])) {
                 if (is_array($data['reasonCode'])) {
-                    foreach($data['reasonCode'] as $d) {
+                    foreach ($data['reasonCode'] as $d) {
                         $this->addReasonCode($d);
                     }
                 } else {
@@ -771,7 +825,7 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['reasonReference'])) {
                 if (is_array($data['reasonReference'])) {
-                    foreach($data['reasonReference'] as $d) {
+                    foreach ($data['reasonReference'] as $d) {
                         $this->addReasonReference($d);
                     }
                 } else {
@@ -780,7 +834,7 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['note'])) {
                 if (is_array($data['note'])) {
-                    foreach($data['note'] as $d) {
+                    foreach ($data['note'] as $d) {
                         $this->addNote($d);
                     }
                 } else {
@@ -789,7 +843,7 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
             }
             if (isset($data['condition'])) {
                 if (is_array($data['condition'])) {
-                    foreach($data['condition'] as $d) {
+                    foreach ($data['condition'] as $d) {
                         $this->addCondition($d);
                     }
                 } else {
@@ -805,74 +859,114 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
         if (0 < count($this->instantiatesCanonical)) {
             $json['instantiatesCanonical'] = [];
-            foreach($this->instantiatesCanonical as $instantiatesCanonical) {
+            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
                 $json['instantiatesCanonical'][] = $instantiatesCanonical;
             }
         }
         if (0 < count($this->instantiatesUri)) {
             $json['instantiatesUri'] = [];
-            foreach($this->instantiatesUri as $instantiatesUri) {
+            foreach ($this->instantiatesUri as $instantiatesUri) {
                 $json['instantiatesUri'][] = $instantiatesUri;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->dataAbsentReason)) $json['dataAbsentReason'] = $this->dataAbsentReason;
-        if (isset($this->patient)) $json['patient'] = $this->patient;
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->name)) $json['name'] = $this->name;
-        if (isset($this->relationship)) $json['relationship'] = $this->relationship;
-        if (isset($this->sex)) $json['sex'] = $this->sex;
-        if (isset($this->bornPeriod)) $json['bornPeriod'] = $this->bornPeriod;
-        if (isset($this->bornDate)) $json['bornDate'] = $this->bornDate;
-        if (isset($this->bornString)) $json['bornString'] = $this->bornString;
-        if (isset($this->ageAge)) $json['ageAge'] = $this->ageAge;
-        if (isset($this->ageRange)) $json['ageRange'] = $this->ageRange;
-        if (isset($this->ageString)) $json['ageString'] = $this->ageString;
-        if (isset($this->estimatedAge)) $json['estimatedAge'] = $this->estimatedAge;
-        if (isset($this->deceasedBoolean)) $json['deceasedBoolean'] = $this->deceasedBoolean;
-        if (isset($this->deceasedAge)) $json['deceasedAge'] = $this->deceasedAge;
-        if (isset($this->deceasedRange)) $json['deceasedRange'] = $this->deceasedRange;
-        if (isset($this->deceasedDate)) $json['deceasedDate'] = $this->deceasedDate;
-        if (isset($this->deceasedString)) $json['deceasedString'] = $this->deceasedString;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->dataAbsentReason)) {
+            $json['dataAbsentReason'] = $this->dataAbsentReason;
+        }
+        if (isset($this->patient)) {
+            $json['patient'] = $this->patient;
+        }
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->name)) {
+            $json['name'] = $this->name;
+        }
+        if (isset($this->relationship)) {
+            $json['relationship'] = $this->relationship;
+        }
+        if (isset($this->sex)) {
+            $json['sex'] = $this->sex;
+        }
+        if (isset($this->bornPeriod)) {
+            $json['bornPeriod'] = $this->bornPeriod;
+        }
+        if (isset($this->bornDate)) {
+            $json['bornDate'] = $this->bornDate;
+        }
+        if (isset($this->bornString)) {
+            $json['bornString'] = $this->bornString;
+        }
+        if (isset($this->ageAge)) {
+            $json['ageAge'] = $this->ageAge;
+        }
+        if (isset($this->ageRange)) {
+            $json['ageRange'] = $this->ageRange;
+        }
+        if (isset($this->ageString)) {
+            $json['ageString'] = $this->ageString;
+        }
+        if (isset($this->estimatedAge)) {
+            $json['estimatedAge'] = $this->estimatedAge;
+        }
+        if (isset($this->deceasedBoolean)) {
+            $json['deceasedBoolean'] = $this->deceasedBoolean;
+        }
+        if (isset($this->deceasedAge)) {
+            $json['deceasedAge'] = $this->deceasedAge;
+        }
+        if (isset($this->deceasedRange)) {
+            $json['deceasedRange'] = $this->deceasedRange;
+        }
+        if (isset($this->deceasedDate)) {
+            $json['deceasedDate'] = $this->deceasedDate;
+        }
+        if (isset($this->deceasedString)) {
+            $json['deceasedString'] = $this->deceasedString;
+        }
         if (0 < count($this->reasonCode)) {
             $json['reasonCode'] = [];
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $json['reasonCode'][] = $reasonCode;
             }
         }
         if (0 < count($this->reasonReference)) {
             $json['reasonReference'] = [];
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $json['reasonReference'][] = $reasonReference;
             }
         }
         if (0 < count($this->note)) {
             $json['note'] = [];
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $json['note'][] = $note;
             }
         }
         if (0 < count($this->condition)) {
             $json['condition'] = [];
-            foreach($this->condition as $condition) {
+            foreach ($this->condition as $condition) {
                 $json['condition'][] = $condition;
             }
         }
@@ -884,66 +978,107 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<FamilyMemberHistory xmlns="http://hl7.org/fhir"></FamilyMemberHistory>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<FamilyMemberHistory xmlns="http://hl7.org/fhir"></FamilyMemberHistory>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
         if (0 < count($this->instantiatesCanonical)) {
-            foreach($this->instantiatesCanonical as $instantiatesCanonical) {
+            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
                 $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
             }
         }
         if (0 < count($this->instantiatesUri)) {
-            foreach($this->instantiatesUri as $instantiatesUri) {
+            foreach ($this->instantiatesUri as $instantiatesUri) {
                 $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->dataAbsentReason)) $this->dataAbsentReason->xmlSerialize(true, $sxe->addChild('dataAbsentReason'));
-        if (isset($this->patient)) $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->name)) $this->name->xmlSerialize(true, $sxe->addChild('name'));
-        if (isset($this->relationship)) $this->relationship->xmlSerialize(true, $sxe->addChild('relationship'));
-        if (isset($this->sex)) $this->sex->xmlSerialize(true, $sxe->addChild('sex'));
-        if (isset($this->bornPeriod)) $this->bornPeriod->xmlSerialize(true, $sxe->addChild('bornPeriod'));
-        if (isset($this->bornDate)) $this->bornDate->xmlSerialize(true, $sxe->addChild('bornDate'));
-        if (isset($this->bornString)) $this->bornString->xmlSerialize(true, $sxe->addChild('bornString'));
-        if (isset($this->ageAge)) $this->ageAge->xmlSerialize(true, $sxe->addChild('ageAge'));
-        if (isset($this->ageRange)) $this->ageRange->xmlSerialize(true, $sxe->addChild('ageRange'));
-        if (isset($this->ageString)) $this->ageString->xmlSerialize(true, $sxe->addChild('ageString'));
-        if (isset($this->estimatedAge)) $this->estimatedAge->xmlSerialize(true, $sxe->addChild('estimatedAge'));
-        if (isset($this->deceasedBoolean)) $this->deceasedBoolean->xmlSerialize(true, $sxe->addChild('deceasedBoolean'));
-        if (isset($this->deceasedAge)) $this->deceasedAge->xmlSerialize(true, $sxe->addChild('deceasedAge'));
-        if (isset($this->deceasedRange)) $this->deceasedRange->xmlSerialize(true, $sxe->addChild('deceasedRange'));
-        if (isset($this->deceasedDate)) $this->deceasedDate->xmlSerialize(true, $sxe->addChild('deceasedDate'));
-        if (isset($this->deceasedString)) $this->deceasedString->xmlSerialize(true, $sxe->addChild('deceasedString'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->dataAbsentReason)) {
+            $this->dataAbsentReason->xmlSerialize(true, $sxe->addChild('dataAbsentReason'));
+        }
+        if (isset($this->patient)) {
+            $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
+        }
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->name)) {
+            $this->name->xmlSerialize(true, $sxe->addChild('name'));
+        }
+        if (isset($this->relationship)) {
+            $this->relationship->xmlSerialize(true, $sxe->addChild('relationship'));
+        }
+        if (isset($this->sex)) {
+            $this->sex->xmlSerialize(true, $sxe->addChild('sex'));
+        }
+        if (isset($this->bornPeriod)) {
+            $this->bornPeriod->xmlSerialize(true, $sxe->addChild('bornPeriod'));
+        }
+        if (isset($this->bornDate)) {
+            $this->bornDate->xmlSerialize(true, $sxe->addChild('bornDate'));
+        }
+        if (isset($this->bornString)) {
+            $this->bornString->xmlSerialize(true, $sxe->addChild('bornString'));
+        }
+        if (isset($this->ageAge)) {
+            $this->ageAge->xmlSerialize(true, $sxe->addChild('ageAge'));
+        }
+        if (isset($this->ageRange)) {
+            $this->ageRange->xmlSerialize(true, $sxe->addChild('ageRange'));
+        }
+        if (isset($this->ageString)) {
+            $this->ageString->xmlSerialize(true, $sxe->addChild('ageString'));
+        }
+        if (isset($this->estimatedAge)) {
+            $this->estimatedAge->xmlSerialize(true, $sxe->addChild('estimatedAge'));
+        }
+        if (isset($this->deceasedBoolean)) {
+            $this->deceasedBoolean->xmlSerialize(true, $sxe->addChild('deceasedBoolean'));
+        }
+        if (isset($this->deceasedAge)) {
+            $this->deceasedAge->xmlSerialize(true, $sxe->addChild('deceasedAge'));
+        }
+        if (isset($this->deceasedRange)) {
+            $this->deceasedRange->xmlSerialize(true, $sxe->addChild('deceasedRange'));
+        }
+        if (isset($this->deceasedDate)) {
+            $this->deceasedDate->xmlSerialize(true, $sxe->addChild('deceasedDate'));
+        }
+        if (isset($this->deceasedString)) {
+            $this->deceasedString->xmlSerialize(true, $sxe->addChild('deceasedString'));
+        }
         if (0 < count($this->reasonCode)) {
-            foreach($this->reasonCode as $reasonCode) {
+            foreach ($this->reasonCode as $reasonCode) {
                 $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
             }
         }
         if (0 < count($this->reasonReference)) {
-            foreach($this->reasonReference as $reasonReference) {
+            foreach ($this->reasonReference as $reasonReference) {
                 $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
             }
         }
         if (0 < count($this->note)) {
-            foreach($this->note as $note) {
+            foreach ($this->note as $note) {
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
         if (0 < count($this->condition)) {
-            foreach($this->condition as $condition) {
+            foreach ($this->condition as $condition) {
                 $condition->xmlSerialize(true, $sxe->addChild('condition'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

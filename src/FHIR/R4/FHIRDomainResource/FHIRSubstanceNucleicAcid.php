@@ -107,7 +107,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * The type of the sequence shall be specified based on a controlled vocabulary.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSequenceType() {
+    public function getSequenceType()
+    {
         return $this->sequenceType;
     }
 
@@ -116,7 +117,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $sequenceType
      * @return $this
      */
-    public function setSequenceType($sequenceType) {
+    public function setSequenceType($sequenceType)
+    {
         $this->sequenceType = $sequenceType;
         return $this;
     }
@@ -125,7 +127,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * The number of linear sequences of nucleotides linked through phosphodiester bonds shall be described. Subunits would be strands of nucleic acids that are tightly associated typically through Watson-Crick base pairing. NOTE: If not specified in the reference source, the assumption is that there is 1 subunit.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
      */
-    public function getNumberOfSubunits() {
+    public function getNumberOfSubunits()
+    {
         return $this->numberOfSubunits;
     }
 
@@ -134,7 +137,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $numberOfSubunits
      * @return $this
      */
-    public function setNumberOfSubunits($numberOfSubunits) {
+    public function setNumberOfSubunits($numberOfSubunits)
+    {
         $this->numberOfSubunits = $numberOfSubunits;
         return $this;
     }
@@ -143,7 +147,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * The area of hybridisation shall be described if applicable for double stranded RNA or DNA. The number associated with the subunit followed by the number associated to the residue shall be specified in increasing order. The underscore “” shall be used as separator as follows: “Subunitnumber Residue”.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAreaOfHybridisation() {
+    public function getAreaOfHybridisation()
+    {
         return $this->areaOfHybridisation;
     }
 
@@ -152,7 +157,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $areaOfHybridisation
      * @return $this
      */
-    public function setAreaOfHybridisation($areaOfHybridisation) {
+    public function setAreaOfHybridisation($areaOfHybridisation)
+    {
         $this->areaOfHybridisation = $areaOfHybridisation;
         return $this;
     }
@@ -161,7 +167,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * (TBC).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getOligoNucleotideType() {
+    public function getOligoNucleotideType()
+    {
         return $this->oligoNucleotideType;
     }
 
@@ -170,7 +177,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $oligoNucleotideType
      * @return $this
      */
-    public function setOligoNucleotideType($oligoNucleotideType) {
+    public function setOligoNucleotideType($oligoNucleotideType)
+    {
         $this->oligoNucleotideType = $oligoNucleotideType;
         return $this;
     }
@@ -179,7 +187,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * Subunits are listed in order of decreasing length; sequences of the same length will be ordered by molecular weight; subunits that have identical sequences will be repeated multiple times.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceNucleicAcid\FHIRSubstanceNucleicAcidSubunit[]
      */
-    public function getSubunit() {
+    public function getSubunit()
+    {
         return $this->subunit;
     }
 
@@ -188,7 +197,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceNucleicAcid\FHIRSubstanceNucleicAcidSubunit $subunit
      * @return $this
      */
-    public function addSubunit($subunit) {
+    public function addSubunit($subunit)
+    {
         $this->subunit[] = $subunit;
         return $this;
     }
@@ -196,14 +206,16 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequenceType'])) {
                 $this->setSequenceType($data['sequenceType']);
@@ -219,7 +231,7 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
             }
             if (isset($data['subunit'])) {
                 if (is_array($data['subunit'])) {
-                    foreach($data['subunit'] as $d) {
+                    foreach ($data['subunit'] as $d) {
                         $this->addSubunit($d);
                     }
                 } else {
@@ -235,23 +247,33 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
-        if (isset($this->sequenceType)) $json['sequenceType'] = $this->sequenceType;
-        if (isset($this->numberOfSubunits)) $json['numberOfSubunits'] = $this->numberOfSubunits;
-        if (isset($this->areaOfHybridisation)) $json['areaOfHybridisation'] = $this->areaOfHybridisation;
-        if (isset($this->oligoNucleotideType)) $json['oligoNucleotideType'] = $this->oligoNucleotideType;
+        if (isset($this->sequenceType)) {
+            $json['sequenceType'] = $this->sequenceType;
+        }
+        if (isset($this->numberOfSubunits)) {
+            $json['numberOfSubunits'] = $this->numberOfSubunits;
+        }
+        if (isset($this->areaOfHybridisation)) {
+            $json['areaOfHybridisation'] = $this->areaOfHybridisation;
+        }
+        if (isset($this->oligoNucleotideType)) {
+            $json['oligoNucleotideType'] = $this->oligoNucleotideType;
+        }
         if (0 < count($this->subunit)) {
             $json['subunit'] = [];
-            foreach($this->subunit as $subunit) {
+            foreach ($this->subunit as $subunit) {
                 $json['subunit'][] = $subunit;
             }
         }
@@ -263,21 +285,32 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceNucleicAcid xmlns="http://hl7.org/fhir"></SubstanceNucleicAcid>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceNucleicAcid xmlns="http://hl7.org/fhir"></SubstanceNucleicAcid>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequenceType)) $this->sequenceType->xmlSerialize(true, $sxe->addChild('sequenceType'));
-        if (isset($this->numberOfSubunits)) $this->numberOfSubunits->xmlSerialize(true, $sxe->addChild('numberOfSubunits'));
-        if (isset($this->areaOfHybridisation)) $this->areaOfHybridisation->xmlSerialize(true, $sxe->addChild('areaOfHybridisation'));
-        if (isset($this->oligoNucleotideType)) $this->oligoNucleotideType->xmlSerialize(true, $sxe->addChild('oligoNucleotideType'));
+        if (isset($this->sequenceType)) {
+            $this->sequenceType->xmlSerialize(true, $sxe->addChild('sequenceType'));
+        }
+        if (isset($this->numberOfSubunits)) {
+            $this->numberOfSubunits->xmlSerialize(true, $sxe->addChild('numberOfSubunits'));
+        }
+        if (isset($this->areaOfHybridisation)) {
+            $this->areaOfHybridisation->xmlSerialize(true, $sxe->addChild('areaOfHybridisation'));
+        }
+        if (isset($this->oligoNucleotideType)) {
+            $this->oligoNucleotideType->xmlSerialize(true, $sxe->addChild('oligoNucleotideType'));
+        }
         if (0 < count($this->subunit)) {
-            foreach($this->subunit as $subunit) {
+            foreach ($this->subunit as $subunit) {
                 $subunit->xmlSerialize(true, $sxe->addChild('subunit'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

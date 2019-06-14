@@ -173,7 +173,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * Business identifier for the marketing authorization, as assigned by a regulator.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier[]
      */
-    public function getIdentifier() {
+    public function getIdentifier()
+    {
         return $this->identifier;
     }
 
@@ -182,7 +183,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier $identifier
      * @return $this
      */
-    public function addIdentifier($identifier) {
+    public function addIdentifier($identifier)
+    {
         $this->identifier[] = $identifier;
         return $this;
     }
@@ -191,7 +193,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * The medicinal product that is being authorized.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubject() {
+    public function getSubject()
+    {
         return $this->subject;
     }
 
@@ -200,7 +203,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $subject
      * @return $this
      */
-    public function setSubject($subject) {
+    public function setSubject($subject)
+    {
         $this->subject = $subject;
         return $this;
     }
@@ -209,7 +213,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * The country in which the marketing authorization has been granted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getCountry() {
+    public function getCountry()
+    {
         return $this->country;
     }
 
@@ -218,7 +223,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $country
      * @return $this
      */
-    public function addCountry($country) {
+    public function addCountry($country)
+    {
         $this->country[] = $country;
         return $this;
     }
@@ -227,7 +233,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * Jurisdiction within a country.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getJurisdiction() {
+    public function getJurisdiction()
+    {
         return $this->jurisdiction;
     }
 
@@ -236,7 +243,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $jurisdiction
      * @return $this
      */
-    public function addJurisdiction($jurisdiction) {
+    public function addJurisdiction($jurisdiction)
+    {
         $this->jurisdiction[] = $jurisdiction;
         return $this;
     }
@@ -245,7 +253,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * The status of the marketing authorization.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -254,7 +263,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $status
      * @return $this
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
         return $this;
     }
@@ -263,7 +273,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * The date at which the given status has become applicable.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getStatusDate() {
+    public function getStatusDate()
+    {
         return $this->statusDate;
     }
 
@@ -272,7 +283,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $statusDate
      * @return $this
      */
-    public function setStatusDate($statusDate) {
+    public function setStatusDate($statusDate)
+    {
         $this->statusDate = $statusDate;
         return $this;
     }
@@ -281,7 +293,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * The date when a suspended the marketing or the marketing authorization of the product is anticipated to be restored.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getRestoreDate() {
+    public function getRestoreDate()
+    {
         return $this->restoreDate;
     }
 
@@ -290,7 +303,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $restoreDate
      * @return $this
      */
-    public function setRestoreDate($restoreDate) {
+    public function setRestoreDate($restoreDate)
+    {
         $this->restoreDate = $restoreDate;
         return $this;
     }
@@ -299,7 +313,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * The beginning of the time period in which the marketing authorization is in the specific status shall be specified A complete date consisting of day, month and year shall be specified using the ISO 8601 date format.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getValidityPeriod() {
+    public function getValidityPeriod()
+    {
         return $this->validityPeriod;
     }
 
@@ -308,7 +323,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $validityPeriod
      * @return $this
      */
-    public function setValidityPeriod($validityPeriod) {
+    public function setValidityPeriod($validityPeriod)
+    {
         $this->validityPeriod = $validityPeriod;
         return $this;
     }
@@ -317,7 +333,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * A period of time after authorization before generic product applicatiosn can be submitted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
-    public function getDataExclusivityPeriod() {
+    public function getDataExclusivityPeriod()
+    {
         return $this->dataExclusivityPeriod;
     }
 
@@ -326,7 +343,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $dataExclusivityPeriod
      * @return $this
      */
-    public function setDataExclusivityPeriod($dataExclusivityPeriod) {
+    public function setDataExclusivityPeriod($dataExclusivityPeriod)
+    {
         $this->dataExclusivityPeriod = $dataExclusivityPeriod;
         return $this;
     }
@@ -335,7 +353,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * The date when the first authorization was granted by a Medicines Regulatory Agency.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getDateOfFirstAuthorization() {
+    public function getDateOfFirstAuthorization()
+    {
         return $this->dateOfFirstAuthorization;
     }
 
@@ -344,7 +363,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $dateOfFirstAuthorization
      * @return $this
      */
-    public function setDateOfFirstAuthorization($dateOfFirstAuthorization) {
+    public function setDateOfFirstAuthorization($dateOfFirstAuthorization)
+    {
         $this->dateOfFirstAuthorization = $dateOfFirstAuthorization;
         return $this;
     }
@@ -353,7 +373,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * Date of first marketing authorization for a company's new medicinal product in any country in the World.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getInternationalBirthDate() {
+    public function getInternationalBirthDate()
+    {
         return $this->internationalBirthDate;
     }
 
@@ -362,7 +383,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $internationalBirthDate
      * @return $this
      */
-    public function setInternationalBirthDate($internationalBirthDate) {
+    public function setInternationalBirthDate($internationalBirthDate)
+    {
         $this->internationalBirthDate = $internationalBirthDate;
         return $this;
     }
@@ -371,7 +393,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * The legal framework against which this authorization is granted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getLegalBasis() {
+    public function getLegalBasis()
+    {
         return $this->legalBasis;
     }
 
@@ -380,7 +403,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $legalBasis
      * @return $this
      */
-    public function setLegalBasis($legalBasis) {
+    public function setLegalBasis($legalBasis)
+    {
         $this->legalBasis = $legalBasis;
         return $this;
     }
@@ -389,7 +413,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * Authorization in areas within a country.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationJurisdictionalAuthorization[]
      */
-    public function getJurisdictionalAuthorization() {
+    public function getJurisdictionalAuthorization()
+    {
         return $this->jurisdictionalAuthorization;
     }
 
@@ -398,7 +423,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationJurisdictionalAuthorization $jurisdictionalAuthorization
      * @return $this
      */
-    public function addJurisdictionalAuthorization($jurisdictionalAuthorization) {
+    public function addJurisdictionalAuthorization($jurisdictionalAuthorization)
+    {
         $this->jurisdictionalAuthorization[] = $jurisdictionalAuthorization;
         return $this;
     }
@@ -407,7 +433,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * Marketing Authorization Holder.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getHolder() {
+    public function getHolder()
+    {
         return $this->holder;
     }
 
@@ -416,7 +443,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $holder
      * @return $this
      */
-    public function setHolder($holder) {
+    public function setHolder($holder)
+    {
         $this->holder = $holder;
         return $this;
     }
@@ -425,7 +453,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * Medicines Regulatory Agency.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getRegulator() {
+    public function getRegulator()
+    {
         return $this->regulator;
     }
 
@@ -434,7 +463,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $regulator
      * @return $this
      */
-    public function setRegulator($regulator) {
+    public function setRegulator($regulator)
+    {
         $this->regulator = $regulator;
         return $this;
     }
@@ -443,7 +473,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * The regulatory procedure for granting or amending a marketing authorization.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationProcedure
      */
-    public function getProcedure() {
+    public function getProcedure()
+    {
         return $this->procedure;
     }
 
@@ -452,7 +483,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization\FHIRMedicinalProductAuthorizationProcedure $procedure
      * @return $this
      */
-    public function setProcedure($procedure) {
+    public function setProcedure($procedure)
+    {
         $this->procedure = $procedure;
         return $this;
     }
@@ -460,18 +492,20 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['identifier'])) {
                 if (is_array($data['identifier'])) {
-                    foreach($data['identifier'] as $d) {
+                    foreach ($data['identifier'] as $d) {
                         $this->addIdentifier($d);
                     }
                 } else {
@@ -483,7 +517,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
             }
             if (isset($data['country'])) {
                 if (is_array($data['country'])) {
-                    foreach($data['country'] as $d) {
+                    foreach ($data['country'] as $d) {
                         $this->addCountry($d);
                     }
                 } else {
@@ -492,7 +526,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
             }
             if (isset($data['jurisdiction'])) {
                 if (is_array($data['jurisdiction'])) {
-                    foreach($data['jurisdiction'] as $d) {
+                    foreach ($data['jurisdiction'] as $d) {
                         $this->addJurisdiction($d);
                     }
                 } else {
@@ -525,7 +559,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
             }
             if (isset($data['jurisdictionalAuthorization'])) {
                 if (is_array($data['jurisdictionalAuthorization'])) {
-                    foreach($data['jurisdictionalAuthorization'] as $d) {
+                    foreach ($data['jurisdictionalAuthorization'] as $d) {
                         $this->addJurisdictionalAuthorization($d);
                     }
                 } else {
@@ -550,52 +584,78 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;
         if (0 < count($this->identifier)) {
             $json['identifier'] = [];
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $json['identifier'][] = $identifier;
             }
         }
-        if (isset($this->subject)) $json['subject'] = $this->subject;
+        if (isset($this->subject)) {
+            $json['subject'] = $this->subject;
+        }
         if (0 < count($this->country)) {
             $json['country'] = [];
-            foreach($this->country as $country) {
+            foreach ($this->country as $country) {
                 $json['country'][] = $country;
             }
         }
         if (0 < count($this->jurisdiction)) {
             $json['jurisdiction'] = [];
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $json['jurisdiction'][] = $jurisdiction;
             }
         }
-        if (isset($this->status)) $json['status'] = $this->status;
-        if (isset($this->statusDate)) $json['statusDate'] = $this->statusDate;
-        if (isset($this->restoreDate)) $json['restoreDate'] = $this->restoreDate;
-        if (isset($this->validityPeriod)) $json['validityPeriod'] = $this->validityPeriod;
-        if (isset($this->dataExclusivityPeriod)) $json['dataExclusivityPeriod'] = $this->dataExclusivityPeriod;
-        if (isset($this->dateOfFirstAuthorization)) $json['dateOfFirstAuthorization'] = $this->dateOfFirstAuthorization;
-        if (isset($this->internationalBirthDate)) $json['internationalBirthDate'] = $this->internationalBirthDate;
-        if (isset($this->legalBasis)) $json['legalBasis'] = $this->legalBasis;
+        if (isset($this->status)) {
+            $json['status'] = $this->status;
+        }
+        if (isset($this->statusDate)) {
+            $json['statusDate'] = $this->statusDate;
+        }
+        if (isset($this->restoreDate)) {
+            $json['restoreDate'] = $this->restoreDate;
+        }
+        if (isset($this->validityPeriod)) {
+            $json['validityPeriod'] = $this->validityPeriod;
+        }
+        if (isset($this->dataExclusivityPeriod)) {
+            $json['dataExclusivityPeriod'] = $this->dataExclusivityPeriod;
+        }
+        if (isset($this->dateOfFirstAuthorization)) {
+            $json['dateOfFirstAuthorization'] = $this->dateOfFirstAuthorization;
+        }
+        if (isset($this->internationalBirthDate)) {
+            $json['internationalBirthDate'] = $this->internationalBirthDate;
+        }
+        if (isset($this->legalBasis)) {
+            $json['legalBasis'] = $this->legalBasis;
+        }
         if (0 < count($this->jurisdictionalAuthorization)) {
             $json['jurisdictionalAuthorization'] = [];
-            foreach($this->jurisdictionalAuthorization as $jurisdictionalAuthorization) {
+            foreach ($this->jurisdictionalAuthorization as $jurisdictionalAuthorization) {
                 $json['jurisdictionalAuthorization'][] = $jurisdictionalAuthorization;
             }
         }
-        if (isset($this->holder)) $json['holder'] = $this->holder;
-        if (isset($this->regulator)) $json['regulator'] = $this->regulator;
-        if (isset($this->procedure)) $json['procedure'] = $this->procedure;
+        if (isset($this->holder)) {
+            $json['holder'] = $this->holder;
+        }
+        if (isset($this->regulator)) {
+            $json['regulator'] = $this->regulator;
+        }
+        if (isset($this->procedure)) {
+            $json['procedure'] = $this->procedure;
+        }
         return $json;
     }
 
@@ -604,44 +664,71 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<MedicinalProductAuthorization xmlns="http://hl7.org/fhir"></MedicinalProductAuthorization>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<MedicinalProductAuthorization xmlns="http://hl7.org/fhir"></MedicinalProductAuthorization>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {
-            foreach($this->identifier as $identifier) {
+            foreach ($this->identifier as $identifier) {
                 $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
             }
         }
-        if (isset($this->subject)) $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        if (isset($this->subject)) {
+            $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
+        }
         if (0 < count($this->country)) {
-            foreach($this->country as $country) {
+            foreach ($this->country as $country) {
                 $country->xmlSerialize(true, $sxe->addChild('country'));
             }
         }
         if (0 < count($this->jurisdiction)) {
-            foreach($this->jurisdiction as $jurisdiction) {
+            foreach ($this->jurisdiction as $jurisdiction) {
                 $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
             }
         }
-        if (isset($this->status)) $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        if (isset($this->statusDate)) $this->statusDate->xmlSerialize(true, $sxe->addChild('statusDate'));
-        if (isset($this->restoreDate)) $this->restoreDate->xmlSerialize(true, $sxe->addChild('restoreDate'));
-        if (isset($this->validityPeriod)) $this->validityPeriod->xmlSerialize(true, $sxe->addChild('validityPeriod'));
-        if (isset($this->dataExclusivityPeriod)) $this->dataExclusivityPeriod->xmlSerialize(true, $sxe->addChild('dataExclusivityPeriod'));
-        if (isset($this->dateOfFirstAuthorization)) $this->dateOfFirstAuthorization->xmlSerialize(true, $sxe->addChild('dateOfFirstAuthorization'));
-        if (isset($this->internationalBirthDate)) $this->internationalBirthDate->xmlSerialize(true, $sxe->addChild('internationalBirthDate'));
-        if (isset($this->legalBasis)) $this->legalBasis->xmlSerialize(true, $sxe->addChild('legalBasis'));
+        if (isset($this->status)) {
+            $this->status->xmlSerialize(true, $sxe->addChild('status'));
+        }
+        if (isset($this->statusDate)) {
+            $this->statusDate->xmlSerialize(true, $sxe->addChild('statusDate'));
+        }
+        if (isset($this->restoreDate)) {
+            $this->restoreDate->xmlSerialize(true, $sxe->addChild('restoreDate'));
+        }
+        if (isset($this->validityPeriod)) {
+            $this->validityPeriod->xmlSerialize(true, $sxe->addChild('validityPeriod'));
+        }
+        if (isset($this->dataExclusivityPeriod)) {
+            $this->dataExclusivityPeriod->xmlSerialize(true, $sxe->addChild('dataExclusivityPeriod'));
+        }
+        if (isset($this->dateOfFirstAuthorization)) {
+            $this->dateOfFirstAuthorization->xmlSerialize(true, $sxe->addChild('dateOfFirstAuthorization'));
+        }
+        if (isset($this->internationalBirthDate)) {
+            $this->internationalBirthDate->xmlSerialize(true, $sxe->addChild('internationalBirthDate'));
+        }
+        if (isset($this->legalBasis)) {
+            $this->legalBasis->xmlSerialize(true, $sxe->addChild('legalBasis'));
+        }
         if (0 < count($this->jurisdictionalAuthorization)) {
-            foreach($this->jurisdictionalAuthorization as $jurisdictionalAuthorization) {
+            foreach ($this->jurisdictionalAuthorization as $jurisdictionalAuthorization) {
                 $jurisdictionalAuthorization->xmlSerialize(true, $sxe->addChild('jurisdictionalAuthorization'));
             }
         }
-        if (isset($this->holder)) $this->holder->xmlSerialize(true, $sxe->addChild('holder'));
-        if (isset($this->regulator)) $this->regulator->xmlSerialize(true, $sxe->addChild('regulator'));
-        if (isset($this->procedure)) $this->procedure->xmlSerialize(true, $sxe->addChild('procedure'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->holder)) {
+            $this->holder->xmlSerialize(true, $sxe->addChild('holder'));
+        }
+        if (isset($this->regulator)) {
+            $this->regulator->xmlSerialize(true, $sxe->addChild('regulator'));
+        }
+        if (isset($this->procedure)) {
+            $this->procedure->xmlSerialize(true, $sxe->addChild('procedure'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

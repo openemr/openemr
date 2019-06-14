@@ -124,7 +124,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * Primary of secondary specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getIsDerived() {
+    public function getIsDerived()
+    {
         return $this->isDerived;
     }
 
@@ -133,7 +134,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $isDerived
      * @return $this
      */
-    public function setIsDerived($isDerived) {
+    public function setIsDerived($isDerived)
+    {
         $this->isDerived = $isDerived;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * The kind of specimen conditioned for testing expected by lab.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -151,7 +154,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * The preference for this type of conditioned specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSpecimenContainedPreference
      */
-    public function getPreference() {
+    public function getPreference()
+    {
         return $this->preference;
     }
 
@@ -169,7 +174,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSpecimenContainedPreference $preference
      * @return $this
      */
-    public function setPreference($preference) {
+    public function setPreference($preference)
+    {
         $this->preference = $preference;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * The specimen's container.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimenDefinition\FHIRSpecimenDefinitionContainer
      */
-    public function getContainer() {
+    public function getContainer()
+    {
         return $this->container;
     }
 
@@ -187,7 +194,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimenDefinition\FHIRSpecimenDefinitionContainer $container
      * @return $this
      */
-    public function setContainer($container) {
+    public function setContainer($container)
+    {
         $this->container = $container;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * Requirements for delivery and special handling of this kind of conditioned specimen.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getRequirement() {
+    public function getRequirement()
+    {
         return $this->requirement;
     }
 
@@ -205,7 +214,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $requirement
      * @return $this
      */
-    public function setRequirement($requirement) {
+    public function setRequirement($requirement)
+    {
         $this->requirement = $requirement;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * The usual time that a specimen of this kind is retained after the ordered tests are completed, for the purpose of additional testing.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration
      */
-    public function getRetentionTime() {
+    public function getRetentionTime()
+    {
         return $this->retentionTime;
     }
 
@@ -223,7 +234,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity\FHIRDuration $retentionTime
      * @return $this
      */
-    public function setRetentionTime($retentionTime) {
+    public function setRetentionTime($retentionTime)
+    {
         $this->retentionTime = $retentionTime;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * Criterion for rejection of the specimen in its container by the laboratory.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getRejectionCriterion() {
+    public function getRejectionCriterion()
+    {
         return $this->rejectionCriterion;
     }
 
@@ -241,7 +254,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $rejectionCriterion
      * @return $this
      */
-    public function addRejectionCriterion($rejectionCriterion) {
+    public function addRejectionCriterion($rejectionCriterion)
+    {
         $this->rejectionCriterion[] = $rejectionCriterion;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * Set of instructions for preservation/transport of the specimen at a defined temperature interval, prior the testing process.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimenDefinition\FHIRSpecimenDefinitionHandling[]
      */
-    public function getHandling() {
+    public function getHandling()
+    {
         return $this->handling;
     }
 
@@ -259,7 +274,8 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimenDefinition\FHIRSpecimenDefinitionHandling $handling
      * @return $this
      */
-    public function addHandling($handling) {
+    public function addHandling($handling)
+    {
         $this->handling[] = $handling;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['isDerived'])) {
                 $this->setIsDerived($data['isDerived']);
@@ -296,7 +314,7 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
             }
             if (isset($data['rejectionCriterion'])) {
                 if (is_array($data['rejectionCriterion'])) {
-                    foreach($data['rejectionCriterion'] as $d) {
+                    foreach ($data['rejectionCriterion'] as $d) {
                         $this->addRejectionCriterion($d);
                     }
                 } else {
@@ -305,7 +323,7 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
             }
             if (isset($data['handling'])) {
                 if (is_array($data['handling'])) {
-                    foreach($data['handling'] as $d) {
+                    foreach ($data['handling'] as $d) {
                         $this->addHandling($d);
                     }
                 } else {
@@ -321,30 +339,44 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->isDerived)) $json['isDerived'] = $this->isDerived;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->preference)) $json['preference'] = $this->preference;
-        if (isset($this->container)) $json['container'] = $this->container;
-        if (isset($this->requirement)) $json['requirement'] = $this->requirement;
-        if (isset($this->retentionTime)) $json['retentionTime'] = $this->retentionTime;
+        if (isset($this->isDerived)) {
+            $json['isDerived'] = $this->isDerived;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->preference)) {
+            $json['preference'] = $this->preference;
+        }
+        if (isset($this->container)) {
+            $json['container'] = $this->container;
+        }
+        if (isset($this->requirement)) {
+            $json['requirement'] = $this->requirement;
+        }
+        if (isset($this->retentionTime)) {
+            $json['retentionTime'] = $this->retentionTime;
+        }
         if (0 < count($this->rejectionCriterion)) {
             $json['rejectionCriterion'] = [];
-            foreach($this->rejectionCriterion as $rejectionCriterion) {
+            foreach ($this->rejectionCriterion as $rejectionCriterion) {
                 $json['rejectionCriterion'][] = $rejectionCriterion;
             }
         }
         if (0 < count($this->handling)) {
             $json['handling'] = [];
-            foreach($this->handling as $handling) {
+            foreach ($this->handling as $handling) {
                 $json['handling'][] = $handling;
             }
         }
@@ -356,28 +388,43 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SpecimenDefinitionTypeTested xmlns="http://hl7.org/fhir"></SpecimenDefinitionTypeTested>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SpecimenDefinitionTypeTested xmlns="http://hl7.org/fhir"></SpecimenDefinitionTypeTested>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->isDerived)) $this->isDerived->xmlSerialize(true, $sxe->addChild('isDerived'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->preference)) $this->preference->xmlSerialize(true, $sxe->addChild('preference'));
-        if (isset($this->container)) $this->container->xmlSerialize(true, $sxe->addChild('container'));
-        if (isset($this->requirement)) $this->requirement->xmlSerialize(true, $sxe->addChild('requirement'));
-        if (isset($this->retentionTime)) $this->retentionTime->xmlSerialize(true, $sxe->addChild('retentionTime'));
+        if (isset($this->isDerived)) {
+            $this->isDerived->xmlSerialize(true, $sxe->addChild('isDerived'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->preference)) {
+            $this->preference->xmlSerialize(true, $sxe->addChild('preference'));
+        }
+        if (isset($this->container)) {
+            $this->container->xmlSerialize(true, $sxe->addChild('container'));
+        }
+        if (isset($this->requirement)) {
+            $this->requirement->xmlSerialize(true, $sxe->addChild('requirement'));
+        }
+        if (isset($this->retentionTime)) {
+            $this->retentionTime->xmlSerialize(true, $sxe->addChild('retentionTime'));
+        }
         if (0 < count($this->rejectionCriterion)) {
-            foreach($this->rejectionCriterion as $rejectionCriterion) {
+            foreach ($this->rejectionCriterion as $rejectionCriterion) {
                 $rejectionCriterion->xmlSerialize(true, $sxe->addChild('rejectionCriterion'));
             }
         }
         if (0 < count($this->handling)) {
-            foreach($this->handling as $handling) {
+            foreach ($this->handling as $handling) {
                 $handling->xmlSerialize(true, $sxe->addChild('handling'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

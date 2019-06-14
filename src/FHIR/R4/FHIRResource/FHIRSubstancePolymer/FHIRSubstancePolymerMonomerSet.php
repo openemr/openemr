@@ -88,7 +88,8 @@ class FHIRSubstancePolymerMonomerSet extends FHIRBackboneElement implements \Jso
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRatioType() {
+    public function getRatioType()
+    {
         return $this->ratioType;
     }
 
@@ -97,7 +98,8 @@ class FHIRSubstancePolymerMonomerSet extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $ratioType
      * @return $this
      */
-    public function setRatioType($ratioType) {
+    public function setRatioType($ratioType)
+    {
         $this->ratioType = $ratioType;
         return $this;
     }
@@ -106,7 +108,8 @@ class FHIRSubstancePolymerMonomerSet extends FHIRBackboneElement implements \Jso
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerStartingMaterial[]
      */
-    public function getStartingMaterial() {
+    public function getStartingMaterial()
+    {
         return $this->startingMaterial;
     }
 
@@ -115,7 +118,8 @@ class FHIRSubstancePolymerMonomerSet extends FHIRBackboneElement implements \Jso
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer\FHIRSubstancePolymerStartingMaterial $startingMaterial
      * @return $this
      */
-    public function addStartingMaterial($startingMaterial) {
+    public function addStartingMaterial($startingMaterial)
+    {
         $this->startingMaterial[] = $startingMaterial;
         return $this;
     }
@@ -123,21 +127,23 @@ class FHIRSubstancePolymerMonomerSet extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['ratioType'])) {
                 $this->setRatioType($data['ratioType']);
             }
             if (isset($data['startingMaterial'])) {
                 if (is_array($data['startingMaterial'])) {
-                    foreach($data['startingMaterial'] as $d) {
+                    foreach ($data['startingMaterial'] as $d) {
                         $this->addStartingMaterial($d);
                     }
                 } else {
@@ -153,19 +159,23 @@ class FHIRSubstancePolymerMonomerSet extends FHIRBackboneElement implements \Jso
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->ratioType)) $json['ratioType'] = $this->ratioType;
+        if (isset($this->ratioType)) {
+            $json['ratioType'] = $this->ratioType;
+        }
         if (0 < count($this->startingMaterial)) {
             $json['startingMaterial'] = [];
-            foreach($this->startingMaterial as $startingMaterial) {
+            foreach ($this->startingMaterial as $startingMaterial) {
                 $json['startingMaterial'][] = $startingMaterial;
             }
         }
@@ -177,18 +187,23 @@ class FHIRSubstancePolymerMonomerSet extends FHIRBackboneElement implements \Jso
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstancePolymerMonomerSet xmlns="http://hl7.org/fhir"></SubstancePolymerMonomerSet>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstancePolymerMonomerSet xmlns="http://hl7.org/fhir"></SubstancePolymerMonomerSet>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->ratioType)) $this->ratioType->xmlSerialize(true, $sxe->addChild('ratioType'));
+        if (isset($this->ratioType)) {
+            $this->ratioType->xmlSerialize(true, $sxe->addChild('ratioType'));
+        }
         if (0 < count($this->startingMaterial)) {
-            foreach($this->startingMaterial as $startingMaterial) {
+            foreach ($this->startingMaterial as $startingMaterial) {
                 $startingMaterial->xmlSerialize(true, $sxe->addChild('startingMaterial'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

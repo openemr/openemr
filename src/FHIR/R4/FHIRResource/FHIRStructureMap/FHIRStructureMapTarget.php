@@ -124,7 +124,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * Type or variable this rule applies to.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getContext() {
+    public function getContext()
+    {
         return $this->context;
     }
 
@@ -133,7 +134,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $context
      * @return $this
      */
-    public function setContext($context) {
+    public function setContext($context)
+    {
         $this->context = $context;
         return $this;
     }
@@ -142,7 +144,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * How to interpret the context.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRStructureMapContextType
      */
-    public function getContextType() {
+    public function getContextType()
+    {
         return $this->contextType;
     }
 
@@ -151,7 +154,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRStructureMapContextType $contextType
      * @return $this
      */
-    public function setContextType($contextType) {
+    public function setContextType($contextType)
+    {
         $this->contextType = $contextType;
         return $this;
     }
@@ -160,7 +164,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * Field to create in the context.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getElement() {
+    public function getElement()
+    {
         return $this->element;
     }
 
@@ -169,7 +174,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $element
      * @return $this
      */
-    public function setElement($element) {
+    public function setElement($element)
+    {
         $this->element = $element;
         return $this;
     }
@@ -178,7 +184,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * Named context for field, if desired, and a field is specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getVariable() {
+    public function getVariable()
+    {
         return $this->variable;
     }
 
@@ -187,7 +194,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $variable
      * @return $this
      */
-    public function setVariable($variable) {
+    public function setVariable($variable)
+    {
         $this->variable = $variable;
         return $this;
     }
@@ -196,7 +204,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * If field is a list, how to manage the list.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRStructureMapTargetListMode[]
      */
-    public function getListMode() {
+    public function getListMode()
+    {
         return $this->listMode;
     }
 
@@ -205,7 +214,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRStructureMapTargetListMode $listMode
      * @return $this
      */
-    public function addListMode($listMode) {
+    public function addListMode($listMode)
+    {
         $this->listMode[] = $listMode;
         return $this;
     }
@@ -214,7 +224,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * Internal rule reference for shared list items.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRId
      */
-    public function getListRuleId() {
+    public function getListRuleId()
+    {
         return $this->listRuleId;
     }
 
@@ -223,7 +234,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRId $listRuleId
      * @return $this
      */
-    public function setListRuleId($listRuleId) {
+    public function setListRuleId($listRuleId)
+    {
         $this->listRuleId = $listRuleId;
         return $this;
     }
@@ -232,7 +244,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * How the data is copied / created.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRStructureMapTransform
      */
-    public function getTransform() {
+    public function getTransform()
+    {
         return $this->transform;
     }
 
@@ -241,7 +254,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRStructureMapTransform $transform
      * @return $this
      */
-    public function setTransform($transform) {
+    public function setTransform($transform)
+    {
         $this->transform = $transform;
         return $this;
     }
@@ -250,7 +264,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * Parameters to the transform.
      * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRStructureMap\FHIRStructureMapParameter[]
      */
-    public function getParameter() {
+    public function getParameter()
+    {
         return $this->parameter;
     }
 
@@ -259,7 +274,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * @param \OpenEMR\FHIR\R4\FHIRResource\FHIRStructureMap\FHIRStructureMapParameter $parameter
      * @return $this
      */
-    public function addParameter($parameter) {
+    public function addParameter($parameter)
+    {
         $this->parameter[] = $parameter;
         return $this;
     }
@@ -267,14 +283,16 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['context'])) {
                 $this->setContext($data['context']);
@@ -290,7 +308,7 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['listMode'])) {
                 if (is_array($data['listMode'])) {
-                    foreach($data['listMode'] as $d) {
+                    foreach ($data['listMode'] as $d) {
                         $this->addListMode($d);
                     }
                 } else {
@@ -305,7 +323,7 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
             }
             if (isset($data['parameter'])) {
                 if (is_array($data['parameter'])) {
-                    foreach($data['parameter'] as $d) {
+                    foreach ($data['parameter'] as $d) {
                         $this->addParameter($d);
                     }
                 } else {
@@ -321,30 +339,44 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->context)) $json['context'] = $this->context;
-        if (isset($this->contextType)) $json['contextType'] = $this->contextType;
-        if (isset($this->element)) $json['element'] = $this->element;
-        if (isset($this->variable)) $json['variable'] = $this->variable;
+        if (isset($this->context)) {
+            $json['context'] = $this->context;
+        }
+        if (isset($this->contextType)) {
+            $json['contextType'] = $this->contextType;
+        }
+        if (isset($this->element)) {
+            $json['element'] = $this->element;
+        }
+        if (isset($this->variable)) {
+            $json['variable'] = $this->variable;
+        }
         if (0 < count($this->listMode)) {
             $json['listMode'] = [];
-            foreach($this->listMode as $listMode) {
+            foreach ($this->listMode as $listMode) {
                 $json['listMode'][] = $listMode;
             }
         }
-        if (isset($this->listRuleId)) $json['listRuleId'] = $this->listRuleId;
-        if (isset($this->transform)) $json['transform'] = $this->transform;
+        if (isset($this->listRuleId)) {
+            $json['listRuleId'] = $this->listRuleId;
+        }
+        if (isset($this->transform)) {
+            $json['transform'] = $this->transform;
+        }
         if (0 < count($this->parameter)) {
             $json['parameter'] = [];
-            foreach($this->parameter as $parameter) {
+            foreach ($this->parameter as $parameter) {
                 $json['parameter'][] = $parameter;
             }
         }
@@ -356,28 +388,43 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<StructureMapTarget xmlns="http://hl7.org/fhir"></StructureMapTarget>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<StructureMapTarget xmlns="http://hl7.org/fhir"></StructureMapTarget>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->context)) $this->context->xmlSerialize(true, $sxe->addChild('context'));
-        if (isset($this->contextType)) $this->contextType->xmlSerialize(true, $sxe->addChild('contextType'));
-        if (isset($this->element)) $this->element->xmlSerialize(true, $sxe->addChild('element'));
-        if (isset($this->variable)) $this->variable->xmlSerialize(true, $sxe->addChild('variable'));
+        if (isset($this->context)) {
+            $this->context->xmlSerialize(true, $sxe->addChild('context'));
+        }
+        if (isset($this->contextType)) {
+            $this->contextType->xmlSerialize(true, $sxe->addChild('contextType'));
+        }
+        if (isset($this->element)) {
+            $this->element->xmlSerialize(true, $sxe->addChild('element'));
+        }
+        if (isset($this->variable)) {
+            $this->variable->xmlSerialize(true, $sxe->addChild('variable'));
+        }
         if (0 < count($this->listMode)) {
-            foreach($this->listMode as $listMode) {
+            foreach ($this->listMode as $listMode) {
                 $listMode->xmlSerialize(true, $sxe->addChild('listMode'));
             }
         }
-        if (isset($this->listRuleId)) $this->listRuleId->xmlSerialize(true, $sxe->addChild('listRuleId'));
-        if (isset($this->transform)) $this->transform->xmlSerialize(true, $sxe->addChild('transform'));
+        if (isset($this->listRuleId)) {
+            $this->listRuleId->xmlSerialize(true, $sxe->addChild('listRuleId'));
+        }
+        if (isset($this->transform)) {
+            $this->transform->xmlSerialize(true, $sxe->addChild('transform'));
+        }
         if (0 < count($this->parameter)) {
-            foreach($this->parameter as $parameter) {
+            foreach ($this->parameter as $parameter) {
                 $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

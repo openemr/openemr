@@ -110,7 +110,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * A number to uniquely identify diagnosis entries.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt
      */
-    public function getSequence() {
+    public function getSequence()
+    {
         return $this->sequence;
     }
 
@@ -119,7 +120,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt $sequence
      * @return $this
      */
-    public function setSequence($sequence) {
+    public function setSequence($sequence)
+    {
         $this->sequence = $sequence;
         return $this;
     }
@@ -127,7 +129,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getDiagnosisCodeableConcept() {
+    public function getDiagnosisCodeableConcept()
+    {
         return $this->diagnosisCodeableConcept;
     }
 
@@ -135,7 +138,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $diagnosisCodeableConcept
      * @return $this
      */
-    public function setDiagnosisCodeableConcept($diagnosisCodeableConcept) {
+    public function setDiagnosisCodeableConcept($diagnosisCodeableConcept)
+    {
         $this->diagnosisCodeableConcept = $diagnosisCodeableConcept;
         return $this;
     }
@@ -143,7 +147,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getDiagnosisReference() {
+    public function getDiagnosisReference()
+    {
         return $this->diagnosisReference;
     }
 
@@ -151,7 +156,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $diagnosisReference
      * @return $this
      */
-    public function setDiagnosisReference($diagnosisReference) {
+    public function setDiagnosisReference($diagnosisReference)
+    {
         $this->diagnosisReference = $diagnosisReference;
         return $this;
     }
@@ -160,7 +166,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * When the condition was observed or the relative ranking.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -169,7 +176,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function addType($type) {
+    public function addType($type)
+    {
         $this->type[] = $type;
         return $this;
     }
@@ -178,7 +186,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * Indication of whether the diagnosis was present on admission to a facility.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getOnAdmission() {
+    public function getOnAdmission()
+    {
         return $this->onAdmission;
     }
 
@@ -187,7 +196,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $onAdmission
      * @return $this
      */
-    public function setOnAdmission($onAdmission) {
+    public function setOnAdmission($onAdmission)
+    {
         $this->onAdmission = $onAdmission;
         return $this;
     }
@@ -196,7 +206,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * A package billing code or bundle code used to group products and services to a particular health condition (such as heart attack) which is based on a predetermined grouping code system.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPackageCode() {
+    public function getPackageCode()
+    {
         return $this->packageCode;
     }
 
@@ -205,7 +216,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $packageCode
      * @return $this
      */
-    public function setPackageCode($packageCode) {
+    public function setPackageCode($packageCode)
+    {
         $this->packageCode = $packageCode;
         return $this;
     }
@@ -213,14 +225,16 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['sequence'])) {
                 $this->setSequence($data['sequence']);
@@ -233,7 +247,7 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
             }
             if (isset($data['type'])) {
                 if (is_array($data['type'])) {
-                    foreach($data['type'] as $d) {
+                    foreach ($data['type'] as $d) {
                         $this->addType($d);
                     }
                 } else {
@@ -255,26 +269,38 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->sequence)) $json['sequence'] = $this->sequence;
-        if (isset($this->diagnosisCodeableConcept)) $json['diagnosisCodeableConcept'] = $this->diagnosisCodeableConcept;
-        if (isset($this->diagnosisReference)) $json['diagnosisReference'] = $this->diagnosisReference;
+        if (isset($this->sequence)) {
+            $json['sequence'] = $this->sequence;
+        }
+        if (isset($this->diagnosisCodeableConcept)) {
+            $json['diagnosisCodeableConcept'] = $this->diagnosisCodeableConcept;
+        }
+        if (isset($this->diagnosisReference)) {
+            $json['diagnosisReference'] = $this->diagnosisReference;
+        }
         if (0 < count($this->type)) {
             $json['type'] = [];
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $json['type'][] = $type;
             }
         }
-        if (isset($this->onAdmission)) $json['onAdmission'] = $this->onAdmission;
-        if (isset($this->packageCode)) $json['packageCode'] = $this->packageCode;
+        if (isset($this->onAdmission)) {
+            $json['onAdmission'] = $this->onAdmission;
+        }
+        if (isset($this->packageCode)) {
+            $json['packageCode'] = $this->packageCode;
+        }
         return $json;
     }
 
@@ -283,22 +309,35 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimDiagnosis xmlns="http://hl7.org/fhir"></ClaimDiagnosis>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimDiagnosis xmlns="http://hl7.org/fhir"></ClaimDiagnosis>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->sequence)) $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
-        if (isset($this->diagnosisCodeableConcept)) $this->diagnosisCodeableConcept->xmlSerialize(true, $sxe->addChild('diagnosisCodeableConcept'));
-        if (isset($this->diagnosisReference)) $this->diagnosisReference->xmlSerialize(true, $sxe->addChild('diagnosisReference'));
+        if (isset($this->sequence)) {
+            $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
+        }
+        if (isset($this->diagnosisCodeableConcept)) {
+            $this->diagnosisCodeableConcept->xmlSerialize(true, $sxe->addChild('diagnosisCodeableConcept'));
+        }
+        if (isset($this->diagnosisReference)) {
+            $this->diagnosisReference->xmlSerialize(true, $sxe->addChild('diagnosisReference'));
+        }
         if (0 < count($this->type)) {
-            foreach($this->type as $type) {
+            foreach ($this->type as $type) {
                 $type->xmlSerialize(true, $sxe->addChild('type'));
             }
         }
-        if (isset($this->onAdmission)) $this->onAdmission->xmlSerialize(true, $sxe->addChild('onAdmission'));
-        if (isset($this->packageCode)) $this->packageCode->xmlSerialize(true, $sxe->addChild('packageCode'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->onAdmission)) {
+            $this->onAdmission->xmlSerialize(true, $sxe->addChild('onAdmission'));
+        }
+        if (isset($this->packageCode)) {
+            $this->packageCode->xmlSerialize(true, $sxe->addChild('packageCode'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

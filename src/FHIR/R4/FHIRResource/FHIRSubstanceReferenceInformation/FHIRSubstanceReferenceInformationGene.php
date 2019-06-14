@@ -94,7 +94,8 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getGeneSequenceOrigin() {
+    public function getGeneSequenceOrigin()
+    {
         return $this->geneSequenceOrigin;
     }
 
@@ -103,7 +104,8 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $geneSequenceOrigin
      * @return $this
      */
-    public function setGeneSequenceOrigin($geneSequenceOrigin) {
+    public function setGeneSequenceOrigin($geneSequenceOrigin)
+    {
         $this->geneSequenceOrigin = $geneSequenceOrigin;
         return $this;
     }
@@ -112,7 +114,8 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getGene() {
+    public function getGene()
+    {
         return $this->gene;
     }
 
@@ -121,7 +124,8 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $gene
      * @return $this
      */
-    public function setGene($gene) {
+    public function setGene($gene)
+    {
         $this->gene = $gene;
         return $this;
     }
@@ -130,7 +134,8 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
      * Todo.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -139,7 +144,8 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function addSource($source) {
+    public function addSource($source)
+    {
         $this->source[] = $source;
         return $this;
     }
@@ -147,14 +153,16 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['geneSequenceOrigin'])) {
                 $this->setGeneSequenceOrigin($data['geneSequenceOrigin']);
@@ -164,7 +172,7 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
             }
             if (isset($data['source'])) {
                 if (is_array($data['source'])) {
-                    foreach($data['source'] as $d) {
+                    foreach ($data['source'] as $d) {
                         $this->addSource($d);
                     }
                 } else {
@@ -180,20 +188,26 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->geneSequenceOrigin)) $json['geneSequenceOrigin'] = $this->geneSequenceOrigin;
-        if (isset($this->gene)) $json['gene'] = $this->gene;
+        if (isset($this->geneSequenceOrigin)) {
+            $json['geneSequenceOrigin'] = $this->geneSequenceOrigin;
+        }
+        if (isset($this->gene)) {
+            $json['gene'] = $this->gene;
+        }
         if (0 < count($this->source)) {
             $json['source'] = [];
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $json['source'][] = $source;
             }
         }
@@ -205,19 +219,26 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationGene xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationGene>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceReferenceInformationGene xmlns="http://hl7.org/fhir"></SubstanceReferenceInformationGene>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->geneSequenceOrigin)) $this->geneSequenceOrigin->xmlSerialize(true, $sxe->addChild('geneSequenceOrigin'));
-        if (isset($this->gene)) $this->gene->xmlSerialize(true, $sxe->addChild('gene'));
+        if (isset($this->geneSequenceOrigin)) {
+            $this->geneSequenceOrigin->xmlSerialize(true, $sxe->addChild('geneSequenceOrigin'));
+        }
+        if (isset($this->gene)) {
+            $this->gene->xmlSerialize(true, $sxe->addChild('gene'));
+        }
         if (0 < count($this->source)) {
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $source->xmlSerialize(true, $sxe->addChild('source'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

@@ -100,7 +100,8 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
      * Identifier of the material presented to the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getDocumentType() {
+    public function getDocumentType()
+    {
         return $this->documentType;
     }
 
@@ -109,7 +110,8 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $documentType
      * @return $this
      */
-    public function setDocumentType($documentType) {
+    public function setDocumentType($documentType)
+    {
         $this->documentType = $documentType;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
      * Reference pointer to the educational material given to the patient if the information was on line.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUri
      */
-    public function getReference() {
+    public function getReference()
+    {
         return $this->reference;
     }
 
@@ -127,7 +130,8 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUri $reference
      * @return $this
      */
-    public function setReference($reference) {
+    public function setReference($reference)
+    {
         $this->reference = $reference;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
      * Date the educational material was published.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getPublicationDate() {
+    public function getPublicationDate()
+    {
         return $this->publicationDate;
     }
 
@@ -145,7 +150,8 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $publicationDate
      * @return $this
      */
-    public function setPublicationDate($publicationDate) {
+    public function setPublicationDate($publicationDate)
+    {
         $this->publicationDate = $publicationDate;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
      * Date the educational material was given to the patient.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
      */
-    public function getPresentationDate() {
+    public function getPresentationDate()
+    {
         return $this->presentationDate;
     }
 
@@ -163,7 +170,8 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $presentationDate
      * @return $this
      */
-    public function setPresentationDate($presentationDate) {
+    public function setPresentationDate($presentationDate)
+    {
         $this->presentationDate = $presentationDate;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['documentType'])) {
                 $this->setDocumentType($data['documentType']);
@@ -201,19 +211,29 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->documentType)) $json['documentType'] = $this->documentType;
-        if (isset($this->reference)) $json['reference'] = $this->reference;
-        if (isset($this->publicationDate)) $json['publicationDate'] = $this->publicationDate;
-        if (isset($this->presentationDate)) $json['presentationDate'] = $this->presentationDate;
+        if (isset($this->documentType)) {
+            $json['documentType'] = $this->documentType;
+        }
+        if (isset($this->reference)) {
+            $json['reference'] = $this->reference;
+        }
+        if (isset($this->publicationDate)) {
+            $json['publicationDate'] = $this->publicationDate;
+        }
+        if (isset($this->presentationDate)) {
+            $json['presentationDate'] = $this->presentationDate;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ImmunizationEducation xmlns="http://hl7.org/fhir"></ImmunizationEducation>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ImmunizationEducation xmlns="http://hl7.org/fhir"></ImmunizationEducation>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->documentType)) $this->documentType->xmlSerialize(true, $sxe->addChild('documentType'));
-        if (isset($this->reference)) $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
-        if (isset($this->publicationDate)) $this->publicationDate->xmlSerialize(true, $sxe->addChild('publicationDate'));
-        if (isset($this->presentationDate)) $this->presentationDate->xmlSerialize(true, $sxe->addChild('presentationDate'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->documentType)) {
+            $this->documentType->xmlSerialize(true, $sxe->addChild('documentType'));
+        }
+        if (isset($this->reference)) {
+            $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
+        }
+        if (isset($this->publicationDate)) {
+            $this->publicationDate->xmlSerialize(true, $sxe->addChild('publicationDate'));
+        }
+        if (isset($this->presentationDate)) {
+            $this->presentationDate->xmlSerialize(true, $sxe->addChild('presentationDate'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

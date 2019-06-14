@@ -98,7 +98,8 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
      * Date of an accident event  related to the products and services contained in the claim.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDate
      */
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -107,7 +108,8 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDate $date
      * @return $this
      */
-    public function setDate($date) {
+    public function setDate($date)
+    {
         $this->date = $date;
         return $this;
     }
@@ -116,7 +118,8 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
      * The type or context of the accident event for the purposes of selection of potential insurance coverages and determination of coordination between insurers.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -125,7 +128,8 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
         return $this;
     }
@@ -133,7 +137,8 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress
      */
-    public function getLocationAddress() {
+    public function getLocationAddress()
+    {
         return $this->locationAddress;
     }
 
@@ -141,7 +146,8 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAddress $locationAddress
      * @return $this
      */
-    public function setLocationAddress($locationAddress) {
+    public function setLocationAddress($locationAddress)
+    {
         $this->locationAddress = $locationAddress;
         return $this;
     }
@@ -149,7 +155,8 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getLocationReference() {
+    public function getLocationReference()
+    {
         return $this->locationReference;
     }
 
@@ -157,7 +164,8 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $locationReference
      * @return $this
      */
-    public function setLocationReference($locationReference) {
+    public function setLocationReference($locationReference)
+    {
         $this->locationReference = $locationReference;
         return $this;
     }
@@ -165,14 +173,16 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['date'])) {
                 $this->setDate($data['date']);
@@ -195,19 +205,29 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->date)) $json['date'] = $this->date;
-        if (isset($this->type)) $json['type'] = $this->type;
-        if (isset($this->locationAddress)) $json['locationAddress'] = $this->locationAddress;
-        if (isset($this->locationReference)) $json['locationReference'] = $this->locationReference;
+        if (isset($this->date)) {
+            $json['date'] = $this->date;
+        }
+        if (isset($this->type)) {
+            $json['type'] = $this->type;
+        }
+        if (isset($this->locationAddress)) {
+            $json['locationAddress'] = $this->locationAddress;
+        }
+        if (isset($this->locationReference)) {
+            $json['locationReference'] = $this->locationReference;
+        }
         return $json;
     }
 
@@ -216,16 +236,27 @@ class FHIRClaimAccident extends FHIRBackboneElement implements \JsonSerializable
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ClaimAccident xmlns="http://hl7.org/fhir"></ClaimAccident>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ClaimAccident xmlns="http://hl7.org/fhir"></ClaimAccident>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->date)) $this->date->xmlSerialize(true, $sxe->addChild('date'));
-        if (isset($this->type)) $this->type->xmlSerialize(true, $sxe->addChild('type'));
-        if (isset($this->locationAddress)) $this->locationAddress->xmlSerialize(true, $sxe->addChild('locationAddress'));
-        if (isset($this->locationReference)) $this->locationReference->xmlSerialize(true, $sxe->addChild('locationReference'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->date)) {
+            $this->date->xmlSerialize(true, $sxe->addChild('date'));
+        }
+        if (isset($this->type)) {
+            $this->type->xmlSerialize(true, $sxe->addChild('type'));
+        }
+        if (isset($this->locationAddress)) {
+            $this->locationAddress->xmlSerialize(true, $sxe->addChild('locationAddress'));
+        }
+        if (isset($this->locationReference)) {
+            $this->locationReference->xmlSerialize(true, $sxe->addChild('locationReference'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

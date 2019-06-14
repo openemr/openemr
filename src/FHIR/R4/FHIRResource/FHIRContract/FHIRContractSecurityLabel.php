@@ -100,7 +100,8 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
      * Number used to link this term or term element to the applicable Security Label.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt[]
      */
-    public function getNumber() {
+    public function getNumber()
+    {
         return $this->number;
     }
 
@@ -109,7 +110,8 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRUnsignedInt $number
      * @return $this
      */
-    public function addNumber($number) {
+    public function addNumber($number)
+    {
         $this->number[] = $number;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
      * Security label privacy tag that species the level of confidentiality protection required for this term and/or term elements.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
-    public function getClassification() {
+    public function getClassification()
+    {
         return $this->classification;
     }
 
@@ -127,7 +130,8 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $classification
      * @return $this
      */
-    public function setClassification($classification) {
+    public function setClassification($classification)
+    {
         $this->classification = $classification;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
      * Security label privacy tag that species the applicable privacy and security policies governing this term and/or term elements.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getCategory() {
+    public function getCategory()
+    {
         return $this->category;
     }
 
@@ -145,7 +150,8 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $category
      * @return $this
      */
-    public function addCategory($category) {
+    public function addCategory($category)
+    {
         $this->category[] = $category;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
      * Security label privacy tag that species the manner in which term and/or term elements are to be protected.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding[]
      */
-    public function getControl() {
+    public function getControl()
+    {
         return $this->control;
     }
 
@@ -163,7 +170,8 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $control
      * @return $this
      */
-    public function addControl($control) {
+    public function addControl($control)
+    {
         $this->control[] = $control;
         return $this;
     }
@@ -171,18 +179,20 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['number'])) {
                 if (is_array($data['number'])) {
-                    foreach($data['number'] as $d) {
+                    foreach ($data['number'] as $d) {
                         $this->addNumber($d);
                     }
                 } else {
@@ -194,7 +204,7 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
             }
             if (isset($data['category'])) {
                 if (is_array($data['category'])) {
-                    foreach($data['category'] as $d) {
+                    foreach ($data['category'] as $d) {
                         $this->addCategory($d);
                     }
                 } else {
@@ -203,7 +213,7 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
             }
             if (isset($data['control'])) {
                 if (is_array($data['control'])) {
-                    foreach($data['control'] as $d) {
+                    foreach ($data['control'] as $d) {
                         $this->addControl($d);
                     }
                 } else {
@@ -219,31 +229,35 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
         if (0 < count($this->number)) {
             $json['number'] = [];
-            foreach($this->number as $number) {
+            foreach ($this->number as $number) {
                 $json['number'][] = $number;
             }
         }
-        if (isset($this->classification)) $json['classification'] = $this->classification;
+        if (isset($this->classification)) {
+            $json['classification'] = $this->classification;
+        }
         if (0 < count($this->category)) {
             $json['category'] = [];
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $json['category'][] = $category;
             }
         }
         if (0 < count($this->control)) {
             $json['control'] = [];
-            foreach($this->control as $control) {
+            foreach ($this->control as $control) {
                 $json['control'][] = $control;
             }
         }
@@ -255,28 +269,33 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<ContractSecurityLabel xmlns="http://hl7.org/fhir"></ContractSecurityLabel>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<ContractSecurityLabel xmlns="http://hl7.org/fhir"></ContractSecurityLabel>');
+        }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->number)) {
-            foreach($this->number as $number) {
+            foreach ($this->number as $number) {
                 $number->xmlSerialize(true, $sxe->addChild('number'));
             }
         }
-        if (isset($this->classification)) $this->classification->xmlSerialize(true, $sxe->addChild('classification'));
+        if (isset($this->classification)) {
+            $this->classification->xmlSerialize(true, $sxe->addChild('classification'));
+        }
         if (0 < count($this->category)) {
-            foreach($this->category as $category) {
+            foreach ($this->category as $category) {
                 $category->xmlSerialize(true, $sxe->addChild('category'));
             }
         }
         if (0 < count($this->control)) {
-            foreach($this->control as $control) {
+            foreach ($this->control as $control) {
                 $control->xmlSerialize(true, $sxe->addChild('control'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

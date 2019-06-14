@@ -135,7 +135,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
-    public function getSubstanceReference() {
+    public function getSubstanceReference()
+    {
         return $this->substanceReference;
     }
 
@@ -143,7 +144,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $substanceReference
      * @return $this
      */
-    public function setSubstanceReference($substanceReference) {
+    public function setSubstanceReference($substanceReference)
+    {
         $this->substanceReference = $substanceReference;
         return $this;
     }
@@ -151,7 +153,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getSubstanceCodeableConcept() {
+    public function getSubstanceCodeableConcept()
+    {
         return $this->substanceCodeableConcept;
     }
 
@@ -159,7 +162,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $substanceCodeableConcept
      * @return $this
      */
-    public function setSubstanceCodeableConcept($substanceCodeableConcept) {
+    public function setSubstanceCodeableConcept($substanceCodeableConcept)
+    {
         $this->substanceCodeableConcept = $substanceCodeableConcept;
         return $this;
     }
@@ -168,7 +172,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * For example "salt to parent", "active moiety", "starting material".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getRelationship() {
+    public function getRelationship()
+    {
         return $this->relationship;
     }
 
@@ -177,7 +182,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $relationship
      * @return $this
      */
-    public function setRelationship($relationship) {
+    public function setRelationship($relationship)
+    {
         $this->relationship = $relationship;
         return $this;
     }
@@ -186,7 +192,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * For example where an enzyme strongly bonds with a particular substance, this is a defining relationship for that enzyme, out of several possible substance relationships.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
      */
-    public function getIsDefining() {
+    public function getIsDefining()
+    {
         return $this->isDefining;
     }
 
@@ -195,7 +202,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $isDefining
      * @return $this
      */
-    public function setIsDefining($isDefining) {
+    public function setIsDefining($isDefining)
+    {
         $this->isDefining = $isDefining;
         return $this;
     }
@@ -203,7 +211,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
      */
-    public function getAmountQuantity() {
+    public function getAmountQuantity()
+    {
         return $this->amountQuantity;
     }
 
@@ -211,7 +220,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $amountQuantity
      * @return $this
      */
-    public function setAmountQuantity($amountQuantity) {
+    public function setAmountQuantity($amountQuantity)
+    {
         $this->amountQuantity = $amountQuantity;
         return $this;
     }
@@ -219,7 +229,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
      */
-    public function getAmountRange() {
+    public function getAmountRange()
+    {
         return $this->amountRange;
     }
 
@@ -227,7 +238,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $amountRange
      * @return $this
      */
-    public function setAmountRange($amountRange) {
+    public function setAmountRange($amountRange)
+    {
         $this->amountRange = $amountRange;
         return $this;
     }
@@ -235,7 +247,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getAmountRatio() {
+    public function getAmountRatio()
+    {
         return $this->amountRatio;
     }
 
@@ -243,7 +256,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $amountRatio
      * @return $this
      */
-    public function setAmountRatio($amountRatio) {
+    public function setAmountRatio($amountRatio)
+    {
         $this->amountRatio = $amountRatio;
         return $this;
     }
@@ -251,7 +265,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
     /**
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
      */
-    public function getAmountString() {
+    public function getAmountString()
+    {
         return $this->amountString;
     }
 
@@ -259,7 +274,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $amountString
      * @return $this
      */
-    public function setAmountString($amountString) {
+    public function setAmountString($amountString)
+    {
         $this->amountString = $amountString;
         return $this;
     }
@@ -268,7 +284,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * For use when the numeric.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
      */
-    public function getAmountRatioLowLimit() {
+    public function getAmountRatioLowLimit()
+    {
         return $this->amountRatioLowLimit;
     }
 
@@ -277,7 +294,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $amountRatioLowLimit
      * @return $this
      */
-    public function setAmountRatioLowLimit($amountRatioLowLimit) {
+    public function setAmountRatioLowLimit($amountRatioLowLimit)
+    {
         $this->amountRatioLowLimit = $amountRatioLowLimit;
         return $this;
     }
@@ -286,7 +304,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * An operator for the amount, for example "average", "approximately", "less than".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getAmountType() {
+    public function getAmountType()
+    {
         return $this->amountType;
     }
 
@@ -295,7 +314,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $amountType
      * @return $this
      */
-    public function setAmountType($amountType) {
+    public function setAmountType($amountType)
+    {
         $this->amountType = $amountType;
         return $this;
     }
@@ -304,7 +324,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * Supporting literature.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference[]
      */
-    public function getSource() {
+    public function getSource()
+    {
         return $this->source;
     }
 
@@ -313,7 +334,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $source
      * @return $this
      */
-    public function addSource($source) {
+    public function addSource($source)
+    {
         $this->source[] = $source;
         return $this;
     }
@@ -321,14 +343,16 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['substanceReference'])) {
                 $this->setSubstanceReference($data['substanceReference']);
@@ -362,7 +386,7 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
             }
             if (isset($data['source'])) {
                 if (is_array($data['source'])) {
-                    foreach($data['source'] as $d) {
+                    foreach ($data['source'] as $d) {
                         $this->addSource($d);
                     }
                 } else {
@@ -378,28 +402,50 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->substanceReference)) $json['substanceReference'] = $this->substanceReference;
-        if (isset($this->substanceCodeableConcept)) $json['substanceCodeableConcept'] = $this->substanceCodeableConcept;
-        if (isset($this->relationship)) $json['relationship'] = $this->relationship;
-        if (isset($this->isDefining)) $json['isDefining'] = $this->isDefining;
-        if (isset($this->amountQuantity)) $json['amountQuantity'] = $this->amountQuantity;
-        if (isset($this->amountRange)) $json['amountRange'] = $this->amountRange;
-        if (isset($this->amountRatio)) $json['amountRatio'] = $this->amountRatio;
-        if (isset($this->amountString)) $json['amountString'] = $this->amountString;
-        if (isset($this->amountRatioLowLimit)) $json['amountRatioLowLimit'] = $this->amountRatioLowLimit;
-        if (isset($this->amountType)) $json['amountType'] = $this->amountType;
+        if (isset($this->substanceReference)) {
+            $json['substanceReference'] = $this->substanceReference;
+        }
+        if (isset($this->substanceCodeableConcept)) {
+            $json['substanceCodeableConcept'] = $this->substanceCodeableConcept;
+        }
+        if (isset($this->relationship)) {
+            $json['relationship'] = $this->relationship;
+        }
+        if (isset($this->isDefining)) {
+            $json['isDefining'] = $this->isDefining;
+        }
+        if (isset($this->amountQuantity)) {
+            $json['amountQuantity'] = $this->amountQuantity;
+        }
+        if (isset($this->amountRange)) {
+            $json['amountRange'] = $this->amountRange;
+        }
+        if (isset($this->amountRatio)) {
+            $json['amountRatio'] = $this->amountRatio;
+        }
+        if (isset($this->amountString)) {
+            $json['amountString'] = $this->amountString;
+        }
+        if (isset($this->amountRatioLowLimit)) {
+            $json['amountRatioLowLimit'] = $this->amountRatioLowLimit;
+        }
+        if (isset($this->amountType)) {
+            $json['amountType'] = $this->amountType;
+        }
         if (0 < count($this->source)) {
             $json['source'] = [];
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $json['source'][] = $source;
             }
         }
@@ -411,27 +457,50 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSpecificationRelationship xmlns="http://hl7.org/fhir"></SubstanceSpecificationRelationship>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSpecificationRelationship xmlns="http://hl7.org/fhir"></SubstanceSpecificationRelationship>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->substanceReference)) $this->substanceReference->xmlSerialize(true, $sxe->addChild('substanceReference'));
-        if (isset($this->substanceCodeableConcept)) $this->substanceCodeableConcept->xmlSerialize(true, $sxe->addChild('substanceCodeableConcept'));
-        if (isset($this->relationship)) $this->relationship->xmlSerialize(true, $sxe->addChild('relationship'));
-        if (isset($this->isDefining)) $this->isDefining->xmlSerialize(true, $sxe->addChild('isDefining'));
-        if (isset($this->amountQuantity)) $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));
-        if (isset($this->amountRange)) $this->amountRange->xmlSerialize(true, $sxe->addChild('amountRange'));
-        if (isset($this->amountRatio)) $this->amountRatio->xmlSerialize(true, $sxe->addChild('amountRatio'));
-        if (isset($this->amountString)) $this->amountString->xmlSerialize(true, $sxe->addChild('amountString'));
-        if (isset($this->amountRatioLowLimit)) $this->amountRatioLowLimit->xmlSerialize(true, $sxe->addChild('amountRatioLowLimit'));
-        if (isset($this->amountType)) $this->amountType->xmlSerialize(true, $sxe->addChild('amountType'));
+        if (isset($this->substanceReference)) {
+            $this->substanceReference->xmlSerialize(true, $sxe->addChild('substanceReference'));
+        }
+        if (isset($this->substanceCodeableConcept)) {
+            $this->substanceCodeableConcept->xmlSerialize(true, $sxe->addChild('substanceCodeableConcept'));
+        }
+        if (isset($this->relationship)) {
+            $this->relationship->xmlSerialize(true, $sxe->addChild('relationship'));
+        }
+        if (isset($this->isDefining)) {
+            $this->isDefining->xmlSerialize(true, $sxe->addChild('isDefining'));
+        }
+        if (isset($this->amountQuantity)) {
+            $this->amountQuantity->xmlSerialize(true, $sxe->addChild('amountQuantity'));
+        }
+        if (isset($this->amountRange)) {
+            $this->amountRange->xmlSerialize(true, $sxe->addChild('amountRange'));
+        }
+        if (isset($this->amountRatio)) {
+            $this->amountRatio->xmlSerialize(true, $sxe->addChild('amountRatio'));
+        }
+        if (isset($this->amountString)) {
+            $this->amountString->xmlSerialize(true, $sxe->addChild('amountString'));
+        }
+        if (isset($this->amountRatioLowLimit)) {
+            $this->amountRatioLowLimit->xmlSerialize(true, $sxe->addChild('amountRatioLowLimit'));
+        }
+        if (isset($this->amountType)) {
+            $this->amountType->xmlSerialize(true, $sxe->addChild('amountType'));
+        }
         if (0 < count($this->source)) {
-            foreach($this->source as $source) {
+            foreach ($this->source as $source) {
                 $source->xmlSerialize(true, $sxe->addChild('source'));
             }
         }
-        if ($returnSXE) return $sxe;
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }

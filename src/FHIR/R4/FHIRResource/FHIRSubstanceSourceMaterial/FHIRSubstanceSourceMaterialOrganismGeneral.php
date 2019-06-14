@@ -100,7 +100,8 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
      * The kingdom of an organism shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getKingdom() {
+    public function getKingdom()
+    {
         return $this->kingdom;
     }
 
@@ -109,7 +110,8 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $kingdom
      * @return $this
      */
-    public function setKingdom($kingdom) {
+    public function setKingdom($kingdom)
+    {
         $this->kingdom = $kingdom;
         return $this;
     }
@@ -118,7 +120,8 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
      * The phylum of an organism shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getPhylum() {
+    public function getPhylum()
+    {
         return $this->phylum;
     }
 
@@ -127,7 +130,8 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $phylum
      * @return $this
      */
-    public function setPhylum($phylum) {
+    public function setPhylum($phylum)
+    {
         $this->phylum = $phylum;
         return $this;
     }
@@ -136,7 +140,8 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
      * The class of an organism shall be specified.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getClass() {
+    public function getClass()
+    {
         return $this->class;
     }
 
@@ -145,7 +150,8 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $class
      * @return $this
      */
-    public function setClass($class) {
+    public function setClass($class)
+    {
         $this->class = $class;
         return $this;
     }
@@ -154,7 +160,8 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
      * The order of an organism shall be specified,.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
-    public function getOrder() {
+    public function getOrder()
+    {
         return $this->order;
     }
 
@@ -163,7 +170,8 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $order
      * @return $this
      */
-    public function setOrder($order) {
+    public function setOrder($order)
+    {
         $this->order = $order;
         return $this;
     }
@@ -171,14 +179,16 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function get_fhirElementName() {
+    public function get_fhirElementName()
+    {
         return $this->_fhirElementName;
     }
 
     /**
      * @param mixed $data
      */
-    public function __construct($data = []) {
+    public function __construct($data = [])
+    {
         if (is_array($data)) {
             if (isset($data['kingdom'])) {
                 $this->setKingdom($data['kingdom']);
@@ -201,19 +211,29 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
     /**
      * @return string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->get_fhirElementName();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize() {
+    public function jsonSerialize()
+    {
         $json = parent::jsonSerialize();
-        if (isset($this->kingdom)) $json['kingdom'] = $this->kingdom;
-        if (isset($this->phylum)) $json['phylum'] = $this->phylum;
-        if (isset($this->class)) $json['class'] = $this->class;
-        if (isset($this->order)) $json['order'] = $this->order;
+        if (isset($this->kingdom)) {
+            $json['kingdom'] = $this->kingdom;
+        }
+        if (isset($this->phylum)) {
+            $json['phylum'] = $this->phylum;
+        }
+        if (isset($this->class)) {
+            $json['class'] = $this->class;
+        }
+        if (isset($this->order)) {
+            $json['order'] = $this->order;
+        }
         return $json;
     }
 
@@ -222,16 +242,27 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null) {
-        if (null === $sxe) $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialOrganismGeneral xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialOrganismGeneral>');
+    public function xmlSerialize($returnSXE = false, $sxe = null)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<SubstanceSourceMaterialOrganismGeneral xmlns="http://hl7.org/fhir"></SubstanceSourceMaterialOrganismGeneral>');
+        }
         parent::xmlSerialize(true, $sxe);
-        if (isset($this->kingdom)) $this->kingdom->xmlSerialize(true, $sxe->addChild('kingdom'));
-        if (isset($this->phylum)) $this->phylum->xmlSerialize(true, $sxe->addChild('phylum'));
-        if (isset($this->class)) $this->class->xmlSerialize(true, $sxe->addChild('class'));
-        if (isset($this->order)) $this->order->xmlSerialize(true, $sxe->addChild('order'));
-        if ($returnSXE) return $sxe;
+        if (isset($this->kingdom)) {
+            $this->kingdom->xmlSerialize(true, $sxe->addChild('kingdom'));
+        }
+        if (isset($this->phylum)) {
+            $this->phylum->xmlSerialize(true, $sxe->addChild('phylum'));
+        }
+        if (isset($this->class)) {
+            $this->class->xmlSerialize(true, $sxe->addChild('class'));
+        }
+        if (isset($this->order)) {
+            $this->order->xmlSerialize(true, $sxe->addChild('order'));
+        }
+        if ($returnSXE) {
+            return $sxe;
+        }
         return $sxe->saveXML();
     }
-
-
 }
