@@ -177,7 +177,7 @@ function inDom(dependency, type, remove) {
 // These functions may be called from scripts that may be out of scope with top so...
 // if opener is tab then we need to be in tabs UI scope and while we're at it, let's bring webroot along...
 //
-if (typeof top.tab_mode === "undefined") {
+if (typeof top.tab_mode === "undefined" && opener) {
     if (typeof opener.top.tab_mode !== "undefined") {
         top.tab_mode = opener.top.tab_mode;
         top.webroot_url = opener.top.webroot_url;
