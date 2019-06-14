@@ -15,7 +15,7 @@ namespace OpenEMR\RestControllers;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
-use HL7\FHIR\STU3\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
 class FhirPatientRestController
 {
