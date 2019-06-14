@@ -12,17 +12,18 @@ class FormattingTest extends PHPUnit_Framework_TestCase
   /**
    * @dataProvider example_american_two_decimal
    */
-  public function testAmericanTwoDecimal( $amount, $formatted )
-  {
-    $GLOBALS['currency_decimals']       = '2';
-    $GLOBALS['currency_dec_point']      = '.';
-    $GLOBALS['currency_thousands_sep']  = ',';
-    $this->assertEquals( $formatted, oeFormatMoney( $amount ), "'$amount' converts to '$formatted'" );
-  }
+    public function testAmericanTwoDecimal($amount, $formatted)
+    {
+        $GLOBALS['currency_decimals']       = '2';
+        $GLOBALS['currency_dec_point']      = '.';
+        $GLOBALS['currency_thousands_sep']  = ',';
+        $this->assertEquals($formatted, oeFormatMoney($amount), "'$amount' converts to '$formatted'");
+    }
 
-  public static function example_american_two_decimal() {
+    public static function example_american_two_decimal()
+    {
 
-    return array( array(0,          '0.00'),
+        return array( array(0,          '0.00'),
                   array(1,          '1.00'),
                   array(11,         '11.00'),
                   array('12.3',     '12.30'),
@@ -33,7 +34,7 @@ class FormattingTest extends PHPUnit_Framework_TestCase
                   array('1234.56',  '1,234.56'),
                   array('12345.67', '12,345.67'),
                   );
-  }
+    }
 }
 
 /*
@@ -48,4 +49,3 @@ PARTICULAR PURPOSE.  See the GNU Gneral Public License for more details.
 You should have received a copy of the GNU General Public Licence along with
 this file.  If not see <http://www.gnu.org/licenses/>.
 */
-?>

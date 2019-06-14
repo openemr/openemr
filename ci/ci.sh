@@ -41,14 +41,7 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
 
         "lint_syntax")
             cd $2
-            find . -type d \( -path ./vendor \
-                            -o -path ./interface/main/calendar/modules \
-                            -o -path ./interface/reports \
-                            -o -path ./contrib/util \
-                            -o -path ./library/classes/fpdf \
-                            -o -path ./gacl \
-                            -o -path ./library/edihistory \) -prune -o \
-                -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
+            find . -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
             ;;
         "lint_style")
             sniff . --standard=ci/phpcs.xml --report=full

@@ -12,15 +12,16 @@ class NumberToTextTest extends PHPUnit_Framework_TestCase
   /**
    * @dataProvider cases
    */
-  public function testConvert( $numeral, $text )
-  {
-    $ntt = new NumberToText( $numeral );
-    $this->assertEquals( $text, $ntt->convert(), "'$numeral' converts to '$text'" );
-  }
+    public function testConvert($numeral, $text)
+    {
+        $ntt = new NumberToText($numeral);
+        $this->assertEquals($text, $ntt->convert(), "'$numeral' converts to '$text'");
+    }
 
-  public static function cases() {
+    public static function cases()
+    {
 
-    return array( array( 0,     'zero'),
+        return array( array( 0,     'zero'),
                   array( 1,     'one'),
                   array( 14000, 'fourteen thousand'),
                   array( 9,     'nine'),
@@ -29,7 +30,7 @@ class NumberToTextTest extends PHPUnit_Framework_TestCase
                   array( 1000,  'one thousand'),
                   array( 1111,  'one thousand one hundred eleven'),
                   );
-  }
+    }
 }
 
 /*
@@ -44,4 +45,3 @@ PARTICULAR PURPOSE.  See the GNU Gneral Public License for more details.
 You should have received a copy of the GNU General Public Licence along with
 this file.  If not see <http://www.gnu.org/licenses/>.
 */
-?>

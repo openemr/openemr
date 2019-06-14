@@ -12,7 +12,7 @@ class BaseHarness extends PHPUnit_Framework_TestCase
 {
     public static function get_installer()
     {
-      $fixture_cgi = array( 'login'           => 'test_login',
+        $fixture_cgi = array( 'login'           => 'test_login',
                             'iuser'           => 'test_iuser',
                             'iuname'          => 'test_iuname',
                             'igroup'          => 'test_igroup',
@@ -24,9 +24,9 @@ class BaseHarness extends PHPUnit_Framework_TestCase
                             'rootpass'        => getenv('EMR_ROOT_DATABASE_PASSWORD'),
                             'dbname'          => 'openemr_test_suite',
                             'collate'         => 'utf8_general_ci',
-			    'site'            => 'default',
+                'site'            => 'default',
                             );
-        return new Installer( $fixture_cgi );
+        return new Installer($fixture_cgi);
     }
 
 
@@ -40,14 +40,14 @@ class BaseHarness extends PHPUnit_Framework_TestCase
                           );
         $_SERVER['REQUEST_URI'] = '';
         $_SERVER['SERVER_NAME'] = '';
-	$_SERVER['HTTP_HOST']   = 'default';
+        $_SERVER['HTTP_HOST']   = 'default';
         $ignoreAuth = 1;
 
         $installer = self::get_installer();
-        if ( ! $installer->quick_install() ) {
-	  echo "quick_install failed:\n";
-          echo $installer->error_message;
-          exit;
+        if (! $installer->quick_install()) {
+            echo "quick_install failed:\n";
+            echo $installer->error_message;
+            exit;
         }
         require_once 'globals.inc.php';
         require_once 'interface/globals.php';
@@ -76,4 +76,3 @@ PARTICULAR PURPOSE.  See the GNU Gneral Public License for more details.
 You should have received a copy of the GNU General Public Licence along with
 this file.  If not see <http://www.gnu.org/licenses/>.
 */
-?>
