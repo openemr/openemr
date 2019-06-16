@@ -6,18 +6,16 @@ require_once dirname(__FILE__) . '/BaseHarness.class.php';
 class OptionsTest extends BaseHarness
 {
 
-  public function test_disp_end_cell()
-  {
-    global $item_count;
-    $item_count = 1;
-    $expected = '</td>';
-    ob_start();
-    disp_end_cell();
-    $captured = ob_get_clean();
-    $this->assertEquals( $expected, $captured );
-
-  }
-
+    public function test_disp_end_cell()
+    {
+        global $item_count;
+        $item_count = 1;
+        $expected = '</td>';
+        ob_start();
+        disp_end_cell();
+        $captured = ob_get_clean();
+        $this->assertEquals($expected, $captured);
+    }
 }
 
 /*
@@ -32,4 +30,3 @@ PARTICULAR PURPOSE.  See the GNU Gneral Public License for more details.
 You should have received a copy of the GNU General Public Licence along with
 this file.  If not see <http://www.gnu.org/licenses/>.
 */
-?>

@@ -402,27 +402,27 @@ class Prescription extends ORDataObject
         }
 
         //below statements are bypassing the persist() function and being used directly in database statements, hence need to use the functions in library/formdata.inc.php
-    // they have already been run through populate() hence stripped of escapes, so now need to be escaped for database (add_escape_custom() function).
+        // they have already been run through populate() hence stripped of escapes, so now need to be escaped for database (add_escape_custom() function).
 
         //check if this drug is on the medication list
-        $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = " . add_escape_custom($this->patient->id) . ' limit 1');
+        $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = '" . add_escape_custom($this->patient->id) . "' limit 1");
 
         if ($med && !isset($dataRow['id'])) {
-            $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = " . add_escape_custom($this->patient->id) . ' limit 1');
+            $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = '" . add_escape_custom($this->patient->id) . "' limit 1");
 
             if (!isset($dataRow['id'])) {
                 //add the record to the medication list
-                sqlStatement("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1," . add_escape_custom($this->patient->id) . ",'" . $$_SESSION['authUser']. "','" . $$_SESSION['authProvider'] . "','" . add_escape_custom($this->drug) . "')");
+                sqlStatement("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1,'" . add_escape_custom($this->patient->id) . "','" . add_escape_custom($$_SESSION['authUser']) . "','" . add_escape_custom($$_SESSION['authProvider']) . "','" . add_escape_custom($this->drug) . "')");
             } else {
                 $dataRow = sqlQuery('update lists set activity = 1'
-                            . " ,user = '" . $$_SESSION['authUser']
-                            . "', groupname = '" . $$_SESSION['authProvider'] . "' where id = " . $dataRow['id']);
+                            . " ,user = '" . add_escape_custom($$_SESSION['authUser'])
+                            . "', groupname = '" . add_escape_custom($$_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
             }
         } elseif (!$med && isset($dataRow['id'])) {
             //remove the drug from the medication list if it exists
             $dataRow = sqlQuery('update lists set activity = 0'
-                            . " ,user = '" . $$_SESSION['authUser']
-                            . "', groupname = '" . $$_SESSION['authProvider'] . "' where id = " . $dataRow['id']);
+                            . " ,user = '" . add_escape_custom($$_SESSION['authUser'])
+                            . "', groupname = '" . add_escape_custom($$_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
         }
     }
 
@@ -600,10 +600,10 @@ class Prescription extends ORDataObject
         $this->drug = $drug;
 
         if ($GLOBALS['weno_rx_enable']) {
-            $sql = "SELECT NDC FROM erx_drug_paid WHERE drug_label_name LIKE ? ";
+            $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name LIKE ? ";
             $val = array('%'.$drug.'%');
             $ndc = sqlQuery($sql, $val);
-            $drug_id = $ndc['NDC'];
+            $drug_id = $ndc['rxcui_drug_coded'];
             //Save this drug id
             $this->drug_id = $drug_id;
         }
@@ -612,10 +612,10 @@ class Prescription extends ORDataObject
     {
         if ($GLOBALS['weno_rx_enable']) {
             $drug = trim($this->drug);
-            $sql = "SELECT NDC FROM erx_drug_paid WHERE drug_label_name LIKE ? ";
+            $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name  LIKE ? ";
             $val = array('%'.$drug.'%');
             $ndc = sqlQuery($sql, $val);
-            $drug_id = $ndc['NDC'];
+            $drug_id = $ndc['rxcui_drug_coded'];
             //Save this drug id
             $this->drug_id = $drug_id;
         }
@@ -805,7 +805,7 @@ class Prescription extends ORDataObject
         }
 
         $refills_row = sqlQuery("SELECT count(*) AS count FROM drug_sales " .
-                    "WHERE prescription_id = '" . $this->id . "' AND quantity > 0");
+                    "WHERE prescription_id = ? AND quantity > 0", [$this->id]);
         return $refills_row['count'];
     }
 }// end of Prescription

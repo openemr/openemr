@@ -206,7 +206,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
       //////
             case '1':
             case '3':
-                $event_recurrspec = @unserialize($event['pc_recurrspec']);
+                $event_recurrspec = @unserialize($event['pc_recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
                     break; }
@@ -258,7 +258,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
       //////
             case '2':
-                $event_recurrspec = @unserialize($event['pc_recurrspec']);
+                $event_recurrspec = @unserialize($event['pc_recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
                     break; }
@@ -663,7 +663,7 @@ function interpretRecurrence($recurr_freq, $recurr_type)
 {
     global $REPEAT_FREQ, $REPEAT_FREQ_TYPE, $REPEAT_ON_NUM, $REPEAT_ON_DAY;
     $interpreted = "";
-    $recurr_freq = unserialize($recurr_freq);
+    $recurr_freq = unserialize($recurr_freq, ['allowed_classes' => false]);
     if ($recurr_type == 1) {
         $interpreted = $REPEAT_FREQ[$recurr_freq['event_repeat_freq']];
         $interpreted .= " " . $REPEAT_FREQ_TYPE[$recurr_freq['event_repeat_freq_type']];
@@ -694,7 +694,7 @@ function fetchRecurrences($pid)
     $res = sqlStatement($query, $sqlBindArray);
     $result_data = array();
     while ($row = sqlFetchArray($res)) {
-        $u_recurrspec = unserialize($row['pc_recurrspec']);
+        $u_recurrspec = unserialize($row['pc_recurrspec'], ['allowed_classes' => false]);
         if (checkEvent($row['pc_recurrtype'], $u_recurrspec)) {
             continue; }
         $row['pc_recurrspec'] = interpretRecurrence($row['pc_recurrspec'], $row['pc_recurrtype']);

@@ -607,7 +607,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #EndIf
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2018-10-01 load_filename 2019-ICD-10-PCS-Order-File.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-PCS-Order-File.zip', 'eb545fe61ada9efad0ad97a669f8671f');
-#Endif
+#EndIf
 
 #IfNotTable login_mfa_registrations
 CREATE TABLE `login_mfa_registrations` (
@@ -853,14 +853,94 @@ DROP TABLE `eligibility_response`;
 ALTER TABLE `x12_partners` CHANGE `processing_format` `processing_format` ENUM('standard','medi-cal','cms','proxymed','oa-eligibility','avality-eligibility') DEFAULT NULL;
 #EndIf
 
-#IfMissingColumn eligibility_id insurance_companies
+#IfMissingColumn insurance_companies eligibility_id
 ALTER TABLE `insurance_companies` ADD `eligibility_id` VARCHAR(32) DEFAULT NULL;
 #EndIf
 
-#IfMissingColumn x12_default_eligibility_id insurance_companies
+#IfMissingColumn insurance_companies x12_default_eligibility_id
 ALTER TABLE `insurance_companies` ADD `x12_default_eligibility_id` INT(11)  DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn users_secure login_fail_counter
 ALTER TABLE `users_secure` ADD `login_fail_counter` INT(11) DEFAULT '0';
+#EndIf
+
+#IfMissingColumn x12_partners x12_dtp03
+ALTER TABLE `x12_partners` ADD `x12_dtp03` CHAR(1) DEFAULT 'A';
+#EndIf
+
+#IfMissingColumn procedure_order order_diagnosis
+ALTER TABLE `procedure_order` ADD `order_diagnosis` VARCHAR(255) DEFAULT '';
+#EndIf
+
+#IfTable erx_drug_paid
+DROP TABLE `erx_drug_paid`;
+#EndIf
+
+#IfNotTable erx_weno_drugs
+CREATE TABLE `erx_weno_drugs` (
+  `drug_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rxcui_drug_coded` int(11) DEFAULT NULL,
+  `generic_rxcui` int(11) DEFAULT NULL,
+  `drug_db_code_qualifier` text,
+  `full_name` varchar(250) NOT NULL,
+  `rxn_dose_form` text,
+  `full_generic_name` varchar(250) NOT NULL,
+  `brand_name` varchar(250) NOT NULL,
+  `display_name` varchar(250) NOT NULL,
+  `route` text,
+  `new_dose_form` varchar(100) DEFAULT NULL,
+  `strength` varchar(15) DEFAULT NULL,
+  `supress_for` text,
+  `display_name_synonym` text,
+  `is_retired` text,
+  `sxdg_rxcui` varchar(10) DEFAULT NULL,
+  `sxdg_tty` text,
+  `sxdg_name` varchar(100) DEFAULT NULL,
+  `psn_drugdescription` varchar(100) DEFAULT NULL,
+  `ncpdp_quantity_term` text,
+  `potency_unit_code` varchar(10) DEFAULT NULL,
+  `dea_schedule_no` int(2) DEFAULT NULL,
+  `dea_schedule` varchar(7) DEFAULT NULL,
+  `ingredients` varchar(100) DEFAULT NULL,
+  `drug_interaction` varchar(100) DEFAULT NULL,
+  `unit_source_code` varchar(3) DEFAULT NULL,
+  `code_list_qualifier` int(3) DEFAULT NULL,
+  PRIMARY KEY (`drug_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotWenoRx
+#EndIf
+
+#IfTable openemr_postcalendar_limits
+DROP TABLE `openemr_postcalendar_limits`;
+#EndIf
+
+#IfTable openemr_postcalendar_topics
+DROP TABLE `openemr_postcalendar_topics`;
+#EndIf
+
+#IfTable openemr_session_info
+DROP TABLE `openemr_session_info`;
+#EndIf
+
+#IfTable array
+DROP TABLE `array`;
+#EndIf
+
+#IfTable config
+DROP TABLE `config`;
+#EndIf
+
+#IfTable config_seq
+DROP TABLE `config_seq`;
+#EndIf
+
+#IfTable geo_country_reference
+DROP TABLE `geo_country_reference`;
+#EndIf
+
+#IfTable geo_zone_reference
+DROP TABLE `geo_zone_reference`;
 #EndIf

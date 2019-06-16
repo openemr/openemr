@@ -76,7 +76,7 @@ class Header
         try {
             echo self::includeAsset($assets);
         } catch (\InvalidArgumentException $e) {
-            error_log($e->getMessage());
+            error_log(errorLogEscape($e->getMessage()));
         }
     }
 
@@ -285,7 +285,7 @@ class Header
             $config = Yaml::parse(file_get_contents($file));
             return $config['assets'];
         } catch (ParseException $e) {
-            error_log($e->getMessage());
+            error_log(errorLogEscape($e->getMessage()));
             // @TODO need to handle this better. RD 2017-05-24
         }
     }

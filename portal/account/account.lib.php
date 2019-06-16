@@ -2,10 +2,12 @@
 /**
  * Ajax Library for Register
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 /* Library functions for register*/
@@ -130,17 +132,17 @@ function validEmail($email)
 
 function messageCreate($uname, $pass)
 {
-    $message = htmlspecialchars(xl("Patient Portal Web Address"), ENT_NOQUOTES) . ":<br>";
+    $message = xlt("Patient Portal Web Address") . ":<br>";
 
     if ($GLOBALS['portal_onsite_two_enable']) {
-        $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_two_address'], ENT_QUOTES) . "'>" .
-            htmlspecialchars($GLOBALS['portal_onsite_two_address'], ENT_NOQUOTES) . "</a><br>";
+        $message .= "<a href='" . attr($GLOBALS['portal_onsite_two_address']) . "'>" .
+            text($GLOBALS['portal_onsite_two_address']) . "</a><br>";
     }
 
     $message .= "<br>";
 
-    $message .= htmlspecialchars(xl("User Name"), ENT_NOQUOTES) . ": " . htmlspecialchars($uname, ENT_NOQUOTES) .
-    "<br><br>" . htmlspecialchars(xl("Password"), ENT_NOQUOTES) . ": " . htmlspecialchars($pass, ENT_NOQUOTES) . "<br><br>";
+    $message .= xlt("User Name") . ": " . text($uname) .
+    "<br><br>" . xlt("Password") . ": " . text($pass) . "<br><br>";
 
     return $message;
 }

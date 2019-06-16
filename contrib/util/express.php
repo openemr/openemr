@@ -77,7 +77,7 @@ if ($_POST['submit']) {
     if ($dbh == false) {
         echo "ERROR.  Check your login credentials.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
-        break;
+        exit;
     } else {
         echo "OK.<br>\n";
     }
@@ -87,7 +87,7 @@ if ($_POST['submit']) {
     if (mysql_query("create database $dbname", $dbh) == false) {
         echo "ERROR.  Check your login credentials.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
-        break;
+        exit;
     } else {
         echo "OK.<br>\n";
     }
@@ -98,7 +98,7 @@ if ($_POST['submit']) {
         echo "ERROR when granting privileges to the specified user.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         echo "ERROR.\n";
-        break;
+        exit;
     } else {
         echo "OK.<br>\n";
     }
@@ -118,7 +118,7 @@ if ($server == "localhost") {
 if ($dbh == false) {
     echo "ERROR.  Check your login credentials.\n";
     echo "<p>".mysql_error()." (#".mysql_errno().")\n";
-    break;
+    exit;
 } else {
     echo "OK.<br>\n";
 }
@@ -128,7 +128,7 @@ flush();
 if (mysql_select_db("$dbname", $dbh) == false) {
     echo "ERROR.  Check your login credentials.\n";
     echo "<p>".mysql_error()." (#".mysql_errno().")\n";
-    break;
+    exit;
 } else {
     echo "OK.<br>\n";
 }
@@ -142,7 +142,7 @@ if ($upgrade != 1) {
     if ($fd == false) {
         echo "ERROR.  Could not open dumpfile '$dumpfile'.\n";
         flush();
-        break;
+        exit;
     }
 
     $query = "";
@@ -184,7 +184,7 @@ if ($upgrade != 1) {
         echo "ERROR.  Could not run queries.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         flush();
-        break;
+        exit;
     }
 
     //// ViCareplus : As per NIST standard, SHA1 hash/digest of 'pass' is used
@@ -192,7 +192,7 @@ if ($upgrade != 1) {
         echo "ERROR.  Could not run queries.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         flush();
-        break;
+        exit;
     }
 
     echo "OK<br>\n";
@@ -205,7 +205,7 @@ if ($upgrade != 1) {
     if ($fd == false) {
         echo "ERROR.  Could not open config file '$conffile' for writing.\n";
         flush();
-        break;
+        exit;
     }
 
     $string = "<?php\n\n//  OpenEMR\n//  MySQL Config\n//  Referenced from sql.inc\n\n";
@@ -243,9 +243,9 @@ if ($upgrade != 1) {
 
     //it's rather irresponsible to not report errors when writing this file.
     if ($it_died != 0) {
-            echo "ERROR. Couldn't write $it_died lines to config file '$conffile'.\n";
-            flush();
-            break;
+        echo "ERROR. Couldn't write $it_died lines to config file '$conffile'.\n";
+        flush();
+        exit;
     }
 
     fclose($fd);

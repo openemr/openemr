@@ -689,7 +689,7 @@ if ($StringEcho) {
 $dateres = getEncounterDateByEncounter($encounter);
 $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 $providerIDres = getProviderIdOfEncounter($encounter);
-$providerNameRes = getProviderName($providerIDres);
+$providerNameRes = getProviderName($providerIDres, false);
 ?>
 
 <div class='encounter-summary-container'>

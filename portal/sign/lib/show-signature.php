@@ -9,14 +9,32 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$ignoreAuth = true;
-require_once("../../../interface/globals.php");
-
+//Need to unwrap data to ensure user/patient is authorized
 $data = (array)(json_decode(file_get_contents("php://input")));
 $pid = $data['pid'];
 $user = $data['user'];
 $type = $data['type'];
 $signer = $data['signer'];
+
+// this script is used by both the patient portal and main openemr; below does authorization.
+if ($type == 'patient-signature') {
+    // authorize via patient portal
+    session_start();
+    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+        // authorized by patient portal
+        $pid = $_SESSION['pid'];
+        $ignoreAuth = true;
+    } else {
+        exit();
+    }
+} else if ($type == 'admin-signature') {
+    // authorize via main openemr
+    $ignoreAuth = false;
+} else {
+    exit();
+}
+require_once("../../../interface/globals.php");
+
 
 $created = time();
 $lastmod = date('Y-m-d H:i:s');

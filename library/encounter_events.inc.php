@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,9 +19,9 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
+//           Paul Simon K <paul@zhservices.com>
 //           Ian Jardine ( github.com/epsdky ) ( Modified calendar_arrived )
 //
 // +------------------------------------------------------------------------------+
@@ -264,7 +264,7 @@ function update_event($eid)
 {
     $origEventRes = sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
     $origEvent=sqlFetchArray($origEventRes);
-    $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+    $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
     $duration=$origEvent['pc_duration'];
     $starttime=$origEvent['pc_startTime'];
     $endtime=$origEvent['pc_endTime'];
@@ -330,7 +330,7 @@ function check_event_exist($eid)
     $pc_endTime=$origEvent['pc_endTime'];
     $pc_facility=$origEvent['pc_facility'];
     $pc_billing_location=$origEvent['pc_billing_location'];
-    $pc_recurrspec_array = unserialize($origEvent['pc_recurrspec']);
+    $pc_recurrspec_array = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
     $origEvent = sqlStatement(
         "SELECT * FROM openemr_postcalendar_events WHERE pc_eid != ? and pc_catid=? and pc_aid=? ".
         "and pc_pid=? and pc_eventDate=? and pc_startTime=? and pc_endTime=? and pc_facility=? and pc_billing_location=?",

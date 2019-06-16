@@ -29,9 +29,11 @@ return array(
 
     'controllers' => array(
         'factories' => [
-            HtmlTemplatesController::class => InvokableFactory::class,
+            HtmlTemplatesController::class => function (ContainerInterface $container, $requestedName) {
+                return new HtmlTemplatesController($container);
+            },
             PdfTemplatesController::class => function (ContainerInterface $container, $requestedName) {
-                return new PdfTemplatesController($container->get(\Zend\View\Renderer\PhpRenderer::class));
+                return new PdfTemplatesController($container);
             }
         ]
     ),

@@ -18,18 +18,18 @@ function _LBFgcac_query_recent($more)
 
   // Get the date of this visit.
     $encrow = sqlQuery("SELECT date FROM form_encounter WHERE " .
-    "pid = '$pid' AND encounter = '$encounter'");
+    "pid = ? AND encounter = ?", [$pid, $encounter]);
     $encdate = $encrow['date'];
 
   // Query complications from the two weeks prior to this visit.
     $query = "SELECT d.field_value " .
     "FROM forms AS f, form_encounter AS fe, lbf_data AS d " .
-    "WHERE f.pid = '$pid' AND " .
-    "f.formdir = '$formname' AND " .
+    "WHERE f.pid = '" . add_escape_custom($pid) . "' AND " .
+    "f.formdir = '" . add_escape_custom($formname) . "' AND " .
     "f.deleted = 0 AND " .
     "fe.pid = f.pid AND fe.encounter = f.encounter AND " .
-    "fe.date <= '$encdate' AND " .
-    "DATE_ADD(fe.date, INTERVAL 14 DAY) > '$encdate' AND " .
+    "fe.date <= '" . add_escape_custom($encdate) . "' AND " .
+    "DATE_ADD(fe.date, INTERVAL 14 DAY) > '" . add_escape_custom($encdate) . "' AND " .
     "d.form_id = f.form_id AND $more";
 
     return $query;
@@ -48,10 +48,10 @@ function _LBFgcac_recent_default($name)
     }
 
     $query = _LBFgcac_query_recent(
-        "d.field_id = '$name' " .
+        "d.field_id = ? " .
         "ORDER BY f.form_id DESC LIMIT 1"
     );
-    $row = sqlQuery($query);
+    $row = sqlQuery($query, [$name]);
 
     if (empty($row['field_value'])) {
         return '';
@@ -68,14 +68,14 @@ function _LBFgcac_query_recent_services()
 
   // Get the date of this visit.
     $encrow = sqlQuery("SELECT date FROM form_encounter WHERE " .
-    "pid = '$pid' AND encounter = '$encounter'");
+    "pid = ? AND encounter = ?", [$pid, $encounter]);
     $encdate = $encrow['date'];
 
   // Query services from the two weeks prior to this visit.
     $query = "SELECT c.related_code " .
     "FROM form_encounter AS fe, billing AS b, codes AS c " .
-    "WHERE fe.pid = '$pid' AND fe.date <= '$encdate' AND " .
-    "DATE_ADD(fe.date, INTERVAL 14 DAY) > '$encdate' AND " .
+    "WHERE fe.pid = '" . add_escape_custom($pid) . "' AND fe.date <= '" . add_escape_custom($encdate) . "' AND " .
+    "DATE_ADD(fe.date, INTERVAL 14 DAY) > '" . add_escape_custom($encdate) . "' AND " .
     "b.pid = fe.pid AND b.encounter = fe.encounter AND b.activity = 1 AND " .
     "b.code_type = 'MA' AND c.code_type = '12' AND " .
     "c.code = b.code AND c.modifier = b.modifier " .
@@ -92,7 +92,7 @@ function _LBFgcac_query_current_services()
 
     $query = "SELECT c.related_code " .
     "FROM billing AS b, codes AS c WHERE " .
-    "b.pid = '$pid' AND b.encounter = '$encounter' AND b.activity = 1 AND " .
+    "b.pid = '" . add_escape_custom($pid) . "' AND b.encounter = '" . add_escape_custom($encounter) . "' AND b.activity = 1 AND " .
     "b.code_type = 'MA' AND c.code_type = '12' AND " .
     "c.code = b.code AND c.modifier = b.modifier " .
     "ORDER BY b.id DESC";
@@ -110,7 +110,7 @@ function LBFgcac_javascript()
 
   // Query complications from the two weeks prior to this visit.
     $res = sqlStatement(_LBFgcac_query_recent(
-        "f.form_id != '$formid' AND " .
+        "f.form_id != '" . add_escape_custom($formid) . "' AND " .
         "d.field_id = 'complications'"
     ));
 
@@ -132,7 +132,7 @@ function set_main_compl_list() {
                 continue;
             }
 
-            echo " n = 'form_complications[$complid]'; if (f[n]) f[n].value = 2;\n";
+            echo " n = 'form_complications[" . attr($complid) . "]'; if (f[n]) f[n].value = 2;\n";
         }
     }
 

@@ -35,6 +35,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("./../lib/portal_mail.inc");
+
 use OpenEMR\Core\Header;
 
 $docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
@@ -115,7 +116,7 @@ function getAuthPortalUsers()
     $scope.deletedItems = [];
     $scope.inboxItems = [];
     $scope.inboxItems = <?php echo json_encode($theresult);?>;
-    $scope.userproper = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : ($dashuser['fname'] . ' ' . $dashuser['lname']) ;?>";
+    $scope.userproper = <?php echo $_SESSION['ptName'] ? js_escape($_SESSION['ptName']) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']) ;?>;
     $scope.isPortal = "<?php echo IS_PORTAL;?>" ;
     $scope.isDashboard = "<?php echo IS_DASHBOARD ? IS_DASHBOARD : 0;?>" ;
     $scope.cUserId = $scope.isPortal ? $scope.isPortal : $scope.isDashboard;
@@ -123,10 +124,10 @@ function getAuthPortalUsers()
     $scope.compose.task = 'add';
     $scope.xLate = [];
     $scope.xLate.confirm = [];
-    $scope.xLate.fwd = "<?php echo xlt('Forwarded Portal Message Re: '); ?>";
-    $scope.xLate.confirm.one = "<?php echo xlt('Confirm to Delete Current Thread?'); ?>";
-    $scope.xLate.confirm.all = "<?php echo xlt('Confirm to Delete Selected?'); ?>";
-    $scope.xLate.confirm.err = "<?php echo xlt('You are sending to yourself!'); ?>";  // I think I got rid of this ability - look into..
+    $scope.xLate.fwd = <?php echo xlj('Forwarded Portal Message Re: '); ?>;
+    $scope.xLate.confirm.one = <?php echo xlj('Confirm to Delete Current Thread?'); ?>;
+    $scope.xLate.confirm.all = <?php echo xlj('Confirm to Delete Selected?'); ?>;
+    $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
 
         $scope.init = function () {
            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";

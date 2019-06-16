@@ -12,7 +12,8 @@
  */
 
 
-require_once('../globals.php');
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
 
 use OpenEMR\Rx\Weno\TransmitData;
 
@@ -20,7 +21,7 @@ if (!verifyCsrfToken($_GET["csrf_token_form"])) {
     csrfNotVerified();
 }
 
-
+$facility = getFacilities($first = '');
 $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];
 
@@ -28,6 +29,41 @@ $validation = new TransmitData();
 
 $patient = $validation->validatePatient($pid);
 $pharmacy = $validation->patientPharmacyInfo($pid);
+
+if (empty($facility[0]['name']) || $facility[0]['name'] == "Your clinic name here") {
+    print xlt("Please fill out facility name properly");
+    exit;
+}
+
+if (empty($facility[0]['phone'])) {
+    print xlt("Please fill out facility phone properly");
+    exit;
+}
+
+if (empty($facility[0]['fax'])) {
+    print xlt("Please fill out facility fax properly");
+    exit;
+}
+
+if (empty($facility[0]['street'])) {
+    print xlt("Please fill out facility street properly");
+    exit;
+}
+
+if (empty($facility[0]['city'])) {
+    print xlt("Please fill out facility city properly");
+    exit;
+}
+
+if (empty($facility[0]['state'])) {
+    print xlt("Please fill out facility state properly");
+    exit;
+}
+
+if (empty($facility[0]['postal_code'])) {
+    print xlt("Please fill out facility postal code properly");
+    exit;
+}
 
 if (empty($GLOBALS['weno_account_id'])) {
     print xlt("Weno Account ID information missing")."<br>";
@@ -66,13 +102,13 @@ if (empty($pharmacy['name'])) {
     exit;
 }
 $ncpdpLength = strlen($pharmacy['ncpdp']);
-if (empty($pharmacy['ncpdp']) || $ncpdpLength < 10) {
-    print xlt("Pharmacy missing NCPDP ID or less than 10 digits"). "<br>";
+if (empty($pharmacy['ncpdp']) || $ncpdpLength < 7) {
+    print xlt("Pharmacy missing NCPDP ID or less than 7 digits"). "<br>";
     exit;
 }
 $npiLength = strlen($pharmacy['npi']);
-if (empty($pharmacy['npi'] || $npiLength < 7)) {
-    print xlt("Pharmacy missing NPI or less than 7 digits"). "<br>";
+if (empty($pharmacy['npi'] || $npiLength < 10)) {
+    print xlt("Pharmacy missing NPI  or less than 10 digits"). "<br>";
     exit;
 }
 //validate NPI exist

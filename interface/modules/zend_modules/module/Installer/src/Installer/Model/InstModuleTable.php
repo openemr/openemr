@@ -742,7 +742,7 @@ class InstModuleTable
         if ($objHooks) {
             $hooksArr = $objHooks->getHookConfig();
         } else {
-            error_log("$moduleDirectory does not have a controller object");
+            error_log(errorLogEscape($moduleDirectory) . "does not have a controller object");
         }
 
         return $hooksArr;
@@ -835,7 +835,7 @@ class InstModuleTable
             $retArr   = $objHooks->getDependedModulesConfig();
             if (!is_array($retArr)) {
                 $retArr = array();
-                error_log(self::class . " Module class " . get_class($objHooks) . " returned a non-array value for getDependedModulesConfig(). resetting to array");
+                error_log(self::class . " Module class " . errorLogEscape(get_class($objHooks)) . " returned a non-array value for getDependedModulesConfig(). resetting to array");
             }
         }
 

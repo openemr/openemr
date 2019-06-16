@@ -51,7 +51,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
     <title><?php echo xlt('Miscellaneous Billing Options for HCFA-1500'); ?></title>
     <style>
         @media only screen and (max-width: 768px) {

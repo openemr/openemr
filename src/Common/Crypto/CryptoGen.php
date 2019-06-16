@@ -1,8 +1,20 @@
 <?php
 /**
  * CryptoGen class.
- *   Goal of class is to increase performance by not collecting keys every function call.
- *   (ie. will cache the keys that are used inside the object)
+ *
+ *   OpenEMR encryption/decryption strategy:
+ *    1. Two separate private key sets are used, one key set in the database and one key set on the drive.
+ *    2. The private database key set is stored in the keys mysql table
+ *    3. The private drive key set is stored in sites/<site-name>/documents/logs_and_misc/methods/
+ *    4. The private database key set is used when encrypting/decrypting data that is stored on the drive.
+ *    5. The private drive key set is used when encrypting/decrypting data that is stored in the database.
+ *    6. The private drive key set is encrypted by the private database key set
+ *    7. Encryption/key versioning is used to support algorithm improvements while also ensuring
+ *       backwards compatibility of decryption.
+ *    8. To ensure performance, the CryptoGen class will cache the key sets that are used inside the object,
+ *       which avoids numerous repeat calls to collect the key sets (and repeat decryption of the key set
+ *       from the drive).
+ *    9. There is also support for passphrase encryption/decryption (ie. no private keys are used).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

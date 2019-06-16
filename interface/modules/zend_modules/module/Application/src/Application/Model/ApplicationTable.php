@@ -52,7 +52,7 @@ class ApplicationTable extends AbstractTableGateway
         if ($GLOBALS['debug_ssl_mysql_connection']) {
             $temp_return = $this->adapter->query("SHOW STATUS LIKE 'Ssl_cipher';")->execute();
             foreach ($temp_return as $temp_row) {
-                error_log("CHECK SSL CIPHER IN ZEND: " . print_r($temp_row, true));
+                error_log("CHECK SSL CIPHER IN ZEND: " . errorLogEscape(print_r($temp_row, true)));
             }
         }
 
@@ -136,7 +136,7 @@ class ApplicationTable extends AbstractTableGateway
         /** Error Logging */
         $logMsg .= "\n SQL statement : $sql" . $processedBinds;
         $logMsg .= "\n $trace";
-        error_log("ERROR: " . $logMsg, 0);
+        error_log("ERROR: " . errorLogEscape($logMsg), 0);
     }
 
     /**

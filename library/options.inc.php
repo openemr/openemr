@@ -2803,7 +2803,7 @@ function disp_end_group()
 // Accumulate action conditions into a JSON expression for the browser side.
 function accumActionConditions($field_id, &$condition_str, &$condarr)
 {
-    $conditions = empty($condarr) ? array() : unserialize($condarr);
+    $conditions = empty($condarr) ? array() : unserialize($condarr, ['allowed_classes' => false]);
     $action = 'skip';
     foreach ($conditions as $key => $condition) {
         if ($key === 'action') {
@@ -2853,7 +2853,7 @@ function isSkipped(&$frow, $currvalue)
         return false;
     }
 
-    $skiprows  = unserialize($frow['conditions']);
+    $skiprows  = unserialize($frow['conditions'], ['allowed_classes' => false]);
     $prevandor = '';
     $prevcond  = false;
     $datatype  = $frow['data_type'];
@@ -2878,7 +2878,7 @@ function isSkipped(&$frow, $currvalue)
 
         $id = $skiprow['id'];
         if (!isset($sk_layout_items[$id])) {
-            error_log("Function isSkipped() cannot find skip source field '$id'.");
+            error_log("Function isSkipped() cannot find skip source field '" . errorLogEscape($id) . "'.");
             continue;
         }
         $itemid   = $skiprow['itemid'];
@@ -2918,7 +2918,7 @@ function isSkipped(&$frow, $currvalue)
         } elseif ($operator == 'ns') {
             $condition = $srcvalue != true;
         } else {
-            error_log("Unknown skip operator '$operator' for field '$field_id'.");
+            error_log("Unknown skip operator '" . errorLogEscape($operator) . "' for field '" . errorLogEscape($field_id) . "'.");
         }
 
         // Logic to accumulate multiple conditions for the same target.

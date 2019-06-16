@@ -79,7 +79,7 @@ final class Connector
 
             if ($GLOBALS['debug_ssl_mysql_connection']) {
                 // below is to debug mysql ssl connection
-                error_log("CHECK SSL CIPHER IN DOCTRINE: " . print_r($singletonInstance->entityManager->getConnection()->query("SHOW STATUS LIKE 'Ssl_cipher';")->FetchAll(), true));
+                error_log("CHECK SSL CIPHER IN DOCTRINE: " . errorLogEscape(print_r($singletonInstance->entityManager->getConnection()->query("SHOW STATUS LIKE 'Ssl_cipher';")->FetchAll(), true)));
             }
         }
 

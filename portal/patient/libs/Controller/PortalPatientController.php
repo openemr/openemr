@@ -115,7 +115,7 @@ class PortalPatientController extends AppBaseController
             // $patient = $this->Phreezer->Get( 'Patient', $pk );
             $appsql = new ApplicationTable();
             $edata = $appsql->getPortalAudit($ppid, 'review');
-            $changed = unserialize($edata['table_args']);
+            $changed = unserialize($edata['table_args'], ['allowed_classes' => false]);
             $newv = array ();
             foreach ($changed as $key => $val) {
                 $newv[lcfirst(ucwords(preg_replace_callback("/(\_(.))/", create_function('$matches', 'return strtoupper($matches[2]);'), strtolower($key))))] = $val;

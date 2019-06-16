@@ -48,7 +48,7 @@ function cms_portal_call($args)
 
     curl_close($phandle);
   // With JSON-over-HTTP we would use json_decode($presult,TRUE) here.
-    return unserialize($presult);
+    return unserialize($presult, ['allowed_classes' => false]);
 }
 
 // Look up the OpenEMR patient matching this request. More or less than 1 is an error.

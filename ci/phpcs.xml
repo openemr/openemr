@@ -24,16 +24,11 @@
   </rule>
 
   <exclude-pattern>*/vendor/*</exclude-pattern>
-  <exclude-pattern>*/gacl/*</exclude-pattern>
   <exclude-pattern>*/bower_components/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>*/public/assets/*</exclude-pattern>
-  <exclude-pattern>*/Documentation/*</exclude-pattern>
-  <exclude-pattern>*/tests/*</exclude-pattern>
-  <exclude-pattern>*/images/*</exclude-pattern>
+  <exclude-pattern>*/gacl/*</exclude-pattern>
   <exclude-pattern>*/library/classes/fpdf/*</exclude-pattern>
   <exclude-pattern>*/library/classes/smtp/*</exclude-pattern>
   <exclude-pattern>*/library/classes/PDF_Label.php</exclude-pattern>
-  <exclude-pattern>*/library/custom_template/*</exclude-pattern>
-  <exclude-pattern>*/library/fonts/*</exclude-pattern>
 </ruleset>

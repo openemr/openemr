@@ -15,7 +15,7 @@ global $EMAIL_NOTIFICATION_HOUR;
 ////////////////////////////////////////////////////////////////////
 // Function:	cron_SendMail
 // Purpose:	send mail
-// Input:	to, subject, email body and from 
+// Input:	to, subject, email body and from
 // Output:	status - if sent or not
 ////////////////////////////////////////////////////////////////////
 function cron_SendMail($to, $subject, $vBody, $from)
@@ -37,7 +37,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
 
         $headers  = "MIME-Version: 1.0\r\n";
         $headers .= "Content-type: ". $format ."; charset=iso-8859-1\r\n";
-        
+
         // additional headers
         $headers .= "From: $from\r\n";
         if (strlen($cc)>5) {
@@ -54,7 +54,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $cnt .= "\nTo : ".$to;
         $cnt .= "\nSubject : ".$subject;
         $cnt .= "\nBody : \n".$vBody."\n";
-        
+
         if (1) {
             //WriteLog($cnt);
         }
@@ -72,7 +72,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
             include("../../library/classes/smtp/smtp.php");
             include("../../library/classes/smtp/sasl.php");
         }
-        
+
         $strFrom = $from;
         $sender_line=__LINE__;
         $strTo = $to;
@@ -84,10 +84,10 @@ function cron_SendMail($to, $subject, $vBody, $from)
         if (strlen($strTo) == 0) {
             return( false );
         }
-        
+
         //if( !$smtp )
         $smtp=new smtp_class;
-        
+
         $smtp->host_name = $GLOBALS['smtp_host_name'];
         $smtp->host_port = $GLOBALS['smtp_host_port'];
         $smtp->ssl = $GLOBALS['smtp_use_ssl'];
@@ -95,21 +95,21 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $smtp->direct_delivery = 0;
         $smtp->timeout = 10;
         $smtp->data_timeout = 0;
-        
+
         $smtp->debug = 1;
         $smtp->html_debug = 0;
         $smtp->pop3_auth_host = "";
-        
+
         $smtp->user = $GLOBALS['smtp_auth_user'];
         $smtp->password = $GLOBALS['smtp_auth_pass'];
-        
+
         $smtp->realm = "";
         // Workstation name for NTLM authentication
         $smtp->workstation = "";
         // Specify a SASL authentication method like LOGIN, PLAIN, CRAM-MD5, NTLM, etc..
         // Leave it empty to make the class negotiate if necessary
         $smtp->authentication_mechanism = "";
-        
+
         // If you need to use the direct delivery mode and this is running under
         // Windows or any other platform
         if ($smtp->direct_delivery) {
@@ -118,7 +118,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
                 include("getmxrr.php");
             }
         }
-        
+
         if ($smtp->SendMessage(
             $strFrom,
             array( $strTo ),
@@ -130,16 +130,16 @@ function cron_SendMail($to, $subject, $vBody, $from)
                 ),
             $vBody
         ) ) {
-            echo "Message sent to $to OK.\n";
+            echo "Message sent to " . text($to) . " OK.\n";
             $mstatus = true;
         } else {
-             echo "Cound not send the message to $to.\nError: ".$smtp->error."\n";
+             echo "Cound not send the message to " . text($to) . ".\nError: " . text($smtp->error) . "\n";
              $mstatus = false;
         }
-        
+
         unset($smtp);
     }
-    
+
     return $mstatus;
 }
 
@@ -150,32 +150,32 @@ function cron_SendMail($to, $subject, $vBody, $from)
 function WriteLog($data)
 {
     global $log_folder_path;
-    
+
     $filename = $log_folder_path . "/cronlog_".date("Ymd").".html";
     //echo $filename;exit;
     if (!$fp = fopen($filename, 'a')) {
-            print "Cannot open file ($filename)";
+            print "Cannot open file (" . text($filename) . ")";
             exit;
     }
-    
+
     $sdata = "\n====================================================================\n";
-    
+
     if (!fwrite($fp, $sdata.$data.$sdata)) {
-        print "Cannot write to file ($filename)";
+        print "Cannot write to file (" . text($filename) . ")";
         exit;
     }
-    
+
     fclose($fp);
 }
 
 ////////////////////////////////////////////////////////////////////
-// define my_print_r - used for debuging - if not defined 
+// define my_print_r - used for debuging - if not defined
 ////////////////////////////////////////////////////////////////////
 if (!function_exists('my_print_r')) {
     function my_print_r($data)
     {
         echo "<pre>";
-        print_r($data);
+        echo(text(print_r($data, true)));
         echo "</pre>";
     }
 }
@@ -217,17 +217,17 @@ function cron_updateentry($type, $pid, $pc_eid)
 
     //$query="update openemr_postcalendar_events set $set ";
     $query = "update openemr_postcalendar_events set ";
-    
+
     // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
     if ($type=='SMS') {
         $query.=" pc_sendalertsms='YES' ";
     } else {
         $query.=" pc_sendalertemail='YES' ";
     }
-        
-    $query .=" where pc_pid='$pid' and pc_eid='$pc_eid' ";
+
+    $query .=" where pc_pid=? and pc_eid=? ";
     //echo "<br>".$query;
-    $db_sql = (sqlStatement($query));
+    $db_sql = (sqlStatement($query, [$pid, $pc_eid]));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -240,7 +240,7 @@ function cron_getAlertpatientData($type)
     global $SMS_NOTIFICATION_HOUR,$EMAIL_NOTIFICATION_HOUR;
     // larry :: end commment
 
-    
+
     //$ssql .= " and ((ope.pc_eventDate='$check_date') OR ('$check_date' BETWEEN ope.pc_eventDate AND ope.pc_endDate)) ";
     if ($type=='SMS') {
         // larry :: remove ope.pc_sendalertemail='No' - nothing like it in the calendar
@@ -255,9 +255,9 @@ function cron_getAlertpatientData($type)
 
         $check_date = date("Y-m-d", mktime(date("h")+$EMAIL_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
     }
-    
+
     $patient_field = "pd.pid,pd.title,pd.fname,pd.lname,pd.mname,pd.phone_cell,pd.email,pd.hipaa_allowsms,pd.hipaa_allowemail,";
-    $ssql .= " and (ope.pc_eventDate='$check_date')";
+    $ssql .= " and (ope.pc_eventDate='" . add_escape_custom($check_date) . "')";
     // larry :: add condition if remnder was already sent
     // $ssql .= " and (ope.pc_apptstatus != '*' ) ";
 
@@ -270,7 +270,7 @@ function cron_getAlertpatientData($type)
 			ope.pc_pid=pd.pid $ssql 
 		order by 
 			ope.pc_eventDate,ope.pc_endDate,pd.pid";
-            
+
     //echo "<br>".$query;
 
     $db_patient = (sqlStatement($query));
@@ -294,9 +294,9 @@ function cron_getNotificationData($type)
     //$db_email_msg['notification_id'] = '';
     //$db_email_msg['sms_gateway_type'] = '';
 
-    $query = "select * from automatic_notification where type='$type' ";
+    $query = "select * from automatic_notification where type=? ";
     //echo "<br>".$query;
-    $db_email_msg = sqlFetchArray(sqlStatement($query));
+    $db_email_msg = sqlFetchArray(sqlStatement($query, [$type]));
     return $db_email_msg;
 }
 
@@ -317,8 +317,28 @@ function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg)
     $data_info = $prow['pc_eventDate']."|||".$prow['pc_endDate']."|||".$prow['pc_startTime']."|||".$prow['pc_endTime'];
 
     $sql_loginsert = "INSERT INTO `notification_log` ( `iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `email_sender` , `email_subject` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime` ) VALUES ";
-    $sql_loginsert .= "(NULL , '$prow[pid]', '$prow[pc_eid]', '$db_email_msg[sms_gateway_type]', '$db_email_msg[message]', '$db_email_msg[email_sender]', '$db_email_msg[email_subject]', '$db_email_msg[type]', '$patient_info', '$smsgateway_info', '$prow[pc_eventDate]', '$prow[pc_endDate]', '$prow[pc_startTime]', '$prow[pc_endTime]', '".date("Y-m-d H:i:s")."')";
-    $db_loginsert = ( sqlStatement($sql_loginsert) );
+    $sql_loginsert .= "(NULL , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $db_loginsert = (
+        sqlStatement(
+            $sql_loginsert,
+            [
+                $prow['pid'],
+                $prow['pc_eid'],
+                $db_email_msg['sms_gateway_type'],
+                $db_email_msg['message'],
+                $db_email_msg['email_sender'],
+                $db_email_msg['email_subject'],
+                $db_email_msg['type'],
+                $patient_info,
+                $smsgateway_info,
+                $prow['pc_eventDate'],
+                $prow['pc_endDate'],
+                $prow['pc_startTime'],
+                $prow['pc_endTime'],
+                date("Y-m-d H:i:s")
+            ]
+        )
+    );
 }
 
 ////////////////////////////////////////////////////////////////////

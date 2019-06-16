@@ -122,7 +122,7 @@ class Cache_Lite
     * @var int $_pearErrorMode
     */
     var $_pearErrorMode = CACHE_LITE_ERROR_RETURN;
-    
+
     /**
     * Current cache id
     *
@@ -140,7 +140,7 @@ class Cache_Lite
     /**
     * Enable / Disable "Memory Caching"
     *
-    * NB : There is no lifetime for memory caching ! 
+    * NB : There is no lifetime for memory caching !
     *
     * @var boolean $_memoryCaching
     */
@@ -174,7 +174,7 @@ class Cache_Lite
     * @var int $memoryCachingLimit
     */
     var $_memoryCachingLimit = 1000;
-    
+
     /**
     * File Name protection
     *
@@ -186,17 +186,17 @@ class Cache_Lite
     * @var boolean $fileNameProtection
     */
     var $_fileNameProtection = true;
-    
+
     /**
     * Enable / disable automatic serialization
     *
     * it can be used to save directly datas which aren't strings
-    * (but it's slower)    
+    * (but it's slower)
     *
     * @var boolean $_serialize
     */
     var $_automaticSerialization = false;
-    
+
     // --- Public methods ---
 
     /**
@@ -222,7 +222,7 @@ class Cache_Lite
     * @param array $options options
     * @access public
     */
-    function Cache_Lite($options = array(NULL))
+    function __construct($options = array(NULL))
     {
         $availableOptions = array('automaticSerialization', 'fileNameProtection', 'memoryCaching', 'onlyMemoryCaching', 'memoryCachingLimit', 'cacheDir', 'caching', 'lifeTime', 'fileLocking', 'writeControl', 'readControl', 'readControlType', 'pearErrorMode');
         foreach($options as $key => $value) {
@@ -233,7 +233,7 @@ class Cache_Lite
         }
         $this->_refreshTime = time() - $this->_lifeTime;
     }
-    
+
     /**
     * Test if a cache is available and (if yes) return it
     *
@@ -282,7 +282,7 @@ class Cache_Lite
         }
         return false;
     }
-    
+
     /**
     * Save some data in a cache file
     *
@@ -342,7 +342,7 @@ class Cache_Lite
             }
         }
         if (!@unlink($this->_file)) {
-            $this->raiseError('Cache_Lite : Unable to remove cache !', -3);   
+            $this->raiseError('Cache_Lite : Unable to remove cache !', -3);
             return false;
         }
         return true;
@@ -358,7 +358,7 @@ class Cache_Lite
     * @return boolean true if no problem
     * @access public
     */
-    function clean($group = false)     
+    function clean($group = false)
     {
         if ($this->_fileNameProtection) {
             $motif = ($group) ? 'cache_'.md5($group).'_' : 'cache_';
@@ -395,7 +395,7 @@ class Cache_Lite
         }
         return true;
     }
-    
+
     /**
     * Set to debug mode
     *
@@ -451,7 +451,7 @@ class Cache_Lite
             }
         }
     }
-    
+
     /**
     * Return the cache last modification time
     *
@@ -462,7 +462,7 @@ class Cache_Lite
     function lastModified() {
         return filemtime($this->_file);
     }
-    
+
     /**
     * Trigger a PEAR error
     *
@@ -512,7 +512,7 @@ class Cache_Lite
             $this->_file = $this->_cacheDir.'cache_'.$group.'_'.$id;
         }
     }
-    
+
     /**
     * Read the cache file and return the content
     *
@@ -531,7 +531,7 @@ class Cache_Lite
             if ($this->_readControl) {
                 $hashControl = @fread($fp, 32);
                 $length = $length - 32;
-            } 
+            }
             $data = @fread($fp, $length);
             set_magic_quotes_runtime($mqr);
             if ($this->_fileLocking) @flock($fp, LOCK_UN);
@@ -539,16 +539,16 @@ class Cache_Lite
             if ($this->_readControl) {
                 $hashData = $this->_hash($data, $this->_readControlType);
                 if ($hashData != $hashControl) {
-                    @touch($this->_file, time() - 2*abs($this->_lifeTime)); 
+                    @touch($this->_file, time() - 2*abs($this->_lifeTime));
                     return false;
                 }
             }
             return $data;
         }
-        $this->raiseError('Cache_Lite : Unable to read cache !', -2);   
+        $this->raiseError('Cache_Lite : Unable to read cache !', -2);
         return false;
     }
-    
+
     /**
     * Write the given data in the cache file
     *
@@ -573,7 +573,7 @@ class Cache_Lite
         $this->raiseError('Cache_Lite : Unable to write cache !', -1);
         return false;
     }
-    
+
     /**
     * Write the given data in the cache file and control it just after to avoir corrupted cache entries
     *
@@ -587,7 +587,7 @@ class Cache_Lite
         $dataRead = $this->_read($data);
         return ($dataRead==$data);
     }
-    
+
     /**
     * Make a control key with the string containing datas
     *
@@ -609,7 +609,7 @@ class Cache_Lite
             $this->raiseError('Unknown controlType ! (available values are only \'md5\', \'crc32\', \'strlen\')', -5);
         }
     }
-    
-} 
+
+}
 
 ?>

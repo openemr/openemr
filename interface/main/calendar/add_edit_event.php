@@ -466,7 +466,7 @@ if (empty($collectthis)) {
                         // get the original event's repeat specs
                         $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
                         " WHERE pc_aid = ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
-                        $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+                        $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
                         $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                         if ($oldRecurrspec['exdate'] != "") {
                             $oldRecurrspec['exdate'] .= ",".$selected_date;
@@ -636,7 +636,7 @@ if (empty($collectthis)) {
                 if ($_POST['recurr_affect'] == 'current') {
                     // get the original event's repeat specs
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
-                    $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+                    $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
                     $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") {
                         $oldRecurrspec['exdate'] .= ",".$selected_date;
@@ -767,7 +767,7 @@ if (empty($collectthis)) {
                     // get the original event's repeat specs
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
                     " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
-                    $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+                    $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
                     $selected_date = date("Y-m-d", strtotime($_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") {
                         $oldRecurrspec['exdate'] .= ",".$selected_date;
@@ -808,7 +808,7 @@ if (empty($collectthis)) {
 
                 // get the original event's repeat specs
                 $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
-                $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+                $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
                 $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                 if ($oldRecurrspec['exdate'] != "") {
                     $oldRecurrspec['exdate'] .= ",".$selected_date;
@@ -924,7 +924,7 @@ if (empty($collectthis)) {
         $multiple_value = $row['pc_multiple'];
 
         // parse out the repeating data, if any
-        $rspecs = unserialize($row['pc_recurrspec']); // extract recurring data
+        $rspecs = unserialize($row['pc_recurrspec'], ['allowed_classes' => false]); // extract recurring data
         $repeattype = $rspecs['event_repeat_freq_type'];
         $repeatfreq = $rspecs['event_repeat_freq'];
         $repeatexdate = $rspecs['exdate']; // repeating date exceptions

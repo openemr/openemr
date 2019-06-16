@@ -39,39 +39,39 @@ class Api
     {
         return $GLOBALS['lock_esign_all'];
     }
-    
+
     public function formConfigToJson()
     {
         $configuration = new Form_Configuration();
         return $this->configToJson($configuration);
     }
-    
+
     public function createFormESign($formId, $formDir, $encounterId)
     {
         $factory = new Form_Factory($formId, $formDir, $encounterId);
         $esign = $this->createESign($factory);
         return $esign;
     }
-    
+
     public function encounterConfigToJson()
     {
         $configuration = new Encounter_Configuration();
         return $this->configToJson($configuration);
     }
-    
+
     public function createEncounterESign($encounterId)
     {
         $factory = new Encounter_Factory($encounterId);
         $esign = $this->createESign($factory);
         return $esign;
     }
-    
+
     public function createEncounterSignable($encounterId)
     {
         $signable = new Encounter_Signable($encounterId);
         return $signable;
     }
-    
+
     public function createESign(FactoryIF $factory)
     {
         $configuration = $factory->createConfiguration();
@@ -81,7 +81,7 @@ class Api
         $esign = new ESign($configuration, $signable, $button, $log);
         return $esign;
     }
-    
+
     /**
      * This contains the configuration for the esign javascript object
      *
@@ -96,7 +96,7 @@ class Api
             'formSubmitAction' => $configuration->getFormSubmitAction(),
             'module' => $configuration->getModule()
         );
-    
+
         $json = json_encode($params);
         return $json;
     }
@@ -107,11 +107,11 @@ class Api
             $ret = $signable->sign($userId, $lock, $amendment);
             return $ret;
         } catch (\Exception $e) {
-            error_log($e->getMessage());
+            error_log(errorLogEscape($e->getMessage()));
             return false;
         }
     }
-    
+
     public function lock(SignableIF $signable, $userId, $amendment = null)
     {
         return $this->sign($signable, $userId, true, $amendment);

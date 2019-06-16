@@ -88,7 +88,7 @@ foreach ($fill as $data) {
                 "facilityzip"     => $proData[0]['postal_code'],
                 "qualifier"       => $GLOBALS['weno_provider_id'] . ':' . $proData[0]['weno_prov_id'],
                 "wenoAccountId"   => $GLOBALS['weno_account_id'],
-                "wenoAccountPass" => $cryptoGen->decryptStandard($GLOBALS['weno_account_pass']),
+                "wenoAccountPass" => (($cryptoGen->cryptCheckStandard($GLOBALS['weno_account_pass'])) ? $cryptoGen->decryptStandard($GLOBALS['weno_account_pass']) : $GLOBALS['weno_account_pass']),
                 "wenoClinicId"    => $GLOBALS['weno_provider_id'] . ':' . $proData[0]['weno_prov_id']
             )
         ),

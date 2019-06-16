@@ -440,11 +440,11 @@ class EncounterccdadispatchController extends AbstractActionController
                 sleep(2); // give cpu a rest
                 $result = socket_connect($socket, $ip, $port);
                 if ($result === false) { // hmm something is amiss with service. user will likely try again.
-                    error_log("Failed to start and connect to local ccdaservice server on ip " . text($ip) . " and port " . (int)$port);
+                    error_log("Failed to start and connect to local ccdaservice server on ip " . errorLogEscape($ip) . " and port " . errorLogEscape($port));
                     throw new Exception("Connection Failed");
                 }
             } else {
-                error_log("Failed to connect to mirth server on ip " . text($ip) . " and port " . (int)$port);
+                error_log("Failed to connect to mirth server on ip " . errorLogEscape($ip) . " and port " . errorLogEscape($port));
                 throw new Exception("Connection Failed");
             }
         }

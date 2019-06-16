@@ -136,7 +136,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     // of text() as our helper functions are loaded in later on in this file.
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp)) {
         echo "Invalid URL";
-        error_log("Request with site id '". htmlspecialchars($tmp, ENT_NOQUOTES) . "' contains invalid characters.");
+        error_log("Request with site id '". htmlspecialchars($tmp, ENT_QUOTES) . "' contains invalid characters.");
         die();
     }
 
@@ -304,7 +304,7 @@ try {
     /** @var Kernel */
     $GLOBALS["kernel"] = new Kernel();
 } catch (\Exception $e) {
-    error_log($e->getMessage());
+    error_log(errorLogEscape($e->getMessage()));
     die();
 }
 
@@ -466,7 +466,7 @@ if (!empty($glrow)) {
             $css_header = $GLOBALS['css_header'];
         } else {
             // throw a warning if rtl'ed file does not exist.
-            error_log("Missing theme file ".text($webserver_root).'/public/themes/'.text($new_theme));
+            error_log("Missing theme file " . errorLogEscape($webserver_root) . '/public/themes/' . errorLogEscape($new_theme));
         }
     }
 
