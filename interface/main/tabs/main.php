@@ -262,13 +262,10 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
 }
 
 html, body{
-    
     min-height:100% !important;
     height:100% !important;
 }
-
 </style>
-  
 </head>
 <body data-bind="css: responsiveDisplay.objWidth().bodyMain">
 <!-- Below iframe is to support auto logout when timeout is reached -->
@@ -434,6 +431,19 @@ app_view_model.responsiveDisplay = displayViewModel;
             $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
         });
     });
+</script>
+<script>
+$(function(){
+    $('#logo_menu').focus();
+});
+</script>
+<script>
+$('#anySearchBox').keypress(function(event){
+  if(event.which === 13 || event.keyCode === 13){
+    event.preventDefault();
+    $('#search_globals').click();
+  }
+});
 </script>
 </body>
 </html>

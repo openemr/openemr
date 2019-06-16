@@ -20,6 +20,7 @@ require_once(dirname(__FILE__) . "/../../globals.php");
 require_once "$srcdir/user.inc";
 require_once "$srcdir/options.inc.php";
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
@@ -69,6 +70,13 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
         color: red;
         transform: translateX(-50%);
     }
+    @media screen and (max-width: 640px) {
+        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter {
+            float: inherit;
+            text-align: justify;
+        }
+    }
+    
 </style>
 <script language="JavaScript">
 
@@ -162,33 +170,39 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
 
 </script>
 <?php
-//to determine and set the page to open in the desired state - expanded or centered, any selection the user makes will
-//become the user-specific default for that page. collectAndOrganizeExpandSetting() takes a single indexed array as an
-//argument, containing one or more elements, the name of the current file is the first element, if there are linked
-//files they should be listed thereafter, please add _xpd suffix to the file name
-$arr_files_php = array("dynamic_finder_xpd");
-$current_state = collectAndOrganizeExpandSetting($arr_files_php);
-require_once("$srcdir/expand_contract_inc.php");
-?>
-<script>
-<?php require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if page is expandable ?>
-</script>
-
+    $arrOeUiSettings = array(
+    'heading_title' => xl('Patient Finder'),
+    'include_patient_name' => false,
+    'expandable' => true,
+    'expandable_files' => array('dynamic_finder_xpd'),//all file names need suffix _xpd
+    'action' => "search",//conceal, reveal, search, reset, link or back
+    'action_title' => "",//only for action link, leave empty for conceal, reveal, search
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => false,
+    'help_file_name' => ""
+    );
+    $oemr_ui = new OemrUI($arrOeUiSettings);
+    ?>
 </head>
 <body class="body_top">
-    <div class="<?php echo $container;?> expandable">
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
+         <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
+                </div>
+            </div>
+        </div>
         <div class="row">
-            <div class="col-sm-10">
-                <h2>
-                <?php echo xlt('Patient Finder') ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract"
-                title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i> <i id="show_hide" class="fa fa-search-plus fa-2x small" title="<?php echo xla('Click to show advanced search'); ?>"></i>
-                </h2>
-            </div>
-            <div class="col-sm-2">
+            <div class="col-sm-12">
                 <?php if (acl_check('patients', 'demo', '', array('write','addonly'))) { ?>
-                    <button id="create_patient_btn" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Create Patient'); ?></button>
+                    <button id="create_patient_btn1" class="btn btn-default btn-add" onclick="top.restoreSession();top.RTop.location = '/openemr-master/interface/new/new.php'">Add New Patient</button>
                 <?php } ?>
+                <i id="search_hide" class="fa fa-search fa-lg oe-pull-away" aria-hidden="true"></i>
             </div>
+            <!--<div class="col-sm-2 oe-pull-away">
+                <i id="search_hide" class="fa fa-search fa-lg" aria-hidden="true"></i>
+            </div>-->
         </div>
         <br>
         <div class="row">
@@ -223,29 +237,63 @@ require_once("$srcdir/expand_contract_inc.php");
                 </form>
             </div>
         </div>
-    </div><!--end of container div-->
+    </div> <!--End of Container div-->
+    <?php $oemr_ui->oeBelowContainerDiv();?>
+
     <script>
         $(function () {
-            $("#pt_table").removeAttr("style");
             $("#exp_cont_icon").click(function () {
                 $("#pt_table").removeAttr("style");
             });
         });
+        $(window).on("resize", function() { //portrait vs landscape
+           $("#pt_table").removeAttr("style");
+        });
     </script>
     <script>
-    $('#show_hide').click(function () {
-        var elementTitle = $('#show_hide').prop('title');
-        var hideTitle = '<?php echo xla('Click to hide advanced search'); ?>';
-        var showTitle = '<?php echo xla('Click to show advanced search'); ?>';
-        $('.hideaway').toggle();
-        $(this).toggleClass('fa-search-plus fa-search-minus');
-        if (elementTitle == hideTitle) {
-            elementTitle = showTitle;
-        } else if (elementTitle == showTitle) {
-            elementTitle = hideTitle;
-        }
-        $('#show_hide').prop('title', elementTitle);
-    });
+        $(window).on('resize', function() {//hide superfluous elements on Smartphones
+            var winWidth = $(this).width();
+            if (winWidth <  750) {
+                $("#pt_table_filter").addClass ("hidden");
+                $("#pt_table_length").addClass ("hidden");
+                $("#show_hide").addClass ("hidden");
+                $("#search_hide").removeClass ("hidden");
+                
+                
+            } else {
+                $("#pt_table_filter").removeClass ("hidden");
+                $("#pt_table_length").removeClass ("hidden");
+                $("#show_hide").removeClass ("hidden");
+                $("#search_hide").addClass ("hidden");
+            }
+        });
+        $(function() {
+            $(window).trigger('resize');// to avoid repeating code triggers above on page open
+        });
     </script>
+    <script>
+        $(function () {
+            $('#search_hide').on('click', function () {
+                var elementTitle;
+                var showTitle = <?php echo xlj("Show search"); ?>;
+                var hideTitle = <?php echo xlj("Hide search"); ?>;
+                
+                if ($(this).is('.fa-search')) {
+                    elementTitle = showTitle;
+                    $(this).toggleClass('fa-search fa-eye-slash');
+                    $("#pt_table_filter").removeClass ("hidden");
+                    $("#pt_table_length").removeClass ("hidden");
+                    
+                } else if ($(this).is('.fa-eye-slash')) {
+                    elementTitle = hideTitle;
+                    $(this).toggleClass(' fa-eye-slash fa-search');
+                    $("#pt_table_filter").addClass ("hidden");
+                    $("#pt_table_length").addClass ("hidden");
+                }
+                
+                $(this).prop('title', elementTitle);
+            });
+        });
+     </script>
 </body>
 </html>

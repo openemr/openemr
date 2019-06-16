@@ -321,6 +321,18 @@ JQD;
         $collectToken = js_escape(collectCsrfToken());
         $header_expand_js = <<<EXP
         <script>
+        $(window).on('resize', function() {//hide icon on smaller devices as width is almost 100%
+            var winWidth = $(this).width();
+            if (winWidth <  900) {
+                $("#exp_cont_icon").addClass ("hidden");
+            } else {
+                $("#exp_cont_icon").removeClass ("hidden");
+            }
+        });
+        $(function() {
+            $(window).trigger('resize');// to avoid repeating code triggers above on page open
+        });
+        
         $(function () {
             $('.expand_contract').click(function () {
                 var elementTitle;
