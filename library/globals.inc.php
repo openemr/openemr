@@ -251,7 +251,7 @@ $GLOBALS_METADATA = array(
                 '896' => xl('iPhone XR/XS Max') . " -  896 X 414" . xl('px'),
                 '1024' => xl('iPad/iPad Mini, XGA') . " -  1024 X 768" . xl('px'),
                 '1112' => xl('iPad Pro 10.5 inches') . " -  1112 X 834" . xl('px'),
-                '1280' => xl('Kindle Fire HDX, Laptop MDPI , WXGA') . " -  1280 X 800" . xl('px'),
+                '1280' => xl('Kindle Fire HDX, Laptop MDPI, WXGA') . " -  1280 X 800" . xl('px'),
                 '1336' => xl('iPad Pro 12.5 inches') . " -  1336 X 1024" . xl('px'),
                 '1366' => xl('HD') . " -  1366 X 768" . xl('px'),
                 '1440' => xl('Laptop HiDPI, WXGA+') . " -  1440 X 900" . xl('px'),
@@ -939,7 +939,7 @@ $GLOBALS_METADATA = array(
             xl('Enable Encryption of Items Stored on Drive'),
             'bool',                           // data type
             '1',                              // default = true
-            xl('This will enable enable encryption of items that are stored on the drive.')
+            xl('This will enable encryption of items that are stored on the drive.')
         ),
 
         'hide_document_encryption' => array(
@@ -2639,7 +2639,7 @@ $GLOBALS_METADATA = array(
             xl('Allow Onsite Online Secure Chat'),
             'bool',                           // data type
             '1',
-            xl('Allow 2 Onsite Patient to use Secure Chat Application.')
+            xl('Allow Onsite Patient to use Secure Chat Application.')
         ),
 
         'portal_two_ledger' => array(
@@ -2809,7 +2809,7 @@ $GLOBALS_METADATA = array(
             xl('Gateway API Login Auth Name or Secret'),
             'encrypted',
             '',
-            xl('The Auth Name or API key for selected account.Auth Name for Authorize.Net and API Secret for Stripe')
+            xl('The Auth Name or API key for selected account. Auth Name for Authorize.Net and API Secret for Stripe.')
         ),
 
         'gateway_transaction_key' => array(

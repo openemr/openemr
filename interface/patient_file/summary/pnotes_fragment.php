@@ -130,7 +130,7 @@ if (isset($_GET['docUpdateId'])) {
         } else { ?>
             <br/>
             <span class='text'>
-            <?php echo xlt('Displaying the following number of most recent messages:'); ?>
+            <?php echo xlt('Displaying the following number of most recent messages'); ?>:
             <b><?php echo text($N);?></b><br>
             <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
             <?php echo xlt('Click here to view them all.'); ?></a>
