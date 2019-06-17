@@ -183,7 +183,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                             <br>
                                             <img src="<?php echo attr($qr); ?>" class="img-responsive center-block" style="height:200px !Important"/>
                                             <br>
-                                            <p><?php echo xlt('Example authenticator apps include:'); ?></p>
+                                            <p><?php echo xlt('Example authenticator apps include'); ?></p>:
                                             <div class="col-sm-4 col-sm-offset-4">
                                                 <ul>
                                                     <li><?php echo xlt('Google Auth'); ?>

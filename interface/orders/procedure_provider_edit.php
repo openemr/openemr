@@ -57,12 +57,12 @@ function invalue($name)
      font-weight:bold;
     }
 
-    
+
     .label-div > a {
         display:none;
     }
     .label-div:hover > a {
-       display:inline-block; 
+       display:inline-block;
     }
     div[id$="_info"] {
         background: #F7FAB3;
@@ -153,7 +153,7 @@ function invalue($name)
         }
         ?>
 
-      
+
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr($ppid) ?>'>
@@ -179,7 +179,7 @@ function invalue($name)
                                         <p><?php echo xlt("Select Lab Service in the Type drop-down box and enter a name under organization");?>
                                         <p><?php echo xlt("For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form. ");?><i class="fa fa-question-circle" aria-hidden="true"></i></p>
                                     </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-6">
                                     <div class="clearfix">
                                         <div class="label-div">
@@ -189,10 +189,10 @@ function invalue($name)
                                             <input type='text' name='form_npi' id='form_npi' maxlength='10'
                                             value='<?php echo attr($row['npi']); ?>' class='form-control' />
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="npi_info" class="collapse">
                                         <a href="#npi_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p><?php echo xlt("NPI - Enter the Provider's  unique 10-digit National Provider Identifier or NPI identification number");?>
+                                        <p><?php echo xlt("NPI - Enter the Provider's unique 10-digit National Provider Identifier or NPI identification number");?>
                                         <p><?php echo xlt("It is issued to health care providers in the United States by the Centers for Medicare and Medicaid Services (CMS)");?>
                                         <p><?php echo xlt("This has to entered once in this form");?>
                                         <p><?php echo xlt("IMPORTANT: The NPI number also exists in the Address Book entry for the provider, take care to enter the correct NPI number");?>
@@ -342,7 +342,7 @@ function invalue($name)
                                     <p><?php echo xlt("If you do not submit orders electronically or receive result electronically leave it as the default value, Download");?>
                                     <p><?php echo xlt("Download will download a text file containing the order in the HL7v2.3 message format to the downloads directory of your computer");?>
                                     <p><?php echo xlt("SFTP will send the order as a HL7v2.3 message to the receiving lab using the SFTP protocol");?>
-                                    <p><?php echo xlt("Secure File Transfer Protocol, or SFTP is a network protocol that provides file access, file transfer, and file management over  a secure connection");?>
+                                    <p><?php echo xlt("Secure File Transfer Protocol, or SFTP is a network protocol that provides file access, file transfer, and file management over a secure connection");?>
                                     <p><?php echo xlt("Local Filesystem will store the order as a HL7v2.3 message in a predefined location in the local server hosting openEMR");?>
                                     <p><?php echo xlt("Select Bidirectional or Results Only as appropriate, again only used for electronic orders");?>
                                 </div>

@@ -216,7 +216,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             <input type="text" name="medicaid_resubmission_code" id="medicaid_resubmission_code"
                                    value="<?php echo attr($obj{"medicaid_resubmission_code"}); ?>">
                         </label>
-                        <label><?php echo xlt(' Medicaid Original Reference No.'); ?>:
+                        <label><?php echo xlt('Medicaid Original Reference No.'); ?>:
                             <input type="text" name="medicaid_original_reference" id="medicaid_original_reference"
                                    value="<?php echo attr($obj{"medicaid_original_reference"}); ?>">
                         </label>
