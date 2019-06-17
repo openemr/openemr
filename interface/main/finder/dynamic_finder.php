@@ -196,14 +196,11 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
         <div class="row">
             <div class="col-sm-12">
                 <?php if (acl_check('patients', 'demo', '', array('write','addonly'))) { ?>
-                    <button id="create_patient_btn1" class="btn btn-default btn-add" onclick="top.restoreSession();top.RTop.location = '/openemr-master/interface/new/new.php'">Add New Patient</button>
+                    <button id="create_patient_btn1" class="btn btn-default btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
                 <?php } ?>
                 <i id="search_hide" class="fa fa-search fa-lg oe-pull-away" aria-hidden="true"></i>
             </div>
-            <!--<div class="col-sm-2 oe-pull-away">
-                <i id="search_hide" class="fa fa-search fa-lg" aria-hidden="true"></i>
-            </div>-->
-        </div>
+            </div>
         <br>
         <div class="row">
             <div class="col-sm-12">
