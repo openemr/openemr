@@ -71,4 +71,7 @@ return array(
 
         
     ]
+    ,'module_dependencies' => [
+        'Documents'       // Handles the saving and retrieving of embedded documents in this module.
+    ]
 );

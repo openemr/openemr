@@ -33,6 +33,12 @@ class InstModuleTable
      */
     private $container;
 
+    /**
+     * The path for the zend modules locations
+     * @var string
+     */
+    private $module_zend_path;
+
     public function __construct(TableGateway $tableGateway, ContainerInterface $container)
     {
         $this->tableGateway = $tableGateway;
@@ -41,6 +47,8 @@ class InstModuleTable
         $this->resultSetPrototype   = new ResultSet();
         $this->applicationTable       = new ApplicationTable;
         $this->container = $container;
+        $this->module_zend_path = $GLOBALS['srcdir']. DIRECTORY_SEPARATOR
+            . ".." . DIRECTORY_SEPARATOR . $GLOBALS['baseModDir'] . $GLOBALS['zendModDir'] . DIRECTORY_SEPARATOR . "module";
     }
 
   /**
@@ -638,7 +646,6 @@ class InstModuleTable
 
     public function getDependencyModules($mod_id)
     {
-        $reader = new Ini();
         $modDirname   = $this->getModuleDirectory($mod_id);
         if ($modDirname <> "") {
             $depModuleStatusArr   = array();
@@ -829,16 +836,13 @@ class InstModuleTable
   //GET DEPENDED MODULES OF A MODULE FROM A FUNCTION IN CONFIGURATION MODEL CLASS
     public function getDependedModulesByDirectoryName($moduleDirectory)
     {
-        $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
-        $retArr   = array();
-        if ($objHooks) {
-            $retArr   = $objHooks->getDependedModulesConfig();
-            if (!is_array($retArr)) {
-                $retArr = array();
-                error_log(self::class . " Module class " . errorLogEscape(get_class($objHooks)) . " returned a non-array value for getDependedModulesConfig(). resetting to array");
+        $retArr = [];
+        if ($this->existsModuleConfigFile($moduleDirectory)) {
+            $moduleConfig = $this->loadModuleConfigFile($moduleDirectory);
+            if (!empty($moduleConfig['module_dependencies'])) {
+                $retArr = $moduleConfig['module_dependencies'];
             }
         }
-
         return $retArr;
     }
 
@@ -906,6 +910,8 @@ class InstModuleTable
    */
     public function getObject($moduleDirectory, $option = 'Controller', $adapter = '')
     {
+        $obj = null;
+
         if ($option == 'Form' && $moduleDirectory != 'Installer') {
             error_log('getObject called with option of Form.  This call signature is deprecated.  Use getFormObject instead');
         } elseif ($option == 'Setup') {
@@ -913,6 +919,7 @@ class InstModuleTable
         }
 
         $className        = str_replace('[module_name]', $moduleDirectory, '[module_name]\\' . $option  . '\Moduleconfig' . $option . '');
+
         if ($this->container->has($className)) {
             $obj = $this->container->get($className);
         }
@@ -932,5 +939,55 @@ class InstModuleTable
         $result = $this->applicationTable->zQuery($sql, array($name));
         $count  = $result->count();
         return $count;
+    }
+
+    /**
+     * Returns true if the given module at the module directory actually exists in the codebase
+     * @param $moduleDirectory The directory path of the module
+     * @return bool
+     */
+    private function existsModuleConfigFile($moduleDirectory) {
+        $filePath = $this->getModuleConfigFilePathForDirectory($moduleDirectory);
+        return file_exists($filePath);
+    }
+
+    /**
+     * Given a module directory we load the config file for the module.  This assumes a the config file exists
+     * Use existsModuleConfigFile before calling this method.
+     * @param $moduleDirectory The directory path of the module
+     * @return array|null  Array of the module config that was loaded or null if the file could not be loaded
+     */
+    private function loadModuleConfigFile($moduleDirectory) {
+        $filePath = $this->getModuleConfigFilePathForDirectory($moduleDirectory);
+        if ($filePath === null) {
+            error_log("Module config file does not exist for module directory " . errorLogEscape($moduleDirectory));
+        }
+
+        $loadedConfig = include $filePath;
+        if ($loadedConfig === false) {
+            $loadedConfig = null;
+            error_log("Failed to load the module config directory for module directory " . errorLogEscape($moduleDirectory));
+        }
+        return $loadedConfig;
+    }
+
+    /**
+     * For the given module directory return the file path for the config class
+     * @param $moduleDirectory The directory path of the module.
+     * @return string|null The filepath of the directory for the config file or null if there is none found
+     */
+    private function getModuleConfigFilePathForDirectory($moduleDirectory) {
+        // could add the custom here, but it doesn't use the ModuleConfig syntax..
+        $searchDirectories = [
+            $moduleDirectory
+            , $this->module_zend_path . DIRECTORY_SEPARATOR . $moduleDirectory
+        ];
+        $fileSuffix = DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "module.config.php";
+        foreach ($searchDirectories as $dir) {
+            if (file_exists($dir . $fileSuffix )) {
+                return $dir . $fileSuffix;
+            }
+        }
+        return null;
     }
 }

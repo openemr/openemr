@@ -1,6 +1,7 @@
 <?php
 namespace Carecoordination;
 
+use Documents\Plugin\Documents;
 use Zend\ServiceManager\Factory\InvokableFactory;
 use Zend\Router\Http\Segment;
 use Carecoordination\Controller\CarecoordinationController;
@@ -160,5 +161,24 @@ return array(
             SetupController::class => SetupControllerFactory::class,
             EncounterccdadispatchController::class => EncounterccdadispatchControllerFactory::class
         ),
+    ]
+    // These plugins classes get added as methods onto the module controllers.  So you can reference inside a controller
+    // that extends AbstractActionController.  An example below:
+    // $this->Documents() as it uses (in ZF3) AbstractActionController->AbstractController->__call to call the plugin's code.  Similar to duck-typing or mixins
+    // from other frameworks/languages.
+    // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
+    // TODO: Note this is a weird dependency used in the CarecoordinationController class that should be revisited
+    ,'controller_plugins' => array(
+        'factories' => array(
+            'Documents' => function (ContainerInterface $container, $requestedName) {
+                return new \Documents\Plugin\Documents($container);
+            }
+        )
+    )
+    ,'module_dependencies' => [
+        'Ccr'
+        ,'Immunization'
+        ,'Syndromicsurveillance'
+        , 'Documents'       // Handles the saving and retrieving of embedded documents in this module.
     ]
 );

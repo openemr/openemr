@@ -37,6 +37,10 @@ class DocumentsController extends AbstractActionController
         return $this->documentsTable;
     }
 
+    public function getDocumentsPlugin() {
+        return $this->Documents();
+    }
+
   /*
   * Upload document
   */
