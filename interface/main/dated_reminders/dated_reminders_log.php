@@ -68,13 +68,13 @@ if ($_GET) {
     foreach ($remindersArray as $RA) {
         echo '<tr class="heading">
               <td>'.text($RA['messageID']).'</td>
-              <td>'.text($RA['sDate']).'</td>
+              <td>'.text(oeFormatDateTime($RA['sDate'])).'</td>
               <td>'.text($RA['fromName']).'</td>
               <td>'.text($RA['ToName']).'</td>
               <td>'.text($RA['PatientName']).'</td>
               <td>'.text($RA['message']).'</td>
-              <td>'.text($RA['dDate']).'</td>
-              <td>'.text($RA['pDate']).'</td>
+              <td>'.text(oeFormatShortDate($RA['dDate'])).'</td>
+              <td>'.text(oeFormatDateTime($RA['pDate'])).'</td>
               <td>'.text($RA['processedByName']).'</td>
             </tr>';
     }
@@ -116,7 +116,7 @@ if ($_GET) {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -153,11 +153,11 @@ if ($_GET) {
                             <h5><?php echo xlt('Date The Message Was Sent');?></h5>
                             <div class="col-xs-6">
                                 <label class="control-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
-                                <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo xla('yyyy-mm-dd'); ?>'>
+                                <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
                             <div class="col-xs-6">
                                 <label class="control-label" for="ed"><?php echo xlt('End Date') ?>:</label>
-                                <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo xla('yyyy-mm-dd'); ?>'>
+                                <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
                         </div>
                         <div class="col-xs-12">

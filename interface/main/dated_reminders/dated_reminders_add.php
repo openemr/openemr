@@ -88,14 +88,14 @@ if ($_POST) {
     if (// ------- check sendTo is not empty
     !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-    isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', $_POST['dueDate']) and
+    isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', DateToYYYYMMDD($_POST['dueDate'])) and
 // ------- check priority, only allow 1-3
     isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db
     isset($_POST['message']) and mb_strlen($_POST['message']) <= $max_reminder_words and mb_strlen($_POST['message']) > 0 and
 // ------- check if PatientID is set and in numeric
     isset($_POST['PatientID']) and is_numeric($_POST['PatientID'])) {
-        $dueDate = $_POST['dueDate'];
+        $dueDate = DateToYYYYMMDD($_POST['dueDate']);
         $priority = intval($_POST['priority']);
         $message = $_POST['message'];
         $fromID = $_SESSION['authId'];
@@ -156,7 +156,7 @@ if (isset($this_message['pid'])) {
 
     <title><?php echo xlt('Send a Reminder') ?></title>
 
-    <?php Header::setupHeader(['datetime-picker','opener','topdialog','common']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener' ,'topdialog', 'common', 'moment']); ?>
 
     <script language="JavaScript">
       $(function (){
@@ -191,7 +191,8 @@ if (isset($this_message['pid'])) {
             curr_month = '0'+curr_month;
           }
           var curr_year = d.getFullYear();
-          $('#dueDate').val(curr_year + "-" + curr_month + "-" + curr_date);
+          var fullDate = curr_year + "-" + curr_month + "-" + curr_date;
+          $('#dueDate').val(moment(fullDate).format(<?php echo js_escape(DateFormatRead('validateJS'))?>));
         });
 
 
@@ -250,7 +251,7 @@ if (isset($this_message['pid'])) {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -276,7 +277,7 @@ if (isset($this_message['pid'])) {
         }
 
         function selectAll(){
-          $("#sendTo").each(function(){$("#sendTo option").attr("selected","selected"); });
+          $("#sendTo").each(function(){$("#sendTo option").prop("selected",true); });
         }
     </script>
     <style>
@@ -360,7 +361,7 @@ if (isset($this_message['pid'])) {
             <div class="form-group">
                 <div class="col-xs-5">
                     <label class="control-label" for="dueDate"><?php echo xlt('Due Date') ?>:</label>
-                    <input type='text' class='datepicker form-control' name='dueDate' id="dueDate" value="<?php echo ($this_message['dueDate'] == '' ? date('Y-m-d') : attr($this_message['dueDate'])); ?>" title='<?php echo xla('yyyy-mm-dd'); ?>'>
+                    <input type='text' class='datepicker form-control' name='dueDate' id="dueDate" value="<?php echo ($this_message['dueDate'] == '' ? oeFormatShortDate() : attr(oeFormatShortDate($this_message['dueDate']))); ?>" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                 </div>
                 <div class="col-xs-2">
                 <label class="control-label" for="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
@@ -431,7 +432,7 @@ if (isset($this_message['pid'])) {
     <div class="col-xs-12">
     <?php
         $_GET['sentBy'] = array($_SESSION['authId']);
-        $_GET['sd'] = date('Y/m/d');
+        $_GET['sd'] = oeFormatShortDate();
         $TempRemindersArray = logRemindersArray();
         $remindersArray = array();
     foreach ($TempRemindersArray as $RA) {
@@ -461,7 +462,7 @@ if (isset($this_message['pid'])) {
                   <td>'.text($RA['ToName']).'</td>
                   <td>'.text($RA['PatientName']).'</td>
                   <td>'.text($RA['message']).'</td>
-                  <td>'.text($RA['dDate']).'</td>
+                  <td>'.text(oeFormatShortDate($RA['dDate'])).'</td>
                 </tr>';
     }
 
