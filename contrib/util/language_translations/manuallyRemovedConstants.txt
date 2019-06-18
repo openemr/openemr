@@ -11,5 +11,7 @@ cfirst($this->listenerObject->z_
 heda
 rim($i
 rim($row['
+xiale lengte)																	
+xiale lengte)'); INSERT INTO `lang_definitions` V
 ...
 
