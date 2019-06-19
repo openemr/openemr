@@ -115,7 +115,7 @@ function showLineItem(
 
     $invnumber = $irnumber ? $irnumber : "$patient_id.$encounter_id";
 
-    if ($paymethod != substr($rowmethod, 0, strcspn($rowmethod, ' /'))) {
+    if ($paymethod != $rowmethod) {
         if ($paymethod) {
             // Print method total.
         ?>
@@ -145,10 +145,10 @@ function showLineItem(
 
    <tr>
    <td class="detail">
-       <?php echo text($paymethodleft); $paymethodleft = " " ?>
+        <?php echo text($paymethodleft); $paymethodleft = " " ?>
    </td>
    <td class="detail">
-       <?php echo text($memo); $memo = " " ?>
+        <?php echo text($memo); $memo = " " ?>
    </td>
    <td>
         <?php echo text(oeFormatShortDate($transdate)); ?>
