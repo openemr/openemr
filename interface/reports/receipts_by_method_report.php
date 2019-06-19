@@ -115,13 +115,13 @@ function showLineItem(
 
     $invnumber = $irnumber ? $irnumber : "$patient_id.$encounter_id";
 
-    if ($paymethod != $rowmethod) {
+    if ($paymethod != substr($rowmethod, 0, strcspn($rowmethod, ' /'))) {
         if ($paymethod) {
             // Print method total.
         ?>
 
      <tr bgcolor="#ddddff">
-        <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
+        <td class="detail" colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
         <?php echo xlt('Total for ') . text($paymethod); ?>
   </td>
   <td align="right">
@@ -147,6 +147,9 @@ function showLineItem(
     <td class="detail">
         <?php echo text($paymethodleft); $paymethodleft = " " ?>
   </td>
+       <td class="detail">
+           <?php echo text($memo); $memo = " " ?>
+       </td>
   <td>
         <?php echo text(oeFormatShortDate($transdate)); ?>
   </td>
@@ -433,6 +436,9 @@ if ($_POST['form_refresh']) {
     <?php echo xlt('Method') ?>
  </th>
  <th>
+     <?php echo xlt('Reference') ?>
+ </th>
+ <th>
     <?php echo xlt('Date') ?>
  </th>
  <th>
@@ -583,17 +589,15 @@ if ($_POST['form_refresh']) {
                 $rowmethod = trim($row['memo']);
             } else {
                 $rowmethod = trim($row['payment_method']);
+                $rowreference = trim($row['reference']);
             }
 
-            if ($form_report_by == '3') {
-                $rowmethod .= " " . trim($row['reference']);
-            }
         }
 
         thisLineItem(
             $row['pid'],
             $row['encounter'],
-            $row['code'],
+            $rowreference,
             $thedate,
             $rowmethod,
             $row['pay_amount'],
@@ -643,7 +647,7 @@ if ($_POST['form_refresh']) {
         // Print last method total.
     ?>
    <tr bgcolor="#ddddff">
-    <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
+    <td class="detail" colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
         <?php echo xlt('Total for ') . text($paymethod); ?>
   </td>
   <td align="right">
@@ -663,7 +667,7 @@ if ($_POST['form_refresh']) {
             }
         ?>
      <tr bgcolor="#ddddff">
-        <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
+        <td class="detail" colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
         <?php echo text($key); ?>
   </td>
   <td align="right">
@@ -678,7 +682,7 @@ if ($_POST['form_refresh']) {
     } // end payer summary
 ?>
  <tr bgcolor="#ffdddd">
-  <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
+  <td class="detail" colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
     <?php echo xlt('Grand Total') ?>
   </td>
   <td align="right">
