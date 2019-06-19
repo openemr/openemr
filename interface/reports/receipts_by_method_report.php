@@ -144,18 +144,18 @@ function showLineItem(
     ?>
 
    <tr>
-    <td class="detail">
-        <?php echo text($paymethodleft); $paymethodleft = " " ?>
-  </td>
-       <td class="detail">
-           <?php echo text($memo); $memo = " " ?>
-       </td>
-  <td>
+   <td class="detail">
+       <?php echo text($paymethodleft); $paymethodleft = " " ?>
+   </td>
+   <td class="detail">
+       <?php echo text($memo); $memo = " " ?>
+   </td>
+   <td>
         <?php echo text(oeFormatShortDate($transdate)); ?>
-  </td>
-  <td class="detail">
+   </td>
+   <td class="detail">
         <?php echo text($invnumber); ?>
-  </td>
+   </td>
 
 <?php
 if ($showing_ppd) {
@@ -435,8 +435,7 @@ if ($_POST['form_refresh']) {
  <th>
     <?php echo xlt('Method') ?>
  </th>
- <th>
-     <?php echo xlt('Reference') ?>
+ <th><?php echo xlt('Reference') ?>
  </th>
  <th>
     <?php echo xlt('Date') ?>
@@ -591,7 +590,6 @@ if ($_POST['form_refresh']) {
                 $rowmethod = trim($row['payment_method']);
                 $rowreference = trim($row['reference']);
             }
-
         }
 
         thisLineItem(
