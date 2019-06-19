@@ -1,7 +1,10 @@
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
+// as published by the Free Software Foundation; either version 3
 // of the License, or (at your option) any later version.
+// modified to use activeElement for general edit sjpadgett@gmail.com 06/18/2019
+//
+
 function moveOptions_11(theSelFrom, theSelTo){
     document.getElementById(theSelFrom).style.color="red";
     document.getElementById(theSelFrom).style.fontStyle="italic";
@@ -30,7 +33,11 @@ function movePD(val,theSelTo){
     window.frames[0].document.body.innerHTML=textAreaContent;
 }
 function edit(id){
-    val=window.opener.document.getElementById(id).value;
+    if(id) {
+        val = window.opener.document.getElementById(id).value;
+    } else {
+        val = window.opener.document.activeElement.value;
+    }
     arr=val.split("|*|*|*|");
     document.getElementById('textarea1').value=arr[0];
 }
@@ -72,17 +79,23 @@ function ascii_write(asc, theSelTo){
         }
     }
 }
-function SelectToSave(textara){
-    var textAreaContent = window.frames[0].document.body.innerHTML;
-    mainform=window.opener.document;
-    if(mainform.getElementById(textara+'_div'))
-    mainform.getElementById(textara+'_div').innerHTML = textAreaContent;
-    if(mainform.getElementById(textara+'_optionTD') && document.getElementById('options'))
-    mainform.getElementById(textara+'_optionTD').innerHTML =document.getElementById('options').innerHTML;
-    if(mainform.getElementById(textara)){
-    mainform.getElementById(textara).value = textAreaContent;
-    if(document.getElementById('options'))
-    mainform.getElementById(textara).value +="|*|*|*|"+document.getElementById('options').innerHTML;
+function SelectToSave(textara) {
+    let textAreaContent = '';
+    mainform = window.opener.document;
+    if(typeof textara === 'undefined' || textara === '') {
+        textAreaContent = window.frames[0].document.body.textContent;
+        mainform.activeElement.value = textAreaContent;
+    } else {
+        textAreaContent = window.frames[0].document.body.innerHTML;
+        if (mainform.getElementById(textara + '_div'))
+            mainform.getElementById(textara + '_div').innerHTML = textAreaContent;
+        if (mainform.getElementById(textara + '_optionTD') && document.getElementById('options'))
+            mainform.getElementById(textara + '_optionTD').innerHTML = document.getElementById('options').innerHTML;
+        if (mainform.getElementById(textara)) {
+            mainform.getElementById(textara).value = textAreaContent;
+            if (document.getElementById('options'))
+                mainform.getElementById(textara).value += "|*|*|*|" + document.getElementById('options').innerHTML;
+        }
     }
     dlgclose();
 }
