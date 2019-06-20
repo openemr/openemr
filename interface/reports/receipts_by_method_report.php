@@ -558,7 +558,7 @@ if ($_POST['form_refresh']) {
     if ($form_use_edate) {
         $query .= " ORDER BY s.reference, fe.date, a.pid, a.encounter, fe.id";
     } else {
-        $query .= " ORDER BY s.reference, s.deposit_date, a.post_time, a.pid, a.encounter, fe.id";
+        $query .= " ORDER BY s.payment_method, s.deposit_date, a.post_time, a.pid, a.encounter, fe.id";
     }
 
     //
