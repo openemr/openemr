@@ -349,8 +349,7 @@ function proc_type_changed() {
                                     </div>
                                     <div id="procedure_type_info" class="collapse">
                                         <a href="#procedure_type_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p><?php echo xlt("In order to properly store and retrieve test results and place new orders, tests/orders have to be setup in 
-                                            a hierarchical manner");?></p>
+                                        <p><?php echo xlt("In order to properly store and retrieve test results and place new orders, tests/orders have to be setup in a hierarchical manner");?></p>
                                         <p><strong><?php echo xlt("Single Tests");?>:</strong></p>
                                         <p><?php echo xlt("Group > Procedure Order > Discrete Result");?></p>
                                         <p><?php echo xlt("Tier 1 - Group - e.g. Serum Chemistry");?></p>
@@ -366,7 +365,7 @@ function proc_type_changed() {
                                         <p><?php echo xlt("The difference between the two is that for a panel of tests that are ordered together the individual tests are represented by Discrete Result only and these tests cannot be ordered separately unless they have also been setup as single tests");?></p>
                                         <p><strong><?php echo xlt("For Custom Groups");?>: <i class="fa fa-exclamation-circle oe-text-red" aria-hidden="true"></i>&nbsp;<?php echo xlt("New in openEMR ver 5.0.2 "); ?></strong></p>
                                         <p><?php echo xlt("Custom Favorite Group > Custom Favorite Item > Discrete results");?></p>
-                                        <p><?php echo xlt("As the fist step choose Group or Custom Favorite Group, as the case may be, as the Top Level Tier 1 and fill in the required details");?></p>
+                                        <p><?php echo xlt("As the first step choose Group or Custom Favorite Group, as the case may be, as the Top Level Tier 1 and fill in the required details");?></p>
                                         <p><?php echo xlt("For detailed instructions close the 'Enter Details' pop-up and click on the Help icon on the main form. ");?><i class="fa fa-question-circle" aria-hidden="true"></i></p>
                                     </div>
                                 </div>
@@ -586,7 +585,7 @@ function proc_type_changed() {
                                     <div id="specimen_info" class="collapse">
                                         <a href="#specimen_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p><?php echo xlt("Enter the specimen type if applicable.");?></p>
-                                        <p><?php echo xlt("This code is optional, but is a good practise to do so.");?></p>
+                                        <p><?php echo xlt("This code is optional, but is a good practice to do so.");?></p>
                                     </div>
                                 </div>
                             </div>
@@ -658,7 +657,7 @@ function proc_type_changed() {
                                     <div id="units_info" class="collapse">
                                         <a href="#units_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p><?php echo xlt("Enter the default units for this test.");?></p>
-                                        <p><?php echo xlt("This code is optional, but is a good practise.");?></p>
+                                        <p><?php echo xlt("This code is optional, but is a good practice.");?></p>
                                     </div>
                                 </div>
                             </div>

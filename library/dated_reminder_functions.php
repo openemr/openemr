@@ -400,12 +400,12 @@ function logRemindersArray()
 // ----- HANDLE DATE RANGE FILTERS
     if (isset($_GET['sd']) and $_GET['sd'] != '') {
         $where = ($where == '' ? 'dr.dr_message_sent_date >= ?' : $where . ' AND dr.dr_message_sent_date >= ?');
-        $input[] = $_GET['sd'] . ' 00:00:00';
+        $input[] = DateToYYYYMMDD($_GET['sd']) . ' 00:00:00';
     }
 
     if (isset($_GET['ed']) and $_GET['ed'] != '') {
         $where = ($where == '' ? 'dr.dr_message_sent_date <= ?' : $where . ' AND dr.dr_message_sent_date <= ?');
-        $input[] = $_GET['ed'] . ' 23:59:59';
+        $input[] = DateToYYYYMMDD($_GET['ed']) . ' 23:59:59';
     }
 
 //------------------------------------------

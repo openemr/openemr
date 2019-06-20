@@ -1053,7 +1053,7 @@ if ($pass_sens_squad &&
                     "&pid=" . attr_url($pid) .
                     "' class='css_button_small' title='" . xla('Delete this form') . "' onclick='top.restoreSession()'><span>" . xlt('Delete') . "</span></a>";
             } else {
-                ?><a href='javascript:;' class='css_button_small' style='color:gray'><span><?php echo xlt('Delete'); ?></span></a><?php
+                // do not show delete button for main encounter here since it is displayed at top
             }
         }
         echo "</div>\n"; // Added as bug fix.
