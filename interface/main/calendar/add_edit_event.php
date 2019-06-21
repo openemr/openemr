@@ -1719,11 +1719,13 @@ if ($GLOBALS['select_multi_providers']) {
         $defaultProvider = $_SESSION['authUserID'];
       // or, if we have chosen a provider in the calendar, default to them
       // choose the first one if multiple have been selected
-        if (count($_SESSION['pc_username']) >= 1) {
-            // get the numeric ID of the first provider in the array
-            $pc_username = $_SESSION['pc_username'];
-            $firstProvider = sqlFetchArray(sqlStatement("select id from users where username=?", array($pc_username[0])));
-            $defaultProvider = $firstProvider['id'];
+        if (is_array($_SESSION['pc_username'])) {
+            if (count($_SESSION['pc_username']) >= 1) {
+                // get the numeric ID of the first provider in the array
+                $pc_username = $_SESSION['pc_username'];
+                $firstProvider = sqlFetchArray(sqlStatement("select id from users where username=?", array($pc_username[0])));
+                $defaultProvider = $firstProvider['id'];
+            }
         }
 
       // if we clicked on a provider's schedule to add the event, use THAT.

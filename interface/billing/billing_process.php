@@ -168,7 +168,9 @@ function process_form($ar)
     if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file']) || isset($ar['bn_process_hcfa_form'])
         || isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04']) || isset($ar['bn_ub04_x12'])) {
         if ($GLOBALS['billing_log_option'] == 1) {
-            $hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log");
+            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log")) {
+                $hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log");
+            }
             if ($cryptoGen->cryptCheckStandard($hlog)) {
                 $hlog = $cryptoGen->decryptStandard($hlog, null, 'database');
             }
