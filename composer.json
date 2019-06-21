@@ -31,7 +31,6 @@
         "symfony/event-dispatcher" : "3.4.27",
         "symfony/http-foundation" : "3.4.27",
         "symfony/yaml" : "3.4.27",
-        "twig/twig" : "2.7.4",
         "vlucas/phpdotenv" : "3.3.3",
         "yubico/u2flib-server" : "1.0.2",
         "zendframework/zend-db" : "2.10.0",
