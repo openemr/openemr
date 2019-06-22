@@ -18,9 +18,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
 $row = array();
 
@@ -35,18 +35,18 @@ function rbvalue($rbname)
         return "NULL";
     }
 
-    return "'$tmp'";
+    return "$tmp";
 }
 
 function rbinput($name, $value, $desc, $colname)
 {
     global $row;
-    $ret  = "<input type='radio' name='$name' value='$value'";
+    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
     if ($row[$colname] == $value) {
         $ret .= " checked";
     }
 
-    $ret .= " />$desc";
+    $ret .= " />" . text($desc);
     return $ret;
 }
 
@@ -89,7 +89,7 @@ if ($_POST['bn_save']) {
          "vertical_jump_meters, agility_505, sit_and_reach_cm, other " .
          ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?,
          ?, ?, ?, ?, ?, ?, ?, ?)";
-         
+
         $newid = sqlInsert($query, array($_POST['form_height_meters'], $_POST['form_weight_kg'], $_POST['form_skin_folds_9x'], $_POST['form_skin_folds_5x'], $_POST['form_pct_body_fat'], rbvalue('form_method_body_fat'),
         $_POST['form_pulse'], $_POST['form_bps'], $_POST['form_bpd'], $_POST['form_beep_level'], $_POST['form_beep_shuttles'], $_POST['form_beep_vo2_max'], $_POST['form_vertical_jump_meters'],
         $_POST['form_agility_505'], $_POST['form_sit_and_reach_cm'], $_POST['form_other']));
@@ -113,7 +113,7 @@ if ($formid) {
 </head>
 
 <body class="body_top">
-<form method="post" action="<?php echo $rootdir ?>/forms/sports_fitness/new.php?id=<?php echo $formid ?>"
+<form method="post" action="<?php echo $rootdir ?>/forms/sports_fitness/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
 
 <center>
@@ -136,7 +136,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_height_meters' size='6'
        title='Height in meters'
-       value='<?php echo addslashes($row['height_meters']) ?>' /> &nbsp;
+       value='<?php echo attr($row['height_meters']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       Weight (kg):
@@ -144,7 +144,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_weight_kg' size='6'
        title='Weight in kilograms'
-       value='<?php echo addslashes($row['weight_kg']) ?>' /> &nbsp;
+       value='<?php echo attr($row['weight_kg']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       &nbsp;
@@ -160,7 +160,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_pulse' size='6'
        title='Resting pulse rate per minute'
-       value='<?php echo addslashes($row['pulse']) ?>' /> &nbsp;
+       value='<?php echo attr($row['pulse']) ?>' /> &nbsp;
      </td>
      <td nowrap>
       Systolic BP:
@@ -168,7 +168,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_bps' size='6'
        title='mm Hg'
-       value='<?php echo addslashes($row['bps']) ?>' /> &nbsp;
+       value='<?php echo attr($row['bps']) ?>' /> &nbsp;
      </td>
      <td nowrap>
       Dyastolic BP:
@@ -176,7 +176,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_bpd' size='6'
        title='mm Hg'
-       value='<?php echo addslashes($row['bps']) ?>' /> &nbsp;
+       value='<?php echo attr($row['bps']) ?>' /> &nbsp;
      </td>
     </tr>
    </table>
@@ -194,7 +194,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_skin_folds_9x' size='6'
        title='Total of 9 skin fold readings in cm'
-       value='<?php echo addslashes($row['skin_folds_9x']) ?>' /> &nbsp;
+       value='<?php echo attr($row['skin_folds_9x']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       Skin Folds 5x:
@@ -202,7 +202,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_skin_folds_5x' size='6'
        title='Total of 5 skin fold readings in cm'
-       value='<?php echo addslashes($row['skin_folds_5x']) ?>' /> &nbsp;
+       value='<?php echo attr($row['skin_folds_5x']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       % Body Fat:
@@ -210,7 +210,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_pct_body_fat' size='6'
        title='Percent body fat'
-       value='<?php echo addslashes($row['pct_body_fat']) ?>' /> &nbsp;
+       value='<?php echo attr($row['pct_body_fat']) ?>' /> &nbsp;
      </td>
     </tr>
     <tr>
@@ -236,7 +236,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_beep_level' size='6'
        title='Level Reached'
-       value='<?php echo addslashes($row['beep_level']) ?>' /> &nbsp;
+       value='<?php echo attr($row['beep_level']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       Shuttles:
@@ -244,7 +244,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_beep_shuttles' size='6'
        title='Number of shuttles at this level'
-       value='<?php echo addslashes($row['beep_shuttles']) ?>' /> &nbsp;
+       value='<?php echo attr($row['beep_shuttles']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       VO2 Max:
@@ -252,7 +252,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_beep_vo2_max' size='6'
        title='ml/kg/min'
-       value='<?php echo addslashes($row['beep_vo2_max']) ?>' /> &nbsp;
+       value='<?php echo attr($row['beep_vo2_max']) ?>' /> &nbsp;
      </td>
     </tr>
    </table>
@@ -270,7 +270,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_vertical_jump_meters' size='6'
        title='Vertical Jump Test in Meters'
-       value='<?php echo addslashes($row['vertical_jump_meters']) ?>' /> &nbsp;
+       value='<?php echo attr($row['vertical_jump_meters']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       505 Agility:
@@ -278,7 +278,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_agility_505' size='6'
        title='505 Agility Test in Seconds'
-       value='<?php echo addslashes($row['agility_505']) ?>' /> &nbsp;
+       value='<?php echo attr($row['agility_505']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       Sit &amp; Reach:
@@ -286,7 +286,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_sit_and_reach_cm' size='6'
        title='Sit and Reach Test in cm + or - ve'
-       value='<?php echo addslashes($row['sit_and_reach_cm']) ?>' /> &nbsp;
+       value='<?php echo attr($row['sit_and_reach_cm']) ?>' /> &nbsp;
      </td>
     </tr>
    </table>
@@ -296,7 +296,7 @@ if ($formid) {
  <tr>
   <td nowrap>Still More</td>
   <td nowrap>
-   <textarea name='form_other' rows='8' style='width:100%'><?php echo $row['other'] ?></textarea>
+   <textarea name='form_other' rows='8' style='width:100%'><?php echo text($row['other']); ?></textarea>
   </td>
  </tr>
 

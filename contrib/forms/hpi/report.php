@@ -5,8 +5,8 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 //------------Forms generated from formsWiz
-include_once("../../globals.php");
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once("../../globals.php");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 function hpi_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
@@ -26,7 +26,7 @@ function hpi_report($pid, $encounter, $cols, $id)
             }
 
             $key=ucwords(str_replace("_", " ", $key));
-            print "<td width='${width}%' valign='top'><span class=bold>$key: </span><span class=text>$value</span></td>";
+            print "<td width='" . attr($width) . "%' valign='top'><span class=bold>" . text($key . ": </span><span class=text>" . text($value) . "</span></td>";
             $count++;
             if ($count == $cols) {
                 $count = 0;

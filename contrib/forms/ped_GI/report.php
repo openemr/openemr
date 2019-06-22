@@ -1,8 +1,8 @@
 <?php
 //
 
-include_once("../../globals.php");
-include_once($GLOBALS["srcdir"]."/api.inc");
+require_once("../../globals.php");
+require_once($GLOBALS["srcdir"]."/api.inc");
 
 function ped_GI_report($pid, $encounter, $cols, $id)
 {
@@ -18,11 +18,11 @@ function ped_GI_report($pid, $encounter, $cols, $id)
             if ($value == "on") {
                 $value = "yes";
             }
-            
+
             $key=ucwords(str_replace("_", " ", $key));
 
-            print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";
-            
+            print "<td><span class=bold>" . text($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+
             $count++;
             if ($count == $cols) {
                 $count = 0;

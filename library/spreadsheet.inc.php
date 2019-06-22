@@ -41,7 +41,7 @@ function form2real($fldval)
 // encode a plain string for html display.
 function real2form($fldval)
 {
-    return htmlspecialchars($fldval, ENT_QUOTES);
+    return attr($fldval);
 }
 
 if (empty($spreadsheet_title)) {
@@ -608,7 +608,7 @@ foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
 </head>
 
 <body class="body_top">
-<form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=$formid&thisenc=$thisenc";
+<form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=" . attr_url($formid) . "&thisenc=" . attr_url($thisenc);
 if ($popup) {
     echo '&popup=1';
 } ?>"
@@ -618,38 +618,38 @@ if ($popup) {
 <table border='0' cellpadding='5' cellspacing='0' style='margin:8pt'>
  <tr bgcolor='#ddddff'>
   <td>
-    <?php xl('Start Date', 'e'); ?>:
+    <?php echo xlt('Start Date'); ?>:
    <input type='text' class='datepicker' name='form_start_date' id='form_start_date'
-    size='10' value='<?php echo $start_date; ?>'
+    size='10' value='<?php echo attr($start_date); ?>'
     title='yyyy-mm-dd'
     <?php echo ($formid && $start_date) ? 'disabled ' : ''; ?>/>
    &nbsp;
-    <?php xl('Template:', 'e') ?>
+    <?php echo xlt('Template:'); ?>
    <select name='form_template' onchange='newTemplate(this)'<?php echo ($formid) ? ' disabled' : ''; ?>>
     <option value='0'>-- Select --</option>
 <?php
 while ($trow = sqlFetchArray($tres)) {
-    echo "    <option value='" . $trow['id'] . "'";
+    echo "    <option value='" . attr($trow['id']) . "'";
     if ($tempid && $tempid == $trow['id'] ||
     $formid && $template_name == $trow['value']) {
         echo " selected";
     }
 
-    echo ">" . $trow['value'] . "</option>\n";
+    echo ">" . text($trow['value']) . "</option>\n";
 }
 ?>
    </select>
    &nbsp;
    <input type='checkbox' name='form_edit_template'
     onclick='editChanged()'
-    title='<?php xl("If you want to change data types, or add rows or columns", "e") ?>' />
-    <?php xl('Edit Structure', 'e') ?>
+    title='<?php echo xla("If you want to change data types, or add rows or columns"); ?>' />
+    <?php echo xlt('Edit Structure'); ?>
 <?php if ($formid) { ?>
    &nbsp;
    <input type='checkbox' name='form_completed'
-    title='<?php xl("If all data for all columns are complete for this form", "e") ?>'
+    title='<?php echo xla("If all data for all columns are complete for this form"); ?>'
     <?php echo ($form_completed) ? 'checked ' : ''; ?>/>
-    <?php xl('Completed', 'e') ?>
+    <?php echo xlt('Completed'); ?>
 <?php } ?>
   </td>
  </tr>
@@ -680,7 +680,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
 
             if ($drow && $drow['rownbr'] == $i && $drow['colnbr'] == $j) {
                 $celltype = $drow['datatype'];
-                $cellvalue = real2form($drow['value']);
+                $cellvalue = $drow['value'];
                 $cellstatic = addslashes($drow['value']);
             }
         }
@@ -703,12 +703,12 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         echo "<select id='sel_${i}_${j}' class='seltype' style='display:none' " .
         "onchange='newType($i,$j)'>";
         foreach ($celltypes as $key => $value) {
-            echo "<option value='$key'";
+            echo "<option value='" . attr($key) . "'";
             if ($key == $celltype) {
                 echo " selected";
             }
 
-            echo ">$value</option>";
+            echo ">" . text($value) . "</option>";
         }
 
         echo "</select>";
@@ -717,7 +717,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
 
         echo "<span id='vis_${i}_${j}'>"; // new //
 
-        echo "<input type='hidden' name='cell[$i][$j]' value='$celltype$cellvalue' />";
+        echo "<input type='hidden' name='cell[$i][$j]' value='" . attr($celltype) . attr($cellvalue) . "' />";
         if ($celltype == '1') {
             // So we don't have to write a PHP version of genStatic():
             echo "<script language='JavaScript'>document.write(genStatic('$cellstatic'));</script>";
@@ -730,12 +730,12 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
             echo " />";
         } else if ($celltype == '3') {
             echo "<input type='text' class='intext' onchange='textChange(this,$i,$j)'";
-            echo " value='$cellvalue'";
+            echo " value='" . attr($cellvalue) . "'";
             echo " size='12' />";
         } else if ($celltype == '4') {
             echo "<textarea rows='3' cols='25' wrap='virtual' class='intext' " .
             "onchange='longChange(this,$i,$j)'>";
-            echo $cellvalue;
+            echo text($cellvalue);
             echo "</textarea>";
         }
 
@@ -755,7 +755,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
 &nbsp;
 <input type='submit' name='bn_save_template' value='Save as Template:' />
 &nbsp;
-<input type='text' name='form_new_template_name' value='<?php echo $template_name ?>' />
+<input type='text' name='form_new_template_name' value='<?php echo attr($template_name); ?>' />
 &nbsp;
 <input type='submit' name='bn_delete_template' value='Delete Template' />
 <?php } ?>
@@ -768,7 +768,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
 <script language='JavaScript'>
 <?php
 if ($alertmsg) {
-    echo " alert('$alertmsg');\n";
+    echo " alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
 </script>

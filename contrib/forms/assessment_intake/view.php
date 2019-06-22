@@ -32,7 +32,7 @@ require_once("$srcdir/api.inc");
 $obj = formFetch("form_assessment_intake", $_GET["id"]);
 
 ?>
-<form method=post action="<?php echo $rootdir?>/forms/assessment_intake/save.php?mode=update&id=<?php echo attr($_GET["id"]);?>" name="my_form">
+<form method=post action="<?php echo $rootdir?>/forms/assessment_intake/save.php?mode=update&id=<?php echo attr_url($_GET["id"]);?>" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <span class="title"><center><b>Assessment and Intake</b></center></span><br><br>
