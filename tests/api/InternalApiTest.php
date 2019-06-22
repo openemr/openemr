@@ -28,7 +28,7 @@ require_once(dirname(__FILE__) . "/../../interface/globals.php");
                 url: '../../apis/api/facility',
                 dataType: 'json',
                 headers: {
-                    'apicsrftoken': <?php echo js_escape($_SESSION['api_csrf_token']); ?>
+                    'apicsrftoken': <?php echo js_escape(collectCsrfToken('api')); ?>
                 },
                 success: function(thedata){
                     let thedataJSON = JSON.stringify(thedata);
@@ -44,7 +44,7 @@ require_once(dirname(__FILE__) . "/../../interface/globals.php");
                 credentials: 'same-origin',
                 method: 'GET',
                 headers: new Headers({
-                    'apicsrftoken': <?php echo js_escape($_SESSION['api_csrf_token']); ?>
+                    'apicsrftoken': <?php echo js_escape(collectCsrfToken('api')); ?>
                 })
             })
             .then(response => response.json())

@@ -365,10 +365,10 @@ if (isset($_POST['new_login_session_management'])) {
     }
     session_regenerate_id(false);
 }
-// Create the csrf_token
-$_SESSION['csrf_token'] = createCsrfToken();
-// Also create a api_csrf_token that is only used for the api
-$_SESSION['api_csrf_token'] = createCsrfToken();
+// Create the csrf_private_key
+//  Note this key always remains private and never leaves server session. It is used to create
+//  the csrf tokens.
+$_SESSION['csrf_private_key'] = createCsrfKey();
 
 $_SESSION["encounter"] = '';
 
