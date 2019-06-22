@@ -270,7 +270,8 @@ if ($formid) {
      <td colspan='2' nowrap>
         <?php echo rbinput('activity', '7', 'Other:', 'simechanism') ?>
       <input type='text' name='activity_other' size='10'
-       title='Describe attr($row['simech_other']) ?>' />
+             title='Describe other'
+             value='<?php echo attr($row['simech_other']); ?>' />
      </td>
     </tr>
    </table>

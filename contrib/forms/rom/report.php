@@ -260,7 +260,7 @@ function rom_report($pid, $encounter, $cols, $id)
                 <p align='center'><?php echo text($data['r2_1_rt_active']); ?>&nbsp;</p>
             </td>
             <td>
-                <p align='center'><?php echo text(['r2_1_rt_passive']); ?>&nbsp;</p>
+                <p align='center'><?php echo text($data['r2_1_rt_passive']); ?>&nbsp;</p>
             </td>
             <td>
                 <p align='center'><?php echo text($data['r2_1_lf_active']); ?>&nbsp;</p>
