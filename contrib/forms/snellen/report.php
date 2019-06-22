@@ -24,14 +24,14 @@ function snellen_report($pid, $encounter, $cols, $id)
         </tr>
         <tr>
             <td>(L) Eye</td>
-            <td>20/<?php echo $data['left_1'] ? $data['left_1'] : "__"; ?></td>
-            <td>20/<?php echo $data['left_2'] ? $data['left_2'] : "__"; ?></td>
-        </tr>   
+            <td>20/<?php echo $data['left_1'] ? text($data['left_1']) : "__"; ?></td>
+            <td>20/<?php echo $data['left_2'] ? text($data['left_2']) : "__"; ?></td>
+        </tr>
         <tr>
             <td>(R) Eye</td>
-            <td>20/<?php echo $data['right_1'] ? $data['right_1'] : "__"; ?></td>
-            <td>20/<?php echo $data['right_2'] ? $data['right_2'] : "__"; ?></td>
-        </tr>   
+            <td>20/<?php echo $data['right_1'] ? text($data['right_1']) : "__"; ?></td>
+            <td>20/<?php echo $data['right_2'] ? text($data['right_2']) : "__"; ?></td>
+        </tr>
 
     </table>
 
@@ -42,7 +42,7 @@ function snellen_report($pid, $encounter, $cols, $id)
             <td><b>NOTES</b></td>
         </tr>
         <tr class='text'>
-            <td><p align='left'><?php echo $data['notes']?>&nbsp;</p></td>
+            <td><p align='left'><?php echo text($data['notes']); ?>&nbsp;</p></td>
         </tr>
     </table>
         <?php } ?>

@@ -36,7 +36,7 @@ a {
 </style>
 {/literal}
 </head>
-<body bgcolor="{$STYLE.BGCOLOR2}">
+<body bgcolor="{$STYLE.BGCOLOR2|attr}">
 <p><span class="title">Range of Motion</span></p>
 <form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/rom/save.php"
  onsubmit="return top.restoreSession()">
@@ -76,10 +76,10 @@ a {
 				<p align='center'><b>0-50°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_1_active' value='{$data->get_r1_1_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_1_active' value='{$data->get_r1_1_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_1_passive' value='{$data->get_r1_1_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_1_passive' value='{$data->get_r1_1_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -91,10 +91,10 @@ a {
 				<p align='center'><b>0-60°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_2_active' value='{$data->get_r1_2_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_2_active' value='{$data->get_r1_2_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_2_passive' value='{$data->get_r1_2_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_2_passive' value='{$data->get_r1_2_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -106,10 +106,10 @@ a {
 				<p align='center'><b>0-45°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_3_active' value='{$data->get_r1_3_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_3_active' value='{$data->get_r1_3_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_3_passive' value='{$data->get_r1_3_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_3_passive' value='{$data->get_r1_3_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -121,10 +121,10 @@ a {
 				<p align='center'><b>0-45°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_4_active' value='{$data->get_r1_4_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_4_active' value='{$data->get_r1_4_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_4_passive' value='{$data->get_r1_4_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_4_passive' value='{$data->get_r1_4_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -136,10 +136,10 @@ a {
 				<p align='center'><b>0-80°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_5_active' value='{$data->get_r1_5_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_5_active' value='{$data->get_r1_5_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_5_passive' value='{$data->get_r1_5_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_5_passive' value='{$data->get_r1_5_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -151,10 +151,10 @@ a {
 				<p align='center'><b>0-80°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_6_active' value='{$data->get_r1_6_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_6_active' value='{$data->get_r1_6_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_6_passive' value='{$data->get_r1_6_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_6_passive' value='{$data->get_r1_6_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -186,10 +186,10 @@ a {
 				<p align='center'><b>0-90°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_7_active' value='{$data->get_r1_7_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_7_active' value='{$data->get_r1_7_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_7_passive' value='{$data->get_r1_7_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_7_passive' value='{$data->get_r1_7_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -201,10 +201,10 @@ a {
 				<p align='center'><b>0-25°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_8_active' value='{$data->get_r1_8_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_8_active' value='{$data->get_r1_8_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_8_passive' value='{$data->get_r1_8_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_8_passive' value='{$data->get_r1_8_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -216,10 +216,10 @@ a {
 				<p align='center'><b>0-25°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_9_active' value='{$data->get_r1_9_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_9_active' value='{$data->get_r1_9_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_9_passive' value='{$data->get_r1_9_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_9_passive' value='{$data->get_r1_9_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -231,10 +231,10 @@ a {
 				<p align='center'><b>0-25°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_10_active' value='{$data->get_r1_10_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_10_active' value='{$data->get_r1_10_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_10_passive' value='{$data->get_r1_10_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_10_passive' value='{$data->get_r1_10_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -246,10 +246,10 @@ a {
 				<p align='center'><b>0-30°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_11_active' value='{$data->get_r1_11_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_11_active' value='{$data->get_r1_11_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_11_passive' value='{$data->get_r1_11_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_11_passive' value='{$data->get_r1_11_passive()|attr}'></p>
 			</td>
 		</tr>
 
@@ -261,10 +261,10 @@ a {
 				<p align='center'><b>0-30°</b></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_12_active' value='{$data->get_r1_12_active()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_12_active' value='{$data->get_r1_12_active()|attr}'></p>
 			</td>
 			<td>
-				<p align='center'><input type='text' size='5px' name='r1_12_passive' value='{$data->get_r1_12_passive()}'></p>
+				<p align='center'><input type='text' size='5px' name='r1_12_passive' value='{$data->get_r1_12_passive()|attr}'></p>
 			</td>
 		</tr>
 </tbody></table>
@@ -284,16 +284,16 @@ a {
 				<p align='center'><b>0-90°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_1_rt_active' value='{$data->get_r2_1_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_1_rt_active' value='{$data->get_r2_1_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_1_rt_passive' value='{$data->get_r2_1_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_1_rt_passive' value='{$data->get_r2_1_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_1_lf_active' value='{$data->get_r2_1_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_1_lf_active' value='{$data->get_r2_1_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_1_lf_passive' value='{$data->get_r2_1_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_1_lf_passive' value='{$data->get_r2_1_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -304,16 +304,16 @@ a {
 				<p align='center'><b>0-90°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_2_rt_active' value='{$data->get_r2_2_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_2_rt_active' value='{$data->get_r2_2_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_2_rt_passive' value='{$data->get_r2_2_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_2_rt_passive' value='{$data->get_r2_2_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_2_lf_active' value='{$data->get_r2_2_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_2_lf_active' value='{$data->get_r2_2_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_2_lf_passive' value='{$data->get_r2_2_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_2_lf_passive' value='{$data->get_r2_2_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 
@@ -351,16 +351,16 @@ a {
 				<p align='center'><b>0-150°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_3_rt_active' value='{$data->get_r2_3_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_3_rt_active' value='{$data->get_r2_3_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_3_rt_passive' value='{$data->get_r2_3_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_3_rt_passive' value='{$data->get_r2_3_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_3_lf_active' value='{$data->get_r2_3_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_3_lf_active' value='{$data->get_r2_3_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_3_lf_passive' value='{$data->get_r2_3_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_3_lf_passive' value='{$data->get_r2_3_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -371,16 +371,16 @@ a {
 				<p align='center'><b>0-150°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_4_rt_active' value='{$data->get_r2_4_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_4_rt_active' value='{$data->get_r2_4_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_4_rt_passive' value='{$data->get_r2_4_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_4_rt_passive' value='{$data->get_r2_4_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_4_lf_active' value='{$data->get_r2_4_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_4_lf_active' value='{$data->get_r2_4_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_4_lf_passive' value='{$data->get_r2_4_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_4_lf_passive' value='{$data->get_r2_4_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -391,16 +391,16 @@ a {
 				<p align='center'><b>0-80°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_5_rt_active' value='{$data->get_r2_5_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_5_rt_active' value='{$data->get_r2_5_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_5_rt_passive' value='{$data->get_r2_5_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_5_rt_passive' value='{$data->get_r2_5_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_5_lf_active' value='{$data->get_r2_5_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_5_lf_active' value='{$data->get_r2_5_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_5_lf_passive' value='{$data->get_r2_5_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_5_lf_passive' value='{$data->get_r2_5_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -411,16 +411,16 @@ a {
 				<p align='center'><b>0-90°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_6_rt_active' value='{$data->get_r2_6_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_6_rt_active' value='{$data->get_r2_6_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_6_rt_passive' value='{$data->get_r2_6_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_6_rt_passive' value='{$data->get_r2_6_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_6_lf_active' value='{$data->get_r2_6_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_6_lf_active' value='{$data->get_r2_6_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r2_6_lf_passive' value='{$data->get_r2_6_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r2_6_lf_passive' value='{$data->get_r2_6_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 </tbody></table>
@@ -467,16 +467,16 @@ a {
 				<p align='center'><b>0-150°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_1_rt_active' value='{$data->get_r3_1_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_1_rt_active' value='{$data->get_r3_1_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_1_rt_passive' value='{$data->get_r3_1_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_1_rt_passive' value='{$data->get_r3_1_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_1_lf_active' value='{$data->get_r3_1_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_1_lf_active' value='{$data->get_r3_1_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_1_lf_passive' value='{$data->get_r3_1_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_1_lf_passive' value='{$data->get_r3_1_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -487,16 +487,16 @@ a {
 				<p align='center'><b>0°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_2_rt_active' value='{$data->get_r3_2_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_2_rt_active' value='{$data->get_r3_2_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_2_rt_passive' value='{$data->get_r3_2_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_2_rt_passive' value='{$data->get_r3_2_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_2_lf_active' value='{$data->get_r3_2_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_2_lf_active' value='{$data->get_r3_2_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_2_lf_passive' value='{$data->get_r3_2_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_2_lf_passive' value='{$data->get_r3_2_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -507,16 +507,16 @@ a {
 				<p align='center'><b>0-80°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_3_rt_active' value='{$data->get_r3_3_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_3_rt_active' value='{$data->get_r3_3_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_3_rt_passive' value='{$data->get_r3_3_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_3_rt_passive' value='{$data->get_r3_3_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_3_lf_active' value='{$data->get_r3_3_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_3_lf_active' value='{$data->get_r3_3_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_3_lf_passive' value='{$data->get_r3_3_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_3_lf_passive' value='{$data->get_r3_3_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -527,16 +527,16 @@ a {
 				<p align='center'><b>0-80°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_4_rt_active' value='{$data->get_r3_4_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_4_rt_active' value='{$data->get_r3_4_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_4_rt_passive' value='{$data->get_r3_4_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_4_rt_passive' value='{$data->get_r3_4_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_4_lf_active' value='{$data->get_r3_4_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_4_lf_active' value='{$data->get_r3_4_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_4_lf_passive' value='{$data->get_r3_4_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_4_lf_passive' value='{$data->get_r3_4_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 
@@ -574,16 +574,16 @@ a {
 				<p align='center'><b>0-60°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_5_rt_active' value='{$data->get_r3_5_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_5_rt_active' value='{$data->get_r3_5_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_5_rt_passive' value='{$data->get_r3_5_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_5_rt_passive' value='{$data->get_r3_5_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_5_lf_active' value='{$data->get_r3_5_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_5_lf_active' value='{$data->get_r3_5_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_5_lf_passive' value='{$data->get_r3_5_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_5_lf_passive' value='{$data->get_r3_5_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -594,16 +594,16 @@ a {
 				<p align='center'><b>0-60°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_6_rt_active' value='{$data->get_r3_6_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_6_rt_active' value='{$data->get_r3_6_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_6_rt_passive' value='{$data->get_r3_6_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_6_rt_passive' value='{$data->get_r3_6_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_6_lf_active' value='{$data->get_r3_6_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_6_lf_active' value='{$data->get_r3_6_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_6_lf_passive' value='{$data->get_r3_6_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_6_lf_passive' value='{$data->get_r3_6_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -614,16 +614,16 @@ a {
 				<p align='center'><b>0-20°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_7_rt_active' value='{$data->get_r3_7_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_7_rt_active' value='{$data->get_r3_7_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_7_rt_passive' value='{$data->get_r3_7_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_7_rt_passive' value='{$data->get_r3_7_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_7_lf_active' value='{$data->get_r3_7_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_7_lf_active' value='{$data->get_r3_7_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_7_lf_passive' value='{$data->get_r3_7_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_7_lf_passive' value='{$data->get_r3_7_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -634,16 +634,16 @@ a {
 				<p align='center'><b>0-30°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_8_rt_active' value='{$data->get_r3_8_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_8_rt_active' value='{$data->get_r3_8_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_8_rt_passive' value='{$data->get_r3_8_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_8_rt_passive' value='{$data->get_r3_8_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_8_lf_active' value='{$data->get_r3_8_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_8_lf_active' value='{$data->get_r3_8_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_8_lf_passive' value='{$data->get_r3_8_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_8_lf_passive' value='{$data->get_r3_8_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 
@@ -681,16 +681,16 @@ a {
 				<p align='center'><b>0-40°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_9_rt_active' value='{$data->get_r3_9_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_9_rt_active' value='{$data->get_r3_9_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_9_rt_passive' value='{$data->get_r3_9_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_9_rt_passive' value='{$data->get_r3_9_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_9_lf_active' value='{$data->get_r3_9_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_9_lf_active' value='{$data->get_r3_9_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_9_lf_passive' value='{$data->get_r3_9_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_9_lf_passive' value='{$data->get_r3_9_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -701,16 +701,16 @@ a {
 				<p align='center'><b>0-20°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_10_rt_active' value='{$data->get_r3_10_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_10_rt_active' value='{$data->get_r3_10_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_10_rt_passive' value='{$data->get_r3_10_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_10_rt_passive' value='{$data->get_r3_10_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_10_lf_active' value='{$data->get_r3_10_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_10_lf_active' value='{$data->get_r3_10_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_10_lf_passive' value='{$data->get_r3_10_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_10_lf_passive' value='{$data->get_r3_10_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -721,16 +721,16 @@ a {
 				<p align='center'><b>0-100°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_11_rt_active' value='{$data->get_r3_11_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_11_rt_active' value='{$data->get_r3_11_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_11_rt_passive' value='{$data->get_r3_11_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_11_rt_passive' value='{$data->get_r3_11_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_11_lf_active' value='{$data->get_r3_11_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_11_lf_active' value='{$data->get_r3_11_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_11_lf_passive' value='{$data->get_r3_11_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_11_lf_passive' value='{$data->get_r3_11_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -741,16 +741,16 @@ a {
 				<p align='center'><b>0-30°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_12_rt_active' value='{$data->get_r3_12_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_12_rt_active' value='{$data->get_r3_12_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_12_rt_passive' value='{$data->get_r3_12_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_12_rt_passive' value='{$data->get_r3_12_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_12_lf_active' value='{$data->get_r3_12_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_12_lf_active' value='{$data->get_r3_12_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_12_lf_passive' value='{$data->get_r3_12_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_12_lf_passive' value='{$data->get_r3_12_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -761,16 +761,16 @@ a {
 				<p align='center'><b>0-40°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_13_rt_active' value='{$data->get_r3_13_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_13_rt_active' value='{$data->get_r3_13_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_13_rt_passive' value='{$data->get_r3_13_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_13_rt_passive' value='{$data->get_r3_13_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_13_lf_active' value='{$data->get_r3_13_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_13_lf_active' value='{$data->get_r3_13_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_13_lf_passive' value='{$data->get_r3_13_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_13_lf_passive' value='{$data->get_r3_13_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -781,16 +781,16 @@ a {
 				<p align='center'><b>0-50°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_14_rt_active' value='{$data->get_r3_14_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_14_rt_active' value='{$data->get_r3_14_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_14_rt_passive' value='{$data->get_r3_14_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_14_rt_passive' value='{$data->get_r3_14_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_14_lf_active' value='{$data->get_r3_14_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_14_lf_active' value='{$data->get_r3_14_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_14_lf_passive' value='{$data->get_r3_14_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_14_lf_passive' value='{$data->get_r3_14_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 
@@ -828,16 +828,16 @@ a {
 				<p align='center'><b>0-150°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_15_rt_active' value='{$data->get_r3_15_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_15_rt_active' value='{$data->get_r3_15_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_15_rt_passive' value='{$data->get_r3_15_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_15_rt_passive' value='{$data->get_r3_15_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_15_lf_active' value='{$data->get_r3_15_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_15_lf_active' value='{$data->get_r3_15_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_15_lf_passive' value='{$data->get_r3_15_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_15_lf_passive' value='{$data->get_r3_15_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -848,16 +848,16 @@ a {
 				<p align='center'><b>0°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_16_rt_active' value='{$data->get_r3_16_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_16_rt_active' value='{$data->get_r3_16_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_16_rt_passive' value='{$data->get_r3_16_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_16_rt_passive' value='{$data->get_r3_16_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_16_lf_active' value='{$data->get_r3_16_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_16_lf_active' value='{$data->get_r3_16_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_16_lf_passive' value='{$data->get_r3_16_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_16_lf_passive' value='{$data->get_r3_16_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 
@@ -895,16 +895,16 @@ a {
 				<p align='center'><b>0-20°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_17_rt_active' value='{$data->get_r3_17_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_17_rt_active' value='{$data->get_r3_17_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_17_rt_passive' value='{$data->get_r3_17_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_17_rt_passive' value='{$data->get_r3_17_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_17_lf_active' value='{$data->get_r3_17_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_17_lf_active' value='{$data->get_r3_17_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_17_lf_passive' value='{$data->get_r3_17_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_17_lf_passive' value='{$data->get_r3_17_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -915,16 +915,16 @@ a {
 				<p align='center'><b>0-40°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_18_rt_active' value='{$data->get_r3_18_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_18_rt_active' value='{$data->get_r3_18_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_18_rt_passive' value='{$data->get_r3_18_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_18_rt_passive' value='{$data->get_r3_18_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_18_lf_active' value='{$data->get_r3_18_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_18_lf_active' value='{$data->get_r3_18_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_18_lf_passive' value='{$data->get_r3_18_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_18_lf_passive' value='{$data->get_r3_18_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -935,16 +935,16 @@ a {
 				<p align='center'><b>0-30°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_19_rt_active' value='{$data->get_r3_19_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_19_rt_active' value='{$data->get_r3_19_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_19_rt_passive' value='{$data->get_r3_19_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_19_rt_passive' value='{$data->get_r3_19_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_19_lf_active' value='{$data->get_r3_19_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_19_lf_active' value='{$data->get_r3_19_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_19_lf_passive' value='{$data->get_r3_19_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_19_lf_passive' value='{$data->get_r3_19_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -955,16 +955,16 @@ a {
 				<p align='center'><b>0-20°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_20_rt_active' value='{$data->get_r3_20_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_20_rt_active' value='{$data->get_r3_20_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_20_rt_passive' value='{$data->get_r3_20_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_20_rt_passive' value='{$data->get_r3_20_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_20_lf_active' value='{$data->get_r3_20_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_20_lf_active' value='{$data->get_r3_20_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r3_20_lf_passive' value='{$data->get_r3_20_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r3_20_lf_passive' value='{$data->get_r3_20_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 </tbody></table>
@@ -1011,16 +1011,16 @@ a {
 				<p align='center'><b>0-90°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_1_rt_active' value='{$data->get_r4_1_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_1_rt_active' value='{$data->get_r4_1_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_1_rt_passive' value='{$data->get_r4_1_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_1_rt_passive' value='{$data->get_r4_1_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_1_lf_active' value='{$data->get_r4_1_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_1_lf_active' value='{$data->get_r4_1_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_1_lf_passive' value='{$data->get_r4_1_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_1_lf_passive' value='{$data->get_r4_1_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -1031,16 +1031,16 @@ a {
 				<p align='center'><b>0-90</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_2_rt_active' value='{$data->get_r4_2_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_2_rt_active' value='{$data->get_r4_2_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_2_rt_passive' value='{$data->get_r4_2_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_2_rt_passive' value='{$data->get_r4_2_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_2_lf_active' value='{$data->get_r4_2_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_2_lf_active' value='{$data->get_r4_2_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_2_lf_passive' value='{$data->get_r4_2_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_2_lf_passive' value='{$data->get_r4_2_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -1051,16 +1051,16 @@ a {
 				<p align='center'><b>0°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_3_rt_active' value='{$data->get_r4_3_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_3_rt_active' value='{$data->get_r4_3_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_3_rt_passive' value='{$data->get_r4_3_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_3_rt_passive' value='{$data->get_r4_3_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_3_lf_active' value='{$data->get_r4_3_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_3_lf_active' value='{$data->get_r4_3_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_3_lf_passive' value='{$data->get_r4_3_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_3_lf_passive' value='{$data->get_r4_3_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -1071,16 +1071,16 @@ a {
 				<p align='center'><b>0-100°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_4_rt_active' value='{$data->get_r4_4_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_4_rt_active' value='{$data->get_r4_4_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_4_rt_passive' value='{$data->get_r4_4_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_4_rt_passive' value='{$data->get_r4_4_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_4_lf_active' value='{$data->get_r4_4_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_4_lf_active' value='{$data->get_r4_4_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_4_lf_passive' value='{$data->get_r4_4_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_4_lf_passive' value='{$data->get_r4_4_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -1091,16 +1091,16 @@ a {
 				<p align='center'><b>0°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_5_rt_active' value='{$data->get_r4_5_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_5_rt_active' value='{$data->get_r4_5_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_5_rt_passive' value='{$data->get_r4_5_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_5_rt_passive' value='{$data->get_r4_5_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_5_lf_active' value='{$data->get_r4_5_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_5_lf_active' value='{$data->get_r4_5_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_5_lf_passive' value='{$data->get_r4_5_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_5_lf_passive' value='{$data->get_r4_5_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -1111,16 +1111,16 @@ a {
 				<p align='center'><b>0-70°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_6_rt_active' value='{$data->get_r4_6_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_6_rt_active' value='{$data->get_r4_6_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_6_rt_passive' value='{$data->get_r4_6_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_6_rt_passive' value='{$data->get_r4_6_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_6_lf_active' value='{$data->get_r4_6_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_6_lf_active' value='{$data->get_r4_6_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_6_lf_passive' value='{$data->get_r4_6_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_6_lf_passive' value='{$data->get_r4_6_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 <tr valign='top'>
@@ -1131,16 +1131,16 @@ a {
 				<p align='center'><b>0°</b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_7_rt_active' value='{$data->get_r4_7_rt_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_7_rt_active' value='{$data->get_r4_7_rt_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_7_rt_passive' value='{$data->get_r4_7_rt_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_7_rt_passive' value='{$data->get_r4_7_rt_passive()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_7_lf_active' value='{$data->get_r4_7_lf_active()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_7_lf_active' value='{$data->get_r4_7_lf_active()|attr}'></b></p>
 			</td>
 			<td>
-				<p align='center'><b><input type='text' size='5px' name='r4_7_lf_passive' value='{$data->get_r4_7_lf_passive()}'></b></p>
+				<p align='center'><b><input type='text' size='5px' name='r4_7_lf_passive' value='{$data->get_r4_7_lf_passive()|attr}'></b></p>
 			</td>
 		</tr>
 </tbody></table>
@@ -1150,7 +1150,7 @@ a {
 			<td><b>NOTES</b></td>
 		</tr>
 		<tr class='text'>
-			<td><textarea cols='80' rows='5' name='notes'>{$data->get_notes}()</textarea></td>
+			<td><textarea cols='80' rows='5' name='notes'>{$data->get_notes()|text}</textarea></td>
 		</tr>
 	</table>
 
@@ -1166,8 +1166,8 @@ a {
 	</tr>
 </table>
 
-<input type="hidden" name="id" value="{$data->get_id()}" />
-<input type="hidden" name="pid" value="{$data->get_pid()}">
+<input type="hidden" name="id" value="{$data->get_id()|attr}" />
+<input type="hidden" name="pid" value="{$data->get_pid()|attr}">
 <input type="hidden" name="process" value="true">
 </form>
 </body>

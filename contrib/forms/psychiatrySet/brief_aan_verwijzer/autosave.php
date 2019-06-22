@@ -7,19 +7,13 @@
 ////////////////////////////////////////////////////////////////////
 
 //local includes
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
-
-// escape the strings
-foreach ($_POST as $k => $var) {
-    $_POST[$k] = add_escape_custom($var);
-  // echo "$var\n";
-}
 
 /////////////////
-// here we check to se if there was an autosave version prior to the real save 
+// here we check to se if there was an autosave version prior to the real save
 $vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_brief_aan_verwijzer
                             WHERE pid = ?
                             AND groupname= ?
@@ -35,7 +29,7 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
     } else {
         $newid = $vectAutosave['id'];
     }
-  
+
     $strSql = "UPDATE form_brief_aan_verwijzer
                 SET pid = ?, groupname=?, user=?, 
                 authorized=?, activity=1, date = NOW(), 
@@ -56,7 +50,7 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
 } else {
     $newid = formSubmit("form_brief_aan_verwijzer", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Psychiatric Brief Letter", $newid, "brief_aan_verwijzer", $pid, $userauthorized);
-    
+
     //echo "Debug :: insert<br>";
 }
 
@@ -69,8 +63,8 @@ $result = sqlQuery("SELECT autosave_datetime FROM form_brief_aan_verwijzer
                             authorized= ? AND activity=1 AND id=?
                             AND autosave_flag=1 
                             ORDER by id DESC limit 1", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $id));
-                            
+
 //$timestamp = mysql_result($result, 0);
 
 //output timestamp
-echo xl('Last Saved') . ': '.$result['autosave_datetime'];
+echo xlt('Last Saved') . ': ' . text($result['autosave_datetime']);

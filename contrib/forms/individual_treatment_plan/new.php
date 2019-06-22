@@ -1,6 +1,6 @@
 <?php
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
 formHeader("Form: individual_treatment_plan");
 ?>
 <html><head>
@@ -18,12 +18,12 @@ formHeader("Form: individual_treatment_plan");
 <?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = ?", array($pid));
 $result = SqlFetchArray($res); ?>
 
-<b>Date of Referral:</b>&nbsp;<input type="text" name="date_of_referal"> 
+<b>Date of Referral:</b>&nbsp;<input type="text" name="date_of_referal">
 <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="260" height="1">
-<b>Date of Plan:</b>&nbsp; <?php print date('m/d/y'); ?><br><br>
+<b>Date of Plan:</b>&nbsp; <?php print text(date('m/d/y')); ?><br><br>
 
 <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="28" height="1">
-<b>Client Name:</b>&nbsp; <?php echo $result['fname'] . '&nbsp' . $result['mname'] . '&nbsp;' . $result['lname'];?> 
+<b>Client Name:</b>&nbsp; <?php echo text($result['fname']) . '&nbsp' . text($result['mname']) . '&nbsp;' . text($result['lname']); ?>
 <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="292" height="1">
 <b>DCN:</b>
 <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="1" height="1">

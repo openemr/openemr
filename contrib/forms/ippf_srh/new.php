@@ -144,14 +144,14 @@ function divclick(cb, divid) {
 </head>
 
 <body <?php echo $top_bg_line; ?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<?php echo $rootdir ?>/forms/ippf_srh/new.php?id=<?php echo $formid ?>"
+<form method="post" action="<?php echo $rootdir ?>/forms/ippf_srh/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
 
 <p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>
 <?php
-  echo xl('IPPF SRH Data for') . ' ';
-  echo $enrow['fname'] . ' ' . $enrow['mname'] . ' ' . $enrow['lname'];
-  echo ' ' . xl('on') . ' ' . substr($enrow['date'], 0, 10);
+  echo xlt('IPPF SRH Data for') . ' ';
+  echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
+  echo ' ' . xlt('on') . ' ' . text(substr($enrow['date'], 0, 10));
 ?>
 </p>
 
@@ -195,14 +195,14 @@ while ($frow = sqlFetchArray($fres)) {
             $group_seq  = 'srh' . substr($this_group, 0, 1);
             $group_name = substr($this_group, 1);
             $last_group = $this_group;
-            echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
-        "onclick='return divclick(this,\"div_$group_seq\");'";
+            echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
+        "onclick='return divclick(this," . attr_js("div_".$group_seq) . ");'";
         if ($display_style == 'block') {
             echo " checked";
         }
 
-            echo " /><b>$group_name</b></span>\n";
-            echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
+            echo " /><b>" . text($group_name) . "</b></span>\n";
+            echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:" . attr($display_style) . ";'>\n";
             echo " <table border='0' cellpadding='0' width='100%'>\n";
             $display_style = 'none';
     }
@@ -220,7 +220,7 @@ while ($frow = sqlFetchArray($fres)) {
 // Handle starting of a new label cell.
     if ($titlecols > 0) {
             end_cell();
-            echo "<td valign='top' colspan='$titlecols' width='1%' nowrap";
+            echo "<td valign='top' colspan='" . attr($titlecols) . "' width='1%' nowrap";
             echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
         if ($cell_count == 2) {
             echo " style='padding-left:10pt'";
@@ -234,7 +234,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     echo "<b>";
     if ($frow['title']) {
-        echo $frow['title'] . ":";
+        echo text($frow['title']) . ":";
     } else {
         echo "&nbsp;";
     }
@@ -244,7 +244,7 @@ while ($frow = sqlFetchArray($fres)) {
 // Handle starting of a new data cell.
     if ($datacols > 0) {
             end_cell();
-            echo "<td valign='top' colspan='$datacols' class='text'";
+            echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
         if ($cell_count > 0) {
             echo " style='padding-left:5pt'";
         }

@@ -12,9 +12,9 @@
 
 
 
-include_once("../../globals.php");
+require_once("../../globals.php");
 
-include_once("../../../library/api.inc");
+require_once("../../../library/api.inc");
 
 formHeader("Pediatric GI Evaluation");
 
@@ -48,7 +48,7 @@ formHeader("Pediatric GI Evaluation");
 
     $obj=array(); // just to avoid undeclared var warning
 
-    include('form.php'); // to use a single file for both, empty and editing
+    require('form.php'); // to use a single file for both, empty and editing
 
 ?>
 

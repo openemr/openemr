@@ -27,10 +27,10 @@ if ($_GET["mode"] == "new") {
         os_k2_axis= ?,
         os_testing_status= ?,
         additional_notes= ?,
-        where id= ?", array(add_escape_custom($_SESSION["pid"]), add_escape_custom($_SESSION["authProvider"]), add_escape_custom($_SESSION["authUser"]), add_escape_custom($userauthorized),
-        add_escape_custom($_POST["od_k1"]), add_escape_custom($_POST["od_k1_axis"]), add_escape_custom($_POST["od_k2"]), add_escape_custom($_POST["od_k2_axis"]), add_escape_custom($_POST["od_testing_status"]),
-        add_escape_custom($_POST["os_k1"]), add_escape_custom($_POST["os_k1_axis"]), add_escape_custom($_POST["os_k2"]), add_escape_custom($_POST["os_k2_axis"]), add_escape_custom($_POST["os_testing_status"]),
-        add_escape_custom($_POST["additional_notes"]), add_escape_custom($id)));
+        where id= ?", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized,
+        $_POST["od_k1"], $_POST["od_k1_axis"], $_POST["od_k2"], $_POST["od_k2_axis"], $_POST["od_testing_status"],
+        $_POST["os_k1"], $_POST["os_k1_axis"], $_POST["os_k2"], $_POST["os_k2_axis"], $_POST["os_testing_status"],
+        $_POST["additional_notes"], $id));
 }
 
 $_SESSION["encounter"] = $encounter;

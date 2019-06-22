@@ -5,8 +5,8 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 //------------Forms generated from formsWiz
-include_once("../../globals.php");
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once("../../globals.php");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 function hand_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
@@ -25,20 +25,20 @@ function hand_report($pid, $encounter, $cols, $id)
         </tr>
         <tr>
             <td>(L) Hand</td>
-            <td><?php echo $data['left_1'] ? $data['left_1']." fp" : "-"; ?></td>
-            <td><?php echo $data['left_2'] ? $data['left_2']." fp" : "-"; ?></td>
-            <td><?php echo $data['left_3'] ? $data['left_3']." fp" : "-"; ?></td>
-        </tr>   
+            <td><?php echo $data['left_1'] ? text($data['left_1'])." fp" : "-"; ?></td>
+            <td><?php echo $data['left_2'] ? text($data['left_2'])." fp" : "-"; ?></td>
+            <td><?php echo $data['left_3'] ? text($data['left_3'])." fp" : "-"; ?></td>
+        </tr>
         <tr>
             <td>(R) Hand</td>
-            <td><?php echo $data['right_1'] ? $data['right_1']." fp" : "-"; ?></td>
-            <td><?php echo $data['right_2'] ? $data['right_2']." fp" : "-"; ?></td>
-            <td><?php echo $data['right_3'] ? $data['right_3']." fp" : "-"; ?></td>
-        </tr>   
+            <td><?php echo $data['right_1'] ? text($data['right_1'])." fp" : "-"; ?></td>
+            <td><?php echo $data['right_2'] ? text($data['right_2'])." fp" : "-"; ?></td>
+            <td><?php echo $data['right_3'] ? text($data['right_3'])." fp" : "-"; ?></td>
+        </tr>
         <tr>
             <td>Handedness:</td>
-            <td colspan='3'><?php echo $data['handedness']; ?></td>
-        </tr>   
+            <td colspan='3'><?php echo text($data['handedness']); ?></td>
+        </tr>
 
     </table>
 
@@ -49,7 +49,7 @@ function hand_report($pid, $encounter, $cols, $id)
             <td><b>NOTES</b></td>
         </tr>
         <tr class='text'>
-            <td><p align='left'><?php echo $data['notes']?>&nbsp;</p></td>
+            <td><p align='left'><?php echo text($data['notes']); ?>&nbsp;</p></td>
         </tr>
     </table>
         <?php } ?>
