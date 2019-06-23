@@ -532,6 +532,14 @@ body dl {
     }
 }
 /*openemr 5 patient-finder*/
+
+/*vertical main menu */
+
+.appMenu_small .menuSection > .menuEntries {
+    left:40px;
+    box-shadow:3px 5px 8px #adadad;
+}
+/*vertical main menu */
 @import "oe-bootstrap";
 @import "oe-common/all-common-import";
 

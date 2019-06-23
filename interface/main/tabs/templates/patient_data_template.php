@@ -54,7 +54,7 @@
                 <?php //adapted from https://codepen.io/brandonkennedy/pen/yGjsi ?>
                     <form name="frm_search_globals">
                         <input type="text" id="anySearchBox" name="anySearchBox"  placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
-                        <button type="button" id="search_globals" class="btn btn-default btn-search btn-search1" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="click: viewPtFinder.bind($data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>')">
+                        <button type="button" id="search_globals" class="btn btn-default btn-search btn-search1" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>')}">
                         </button>
                     </form>
                 </div>

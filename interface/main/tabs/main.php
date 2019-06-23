@@ -265,6 +265,7 @@ html, body{
     min-height:100% !important;
     height:100% !important;
 }
+
 </style>
 </head>
 <body data-bind="css: responsiveDisplay.objWidth().bodyMain">
@@ -441,7 +442,7 @@ $(function(){
 $('#anySearchBox').keypress(function(event){
   if(event.which === 13 || event.keyCode === 13){
     event.preventDefault();
-    $('#search_globals').click();
+    $('#search_globals').mousedown();
   }
 });
 </script>

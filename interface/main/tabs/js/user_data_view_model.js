@@ -33,9 +33,12 @@ function user_data_view_model(username,fname,lname,authGrp)
 
 }
 
-function viewPtFinder(myMessage)
+function viewPtFinder(myMessage, event)
 {
+    event.stopImmediatePropagation;
+    event.preventDefault;
     let srchBox = document.getElementById("anySearchBox");
+    
     srchBox.focus();
     
     let finderUrl = webroot_url+"/interface/main/finder/dynamic_finder.php";
@@ -48,10 +51,12 @@ function viewPtFinder(myMessage)
         navigateTab(finderUrl,"fin", function () {
             activateTabByName("fin",true);
         });
-    } else if (srchBoxLength == 0 && srchBoxWidth > 50) {
         srchBox.focus();
+    } else if (srchBoxLength == 0 && srchBoxWidth > 50) {
         alert(arguments[0]);
+        srchBox.focus();
     }
+   
 }
 
 function viewTgFinder()
