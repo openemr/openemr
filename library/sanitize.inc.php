@@ -33,27 +33,36 @@ function collectIpAddresses()
     );
 }
 
-// Function to create a csrf_token
-function createCsrfToken()
+// Function to create a csrf key
+function createCsrfKey()
 {
-    return RandomGenUtils::createUniqueToken();
+    return RandomGenUtils::produceRandomBytes(32);
 }
 
 // Function to collect the csrf token
-function collectCsrfToken()
+//  $subject allows creation of different csrf tokens:
+//    Using 'api' for the internal api csrf token
+//    Using 'default' for everything else (for now)
+function collectCsrfToken($subject = 'default')
 {
-    return $_SESSION['csrf_token'];
+    if (empty($_SESSION['csrf_private_key'])) {
+        error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF key is empty.");
+        return false;
+    }
+    return hash_hmac('sha256', $subject, $_SESSION['csrf_private_key']);
 }
 
 // Function to verify a csrf_token
-function verifyCsrfToken($token)
+function verifyCsrfToken($token, $subject = 'default')
 {
-    if (empty(collectCsrfToken())) {
+    $currentToken = collectCsrfToken($subject);
+
+    if (empty($currentToken)) {
         error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF token was not formed correctly.");
         return false;
     } elseif (empty($token)) {
         return false;
-    } elseif (collectCsrfToken() == $token) {
+    } elseif (hash_equals($currentToken, $token)) {
         return true;
     } else {
         return false;
