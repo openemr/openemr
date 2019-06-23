@@ -16,8 +16,10 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 // form parameter docid can be passed to restrict the display to a document.
@@ -249,7 +251,7 @@ $(document).ready(function(){
             method: "POST",
             url: "pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')),
             data: {
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         })
         .done(function() {

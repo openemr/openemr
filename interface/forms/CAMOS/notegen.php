@@ -16,6 +16,8 @@ $depth = '../../../';
 require_once($depth.'interface/globals.php');
 require_once("content_parser.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 <?php
 if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['encounter'])) {
@@ -29,7 +31,7 @@ if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['
 <body>
 <?php echo xlt('Choose print format for this encounter report.'); ?><br><br>
 <form method=post name=choose_patients>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type='submit' name='submit_pdf' value='<?php echo xla('Print (PDF)'); ?>'>
 <input type='submit' name='submit_html' value='<?php echo xla('Print (HTML)'); ?>'>
 </form>
@@ -73,7 +75,7 @@ $(function(){
 <body>
 
 <form method=post name=choose_patients>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table>
 <tr><td>
@@ -110,8 +112,8 @@ title='<?php echo xla('yyyy-mm-dd last date of this event'); ?>' />
 }
 
 if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['encounter'])) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // note we are trimming variables before sending through this function

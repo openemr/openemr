@@ -18,6 +18,7 @@ require_once('../../globals.php');
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 
 use Esign\Api;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // ensure token_main matches so this script can not be run by itself
@@ -71,7 +72,7 @@ function goRepeaterServices(){
     $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
         {
             skip_timeout_reset: "1",
-            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+            csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
         },
         function(data) {
             // Go knockout.js
@@ -85,7 +86,7 @@ function goRepeaterServices(){
             {
                 skip_timeout_reset: "1",
                 isPortal: "1",
-                csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
             },
             function (counts) {
                 data = JSON.parse(counts);
@@ -114,7 +115,7 @@ function goRepeaterServices(){
         {
             skip_timeout_reset: "1",
             ajax: "1",
-            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+            csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
         }
     );
 
@@ -170,7 +171,7 @@ var xl_strings_tabs_view_model = <?php echo json_encode(array(
 ));
 ?>;
 // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
-var csrf_token_js = <?php echo js_escape(collectCsrfToken()); ?>;
+var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
 </script>
 <script type="text/javascript" src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 
@@ -224,27 +225,27 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
         .',' . json_encode($userQuery['fname'])
         .',' . json_encode($userQuery['lname'])
         .',' . json_encode($_SESSION['authGroup']); ?>));
-   
+
 </script>
 <script>
     $(window).on('resize', function() {
-        
+
      var win = $(this);
      var winWidth = $(this).width();
         if (winWidth >  <?php echo js_escape($width); ?>) {
             $("#tabs_div").removeClass('col-sm-10');
             $("#mainFrames_div").removeClass('col-sm-10');
             $("#menu_icon").addClass('fa-bars');
-            
+
             $("#username div:first-child" ).addClass("userSection");
             $(".appMenu_small").addClass('appMenu');
             $(".appMenu_small").removeClass('appMenu_small');
-            
+
         } else if (winWidth <=  <?php echo js_escape($width); ?> ){
             $("#username div:first-child" ).removeClass("userSection");
             $(".appMenu").addClass('appMenu_small');
             $(".appMenu").removeClass('appMenu');
-        } 
+        }
     });
     $(function() {
         $(window).trigger('resize');// to avoid repeating code triggers above on page open
@@ -262,13 +263,13 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
 }
 
 html, body{
-    
+
     min-height:100% !important;
     height:100% !important;
 }
 
 </style>
-  
+
 </head>
 <body data-bind="css: responsiveDisplay.objWidth().bodyMain">
 <!-- Below iframe is to support auto logout when timeout is reached -->
@@ -290,7 +291,7 @@ if (isset($_SESSION['app1'])) {
 <div id="mainBox" <?php echo $disp_mainBox ?> data-bind='attr: {id: responsiveDisplay.objWidth().mainBoxId}  '>
 
     <div id="dialogDiv"></div>
-    
+
     <div class="body_top" id="body_top_div" data-bind='css: responsiveDisplay.objWidth().bodyTopDivWidth'>
         <div id="logo_menu" >
         <a href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank"><img class="logo" id='oemr_logo' alt="openEMR small logo"  style="width:20px" border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
@@ -310,7 +311,7 @@ if (isset($_SESSION['app1'])) {
     </div>
     <div id="attendantData" class="body_title acck"  data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}, css: responsiveDisplay.objWidth().attendantDataWidth + ' '  + responsiveDisplay.objWidth().attendantDataClear ">
     </div>
-   
+
     <div class="body_title" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}, css: responsiveDisplay.objWidth().tabsDivWidth"> </div>
 
     <div class="mainFrames" id="mainFrames_div" style="display: flex;" data-bind="css: responsiveDisplay.objWidth().mainFramesDivWidth  + ' ' +  responsiveDisplay.objWidth().mainFramesDivFill">
@@ -318,13 +319,13 @@ if (isset($_SESSION['app1'])) {
     </div>
 </div>
 <script>
-    
+
 var displayViewModel = {
    winWidth: ko.observable(),
    winHeight: ko.observable(),
    winDevice: ko.observable(),
    objWidth: {}
-  
+
 };
 
 displayViewModel.objWidth = ko.computed(function() {
@@ -402,11 +403,11 @@ displayViewModel.menuIconObservable = function() {
  };
 
  displayViewModel.oeLogoutIcon = ko.computed(function(){
-    var logoutIcon =  this.winWidth() > <?php echo js_escape($width); ?>  ? true : false; 
+    var logoutIcon =  this.winWidth() > <?php echo js_escape($width); ?>  ? true : false;
     return logoutIcon;
  }, displayViewModel);
 var $window = $(window);
-$window.resize(function () { 
+$window.resize(function () {
     displayViewModel.winWidth($window.width());
     displayViewModel.winHeight($window.height());
     if($window.width() > <?php echo js_escape($width); ?>){
@@ -414,12 +415,12 @@ $window.resize(function () {
     } else {
     displayViewModel.winDevice('bipad');
     }
-    
+
 });
 $(function() {
         $(window).trigger('resize');// to avoid repeating code triggers above on page open
     });
-ko.bindingHandlers['css2'] = ko.bindingHandlers.css;    
+ko.bindingHandlers['css2'] = ko.bindingHandlers.css;
 app_view_model.responsiveDisplay = displayViewModel;
 </script>
 <script>

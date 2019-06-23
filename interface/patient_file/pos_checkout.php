@@ -48,6 +48,7 @@ require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
@@ -180,7 +181,7 @@ function generate_receipt($patient_id, $encounter = 0)
 
         // Process click on Delete button.
         function deleteme() {
-         dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id.".".$encounter); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450);
+         dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id.".".$encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
          return false;
         }
 
@@ -208,7 +209,7 @@ function generate_receipt($patient_id, $encounter = 0)
         }
         </style>
         <title><?php echo xlt('Patient Checkout'); ?></title>
-    
+
     </head>
     <body class="body_top">
         <div class="container">
@@ -485,8 +486,8 @@ function generate_receipt($patient_id, $encounter = 0)
     // If the Save button was clicked...
     //
     if ($_POST['form_save']) {
-        if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-            csrfNotVerified();
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            CsrfUtils::csrfNotVerified();
         }
 
       // On a save, do the following:
@@ -851,7 +852,7 @@ function generate_receipt($patient_id, $encounter = 0)
             <div class="row">
                 <div class="col-sm-12">
                     <form action='pos_checkout.php' method='post'>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                         <input name='form_pid' type='hidden' value='<?php echo attr($patient_id) ?>'>
                         <fieldset>
                             <legend><?php echo xlt('Item Details'); ?></legend>

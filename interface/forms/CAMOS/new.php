@@ -15,6 +15,8 @@
 require_once("../../globals.php");
 require_once("../../../library/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $out_of_encounter = false;
 if ((($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode'] == 'external')) {
     $out_of_encounter = true;
@@ -1058,7 +1060,7 @@ if (!$out_of_encounter) {
       myarray['content'] = (f2.textarea_content.value).substring(f2.textarea_content.selectionStart, f2.textarea_content.selectionEnd);
     }
     else {myarray['content'] = f2.textarea_content.value;}
-    myarray['csrf_token_form'] = <?php echo js_escape(collectCsrfToken()); ?>;
+    myarray['csrf_token_form'] = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
     var str = setformvalues(myarray);
 //    alert(str);
     processajax ('<?php print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
@@ -1098,7 +1100,7 @@ function processEnter(e,message) {
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="init()">
 <div name="form_container" onKeyPress="gotoOne(event)">
 <form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
 if (!$out_of_encounter) {
 //	echo "<h1>$out_of_encounter</h1>\n";

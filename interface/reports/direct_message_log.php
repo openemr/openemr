@@ -12,11 +12,12 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 ?>
@@ -70,7 +71,7 @@ if (isset($_POST['lognext']) && $_POST['lognext']) {
 <span class='title'><?php echo xlt('Direct Message Log'); ?></span>
 
 <form method='post' name='theform' id='theform' action='direct_message_log.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type='hidden' name='lognext' id='lognext' value=''>
 
 <div id="report_parameters">

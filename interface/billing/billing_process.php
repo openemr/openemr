@@ -25,9 +25,10 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\HCFA_1500;
 use OpenEMR\Billing\X12_5010_837P;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 if ($GLOBALS['ub04_support']) {

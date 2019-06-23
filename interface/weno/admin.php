@@ -15,7 +15,7 @@
 require_once('../globals.php');
 require_once("$srcdir/options.inc.php");
 
-
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\AdminProperties;
 
@@ -57,7 +57,7 @@ if ($GLOBALS['weno_rx_enable'] != 1) {
 if ($tableHasData['count'] > 1) {
     print xlt("Formularies are inserted into table")."<br>";
 } else {
-    echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
+    echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
 }
 
 ?>
@@ -65,7 +65,7 @@ if ($tableHasData['count'] > 1) {
 <br><br>
 <?php
 if (file_exists('../../contrib/weno/pharmacyList.csv')) {
-    echo "<a href='import_pharmacies.php?csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='btn btn-default'>" . xlt("Import Pharmacies Script") . "</a> <br>";
+    echo "<a href='import_pharmacies.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-default'>" . xlt("Import Pharmacies Script") . "</a> <br>";
 }
 ?>
 

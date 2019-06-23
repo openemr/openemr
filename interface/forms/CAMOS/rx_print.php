@@ -14,6 +14,8 @@
 
 require_once('../../globals.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 //practice data
 $physician_name = '';
 $practice_fname = '';
@@ -63,8 +65,8 @@ if ($result = sqlFetchArray($query)) {
 
 //update user information if selected from form
 if ($_POST['update']) { // OPTION update practice inf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $query = "update users set " .
@@ -99,8 +101,8 @@ if ($result = sqlFetchArray($query)) {
 }
 
 if ($_POST['print_pdf'] || $_POST['print_html']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $camos_content = array();
@@ -478,7 +480,7 @@ return count_turnoff;
 </head>
 <h1><?php echo xlt('Select CAMOS Entries for Printing'); ?></h1>
 <form method=POST name='pick_items' target=_new>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type=button name=cyclerx value='<?php echo xla('Cycle'); ?>' onClick='cycle()'><br/>
 <input type='button' value='<?php echo xla('Select All'); ?>' onClick='checkall()'>
 <input type='button' value='<?php echo xla('Unselect All'); ?>' onClick='uncheckall()'>
@@ -543,7 +545,7 @@ foreach ($rxarray as $val) {
 </form>
 <h1><?php echo xlt('Update User Information'); ?></h1>
 <form method=POST name='pick_items'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <table>
 <tr>
 <td> <?php echo xlt('First Name'); ?>: </td>

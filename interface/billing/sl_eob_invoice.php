@@ -27,6 +27,7 @@ require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/user.inc";
 
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
@@ -302,8 +303,8 @@ if (preg_match('/^Ins(\d)/i', $_POST['form_insurance'], $matches)) {
 
 if (($_POST['form_save'] || $_POST['form_cancel'])) {
     if ($_POST['form_save']) {
-        if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-            csrfNotVerified();
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            CsrfUtils::csrfNotVerified();
         }
 
         if ($debug) {
@@ -441,7 +442,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
     </div>
     <div class="row">
         <form action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>"/>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
             <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
             <fieldset>
                 <legend><?php echo xlt('Invoice Actions'); ?></legend>

@@ -14,6 +14,7 @@ require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -155,7 +156,7 @@ if (isset($_GET["fid"])) {
 </table>
 
 <form name='facility-form' id="facility-form" method='post' action="facilities.php">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type=hidden name=mode value="facility">
     <input type=hidden name=newmode value="admin_facility"> <!--    Diffrentiate Admin and add post backs -->
     <input type=hidden name=fid value="<?php echo attr($my_fid); ?>">

@@ -14,6 +14,7 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
@@ -22,8 +23,8 @@ if (!acl_check('admin', 'users')) {
 }
 
 if (!empty($_GET)) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -116,7 +117,7 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
             </div>
         </div>
         <form method="GET" name="theform" id="theform" class="form-horizontal">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" name="direction" id="direction" value="<?php echo !empty($direction) ? attr($direction) : 'asc'; ?>">
             <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>">
             <input type=hidden name="csum" value="">
@@ -493,7 +494,7 @@ function validatelog(){
     $.ajax({
         url:"../../library/log_validation.php",
         data: {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         },
         asynchronous : true,
         method: "post",

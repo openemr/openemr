@@ -19,6 +19,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $patdata = getPatientData($pid, "fname,lname,squad");
@@ -43,8 +44,8 @@ $endjs = "";    // holds javascript to write at the end
 
 // If the Save button was clicked...
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $form_pid = $_POST['form_pid'];
@@ -262,7 +263,7 @@ function doclick(pfx, id) {
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' bgcolor='#ffffff'>
 <form method='post' action='problem_encounter.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
  echo "<input type='hidden' name='form_pid' value='" . attr($pid) . "' />\n";
  // pelist looks like /problem,encounter/problem,encounter/[...].

@@ -16,6 +16,8 @@
 require_once(dirname(__FILE__) . "/../globals.php");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $patient_data = array(
     'sex'                       => 'Sex',
     'pubpid'                => 'External ID',
@@ -26,8 +28,8 @@ $patient_data = array(
 );
 
 if ($_POST["setval"] == 'approve') {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     insertApprovedData($_REQUEST);
@@ -46,8 +48,8 @@ if ($_POST["setval"] == 'approve') {
     <?php
     exit;
 } elseif ($_POST["setval"] == 'discard') {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $query = "UPDATE audit_master SET approval_status = '3' WHERE id=?";
@@ -66,8 +68,8 @@ if ($_POST["setval"] == 'approve') {
     exit;
 }
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 ?>
@@ -118,7 +120,7 @@ function submit_form(val){
 <p><b><?php echo xlt('CCR Patient Review');?></b></p>
 </center>
 <form method="post" name="approveform" "onsubmit='return top.restoreSession()'" >
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <table border="0" width="90%;" >
         <tr>
             <td>

@@ -18,6 +18,8 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
@@ -256,7 +258,7 @@ $(function(){
 </head>
 <body class="body_top">
 <form name="de_identification" id="de_identification" action="de_identification_screen2.php" method="post" onsubmit="return form_validate();">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <strong><?php echo xlt('De Identification'); ?></strong>
 <?php
  $row = sqlQuery("SHOW TABLES LIKE 'de_identification_status'");

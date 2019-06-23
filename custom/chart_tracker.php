@@ -21,6 +21,7 @@ require_once("../interface/globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Entities\ChartTracker;
 use OpenEMR\Services\ChartTrackerService;
@@ -78,14 +79,14 @@ function userSelect() {
     </div>
 
 <form method='post' action='chart_tracker.php' class='form-horizontal' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <?php
 // This is the place for status messages.
 
 if ($form_newloc || $form_newuser) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $tracker = new ChartTracker();
@@ -101,8 +102,8 @@ if ($form_newloc || $form_newuser) {
 $row = array();
 
 if ($form_newid) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Find out where the chart is now.

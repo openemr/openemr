@@ -14,12 +14,13 @@
 require_once('../../globals.php');
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // for editing selected patients
 if (isset($_GET['patients'])) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $patients = rtrim($_GET['patients'], ";");
@@ -168,7 +169,7 @@ $('#by-id, #by-name').select2({
             var query = {
                 search: params.term,
                 type: $(this).attr('id'),
-                csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
             }
             return query;
         },
@@ -185,7 +186,7 @@ $('#by-id').on('change', function () {
         data:{
             type:'patient-by-id',
             search:$('#by-id').val(),
-            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+            csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
         },
         dataType: 'json'
     }).done(function(data){
@@ -205,7 +206,7 @@ $('#by-name').on('change', function () {
         data:{
             type:'patient-by-id',
             search:$('#by-name').val(),
-            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+            csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
         },
         dataType: 'json'
     }).done(function(data){

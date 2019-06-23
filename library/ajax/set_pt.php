@@ -12,8 +12,10 @@
 require_once("../../interface/globals.php");
 require_once("$srcdir/pid.inc");
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 if ($_GET["set_pid"] && $_GET["set_pid"] != $_SESSION["pid"]) {

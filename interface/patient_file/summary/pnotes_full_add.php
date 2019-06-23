@@ -17,6 +17,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 if ($_GET['set_pid']) {
@@ -81,8 +82,8 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($mode == "update") {
@@ -207,7 +208,7 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
 ?>
 
 <form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div>
     <div id="pnotes_title">
         <span class="title"><?php echo xlt('Patient Message') . text($title_docname); ?></span>
@@ -320,7 +321,7 @@ if ($noteid) {
 </form>
 <form border='0' method='post' name='update_activity' id='update_activity'
  action="pnotes_full.php?<?php echo $urlparms; ?>">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <!-- start of previous notes DIV -->
 <div class=pat_notes>

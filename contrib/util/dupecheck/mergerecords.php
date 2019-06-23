@@ -14,10 +14,11 @@ require_once("../../../interface/globals.php");
 require_once("../../../library/pnotes.inc");
 require_once("./Utils.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         csrfNotVerified();
     }
     foreach ($_POST as $key => $value) {
@@ -26,7 +27,7 @@ if (!empty($_POST)) {
 }
 
 if (!empty($_GET)) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         csrfNotVerified();
     }
     foreach ($_GET as $key => $value) {
@@ -180,7 +181,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
 Nothing has been changed yet. What you see above are the changes that will be made if you choose to commit them.<br>
 Do you wish to commit these changes to the database?
 <form method="post" action="mergerecords.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type="hidden" name="masterid" value="<?php echo attr($parameters['masterid']); ?>">
 <input type="hidden" name="dupecount" value="<?php echo attr($parameters['dupecount']); ?>">
 <?php

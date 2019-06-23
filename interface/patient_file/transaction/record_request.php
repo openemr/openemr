@@ -12,6 +12,7 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 ?>
@@ -35,7 +36,7 @@ use OpenEMR\Core\Header;
                     complete: false,
                     mode: "add_force",
                     patient_id: <?php echo js_escape($pid); ?>,
-                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 });
             });
         });

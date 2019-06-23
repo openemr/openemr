@@ -14,6 +14,8 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Csrf\CsrfUtils;
 ?>
 // login.php makes sure the session ID captured here is different for each
 // new login.  We maintain it here because most browsers do not have separate
@@ -88,7 +90,7 @@ function printLogPrint(elem) {
  $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/log_print_action_ajax.php",
   {
     comments: comments,
-    csrf_token_form: <?php echo json_encode(collectCsrfToken()); ?>
+    csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>
   }
  );
 <?php } ?>

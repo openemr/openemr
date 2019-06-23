@@ -17,9 +17,11 @@ require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -107,7 +109,7 @@ if (!empty($target_element)) {
 <?php } else { ?>
   <form method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>'>
 <?php } ?>
-  <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

@@ -17,7 +17,9 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
 }
 

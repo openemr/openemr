@@ -23,6 +23,7 @@ require_once("$srcdir/api.inc");
 require_once("date_qualifier_options.php");
 require_once("$srcdir/user.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (isset($_REQUEST['isBilling'])) {
@@ -84,7 +85,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
     </div>
     <div class="row">
         <form method=post <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr_url($formid) . "'\n"; ?>>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <fieldset>
                 <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                 <div class='col-sm-11 col-offset-sm-1'>

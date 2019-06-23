@@ -25,6 +25,8 @@
  * @subpackage ediHistory
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 // codes used in 997/999 files;
 //require_once './codes/edih_997_codes.php';
 
@@ -287,7 +289,7 @@ function edih_997_err_report($err_array)
                 $clm01 = ($rtp == 'f837') ? $trn_ar[0][2] : $trn_ar[0][4]; // $trn_ar['CLM01'] : $trn_ar['BHT03'];
                 $svcdate = $trn_ar[0][1]; // ($rtp == 'f270') ? $trn_ar['ReqDate'] : $trn_ar['SvcDate'];
                 $btfn = $trn_ar[0][5]; // $trn_ar['FileName'];
-                $str_html .= text($pt_name) . " " . text($svcdate) . " <em>Trace</em> <a class='rpt' href='edih_main.php?gtbl=claim&fname=" . attr_url($btfn) . "&ftype=" . attr_url($rtp) . "&pid=" . attr_url($clm01) . "&fmt=seg&csrf_token_form=" .attr_url(collectCsrfToken()) . "'>" . text($clm01) . "</a> <br />".PHP_EOL;
+                $str_html .= text($pt_name) . " " . text($svcdate) . " <em>Trace</em> <a class='rpt' href='edih_main.php?gtbl=claim&fname=" . attr_url($btfn) . "&ftype=" . attr_url($rtp) . "&pid=" . attr_url($clm01) . "&fmt=seg&csrf_token_form=" .attr_url(CsrfUtils::collectCsrfToken()) . "'>" . text($clm01) . "</a> <br />".PHP_EOL;
             } else {
                 $str_html .= "Unable to locate transaction  <em>Trace</em> " . text($trc) . " <br />".PHP_EOL;
             }

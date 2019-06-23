@@ -17,6 +17,7 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 
 if (!acl_check('admin', 'super')) {
@@ -438,8 +439,8 @@ function endFacility()
 }
 
 if (!empty($form_submit)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $beg_year  = $_POST['form_year'];
@@ -689,7 +690,7 @@ if ($selmonth < 1) {
 <center>
 &nbsp;<br />
 <form method='post' action='ippf_export.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table style='width:30em'>
  <tr>

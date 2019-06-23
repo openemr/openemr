@@ -13,7 +13,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Utils\RandomGenUtils;
 
 // Function to collect ip address(es)
 function collectIpAddresses()
@@ -31,53 +30,6 @@ function collectIpAddresses()
         'ip' => $mainIp,
         'forward_ip' => $forwardIp
     );
-}
-
-// Function to create a csrf key
-function createCsrfKey()
-{
-    return RandomGenUtils::produceRandomBytes(32);
-}
-
-// Function to collect the csrf token
-//  $subject allows creation of different csrf tokens:
-//    Using 'api' for the internal api csrf token
-//    Using 'default' for everything else (for now)
-function collectCsrfToken($subject = 'default')
-{
-    if (empty($_SESSION['csrf_private_key'])) {
-        error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF key is empty.");
-        return false;
-    }
-    return hash_hmac('sha256', $subject, $_SESSION['csrf_private_key']);
-}
-
-// Function to verify a csrf_token
-function verifyCsrfToken($token, $subject = 'default')
-{
-    $currentToken = collectCsrfToken($subject);
-
-    if (empty($currentToken)) {
-        error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF token was not formed correctly.");
-        return false;
-    } elseif (empty($token)) {
-        return false;
-    } elseif (hash_equals($currentToken, $token)) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-function csrfNotVerified($toScreen = true, $toLog = true)
-{
-    if ($toScreen) {
-        echo xlt('Authentication Error');
-    }
-    if ($toLog) {
-        error_log("OpenEMR CSRF token authentication error");
-    }
-    die;
 }
 
 // Sanitize a json encoded entry.

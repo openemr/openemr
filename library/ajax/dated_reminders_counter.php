@@ -16,8 +16,10 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/dated_reminder_functions.php");
 require_once("$srcdir/pnotes.inc");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 // if portal is enable get various alerts

@@ -18,6 +18,8 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
@@ -44,8 +46,8 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if (empty($code_types[$code_type])) {
@@ -153,7 +155,7 @@ if (!empty($_POST['bn_upload'])) {
 ?>
 <form method='post' action='load_codes.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

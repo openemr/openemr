@@ -40,12 +40,14 @@
 
 require_once("../../../../interface/globals.php");
 require_once($GLOBALS['fileroot']."/library/patient.inc");
-$chartpath = $GLOBALS['fileroot']."/interface/forms/vitals/growthchart/";
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
+$chartpath = $GLOBALS['fileroot']."/interface/forms/vitals/growthchart/";
 $name = "";
 $pid = $_GET['pid'];
 

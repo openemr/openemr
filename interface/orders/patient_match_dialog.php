@@ -23,6 +23,7 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $form_key = $_REQUEST['key'];
@@ -75,7 +76,7 @@ $form_DOB = $args['DOB'];
 
 <body class="body_top">
 <form method='post' action='patient_select.php' onsubmit='return myRestoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
 if ($form_key) {
     $clarr = array();

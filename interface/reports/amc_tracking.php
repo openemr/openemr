@@ -15,11 +15,12 @@ require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/amc.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -69,7 +70,7 @@ $provider  = trim($_POST['form_provider']);
        patient_id: patient_id,
        object_category: "transactions",
        object_id: transaction_id,
-       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
      }
    );
  }
@@ -94,7 +95,7 @@ $provider  = trim($_POST['form_provider']);
        patient_id: patient_id,
        object_category: "transactions",
        object_id: transaction_id,
-       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
      }
    );
  }
@@ -113,7 +114,7 @@ $provider  = trim($_POST['form_provider']);
        mode: mode,
        date_created: date_created,
        patient_id: patient_id,
-       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
      }
    );
  }
@@ -133,7 +134,7 @@ $provider  = trim($_POST['form_provider']);
        patient_id: patient_id,
        object_category: "form_encounter",
        object_id: encounter_id,
-       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
      }
    );
  }
@@ -178,7 +179,7 @@ $provider  = trim($_POST['form_provider']);
 <?php echo xlt('Automated Measure Calculations (AMC) Tracking'); ?></span>
 
 <form method='post' name='theform' id='theform' action='amc_tracking.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 

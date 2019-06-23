@@ -17,6 +17,7 @@ require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -70,8 +71,8 @@ $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     header("Pragma: public");
@@ -125,7 +126,7 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('Pending Followup from Results')?></h2>
 
 <form method='post' action='pending_followup.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -188,8 +189,8 @@ foreach ($fres as $frow) {
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $sqlBindArray = array();

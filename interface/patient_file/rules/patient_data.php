@@ -14,6 +14,8 @@ require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 <html>
 <head>
@@ -88,8 +90,8 @@ if (!acl_check('patients', 'med')) {
 }
 
 if ($_POST['form_complete']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Save that form as a row in rule_patient_data table
@@ -156,7 +158,7 @@ if (isset($entryID)) {
 
 <br>
 <form action='patient_data.php' name='patient_data' method='post' onsubmit='return top.restoreSession()'>
-  <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
   <table border=0 cellpadding=1 cellspacing=1>
     <?php

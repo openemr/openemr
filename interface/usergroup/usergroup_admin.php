@@ -16,18 +16,19 @@ require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/auth.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
 if (!empty($_GET)) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -479,7 +480,7 @@ function authorized_clicked() {
                 <a href="facility_user.php" class="btn btn-default btn-show"><?php echo xlt('View Facility Specific User Information'); ?></a>
             </div>
             <form name='userlist' method='post' style="display: inline;" class="form-inline" class="pull-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="checkbox">
                     <label for="form_inactive">
                         <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php echo ($form_inactive) ? 'checked ' : ''; ?>>
@@ -544,7 +545,7 @@ function authorized_clicked() {
                             }
 
                             print "<tr>
-                                <td><b><a href='user_admin.php?id=" . attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) .
+                                <td><b><a href='user_admin.php?id=" . attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
                                 "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter{"username"}) . "</a></b>" ."&nbsp;</td>
                                 <td>" . text($iter{"fname"}) . ' ' . text($iter{"lname"}) ."&nbsp;</td>
                                 <td>" . text($iter{"info"}) . "&nbsp;</td>
@@ -566,7 +567,7 @@ function authorized_clicked() {
                 foreach ($result5 as $iter) {
                     $grouplist{$iter{"name"}} .= text($iter{"user"}) .
                         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-                        attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) ."' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
+                        attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) ."' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
                 }
 
                 foreach ($grouplist as $groupname => $list) {
