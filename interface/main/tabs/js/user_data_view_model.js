@@ -51,7 +51,7 @@ function viewPtFinder(myMessage, event)
         navigateTab(finderUrl,"fin", function () {
             activateTabByName("fin",true);
         });
-        srchBox.focus();
+        srchBox.blur();
     } else if (srchBoxLength == 0 && srchBoxWidth > 50) {
         alert(arguments[0]);
         srchBox.focus();

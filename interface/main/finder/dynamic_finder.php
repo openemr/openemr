@@ -198,7 +198,6 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
                 <?php if (acl_check('patients', 'demo', '', array('write','addonly'))) { ?>
                     <button id="create_patient_btn1" class="btn btn-default btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
                 <?php } ?>
-                <i id="search_hide" class="fa fa-search fa-lg oe-pull-away" aria-hidden="true"></i>
             </div>
             </div>
         <br>
@@ -254,7 +253,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
                 $("#pt_table_filter").addClass ("hidden");
                 $("#pt_table_length").addClass ("hidden");
                 $("#show_hide").addClass ("hidden");
-                $("#search_hide").removeClass ("hidden");
+                $("#search_hide").addClass ("hidden");
                 
                 
             } else {
@@ -264,33 +263,10 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
                 $("#search_hide").addClass ("hidden");
             }
         });
-        $(function() {
-            $(window).trigger('resize');// to avoid repeating code triggers above on page open
-        });
     </script>
+    
     <script>
-        $(function () {
-            $('#search_hide').on('click', function () {
-                var elementTitle;
-                var showTitle = <?php echo xlj("Show search"); ?>;
-                var hideTitle = <?php echo xlj("Hide search"); ?>;
-                
-                if ($(this).is('.fa-search')) {
-                    elementTitle = showTitle;
-                    $(this).toggleClass('fa-search fa-eye-slash');
-                    $("#pt_table_filter").removeClass ("hidden");
-                    $("#pt_table_length").removeClass ("hidden");
-                    
-                } else if ($(this).is('.fa-eye-slash')) {
-                    elementTitle = hideTitle;
-                    $(this).toggleClass(' fa-eye-slash fa-search');
-                    $("#pt_table_filter").addClass ("hidden");
-                    $("#pt_table_length").addClass ("hidden");
-                }
-                
-                $(this).prop('title', elementTitle);
-            });
-        });
-     </script>
+        document.addEventListener('touchstart', {});
+    </script>
 </body>
 </html>
