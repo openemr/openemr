@@ -15,6 +15,7 @@
 require_once('../globals.php');
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -90,7 +91,7 @@ function docancel() {
             </div>
         </div>
         <form method='post' action='mfa_u2f.php' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
         <?php
 
@@ -111,7 +112,7 @@ function docancel() {
                                 <li><?php echo xlt('Then press the flashing button on your key within 1 minute to complete registration'); ?></li>
                             </ul>
                     </div>
-                                      
+
                     <div class="form-group">
                         <label for="form_name" class="col-sm-2 col-form-label"><?php echo xlt('Please give this key a name'); ?></label>
                         <div class="col-sm-4">
@@ -121,13 +122,13 @@ function docancel() {
                             <input type='hidden' name='form_registration' value=''>
                         </div>
                     </div>
-                    
+
                     <div class='col-sm-12'>
                         <ul>
                             <li><?php echo xlt('A secure (HTTPS) web connection is required for U2F'); ?></li>
                             <li><?php echo xlt('Chrome browser version 41 and above, Mozilla Firefox browser version 64 and above, Microsoft Edge browser version 19 and above, Safari browser version 13 and above, Opera browser version 40 and Opera browser version 42 and above support FIDO U2F API'); ?></li>
                             <li><?php echo xlt('Internet Explorer browser version 6 to Internet Explorer browser version 11 does not support FIDO U2F API'); ?></li>
-                                
+
                             <li><?php echo xlt('For U2F support on Linux click'); ?>: <a href='https://www.key-id.com/enable-fido-u2f-linux/' rel="noopener" target='_blank'><?php echo text('Enable FIDO U2F Linux'); ?></a></li>
                             <li><?php echo xlt('For Firefox click'); ?>: <a href='https://www.trishtech.com/2018/07/enable-fido-u2f-security-key-yubikey-in-mozilla-firefox/' rel="noopener" target='_blank'><?php echo text('Enable FIDO U2F Key in Firefox'); ?></a></li>
                         </ul>
@@ -143,8 +144,8 @@ function docancel() {
         </div>
             <?php
         } elseif ($action == 'reg2') {
-            if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-                csrfNotVerified();
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+                CsrfUtils::csrfNotVerified();
             }
             try {
                 $data = $u2f->doRegister(json_decode($_POST['form_request']), json_decode($_POST['form_registration']));

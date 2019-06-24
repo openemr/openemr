@@ -17,6 +17,7 @@ require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 function checkWarehouseUsed($warehouse_id)
 {
@@ -199,8 +200,8 @@ if ($lot_id) {
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save'] || $_POST['form_delete']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $form_quantity = $_POST['form_quantity'] + 0;
@@ -372,7 +373,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 
 <form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'
  onsubmit='return validate()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
 
 <table border='0' width='100%'>

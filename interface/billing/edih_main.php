@@ -14,6 +14,8 @@
 
 require_once(dirname(__FILE__) . "/../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 /**
  * this define is used to prevent direct access to the included scripts
  * which have the corresponding definition commented for now
@@ -124,8 +126,8 @@ if (count($_POST)) {
  * functions called in the if stanzas are now in edih_io.php
  */
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     //
@@ -172,8 +174,8 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
     }  // end if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     //
 } elseif (strtolower($_SERVER['REQUEST_METHOD']) == 'get') {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     //

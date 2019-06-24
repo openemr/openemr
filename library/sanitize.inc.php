@@ -13,7 +13,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Utils\RandomGenUtils;
 
 // Function to collect ip address(es)
 function collectIpAddresses()
@@ -31,44 +30,6 @@ function collectIpAddresses()
         'ip' => $mainIp,
         'forward_ip' => $forwardIp
     );
-}
-
-// Function to create a csrf_token
-function createCsrfToken()
-{
-    return RandomGenUtils::createUniqueToken();
-}
-
-// Function to collect the csrf token
-function collectCsrfToken()
-{
-    return $_SESSION['csrf_token'];
-}
-
-// Function to verify a csrf_token
-function verifyCsrfToken($token)
-{
-    if (empty(collectCsrfToken())) {
-        error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF token was not formed correctly.");
-        return false;
-    } elseif (empty($token)) {
-        return false;
-    } elseif (collectCsrfToken() == $token) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-function csrfNotVerified($toScreen = true, $toLog = true)
-{
-    if ($toScreen) {
-        echo xlt('Authentication Error');
-    }
-    if ($toLog) {
-        error_log("OpenEMR CSRF token authentication error");
-    }
-    die;
 }
 
 // Sanitize a json encoded entry.

@@ -16,6 +16,7 @@ require_once("$srcdir/registry.inc");
 require_once("../../library/acl.inc");
 require_once("language.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
 //START OUT OUR PAGE....
@@ -27,7 +28,7 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 
 <body class="body_top">
 <form name='translation' id='translation' method='get' action='language.php' onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type='hidden' name='m' value='<?php echo attr($_GET['m']); ?>' />
 <input type='hidden' name='edit' value='<?php echo attr($_GET['edit']); ?>' />
@@ -35,10 +36,10 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 <table>
  <tr>
   <td class="small" colspan='4'>
-   <a href="?m=definition&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Edit Definitions'); ?></a> |
-   <a href="?m=language&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Add Language'); ?></a> |
-   <a href="?m=constant&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Add Constant'); ?></a> |
-   <a href="?m=manage&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Manage Translations'); ?></a>
+   <a href="?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Edit Definitions'); ?></a> |
+   <a href="?m=language&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Add Language'); ?></a> |
+   <a href="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Add Constant'); ?></a> |
+   <a href="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Manage Translations'); ?></a>
   </td>
  </tr>
 </table>
@@ -46,8 +47,8 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 
 <?php
 if (!empty($_GET['m'])) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Pass a unique variable, so below scripts can

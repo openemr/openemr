@@ -17,6 +17,7 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
@@ -32,8 +33,8 @@ $imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
 
 // This authorizes everything for the specified patient.
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $retVal = getProviderId($_SESSION['authUser']);
@@ -194,7 +195,7 @@ if ($authorize) {
         echo "<span class='bold'>" . text($name{"fname"}) . " " .
         text($name{"lname"}) . "</span></a><br>" .
         "<a class=link_submit href='authorizations.php?mode=authorize" .
-        "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
+        "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
         xlt('Authorize') . "</a></td>\n";
 
         /****

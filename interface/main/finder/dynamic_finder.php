@@ -19,6 +19,8 @@
 require_once(dirname(__FILE__) . "/../../globals.php");
 require_once "$srcdir/user.inc";
 require_once "$srcdir/options.inc.php";
+
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
@@ -77,7 +79,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
     $(function () {
         // Initializing the DataTable.
         //
-        let serverUrl = "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>;
+        let serverUrl = "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
         let srcAny = <?php echo js_url($searchAny); ?>;
         if (srcAny) {
             serverUrl += "&search_any=" + srcAny;
@@ -155,7 +157,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
             {
                 target: target,
                 setting: val,
-                csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
             }
         );
     }
@@ -218,7 +220,7 @@ require_once("$srcdir/expand_contract_inc.php");
             <div class="col-sm-12">
                 <!-- form used to open a new top level window when a patient row is clicked -->
                 <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <input type='hidden' name='patientID' value='0'/>
                 </form>
             </div>

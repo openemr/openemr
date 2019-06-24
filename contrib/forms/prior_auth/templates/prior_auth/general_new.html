@@ -72,7 +72,7 @@ a {
 
 </head>
 
-<body bgcolor="{$STYLE.BGCOLOR2}">
+<body bgcolor="{$STYLE.BGCOLOR2|attr}">
 
 <p><span class="title">Prior Authorization Form</span></p>
 
@@ -82,7 +82,7 @@ a {
 
 <tr>
 
-	<td>Prior Authorization Number</td><td><input type="text" size="35" name="prior_auth_number" value="{$prior_auth->get_prior_auth_number()}"></td>
+	<td>Prior Authorization Number</td><td><input type="text" size="35" name="prior_auth_number" value="{$prior_auth->get_prior_auth_number()|attr}"></td>
 
 </tr>
 
@@ -94,7 +94,7 @@ a {
 
 <tr>
 
-	<td colspan="2"><textarea name="comments" value="{$prior_auth->get_comments()}" wrap="virtual" cols="75" rows="8">{$prior_auth->get_comments()}</textarea></td>
+	<td colspan="2"><textarea name="comments" value="{$prior_auth->get_comments()|attr}" wrap="virtual" cols="75" rows="8">{$prior_auth->get_comments()|text}</textarea></td>
 
 </tr>
 
@@ -110,11 +110,11 @@ a {
 
 </table>
 
-<input type="hidden" name="id" value="{$prior_auth->get_id()}" />
+<input type="hidden" name="id" value="{$prior_auth->get_id()|attr}" />
 
-<input type="hidden" name="activity" value="{$prior_auth->get_activity()}">
+<input type="hidden" name="activity" value="{$prior_auth->get_activity()|attr}">
 
-<input type="hidden" name="pid" value="{$prior_auth->get_pid()}">
+<input type="hidden" name="pid" value="{$prior_auth->get_pid()|attr}">
 
 <input type="hidden" name="process" value="true">
 

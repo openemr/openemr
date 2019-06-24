@@ -15,6 +15,7 @@
 require_once("../../globals.php");
 require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
@@ -34,8 +35,8 @@ if (file_exists($deleteform)) {
 $returnurl = 'forms.php';
 
 if ($_POST['confirm']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
@@ -73,7 +74,7 @@ if ($_POST['confirm']) {
 <span class="title"><?php echo xlt('Delete Encounter Form'); ?></span>
 
 <form method="post" action="<?php echo $rootdir;?>/patient_file/encounter/delete_form.php" name="my_form" id="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <?php
 // output each GET variable as a hidden form input

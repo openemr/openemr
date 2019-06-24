@@ -22,6 +22,7 @@ require_once("../../orders/qoe.inc.php");
 require_once("../../orders/gen_hl7_order.inc.php");
 require_once("../../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Defaults for new orders.
@@ -82,8 +83,8 @@ $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
 // If Save or Transmit was clicked, save the info.
 //
 if ($_POST['bn_save'] || $_POST['bn_xmit']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $ppid = (isset($_POST['form_lab_id']) ? $_POST['form_lab_id'] : '') + 0;
@@ -513,7 +514,7 @@ $title = array(xl('Procedure Order for'), $name, $date);
     </div>
     <div class="row">
         <form class="form-horizontal" method="post" action="<?php echo $rootdir ?>/forms/procedure_order/new.php?id=<?php echo attr_url($formid); ?>" onsubmit="return validate(this)">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <fieldset>
                 <legend><?php echo xlt('Select Options for Current Procedure Order Id ') . (($formid) ? text($formid) : 'New Order')?></legend>
                 <div class="col-xs-12">

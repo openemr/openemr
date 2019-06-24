@@ -28,11 +28,12 @@ require_once("$srcdir/calendar.inc");
 require_once("$srcdir/edi.inc");
 require_once("$srcdir/appointments.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -334,7 +335,7 @@ if ($exclude_policy != "") {
         </div>
 
         <form method='post' name='theform' id='theform' action='edi_270.php' onsubmit="return top.restoreSession()">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" name="removedrows" id="removedrows" value="">
             <div id="report_parameters">
                 <table>

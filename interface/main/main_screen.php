@@ -17,6 +17,7 @@
 require_once('../globals.php');
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -360,15 +361,15 @@ if (isset($_POST['new_login_session_management'])) {
     session_regenerate_id(true);
 } else {
     // This is not a new login, so check csrf and then create a new session id and do NOT remove the old session
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
     session_regenerate_id(false);
 }
-// Create the csrf_token
-$_SESSION['csrf_token'] = createCsrfToken();
-// Also create a api_csrf_token that is only used for the api
-$_SESSION['api_csrf_token'] = createCsrfToken();
+// Set up the csrf private_key
+//  Note this key always remains private and never leaves server session. It is used to create
+//  the csrf tokens.
+CsrfUtils::setupCsrfKey();
 
 $_SESSION["encounter"] = '';
 
@@ -413,7 +414,7 @@ if ($GLOBALS['password_expiration_days'] != 0) {
 
 if ($is_expired) {
   //display the php file containing the password expiration message.
-    $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr_url(collectCsrfToken());
+    $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken());
     $frame1target = "adm";
 } elseif (!empty($_POST['patientID'])) {
     $patientID = 0 + $_POST['patientID'];

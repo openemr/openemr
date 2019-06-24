@@ -18,6 +18,8 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
@@ -62,7 +64,7 @@ function download_file()
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 <form name="re_identification" enctype="Re_identification_ip_single_code"
     action="re_identification_op_single_patient.php" method="POST" onsubmit="return form_validate();">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <?php
     $row = sqlQuery("SHOW TABLES LIKE 'de_identification_status'");
     if (empty($row)) {

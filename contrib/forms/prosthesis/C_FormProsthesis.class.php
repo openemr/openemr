@@ -60,7 +60,7 @@ class C_FormProsthesis extends Controller
         if (!empty($_POST['cpt_code'])) {
             $sql = "select * from codes where code = ? order by id";
 
-            $results = sqlQ($sql, array(add_escape_custom($_POST['cpt_code'])));
+            $results = sqlQ($sql, array($_POST['cpt_code']));
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {

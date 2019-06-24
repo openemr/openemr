@@ -18,8 +18,10 @@
 require_once(dirname(__FILE__) . "/../../globals.php");
 require_once($GLOBALS['srcdir']."/options.inc.php");
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;

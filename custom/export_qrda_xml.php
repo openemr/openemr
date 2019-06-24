@@ -31,10 +31,11 @@ require_once("../library/clinical_rules.php");
 require_once "$srcdir/report_database.inc";
 require_once "qrda_functions.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $facilityService = new FacilityService();
@@ -1515,7 +1516,7 @@ fclose($fileQRDAOPen);
 <center>
 <form>
 <p class="text">
-    <a href="qrda_download.php?qrda_fname=<?php echo attr_url($qrda_fname); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
+    <a href="qrda_download.php?qrda_fname=<?php echo attr_url($qrda_fname); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
 </p>
 <textarea rows='50' cols='500' style='width:95%' readonly>
 <?php echo trim($xml->getXml()); ?>

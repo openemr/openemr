@@ -22,6 +22,7 @@ require_once("$srcdir/user.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
@@ -121,8 +122,8 @@ function checkBackgroundServices()
 //
 if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $i = 0;
@@ -168,8 +169,8 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
 
 if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $client = portal_connection();
@@ -216,8 +217,8 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
 //
 if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
   // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
@@ -340,7 +341,7 @@ function validate_file() {
         type: "POST",
         url: "<?php echo $GLOBALS['webroot']?>/library/ajax/offsite_portal_ajax.php",
         data: {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
             action: 'check_file'
         },
         cache: false,
@@ -418,7 +419,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php } else { ?>
                 <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
                 <?php } ?>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="clearfix">
                         <div class="btn-group oe-margin-b-10">
                             <button type='submit' class='btn btn-default btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>

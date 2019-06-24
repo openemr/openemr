@@ -14,9 +14,11 @@
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 //verify csrf
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $req = array(

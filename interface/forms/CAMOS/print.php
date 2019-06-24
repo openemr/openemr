@@ -14,6 +14,9 @@
 
 require_once("../../globals.php");
 require_once("../../../library/api.inc");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form: CAMOS");
 ?>
 <html><head>
@@ -22,7 +25,7 @@ formHeader("Form: CAMOS");
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="my_form"
  onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <h1><php echo xlt('CAMOS'); ?> </h1>
 <hr>
 <input type="submit" name="submit form" value="<?php echo xla('submit form'); ?>" />

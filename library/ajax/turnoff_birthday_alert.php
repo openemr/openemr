@@ -13,10 +13,11 @@
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Reminder\BirthdayReminder;
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 if (!empty($_POST['pid']) && !empty($_POST['user_id'])) {

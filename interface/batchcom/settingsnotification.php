@@ -15,6 +15,7 @@ require_once("$srcdir/registry.inc");
 require_once("../../library/acl.inc");
 require_once("batchcom.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -28,8 +29,8 @@ if (!acl_check('admin', 'notification')) {
  $type = 'SMS/Email Settings';
 // process form
 if ($_POST['form_action']=='save') {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($_POST['Send_SMS_Before_Hours']=="") {
@@ -104,7 +105,7 @@ if ($result) {
         }
         ?>
         <form name="select_form" method="post" action="">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" name="type" value="SMS">
             <input type="Hidden" name="SettingsId" value="<?php echo attr($SettingsId);?>">
 

@@ -80,23 +80,23 @@ class FormHpTjePrimary extends ORDataObject
     {
         parent::populate();
 
-        $sql = "SELECT name from form_hp_tje_checks where foreign_id = '" . add_escape_custom($this->id) . "'";
-        $results = sqlQ($sql);
+        $sql = "SELECT name from form_hp_tje_checks where foreign_id = ?";
+        $results = sqlQ($sql, [$this->id]);
 
         while ($row = sqlFetchArray($results)) {
             $this->checks[] = $row['name'];
         }
 
 
-        $sql = "SELECT doctor,specialty,tx_rendered,effectiveness,date from form_hp_tje_history where foreign_id = '" . add_escape_custom($this->id) . "'";
-        $results = sqlQ($sql);
+        $sql = "SELECT doctor,specialty,tx_rendered,effectiveness,date from form_hp_tje_history where foreign_id = ?";
+        $results = sqlQ($sql, [$this->id]);
 
         while ($row = sqlFetchArray($results)) {
             $this->history[] = $row;
         }
 
-        $sql = "SELECT nature_of_accident,injuries,date from form_hp_tje_previous_accidents where foreign_id = '" . add_escape_custom($this->id) . "'";
-        $results = sqlQ($sql);
+        $sql = "SELECT nature_of_accident,injuries,date from form_hp_tje_previous_accidents where foreign_id = ?";
+        $results = sqlQ($sql, [$this->id]);
 
         while ($row = sqlFetchArray($results)) {
             $this->previous_accidents[] = $row;
@@ -363,46 +363,64 @@ class FormHpTjePrimary extends ORDataObject
 
         parent::persist();
         if (is_numeric($this->id) and !empty($this->checks)) {
-            $sql = "delete FROM form_hp_tje_checks where foreign_id = '" . $this->id . "'";
-            sqlQuery($sql);
+            $sql = "delete FROM form_hp_tje_checks where foreign_id = ?";
+            sqlQuery($sql, [$this->id]);
             foreach ($this->checks as $check) {
                 if (!empty($check)) {
-                    $sql = "INSERT INTO form_hp_tje_checks set foreign_id='"  . add_escape_custom($this->id) . "', name = '" . add_escape_custom($check) . "'";
-                    sqlQuery($sql);
+                    $sql = "INSERT INTO form_hp_tje_checks set foreign_id=?, name = ?";
+                    sqlQuery($sql, [$this->id, $check]);
                     //echo "$sql<br>";
                 }
             }
         }
 
         if (is_numeric($this->id) and !empty($this->history)) {
-            $sql = "delete FROM form_hp_tje_history where foreign_id = '" . $this->id . "'";
-            sqlQuery($sql);
+            $sql = "delete FROM form_hp_tje_history where foreign_id = ?";
+            sqlQuery($sql, [$this->id]);
             foreach ($this->history as $history) {
                 if (!empty($history)) {
-                    $sql = "INSERT INTO form_hp_tje_history set foreign_id='"  . add_escape_custom($this->id) ."'"
-                    . ", doctor = '" . add_escape_custom($history['doctor']) . "'"
-                    . ", specialty = '" . add_escape_custom($history['specialty']) . "'"
-                    . ", tx_rendered = '" . add_escape_custom($history['tx_rendered']) . "'"
-                    . ", effectiveness = '" . add_escape_custom($history['effectiveness']) . "'"
-                    . ", date = '" . add_escape_custom($history['date']) . "'";
-                    sqlQuery($sql);
+                    $sql = "INSERT INTO form_hp_tje_history set foreign_id=?"
+                    . ", doctor = ?"
+                    . ", specialty = ?"
+                    . ", tx_rendered = ?"
+                    . ", effectiveness = ?"
+                    . ", date = ?";
+                    sqlQuery(
+                        $sql,
+                        [
+                            $this->id,
+                            $history['doctor'],
+                            $history['specialty'],
+                            $history['tx_rendered'],
+                            $history['effectiveness'],
+                            $history['date']
+                        ]
+                    );
                     //echo "$sql<br>";
                 }
             }
         }
 
         if (is_numeric($this->id) and !empty($this->previous_accidents)) {
-            $sql = "delete FROM form_hp_tje_previous_accidents where foreign_id = '" . $this->id . "'";
-            sqlQuery($sql);
+            $sql = "delete FROM form_hp_tje_previous_accidents where foreign_id = ?";
+            sqlQuery($sql, [$this->id]);
 
             foreach ($this->previous_accidents as $pa) {
                 if (!empty($pa)) {
-                    $sql = "INSERT INTO form_hp_tje_previous_accidents set foreign_id='"  . add_escape_custom($this->id) .
-                    "', nature_of_accident = '" . add_escape_custom($pa['nature_of_accident']) . "'"
-                    . ", injuries = '" . add_escape_custom($pa['injuries']) . "'"
-                    . ", date = '" . add_escape_custom($pa['date']) . "'";
+                    $sql = "INSERT INTO form_hp_tje_previous_accidents set foreign_id=?" .
+                    ", nature_of_accident = ?"
+                    . ", injuries = ?"
+                    . ", date = ?";
 
-                    sqlQuery($sql);
+                    sqlQuery(
+                        $sql,
+                        [
+                            $this->id,
+                            $pa['nature_of_accident'],
+                            $pa['injuries'],
+                            $pa['date']
+                        ]
+                    );
                     //echo "$sql<br>";
                 }
             }

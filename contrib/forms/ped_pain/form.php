@@ -247,10 +247,10 @@ This form works as new and editing,
 } ?>>no
         </SELECT>
     </TD>
-    <TD colspan=4 align=left valign=top>Notes: 
+    <TD colspan=4 align=left valign=top>Notes:
     <TEXTAREA NAME="notes" ROWS="3" COLS="40">
     <?php if ($obj["notes"]!='') {
-        print $obj["notes"];
+        print text($obj["notes"]);
 } ?>
     </TEXTAREA></TD>
 </TR>

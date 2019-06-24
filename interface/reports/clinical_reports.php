@@ -16,11 +16,12 @@ require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -218,7 +219,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 <div id="report_parameters_daterange"> <?php echo text(oeFormatDateTime($sql_date_from, "global", true)) .
       " &nbsp; " . xlt("to") . " &nbsp; ". text(oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
 <form name='theform' id='theform' method='post' action='clinical_reports.php' onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <div id="report_parameters">
         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
         <table>

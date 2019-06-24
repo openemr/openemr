@@ -16,6 +16,7 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -33,8 +34,8 @@ $templatedir = "$OE_SITE_DIR/documents/doctemplates";
 //
 if (!empty($_POST['bn_download'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $templatepath = "$templatedir/$form_filename";
@@ -63,8 +64,8 @@ if (!empty($_POST['bn_download'])) {
 
 if (!empty($_POST['bn_delete'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $templatepath = "$templatedir/$form_filename";
@@ -75,8 +76,8 @@ if (!empty($_POST['bn_delete'])) {
 
 if (!empty($_POST['bn_upload'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Handle uploads.
@@ -142,7 +143,7 @@ if (!empty($_POST['bn_upload'])) {
 <body class="body_top">
 <form method='post' action='manage_document_templates.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

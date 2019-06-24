@@ -21,9 +21,10 @@ require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $nextLocation = 0;      // offset to resume scanning

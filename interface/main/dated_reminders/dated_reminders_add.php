@@ -13,6 +13,7 @@
 require_once("../../globals.php");
 require_once("$srcdir/dated_reminder_functions.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $dateRanges = array();
@@ -53,8 +54,8 @@ $max_reminder_words=160;
 
 // ---------------- FOR FORWARDING MESSAGES ------------->
 if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $forwarding = true;
@@ -67,8 +68,8 @@ if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
 
 // --- add reminders
 if ($_POST) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
 // --- initialize $output as blank
@@ -306,7 +307,7 @@ if (isset($this_message['pid'])) {
     <div class="container">
     <h4><?php echo attr($reminder_title) ?></h4>
     <form id="addDR"  class="form-horizontal" id="newMessage" method="post" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
        <fieldset id='error-info' class='oe-error-modal' style="display:none">
         <div style="text-align:center;" id="errorMessage"></div>

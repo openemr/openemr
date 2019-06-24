@@ -13,6 +13,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 /** CHANGE THIS name to the name of your form **/
 $form_name = "My Example Form";
 
@@ -43,7 +45,7 @@ $returnurl = 'encounter_top.php';
 <?php echo date("F d, Y", time()); ?>
 
 <form method=post action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=new" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <span class="title"><?php echo xlt($form_name); ?></span><br>
 

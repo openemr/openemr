@@ -37,6 +37,7 @@ require_once("../../globals.php");
 require_once("../../../library/options.inc.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Set the path to this script
@@ -296,7 +297,7 @@ if ($value_select) {
                                 track:  thetitle,
                                 items:  theitem,
                                 thecheckboxes: checkboxfake,
-                                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                             },
                         dataType: "json",
                         success: function(returnData){

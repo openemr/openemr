@@ -32,6 +32,7 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 //
 require_once('../forms/fee_sheet/codes.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 function is_clinic($code)
@@ -159,7 +160,7 @@ $form_facility   = $_POST['form_facility'];
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Cash Receipts by Provider'); ?></span>
 
 <form method='post' action='sl_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -305,8 +306,8 @@ $form_facility   = $_POST['form_facility'];
 
 <?php
 if ($_POST['form_refresh']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
 ?>

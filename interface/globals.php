@@ -240,13 +240,6 @@ if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
 //  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
-// Set up csrf token
-// This is done in cases where it is not yet set for the session
-// (note this is permanently done for the session in the main_screen.php script)
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = createCsrfToken();
-}
-
 /**
  * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
  *
@@ -260,32 +253,6 @@ if (file_exists("{$webserver_root}/.env")) {
     $dotenv = Dotenv::create($webserver_root);
     $dotenv->load();
 }
-
-// @TODO This needs to be broken out to it's own function, but for time's sake
-// @TODO putting it here until we land on a good place. RD 2017-05-02
-
-$twigOptions = [
-    'debug' => false,
-];
-
-$twigLoader = new Twig_Loader_Filesystem();
-$twigEnv = new Twig_Environment($twigLoader, $twigOptions);
-
-if (array_key_exists('debug', $twigOptions) && $twigOptions['debug'] == true) {
-    $twigEnv->addExtension(new Twig_Extension_Debug());
-}
-
-$twigEnv->addGlobal('assets_dir', $GLOBALS['assets_static_relative']);
-$twigEnv->addGlobal('srcdir', $GLOBALS['srcdir']);
-$twigEnv->addGlobal('rootdir', $GLOBALS['rootdir']);
-$twigEnv->addFilter(new Twig_SimpleFilter('translate', function ($string) {
-    return xl($string);
-}));
-
-/** Twig_Loader */
-$GLOBALS['twigLoader'] = $twigLoader;
-/** Twig_Environment */
-$GLOBALS['twig'] = $twigEnv;
 
 // This will open the openemr mysql connection.
 require_once(dirname(__FILE__) . "/../library/sql.inc");

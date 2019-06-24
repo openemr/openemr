@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
+use OpenEMR\Common\Csrf\CsrfUtils;
 ?>
 <script type="text/javascript">
 $(function(){
@@ -95,7 +95,7 @@ $(function(){
     insurance_text_ajax: document.getElementById('type_code') ? document.getElementById('type_code').value : '',
     encounter_patient_code:Source=='encounter' ? document.getElementById('hidden_patient_code').value : '',
     submit_or_simple_type:SubmitOrSimple,
-    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
    },
    //async: false,
     success: function(thedata){

@@ -22,6 +22,9 @@
 <!-- Forms generated from formsWiz -->
 <?php
 require_once("../../globals.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 <html><head>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
@@ -32,7 +35,7 @@ require_once("$srcdir/api.inc");
 $obj = formFetch("form_contacts", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/contacts/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <span class="title">Contacts</span><Br><br>
 <table>
 <tr>

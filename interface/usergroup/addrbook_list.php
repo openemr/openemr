@@ -19,11 +19,12 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -108,7 +109,7 @@ $res = sqlStatement($query, $sqlBindArray);
 
         <form class='navbar-form' method='post' action='addrbook_list.php'
               onsubmit='return top.restoreSession()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
             <div class="text-center">
                 <div class="form-group">

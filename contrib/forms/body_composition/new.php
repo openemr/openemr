@@ -18,6 +18,8 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $scale_file_name = '/tmp/tanita_scale.txt';
 $scale_file_age = -1;
 $row = array();
@@ -52,8 +54,8 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
  // If updating an existing form...
@@ -115,7 +117,7 @@ if ($formid) {
 <body <?php echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
 <form method="post" action="<?php echo $rootdir ?>/forms/body_composition/new.php?id=<?php echo attr_url($formid) ?>"
  onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

@@ -23,6 +23,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -56,8 +57,8 @@ function era_callback(&$out)
 //===============================================================================
   // Handle X12 835 file upload.
 if ($_FILES['form_erafile']['size']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $tmp_name = $_FILES['form_erafile']['tmp_name'];
@@ -127,7 +128,7 @@ if ($_FILES['form_erafile']['size']) {
          var paydate = f.check_date.value;
          var post_to_date = f.post_to_date.value;
          var deposit_date = f.deposit_date.value;
-         window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&post_to_date=' + encodeURIComponent(post_to_date) + '&deposit_date=' + encodeURIComponent(deposit_date) + '&original=original' + '&InsId=' + <?php echo js_url($hidden_type_code); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank');
+         window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&post_to_date=' + encodeURIComponent(post_to_date) + '&deposit_date=' + encodeURIComponent(deposit_date) + '&original=original' + '&InsId=' + <?php echo js_url($hidden_type_code); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank');
          return false;
         <?php
         }
@@ -283,7 +284,7 @@ if ($_FILES['form_erafile']['size']) {
         <div class="row">
             <div class="col-sm-12">
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
                         <div class="col-xs-12 oe-custom-line">
                             <div class="form-group col-xs9 oe-file-div">
