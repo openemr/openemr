@@ -35,7 +35,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
     echo error_xml(xl('ACL Administration Not Authorized'));
-    csrfNotVerified(false);
+    CsrfUtils::csrfNotVerified(false);
 }
 
 //ensure php is installed

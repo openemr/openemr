@@ -58,7 +58,7 @@ if (!acl_check('patients', 'demo', '', 'write')) {
 
 if ($_POST['form_import']) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+        CsrfUtils::csrfNotVerified();
     }
 
     $apatient    = array();

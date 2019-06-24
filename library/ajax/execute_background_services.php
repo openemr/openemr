@@ -45,6 +45,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 //ajax param should be set by calling ajax scripts
 $isAjaxCall = isset($_POST['ajax']);
 
@@ -68,8 +70,8 @@ if (!$isAjaxCall && (php_sapi_name() === 'cli')) {
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
     // not calling from cron job so ensure passes csrf check
-    if (!OpenEMR\Common\Csrf\CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        OpenEMR\Common\Csrf\CsrfUtils::csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 

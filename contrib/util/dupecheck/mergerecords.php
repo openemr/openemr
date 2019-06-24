@@ -19,7 +19,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+        CsrfUtils::csrfNotVerified();
     }
     foreach ($_POST as $key => $value) {
         $parameters[$key] = $value;
@@ -28,7 +28,7 @@ if (!empty($_POST)) {
 
 if (!empty($_GET)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+        CsrfUtils::csrfNotVerified();
     }
     foreach ($_GET as $key => $value) {
         $parameters[$key] = $value;

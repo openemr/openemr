@@ -18,7 +18,7 @@ use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+        CsrfUtils::csrfNotVerified();
     }
     foreach ($_POST as $key => $value) {
         $parameters[$key] = $value;

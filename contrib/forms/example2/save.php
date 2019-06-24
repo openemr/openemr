@@ -20,7 +20,7 @@ require_once("$srcdir/forms.inc");
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+    CsrfUtils::csrfNotVerified();
 }
 
 /** CHANGE THIS - name of the database table associated with this form **/
