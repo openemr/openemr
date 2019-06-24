@@ -173,7 +173,7 @@ var xl_strings_tabs_view_model = <?php echo json_encode(array(
 ));
 ?>;
 // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
-var csrf_token_js = <?php echo js_escape(collectCsrfToken()); ?>;
+var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
 // will fullfill json and return promise if needed
 // to call elsewhere for a local scope ie
 // let localJson = top.jsFetchGlobals().then(data => {do something with parsed json data});
