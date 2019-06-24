@@ -17,11 +17,12 @@ require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -1106,7 +1107,7 @@ $(function() {
 <h2><?php echo $report_title; ?></h2>
 
 <form name='theform' method='post' action='ippf_statistics.php?t=<?php echo attr_url($report_type); ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellspacing='5' cellpadding='1'>
 

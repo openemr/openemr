@@ -19,9 +19,11 @@ require_once("../../interface/globals.php");
 require_once("$fileroot/custom/code_types.inc.php");
 require_once("$fileroot/interface/drugs/drugs.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 //verify csrf
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 function write_code_info($codetype, $code, $selector, $pricelevel)

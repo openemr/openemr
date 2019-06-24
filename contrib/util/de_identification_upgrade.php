@@ -27,6 +27,8 @@ $de_identification_config = 0;
 
 require_once('../../interface/globals.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 function tableExists_de($tblname)
 {
     $row = sqlQuery("SHOW TABLES LIKE '" . add_escape_custom($tblname) . "'");
@@ -156,8 +158,8 @@ closedir($dh);
 </center>
 <?php
 if (!empty($_POST['form_submit'])) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     upgradeFromSqlFile_de("database_de_identification.sql");
@@ -221,7 +223,7 @@ function form_validate()
 
 <center>
 <form method='post' action='de_identification_upgrade.php' onsubmit="return form_validate();">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 </br>
 <p><?php  if ($de_identification_config != 1) {
     echo "<p><font color='red'>";

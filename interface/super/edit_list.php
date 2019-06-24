@@ -19,11 +19,12 @@ require_once("$srcdir/lists.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -1008,7 +1009,7 @@ function writeITLine($it_array)
 
 <body class="body_top">
 <form method='post' name='theform' id='theform' action='edit_list.php'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type="hidden" id="list_from" name="list_from" value="<?php echo attr($list_from);?>"/>
     <input type="hidden" id="list_to" name="list_to" value="<?php echo attr($list_to);?>"/>
     <nav class="navbar navbar-default navbar-fixed-top">
@@ -1377,7 +1378,7 @@ if ($GLOBALS['ippf_specific']) { ?>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form action="edit_list.php" method="post" class="form">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"
                             aria-label="<?php echo xla('Close'); ?>"><i

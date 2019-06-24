@@ -15,6 +15,7 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -44,8 +45,8 @@ $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 $message = '';
 if (!empty($_POST['form_delete_method'])) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
     // Delete the indicated MFA instance.
     sqlStatement(
@@ -134,7 +135,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' action='mfa_registrations.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div>
                         <fieldset>
                             <legend><?php echo xlt('Current Authentication Method for') . " " . $user_full_name; ?></legend>
@@ -185,7 +186,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </form>
             </div>
         </div>
-        
+
     </div><!--end of container div -->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>

@@ -10,6 +10,7 @@
  */
 namespace OpenEMR\OeUI;
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 Header::setupHeader(['jquery-ui', 'jquery-ui-base', 'no_jquery', 'no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_textformat', 'no_dialog' ]);
@@ -318,7 +319,7 @@ JQD;
         $contractTitle = xlj("Click to Expand and set to henceforth open in Expanded mode");
         $arrFiles = json_encode($this->arrFiles);
         $web_root = $GLOBALS['webroot'];
-        $collectToken = js_escape(collectCsrfToken());
+        $collectToken = js_escape(CsrfUtils::collectCsrfToken());
         $header_expand_js = <<<EXP
         <script>
         $(function () {

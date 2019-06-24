@@ -15,8 +15,10 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 ?>
 
@@ -47,7 +49,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         continue;
     }
 
-  
+
     $query = "SELECT * FROM lists WHERE pid = ? AND type = ? AND ";
     $query .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
     if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $key=='medication') {
@@ -312,7 +314,7 @@ if (sqlNumRows($result) == 0) {
 while ($row=sqlFetchArray($result)) {
     echo "&nbsp;&nbsp;";
     echo "<a class='link'";
-    echo "' href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=".urlencode($row['id'])."&csrf_token_form=".urlencode(collectCsrfToken())) . ")'>" .
+    echo "' href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=".urlencode($row['id'])."&csrf_token_form=".urlencode(CsrfUtils::collectCsrfToken())) . ")'>" .
     text($row{'immunization_data'});
 
     // Figure out which name to use (ie. from cvx list or from the custom list)

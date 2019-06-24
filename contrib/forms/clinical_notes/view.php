@@ -18,6 +18,8 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $row = array();
 
 if (! $encounter) { // comes from globals.php
@@ -79,8 +81,8 @@ $formid = $_GET['id'];
 //
 if ($_POST['bn_save']) {
     $fu_timing = $_POST['fu_timing'];
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
  // If updating an existing form...
@@ -126,7 +128,7 @@ if ($formid) {
  bottommargin="0" marginwidth="2" marginheight="0">
 <form method="post" action="<?php echo $rootdir ?>/forms/clinical_notes/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

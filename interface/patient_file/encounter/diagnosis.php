@@ -14,6 +14,7 @@ require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];
@@ -41,8 +42,8 @@ if ($payment_method == "insurance") {
 }
 
 if (isset($mode)) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($mode == "add") {
@@ -226,7 +227,7 @@ if (!$thisauth) {
 }
 ?>
 
-<form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"
+<form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
  onsubmit="return validate(this)">
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
@@ -252,7 +253,7 @@ if (!empty($_GET["back"]) || !empty($_POST["back"])) {
 </dt>
 </dl>
 
-<a href="cash_receipt.php?csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+<a href="cash_receipt.php?csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
 [<?php echo xlt('Receipt'); ?>]
 </a>
 <table border="0">

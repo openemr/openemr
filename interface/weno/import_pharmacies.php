@@ -15,8 +15,10 @@
 
 require_once('../globals.php');
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $state = filter_input(INPUT_POST, "form_state"); //stores the variable sent in the post

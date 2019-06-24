@@ -71,6 +71,8 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 require_once("./../interface/globals.php");
 require_once("./../library/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if ($isLocalApi) {
     // need to check for csrf match when using api locally
     $csrfFail = false;
@@ -80,7 +82,7 @@ if ($isLocalApi) {
         $csrfFail = true;
     }
 
-    if ((!$csrfFail) && (!verifyCsrfToken($_SERVER['HTTP_APICSRFTOKEN'], 'api'))) {
+    if ((!$csrfFail) && (!CsrfUtils::verifyCsrfToken($_SERVER['HTTP_APICSRFTOKEN'], 'api'))) {
         error_log("OpenEMR Error: internal api failed because csrf token did not match");
         $csrfFail = true;
     }

@@ -9,6 +9,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
 if ((empty($_SESSION['lang_module_unique_id'])) ||
@@ -28,8 +29,8 @@ if (!$thisauth) {
 }
 
 if ($_POST['add']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     //validate
@@ -64,8 +65,8 @@ if ($_POST['add']) {
 ?>
 
 <TABLE>
-<FORM name="lang_form" METHOD=POST ACTION="?m=language&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<FORM name="lang_form" METHOD=POST ACTION="?m=language&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <TR>
     <TD><?php  echo xlt('Language Code'); ?>:</TD>
     <TD><INPUT TYPE="text" NAME="lang_code" size="2" maxlength="2" value="<?php echo attr($val_lang_code); ?>"></TD>

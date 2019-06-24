@@ -12,6 +12,8 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 // This may be more appropriate to move to the library
 // later
 function getInsuranceCompanies($pid)
@@ -56,7 +58,7 @@ document.copay_form.codeH.value="";
 
 <dl>
 
-<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"
+<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 
 <dt><span class=title><?php echo xlt('Copay'); ?></span></dt>

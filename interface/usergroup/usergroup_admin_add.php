@@ -15,6 +15,7 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
@@ -208,7 +209,7 @@ function authorized_clicked() {
 
 <tr><td valign=top>
 <form name='new_user' id="new_user" method='post' action="usergroup_admin.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type='hidden' name='mode' value='new_user'>
 <input type='hidden' name='secure_pwd' value="<?php echo attr($GLOBALS['secure_password']); ?>">
@@ -406,7 +407,7 @@ foreach ($list_acl_groups as $value) {
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <br>
 <input type=hidden name=mode value=new_group>
 <span class="bold"><?php echo xlt('New Group'); ?>:</span>
@@ -438,7 +439,7 @@ foreach ($result as $iter) {
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type=hidden name=mode value=new_group>
 <span class="bold"><?php echo xlt('Add User To Group'); ?>:</span>
 </td><td>
@@ -490,7 +491,7 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
     foreach ($result5 as $iter) {
         $grouplist{$iter{"name"}} .= $iter{"user"} .
         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-        attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
+        attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
     }
 
     foreach ($grouplist as $groupname => $list) {

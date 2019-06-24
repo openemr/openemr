@@ -19,6 +19,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form: ankleinjury");
 ?>
 
@@ -28,7 +30,7 @@ formHeader("Form: ankleinjury");
 
 <body class="body_top">
 <form method=post action="<?php echo $rootdir;?>/forms/ankleinjury/save.php?mode=new" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <span class="title"><?php echo xlt('Ankle Evaluation Form'); ?></span><br></br>
 

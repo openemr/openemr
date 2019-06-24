@@ -21,6 +21,7 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
 
 use ESign\Api;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $reviewMode = false;
@@ -55,7 +56,7 @@ $esignApi = new Api();
 <?php // if the track_anything form exists, then include the styling and js functions (and js variable) for graphing
 if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
  <script type="text/javascript">
- var csrf_token_js = <?php echo js_escape(collectCsrfToken()); ?>;
+ var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
  </script>
  <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/report.js"></script>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css">
@@ -148,7 +149,7 @@ jQuery(document).ready( function($) {
               patient_id: <?php echo js_escape($pid); ?>,
               object_category: "form_encounter",
               object_id: <?php echo js_escape($encounter); ?>,
-              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         );
     });
@@ -168,7 +169,7 @@ jQuery(document).ready( function($) {
               patient_id: <?php echo js_escape($pid); ?>,
               object_category: "form_encounter",
               object_id: <?php echo js_escape($encounter); ?>,
-              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         );
     });
@@ -196,7 +197,7 @@ jQuery(document).ready( function($) {
               patient_id: <?php echo js_escape($pid); ?>,
               object_category: "form_encounter",
               object_id: <?php echo js_escape($encounter); ?>,
-              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         );
     });
@@ -216,7 +217,7 @@ jQuery(document).ready( function($) {
               patient_id: <?php echo js_escape($pid); ?>,
               object_category: "form_encounter",
               object_id: <?php echo js_escape($encounter); ?>,
-              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         );
     });
@@ -235,7 +236,7 @@ jQuery(document).ready( function($) {
                 patient_id: <?php echo js_escape($pid); ?>,
                 object_category: "form_encounter",
                 object_id: <?php echo js_escape($encounter); ?>,
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }
         );
     });
@@ -278,7 +279,7 @@ if (!isset($_GET['attachid'])) {
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?encounterid=' + <?php echo js_url($encounter); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 200, '', '', {
+  dlgopen('../deleter.php?encounterid=' + <?php echo js_url($encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 200, '', '', {
       buttons: [
           {text: <?php echo xlj('Done'); ?>, close: true, style: 'primary btn-sm'}
       ],

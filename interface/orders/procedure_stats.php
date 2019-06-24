@@ -21,6 +21,8 @@ require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 // Might want something different here.
 //
 if (! acl_check('acct', 'rep')) {
@@ -332,7 +334,7 @@ $(function() {
 <h2><?php echo $report_title; ?></h2>
 
 <form name='theform' method='post' action='procedure_stats.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellspacing='5' cellpadding='1'>
 
@@ -453,8 +455,8 @@ title='<?php echo xla('Click to generate the report'); ?>' />
 } // end not export
 
 if ($_POST['form_submit']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $pd_fields = '';

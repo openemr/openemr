@@ -15,6 +15,7 @@
 require_once("../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
@@ -101,7 +102,7 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
                      items:  theitems,
                      track:  thetrack,
                      thecheckboxes: checkedBoxes,
-                     csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                    },
              dataType: "json",
              success: function(returnData){

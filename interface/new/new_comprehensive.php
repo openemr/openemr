@@ -20,6 +20,7 @@ require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Check authorization.
@@ -357,7 +358,7 @@ function selBlur(elem) {
 // This invokes the patient search dialog.
 function searchme() {
  var f = document.forms[0];
- var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>';
+ var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
 
 <?php
 $lres = getLayoutRes();
@@ -431,7 +432,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         <div class="row">
             <div class="col-sm-12">
                 <form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <table width='100%' cellpadding='0' cellspacing='8'>
                     <tr>
                       <td align='left' valign='top'>

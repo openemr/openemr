@@ -16,6 +16,8 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];
 $form_code_type = $_POST['form_code_type'];
@@ -113,7 +115,7 @@ function check_search_str()
 </head>
 <body class="body_top">
 <form method='post' name='theform'  action='find_code_popup.php' onsubmit="return check_search_str();">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
  <input type="hidden" name="search_status" id="search_status" value=1;>
 <table border='0' cellpadding='5' cellspacing='0'>
@@ -168,8 +170,8 @@ if ($codetype) {
  <tr>
  <td colspan="4">
 <?php if ($_REQUEST['bn_search']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $search_term = $_REQUEST['search_term'];

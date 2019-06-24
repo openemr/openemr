@@ -17,9 +17,11 @@ require_once("../../../library/api.inc");
 require_once("../../../library/forms.inc");
 require_once("./content_parser.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if ($_GET["mode"] == "delete") {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     foreach ($_POST as $key => $val) {

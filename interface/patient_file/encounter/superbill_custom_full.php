@@ -17,6 +17,8 @@ require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 // gacl control
 $thisauthview = acl_check('admin', 'superbill', false, 'view');
 $thisauthwrite = acl_check('admin', 'superbill', false, 'write');
@@ -60,8 +62,8 @@ $financial_reporting = 0;
 $revenue_code = '';
 
 if (isset($mode) && $thisauthwrite) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $code_id    = empty($_POST['code_id']) ? '' : $_POST['code_id'] + 0;
@@ -457,7 +459,7 @@ if ($fend > $count) {
 <body class="body_top" >
 
 <form method='post' action='superbill_custom_full.php' name='theform'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
     <input type='hidden' name='mode' value=''>
 

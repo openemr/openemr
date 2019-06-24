@@ -16,6 +16,7 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
@@ -339,8 +340,8 @@ $lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
 // Handle the Form actions
 
 if ($_POST['formaction'] == "save" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // If we are saving, then save.
@@ -402,8 +403,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         }
     }
 } else if ($_POST['formaction'] == "addfield" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Add a new field to a specific group
@@ -436,8 +437,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       " )");
     addOrDeleteColumn($layout_id, trim($_POST['newid']), true);
 } else if ($_POST['formaction'] == "movefields" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Move field(s) to a new group in the layout
@@ -456,8 +457,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     //echo $sqlstmt;
     sqlStatement($sqlstmt);
 } else if ($_POST['formaction'] == "deletefields" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Delete a field from a specific group
@@ -476,8 +477,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         addOrDeleteColumn($layout_id, $onefield, false);
     }
 } else if ($_POST['formaction'] == "addgroup" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Generate new value for layout_items.group_id.
@@ -522,8 +523,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     addOrDeleteColumn($layout_id, trim($_POST['gnewid']), true);
 } /**********************************************************************
 else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // drop the fields from the related table (this is critical)
@@ -543,8 +544,8 @@ else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
 **********************************************************************/
 
 else if ($_POST['formaction'] == "movegroup" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Note that in some cases below the swapGroups() call will do nothing.
@@ -572,8 +573,8 @@ else if ($_POST['formaction'] == "movegroup" && $layout_id) {
     }
 } // Renaming a group. This might include moving to a different parent group.
 else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $newparent = $_POST['renamegroupparent'];  // this is an ID
@@ -1213,7 +1214,7 @@ function setListItemOptions(lino, seq, init) {
     '?listid='  + encodeURIComponent(list_id) +
     '&target='  + encodeURIComponent(target)  +
     '&current=' + encodeURIComponent(current) +
-    '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
+    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
 }
 
 // This is called whenever a condition's field ID selection is changed.
@@ -1277,7 +1278,7 @@ function myChangeCheck() {
 <body class="body_top admin-layout">
 <div class="container-responsive">
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="">
 <!-- elements used to identify a field to delete -->
 <input type="hidden" name="deletefieldid" id="deletefieldid" value="">

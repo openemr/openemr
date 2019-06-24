@@ -18,6 +18,7 @@ set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Set this to true for production use. If false you will get a "dry run" with no updates.
@@ -93,8 +94,8 @@ function updateRows($tblname, $colname, $source_pid, $target_pid)
 }
 
 if (!empty($_POST['form_submit'])) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $target_pid = intval($_POST['form_target_pid']);
@@ -231,7 +232,7 @@ if (!empty($_POST['form_submit'])) {
 </p>
 
 <form method='post' action='merge_patients.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div class="table-responsive">
 <table style='width:100%'>
  <tr>

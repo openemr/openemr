@@ -9,16 +9,15 @@
  // This program exports report to PQRI 2009 XML format.
 
 
-
-
-
 require_once("../interface/globals.php");
 require_once("../library/patient.inc");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 //To improve performance and not freeze the session when running this

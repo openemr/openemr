@@ -11,6 +11,7 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ONoteService;
 
@@ -24,8 +25,8 @@ $active = (isset($_REQUEST['active'])) ? $_REQUEST['active'] : -1;
 
 //this code handles changing the state of activity tags when the user updates them through the interface
 if (isset($_POST['mode'])) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($_POST['mode'] == "update") {
@@ -54,7 +55,7 @@ if (isset($_POST['mode'])) {
 <div id="officenotes_edit">
 
 <form method="post" name="new_note" action="office_comments_full.php" onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <?php
 /* BACK should go to the main Office Notes screen */
@@ -83,7 +84,7 @@ if ($userauthorized) {
 <hr>
 
 <form method="post" name="update_activity" action="office_comments_full.php" onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <?php //change the view on the current mode, whether all, active, or inactive
 if ($active==="1") {

@@ -17,6 +17,7 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -99,7 +100,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                         control: "acl",
                         action: "add",
                         title: title,
@@ -171,7 +172,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                         control: "acl",
                         action: "remove",
                         title: title,
@@ -221,7 +222,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                         control: "username",
                         action: "list"
                     },
@@ -270,7 +271,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                         control: "acl",
                         action: "list"
                     },
@@ -369,7 +370,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                         name: identityFormatted,
                         control: control,
                         action: action,

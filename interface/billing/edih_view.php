@@ -13,6 +13,9 @@
 
 
 require_once(dirname(__FILE__) . '/../globals.php');
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 //
 if (!acl_check('acct', 'eob')) {
     die(xlt("Access Not Authorized"));
@@ -55,7 +58,7 @@ if (!acl_check('acct', 'eob')) {
         <tr vertical-align="middle">
          <td align="center">
             <form id="formupl" name="form_upl" action="edih_main.php" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <fieldset>
                 <legend><?php echo xlt("Select one or more files to upload"); ?></legend>
                 <input type="file" id="uplmulti" name="fileUplMulti[]" multiple />
@@ -67,7 +70,7 @@ if (!acl_check('acct', 'eob')) {
          </td>
          <td align="center">
             <form id="processnew" name="process_new" action="edih_main.php" method="GET">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <fieldset>
                 <legend><?php echo xlt("Process new files for CSV records"); ?>:</legend>
                 <input type="checkbox" id="processhtml" name="process_html" form="processnew"  value="htm" checked /> <?php echo xlt("HTML Output?"); ?>
@@ -95,7 +98,7 @@ if (!acl_check('acct', 'eob')) {
         <td colspan=4>
 
         <form id="formcsvtables" name="form_csvtables" action="edih_main.php" method="GET">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <fieldset>
                 <legend><?php echo xlt("View CSV tables"); ?>:</legend>
                 <table>
@@ -145,7 +148,7 @@ if (!acl_check('acct', 'eob')) {
         </td>
         <td colspan=2>
             <form id="formcsvhist" name="hist_csv" action="edih_main.php" method="get">
-               <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+               <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                <fieldset>
                   <legend><?php echo xlt("Per Encounter"); ?></legend>
                   <table cols='2'>
@@ -181,7 +184,7 @@ if (!acl_check('acct', 'eob')) {
 
     <div id="x12text" >
         <form id="x12view" name="x12_view" action="edih_main.php" enctype="multipart/form-data" method="post">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <fieldset>
         <legend><?php echo xlt("View EDI x12 file"); ?>:</legend>
         <table>
@@ -220,7 +223,7 @@ if (!acl_check('acct', 'eob')) {
             <tr>
                 <td>
                     <form id ="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Inspect the log"); ?></legend>
                     <label for="logfile"><?php echo xlt("View Log"); ?></label>
                     <select id="logselect" name="log_select"> </select>
@@ -232,7 +235,7 @@ if (!acl_check('acct', 'eob')) {
                     </form>
                 </td>
                 <td><form id ="formnotes" name="form_notes" action="edih_main.php" enctype="multipart/form-data" method="post">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Notes"); ?></legend>
                     <label for="notesget"><?php echo xlt("Notes"); ?></label>
                     <input id="notesget" type="button" name="notes_get" form="formnotes" value="<?php echo xla("Open"); ?>" />
@@ -258,7 +261,7 @@ if (!acl_check('acct', 'eob')) {
             <tr>
                 <td colspan=2>
                     <form id="formarchive" name="form_archive" action="edih_main.php" enctype="multipart/form-data" method="POST">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Archive old files"); ?></legend>
                     <label for="archive_sel"><?php echo xlt("Older than"); ?>:</label>
                     <select id="archiveselect" name="archive_sel">
@@ -279,7 +282,7 @@ if (!acl_check('acct', 'eob')) {
                     </form>
                 </td>
                 <td><form id="formarchrestore" name="form_archrestore" action="edih_main.php" enctype="multipart/form-data" method="POST">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Restore Archive"); ?></legend>
                     <label for="archrestore_sel"><?php echo xlt("Restore"); ?>:</label>
                     <select id="archrestoresel" name="archrestore_sel"> </select>
@@ -353,7 +356,7 @@ if (!acl_check('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 srvinfo: 'yes',
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             },
             dataType: 'json',
             success: function(rsp){ phpserver = rsp }
@@ -366,7 +369,7 @@ if (!acl_check('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 csvtbllist: 'yes',
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             },
             dataType: 'json',
             success: function(data) {
@@ -393,7 +396,7 @@ if (!acl_check('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 loglist: 'yes',
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             },
             dataType: 'json',
             success: function(data) {
@@ -417,7 +420,7 @@ if (!acl_check('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 archlist: 'yes',
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             },
             dataType: 'json',
             success: function(data) {
@@ -820,7 +823,7 @@ jQuery-UI dialog
             url: jQuery('#formlog').attr('action'),
             data: {
                 archivelog: 'yes',
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             },
             dataType: "json",
             success: function(data) {
@@ -883,7 +886,7 @@ jQuery-UI dialog
             url: jQuery('#formnotes').attr('action'),
             data: {
                 getnotes: "yes",
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             },
             dataType: "text",
             success: function(data){
@@ -902,7 +905,7 @@ jQuery-UI dialog
         e.preventDefault();
         var notetxt = jQuery('#notesrsp :textarea').val();
         var noteURL = jQuery('#formnotes').attr('action');
-        jQuery.post(noteURL, { putnotes: 'yes', tnotes: notetxt, csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?> },
+        jQuery.post(noteURL, { putnotes: 'yes', tnotes: notetxt, csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
             function(data){ jQuery('#notesrsp').append(data); });
     });
 
@@ -961,7 +964,7 @@ jQuery-UI dialog
             type: 'GET',
             //cache: false,
             dataType: 'html',
-            data: { archivereport: 'yes', period: sprd, csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?> },
+            data: { archivereport: 'yes', period: sprd, csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
 
             success: function(data) {
                 //rspElem.html(data);
