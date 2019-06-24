@@ -1271,10 +1271,10 @@ while ($crow = sqlFetchArray($cres)) {
 
  // Constants used by dateChanged() function.
  var occurNames = new Array(
-  '<?php echo xls("1st"); ?>',
-  '<?php echo xls("2nd"); ?>',
-  '<?php echo xls("3rd"); ?>',
-  '<?php echo xls("4th"); ?>'
+  '<?php echo xls("1st{{nth}}"); ?>',
+  '<?php echo xls("2nd{{nth}}"); ?>',
+  '<?php echo xls("3rd{{nth}}"); ?>',
+  '<?php echo xls("4th{{nth}}"); ?>'
  );
 
 var weekDays = new Array(
@@ -1794,7 +1794,7 @@ if ($GLOBALS['select_multi_providers']) {
 
    <select class='input-sm'  name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
 <?php
-foreach (array(1 => xl('every'), 2 => xl('2nd'), 3 => xl('3rd'), 4 => xl('4th'), 5 => xl('5th'), 6 => xl('6th'))
+foreach (array(1 => xl('every'), 2 => xl('2nd{{every}}'), 3 => xl('3rd{{every}}'), 4 => xl('4th{{every}}'), 5 => xl('5th{{every}}'), 6 => xl('6th{{every}}'))
  as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
     if ($key == $repeatfreq && isRegularRepeat($repeats)) {
