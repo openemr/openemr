@@ -1,10 +1,15 @@
 <?php
- // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * interface/super/rules/controllers/edit/view/action.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Aron Racho <aron@mi-squared.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 ?>
 <?php $action = $viewBean->action?>
 <?php $rule = $viewBean->rule?>
@@ -21,24 +26,24 @@
 
 <table class="header">
   <tr>
-        <td class="title"><?php echo out(xl('Rule Edit')); ?></td>
+        <td class="title"><?php echo xlt('Rule Edit'); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo $action->id ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
-                <span><?php echo out(xl('Cancel')); ?></span>
+            <a href="index.php?action=detail!view&id=<?php echo attr_url($action->id); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
+                <span><?php echo xlt('Cancel'); ?></span>
             </a>
-            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo out(xl('Save'));  ?></span></a>
+            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save');  ?></span></a>
         </td>
   </tr>
 </table>
 
 <div class="rule_detail edit text">
-    <p class="header"><?php echo out(xl('Action')); ?> </p>
+    <p class="header"><?php echo xlt('Action'); ?> </p>
 
     <form action="index.php?action=edit!submit_action" method="post" id="frm_submit" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="guid" value="<?php echo out($action->guid); ?>"/>
-    <input type="hidden" name="group_id" value="<?php echo out($action->groupId); ?>"/>
-    <input type="hidden" name="id" value="<?php echo out($action->id); ?>"/>
-    <input type="hidden" name="group_id" value="<?php echo out($action->groupId); ?>"/>
+    <input type="hidden" name="guid" value="<?php echo attr($action->guid); ?>"/>
+    <input type="hidden" name="group_id" value="<?php echo attr($action->groupId); ?>"/>
+    <input type="hidden" name="id" value="<?php echo attr($action->id); ?>"/>
+    <input type="hidden" name="group_id" value="<?php echo attr($action->groupId); ?>"/>
 
     <!-- custom rules input -->
 
@@ -46,38 +51,38 @@
     <?php echo textfield_row(array("id" => "fld_category_lbl",
                                    "name" => "fld_category_lbl",
                                    "title" => xl("Category"),
-                                   "value" => out($action->getCategoryLabel()) )); ?>
+                                   "value" => $action->getCategoryLabel())); ?>
     <br/><a href="javascript:;" id="change_category" onclick="top.restoreSession()">(change)</a>
-    <input type="hidden" id="fld_category" name="fld_category" value="<?php echo out($action->category); ?>" />
+    <input type="hidden" id="fld_category" name="fld_category" value="<?php echo attr($action->category); ?>" />
 
     <!-- item -->
     <?php echo textfield_row(array("id" => "fld_item_lbl",
                                    "name" => "fld_item_lbl",
                                    "title" => xl("Item"),
-                                   "value" => out($action->getItemLabel()) )); ?>
+                                   "value" => $action->getItemLabel())); ?>
     <br/><a href="javascript:;" id="change_item" onclick="top.restoreSession()">(change)</a>
-    <input type="hidden" id="fld_item" name="fld_item" value="<?php echo out($action->item); ?>" />
+    <input type="hidden" id="fld_item" name="fld_item" value="<?php echo attr($action->item); ?>" />
 
     <!-- reminder link  -->
     <?php echo textfield_row(array("id" => "fld_link",
                                    "name" => "fld_link",
                                    "title" => xl("Link"),
-                                   "value" => out($action->reminderLink) )); ?>
+                                   "value" => $action->reminderLink)); ?>
 
     <!-- reminder message  -->
     <?php echo textfield_row(array("id" => "fld_message",
                                    "name" => "fld_message",
                                    "title" => xl("Message"),
-                                   "value" => out($action->reminderMessage) )); ?>
+                                   "value" => $action->reminderMessage)); ?>
 
 
     <!-- custom rules input -->
     <p class="row">
-        <span class="left_col colhead req" data-field="fld_custom_input"><?php echo out(xl('Custom input?')); ?></span>
+        <span class="left_col colhead req" data-field="fld_custom_input"><?php echo xlt('Custom input?'); ?></span>
         <span class="end_col">
             <select data-grp-tgt="" type="dropdown" name="fld_custom_input" id="">
-                <option id="Yes" value="yes" <?php echo $action->customRulesInput ? "SELECTED" : "" ?>><?php echo out(xl('Yes')); ?></option>
-                <option id="No" value="no" <?php echo !$action->customRulesInput ? "SELECTED" : "" ?>><?php echo out(xl('No')); ?></option>
+                <option id="Yes" value="yes" <?php echo $action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('Yes'); ?></option>
+                <option id="No" value="no" <?php echo !$action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('No'); ?></option>
             </select>
         </span>
     </p>
@@ -87,5 +92,5 @@
 </div>
 
 <div id="required_msg" class="small">
-    <span class="required">*</span><?php echo out(xl('Required fields')); ?>
+    <span class="required">*</span><?php echo xlt('Required fields'); ?>
 </div>

@@ -57,10 +57,10 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
 
     while ($qrow = sqlFetchArray($qres)) {
         $options = trim($qrow['options']);
-        $qfieldid = $prefix . attr(trim($qrow['question_code']));
+        $qfieldid = $prefix . trim($qrow['question_code']);
         $fldtype = $qrow['fldtype'];
         $maxsize = 0 + $qrow['maxsize'];
-        $qrow['tips'] = text(str_ireplace("^", " ", $qrow['tips'])); // in case of HL7
+        $qrow['tips'] = str_ireplace("^", " ", $qrow['tips']); // in case of HL7
 
         // Get answer value(s) to this question, if any.
         $answers = array();
@@ -79,35 +79,35 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             $s .= " style='color:#880000'"; // TBD: move to stylesheet
         }
 
-        $s .= ">" . attr($qrow['question_text']) . "</td>";
+        $s .= ">" . text($qrow['question_text']) . "</td>";
         $s .= "<td valign='top'>";
 
         if ($fldtype == 'T') {
             // Text Field.
-            $s .= "<input class='input-sm' type='text' name='$qfieldid'";
-            $s .= " maxlength='" . ($maxsize ? $maxsize : 255) . "'";
+            $s .= "<input class='input-sm' type='text' name='" . attr($qfieldid) . "'";
+            $s .= " maxlength='" . ($maxsize ? attr($maxsize) : 255) . "'";
             if (!empty($answers)) {
                 $s .= " value='" . attr($answers[0]) . "'";
             }
 
-            $s .= " title='" . $qrow['tips'] . "' placeholder='" . $qrow['tips'] . "' />";
+            $s .= " title='" . attr($qrow['tips']) . "' placeholder='" . attr($qrow['tips']) . "' />";
         } else if ($fldtype == 'N') {
             // Numeric text Field.
             // TBD: Add some JavaScript validation for this.
-            $s .= "<input class='input-sm' type='text' name='$qfieldid' maxlength='8'";
+            $s .= "<input class='input-sm' type='text' name='" . attr($qfieldid) . "' maxlength='8'";
             if (!empty($answers)) {
                 $s .= " value='" . attr($answers[0]) . "'";
             }
 
-            $s .= " title='" . $qrow['tips'] . "' placeholder='" . $qrow['tips'] . "' />";
+            $s .= " title='" . attr($qrow['tips']) . "' placeholder='" . attr($qrow['tips']) . "' />";
         } else if ($fldtype == 'D') {
             // Date Field.
-            $s .= "<input type='text' name='$qfieldid' id='$qfieldid'";
+            $s .= "<input type='text' name='" . attr($qfieldid) . "' id='" . attr($qfieldid) . "'";
             if (!empty($answers)) {
                 $s .= " value='" . attr($answers[0]) . "'";
             }
 
-            $s .= " class='datepicker input-sm' title='" . htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES) . "' />";
+            $s .= " class='datepicker input-sm' title='" . (xla('Click here to choose a date') . "' />";
             /* Legacy calendar removed to update to current calendar 07/20/2018 sjp */
         } else if ($fldtype == 'G') {
             // Gestational age in weeks and days.
@@ -118,28 +118,28 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
                 $currdays  = $answers[0] % 7;
             }
 
-            $s .= "<select class='input-sm' name='G1_$qfieldid'>";
+            $s .= "<select class='input-sm' name='G1_" . attr($qfieldid) . "'>";
             $s .= "<option value=''></option>";
             for ($i = 5; $i <= 21; ++$i) {
-                $s .= "<option value='$i'";
+                $s .= "<option value='" .  attr($i) . "'";
                 if ($i == $currweeks) {
                     $s .= " selected";
                 }
 
-                $s .= ">$i</option>";
+                $s .= ">" . text($i) . "</option>";
             }
 
             $s .= "</select>";
             $s .= " " . xlt('weeks') . " &nbsp;";
-            $s .= "<select class='input-sm' name='G2_$qfieldid'>";
+            $s .= "<select class='input-sm' name='G2_" . attr($qfieldid) . "'>";
             $s .= "<option value=''></option>";
             for ($i = 0; $i <= 6; ++$i) {
-                $s .= "<option value='$i'";
+                $s .= "<option value='" . attr($i) . "'";
                 if ($i == $currdays) {
                     $s .= " selected";
                 }
 
-                $s .= ">$i</option>";
+                $s .= ">" . text($i) . "</option>";
             }
 
             $s .= "</select>";
@@ -183,7 +183,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
                     $s .= "<br />";
                 }
 
-                $s .= "<label class='radio-inline'><input class='input-sm' type='checkbox' name='$qfieldid[$i]' value='" . attr($code) . "'";
+                $s .= "<label class='radio-inline'><input class='input-sm' type='checkbox' name='" . attr($qfieldid[$i]) . "' value='" . attr($code) . "'";
                 if (in_array($code, $answers)) {
                     $s .= " checked";
                 }
@@ -195,7 +195,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             // Radio buttons or drop-list, depending on the number of choices.
             $a = explode(';', $qrow['options']);
             if (count($a) > 5) {
-                $s .= "<select class='input-sm' name='$qfieldid'";
+                $s .= "<select class='input-sm' name='" . attr($qfieldid) . "'";
                 $s .= ">";
                 foreach ($a as $aval) {
                     list($desc, $code) = explode(':', $aval);
@@ -227,7 +227,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
                         $s .= "<br />";
                     }
 
-                    $s .= "<label class='radio-inline'><input type='radio' name='$qfieldid' value='" . attr($code) . "'";
+                    $s .= "<label class='radio-inline'><input type='radio' name='" . attr($qfieldid) . "' value='" . attr($code) . "'";
                     if (in_array($code, $answers)) {
                         $s .= " checked";
                     }

@@ -8,9 +8,11 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2010-2012 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
@@ -29,17 +31,17 @@ $labid = isset($_GET['labid']) ? $_GET['labid'] + 0 : 0;
 //
 if ($popup && $_POST['form_save']) {
     $form_order = isset($_GET['form_order']) ? $_GET['form_order'] + 0 : 0;
-    $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE " . "procedure_type_id = '$form_order'");
-    $name = addslashes($ptrow['name']);
+    $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE procedure_type_id = ?", [$form_order]);
+    $name = $ptrow['name'];
     ?>
     <script type="text/javascript"
         src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js">
     </script>
     <script language="JavaScript">
     if (opener.closed || ! opener.set_proc_type) {
-        alert('<?php echo xlt('The destination form was closed; I cannot act on your selection.'); ?>');
+        alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
     } else {
-        opener.set_proc_type(<?php echo "$form_order, '$name'" ?>);
+        opener.set_proc_type(<?php echo js_escape($form_order) . ", " . js_escape($name); ?>);
         <?php
             // This is to generate the "Questions at Order Entry" for the Procedure Order form.
             // GET parms needed for this are: formid, formseq.
@@ -124,13 +126,13 @@ if ($popup && $_POST['form_save']) {
         .col6 {
             width: 8%
         }
-        
+
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
            width: 100%;
            }
         }
-        
+
     </style>
 
 
@@ -153,7 +155,7 @@ if ($popup && $_POST['form_save']) {
     echo "preopen = [";
     echo $order > 0 ? $order : 0;
     for ($parentid = $order; $parentid > 0;) {
-        $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = '$parentid'");
+        $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = ?", [$parentid]);
         $parentid = $row['parent'] + 0;
         echo ", $parentid";
     }
@@ -177,7 +179,7 @@ if ($popup && $_POST['form_save']) {
        if (thisid > 0)
         toggle(thisid);
        else
-        $.getScript('types_ajax.php?id=' + thisid + '&order=<?php echo $order; ?>' + '&labid=<?php echo $labid; ?>');
+        $.getScript('types_ajax.php?id=' + encodeURIComponent(thisid) + '&order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
       }
       else {
        recolor();
@@ -209,7 +211,7 @@ if ($popup && $_POST['form_save']) {
       td1.parent().after('<tr class="outertr"><td colspan="7" id="con' + id + '" style="padding:0">Loading...</td></tr>');
       td1.addClass('isExpanded');
       swapsign(td1, '+', '-');
-      $.getScript('types_ajax.php?id=' + id + '&order=<?php echo $order; ?>' + '&labid=<?php echo $labid; ?>');
+      $.getScript('types_ajax.php?id=' + encodeURIComponent(id) + '&order=' + <?php js_url(echo $order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
      }
     }
 
@@ -240,22 +242,22 @@ if ($popup && $_POST['form_save']) {
       }
      }
      if (haskids)
-      $.getScript('types_ajax.php?id=' + id + '&order=<?php echo $order; ?>' + '&labid=<?php echo $labid; ?>');
+      $.getScript('types_ajax.php?id=' + encodeURIComponent(id) + '&order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
      else
       recolor();
     }
 
     // edit/add a node
     function handleNode(id, type, add, lab) {
-        var editTitle = '<i class="fa fa-pencil" style="width:20px;" aria-hidden="true"></i> ' + '<?php echo xlt("Edit Mode"); ?> ';
-        var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + '<?php echo xlt("Add Mode"); ?>';
+        var editTitle = '<i class="fa fa-pencil" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
+        var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
         if (type > 0) {
             type = (type === 1 && !add) ? 'fgp' : 'for';
         }
-        let url = 'types_edit.php?addfav=' + type + '&labid=' + lab + '&parent=0&typeid=' + id;
-        
+        let url = 'types_edit.php?addfav=' + encodeURIComponent(type) + '&labid=' + encodeURIComponent(lab) + '&parent=0&typeid=' + encodeURIComponent(id);
+
         if (add) {
-            url = 'types_edit.php?addfav=' + type + '&labid=' + lab + '&typeid=0&parent=' + id;
+            url = 'types_edit.php?addfav=' + encodeURIComponent(type) + '&labid=' + encodeURIComponent(lab) + '&typeid=0&parent=' + encodeURIComponent(id);
             dlgopen(url, '_blank', 800, 750, false, addTitle);
         } else {
             dlgopen(url, '_blank', 800, 750, false, editTitle);
@@ -302,14 +304,14 @@ if ($popup && $_POST['form_save']) {
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' name='theform'
-                    action='types.php?popup=<?php echo $popup ?>&order=<?php
-                    echo $order;
+                    action='types.php?popup=<?php echo attr_url($popup); ?>&order=<?php
+                    echo attr_url($order);
                     if (isset($_GET['formid'])) {
-                        echo '&formid=' . $_GET['formid'];
+                        echo '&formid=' . attr_url($_GET['formid']);
                     }
 
                     if (isset($_GET['formseq'])) {
-                        echo '&formseq=' . $_GET['formseq'];
+                        echo '&formseq=' . attr_url($_GET['formseq']);
                     }
                     ?>'>
                     <div class="btn-group">
@@ -364,13 +366,13 @@ if ($popup && $_POST['form_save']) {
         $(function (){
             //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
             // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
-            $('#name-tooltip').attr( "title", "<?php echo xla('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?>" +  ". "  + "<?php echo xla('Click on the blue plus sign under Name to reveal test names'); ?>").tooltip();
-            $('#order-tooltip').attr( "title", "<?php echo xla('The entries highlighted in yellow can be ordered as a test or procedure those highlighted in pink can be ordered as a Custom Group'); ?>" +  ". "  + "<?php echo xla('Click on the blue plus sign under Name to reveal test names'); ?>"  ).tooltip();
-            $('#code-tooltip').attr( "title", "<?php echo xla('Category - Order, Result and Recommendation need an identifying code');?>" + ". " + "<?php echo xla('Red Triangle indicates a required code that is missing')?>.").
+            $('#name-tooltip').attr( "title", <?php echo xlj('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>).tooltip();
+            $('#order-tooltip').attr( "title", <?php echo xlj('The entries highlighted in yellow can be ordered as a test or procedure those highlighted in pink can be ordered as a Custom Group'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>).tooltip();
+            $('#code-tooltip').attr( "title", <?php echo xlj('Category - Order, Result and Recommendation need an identifying code');?> + ". " + <?php echo xlj('Red Triangle indicates a required code that is missing')?> + ".").
             tooltip();
-            $('#tier-tooltip').attr( "title", "<?php echo xla('Shows the hierarchal level of this line');?>" + ". " + "<?php echo xla('Tier 1 entries should be of Category Top Group')?>.").
+            $('#tier-tooltip').attr( "title", <?php echo xlj('Shows the hierarchal level of this line');?> + ". " + <?php echo xlj('Tier 1 entries should be of Category Top Group')?> + ".").
             tooltip();
-            $('table td .required-tooltip').attr( "title", "<?php echo xla('For proper tabulated display of tests and results an identifying code is required'); ?>").tooltip();
+            $('table td .required-tooltip').attr( "title", <?php echo xlj('For proper tabulated display of tests and results an identifying code is required'); ?>).tooltip();
             $("table td .required-tooltip").fadeIn(500);
             $("table td .required-tooltip3").fadeOut(1000);
             $("table td .required-tooltip").fadeIn(500);

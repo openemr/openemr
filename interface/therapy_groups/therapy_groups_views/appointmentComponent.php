@@ -4,24 +4,15 @@
  *
  * In group/participant details screen this widget shows the group's appointments.
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>.
+ * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
 
@@ -66,11 +57,11 @@ if ($groupData['group_id']) {
                 }
 
                 //Taken from demographics.php - prepares date for add_edit_event url
-                $date_for_url = attr(preg_replace("/-/", "", $event['pc_eventDate']));
+                $date_for_url = preg_replace("/-/", "", $event['pc_eventDate']);
                 ?>
                 <div class="event_details">
                         <?php if ($edit) :?>
-                            <a onclick="goToEvent('<?php echo "{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . "&date=" . $date_for_url . "&eid=" . attr($event['pc_eid'])?>')">
+                            <a onclick="goToEvent(<?php echo attr_js("{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=".urlencode($groupId)."&date=".urlencode($date_for_url)."&eid=".urlencode($event['pc_eid'])); ?>)">
                         <?php endif;?>
                         <span><b><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></b></span>
                         </br>
@@ -96,7 +87,7 @@ if ($groupData['group_id']) {
 
     $('#addEvent').on('click', function(){
         top.restoreSession();
-        var url = '<?php echo $GLOBALS['rootdir'] . "/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) ?>';
+        var url = <?php echo js_escape($GLOBALS['rootdir']); ?> + '/main/calendar/add_edit_event.php?group=true&groupid=' + <?php echo js_url($groupId); ?>;
         dlgopen(url, '_blank', 775, 500);
     });
 

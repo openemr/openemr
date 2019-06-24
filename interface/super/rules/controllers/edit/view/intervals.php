@@ -1,3 +1,16 @@
+<?php
+/**
+ * interface/super/rules/controllers/edit/view/intervals.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Aron Racho <aron@mi-squared.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
 <?php require_once($GLOBALS["srcdir"] . "/../interface/super/rules/controllers/edit/helper/common.php"); ?>
 <?php $rule = $viewBean->rule ?>
 <?php $intervals = $rule->reminderIntervals ?>
@@ -9,26 +22,26 @@
 
 <table class="header">
   <tr>
-        <td class="title"><?php echo out(xl('Rule Edit')); ?></td>
+        <td class="title"><?php echo xlt('Rule Edit'); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo out($rule->id); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
-                <span><?php echo out(xl('Cancel')); ?></span>
+            <a href="index.php?action=detail!view&id=<?php echo attr_url($rule->id); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
+                <span><?php echo xlt('Cancel'); ?></span>
             </a>
-            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo out(xl('Save')); ?></span></a>
+            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a>
         </td>
   </tr>
 </table>
 
 <div class="rule_detail edit text">
-    <p class="header"><?php echo out(xl('Reminder intervals')); ?> </p>
+    <p class="header"><?php echo xlt('Reminder intervals'); ?> </p>
 
     <form action="index.php?action=edit!submit_intervals" method="post" id="frm_submit" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="id" value="<?php echo out($rule->id); ?>"/>
+    <input type="hidden" name="id" value="<?php echo attr($rule->id); ?>"/>
 
     <div class="intervals">
         <p>
-            <span class="left_col colhead"><u><?php echo out(xl('Type')); ?></u></span>
-            <span class="end_col colhead"><u><?php echo out(xl('Detail')); ?></u></span>
+            <span class="left_col colhead"><u><?php echo xlt('Type'); ?></u></span>
+            <span class="end_col colhead"><u><?php echo xlt('Detail'); ?></u></span>
         </p>
 
     <?php foreach (ReminderIntervalType::values() as $type) { ?>
@@ -36,13 +49,13 @@
     <?php $first = true;
     $detail = $intervals->getDetailFor($type, $range); ?>
         <p>
-            <span class="left_col <?php echo $first ? "req" : ""?>" data-grp="<?php echo out($type->code); ?>"><?php echo out($type->lbl); ?></span>
-            <span class="mid_col"><?php echo out(xl($range->lbl)); ?></span>
+            <span class="left_col <?php echo $first ? "req" : ""?>" data-grp="<?php echo attr($type->code); ?>"><?php echo text($type->lbl); ?></span>
+            <span class="mid_col"><?php echo xlt($range->lbl); ?></span>
             <span class="mid_col">
-                <input data-grp-tgt="<?php echo out($type->code) ?>"
+                <input data-grp-tgt="<?php echo attr($type->code) ?>"
                        type="text"
-                       name="<?php echo out($type->code); ?>-<?php echo out($range->code); ?>"
-                       value="<?php echo is_null($detail) ? "" : out($detail->amount); ?>" />
+                       name="<?php echo attr($type->code); ?>-<?php echo attr($range->code); ?>"
+                       value="<?php echo is_null($detail) ? "" : attr($detail->amount); ?>" />
             </span>
             <span class="end_col">
             <?php echo timeunit_select(array( "context"=>"rule_reminder_intervals", "target"=>$type->code, "name"=>$type->code."-".$range->code."-timeunit", "value" => $detail->timeUnit )); ?>
@@ -55,9 +68,9 @@
     </div>
 
     </form>
-    
+
 </div>
 
 <div id="required_msg" class="small">
-    <span class="required">*</span><?php echo out(xl('Required fields')); ?>
+    <span class="required">*</span><?php echo xlt('Required fields')); ?>
 </div>

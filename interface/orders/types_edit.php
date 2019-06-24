@@ -1,18 +1,25 @@
 <?php
-// Copyright (C) 2010-2017 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * types_edit.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
 
-$typeid = formData('typeid', 'R') + 0;
-$parent = formData('parent', 'R') + 0;
+$typeid = (isset($_REQUEST['typeid']) ? $_REQUEST['typeid'] : '') + 0;
+$parent = (isset($_REQUEST['parent']) ? $_REQUEST['parent'] : '') + 0;
 $ordtype = isset($_REQUEST['addfav']) ? $_REQUEST['addfav'] : '';
 $disabled = $ordtype ? "disabled" : '';
 $labid = isset($_GET['labid']) ? $_GET['labid'] + 0 : 0;
@@ -37,12 +44,12 @@ function invalue($name)
 function rbinput($name, $value, $desc, $colname)
 {
     global $row;
-    $ret = "<input type='radio' name='$name' value='$value'";
+    $ret = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
     if ($row[$colname] == $value) {
         $ret .= " checked";
     }
 
-    $ret .= " />$desc";
+    $ret .= " />" . text($desc);
     return $ret;
 }
 
@@ -64,13 +71,13 @@ function cbvalue($cbname)
 function recursiveDelete($typeid)
 {
     $res = sqlStatement("SELECT procedure_type_id FROM " .
-        "procedure_type WHERE parent = '$typeid'");
+        "procedure_type WHERE parent = ?", [$typeid]);
     while ($row = sqlFetchArray($res)) {
         recursiveDelete($row['procedure_type_id']);
     }
 
     sqlStatement("DELETE FROM procedure_type WHERE " .
-        "procedure_type_id = '$typeid'");
+        "procedure_type_id = ?", [$typeid]);
 }
 
 
@@ -175,9 +182,9 @@ function sel_related(varname) {
     rcvarname = varname;
     let url = '../patient_file/encounter/find_code_dynamic.php';
     if (varname == 'form_diagnosis_code')
-        url = '../patient_file/encounter/find_code_dynamic.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")); ?>';
+        url = '../patient_file/encounter/find_code_dynamic.php?codetype=' + <?php echo js_url(collect_codetypes("diagnosis", "csv")); ?>;
 
-    dlgopen(url, '_codeslkup', 985, 800, '', '<?php echo xla("Select Default Codes"); ?>');
+    dlgopen(url, '_codeslkup', 985, 800, '', <?php echo xlj("Select Default Codes"); ?>);
 }
 
 // call back for procedure picker
@@ -202,7 +209,7 @@ function set_new_fav(result) {
 function doOrdPicker(e){
     e.preventDefault();
     let labid = $("#form_lab_id").val();
-    let title = '<?php echo xla("Find Procedure Order"); ?>';
+    let title = <?php echo xlj("Find Procedure Order"); ?>;
     dlgopen('find_order_popup.php?addfav=1&labid=' + labid, '_blank', 850, 500, '', title);
 }
 
@@ -224,23 +231,23 @@ function proc_type_changed() {
     if (ptpfx == 'fgp') $('.fgponly').show(); // Favorites
     if (ptpfx == 'grp') {
         $('#form_legend').html(
-            "<?php echo xlt('Enter Details for Group'); ?>" + "   <i id='grp' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
+            "<?php echo xla('Enter Details for Group'); ?>" + "   <i id='grp' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     } else if (ptpfx == 'fgp') {
         $('#form_legend').html(
-            "<?php echo xlt('Enter Details for Custom Favorite Group'); ?>" + "   <i id='ord' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
+            "<?php echo xla('Enter Details for Custom Favorite Group'); ?>" + "   <i id='ord' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     } else if (ptpfx == 'ord') {
         $('#form_legend').html(
-            "<?php echo xlt('Enter Details for Individual Procedures'); ?>" + "   <i id='ord' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
+            "<?php echo xla('Enter Details for Individual Procedures'); ?>" + "   <i id='ord' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     } else if (ptpfx == 'for') {
         $('#form_legend').html(
-            "<?php echo xlt('Enter Details for Individual Custom Favorite Item'); ?>" + "   <i id='ord' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
+            "<?php echo xla('Enter Details for Individual Custom Favorite Item'); ?>" + "   <i id='ord' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     }
     else if (ptpfx == 'res') {
         $('#form_legend').html(
-            "<?php echo xlt('Enter Details for Discrete Results'); ?>" + "   <i id='res' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
+            "<?php echo xla('Enter Details for Discrete Results'); ?>" + "   <i id='res' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     } else if (ptpfx == 'rec') {
         $('#form_legend').html(
-            "<?php echo xlt('Enter Details for Recommendation'); ?>" + "   <i id='rec' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
+            "<?php echo xla('Enter Details for Recommendation'); ?>" + "   <i id='rec' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     }
 }
     $(function () {
@@ -280,20 +287,20 @@ function proc_type_changed() {
                 "seq = " . invalue('form_seq');
 
                 if ($typeid) {
-                    sqlStatement("UPDATE procedure_type SET $sets WHERE procedure_type_id = '$typeid'");
+                    sqlStatement("UPDATE procedure_type SET $sets WHERE procedure_type_id = '" . add_escape_custom($typeid) . "'");
                     // Get parent ID so we can refresh the tree view.
                     $row = sqlQuery("SELECT parent FROM procedure_type WHERE " .
-                        "procedure_type_id = '$typeid'");
+                        "procedure_type_id = ?", [$typeid]);
                     $parent = $row['parent'];
                 } else {
-                    $newid = sqlInsert("INSERT INTO procedure_type SET parent = '$parent', $sets");
+                    $newid = sqlInsert("INSERT INTO procedure_type SET parent = '" . add_escape_custom($parent) . "', $sets");
                     // $newid is not really used in this script
                 }
             } elseif ($_POST['form_delete']) {
                 if ($typeid) {
                     // Get parent ID so we can refresh the tree view after deleting.
                     $row = sqlQuery("SELECT parent FROM procedure_type WHERE " .
-                        "procedure_type_id = '$typeid'");
+                        "procedure_type_id = ?", [$typeid]);
                     $parent = $row['parent'];
                     recursiveDelete($typeid);
                 }
@@ -301,28 +308,28 @@ function proc_type_changed() {
 
             if ($_POST['form_save'] || $_POST['form_delete']) {
                 // Find out if this parent still has any children.
-                $trow = sqlQuery("SELECT procedure_type_id FROM procedure_type WHERE parent = '$parent' LIMIT 1");
+                $trow = sqlQuery("SELECT procedure_type_id FROM procedure_type WHERE parent = ? LIMIT 1", [$parent]);
                 // Close this window and redisplay the updated list.
                 echo "<script language='JavaScript'>\n";
                 if ($info_msg) {
-                    echo " alert('$info_msg');\n";
+                    echo " alert(" . js_escape($info_msg) . ");\n";
                 }
 
                 echo " window.close();\n";
-                echo " if (opener.refreshFamily) opener.refreshFamily($parent,'true');\n";
+                echo " if (opener.refreshFamily) opener.refreshFamily(" . js_escape($parent) . ",'true');\n";
                 echo "</script></body></html>\n";
                 exit();
             }
 
             if ($typeid) {
-                $row = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = '$typeid'");
+                $row = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = ?", [$typeid]);
             }
             $info_icon_title = xl("Click to reveal more information");
             ?>
             <div class="row">
                 <div class="col-sm-12">
                     <form method='post' name='theform' class="form-horizontal"
-                        action='types_edit.php?typeid=<?php echo $typeid ?>&parent=<?php echo $parent ?>'>
+                        action='types_edit.php?typeid=<?php echo attr_url($typeid); ?>&parent=<?php echo attr_url($parent); ?>'>
                         <!-- no restoreSession() on submit because session data are not relevant -->
                         <fieldset>
                             <legend name="form_legend" id="form_legend"><?php echo xlt('Enter Details'); ?>   <i id='enter_details' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i></legend>
@@ -378,8 +385,8 @@ function proc_type_changed() {
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_name' id='form_name 'maxlength='63'
-                                                value='<?php echo htmlspecialchars($row['name'], ENT_QUOTES); ?>'
-                                                title='<?php echo xlt('Your name for this category, procedure or result'); ?>'
+                                                value='<?php echo attr($row['name']); ?>'
+                                                title='<?php echo xla('Your name for this category, procedure or result'); ?>'
                                                  class='form-control'>
                                         </div>
                                     </div>
@@ -398,8 +405,8 @@ function proc_type_changed() {
                                         <div class="col-sm-12">
                                             <input type='text' name='form_description' id='form_description'
                                                 maxlength='255'
-                                                value='<?php echo htmlspecialchars($row['description'], ENT_QUOTES); ?>'
-                                                title='<?php echo xlt('Description of this procedure or result code'); ?>'
+                                                value='<?php echo attr($row['description']); ?>'
+                                                title='<?php echo xla('Description of this procedure or result code'); ?>'
                                                 class='form-control'>
                                         </div>
                                     </div>
@@ -417,7 +424,7 @@ function proc_type_changed() {
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_seq' id=='form_seq' maxlength='11'
-                                                value='<?php echo $row['seq'] + 0; ?>'
+                                                value='<?php echo attr($row['seq'] + 0); ?>'
                                                 title='<?php echo xla('Relative ordering of this entity'); ?>'
                                                 class='form-control'>
                                         </div>
@@ -454,7 +461,7 @@ function proc_type_changed() {
                                                 if ($ordtype) {
                                                     $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers WHERE ppid = ? ORDER BY name, ppid", array($labid));
                                                 } else {
-                                                    $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers " . "ORDER BY name, ppid");
+                                                    $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers ORDER BY name, ppid");
                                                 }
 
 
@@ -487,7 +494,7 @@ function proc_type_changed() {
                                         <div class="col-sm-12">
                                             <input type='text' name='form_procedure_code' id='form_procedure_code'
                                                 maxlength='31'
-                                                value='<?php echo htmlspecialchars($row['procedure_code'], ENT_QUOTES); ?>'
+                                                value='<?php echo attr($row['procedure_code']); ?>'
                                                 title='<?php echo xla('The vendor-specific code identifying this procedure or result'); ?>'
                                                 class='form-control'>
                                         </div>
@@ -669,7 +676,7 @@ function proc_type_changed() {
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_range' id='form_range' maxlength='255'
-                                                value='<?php echo htmlspecialchars($row['range'], ENT_QUOTES); ?>'
+                                                value='<?php echo attr($row['range']); ?>'
                                                 title='<?php echo xla('Optional default range for manual entry of results'); ?>'
                                                 class='form-control' >
                                         </div>
@@ -724,18 +731,17 @@ function proc_type_changed() {
             $(function () {
                 //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
                 // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
-                $('.icon-tooltip').attr("title", "<?php echo xla('Click to see more information'); ?>").tooltip({
+                $('.icon-tooltip').attr("title", <?php echo xlj('Click to see more information'); ?>).tooltip({
                     show: {
                         delay: 700,
                         duration: 0
                     }
                 });
-                $('.enter-details-tooltip').attr( "title", "<?php echo xla('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?>" + ". " + "<?php echo xla('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>.").tooltip();
+                $('.enter-details-tooltip').attr( "title", <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?> + ". " + <?php echo xlj('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?> + ".").tooltip();
                 $('#form_procedure_type').click(function(){
-                    $('.enter-details-tooltip').attr( "title", "<?php echo xla('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?>" + ". " + "<?php echo xla('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>.").tooltip();
+                    $('.enter-details-tooltip').attr( "title", <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?> + ". " + <?php echo xlj('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?> + ".").tooltip();
                 });
             });
         </script>
     </body>
 </html>
-

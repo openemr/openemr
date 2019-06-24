@@ -101,19 +101,6 @@ function attr($text)
 }
 
 /**
- * This function is a compatibility replacement for the out function removed
- *  from the CDR Admin framework.
- *
- * @param string $text The string to escape, possibly including (&), (<),
- *                     (>), ('), and (").
- * @return string The string, with (&), (<), (>), ("), and (') escaped.
- */
-function out($text)
-{
-    return attr($text);
-}
-
-/**
  * Don't call this function.  You don't see this function.  This function
  * doesn't exist.
  *

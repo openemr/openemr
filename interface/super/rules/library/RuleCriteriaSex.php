@@ -13,7 +13,7 @@
  */
 class RuleCriteriaSex extends RuleCriteria
 {
-    
+
     var $value;
 
     function __construct($value)
@@ -23,7 +23,7 @@ class RuleCriteriaSex extends RuleCriteria
 
     function getRequirements()
     {
-        return xl_list_label($this->value, ENT_NOQUOTES);
+        return xl_list_label($this->value);
     }
 
     function getTitle()

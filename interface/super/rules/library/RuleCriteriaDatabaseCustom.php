@@ -45,7 +45,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
             $requirements .= $this->decodeComparator($this->valueComparator) . " " . $this->value;
             $requirements .= " | ";
         }
-        
+
         $requirements .= xl("Frequency") . ": ";
         $requirements .= $this->decodeComparator($this->frequencyComparator) . " " . $this->frequency;
 
@@ -68,13 +68,13 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         $stmts = sqlStatement("SHOW TABLES");
         for ($iter=0; $row=sqlFetchArray($stmts); $iter++) {
             foreach ($row as $key => $value) {
-                array_push($options, array( "id" => out($value), "label" => out(xl($value)) ));
+                array_push($options, array( "id" => $value, "label" => xl($value)));
             }
         }
 
         return $options;
     }
-    
+
     function getDbView()
     {
         $dbView = parent::getDbView();

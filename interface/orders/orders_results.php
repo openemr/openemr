@@ -6,7 +6,7 @@
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2010-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -135,7 +135,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
             "`range` = '" . oresData("form_result_range", $lino) . "', " .
             "units = '" . oresData("form_result_units", $lino) . "', " .
             "facility = '" . oresData("form_facility", $lino) . "', " .
-            "comments = '" . add_escape_custom($form_comments) . "', " .
+            "comments = '" . $form_comments . "', " .
             "result_status = '" . oresData("form_result_status", $lino) . "'";
             if ($result_id) { // result already exists
                 sqlStatement("UPDATE procedure_result SET $sets "  .

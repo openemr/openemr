@@ -1,23 +1,17 @@
 <?php
 /**
-* Maintenance for the list of procedure providers.
-*
-* Copyright (C) 2012-2014 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-*/
+ * Maintenance for the list of procedure providers.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012-2014 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
@@ -125,7 +119,7 @@ function invalue($name)
           // Close this window and redisplay the updated list.
             echo "<script language='JavaScript'>\n";
             if ($info_msg) {
-                echo " alert('" . addslashes($info_msg) . "');\n";
+                echo " alert(" . js_escape($info_msg) . ");\n";
             }
 
             echo " window.close();\n";
@@ -149,14 +143,14 @@ function invalue($name)
                 }
             }
 
-            $optionsStr .= "<option value='".attr($org_row['id'])."' $selected>".  text($lab_org_name)."</option>";
+            $optionsStr .= "<option value='" . attr($org_row['id']) . "' $selected>".  text($lab_org_name) . "</option>";
         }
         ?>
 
 
         <div class="row">
             <div class="col-sm-12">
-                <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr($ppid) ?>'>
+                <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr_url($ppid) ?>'>
                     <fieldset>
                         <legend name="form_legend" id="form_legend"><?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true"></i></legend>
                         <div class="row">
@@ -467,13 +461,13 @@ function invalue($name)
             $(function () {
                 //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
                 // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
-                $('.icon-tooltip').attr("title", "<?php echo xla('Click to see more information'); ?>").tooltip({
+                $('.icon-tooltip').attr("title", <?php echo xlj('Click to see more information'); ?>).tooltip({
                     show: {
                         delay: 700,
                         duration: 0
                     }
                 });
-                $('#enter-details-tooltip').attr( "title", "<?php echo xla('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?>" + ". " + "<?php echo xla('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?>.").tooltip();
+                $('#enter-details-tooltip').attr( "title", <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?> + ". " + <?php echo xlj('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?> + ".").tooltip();
             });
         </script>
 </body>
