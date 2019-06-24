@@ -32,12 +32,22 @@ function movePD(val,theSelTo){
     textAreaContent += textFrom;
     window.frames[0].document.body.innerHTML=textAreaContent;
 }
-function edit(id){
-    if(id) {
-        val = window.opener.document.getElementById(id).value;
+function edit(id, ccFlag = ''){
+    let val = '';
+    if (ccFlag) {
+        if(ccFlag === 'id') {
+            val = window.opener.document.getElementById(id).value;
+        } else {
+            // must be name attr.
+            val = window.opener.document.querySelector('textarea[name='+id+']').value;
+            if(val === null) {
+                val = window.opener.document.querySelector("input[name="+id+"]").value;
+            }
+        }
     } else {
-        val = window.opener.document.activeElement.value;
+        val = window.opener.document.getElementById(id).value;
     }
+
     arr=val.split("|*|*|*|");
     document.getElementById('textarea1').value=arr[0];
 }
@@ -79,12 +89,19 @@ function ascii_write(asc, theSelTo){
         }
     }
 }
-function SelectToSave(textara) {
+function SelectToSave(textara, ccFlag = '') {
     let textAreaContent = '';
     mainform = window.opener.document;
-    if(typeof textara === 'undefined' || textara === '') {
+    if (ccFlag) {
         textAreaContent = window.frames[0].document.body.textContent;
-        mainform.activeElement.value = textAreaContent;
+        if(ccFlag === 'id') {
+            val = mainform.getElementById(textara).value = textAreaContent;
+        } else {
+            val = mainform.querySelector('textarea[name='+textara+']').value = textAreaContent;
+            if(val === null) {
+                val = mainform.querySelector("input[name="+textara+"]").value = textAreaContent;
+            }
+        }
     } else {
         textAreaContent = window.frames[0].document.body.innerHTML;
         if (mainform.getElementById(textara + '_div'))

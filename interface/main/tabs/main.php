@@ -145,13 +145,16 @@ function isEncounterLocked( encounterId ) {
     <?php } ?>
 }
 // some globals to access using top.variable
+window.name = "main";
+// note that 'let' or 'const' does not allow global scope here.
+// only use var
 var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
 var webroot_url = <?php echo js_escape($web_root); ?>;
 var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
+var jsGlobals = {};
 </script>
 
 <?php Header::setupHeader(["knockout","tabs-theme",'jquery-ui']); ?>
-
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
@@ -171,6 +174,42 @@ var xl_strings_tabs_view_model = <?php echo json_encode(array(
 ?>;
 // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
 var csrf_token_js = <?php echo js_escape(collectCsrfToken()); ?>;
+// will fullfill json and return promise if needed
+// to call elsewhere for a local scope ie
+// let localJson = top.jsFetchGlobals().then(data => {do something with parsed json data});
+// will use post here due to content type and length.
+function jsFetchGlobals(scope) {
+    let url = webroot_url + "/library/ajax/phpvars_to_js.php";
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: url,
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                scope: scope,
+                csrf_token_form: csrf_token_js,
+            },
+            beforeSend: function () {
+                top.restoreSession;
+            },
+            success: function(data) {
+                // I.E Edge auto parses response json thus this!
+                data = typeof data === 'object' ? data : JSON.parse(data);
+                resolve(data);
+            },
+            error: function(error) {
+                reject(error);
+            },
+        })
+    })
+}
+
+jsFetchGlobals('top').then(globalJson => {
+    jsGlobals = globalJson;
+}).catch(error => {
+    console.log(error.message);
+});
+
 </script>
 <script type="text/javascript" src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 

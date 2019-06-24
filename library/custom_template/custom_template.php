@@ -28,6 +28,7 @@
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/lists.inc");
+require_once("$srcdir/user.inc");
 
 use OpenEMR\Core\Header;
 
@@ -39,10 +40,11 @@ function listitemCode($strDisp, $strInsert)
              "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" .');">'. htmlspecialchars($strDisp, ENT_QUOTES) . '</a></span></li>';
     }
 }
-
+$allowTemplateWarning = checkUserSetting('disable_template_warning', '1') === true ? 0 : 1;
 $contextName = !empty($_GET['contextName']) ? $_GET['contextName'] : 'Plan';
 $type = isset($_GET['type']) ? $_GET['type'] : '';
-$isNN = !empty($type) ? 1 : 0;
+$cc_flag = isset($_GET['ccFlag']) ? $_GET['ccFlag'] : '';
+$isNN = empty($cc_flag) ? 1 : 0;
 $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_list_item_long=?", array($contextName));
 ?>
 <html lang="en">
@@ -52,23 +54,22 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
 
 <script language="JavaScript" type="text/javascript">
+    let allowTemplateWarning = <?php echo $allowTemplateWarning; ?>;
     <?php if (!$isNN) { ?>
         $(function () {
             $('#contextSearch').select2({
                 ajax: {
-                    beforeSend: top.restoreSession,
                     url: top.webroot_url + '/library/ajax/template_context_search.php',
                     data: function (params) {
                         let query = {
                             search: params.term,
-                            type: $(this).attr('id'),
-                            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
                         };
                         return query;
                     },
                     dataType: 'json',
                 },
-                placeholder: <?php echo js_escape(xlt('Select Template Context')); ?>,
+                placeholder: <?php echo xlj('Select Template Context'); ?>,
                 width: 'resolve',
                 theme: 'bootstrap',
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
@@ -165,13 +166,14 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
             <td>
                 <div id="tab1" class="tabset_content tabset_content_active">
                     <form id="mainForm">
-                        <input type="hidden" name="type" id="type" value="<?php echo $type; ?>">
-                        <input type="hidden" name="contextName" id="contextName" value="<?php echo $contextName; ?>">
+                        <input type="hidden" name="type" id="type" value="<?php echo  attr($type); ?>">
+                        <input type="hidden" name="ccFlag" id="type" value="<?php echo  attr($cc_flag); ?>">
+                        <input type="hidden" name="contextName" id="contextName" value="<?php echo attr($contextName); ?>">
                         <table width=100%>
                             <tr class="text">
                                 <td>
-                                    <a href="#" onclick="return SelectToSave('<?php echo $type; ?>')"
-                                       class="css_button"><span><?php echo xl('SAVE'); ?></span></a>
+                                    <a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)"
+                                       class="css_button"><span><?php echo xlt('SAVE'); ?></span></a>
                                 </td>
                                 <?php if (!$isNN) { ?>
                                     <td>
@@ -209,13 +211,11 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                                     <a href="#" id="quest"
                                        onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');"
                                        title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES); ?>"><img
-                                            border=0
-                                            src="<?php echo $GLOBALS['images_static_relative']; ?>/question.png"></a>&nbsp;
+                                            border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/question.png"></a>&nbsp;
                                     <a href="#" id="para"
                                        onclick="top.restoreSession();ascii_write('para','textarea1');"
                                        title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES); ?>"><img
-                                            border=0
-                                            src="<?php echo $GLOBALS['images_static_relative']; ?>/paragraph.png"></a>&nbsp;
+                                            border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/paragraph.png"></a>&nbsp;
                                     <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');"
                                        class="css_button"
                                        title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('SPACE'), ENT_QUOTES); ?></span></a>
@@ -295,13 +295,12 @@ WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_o
                                        title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></span></a>
                                 </td>
                                 <td valign=top style="width:700px;">
-<textarea class="ckeditor" cols="100" id="textarea1" name="textarea1"
-          rows="80"></textarea>
+                                    <textarea class="ckeditor" cols="100" id="textarea1" name="textarea1" rows="80"></textarea>
                                 </td>
                             </tr>
                         </table>
                         <span class="pull-right">
-                            <a href="#" onclick="return SelectToSave('<?php echo $type; ?>')" class="css_button"><span><?php echo xl('SAVE'); ?></span></a>
+                            <a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="css_button"><span><?php echo xlt('SAVE'); ?></span></a>
                         </span>
                     </form>
                 </div>
@@ -316,7 +315,16 @@ WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_o
 </table>
 <table>
     <script type="text/javascript">
-        edit('<?php echo $type;?>');
+        <?php if (!$isNN) { ?>
+            CKEDITOR.on('instanceReady', function(){$("#cke_1_toolbar_collapser").click();});
+        <?php } ?>
+        edit(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
+        <?php if ($allowTemplateWarning && !$isNN) { ?>
+        let isPromise = top.jsFetchGlobals('custom_template');
+        isPromise.then(msg => {
+            alertMsg(msg.custom_template.templatesWarn, 9000, 'danger', '', 'disable_template_warning');
+        });
+        <?php } ?>
     </script>
 </table>
 </body>

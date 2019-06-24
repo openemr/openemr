@@ -29,5 +29,5 @@ if (substr($_GET["formname"], 0, 3) === 'LBF') {
 }
 
 ?>
-// this is loader for using NN in any textarea or text input.
+<!-- this is loader for using NN in any textarea or text input. -->
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
