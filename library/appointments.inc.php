@@ -60,10 +60,10 @@ $REPEAT_FREQ_TYPE = array(
 );
 
 $REPEAT_ON_NUM = array(
-    '1' => xl('1st'),
-    '2' => xl('2nd'),
-    '3' => xl('3rd'),
-    '4' => xl('4th'),
+    '1' => xl('1st{{nth}}'),
+    '2' => xl('2nd{{nth}}'),
+    '3' => xl('3rd{{nth}}'),
+    '4' => xl('4th{{nth}}'),
     '5' => xl('Last')
 );
 
