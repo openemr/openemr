@@ -15,7 +15,8 @@
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
-/* for formData() */
+
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -26,8 +27,8 @@ $educationdir = "$OE_SITE_DIR/documents/education";
 
 if (!empty($_POST['bn_save'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     /** This is a feature that allows editing of configuration files. Uncomment this
@@ -133,8 +134,8 @@ if (!empty($_POST['bn_save'])) {
 
 if (isset($_POST['generate_thumbnails'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $thumb_generator = new ThumbnailGenerator();
@@ -198,8 +199,8 @@ if ($GLOBALS['secure_upload']) {
 
     if (isset($_POST['submit_form'])) {
         //verify csrf
-        if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-            csrfNotVerified();
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            CsrfUtils::csrfNotVerified();
         }
 
         $new_white_list = empty($_POST['white_list']) ? array() : $_POST['white_list'];
@@ -262,7 +263,7 @@ function msfFileChanged() {
 <body class="body_top">
 <form method='post' action='manage_site_files.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 
@@ -374,7 +375,7 @@ foreach ($imageslist as $sfname) {
             </td>
             <td  class="thumb_form" style="width:17%;border-right:none">
                 <form method='post' action='manage_site_files.php#generate_thumb'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <input style="margin-top: 10px" type="submit" name="generate_thumbnails" value="<?php echo xla('Generate') ?>">
                 </form>
             </td>
@@ -426,7 +427,7 @@ foreach ($imageslist as $sfname) {
         <div class="subject-info-save">
             <input type="button" id="submit-whitelist" value="<?php echo xla('Save'); ?>" />
             <input type="hidden" name="submit_form" value="1" />
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         </div>
     </form>
 

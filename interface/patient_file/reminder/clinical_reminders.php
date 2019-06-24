@@ -16,6 +16,7 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/clinical_rules.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 ?>
 
@@ -224,7 +225,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         type: 'passive_alert',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
       });
     });
 
@@ -235,7 +236,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         type: 'active_alert',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
       });
     });
 
@@ -246,7 +247,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         type: 'normal',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
       });
     });
 

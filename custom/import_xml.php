@@ -15,6 +15,7 @@ require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 function setInsurance($pid, $ainsurance, $asubscriber, $seq)
@@ -56,8 +57,8 @@ if (!acl_check('patients', 'demo', '', 'write')) {
 }
 
 if ($_POST['form_import']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $apatient    = array();
@@ -205,7 +206,7 @@ if ($_POST['form_import']) {
 </head>
 <body class="body_top" onload="javascript:document.forms[0].form_import_data.focus()">
 <form method='post' action="import_xml.php" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <div class="container">
         <div class="row">
             <div class="col-xs-12">

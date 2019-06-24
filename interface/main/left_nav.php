@@ -93,6 +93,7 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once $GLOBALS['srcdir'].'/user.inc';
 
 use ESign\Api;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Menu\MenuEvent;
 
 // Fetch user preferences saved from prior session
@@ -525,7 +526,7 @@ function genModuleMenuFromMenuItems($navMenuItems, $disallowed)
    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
      {
        skip_timeout_reset: "1",
-       csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+       csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
      },
      function(data) {
        $("#reminderCountSpan").html(data);
@@ -538,7 +539,7 @@ function genModuleMenuFromMenuItems($navMenuItems, $disallowed)
       {
           skip_timeout_reset: "1",
           ajax: "1",
-          csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+          csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
       });
  }
 
@@ -764,7 +765,7 @@ function clearactive() {
       data:
       {
           func: method,
-          csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+          csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
 
       },
       success:function( msg ) {
@@ -1208,7 +1209,7 @@ $(function (){
 
 <form method='post' name='find_patient' target='RTop'
  action='<?php echo $rootdir ?>/main/finder/patient_select.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 <select name='sel_frame' style='background-color:transparent;font-size:9pt;width:100;'>
@@ -1891,7 +1892,7 @@ function save_setting (cb_frames) {
                 {
                     lab: fref,
                     val: cb_frames[i],
-                    csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                    csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
                 }
             )
             .done(function(data) {

@@ -18,6 +18,8 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Csrf\CsrfUtils;
 ?>
 
 
@@ -164,7 +166,7 @@ $(document).ready(function(){
         // upon returning successfully, refresh the list box and select
         // the new list item
         $.getJSON("<?php echo $GLOBALS['webroot']; ?>/library/ajax/addlistitem.php",
-                    {csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                    {csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                     listid: listid,
              newitem: newitem,
              newitem_abbr: newitem_abbr},

@@ -15,6 +15,7 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $educationdir = "$OE_SITE_DIR/documents/education";
@@ -27,8 +28,8 @@ $source    = empty($_REQUEST['source'  ]) ? '' : $_REQUEST['source'  ];
 $errmsg = '';
 
 if ($_POST['bn_submit']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($source == 'MLP') {
@@ -138,7 +139,7 @@ if ($_POST['bn_submit']) {
         <div class='row'>
             <div class='col-xs-12'>
                 <form method='post' action='education.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <input type='hidden' name='type'     value='<?php echo attr($codetype); ?>' />
                     <input type='hidden' name='code'     value='<?php echo attr($codevalue); ?>' />
                     <input type='hidden' name='language' value='<?php echo attr($language); ?>' />

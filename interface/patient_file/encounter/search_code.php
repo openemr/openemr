@@ -13,6 +13,7 @@
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 //the maximum number of records to pull out with the search:
@@ -38,7 +39,7 @@ $code_type = $_GET['type'];
 <td valign=top>
 
 <form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo attr_url($code_type); ?>">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type="hidden" name="mode" value="search">
 
@@ -53,8 +54,8 @@ $code_type = $_GET['type'];
 
 <?php
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "") {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     echo "<div id='resultsummary' style='background-color:lightgreen;'>";
@@ -62,8 +63,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "")
 }
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "") {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
   // $sql = "SELECT * FROM codes WHERE (code_text LIKE '%" . $_POST["text"] .
@@ -121,7 +122,7 @@ if ($result) {
             // "&fee="      . attr_url($iter{"fee"}) .
             "&fee="      . attr_url($iter['pr_price']) .
             "&text="     . attr_url($iter{"code_text"}) .
-            "&csrf_token_form=" . attr_url(collectCsrfToken()) .
+            "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
             "' onclick='top.restoreSession()'>";
         echo ucwords("<b>" . text(strtoupper($iter{"code"})) . "&nbsp;" . text($iter['modifier']) .
             "</b>" . " " . text(strtolower($iter{"code_text"})));

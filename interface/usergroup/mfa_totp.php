@@ -19,6 +19,7 @@ require_once("$srcdir/classes/Totp.class.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -95,7 +96,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
     } ?>    <div class="row">
                 <div class="col-sm-12">
                     <form method='post' class="form-horizontal" action='mfa_totp.php' onsubmit='return top.restoreSession()'>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 
 
@@ -132,8 +133,8 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                     <?php
                         // step 2 is to validate password and display qr code
                         } elseif ($action == 'reg2') {
-                            if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-                                csrfNotVerified();
+                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+                                CsrfUtils::csrfNotVerified();
                             }
 
                             // Redirect back to step 1 if user password is incorrect
@@ -214,8 +215,8 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                     <?php
                         // step 3 is to save the qr code
                         } elseif ($action == 'reg3') {
-                            if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-                                csrfNotVerified();
+                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+                                CsrfUtils::csrfNotVerified();
                             }
 
                             echo "<script>\n";

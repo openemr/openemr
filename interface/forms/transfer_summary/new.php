@@ -17,6 +17,8 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form:Transfer Summary");
 $returnurl = 'encounter_top.php';
 $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
@@ -58,7 +60,7 @@ $obj = $formid ? formFetch("form_transfer_summary", $formid) : array();
 echo "<form method='post' name='my_form' " .
   "action='$rootdir/forms/transfer_summary/save.php?id=" . attr_url($formid) ."'>\n";
 ?>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <table  border="0">
 <tr>
 <td align="left" class="forms" class="forms"><?php echo xlt('Client Name'); ?>:</td>

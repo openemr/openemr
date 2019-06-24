@@ -13,8 +13,6 @@
  */
 
 
-
-
 require_once("../interface/globals.php");
 require_once("$srcdir/report_database.inc");
 require_once("../ccr/uuid.php");
@@ -22,8 +20,10 @@ require_once("qrda_category1_functions.php");
 require_once("qrda_category1.inc");
 require_once("qrda_functions.php");
 
-if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $reportID = $_POST['reportID'];

@@ -24,6 +24,7 @@ if ($GLOBALS['enable_group_therapy']) {
 }
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $is_group = ($attendant_type == 'gid') ? true : false;
@@ -237,7 +238,7 @@ window.onload=function()
 // to display the form's contents.
 function efmouseover(elem, ptid, encid, formname, formid) {
  ttMouseOver(elem, "encounters_ajax.php?ptid=" + encodeURIComponent(ptid) + "&encid=" + encodeURIComponent(encid) +
-  "&formname=" + encodeURIComponent(formname) + "&formid=" + encodeURIComponent(formid) + "&csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>);
+  "&formname=" + encodeURIComponent(formname) + "&formid=" + encodeURIComponent(formid) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
 }
 
 </script>

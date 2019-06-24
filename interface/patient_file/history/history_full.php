@@ -10,9 +10,6 @@
  */
 
 
-use OpenEMR\Core\Header;
-use OpenEMR\OeUI\OemrUI;
-
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
@@ -20,6 +17,10 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/validation/LBF_Validation.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 $CPR = 4; // cells per row
 
@@ -250,7 +251,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <script> var constraints = <?php echo $constraints;?>; </script>
 
             <form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                 <input type='hidden' name='mode' value='save'>
 

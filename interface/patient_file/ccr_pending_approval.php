@@ -18,9 +18,11 @@ require_once(dirname(__FILE__) . "/../../library/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/patient.inc");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (isset($_GET['approve']) && $_GET['approve'] == 1) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     insert_patient($_GET['am_id']);
@@ -164,7 +166,7 @@ tbody tr.odd {
             <?php echo xlt('Yes'); ?>
         </td>
         <td align="center" >
-            <a href="ccr_review_approve.php?revandapprove=1&amid=<?php echo attr_url($res['amid']); ?>&pid=<?php echo attr_url($dup_res['pid']); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Review & Approve'); ?></a>
+            <a href="ccr_review_approve.php?revandapprove=1&amid=<?php echo attr_url($res['amid']); ?>&pid=<?php echo attr_url($dup_res['pid']); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Review & Approve'); ?></a>
         </td>
         <?php
             } else {
@@ -173,7 +175,7 @@ tbody tr.odd {
             <?php echo xlt('No'); ?>
         </td>
         <td align="center" >
-            <a href="ccr_pending_approval.php?approve=1&am_id=<?php echo attr_url($res['amid']); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Approve'); ?></a>
+            <a href="ccr_pending_approval.php?approve=1&am_id=<?php echo attr_url($res['amid']); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Approve'); ?></a>
         </td>
         <?php
             }

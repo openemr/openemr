@@ -13,13 +13,14 @@
 require_once("../../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 $mode = $_GET['mode'];
 $id   = $_GET['id'];
 
 if (isset($mode)) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($mode == "add") {
@@ -84,13 +85,13 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
             $billing_html[$iter["code_type"]] .= "</span></td>";
             $billing_html[$iter["code_type"]] .= "<td>" .
                 "<a class=\"link_submit\" href='diagnosis_full.php?mode=clear&id=" .
-                attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[" . xlt('Clear Justification') .
+                attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[" . xlt('Clear Justification') .
                 "]</a></td>";
         }
 
         $billing_html[$iter["code_type"]] .= "<td>" .
             "<a class=\"link_submit\" href='diagnosis_full.php?mode=delete&id=" .
-            attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
+            attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
         $billing_html[$iter["code_type"]] .= "</tr>\n";
     }
 

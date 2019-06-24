@@ -18,6 +18,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/user.inc");
 require_once("$srcdir/calendar.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 header("Content-type: text/xml");
 header("Cache-Control: no-cache");
 
@@ -25,15 +27,15 @@ header("Cache-Control: no-cache");
 $error = array();
 
 //verify csrf
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     echo error_xml(xl('Authentication Error'));
-    csrfNotVerified(false);
+    CsrfUtils::csrfNotVerified(false);
 }
 
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
     echo error_xml(xl('ACL Administration Not Authorized'));
-    csrfNotVerified(false);
+    CsrfUtils::csrfNotVerified(false);
 }
 
 //ensure php is installed

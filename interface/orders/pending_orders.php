@@ -17,6 +17,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 function thisLineItem($row)
@@ -61,8 +62,8 @@ $form_to_date   = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     header("Pragma: public");
@@ -111,7 +112,7 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('Pending Orders')?></h2>
 
 <form method='post' action='pending_orders.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -165,8 +166,8 @@ if ($_POST['form_csvexport']) {
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $sqlBindArray = array();

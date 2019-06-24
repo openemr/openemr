@@ -22,6 +22,7 @@ require_once("$srcdir/invoice_summary.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\InsuranceService;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
@@ -658,8 +659,8 @@ function era_callback(&$out)
 
 $info_msg = "";
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $eraname = $_GET['eraname'];
@@ -702,7 +703,7 @@ if (!$debug) {
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <form action="sl_eob_process.php" method="get" >
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 <?php

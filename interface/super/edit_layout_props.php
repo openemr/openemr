@@ -16,6 +16,8 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$phpgacl_location/gacl_api.class.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $alertmsg = "";
 
 // Check authorization.
@@ -100,8 +102,8 @@ function get_related() {
 
 <?php
 if ($_POST['form_submit'] && !$alertmsg) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($group_id) {
@@ -220,7 +222,7 @@ if ($layout_id) {
 ?>
 
 <form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr_url($layout_id) . "&group_id=" . attr_url($group_id); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
 
 <table border='0' width='100%'>

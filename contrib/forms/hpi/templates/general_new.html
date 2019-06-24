@@ -36,7 +36,7 @@ a {
 </style>
 {/literal}
 </head>
-<body bgcolor="{$STYLE.BGCOLOR2}">
+<body bgcolor="{$STYLE.BGCOLOR2|attr}">
 <p><span class="title">History of Present Illness</span></p>
 <form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/hpi/save.php"
  onsubmit="return top.restoreSession()">
@@ -44,14 +44,14 @@ a {
 	<tr>
 		<td align="left">Location</td>
 		<td width="90%">
-			<textarea name="location" cols="60" rows="6">{$data->get_location()}</textarea>
+			<textarea name="location" cols="60" rows="6">{$data->get_location()|text}</textarea>
 		</td>
 	</tr>
 
 	<tr>
 		<td align="left">Quality</td>
 		<td width="90%">
-			<textarea name="quality" cols="60" rows="6">{$data->get_quality()}</textarea>
+			<textarea name="quality" cols="60" rows="6">{$data->get_quality()|text}</textarea>
 		</td>
 	</tr>
 
@@ -59,7 +59,7 @@ a {
 	<tr>
 		<td align="left">Severity</td>
 		<td width="90%">
-			<textarea name="severity" cols="60" rows="6">{$data->get_severity()}</textarea>
+			<textarea name="severity" cols="60" rows="6">{$data->get_severity()|text}</textarea>
 		</td>
 	</tr>
 
@@ -67,7 +67,7 @@ a {
 	<tr>
 		<td align="left">Duration</td>
 		<td width="90%">
-			<textarea name="duration" cols="60" rows="6">{$data->get_duration()}</textarea>
+			<textarea name="duration" cols="60" rows="6">{$data->get_duration()|text}</textarea>
 		</td>
 	</tr>
 
@@ -75,7 +75,7 @@ a {
 	<tr>
 		<td align="left">Timing</td>
 		<td width="90%">
-			<textarea name="timing" cols="60" rows="6">{$data->get_timing()}</textarea>
+			<textarea name="timing" cols="60" rows="6">{$data->get_timing()|text}</textarea>
 		</td>
 	</tr>
 
@@ -83,7 +83,7 @@ a {
 	<tr>
 		<td align="left">Context</td>
 		<td width="90%">
-			<textarea name="context" cols="60" rows="6">{$data->get_context()}</textarea>
+			<textarea name="context" cols="60" rows="6">{$data->get_context()|text}</textarea>
 		</td>
 	</tr>
 
@@ -91,7 +91,7 @@ a {
 	<tr>
 		<td align="left">Modifying Factors</td>
 		<td width="90%">
-			<textarea name="factors" cols="60" rows="6">{$data->get_factors()}</textarea>
+			<textarea name="factors" cols="60" rows="6">{$data->get_factors()|text}</textarea>
 		</td>
 	</tr>
 
@@ -99,7 +99,7 @@ a {
 	<tr>
 		<td align="left">Associated Signs and Symptoms</td>
 		<td width="90%">
-			<textarea name="signs" cols="60" rows="6">{$data->get_signs()}</textarea>
+			<textarea name="signs" cols="60" rows="6">{$data->get_signs()|text}</textarea>
 		</td>
 	</tr>
 
@@ -112,8 +112,8 @@ a {
 		</td>
 	</tr>
 </table>
-<input type="hidden" name="id" value="{$data->get_id()}" />
-<input type="hidden" name="pid" value="{$data->get_pid()}">
+<input type="hidden" name="id" value="{$data->get_id()|attr}" />
+<input type="hidden" name="pid" value="{$data->get_pid()|attr}">
 <input type="hidden" name="process" value="true">
 </form>
 </body>

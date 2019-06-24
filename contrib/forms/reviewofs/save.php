@@ -1,12 +1,8 @@
 <?php
 //------------Forms generated from formsWiz
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
-foreach ($_POST as $k => $var) {
-    $_POST[$k] = add_escape_custom($var);
-    echo "$var\n";
-}
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
 if ($encounter == "") {
     $encounter = date("Ymd");
@@ -45,7 +41,7 @@ if ($_GET["mode"] == "new") {
     shoulder_problems=?,  elbow_problems=?,  wrist_problems=?,  hand_problems=?,  
     hip_problems=?,  knee_problems=?,  ankle_problems=?,  foot_problems=?,  
     insulin_dependent_diabetes=?,  noninsulin_dependent_diabetes=?,  hypothyroidism=?,  
-    hyperthyroidism=?,  cushing_syndrom=?,  addison_syndrom=?,  additional_notes=?  where id=?", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized,      $_POST['weight_loss'], $_POST['poor_appetite'], $_POST['insomnia'], $_POST['fatigued'],
+    hyperthyroidism=?,  cushing_syndrom=?,  addison_syndrom=?,  additional_notes=?  where id=?", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST['weight_loss'], $_POST['poor_appetite'], $_POST['insomnia'], $_POST['fatigued'],
     $_POST['depressed'], $_POST['hyperactive'], $_POST['exposure_to_foreign_countries'], $_POST['cataracts'],
     $_POST['cataract_surgery'], $_POST['glaucoma'], $_POST['double_vision'], $_POST['blurred_vision'],
     $_POST['poor_hearing'], $_POST['headaches'], $_POST['ringing_in_ears'], $_POST['bloody_nose'],
@@ -71,7 +67,7 @@ if ($_GET["mode"] == "new") {
     $_POST['wrist_problems'], $_POST['hand_problems'], $_POST['hip_problems'], $_POST['knee_problems'],
     $_POST['ankle_problems'], $_POST['foot_problems'], $_POST['insulin_dependent_diabetes'], $_POST['noninsulin_dependent_diabetes'],
     $_POST['hypothyroidism'], $_POST['hyperthyroidism'], $_POST['cushing_syndrom'], $_POST['addison_syndrom'],
-    $_POST['additional_notes']));
+    $_POST['additional_notes'], $_GET["id"]));
 }
 
 $_SESSION["encounter"] = $encounter;

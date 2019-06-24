@@ -18,6 +18,7 @@ require_once("$srcdir/reminders.php");
 require_once("$srcdir/clinical_rules.php");
 require_once "$srcdir/report_database.inc";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 ?>
@@ -368,7 +369,7 @@ $(document).ready(function(){
       type: 'patient_reminder',
       setting: this.value,
       patient_id: <?php echo js_escape($patient_id); ?>,
-      csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+      csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
     });
   });
 
@@ -383,7 +384,7 @@ $(document).ready(function(){
 
    top.restoreSession();
    $.get("../../../library/ajax/collect_new_report_id.php",
-     { csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?> },
+     { csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
      function(data){
        // Set the report id in page form
        $("#form_new_report_id").attr("value",data);
@@ -396,7 +397,7 @@ $(document).ready(function(){
        $.post("../../../library/ajax/execute_pat_reminder.php",
          {process_type: processType,
           execute_report_id: $("#form_new_report_id").val(),
-          csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+          csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
          });
    });
 
@@ -410,7 +411,7 @@ $(document).ready(function(){
    $.post("../../../library/ajax/status_report.php",
      {
        status_report_id: report_id,
-       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
      },
      function(data){
        if (data == "PENDING") {

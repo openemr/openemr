@@ -14,6 +14,7 @@
 /*picture free taken from https://pixabay.com/en/balloons-party-celebration-floating-154949*/
 require_once("../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 ?>
 
@@ -43,7 +44,7 @@ use OpenEMR\Core\Header;
             var pid = <?php echo js_escape($_GET['pid'])?>;
             var user_id = <?php echo js_escape($_GET['user_id'])?>;
             var value = $("#turnOff").prop('checked');
-            var csrf_token_form = <?php echo js_escape(collectCsrfToken()); ?>;
+            var csrf_token_form = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
             var data =  {
                 "pid": pid,
                 "user_id": user_id,

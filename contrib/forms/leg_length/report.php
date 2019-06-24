@@ -5,8 +5,8 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 //------------Forms generated from formsWiz
-include_once("../../globals.php");
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once("../../globals.php");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 function leg_length_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
@@ -38,10 +38,10 @@ function leg_length_report($pid, $encounter, $cols, $id)
                 <p><b>AE</b></p>
             </td>
             <td>
-                <p><?php echo $data["AE_left"]?>&nbsp;</p>
+                <p><?php echo text($data["AE_left"]); ?>&nbsp;</p>
             </td>
             <td>
-                <p><?php echo $data["AE_right"]?>&nbsp;</p>
+                <p><?php echo text($data["AE_right"]); ?>&nbsp;</p>
             </td>
         </tr>
         <tr valign="top">
@@ -50,10 +50,10 @@ function leg_length_report($pid, $encounter, $cols, $id)
             </td>
             <td>
 
-                <p><?php echo $data["BE_left"]?>&nbsp;</p>
+                <p><?php echo text($data["BE_left"]); ?>&nbsp;</p>
             </td>
             <td>
-                <p><?php echo $data["BE_right"]?>&nbsp;</p>
+                <p><?php echo text($data["BE_right"]); ?>&nbsp;</p>
             </td>
         </tr>
         <tr valign="top">
@@ -62,10 +62,10 @@ function leg_length_report($pid, $encounter, $cols, $id)
                 <p><b>AK</b></p>
             </td>
             <td>
-                <p><?php echo $data["AK_left"]?>&nbsp;</p>
+                <p><?php echo text($data["AK_left"]); ?>&nbsp;</p>
             </td>
             <td>
-                <p><?php echo $data["AK_right"]?>&nbsp;</p>
+                <p><?php echo text($data["AK_right"]); ?>&nbsp;</p>
 
             </td>
         </tr>
@@ -74,11 +74,11 @@ function leg_length_report($pid, $encounter, $cols, $id)
                 <p><b>K</b></p>
             </td>
             <td>
-                <p><?php echo $data["K_left"]?>&nbsp;</p>
+                <p><?php echo text($data["K_left"]); ?>&nbsp;</p>
 
             </td>
             <td>
-                <p><?php echo $data["K_right"]?>&nbsp;</p>
+                <p><?php echo text($data["K_right"]); ?>&nbsp;</p>
             </td>
         </tr>
         <tr valign="top">
@@ -87,10 +87,10 @@ function leg_length_report($pid, $encounter, $cols, $id)
 
             </td>
             <td>
-                <p><?php echo $data["BK_left"]?>&nbsp;</p>
+                <p><?php echo text($data["BK_left"]); ?>&nbsp;</p>
             </td>
             <td>
-                <p><?php echo $data["BK_right"]?>&nbsp;</p>
+                <p><?php echo text($data["BK_right"]); ?>&nbsp;</p>
             </td>
         </tr>
 
@@ -99,11 +99,11 @@ function leg_length_report($pid, $encounter, $cols, $id)
                 <p><b>ASIS</b></p>
             </td>
             <td>
-                <p><?php echo $data["ASIS_left"]?>&nbsp;</p>
+                <p><?php echo text($data["ASIS_left"]); ?>&nbsp;</p>
             </td>
             <td>
 
-                <p><?php echo $data["ASIS_right"]?>&nbsp;</p>
+                <p><?php echo text($data["ASIS_right"]); ?>&nbsp;</p>
             </td>
         </tr>
         <tr valign="top">
@@ -112,10 +112,10 @@ function leg_length_report($pid, $encounter, $cols, $id)
             </td>
             <td>
 
-                <p><?php echo $data["UMB_left"]?>&nbsp;</p>
+                <p><?php echo text($data["UMB_left"]); ?>&nbsp;</p>
             </td>
             <td>
-                <p><?php echo $data["UMB_right"]?>&nbsp;</p>
+                <p><?php echo text($data["UMB_right"]); ?>&nbsp;</p>
             </td>
         </tr>
     </tbody>
@@ -128,7 +128,7 @@ function leg_length_report($pid, $encounter, $cols, $id)
             <td><b>NOTES</b></td>
         </tr>
         <tr class='text'>
-            <td><p align='left'><?php echo $data['notes']?>&nbsp;</p></td>
+            <td><p align='left'><?php echo text($data['notes']); ?>&nbsp;</p></td>
         </tr>
     </table>
     <?php } ?>

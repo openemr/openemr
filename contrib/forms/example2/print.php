@@ -15,6 +15,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 /** CHANGE THIS - name of the database table associated with this form **/
 $table_name = "form_example";
 
@@ -64,7 +66,7 @@ if ($record['sig_date'] != "") {
 Printed on <?php echo date("F d, Y", time()); ?>
 
 <form method=post action="">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <span class="title"><?php echo xlt($form_name); ?></span><br>
 

@@ -16,6 +16,7 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Collect portalsite parameter (either off for offsite or on for onsite); only allow off or on
@@ -134,8 +135,8 @@ function displayLogin($patient_id, $message, $emailFlag)
 }
 
 if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     require_once("$srcdir/authentication/common_operations.php");
@@ -191,7 +192,7 @@ function transmit(){
 </head>
 <body class="body_top">
     <form name="portallogin" action="" method="POST">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
     <table align="center" style="margin-top:10px">
         <tr class="text">

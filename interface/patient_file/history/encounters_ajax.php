@@ -15,8 +15,10 @@
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $ptid     = $_GET['ptid'] + 0;

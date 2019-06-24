@@ -17,6 +17,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("portal.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 /**
  * Get a list item title, translating if required.
  *
@@ -150,7 +152,7 @@ function openRequest(postid, type) {
  //
  // To open results in the same frame:
  if (type.indexOf('Demographics') == 0) {
-  document.location.href = 'patient_select.php?postid=' + postid + '&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>';
+  document.location.href = 'patient_select.php?postid=' + postid + '&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
  } else
  if (type.indexOf('Insurance') == 0) {
   document.location.href = 'insurance_form.php?postid=' + postid;
