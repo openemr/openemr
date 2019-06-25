@@ -13,8 +13,10 @@
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../amc.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 //  If all items are valid(ie. not empty) (note object_category and object_id and date_created can be empty), then proceed.

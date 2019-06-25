@@ -127,6 +127,9 @@ my $new_php =<<'START';
 <?php
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form: FORM_NAME");
 ?>
 <html><head>
@@ -137,7 +140,7 @@ formHeader("Form: FORM_NAME");
 DATE_HEADER
 <a href='<?php echo $GLOBALS['form_exit_url']; ?>' onclick='top.restoreSession()'>[do not save]</a>
 <form method=post action="<?php echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="FORM_NAME" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <hr>
 <h1>FORM_NAME</h1>
 <hr>
@@ -154,6 +157,9 @@ my $print_php=<<'START';
 <?php
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form: FORM_NAME");
 ?>
 <html><head>
@@ -161,7 +167,7 @@ formHeader("Form: FORM_NAME");
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <h1> FORM_NAME </h1>
 <hr>
 DATABASEFIELDS
@@ -214,8 +220,10 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 //process form variables here
@@ -318,6 +326,9 @@ my $view_php =<<'START';
 <?php
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form: FORM_NAME");
 $obj = formFetch("form_FORM_NAME", $_GET["id"]);  //#Use the formFetch function from api.inc to get values for existing form.
 
@@ -344,7 +355,7 @@ function chkdata_Radio(&$obj, $nam, $var) {
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 DATE_HEADER
 <form method=post action="<?php echo $rootdir?>/forms/FORM_NAME/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <h1> FORM_NAME </h1>
 <hr>
 DATABASEFIELDS

@@ -17,10 +17,11 @@ require_once "$srcdir/report_database.inc";
 require_once("$srcdir/options.inc.php");
 require_once("qrda_category1.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
@@ -84,7 +85,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 counter: counter,
                 ruleID: $("#text" + counter).val(),
                 provider_id: provider_id,
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             },
             context: document.body,
             success :
@@ -105,7 +106,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 if ( zipFileArray.length ) {
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
-                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>;
+                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
                     zipFileArray.length = 0;
                 }
                 if ( failureMessage ) {

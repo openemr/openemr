@@ -11,7 +11,7 @@ This form works as new and editing,
     <TD>Fever: </TD>
     <TD>
     <INPUT TYPE="text" NAME="fever_temp" value="<?php if ($obj["fever_temp"]!='') {
-        print $obj["fever_temp"];
+        print text($obj["fever_temp"]);
 } ?>">
     </TD>
     <TD>Measured:</TD>
@@ -29,7 +29,7 @@ This form works as new and editing,
         <option <?php if ($obj["measured"]=='not measured') {
             print 'selected' ;
 }?> >not measured
-        </SELECT>   
+        </SELECT>
     </TD>
     <TD>Duration:</TD>
     <TD>
@@ -240,10 +240,10 @@ This form works as new and editing,
 } ?>>no
         </SELECT>
     </TD>
-    <TD colspan=4 align=left valign=top>Notes: 
+    <TD colspan=4 align=left valign=top>Notes:
     <TEXTAREA NAME="notes" ROWS="3" COLS="40">
     <?php if ($obj["notes"]!='') {
-        print $obj["notes"];
+        print text($obj["notes"]);
 } ?>
     </TEXTAREA></TD>
 </TR>

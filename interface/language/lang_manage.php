@@ -9,6 +9,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
 if ((empty($_SESSION['lang_module_unique_id'])) ||
@@ -28,8 +29,8 @@ if (!$thisauth) {
 }
 
 if ($_POST['check'] || $_POST['synchronize']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
   // set up flag if only checking for changes (ie not performing synchronization)
@@ -193,8 +194,8 @@ if ($_POST['check'] || $_POST['synchronize']) {
 ?>
 
 <TABLE>
-<FORM name="manage_form" METHOD=POST ACTION="?m=manage&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<FORM name="manage_form" METHOD=POST ACTION="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
   <TR>
     <TD><INPUT TYPE="submit" name="check" value="<?php echo xla('Check'); ?>"></TD>
     <TD class="text">(<?php echo xlt('Check for differences of translations with custom language table.'); ?>)</TD>

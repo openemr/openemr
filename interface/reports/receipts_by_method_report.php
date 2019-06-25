@@ -13,8 +13,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,11 +27,12 @@ require_once("$srcdir/acl.inc");
 require_once "$srcdir/options.inc.php";
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -119,7 +122,7 @@ function showLineItem(
         ?>
 
      <tr bgcolor="#ddddff">
-        <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
+        <td class="detail" colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
         <?php echo xlt('Total for ') . text($paymethod); ?>
   </td>
   <td align="right">
@@ -142,15 +145,18 @@ function showLineItem(
     ?>
 
    <tr>
-    <td class="detail">
+   <td class="detail">
         <?php echo text($paymethodleft); $paymethodleft = " " ?>
-  </td>
-  <td>
+   </td>
+   <td class="detail">
+        <?php echo text($memo); $memo = " " ?>
+   </td>
+   <td>
         <?php echo text(oeFormatShortDate($transdate)); ?>
-  </td>
-  <td class="detail">
+   </td>
+   <td class="detail">
         <?php echo text($invnumber); ?>
-  </td>
+   </td>
 
 <?php
 if ($showing_ppd) {
@@ -316,7 +322,7 @@ $form_proc_code = $tmp_code_array[1];
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Receipts Summary'); ?></span>
 
 <form method='post' action='receipts_by_method_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -430,6 +436,8 @@ if ($_POST['form_refresh']) {
  <th>
     <?php echo xlt('Method') ?>
  </th>
+ <th><?php echo xlt('Reference') ?>
+ </th>
  <th>
     <?php echo xlt('Date') ?>
  </th>
@@ -492,6 +500,7 @@ if ($_POST['form_refresh']) {
         $query .= " ORDER BY fe.date, b.pid, b.encounter, fe.id";
 
         $res = sqlStatement($query, $sqlBindArray);
+
         while ($row = sqlFetchArray($res)) {
             $rowmethod = $form_report_by == 1 ? 'Patient' : 'Co-Pay';
             thisLineItem(
@@ -514,7 +523,7 @@ if ($_POST['form_refresh']) {
     $sqlBindArray = array();
     $query = "SELECT a.pid, a.encounter, a.post_time, a.pay_amount, " .
       "a.adj_amount, a.memo, a.session_id, a.code, a.payer_type, fe.id, fe.date, " .
-      "fe.invoice_refno, s.deposit_date, s.payer_id, s.reference, i.name " .
+      "fe.invoice_refno, s.deposit_date, s.payer_id, s.reference, s.payment_method, i.name " .
       "FROM ar_activity AS a " .
       "JOIN form_encounter AS fe ON fe.pid = a.pid AND fe.encounter = a.encounter " .
       "JOIN forms AS f ON f.pid = a.pid AND f.encounter = a.encounter AND f.formdir = 'newpatient' " .
@@ -550,7 +559,7 @@ if ($_POST['form_refresh']) {
     if ($form_use_edate) {
         $query .= " ORDER BY s.reference, fe.date, a.pid, a.encounter, fe.id";
     } else {
-        $query .= " ORDER BY s.reference, s.deposit_date, a.post_time, a.pid, a.encounter, fe.id";
+        $query .= " ORDER BY s.payment_method, s.deposit_date, a.post_time, a.pid, a.encounter, fe.id";
     }
 
     //
@@ -579,21 +588,15 @@ if ($_POST['form_refresh']) {
             if (empty($row['session_id'])) {
                 $rowmethod = trim($row['memo']);
             } else {
-                $rowmethod = trim($row['reference']);
-            }
-
-            if ($form_report_by != '3') {
-                // Extract only the first word as the payment method because any
-                // following text will be some petty detail like a check number.
-                $rowmethod = substr($rowmethod, 0, strcspn($rowmethod, ' /'));
+                $rowmethod = trim($row['payment_method']);
+                $rowreference = trim($row['reference']);
             }
         }
 
-      //
         thisLineItem(
             $row['pid'],
             $row['encounter'],
-            $row['code'],
+            $rowreference,
             $thedate,
             $rowmethod,
             $row['pay_amount'],
@@ -643,7 +646,7 @@ if ($_POST['form_refresh']) {
         // Print last method total.
     ?>
    <tr bgcolor="#ddddff">
-    <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
+    <td class="detail" colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
         <?php echo xlt('Total for ') . text($paymethod); ?>
   </td>
   <td align="right">
@@ -663,7 +666,7 @@ if ($_POST['form_refresh']) {
             }
         ?>
      <tr bgcolor="#ddddff">
-        <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
+        <td class="detail" colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
         <?php echo text($key); ?>
   </td>
   <td align="right">
@@ -678,7 +681,7 @@ if ($_POST['form_refresh']) {
     } // end payer summary
 ?>
  <tr bgcolor="#ffdddd">
-  <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
+  <td class="detail" colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
     <?php echo xlt('Grand Total') ?>
   </td>
   <td align="right">

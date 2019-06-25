@@ -14,13 +14,14 @@ require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
-
-use OpenEMR\Core\Header;
 
 //the maximum number of patient records to display:
 $M = 100;
@@ -56,7 +57,7 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 <a href="javascript:window.close();"><font class="title"><?php echo xlt('Browse for Record'); ?></font><font class="back"><?php echo text($tback);?></font></a>
 
 <form border='0' method='post' name="find_patient" action="browse.php?browsenum=<?php echo attr_url($browsenum); ?>">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type='entry' size='10' name='patient' id='searchparm'>
 <select name="findBy" size='1'>
@@ -119,7 +120,7 @@ function auto_populate_employer_address(){
 </script>
 
 <form method="post" name="insurance_form" action="browse.php?browsenum=<?php echo attr_url($browsenum); ?>&set_pid=<?php echo attr_url($_GET{'set_pid'}); ?>">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type="hidden" name="browsenum" value="<?php echo attr($browsenum); ?>">
 <span class=bold> <?php echo xlt('Insurance Provider'); ?>:</span>
 <select name=insurance onchange="javascript:document.insurance_form.submit();">

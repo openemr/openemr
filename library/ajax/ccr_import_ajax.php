@@ -18,9 +18,11 @@
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../parse_patient_xml.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 //verify csrf
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 if ($_REQUEST["ccr_ajax"] == "yes") {

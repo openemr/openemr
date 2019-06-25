@@ -14,6 +14,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -142,7 +143,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
                 data: {
                     mode: "get_pos",
                     facility_id: facility,
-                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }})
                 .done(function (fid) {
                     document.forms[0].pos_code.value = fid;
@@ -230,7 +231,7 @@ if ($GLOBALS['enable_help'] == 1) {
                 <?php } else { ?>
                     <input type='hidden' name='mode' value='new'>
                 <?php } ?>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('Visit Details')?></legend>
                         <div id = "visit-details">

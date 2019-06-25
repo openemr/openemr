@@ -195,7 +195,7 @@ class InstallerController extends AbstractActionController
         $postArr  = $request->getPost();
         //DELETE OLD HOOKS OF A MODULE
         $this->getInstallerTable()->deleteModuleHooks($postArr['mod_id']);
-        if (count($postArr['hook_hanger']) > 0) {
+        if (!empty($postArr['hook_hanger']) && count($postArr['hook_hanger']) > 0) {
             foreach ($postArr['hook_hanger'] as $hookId => $hooks) {
                 foreach ($hooks as $hangerId => $hookHanger) {
                     $this->getInstallerTable()->saveHooks($postArr['mod_id'], $hookId, $hangerId);

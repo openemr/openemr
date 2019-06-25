@@ -17,7 +17,7 @@
 ?>
 <!-- Form created by Andres paglayan -->
 <?php
-include_once("../../globals.php");
+require_once("../../globals.php");
 ?>
 <html><head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
@@ -29,7 +29,7 @@ include_once("$srcdir/api.inc");
 $obj = formFetch("form_ped_fever", $_GET["id"]);
 ?>
 
-<form method=post action="<?php echo $rootdir?>/forms/ped_fever/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
+<form method=post action="<?php echo $rootdir?>/forms/ped_fever/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
 <span class="title">Pediatric Fever Evaluation</span><br><br>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>

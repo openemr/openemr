@@ -14,6 +14,7 @@ require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 //the number of rows to display before resetting and starting a new column:
 $N=10;
@@ -27,8 +28,8 @@ $code     = $_GET['code'];
 $text     = $_GET['text'];
 
 if (isset($mode)) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($mode == "add") {
@@ -111,7 +112,7 @@ while ($index < $numlines) {
                 "&fee="      . attr_url($code{"fee"}) .
                 "&code="     . attr_url($code{"code"}) .
                 "&text="     . attr_url($code{"code_text"}) .
-                "&csrf_token_form=" . attr_url(collectCsrfToken()) .
+                "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
             "' onclick='top.restoreSession()'>";
             echo "<b>" . text($code['code']) . "</b>" . "&nbsp;" . text($code['modifier']) . "&nbsp;" . text($code['code_text']);
             echo "</a></dd>\n";

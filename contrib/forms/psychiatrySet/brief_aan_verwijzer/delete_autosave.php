@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////
 
 //local includes
-include_once("../../globals.php");
+require_once("../../globals.php");
 
 /////////////////
 // here we check to se if there was an autosave version prior to the real save - hack!

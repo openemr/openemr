@@ -20,11 +20,12 @@ require_once("$srcdir/report.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/edi.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -132,7 +133,7 @@ if (isset($messageEDI)) { ?>
 <div>
 <span class='title'><?php echo xlt('EDI-271 File Upload'); ?></span>
 <form enctype="multipart/form-data" name="theform" id="theform" action="edi_271.php" method="POST" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div id="report_parameters">
     <table>
         <tr>

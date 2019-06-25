@@ -15,10 +15,11 @@
 // menu for fields could be added in the future
 require_once("../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 ?>

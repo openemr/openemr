@@ -14,6 +14,8 @@
 $special_timeout = 3600;
 require_once("../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $formname = $_GET["formname"];
 $is_lbf = substr($formname, 0, 3) === 'LBF';
 
@@ -74,7 +76,7 @@ function show_graph(table_graph, name_graph, title_graph)
             table: table_graph,
             name: name_graph,
             title: title_graph,
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }),
         dataType: "json",
         success: function(returnData){

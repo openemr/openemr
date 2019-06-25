@@ -15,6 +15,7 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -190,7 +191,7 @@ function displayAlert()
 <br>
 
 <form name='facility-add' id='facility-add' method='post' action="facilities.php">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type=hidden name=mode value="facility">
     <table border=0 cellpadding=0 cellspacing=0>
         <tr>

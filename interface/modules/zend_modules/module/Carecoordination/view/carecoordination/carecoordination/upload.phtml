@@ -173,6 +173,11 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                     $('#form_ccda_import').submit();
                 }
             }
+            ,error: function(data) {
+                console.error("Error uploading one or more files. Data returned ", data);
+                $('#status1').hide('clip','',500,'');
+                alert("There was an error in uploading one or more of your files.  Please check your server logs")
+            }
         });
         status.setAbort(jqXHR);
     }
@@ -242,7 +247,10 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             fd.append('upload','1');
 
             nameArr = files[i].name.split(".");
-            if(nameArr[1]!== 'xml') {
+
+            // if we have a file extension and it is not an XML file... then we're going to error out.
+            // this code handles cases like sample.ccd.xml which is why we don't just go strictly off array position.s
+            if(nameArr.length > 1 && nameArr.pop() !== 'xml') {
               if(fnames == '') {
                 fnames = files[i].name;
               }
@@ -437,7 +445,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                 }
                 else{
                     ?>
-                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->details) > 0){ ?>display: none; <?php } ?>">
+                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->records) > 0){ ?>display: none; <?php } ?>">
                         <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
                     </div>
                     <?php

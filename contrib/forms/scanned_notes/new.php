@@ -17,6 +17,8 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $row = array();
 
 if (! $encounter) { // comes from globals.php
@@ -29,8 +31,8 @@ $imagedir = $GLOBALS['OE_SITE_DIR'] . "/documents/" . check_file_dir_name($pid) 
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
  // If updating an existing form...
@@ -126,7 +128,7 @@ if ($formid) {
 
  // Process click on Delete button.
  function deleteme() {
-  dlgopen('../../patient_file/deleter.php?formid=' + <?php echo js_url($formrow['id']); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450);
+  dlgopen('../../patient_file/deleter.php?formid=' + <?php echo js_url($formrow['id']); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
   return false;
  }
 
@@ -145,7 +147,7 @@ if ($formid) {
 <form method="post" enctype="multipart/form-data"
  action="<?php echo $rootdir ?>/forms/scanned_notes/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

@@ -15,10 +15,11 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Rx\Weno\TransmitData;
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $facility = getFacilities($first = '');

@@ -36,7 +36,7 @@ a {
 </style>
 {/literal}
 </head>
-<body bgcolor="{$STYLE.BGCOLOR2}">
+<body bgcolor="{$STYLE.BGCOLOR2|attr}">
 <p><span class="title">Nursing Notes</span></p>
 <form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/nursing_notes/save.php"
  onsubmit="return top.restoreSession()">
@@ -44,21 +44,21 @@ a {
 	<tr>
 		<td align="left">Initial Assessment</td>
 		<td width="90%">
-			<textarea name="assessment" cols="60" rows="8">{$data->get_assessment()}</textarea>
+			<textarea name="assessment" cols="60" rows="8">{$data->get_assessment()|text}</textarea>
 		</td>
 	</tr>
 
 	<tr>
 		<td align="left">Procedures Done</td>
 		<td width="90%">
-			<textarea name="procedures" cols="60" rows="8">{$data->get_procedures()}</textarea>
+			<textarea name="procedures" cols="60" rows="8">{$data->get_procedures()|text}</textarea>
 		</td>
 	</tr>
 
 	<tr>
 		<td align="left">Discharge Teaching</td>
 		<td width="90%">
-			<textarea name="discharge" cols="60" rows="8">{$data->get_discharge()}</textarea>
+			<textarea name="discharge" cols="60" rows="8">{$data->get_discharge()|text}</textarea>
 		</td>
 	</tr>
 
@@ -71,8 +71,8 @@ a {
 		</td>
 	</tr>
 </table>
-<input type="hidden" name="id" value="{$data->get_id()}" />
-<input type="hidden" name="pid" value="{$data->get_pid()}">
+<input type="hidden" name="id" value="{$data->get_id()|attr}" />
+<input type="hidden" name="pid" value="{$data->get_pid()|attr}">
 <input type="hidden" name="process" value="true">
 </form>
 </body>

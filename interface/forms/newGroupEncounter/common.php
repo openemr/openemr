@@ -17,6 +17,7 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/group.inc");
 require_once("$srcdir/classes/POSRef.class.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -192,7 +193,7 @@ $help_icon = '';
                     <input type='hidden' name='mode' value='new'>
                 <?php } ?>
                 <fieldset>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <legend><?php echo xlt('Visit Details')?></legend>
                     <div id = "visit-details">
                         <div class="form-group ">

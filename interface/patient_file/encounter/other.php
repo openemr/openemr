@@ -11,6 +11,8 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 //the number of rows to display before resetting and starting a new column:
 $N=10
 ?>
@@ -29,7 +31,7 @@ $N=10
 
 <dl>
 
-<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"
+<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 <script type="text/javascript">
 function clearform(atrib){

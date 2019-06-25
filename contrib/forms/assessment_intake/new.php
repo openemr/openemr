@@ -12,6 +12,9 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form: assessment_intake");
 ?>
 <html><head>
@@ -19,7 +22,7 @@ formHeader("Form: assessment_intake");
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/assessment_intake/save.php?mode=new" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <br>
 <span class="title"><center>Assessment and Intake</center></span><br><br>
 <center><a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>

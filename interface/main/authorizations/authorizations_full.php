@@ -13,11 +13,12 @@
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     EventAuditLogger::instance()->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
@@ -122,7 +123,7 @@ if ($authorize) {
 
         echo "<tr><td valign=top><span class=bold>". text($name{"fname"} . " " . $name{"lname"}) .
              "</span><br><a class=link_submit href='authorizations_full.php?mode=authorize&pid=" .
-             attr_url($ppid) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
+             attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
         echo "<td valign=top><span class=bold>".xlt('Billing').
              ":</span><span class=text><br>" . $patient{"billing"} . "</td>\n";
         echo "<td valign=top><span class=bold>".xlt('Transactions').

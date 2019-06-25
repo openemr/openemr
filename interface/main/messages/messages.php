@@ -24,6 +24,7 @@ require_once("$srcdir/gprelations.inc.php");
 require_once "$srcdir/user.inc";
 require_once("$srcdir/MedEx/API.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
@@ -1032,7 +1033,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 url: '<?php echo $GLOBALS['webroot'] . "/library/ajax/set_pt.php";?>',
                 data: {
                     set_pid: pid,
-                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 },
                 async: false
             });
@@ -1096,7 +1097,7 @@ if (!empty($_REQUEST['go'])) { ?>
             var url = '../../main/finder/multi_patients_finder.php'
             // for edit selected list
             if ($('#reply_to').val() !== '') {
-                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>';
+                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
             }
             dlgopen(url, '_blank', 625, 400);
         }

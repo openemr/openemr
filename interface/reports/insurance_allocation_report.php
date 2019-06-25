@@ -15,11 +15,12 @@ require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -109,7 +110,7 @@ if ($_POST['form_csvexport']) {
 </div>
 
 <form name='theform' method='post' action='insurance_allocation_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>

@@ -159,7 +159,10 @@
             fd.append('upload','1');
 
             nameArr = files[i].name.split(".");
-            if(nameArr[1]!== 'xml') {
+
+            // if we have a file extension and it is not an XML file... then we're going to error out.
+            // this code handles cases like sample.ccd.xml which is why we don't just go strictly off array position.s
+            if(nameArr.length > 1 && nameArr.pop() !== 'xml') {
               if(fnames == '') {
                 fnames = files[i].name;
               }
@@ -174,7 +177,8 @@
             sendFileToServer(fd,status);
         }
         if(fnames != '') {
-          alert('<?php echo $this->listenerObject->z_xlt("Can't upload");?> '+fnames);
+            console.error("Could not get file name. Files was of length " + files.length + ". Objects are: ", files);
+            alert('<?php echo $this->listenerObject->z_xlt("Can't upload");?> '+fnames);
         }
         $('#status1').show('clip','',500,'');
     }
@@ -249,7 +253,7 @@
                 }
                 else{
                     ?>
-                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->details) > 0){ ?>display: none; <?php } ?>">
+                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->records) > 0){ ?>display: none; <?php } ?>">
                         <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
                     </div>
                     <?php

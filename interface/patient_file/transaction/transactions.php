@@ -14,6 +14,7 @@ require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -32,7 +33,7 @@ use OpenEMR\OeUI\OemrUI;
     // Process click on Delete button.
     function deleteme(transactionId) {
         top.restoreSession();
-        dlgopen('../deleter.php?transaction=' + encodeURIComponent(transactionId) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450);
+        dlgopen('../deleter.php?transaction=' + encodeURIComponent(transactionId) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
         return false;
     }
 <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>

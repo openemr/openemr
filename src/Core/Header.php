@@ -52,11 +52,6 @@ class Header
      * Header::setupHeader('no_main-theme');
      * ```
      *
-     * Inside of a twig template (Parameters same as before):
-     * ```html
-     * {{ includeAsset() }}
-     * ```
-     *
      * Inside of a smarty template, use | (pipe) delimited string of key names
      * ```php
      * {headerTemplate}

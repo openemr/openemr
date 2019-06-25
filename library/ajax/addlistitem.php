@@ -20,10 +20,12 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 //verify csrf
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     echo json_encode(array("error"=> xl('Authentication Error') ));
-    csrfNotVerified(false);
+    CsrfUtils::csrfNotVerified(false);
 }
 
 // check for required values

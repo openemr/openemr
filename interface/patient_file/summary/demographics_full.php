@@ -18,6 +18,7 @@ require_once("$srcdir/patientvalidation.inc.php");
 require_once("$srcdir/pid.inc");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Session pid must be right or bad things can happen when demographics are saved!
@@ -420,7 +421,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <body class="body_top">
 
 <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
 

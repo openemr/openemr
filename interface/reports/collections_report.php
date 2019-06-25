@@ -24,11 +24,12 @@ require_once("../../library/invoice_summary.inc.php");
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -387,7 +388,7 @@ if ($_POST['form_csvexport']) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Collections'); ?></span>
 
 <form method='post' action='collections_report.php' enctype='multipart/form-data' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 

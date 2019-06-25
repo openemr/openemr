@@ -17,6 +17,7 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
@@ -101,8 +102,8 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($mode == "update") {
@@ -224,12 +225,12 @@ $(document).ready(function(){
     // load divs
     $("#stats_div").load("stats.php",
         {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
     $("#notes_div").load("pnotes_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
 
@@ -277,7 +278,7 @@ function restoreSession() {
 <div class="container-fluid" id="pnotes"> <!-- large outer DIV -->
 
 <form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo attr_url($docid); ?>&orderid=<?php echo attr_url($orderid); ?>&<?php echo $activity_string_html; ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <?php
 $title_docname = "";
@@ -409,7 +410,7 @@ $title = text(getPatientName($patient_id));
   <div id='inbox_div' <?php echo $inbox_style; ?> >
 <form border='0' method='post' name='update_activity' id='update_activity'
  action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
 <input type='hidden' name='mode' value="update">

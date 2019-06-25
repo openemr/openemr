@@ -12,6 +12,7 @@
 require_once(dirname(__FILE__) . "/../library/forms.inc");
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 
@@ -37,7 +38,7 @@ class C_Document extends Controller
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "document&");
 
-        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
 
         $this->assign("IMAGES_STATIC_RELATIVE", $GLOBALS['images_static_relative']);
 
@@ -357,7 +358,7 @@ class C_Document extends Controller
         $d = new Document($doc_id);
         $notes = $d->get_notes();
 
-        $this->assign("csrf_token_form", collectCsrfToken());
+        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken());
 
         $this->assign("file", $d);
         $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode($d->get_id()) . "&");

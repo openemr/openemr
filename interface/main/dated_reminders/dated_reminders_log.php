@@ -15,6 +15,7 @@
     require_once("$srcdir/acl.inc");
     require_once("$srcdir/dated_reminder_functions.php");
 
+    use OpenEMR\Common\Csrf\CsrfUtils;
     use OpenEMR\Core\Header;
 
     $isAdmin =acl_check('admin', 'users');
@@ -24,8 +25,8 @@
     -------------------  HANDLE POST ---------------------
   */
 if ($_GET) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if (!$isAdmin) {
@@ -145,7 +146,7 @@ if ($_GET) {
         <div class="row hideaway">
             <div class="col-xs-12">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                     <fieldset>
                         <legend><?php echo xlt('Filters') ?></legend>

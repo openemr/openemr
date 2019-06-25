@@ -15,9 +15,11 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!empty($_REQUEST)) {
-    if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -124,7 +126,7 @@ function submitList(offset) {
 <body class="body_top">
 
 <form method='post' action='patient_select.php' name='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type='hidden' name='fstart'  value='<?php echo attr($fstart); ?>' />
 
@@ -280,7 +282,7 @@ if ($popup) {
   </td>
   <td>
     <?php if ($from_page == "cdr_report") { ?>
-    <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label']) . "&print_patients=1&csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='css_button' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
+    <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label']) . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='css_button' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
   <td class='text' align='right'>

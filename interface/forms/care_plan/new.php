@@ -20,6 +20,7 @@ require_once("$srcdir/options.inc.php");
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
@@ -132,7 +133,7 @@ endforeach;
             </div>
             <div class="row">
             <?php echo "<form method='post' name='my_form' " . "action='$rootdir/forms/care_plan/save.php?id=" . attr_url($formid) . "'>\n"; ?>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('Enter Details'); ?></legend>
                     <?php

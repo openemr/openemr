@@ -17,6 +17,7 @@ require_once("../globals.php");
 require_once("$srcdir/auth.inc");
 require_once("$srcdir/user.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -49,7 +50,7 @@ function update_password()
             curPass:    $("input[name='curPass']").val(),
             newPass:    $("input[name='newPass']").val(),
             newPass2:   $("input[name='newPass2']").val(),
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         },
         function(data)
         {

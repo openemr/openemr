@@ -14,6 +14,9 @@
 
 require_once('../../globals.php');
 require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 <?php
 // Check authorization.
@@ -23,8 +26,8 @@ if (!acl_check('admin', 'super')) {
 
 
 if ($_POST['export']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $temp = tmpfile();
@@ -69,8 +72,8 @@ if ($_POST['export']) {
 }
 
 if ($_POST['import']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 ?>
 <?php
@@ -198,7 +201,7 @@ admin
 <?php echo xlt("This feature is very experimental and not fully tested. Use at your own risk!"); ?>
 </p>
 <form enctype="multipart/form-data" method="POST">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
 <?php echo xlt('Send this file'); ?>: <input type="file" name="userfile"/>
 <input type="submit" name="import" value='<?php echo xla("Import"); ?>'/>

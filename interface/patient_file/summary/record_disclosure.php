@@ -15,6 +15,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 //if the edit button for editing disclosure is set.
 if (isset($_GET['editlid'])) {
     $editlid=$_GET['editlid'];
@@ -93,7 +95,7 @@ if ($editlid) {
 </div>
 
 <form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
     <div><button class='css_button_span large_button_span' name='form_save' id='form_save'>
             <?php echo xlt('Save'); ?>

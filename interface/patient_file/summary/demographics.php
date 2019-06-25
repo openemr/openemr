@@ -29,6 +29,7 @@ require_once("$srcdir/options.js.php");
 require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Reminder\BirthdayReminder;
@@ -187,7 +188,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  // Process click on Delete link.
  function deleteme() { // @todo don't think this is used any longer!!
-  dlgopen('../deleter.php?patient=' + <?php echo js_url($pid); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450, '', '',{
+  dlgopen('../deleter.php?patient=' + <?php echo js_url($pid); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450, '', '',{
       allowResize: false,
       allowDrag: false,
       dialogId: 'patdel',
@@ -226,7 +227,7 @@ function toggleIndicator(target,div) {
             {
                 target: div,
                 mode: 0,
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         );
     } else {
@@ -236,7 +237,7 @@ function toggleIndicator(target,div) {
             {
                 target: div,
                 mode: 1,
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         );
     }
@@ -359,18 +360,18 @@ $(document).ready(function(){
     $("#stats_div").load("stats.php",
         {
             embeddedScreen : true,
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         },
         function() {}
     );
     $("#pnotes_ps_expand").load("pnotes_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
     $("#disclosures_ps_expand").load("disc_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
 
@@ -379,7 +380,7 @@ $(document).ready(function(){
       $("#clinical_reminders_ps_expand").load("clinical_reminders_fragment.php",
           {
               embeddedScreen : true,
-              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
           },
           function() {
           // (note need to place javascript code here also to get the dynamic link to work)
@@ -404,7 +405,7 @@ $(document).ready(function(){
       top.restoreSession();
       $("#patient_reminders_ps_expand").load("patient_reminders_fragment.php",
           {
-              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
           }
       );
     <?php } // end prw?>
@@ -413,7 +414,7 @@ $(document).ready(function(){
     // Initialize the Vitals form if it is registered and user is authorized.
     $("#vitals_ps_expand").load("vitals_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
 <?php } ?>
@@ -421,7 +422,7 @@ $(document).ready(function(){
     // Initialize track_anything
     $("#track_anything_ps_expand").load("track_anything_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
 
@@ -429,7 +430,7 @@ $(document).ready(function(){
     // Initialize labdata
     $("#labdata_ps_expand").load("labdata_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
 <?php
@@ -441,7 +442,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
 ?>
     $(<?php echo js_escape("#".$gfrow['grp_form_id']."_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>,
         {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
 <?php

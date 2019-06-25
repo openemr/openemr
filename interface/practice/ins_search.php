@@ -24,6 +24,7 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Putting a message here will cause a popup window to display it.
@@ -100,7 +101,7 @@ td { font-size:10pt; }
    '&form_zip='    + encodeURIComponent(f.form_zip.value   ) +
    '&form_phone='  + encodeURIComponent(f.form_phone.value ) +
    '&form_cms_id=' + encodeURIComponent(f.form_cms_id.value) +
-   '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>;
+   '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
 
     top.restoreSession();
     $("#form_list").load( search_list ).show();
@@ -154,8 +155,8 @@ td { font-size:10pt; }
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $ins_id = '';
@@ -235,7 +236,7 @@ if ($_POST['form_save']) {
 
 <form method='post' name='theform' action='ins_search.php'
  onsubmit='return validate(this)'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
 
 <p>

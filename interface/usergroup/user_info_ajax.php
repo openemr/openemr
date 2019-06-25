@@ -24,9 +24,11 @@
 require_once("../globals.php");
 require_once("$srcdir/authentication/password_change.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 

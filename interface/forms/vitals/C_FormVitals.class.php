@@ -14,6 +14,8 @@ require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once($GLOBALS['fileroot'] . "/library/patient.inc");
 require_once("FormVitals.class.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 class C_FormVitals extends Controller
 {
 
@@ -35,7 +37,7 @@ class C_FormVitals extends Controller
         $this->assign("gbl_vitals_options", $GLOBALS['gbl_vitals_options']);
 
         // Assign the CSRF_TOKEN_FORM
-        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
     }
 
     function default_action_old()

@@ -14,8 +14,10 @@
 
 require_once('../globals.php');
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 // check to make sure only administrators access this page.
 if (!acl_check('admin', 'super')) {

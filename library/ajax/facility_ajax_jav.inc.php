@@ -13,7 +13,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
+use OpenEMR\Common\Csrf\CsrfUtils;
 ?>
 <script type="text/javascript">
 function ajax_bill_loc(pid,date,facility){
@@ -26,7 +26,7 @@ data: {
 pid: pid,
 date: date,
 facility: facility,
-csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
 },
 success: function(thedata){//alert(thedata)
 $("#ajaxdiv").html(thedata);

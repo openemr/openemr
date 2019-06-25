@@ -24,11 +24,12 @@ require_once "$srcdir/patient_tracker.inc.php";
 require_once "$srcdir/user.inc";
 require_once "$srcdir/MedEx/API.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -268,7 +269,7 @@ if (!$_REQUEST['flb_table']) {
                 ?>
                 <br/>
                 <form name="flb" id="flb" method="post">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class=" text-center row divTable" style="width: 85%;padding: 10px 10px 0;margin: 10px auto;">
                         <div class="col-sm-<?php echo attr($col_width); ?> text-center" style="margin-top:15px;">
                             <select id="form_apptcat" name="form_apptcat" class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all"
@@ -668,7 +669,7 @@ if (!$_REQUEST['flb_table']) {
                                     <span class='hidden' name='progCALLback_" . attr($appointment['eid']) . "' id='progCALLback_" . attr($appointment['eid']) . "'>
                                       <form id='notation_" . attr($appointment['eid']) . "' method='post' 
                                       action='#'>
-                                        <input type='hidden' name='csrf_token_form' value='<?php echo attr(collectCsrfToken()); ?>' />
+                                        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken()); ?>' />
                                         <h4>" . xlt('Call Back Notes') . ":</h4>
                                         <input type='hidden' name='pc_eid' id='pc_eid' value='" . attr($appointment['eid']) . "'>
                                         <input type='hidden' name='pc_pid' id='pc_pid' value='" . attr($appointment['pc_pid']) . "'>
@@ -932,7 +933,7 @@ if (!$_REQUEST['flb_table']) { ?>
     <!-- form used to open a new top level window when a patient row is clicked -->
     <form name='fnew' method='post' target='_blank'
           action='../main/main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <input type='hidden' name='patientID' value='0'/>
         <input type='hidden' name='encounterID' value='0'/>
     </form>
@@ -974,7 +975,7 @@ function myLocalJS()
             if ($("#flb_selectors").css('display') === 'none') {
                 $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'block',
-                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
@@ -983,7 +984,7 @@ function myLocalJS()
             } else {
                 $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'none',
-                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
@@ -1017,7 +1018,7 @@ function myLocalJS()
                 form_patient_id: $("#form_patient_id").val(),
                 form_apptcat: $("#form_apptcat").val(),
                 kiosk: $("#kiosk").val(),
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }).done(
                 function (data) {
                     //minimum 400 ms of loader (In the first loading or manual loading not by timer)
@@ -1088,7 +1089,7 @@ function myLocalJS()
         // popup for patient tracker status
         function bpopup(tkid) {
             top.restoreSession();
-            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 250);
+            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 250);
             return false;
         }
 
@@ -1221,7 +1222,7 @@ function myLocalJS()
                 $.post("../../library/ajax/drug_screen_completed.php", {
                     trackerid: this.id,
                     testcomplete: testcomplete_toggle,
-                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 });
             });
 
@@ -1230,7 +1231,7 @@ function myLocalJS()
                 $('#setting_new_window').val(this.checked ? 'checked' : ' ');
                 $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_new_window: $('#setting_new_window').val(),
-                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }).done(
                     function (data) {
                 });
