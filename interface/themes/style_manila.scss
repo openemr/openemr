@@ -515,6 +515,31 @@ body dl {
     border-right: none !important;
  }
 /*openrmr5.0.2 edit_globals vertical menu*/
+/*bootstrap navbar */
+.navbar-collapse.collapse.in {
+    background-color: #F5F5F5!important;
+    color: #000!important;
+}
+.navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
+    color: #333;
+    background-color: #eee;
+}
+/*bootstrap navbar */
+/*openemr 5 patient-finder*/
+@media screen and (max-width: 750px) {
+    #pt_table {
+        font-size: 1.2rem;
+    }
+}
+/*openemr 5 patient-finder*/
+
+/*vertical main menu */
+
+.appMenu_small .menuSection > .menuEntries {
+    left:40px;
+    box-shadow:3px 5px 8px #adadad;
+}
+/*vertical main menu */
 @import "oe-bootstrap";
 @import "oe-common/all-common-import";
 

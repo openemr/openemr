@@ -481,7 +481,21 @@ div.section, div.borderbox {
 	border-color: $darkest !important;
 }
 /* flow board filters*/
+/*openemr 5 patient-finder*/
+@media screen and (max-width: 750px) {
+    #pt_table {
+        font-size: .9rem;
+    }
+}
+/*openemr 5 patient-finder*/
 
+/*vertical main menu */
+
+.appMenu_small .menuSection > .menuEntries {
+    left:40px;
+    box-shadow:3px 5px 8px $darker !important;
+}
+/*vertical main menu */
 @import "colors/openemr5/external-data";
 @import "colors/openemr5/ros";
 @import "colors/openemr5/codes";

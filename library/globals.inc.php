@@ -207,7 +207,7 @@ $GLOBALS_METADATA = array(
         'css_header' => array(
             xl('General Theme') .'*',
             'css',
-            'style_light.css',
+            'style_coral.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 

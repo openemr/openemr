@@ -316,3 +316,20 @@
         float: left;
     }
 }
+/*expandable search rtl in main.php*/
+.oe-expandable-search button.btn-search1 {
+    right: 0;
+    padding: 4px 6px 4px 0 !important;
+}
+
+.oe-expandable-search input:focus~button.btn-search1 {
+    right: 245px;
+    outline: 0;
+}
+/*expandable search rtl in main.php*/
+/*vertical main menu */
+
+.appMenu_small .menuSection > .menuEntries {
+    right:40px ! important; 
+}
+/*vertical main menu */
