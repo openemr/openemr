@@ -83,7 +83,7 @@ class InsuranceService
 
     public function doesInsuranceTypeHaveEntry($pid, $type)
     {
-        return $this->getOne($pid, $type) !== null;
+        return $this->getOne($pid, $type) !== false;
     }
 
     public function update($pid, $type, $data)
