@@ -2,6 +2,15 @@
 /**
  * CsrfUtils class.
  *
+ *   OpenEMR CSRF prevention strategy:
+ *    1. A secret key is created upon login that is stored in session.
+ *    2. This key is used to build CSRF token via hash_hmac().
+ *    3. This mechanism allows creation of infinite CSRF tokens from 1 secret key.
+ *    4. Currently creating separate tokens for 'api' and 'default'.
+ *    5. Note we are truncating the hash_hmac() hash to 40 characters (rather than
+ *       the full 64 of a sha256 hash) so as not to break character limits when
+ *       CSRF tokens are used in GET requests.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
