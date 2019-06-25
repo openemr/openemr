@@ -51,6 +51,7 @@ class SendtoController extends AbstractActionController
                                 'selected_form'       => $selected_cform,
                                 'listenerObject'      => $this->listenerObject,
                                 'ccda_components'     => $ccda_components,
+                                'download_format'     => [] // empty array, can be populated by SendToHieHelper...
                             ));
         if ($button_only == 1) {
             $this->layout('layout/embedded_button');

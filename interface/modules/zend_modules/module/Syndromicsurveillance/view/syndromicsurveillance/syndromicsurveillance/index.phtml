@@ -160,7 +160,7 @@ $provider   = $this->provider;
         }
         else{
         ?>
-            <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($res) > 0){ ?>display: none; <?php } ?>">
+            <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->result) > 0){ ?>display: none; <?php } ?>">
                 <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
             </div>
         <?php
