@@ -988,7 +988,7 @@ class Events extends Base
                             $timing2 = ($timing + 2);
                             $target_dates = "(
                                       (
-                                        cal.pc_eventDate >= (CURDATE() + INTERVAL ".$timing." DAY  AND
+                                        cal.pc_eventDate >= (CURDATE() + INTERVAL ".$timing." DAY)  AND
                                         cal.pc_eventDate <= (CURDATE() + INTERVAL ".$timing2." DAY)
                                       )
                                       OR
