@@ -168,12 +168,10 @@ class CarecoordinationTable extends AbstractTableGateway
                     $func_name = $components_oids[$components[$i]['section']['templateId']['root']];
                     $this->$func_name($components[$i]);
                 }
-            }
-            else if (empty($components[$i]['section']['templateId'])) {
-		// uncomment for debugging information.
+            } else if (empty($components[$i]['section']['templateId'])) {
+                // uncomment for debugging information.
                 // error_log("section and template id empty for position $i " . var_export($components[$i], true));
-            }
-            else if (count($components[$i]['section']['templateId']) > 1) {
+            } else if (count($components[$i]['section']['templateId']) > 1) {
                 foreach ($components[$i]['section']['templateId'] as $key_1 => $value_1) {
                     if ($components_oids[$components[$i]['section']['templateId'][$key_1]['root']] != '') {
                         $func_name = $components_oids[$components[$i]['section']['templateId'][$key_1]['root']];
@@ -300,7 +298,6 @@ class CarecoordinationTable extends AbstractTableGateway
     {
         if ($allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != ''
             && $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != 0) {
-
             $i = 1;
             // if there are already items here we want to add to them.
             if (!empty($this->ccda_data_array['field_name_value_array']['lists2'])) {
@@ -2653,7 +2650,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function InsertVitals($vitals_array, $pid, $revapprove = 1)
     {
-        if(empty($vitals_array)) {
+        if (empty($vitals_array)) {
             return;
         }
         $appTable = new ApplicationTable();

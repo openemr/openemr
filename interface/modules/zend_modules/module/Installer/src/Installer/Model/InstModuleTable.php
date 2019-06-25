@@ -35,6 +35,7 @@ class InstModuleTable
 
     /**
      * The path for the zend modules locations
+     *
      * @var string
      */
     private $module_zend_path;
@@ -51,7 +52,7 @@ class InstModuleTable
             . ".." . DIRECTORY_SEPARATOR . $GLOBALS['baseModDir'] . $GLOBALS['zendModDir'] . DIRECTORY_SEPARATOR . "module";
     }
 
-  /**
+    /**
    * Get All Modules Configuration Settings
    *
    * @return type
@@ -65,7 +66,7 @@ class InstModuleTable
         return $result;
     }
 
-  /**
+    /**
    *
    * @param type $dir
    * @return boolean
@@ -94,13 +95,14 @@ class InstModuleTable
         }
     }
 
-  /**
+    /**
    * Save Configuration Settings
-   *
    */
     public function saveSettings($fieldName, $fieldValue, $moduleId)
     {
-        /** Check the field exist */
+        /**
+ * Check the field exist
+*/
         $sql = "SELECT * FROM module_configuration
                       WHERE field_name = ?
                       AND module_id = ?";
@@ -130,12 +132,13 @@ class InstModuleTable
         }
     }
 
-  /**
+    /**
    * this will be used to register a module
-   * @param unknown_type $directory
-   * @param unknown_type $rel_path
-   * @param unknown_type $state
-   * @param unknown_type $base
+   *
+   * @param  unknown_type $directory
+   * @param  unknown_type $rel_path
+   * @param  unknown_type $state
+   * @param  unknown_type $base
    * @return boolean
    */
     public function register($directory, $rel_path, $state = 0, $base = "custom_modules")
@@ -212,8 +215,9 @@ class InstModuleTable
         return false;
     }
 
-  /**
+    /**
    * get the list of all modules
+   *
    * @return multitype:
    */
     public function allModules()
@@ -223,8 +227,9 @@ class InstModuleTable
         $result = $this->applicationTable->zQuery($sql, $params);
         return $result;
     }
-  /**
+    /**
    * get the list of all modules
+   *
    * @return multitype:
    */
     public function getInstalledModules()
@@ -244,8 +249,8 @@ class InstModuleTable
         return $all;
     }
 
-  /**
-   * @param int $id
+    /**
+   * @param int    $id
    * @param string $cols
    * @return Ambigous <boolean, unknown>
    */
@@ -265,10 +270,11 @@ class InstModuleTable
         return $mod;
     }
 
-  /**
+    /**
    * Function to enable/disable a module
-   * @param int         $id     Module PK
-   * @param string  $mod    Status
+   *
+   * @param int    $id  Module PK
+   * @param string $mod Status
    */
     public function updateRegistered($id, $mod = '', $values = '')
     {
@@ -311,9 +317,10 @@ class InstModuleTable
         return $resp;
     }
 
-  /**
+    /**
    * Function to get ACL objects for module
-   * @param int         $mod_id     Module PK
+   *
+   * @param int $mod_id Module PK
    */
     public function getSettings($type, $mod_id)
     {
@@ -343,7 +350,7 @@ class InstModuleTable
         return $all;
     }
 
-  /**
+    /**
    * Function to get Oemr User Group
    */
     public function getOemrUserGroup()
@@ -366,7 +373,7 @@ class InstModuleTable
 
         return $all;
     }
-  /**
+    /**
    * Function to get Oemr User Group and Aro Map
    */
     public function getOemrUserGroupAroMap()
@@ -392,7 +399,7 @@ class InstModuleTable
         return $all;
     }
 
-  /**
+    /**
    * Function to get Active Users
    */
     public function getActiveUsers()
@@ -430,7 +437,7 @@ class InstModuleTable
 
         return $all;
     }
-  /**
+    /**
    *Function To Get Active ACL for this Module
    */
     public function getActiveACL($mod_id)
@@ -463,7 +470,7 @@ class InstModuleTable
         return $arr;
     }
 
-  /**
+    /**
    *Function To Get Saved Hooks For this Module
    */
     public function getActiveHooks($mod_id)
@@ -482,7 +489,7 @@ class InstModuleTable
         return $all;
     }
 
-  /**
+    /**
    * Function to get Status of a Hook
    */
     public function getHookStatus($modId, $hookId, $hangerId)
@@ -505,7 +512,7 @@ class InstModuleTable
         }
     }
 
-  /**
+    /**
    * Function to Delete Hooks
    */
     public function saveHooks($modId, $hookId, $hangerId)
@@ -516,7 +523,7 @@ class InstModuleTable
         }
     }
 
-  /**
+    /**
    * Save Module Hook settings
    */
     public function saveModuleHookSettings($modId, $hook)
@@ -535,7 +542,7 @@ class InstModuleTable
         $this->applicationTable->zQuery($sql, $params);
     }
 
-  /**
+    /**
    * Function to Delete Hooks
    */
     public function DeleteHooks($post)
@@ -545,7 +552,7 @@ class InstModuleTable
         }
     }
 
-  /**
+    /**
    * Function to Delete Module Hooks
    */
     public function deleteModuleHooks($modId)
@@ -741,7 +748,7 @@ class InstModuleTable
         }
     }
 
-  //GET MODULE HOOKS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
+    //GET MODULE HOOKS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
     public function getModuleHooks($moduleDirectory)
     {
         $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
@@ -756,7 +763,7 @@ class InstModuleTable
     }
 
 
-  //GET MODULE ACL SECTIONS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
+    //GET MODULE ACL SECTIONS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
     public function getModuleAclSections($moduleDirectory)
     {
         $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
@@ -833,7 +840,7 @@ class InstModuleTable
         $obj->zQuery($sql, array($module_id));
     }
 
-  //GET DEPENDED MODULES OF A MODULE FROM A FUNCTION IN CONFIGURATION MODEL CLASS
+    //GET DEPENDED MODULES OF A MODULE FROM A FUNCTION IN CONFIGURATION MODEL CLASS
     public function getDependedModulesByDirectoryName($moduleDirectory)
     {
         $retArr = [];
@@ -846,7 +853,7 @@ class InstModuleTable
         return $retArr;
     }
 
-  /**
+    /**
    * Function to Save Module Hooks
    */
     public function saveModuleHooks($modId, $hookId, $hookTitle, $hookPath)
@@ -857,9 +864,8 @@ class InstModuleTable
         }
     }
 
-  /**
+    /**
    * Function to Save Module Hooks
-   *
    */
     public function deleteModuleHookSettings($modId)
     {
@@ -898,14 +904,14 @@ class InstModuleTable
         return $setup;
     }
 
-  /**
+    /**
    * Function getObject
    * Dynamically create Module Controller / Form / Setup Object
    * TODO: we should make sure the controller conforms to an interface as we are calling methods on here that are dynamic such as getAcl
    *
-   * @param string $moduleDirectory Module Directory Name
-   * @param string $option Controller / Form / Setup to create an Object
-   * @param type $adapter
+   * @param  string $moduleDirectory Module Directory Name
+   * @param  string $option          Controller / Form / Setup to create an Object
+   * @param  type   $adapter
    * @return type
    */
     public function getObject($moduleDirectory, $option = 'Controller', $adapter = '')
@@ -927,11 +933,11 @@ class InstModuleTable
         return $obj;
     }
 
-  /**
+    /**
    * validateNickName
-   * @param String $name nickname
-   * @return boolean Nickname available or not.
    *
+   * @param  String $name nickname
+   * @return boolean Nickname available or not.
    **/
     public function validateNickName($name)
     {
@@ -943,10 +949,12 @@ class InstModuleTable
 
     /**
      * Returns true if the given module at the module directory actually exists in the codebase
-     * @param $moduleDirectory The directory path of the module
+     *
+     * @param  $moduleDirectory The directory path of the module
      * @return bool
      */
-    private function existsModuleConfigFile($moduleDirectory) {
+    private function existsModuleConfigFile($moduleDirectory)
+    {
         $filePath = $this->getModuleConfigFilePathForDirectory($moduleDirectory);
         return file_exists($filePath);
     }
@@ -954,10 +962,12 @@ class InstModuleTable
     /**
      * Given a module directory we load the config file for the module.  This assumes a the config file exists
      * Use existsModuleConfigFile before calling this method.
-     * @param $moduleDirectory The directory path of the module
+     *
+     * @param  $moduleDirectory The directory path of the module
      * @return array|null  Array of the module config that was loaded or null if the file could not be loaded
      */
-    private function loadModuleConfigFile($moduleDirectory) {
+    private function loadModuleConfigFile($moduleDirectory)
+    {
         $filePath = $this->getModuleConfigFilePathForDirectory($moduleDirectory);
         if ($filePath === null) {
             error_log("Module config file does not exist for module directory " . errorLogEscape($moduleDirectory));
@@ -973,10 +983,12 @@ class InstModuleTable
 
     /**
      * For the given module directory return the file path for the config class
-     * @param $moduleDirectory The directory path of the module.
+     *
+     * @param  $moduleDirectory The directory path of the module.
      * @return string|null The filepath of the directory for the config file or null if there is none found
      */
-    private function getModuleConfigFilePathForDirectory($moduleDirectory) {
+    private function getModuleConfigFilePathForDirectory($moduleDirectory)
+    {
         // could add the custom here, but it doesn't use the ModuleConfig syntax..
         $searchDirectories = [
             $moduleDirectory
@@ -984,7 +996,7 @@ class InstModuleTable
         ];
         $fileSuffix = DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "module.config.php";
         foreach ($searchDirectories as $dir) {
-            if (file_exists($dir . $fileSuffix )) {
+            if (file_exists($dir . $fileSuffix)) {
                 return $dir . $fileSuffix;
             }
         }

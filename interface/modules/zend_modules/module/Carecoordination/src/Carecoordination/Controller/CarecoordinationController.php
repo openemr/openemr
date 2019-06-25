@@ -866,7 +866,8 @@ class CarecoordinationController extends AbstractActionController
      * @param $table_name
      * @return array
      */
-    private function getRevAndApproveAuditArray($audit_master_id, $table_name) {
+    private function getRevAndApproveAuditArray($audit_master_id, $table_name)
+    {
         $audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, $table_name);
         if (empty($audit[$table_name])) {
             $audit[$table_name] = []; // leave it empty so we don't fail in the template
