@@ -1024,13 +1024,10 @@ class Events extends Base
                                         ".$frequency."
                                         ".$no_dupes."
                                     ORDER BY cal.pc_eventDate,cal.pc_startTime";
-              //  $this->MedEx->logging->log_this($sql_GOGREEN);
-              //  $this->MedEx->logging->log_this($escapedArr);
                 try {
                     $result = sqlStatement($sql_GOGREEN, $escapedArr);
                 } catch (\Exception $e) {
-                     $dd = print_r($escapedArr, true);
-                    echo "hello<pre>$sql_GOGREEN\n".$dd."\n".$e."\n";
+                    $this->MedEx->logging->log_this($sql_GOGREEN);
                     exit;
                 }
                 while ($appt = sqlFetchArray($result)) {
@@ -1142,8 +1139,8 @@ class Events extends Base
         $hits = $this->MedEx->events->calculateEvents($appt, $start_date, $stop_date);
         
         //any dates that match need to be spawned from recurrent and made to live on their own.
-        $oldRecurrspec = unserialize($appt['pc_recurrspec']);
-        
+        $oldRecurrspec = unserialize($appt['pc_recurrspec'], ['allowed_classes' => false]);
+
         foreach ($hits as $selected_date) {
             $exclude = str_replace("-", "", $selected_date);
             
@@ -1296,7 +1293,7 @@ class Events extends Base
                     break;
                 case '1':
                 case '3':
-                    $event_recurrspec = @unserialize($event['pc_recurrspec']);
+                    $event_recurrspec = @unserialize($event['pc_recurrspec'], ['allowed_classes' => false]);
     
                     $rfreq = $event_recurrspec['event_repeat_freq'];
                     $rtype = $event_recurrspec['event_repeat_freq_type'];
@@ -1334,7 +1331,7 @@ class Events extends Base
                     break;
     
                     case '2':
-                    $event_recurrspec = @unserialize($event['pc_recurrspec']);
+                    $event_recurrspec = @unserialize($event['pc_recurrspec'], ['allowed_classes' => false]);
     
                     if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
                         break; }
@@ -2287,7 +2284,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                 window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
                 return false;
             }
-            $(document).ready(function() {
+            $(function() {
                 show_this();
 
                 $('.datepicker').datetimepicker({
@@ -2961,7 +2958,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
 
             </div>
             <script>
-                $(document).ready(function () {
+                $(function() {
                     $('.datepicker').datetimepicker({
                         <?php $datetimepicker_timepicker = false; ?>
                         <?php $datetimepicker_showseconds = false; ?>
@@ -3413,7 +3410,7 @@ class Setup extends Base
                 // great success!
                 return true;
             }
-            $(document).ready(function() {
+            $(function() { 
                 $("#Register").click(function() {
                      signUp();
                 });
