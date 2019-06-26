@@ -59,7 +59,7 @@ if (isset($_GET['typeid'])) {
                     $typeid = $grporders[$i]['procedure_type_id'] + 0;
                     $name = $grporders[$i]['name'];
                     $codes = $grporders[$i]['related_code'];
-                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ", $t);\n";
+                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ", " . js_escape($t) . ");\n";
                 }
                 // This is to generate the "Questions at Order Entry" for the Procedure Order form.
                 // GET parms needed for this are: formid, formseq.
@@ -97,17 +97,17 @@ if (isset($_GET['typeid'])) {
     <script language="JavaScript">
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
-            location.href = 'find_order_popup.php<?php echo "?order=" . attr_url($order) . "&labid=" . attr_url($labid);
+            location.href = 'find_order_popup.php?order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>
             if (isset($_GET['addfav'])) {
-                echo '&addfav=' . attr_url($_GET['addfav']);
+                echo " + '&addfav=' + " . js_url($_GET['addfav']);
             }
             if (isset($_GET['formid'])) {
-                echo '&formid=' . attr_url($_GET['formid']);
+                echo " + '&formid=' + " . js_url($_GET['formid']);
             }
             if (isset($_GET['formseq'])) {
-                echo '&formseq=' . attr_url($_GET['formseq']);
+                echo " + '&formseq=' + " . js_url($_GET['formseq']);
             }
-                ?>&typeid=' + encodeURIComponent(typeid);
+                ?> + '&typeid=' + encodeURIComponent(typeid);
             return false;
         }
     </script>

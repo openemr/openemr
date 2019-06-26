@@ -25,7 +25,7 @@ for ($level = 0, $parentid = $id; $parentid; ++$level) {
     $parentid = $row['parent'] + 0;
 }
 
-$res = sqlStatement("SELECT * FROM procedure_type WHERE parent = '? " .
+$res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? " .
   "ORDER BY seq, name, procedure_type_id", [$id]);
 
 $encount = 0;
