@@ -41,8 +41,12 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
 
         "lint_syntax")
             cd $2
-            ! find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"
-            ! find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"
+            failSyntax=false;
+            if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
+            if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
+            if [ "failSyntax" = true ] ; then
+                exit 1;
+            fi
             ;;
         "lint_style")
             sniff . --standard=ci/phpcs.xml --report=full
