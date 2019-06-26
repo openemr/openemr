@@ -211,7 +211,7 @@ if ($popup && $_POST['form_save']) {
       td1.parent().after('<tr class="outertr"><td colspan="7" id="con' + id + '" style="padding:0">Loading...</td></tr>');
       td1.addClass('isExpanded');
       swapsign(td1, '+', '-');
-      $.getScript('types_ajax.php?id=' + encodeURIComponent(id) + '&order=' + <?php js_url(echo $order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
+      $.getScript('types_ajax.php?id=' + encodeURIComponent(id) + '&order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>);
      }
     }
 

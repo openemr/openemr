@@ -100,7 +100,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
                 $s .= " value='" . attr($answers[0]) . "'";
             }
 
-            $s .= " class='datepicker input-sm' title='" . (xla('Click here to choose a date') . "' />";
+            $s .= " class='datepicker input-sm' title='" . xla('Click here to choose a date') . "' />";
             /* Legacy calendar removed to update to current calendar 07/20/2018 sjp */
         } else if ($fldtype == 'G') {
             // Gestational age in weeks and days.

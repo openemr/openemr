@@ -40,6 +40,7 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
     case "$CI_JOB" in
 
         "lint_syntax")
+            echo "Checking for PHP syntax errors"
             cd $2
             failSyntax=false;
             if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
