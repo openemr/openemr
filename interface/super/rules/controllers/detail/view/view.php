@@ -83,7 +83,7 @@ $rule = $viewBean->rule ?>
     <!--                      -->
     <?php $filters = $rule->filters; if ($filters) { ?>
     <div class="section text">
-        <p class="header"><?php echo xlt('Demographics filter criteria')); ?> <a href="index.php?action=edit!add_criteria&id=<?php echo attr_url($rule->id); ?>&criteriaType=filter" class="action_link" onclick="top.restoreSession()">(<?php echo xlt('add'); ?>)</a></p>
+        <p class="header"><?php echo xlt('Demographics filter criteria'); ?> <a href="index.php?action=edit!add_criteria&id=<?php echo attr_url($rule->id); ?>&criteriaType=filter" class="action_link" onclick="top.restoreSession()">(<?php echo xlt('add'); ?>)</a></p>
         <p>
             <?php if ($filters->criteria) { ?>
 
@@ -97,7 +97,7 @@ $rule = $viewBean->rule ?>
                 <?php foreach ($filters->criteria as $criteria) { ?>
                     <div>
                         <span class="left_col">
-                            <a href="index.php?action=edit!filter&id=<?php echo attr_url($rule->id); ?>&guid=<?php echo attr_url(($criteria->guid); ?>"
+                            <a href="index.php?action=edit!filter&id=<?php echo attr_url($rule->id); ?>&guid=<?php echo attr_url($criteria->guid); ?>"
                                class="action_link" onclick="top.restoreSession()">
                                 (<?php echo xlt('edit'); ?>)
                             </a>
