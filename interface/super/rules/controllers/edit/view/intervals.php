@@ -72,5 +72,5 @@
 </div>
 
 <div id="required_msg" class="small">
-    <span class="required">*</span><?php echo xlt('Required fields')); ?>
+    <span class="required">*</span><?php echo xlt('Required fields'); ?>
 </div>
