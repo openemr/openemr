@@ -97,7 +97,7 @@ if (isset($_GET['typeid'])) {
     <script language="JavaScript">
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
-            location.href = 'find_order_popup.php?order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid); ?>
+            location.href = 'find_order_popup.php?order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid);
             if (isset($_GET['addfav'])) {
                 echo " + '&addfav=' + " . js_url($_GET['addfav']);
             }
