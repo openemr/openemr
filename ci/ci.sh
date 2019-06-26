@@ -41,8 +41,8 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
 
         "lint_syntax")
             cd $2
-            find . -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
-            find . -name "*.inc" -print0 | xargs -0 -n1 -P8 php -l
+            '! find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"'
+            '! find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"'
             ;;
         "lint_style")
             sniff . --standard=ci/phpcs.xml --report=full
