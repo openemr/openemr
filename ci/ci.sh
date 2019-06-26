@@ -44,7 +44,7 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
             failSyntax=false;
             if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
             if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
-            if [ "failSyntax" = true ] ; then
+            if $failSyntax; then
                 exit 1;
             fi
             ;;
