@@ -7,7 +7,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -63,7 +63,7 @@ function thisLineItem($row, $codetype, $code)
 }
 
 if (! acl_check('acct', 'rep')) {
-    die(xl("Unauthorized access."));
+    die(xlt("Unauthorized access."));
 }
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));

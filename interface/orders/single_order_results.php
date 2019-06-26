@@ -1,25 +1,15 @@
 <?php
 /**
-* Script to display results for a given procedure order.
-*
-* Copyright (C) 2013-2015 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-*/
-
-
+ * Script to display results for a given procedure order.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013-2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once(dirname(__FILE__) . '/../globals.php');
@@ -31,7 +21,7 @@ use OpenEMR\Core\Header;
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
 if (!$thisauth) {
-    die(xl('Not authorized'));
+    die(xlt('Not authorized'));
 }
 
 $orderid = intval($_GET['orderid']);
@@ -40,7 +30,7 @@ $finals_only = empty($_POST['form_showall']);
 
 if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
     if (!acl_check('patients', 'sign')) {
-        die(xl('Not authorized to sign results'));
+        die(xlt('Not authorized to sign results'));
     }
 
   // When signing results we are careful to sign only those reports that were
@@ -118,7 +108,7 @@ if (!empty($_POST['form_send_to_portal'])) {
 <style>
 body {
  margin: 9pt;
- font-family: sans-serif; 
+ font-family: sans-serif;
  font-size: 1em;
 }
 </style>

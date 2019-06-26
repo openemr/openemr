@@ -1,10 +1,15 @@
 <?php
- // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * interface/super/rules/library/RuleManager.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Aron Racho <aron@mi-squared.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once(src_dir() . "/clinical_rules.php");
 require_once(library_src('RuleCriteriaFilterFactory.php'));
@@ -43,7 +48,7 @@ class RuleManager
     const SQL_RULE_FILTER_BY_GUID =
     "SELECT * FROM rule_filter
      WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?";
-    
+
     const SQL_RULE_TARGET_BY_GUID =
     "SELECT * FROM rule_target
      WHERE PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = ?";
@@ -205,12 +210,12 @@ class RuleManager
             }
         }
     }
-    
+
     private function fillRuleTargetActionGroups($rule)
     {
         $stmt = sqlStatement(self::SQL_RULE_TARGET, array( $rule->id ));
         $criterion = $this->gatherCriteria($rule, $stmt, $this->targetCriteriaFactory);
-                
+
         $ruleTargetGroups = $this->fetchRuleTargetCriteria($rule);
         $ruleActionGroups = $this->fetchRuleActions($rule);
         $groups = array();
@@ -222,17 +227,17 @@ class RuleManager
                 $group->setRuleTargets($ruleTargetGroups[$groupId]);
                 $addGroup = true;
             }
-            
+
             if (isset($ruleActionGroups[$groupId])) {
                 $group->setRuleActions($ruleActionGroups[$groupId]);
                 $addGroup = true;
             }
-            
+
             if ($addGroup == true) {
                 $groups[$groupId]= $group;
             }
         }
-        
+
         $rule->setGroups($groups);
     }
 
@@ -261,7 +266,7 @@ class RuleManager
         ksort($ruleTargetGroups);
         return $ruleTargetGroups;
     }
-    
+
     /**
      * @param Rule $rule
      */
@@ -306,7 +311,7 @@ class RuleManager
 
         return null;
     }
-    
+
     /**
      * @param string $guid
      * @return array of RuleTargetActionGroup
@@ -471,17 +476,17 @@ class RuleManager
 
     function deleteRuleAction($rule, $guid)
     {
-        sqlStatement("DELETE FROM rule_action WHERE PASSWORD( CONCAT(id, category, item, group_id) ) = '". $guid . "'");
+        sqlStatement("DELETE FROM rule_action WHERE PASSWORD( CONCAT(id, category, item, group_id) ) = ?", [$guid]);
     }
 
     function deleteRuleTarget($rule, $guid)
     {
-        sqlStatement("DELETE FROM rule_target WHERE PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = '". $guid . "'");
+        sqlStatement("DELETE FROM rule_target WHERE PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = ?", [$guid]);
     }
 
     function deleteRuleFilter($rule, $guid)
     {
-        sqlStatement("DELETE FROM rule_filter WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = '". $guid . "'");
+        sqlStatement("DELETE FROM rule_filter WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?", [$guid]);
     }
 
     function updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref)
@@ -613,7 +618,7 @@ class RuleManager
                     $group_id = $result['group_id'] ? $result['group_id'] + 1 : 1;
                 }
             }
-            
+
             sqlStatement(self::SQL_INSERT_TARGET, array(
                 $rule->id,
                 $dbView->inclusion ? 1 : 0,

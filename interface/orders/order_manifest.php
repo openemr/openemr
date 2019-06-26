@@ -1,25 +1,15 @@
 <?php
 /**
-* Script to display a summary of a given procedure order before it has been processed.
-*
-* Copyright (C) 2013, 2016 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-*/
-
-
+ * Script to display a summary of a given procedure order before it has been processed.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013, 2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../globals.php");
@@ -159,7 +149,7 @@ function generate_order_summary($orderid)
 
 </style>
 
-<form method='post' action='order_manifest.php?orderid=<?php echo $orderid; ?>'>
+<form method='post' action='order_manifest.php?orderid=<?php echo attr_url($orderid); ?>'>
 
 <div class='ordsum'>
 
@@ -302,7 +292,7 @@ while ($row = sqlFetchArray($res)) {
     ++$encount;
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
     echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-    echo "  <td><input type='checkbox' name='form_omit[$order_seq]' value='1'";
+    echo "  <td><input type='checkbox' name='form_omit[" . attr($order_seq) . "]' value='1'";
     if (!empty($row['do_not_send'])) {
         echo " checked";
     }
@@ -337,7 +327,7 @@ while ($row = sqlFetchArray($res)) {
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
 if (!$thisauth) {
-    die(xl('Not authorized'));
+    die(xlt('Not authorized'));
 }
 
 $orderid = intval($_GET['orderid']);

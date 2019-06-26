@@ -1,10 +1,15 @@
 <?php
- // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * interface/super/rules/controllers/edit/template/criteria.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Aron Racho <aron@mi-squared.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 use OpenEMR\Core\Header;
 
@@ -28,12 +33,12 @@ use OpenEMR\Core\Header;
 
 <table class="header">
   <tr>
-        <td class="title"><?php echo out(xl('Rule Edit')); ?></td>
+        <td class="title"><?php echo xlt('Rule Edit'); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo out($rule->id); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
-                <span><?php echo out(xl('Cancel')); ?></span>
+            <a href="index.php?action=detail!view&id=<?php echo attr_url($rule->id); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
+                <span><?php echo xlt('Cancel'); ?></span>
             </a>
-            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo out(xl('Save')); ?></span></a>
+            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a>
         </td>
   </tr>
 </table>
@@ -41,11 +46,11 @@ use OpenEMR\Core\Header;
 <div class="rule_detail edit text">
 
     <form action="index.php?action=edit!submit_criteria" method="post" id="frm_submit" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="id" value="<?php echo out($rule->id); ?>"/>
-    <input type="hidden" name="group_id" value="<?php echo out($criteria->groupId); ?>"/>
-    <input type="hidden" name="guid" value="<?php echo out($criteria->guid); ?>"/>
-    <input type="hidden" name="type" value="<?php echo out($viewBean->type); ?>"/>
-    <input type="hidden" name="criteriaTypeCode" value="<?php echo out($criteria->criteriaType->code); ?>"/>
+    <input type="hidden" name="id" value="<?php echo attr($rule->id); ?>"/>
+    <input type="hidden" name="group_id" value="<?php echo attr($criteria->groupId); ?>"/>
+    <input type="hidden" name="guid" value="<?php echo attr($criteria->guid); ?>"/>
+    <input type="hidden" name="type" value="<?php echo attr($viewBean->type); ?>"/>
+    <input type="hidden" name="criteriaTypeCode" value="<?php echo attr($criteria->criteriaType->code); ?>"/>
 
     <!-- ----------------- -->
     <?php
@@ -60,7 +65,7 @@ use OpenEMR\Core\Header;
 </div>
 
 <div id="required_msg" class="small">
-    <span class="required">*</span><?php echo out(xl('Required fields')); ?>
+    <span class="required">*</span><?php echo xlt('Required fields'); ?>
 </div>
 
 </body>

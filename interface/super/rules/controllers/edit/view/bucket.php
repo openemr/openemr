@@ -1,10 +1,15 @@
 <?php
- // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * interface/super/rules/controllers/edit/view/bucket.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Aron Racho <aron@mi-squared.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 ?>
 <head>
     <script language="javascript" src="<?php js_src('bucket.js') ?>"></script>
@@ -21,7 +26,7 @@
                                "title" => xl("Category"),
                                "value" => $criteria->getCategoryLabel() )); ?>
 <br/><a href="javascript:;" id="change_category" onclick="top.restoreSession()">(change)</a>
-<input type="hidden" id="fld_category" name="fld_category" value="<?php echo $criteria->category?>" />
+<input type="hidden" id="fld_category" name="fld_category" value="<?php echo attr($criteria->category); ?>" />
 
 <!-- item -->
 <?php echo textfield_row(array("id" => "fld_item_lbl",
@@ -29,26 +34,26 @@
                                "title" => xl("Item"),
                                "value" => $criteria->getItemLabel() )); ?>
 <br/><a href="javascript:;" id="change_item" onclick="top.restoreSession()">(change)</a>
-<input type="hidden" id="fld_item" name="fld_item" value="<?php echo out($criteria->item); ?>" />
+<input type="hidden" id="fld_item" name="fld_item" value="<?php echo attr($criteria->item); ?>" />
 
 <!-- completed -->
 <p class="row">
-    <span class="left_col colhead req" data-field="fld_completed"><?php echo out(xl('Completed?')); ?></span>
+    <span class="left_col colhead req" data-field="fld_completed"><?php echo xlt('Completed?'); ?></span>
     <span class="end_col">
         <select data-grp-tgt="" type="dropdown" name="fld_completed" id="">
-            <option id="" value="">--<?php echo out(xl('Select')); ?>--</option>
-            <option id="Yes" value="yes" <?php echo $criteria->completed ? "SELECTED" : "" ?>><?php echo out(xl('Yes')); ?></option>
-            <option id="No" value="no" <?php echo !$criteria->completed ? "SELECTED" : "" ?>><?php echo out(xl('No')); ?></option>
+            <option id="" value="">--<?php echo xlt('Select'); ?>--</option>
+            <option id="Yes" value="yes" <?php echo $criteria->completed ? "SELECTED" : "" ?>><?php echo xlt('Yes'); ?></option>
+            <option id="No" value="no" <?php echo !$criteria->completed ? "SELECTED" : "" ?>><?php echo xlt('No'); ?></option>
         </select>
     </span>
 </p>
 
 <!-- frequency -->
 <p class="row">
-    <span class="left_col colhead req" data-field="fld_frequency"><?php echo out(xl('Frequency')); ?></span>
+    <span class="left_col colhead req" data-field="fld_frequency"><?php echo xlt('Frequency'); ?></span>
     <span class="end_col">
         <select data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">
-            <option id="" value="">--<?php echo xl("Select"); ?>--</option>
+            <option id="" value="">--<?php echo xlt("Select"); ?>--</option>
             <option id="le" value="le" <?php echo $criteria->frequencyComparator == "le" ? "SELECTED" : "" ?>><?php echo "<=" ;?></option>
             <option id="lt" value="lt" <?php echo $criteria->frequencyComparator == "lt" ? "SELECTED" : "" ?>><?php echo "<" ;?></option>
             <option id="eq" value="eq" <?php echo $criteria->frequencyComparator == "eq" ? "SELECTED" : "" ?>><?php echo "=" ;?></option>
@@ -60,7 +65,7 @@
         <input data-grp-tgt="fld_frequency" class="field short"
            type="text"
            name="fld_frequency"
-           value="<?php echo out($criteria->frequency); ?>" />
+           value="<?php echo attr($criteria->frequency); ?>" />
     </span>
 
 <br/>
