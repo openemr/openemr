@@ -14,6 +14,8 @@
 require_once(dirname(__FILE__)."/encounter_events.inc.php");
 require_once(dirname(__FILE__)."/../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php");
 
+use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
+use OpenEMR\Services\UserService;
 
 $COMPARE_FUNCTION_HASH = array(
     'doctor' => 'compareAppointmentsByDoctorName',
@@ -131,6 +133,12 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         if ($where_param) {
             $where .= $where_param;
         }
+
+        // Filter out appointments based on a custom module filter
+        $apptFilterEvent = new AppointmentsFilterEvent(new UserService());
+        $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(AppointmentsFilterEvent::EVENT_HANDLE, $apptFilterEvent, 10);
+        $apptFilter = $apptFilterEvent->getCustomWhereFilter();
+        $where .= " AND ".$apptFilter;
 
         $order_by = "e.pc_eventDate, e.pc_startTime";
         if ($orderby_param) {
