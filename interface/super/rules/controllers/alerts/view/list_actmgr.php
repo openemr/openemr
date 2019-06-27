@@ -2,23 +2,12 @@
 /**
  * Script to configure the Rules.
  *
- * Copyright (C) 2015 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Ensoftek
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ensoftek
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(dirname(__FILE__)."/../../../../../../library/acl.inc");
@@ -28,14 +17,14 @@ require_once("$phpgacl_location/gacl_api.class.php");
 
 <table class="header">
   <tr>
-        <td class="title"><?php echo out(xl('Clinical Decision Rules Alert Manager')); ?></td>
-        
+        <td class="title"><?php echo xlt('Clinical Decision Rules Alert Manager'); ?></td>
+
   </tr>
   <tr>
         <td>
-            <a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo out(xl('Save')); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo out(xl('Reset')); ?></span></a>
+            <a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo xlt('Reset'); ?></span></a>
         </td>
-  </tr>        
+  </tr>
 </table>
 
 &nbsp;
@@ -43,40 +32,40 @@ require_once("$phpgacl_location/gacl_api.class.php");
 <form name="cdralertmgr" method="post" action="index.php?action=alerts!submitactmgr" onsubmit="return top.restoreSession()">
 <table cellpadding="1" cellspacing="0" class="showborder">
         <tr class="showborder_head">
-                <th width="250px"><?php echo out(xl('Title')); ?></th>
+                <th width="250px"><?php echo xlt('Title'); ?></th>
                 <th width="40px">&nbsp;</th>
-                <th width="10px"><?php echo out(xl('Active Alert')); ?></th>
+                <th width="10px"><?php echo xlt('Active Alert'); ?></th>
                 <th width="40px">&nbsp;</th>
-                <th width="10px"><?php echo out(xl('Passive Alert')); ?></th>
+                <th width="10px"><?php echo xlt('Passive Alert'); ?></th>
                 <th width="40px">&nbsp;</th>
-                <th width="10px"><?php echo out(xl('Patient Reminder')); ?></th>
+                <th width="10px"><?php echo xlt('Patient Reminder'); ?></th>
                 <th width="40px">&nbsp;</th>
-                <th width="100px"><?php echo out(xl('Access Control')); ?> <span title='<?php echo out(xl('User is required to have this access control for Active Alerts and Passive Alerts')); ?>'>?</span></th>
+                <th width="100px"><?php echo xlt('Access Control'); ?> <span title='<?php echo xla('User is required to have this access control for Active Alerts and Passive Alerts'); ?>'>?</span></th>
                 <th></th>
         </tr>
         <?php $index = -1; ?>
         <?php foreach ($viewBean->rules as $rule) {?>
         <?php $index++; ?>
         <tr height="22">
-                <td><?php echo out(xl($rule->get_rule()));?></td>
+                <td><?php echo xlt($rule->get_rule());?></td>
                 <td>&nbsp;</td>
                 <?php if ($rule->active_alert_flag() == "1") {  ?>
-                    <td><input type="checkbox" name="active[<?php echo $index ?>]" checked="yes"></td>
+                    <td><input type="checkbox" name="active[<?php echo attr($index); ?>]" checked="yes"></td>
                 <?php } else {?>
-                    <td><input type="checkbox" name="active[<?php echo $index ?>]" ></td>
-                <?php } ?>                
+                    <td><input type="checkbox" name="active[<?php echo attr($index); ?>]" ></td>
+                <?php } ?>
                 <td>&nbsp;</td>
                 <?php if ($rule->passive_alert_flag() == "1") { ?>
-                    <td><input type="checkbox" name="passive[<?php echo $index ?>]]" checked="yes"></td>
+                    <td><input type="checkbox" name="passive[<?php echo attr($index); ?>]]" checked="yes"></td>
                 <?php } else {?>
-                    <td><input type="checkbox" name="passive[<?php echo $index ?>]]"></td>
-                <?php } ?>                
+                    <td><input type="checkbox" name="passive[<?php echo attr($index); ?>]]"></td>
+                <?php } ?>
                 <td>&nbsp;</td>
                 <?php if ($rule->patient_reminder_flag() == "1") { ?>
-                    <td><input type="checkbox" name="reminder[<?php echo $index ?>]]" checked="yes"></td>
+                    <td><input type="checkbox" name="reminder[<?php echo attr($index); ?>]]" checked="yes"></td>
                 <?php } else {?>
-                    <td><input type="checkbox" name="reminder[<?php echo $index ?>]]"></td>
-                <?php } ?>               
+                    <td><input type="checkbox" name="reminder[<?php echo attr($index); ?>]]"></td>
+                <?php } ?>
                  <td>&nbsp;</td>
                  <td>
                         <?php //Place the ACO selector here
@@ -105,11 +94,9 @@ require_once("$phpgacl_location/gacl_api.class.php");
 
                         echo "</select>";
                         ?>
-                 </td> 
-                <td><input style="display:none" name="id[<?php echo $index ?>]]" value=<?php echo out($rule->get_id()); ?> /></td>                              
+                 </td>
+                <td><input style="display:none" name="id[<?php echo attr($index); ?>]]" value="<?php echo attr($rule->get_id()); ?>" /></td>
         </tr>
         <?php }?>
 </table>
 </form>
-
-

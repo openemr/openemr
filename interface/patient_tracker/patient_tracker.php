@@ -212,7 +212,6 @@ if (!$_REQUEST['flb_table']) {
             border-radius: 8px;
             padding: 10px;
             margin: 15px auto;
-            min-width: 400px;
             overflow: hidden;
         }
 
@@ -582,7 +581,7 @@ if (!$_REQUEST['flb_table']) {
                         // Collect appt date and set up squashed date for use below
                         $date_appt = $appointment['pc_eventDate'];
                         $date_squash = str_replace("-", "", $date_appt);
-                        if (empty($appointment['room']) && ($logged_in)) {
+                        if (empty($appointment['room']) && ($logged_in) && ($setting_bootstrap_submenu != 'hide')) {
                             //Patient has not arrived yet, display MedEx Reminder info
                             //one icon per type of response.
                             //If there was a SMS dialog, display it as a mouseover/title

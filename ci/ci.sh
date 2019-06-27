@@ -40,9 +40,14 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
     case "$CI_JOB" in
 
         "lint_syntax")
+            echo "Checking for PHP syntax errors"
             cd $2
-            find . -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
-            find . -name "*.inc" -print0 | xargs -0 -n1 -P8 php -l
+            failSyntax=false;
+            if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
+            if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
+            if $failSyntax; then
+                exit 1;
+            fi
             ;;
         "lint_style")
             sniff . --standard=ci/phpcs.xml --report=full
