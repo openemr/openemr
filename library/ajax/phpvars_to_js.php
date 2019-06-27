@@ -28,9 +28,6 @@ if ($scope == 'globals' || $scope == 'all' || $scope == 'top') {
 }
 if ($scope == 'xl' || $scope == 'all') {
 }
-if ($scope == 'session' || $scope == 'all') {
-    $import['session'] = $_SESSION;
-}
 if ($import === []) {
     $custom['custom_template']['templatesWarn'] = xlt("These templates are text only and will not render any other formatting other than pure text.");
     $custom['custom_template']['templatesWarn'] .= xlt("You may still use formatting if template is also used in Nation Notes however, pure text will still render here.") . "<br><br>";
