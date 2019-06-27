@@ -31,6 +31,7 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/user.inc");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 // mdsupport : li code
 function listitemCode($strDisp, $strInsert)
@@ -63,7 +64,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                     data: function (params) {
                         let query = {
                             search: params.term,
-                            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                         };
                         return query;
                     },

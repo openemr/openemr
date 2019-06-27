@@ -11,8 +11,10 @@
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
-if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 // @todo make class move to controllers add route
