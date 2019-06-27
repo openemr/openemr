@@ -1319,6 +1319,7 @@ STP5TOP;
                         $max_input_time = ini_get('max_input_time');
                         $post_max_size = ini_get('post_max_size');
                         $memory_limit = ini_get('memory_limit');
+                        $mysqli_allow_local_infile = ini_get('mysqli.allow_local_infile')?'On':'Off';
 
                         $step5_table = <<<STP5TAB
                             <li>To ensure proper functioning of OpenEMR you must make sure that PHP settings include:
@@ -1367,6 +1368,11 @@ STP5TOP;
                                         <td>memory_limit</td>
                                         <td>at least 256M</td>
                                         <td>$memory_limit</td>
+                                    </tr>
+                                    <tr>
+                                        <td>mysqli.allow_local_infile</td>
+                                        <td>On</td>
+                                        <td>$mysqli_allow_local_infile</td>
                                     </tr>
                                 </table>
                             </li>
