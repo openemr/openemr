@@ -93,10 +93,10 @@ assets:
         basePath: %webroot%/library/js/
         script: common.js
     textformat:
-            basePath: %webroot%/library/
-            script: textformat.js
-            autoload: true
-            allowNoLoad: true
+        basePath: %webroot%/library/
+        script: textformat.js
+        autoload: true
+        allowNoLoad: true
     dialog:
         basePath: %webroot%/library/
         script: dialog.js
@@ -168,5 +168,10 @@ assets:
     userdebug:
         basePath: %webroot%/library/js/
         script: userDebug.js
+        autoload: true
+        allowNoLoad: true
+    templates-loader:
+        basePath: %webroot%/library/js/
+        script: CustomTemplateLoader.js
         autoload: true
         allowNoLoad: true
