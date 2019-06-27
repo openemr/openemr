@@ -16,6 +16,8 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\UserService;
+use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 
 if (!empty($_REQUEST)) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
@@ -194,8 +196,13 @@ if ($popup) {
         array_push($sqlBindArray, $search_service_code);
     }
 
+    // Custom filtering which enables module developer to filter patients out of search
+    $patientSelectFilterEvent = new PatientSelectFilterEvent(new UserService());
+    $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientSelectFilterEvent::EVENT_HANDLE, $patientSelectFilterEvent, 10);
+    $customWhere = $patientSelectFilterEvent->getCustomWhereFilter();
+
     $sql = "SELECT $given FROM patient_data " .
-    "WHERE $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
+    "WHERE $customWhere AND $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
 
     $rez = sqlStatement($sql, $sqlBindArray);
     $result = array();
@@ -203,7 +210,7 @@ if ($popup) {
         $result[] = $row;
     }
 
-    _set_patient_inc_count($sqllimit, count($result), $where, $sqlBindArray);
+    _set_patient_inc_count($sqllimit, count($result), "$customWhere AND $where", $sqlBindArray);
 } else if ($from_page == "cdr_report") {
   // Collect setting from cdr report
     echo "<input type='hidden' name='from_page' value='" . attr($from_page) . "' />\n";

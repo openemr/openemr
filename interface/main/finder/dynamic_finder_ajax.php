@@ -19,6 +19,8 @@ require_once(dirname(__FILE__) . "/../../globals.php");
 require_once($GLOBALS['srcdir']."/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
+use OpenEMR\Events\PatientFinder\ColumnFilter;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -80,12 +82,12 @@ if (isset($_GET['iSortCol_0'])) {
 
 // Global filtering.
 //
-$where = '';
+$where = "";
 $srch_bind = array();
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
     $sSearch = add_escape_custom(trim($_GET['sSearch']));
     foreach ($aColumns as $colname) {
-        $where .= $where ? "OR " : "WHERE ( ";
+        $where .= $where ? " OR " : " ( ";
         if ($colname == 'name') {
             $where .=
                 "lname LIKE ? OR " .
@@ -115,11 +117,14 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
 
 // Column-specific filtering.
 //
+$columnFilters = [];
 for ($i = 0; $i < count($aColumns); ++$i) {
     $colname = $aColumns[$i];
     if (isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
-        $where .= $where ? ' AND ' : 'WHERE ';
+        $where .= $where ? ' AND ' : '';
         $sSearch = add_escape_custom($_GET["sSearch_$i"]);
+        $columnFilters[] = new ColumnFilter($colname, $sSearch);
+
         if ($colname == 'name') {
             $where .=
                 "lname LIKE ? OR " .
@@ -139,6 +144,13 @@ for ($i = 0; $i < count($aColumns); ++$i) {
         }
     }
 }
+
+// Custom filtering, before datatables filtering created by the user
+// This allows a module to subscribe to a 'patient-finder.filter' event and
+// add filtering before data ever gets to the user
+$patientFinderFilterEvent = new PatientFinderFilterEvent(new \OpenEMR\Services\UserService(), $aColumns, $columnFilters);
+$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientFinderFilterEvent::EVENT_HANDLE, $patientFinderFilterEvent, 10);
+$customWhere = $patientFinderFilterEvent->getCustomWhereFilter();
 
 // Compute list of column names for SELECT clause.
 // Always includes pid because we need it for row identification.
@@ -162,12 +174,17 @@ foreach ($aColumns as $colname) {
 
 // Get total number of rows in the table.
 //
-$row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data");
+$row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $customWhere");
 $iTotal = $row['count'];
 
 // Get total number of rows in the table after filtering.
 //
-$row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data $where", $srch_bind);
+$whereFilter = "WHERE $customWhere";
+if ($where) {
+    $whereFilter .= " AND $where";
+}
+
+$row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data $whereFilter", $srch_bind);
 $iFilteredTotal = $row['count'];
 
 // Build the output data array.
@@ -187,7 +204,7 @@ while ($row = sqlFetchArray($res)) {
     $fieldsInfo[$row['field_id']] = $row;
 }
 
-$query = "SELECT $sellist FROM patient_data $where $orderby $limit";
+$query = "SELECT $sellist FROM patient_data $whereFilter $orderby $limit";
 $res = sqlStatement($query, $srch_bind);
 while ($row = sqlFetchArray($res)) {
     // Each <tr> will have an ID identifying the patient.
