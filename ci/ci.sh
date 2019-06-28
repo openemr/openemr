@@ -28,7 +28,7 @@ function sniff {
     if [ -d $HOME/.config/composer ]; then
         BIN_DIR="$HOME/.config/composer/vendor/bin"
     fi
-    composer global require "squizlabs/php_codesniffer=3.0.*"
+    composer global require "squizlabs/php_codesniffer=3.3.*"
     cd $DIR
     $BIN_DIR/phpcs -p -n --extensions=php,inc --report-width=120 $@
 }
