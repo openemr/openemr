@@ -102,9 +102,30 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 if (session_status() === PHP_SESSION_NONE) {
     // Only can run these when do not have an active session yet
     // (for example, need to skip this in the portal where the session is already active)
-    ini_set('session.gc_maxlifetime', '14400');
-    ini_set('session.cookie_path', $web_root ? $web_root : '/');
-    session_name("OpenEMR");
+    if (version_compare(phpversion(), '7.3.0', '>=')) {
+        // For php 7.3.0 versions and greater, have support for cookie_samesite
+        //  to prevent csrf
+        session_start([
+            'cookie_samesite' => "Strict",
+            'name'=> 'OpenEMR',
+            'use_strict_mode' => true,
+            'cookie_httponly' => false,
+            'sid_bits_per_character' => 6,
+            'sid_length' => 48,
+            'gc_maxlifetime' => 14400,
+            'cookie_path' => $web_root ? $web_root : '/'
+        ]);
+    } else {
+        session_start([
+            'name' => 'OpenEMR',
+            'use_strict_mode' => true,
+            'cookie_httponly' => false,
+            'sid_bits_per_character' => 6,
+            'sid_length' => 48,
+            'gc_maxlifetime' => 14400,
+            'cookie_path' => $web_root ? $web_root : '/'
+        ]);
+    }
 }
 session_start();
 

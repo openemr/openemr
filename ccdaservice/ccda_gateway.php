@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 //authencate for portal or main- never know where it gets used
 session_start();
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
@@ -82,7 +83,7 @@ function portalccdafetching($pid, $server_url, $parameterArray)
     $parameters = http_build_query($parameterArray); // future use
     try {
         $ch = curl_init();
-        $url = $server_url . "/interface/modules/zend_modules/public/encounterccdadispatch/index?site=$site_id&me=" . session_id() . "&param=1&view=1&combination=$pid&recipient=patient";
+        $url = $server_url . "/interface/modules/zend_modules/public/encounterccdadispatch/index?site=$site_id&me=" . urlencode(session_id()) . "&param=1&view=1&combination=$pid&recipient=patient";
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0); // set true for look see
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
