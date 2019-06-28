@@ -21,6 +21,7 @@
         "knplabs/knp-snappy" : "1.1.0",
         "mobiledetect/mobiledetectlib": "2.8.33",
         "mpdf/mpdf" : "8.0.0",
+        "pear/archive_tar" : "1.4.7",
         "phpmailer/phpmailer" : "6.0.7",
         "phpoffice/phpspreadsheet": "1.6.0",
         "phpseclib/phpseclib" : "2.0.15",
