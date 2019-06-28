@@ -3,6 +3,8 @@ php:
   - '7.1'
   - '7.2'
   - '7.3'
+before_install:
+  - echo "extension=ldap.so" >>php --ini | grep "Loaded Configuration" | sed -e "s|.:\s||"``
 env:
   - CI_JOB=lint_syntax
   - CI_JOB=lint_style
