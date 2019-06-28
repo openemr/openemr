@@ -5,9 +5,13 @@
  * Function which extend taskman.php, current a email-to-fax gateway
  *
  * @package   OpenEMR
+ *
  * @link      https://www.open-emr.org
- * @author    Ray Magauran <magauran@MedFetch.com>
- * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * Copyright (C) 2016 Raymond Magauran <rmagauran@gmail.com>
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ *
+ * @copyright Copyright (c) 2016 Raymond Magauran <rmagauran@gmail.com>
+ * LICENSE: This program is free software: you can redistribute it and/or modify
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -40,21 +44,21 @@ function make_task($ajax_req)
     $sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
     $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
 
-    if (!$doc['ID'] && $task['ID'] && ($task['REQ_DATE'] < (time() - 60))) {
+    if (!$doc['ID'] && $task['ID'] && (strtotime($task['REQ_DATE']) < (time() - 60))) {
         // The task was requested more than a minute ago (prevents multi-clicks from "re-generating" the PDF),
         // but the document was deleted (to redo it)...
         // Delete the task, recreate the task, and send the newly made PDF.
         $sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
         $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
     }
-
+    
     if ($task['ID'] && $task['COMPLETED'] =='2') {
         $send['comments'] = xlt('This fax has already been sent.')." ".
                             xlt('If you made changes and want to re-send it, delete the original (in Communications) or wait 60 seconds, and try again.')." ".
                             xlt('Filename').": ". text($filename);
         echo json_encode($send);
         exit;
-    } else if ($task['ID'] && $task['COMPLETED'] =='1') {
+    } else if ($task['ID'] && $task['COMPLETED'] >='1') {
         if ($task['DOC_TYPE'] == 'Fax') {
             $send['DOC_link'] = "<a href='".$webroot."/openemr/controller.php?document&view&patient_id=".attr($task['PATIENT_ID'])."&doc_id=".attr($task['DOC_ID'])."'
 								target='_blank' title='".xla('View the Summary Report sent to Fax Server.')."'>
@@ -68,13 +72,18 @@ function make_task($ajax_req)
             echo json_encode($send);
             exit;
         } else if ($task['DOC_TYPE'] == "Fax-resend") {
-            //we need to resend this fax????
-            //You can only resend from here once.
-            $send['comments'] = xlt('To resend, delete the file from Communications, reload this page and try again.');
+            //we need to resend this fax????  Remake it with latest data and send ot out.
+            $sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
+            $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
+            
+            $sql = "INSERT into form_taskman
+				(REQ_DATE, FROM_ID,  TO_ID,  PATIENT_ID,  DOC_TYPE,  DOC_ID,  ENC_ID) VALUES
+				(NOW(), ?, ?, ?, ?, ?, ?)";
+            sqlQuery($sql, array($from_id, $to_id, $patient_id, $doc_type, $doc_id, $enc));
+    
+            $send['comments'] = xlt('Resending this report.');
             echo json_encode($send);
-            update_taskman($task, 'refaxed', '2');
-            exit;
-        } else { //DOC_TYPE is a Fax or Report
+        } else { //DOC_TYPE is a Report
             $send['comments'] = xlt('Currently working on making this document')."...\n";
         }
     } else if (!$task['ID']) {
@@ -99,7 +108,8 @@ function process_tasks($task)
      */
     $task = make_document($task);
     update_taskman($task, 'created', '1');
-    if ($task['DOC_TYPE'] == 'Fax') {
+    
+    if (($task['DOC_TYPE'] == 'Fax') || ($task['DOC_TYPE'] == 'Fax-resend')) {
         deliver_document($task);
     }
 
@@ -124,9 +134,9 @@ function update_taskman($task, $action, $value)
 {
     global $send;
     if ($action == 'created') {
-        $sql = "UPDATE form_taskman set DOC_ID=?,COMMENT=concat('Created: ',NOW(),'\n') where ID=?";
+        $sql = "UPDATE form_taskman set DOC_ID=?,COMMENT=concat('Created: ',NOW()) where ID=?";
         sqlQuery($sql, array($task['DOC_ID'],$task['ID']));
-        $send['comments'] .="Documented created.\n";
+        $send['comments'] .="Document created.";
     }
 
     if ($action == 'completed') {
@@ -156,8 +166,7 @@ function update_taskman($task, $action, $value)
 function deliver_document($task)
 {
     global $facilityService;
-
-    //use PHPMAILER
+    
     $query          = "SELECT * FROM users WHERE id=?";
     $to_data        =  sqlQuery($query, array($task['TO_ID']));
     $from_data      =  sqlQuery($query, array($task['FROM_ID']));
@@ -183,13 +192,12 @@ function deliver_document($task)
     //this must be a fax server approved From: address
     $file_to_attach =   preg_replace('/^file:\/\//', "", $task['DOC_url']);
     $file_name =  preg_replace('/^.*\//', "", $task['DOC_url']);
-    $cover_page = "We are processing this file: ".$filepath.'/'.$filename;
 
     $mail->AddReplyTo($email_sender, $from_name);
     $mail->SetFrom($email_sender, $from_name);
     $mail->AddAddress($to_email); //, $to_name);
     $mail->Subject = $from_fax;
-    $mail->MsgHTML("<html><HEAD> <TITLE>Fax Central openEMR</TITLE> <BASE HREF='http://www.oculoplasticsllc.com'> </HEAD><body><div class='wrapper'>".$cover_page."</div></body></html>");
+    $mail->MsgHTML("<html><HEAD> <TITLE>Fax Central OpenEMR</TITLE> </HEAD><body><div class='wrapper'>".$cover_page."</div></body></html>");
     $mail->IsHTML(true);
     $mail->AltBody = $cover_page;
     $mail->AddAttachment($file_to_attach, $file_name);
@@ -272,8 +280,9 @@ function make_document($task)
                     forms.form_id=form_eye_postseg.id and
                     forms.form_id=form_eye_neuro.id and
                     forms.form_id=form_eye_locking.id and
-                    forms.form_id =? and
+                    forms.encounter =? and
                     forms.pid=?";
+    
     $encounter_data =sqlQuery($query, array($encounter,$task['PATIENT_ID']));
     @extract($encounter_data);
     $providerID  =  getProviderIdOfEncounter($encounter);
@@ -290,8 +299,8 @@ function make_document($task)
     //So delete any prior report if that is what we are doing. and replace it.
     //If it is a fax, can we check to see if the report is already here, and if it is add it, or do we have to
     // always remake it?  For now, REMAKE IT...
-
-    if ($task['DOC_TYPE'] =='Fax') {
+    
+    if (($task['DOC_TYPE'] =='Fax')||($task['DOC_TYPE'] =='Fax-resend')) {
         $category_name = "Communication"; //Faxes are stored in the Documents->Communication category.  Do we need to translate this?
         //$category_name = xl('Communication');
         $query = "select id from categories where name =?";
@@ -372,7 +381,7 @@ function make_document($task)
     </head>
     <body>
     <?php
-    if ($task['DOC_TYPE'] == 'Fax') {
+    if (($task['DOC_TYPE'] == 'Fax') || ($task['DOC_TYPE'] == 'Fax-resend')) {
         ?>
         <div class='wrapper'>
         <?php echo report_header($task['PATIENT_ID'], 'PDF'); ?>
@@ -474,7 +483,6 @@ function make_document($task)
     $content = ob_get_clean();
 
     // Fix a nasty html2pdf bug - it ignores document root!
-    // TODO - now use mPDF, so should test if still need this fix
     $i = 0;
     $wrlen = strlen($web_root);
     $wsrlen = strlen($webserver_root);
