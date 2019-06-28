@@ -108,7 +108,7 @@ function fill_QP_field(PEZONE, ODOSOU, LOCATION_text, selection, fill_action, Co
  * It is the reason we don't use a submit button.
  * It is called often, perhaps too often for some installs because it uses bandwidth.
  * It needs to be keenly looked at by developers as it will affect scalability.
- * It return either "Code 400" or positive hits from the clinical data passed through the Coding engine.
+ * It returns either "Code 400" or positive hits from the clinical data passed through the Coding engine.
  * It ensures ownership of the form or provides background updates to READ-ONLY instances of the form.
  * It doesn't unlock a form to change ownership/provide write privileges.  This is done via the unlock() function.
  */
@@ -301,6 +301,7 @@ function update_PREFS() {
             'PREFS_CTL'             : $('#PREFS_CTL').val(),
             'PREFS_ADDITIONAL'      : $('#PREFS_ADDITIONAL').val(),
             'PREFS_VAX'             : $('#PREFS_VAX').val(),
+            'PREFS_RXHX'            : $('#PREFS_RXHX').val(),
             'PREFS_IOP'             : $('#PREFS_IOP').val(),
             'PREFS_CLINICAL'        : $('#PREFS_CLINICAL').val(),
             'PREFS_EXAM'            : $('#PREFS_EXAM').val(),
@@ -450,13 +451,13 @@ function delete_issue2(issue_number,PMSFH_type) {
     var url = '../../forms/eye_mag/a_issue.php';
     var formData = {
         'a_issue'           : issue_number,
-        'deletion'            : '1',
+        'deletion'          : '1',
         'PMSFH'             : '1'
     };
     top.restoreSession();
     $.ajax({
            type     : 'POST',
-           url          : url,
+           url      : url,
            data     : formData,
            success:(function(result) {
                     populate_PMSFH(result);
@@ -589,24 +590,6 @@ function refresh_GFS() {
      change in GONIO fields
      additional tests (VF/OCT) would not affect this in its live format
 
-     submit_form();
-     var url = '../../forms/eye_mag/view.php?display=GFS';
-     var formData = {
-     'action'           : "refresh_GFS",
-     'id'               : $('#form_id').val(),
-     'encounter'        : $('#encounter').val(),
-     'pid'              : $('#pid').val(),
-     'refresh'          : 'GFS'
-     };
-     top.restoreSession();
-     $.ajax({
-     type     : 'POST',
-     url          : url,
-     data     : formData,
-     success:(function(result) {
-     populate_GFS(result);
-     })
-     });
      */
 }
 
@@ -697,7 +680,7 @@ function store_PDF() {
     $.ajax({
            type         : 'POST',
            url          : url,
-           data     : formData
+           data         : formData
            });
 }
 
@@ -792,7 +775,7 @@ function hide_left() {
 }
 /*
  * Function to display only the DRAW panels of every section.
- * The technical section, between HPI and Clinical section is still viible.
+ * The technical section, between HPI and Clinical section is still visible.
  */
 function show_DRAW() {
     hide_QP();
@@ -840,7 +823,6 @@ function show_TEXT() {
     $("#IMPPLAN_1").removeClass('nodisplay');
     $("#IMPPLAN_left").removeClass('nodisplay');
     $("#PREFS_IMPPLAN_RIGHT").val('QP');
-    if (!scroll) scrollTo("HPI_left");
     update_PREFS();
 }
 /*
@@ -938,7 +920,10 @@ function show_QP_section(zone,scroll) {
     $("#"+zone+"_1").removeClass('nodisplay');
     $("#"+zone+"_left").removeClass('nodisplay');
     $("#PREFS_"+zone+"_RIGHT").val('QP');
-    if (!scroll) scrollTo(zone+"_left");
+    if (!scroll) {
+        scroll = zone;
+        scrollTo(zone+"_left");
+    }
    }
 /*
  * Function to hide all the DRAW panels of every section.
@@ -1025,13 +1010,14 @@ function menu_select(zone,che) {
         top.restoreSession();
         $.ajax({
                type     : 'GET',
-               url          : url,
+               url      : url,
                data     : formData,
-               success      : function(result) {
-               window.parent.RTop.document.result;
+               success  : function(result) {
+                    window.parent.RTop.document.result;
                }
                });
     }
+    if (zone =='Left_Panel') $("#left-panel-link").trigger('click');
     if (zone =='Right_Panel') $("#right-panel-link").trigger('click');
     if (zone =='PRIORS') $("#PRIORS_ALL_minus_one").trigger("click");
     if (zone =='QP') show_QP();
@@ -2604,9 +2590,13 @@ var allPanels = $('.building_blocks > dd').hide();
                                                                      // more than 3 digits is a mistake...
                                                                      // (although this may change with topography)
                                                                      var axis = $(this).val();
-                                                                     var group = this.name.replace("AXIS", "CYL");;
+                                                                     if (this.name.match(/K2AXIS/)) {
+                                                                         var group = this.name.replace("AXIS", "");
+                                                                     } else {
+                                                                         var group = this.name.replace("AXIS", "CYL");
+                                                                     }
                                                                      var cyl = $("#"+group).val();
-                                                                     if ( ( (cyl > '') && (cyl != 'SPH') ) || (this.name.match(/K2AXIS/) ) ) {
+                                                                     if ( (cyl > '') && (cyl != 'SPH') ) {
                                                                      if (!axis.match(/\d\d\d/)) {
                                                                      if (!axis.match(/\d\d/)) {
                                                                      if (!axis.match(/\d/)) {
@@ -2734,7 +2724,7 @@ var allPanels = $('.building_blocks > dd').hide();
                   if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
                   show_DRAW_section(zones[index]);
                   } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
-                  show_QP_section(zones[index]);
+                        show_QP_section(zones[index],'1');
                   }
                   }
                   $("body").on("click","[name$='_text_view']" , function() {
@@ -3237,14 +3227,13 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 $maxseq = sqlFetchArray($pres);
 
                                                 $seq=$maxseq['maxseq'];
-                                                $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES
-                                            ('lists', ?, ?, ?, '1', '0', '', '', '')";
+                                                $query = "INSERT INTO `list_options`
+                                                    (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES
+                                                    ('lists', ?, ?, ?, '1', '0', '', '', '')";
                                                 $providerNAME = getProviderName($providerID);
-                                                echo "/**".$all_fields."*/";
-                                                echo "//**************PROVIDER NAME+".$providerNAME;
+                                               
                                                 sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
                                                 $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES ".$add_fields;
-                                                echo $query;
                                                 sqlStatement($query);
                                             }
 
@@ -3726,19 +3715,19 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 }
                                                 $("#PRIORS_"+zone+"_left_text").addClass('nodisplay');
                                                 $("#Draw_"+zone).addClass('nodisplay');
-                                                show_QP_section(zone);
+                                                show_QP_section(zone, '1');
                                                 $("#PREFS_"+zone+"_RIGHT").val('QP');
 
                                                 if ((zone == 'PMH')||(zone == 'HPI')) {
                                                     if ($('#HPI_right').css('display') == 'none') {
                                                         $("#Draw_HPI").addClass('nodisplay');
-                                                        show_QP_section('HPI');
+                                                        show_QP_section('HPI', '1');
                                                         $("#PREFS_HPI_RIGHT").val('QP');
                                                     }
                                                 }
 
                                                 HPI_sync_heights();
-                                                if (zone == 'HPIx') {
+                                                if (zone == 'HPI') {
                                                     if ($('#PMH_right').css('display') == 'none') {
                                                         $("#PRIORS_PMH_left_text").addClass('nodisplay');
                                                         $("#Draw_PMH").addClass('nodisplay');
@@ -3753,10 +3742,10 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 } else if (zone == 'menu') {
                                                     show_QP();
                                                 } else if (zone == 'IMPPLAN') {
-                                                    show_QP_section('IMPPLAN');
+                                                    show_QP_section('IMPPLAN','1');
 
                                                 }
-update_PREFS();
+                                                update_PREFS();
                                                 });
 
                   // set default to ccDist.  Change as desired.
@@ -3931,9 +3920,7 @@ update_PREFS();
                                                         });
                                  build_IMPPLAN(obj.IMPPLAN_items,'1');
                                  store_IMPPLAN(obj.IMPPLAN_items);
-
-                                 //submit_form('1');//tell the server where we stand
-                                 });
+                            });
                   $('#Add_Glasses').click(function() {
                                           for (i=2; i <6; i++) { //come on, 5 current rx glasses should be enough...
                                           if ($('#W_'+i).val() != '1') {
@@ -3979,6 +3966,12 @@ update_PREFS();
                     build_CODING_list();
                   });
 
+                  $('[id^="tabs-left-"]').on('click', function () {
+                        var item = this.id.match(/tabs-left-(.*)/)[1];
+                        $('#'+ item +'_1').toggleClass('nodisplay');
+                        $(this).toggleClass('ui-state-default');
+                    });
+                  
                   $(document).on('change','[name="visit_status"]', function (event) {
                     var item = $( "input[type=radio][name=visit_status]:checked" ).val();
                     update_appt_status(item);
@@ -4023,6 +4016,14 @@ update_PREFS();
                         ?>  $("[class='tabHide']").css("display","inline-block"); <?php
 }
                     ?>
+
+                    $('[id^="BUTTON_TAB_"]').on('click', function () {
+                        var item = this.id.match(/BUTTON_TAB_(.*)/)[1];
+                        $("#tabs-left").removeClass('nodisplay');
+                        $("#"+item+'_1').addClass('nodisplay');
+                        $('#tabs-left-'+item).addClass('ui-state-default');
+                    });
+
                   $("input,textarea,text").focus(function(){
                                                  $(this).css("background-color","#ffff99");
                                                  });

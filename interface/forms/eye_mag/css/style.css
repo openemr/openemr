@@ -65,6 +65,65 @@ a:hover {
 a:active {
     color: black;
 }
+
+#tabs-left {
+    position: fixed;
+    padding-left: 6.5em;
+    top:145px;
+    left:0;
+    z-index:1001;
+    border:0;
+    background:transparent;
+    color:red;
+}
+#tabs-left .ui-tabs-nav {
+    position: absolute;
+    left: 0.25em;
+    top: 0.25em;
+    bottom: 0.25em;
+    width: 6em;
+    padding: 0.2em 0 0.2em 0.2em;
+}
+#tabs-left .ui-tabs-nav li {
+    right: 8px;
+    width: 100%;
+    border-left: 4pt solid #0064b4;
+    border-bottom-width: 1px !important;
+    -moz-border-radius: 4px 0px 0px 4px;
+    -webkit-border-radius: 4px 0px 0px 4px;
+    border-radius: 0px 4px 4px 0px;
+    overflow: hidden;
+}
+#tabs-left .ui-tabs-nav li.ui-tabs-selected,
+#tabs-left .ui-tabs-nav li.ui-state-active {
+    border-right: 1px solid transparent;
+}
+#tabs-left .ui-tabs-nav li a {
+    float: right;
+    width: 100%;
+    text-align: right;
+}
+#tabs-left .ui-tabs-panel {
+    height: 40em;
+}
+tabs-left-vertical .ui-tabs-nav {
+    position: absolute;
+    width: 21em;
+    transform: translate(-100%,0%) rotate(-90deg);
+    transform-origin: 100% 0%;
+}
+tabs-left-vertical .ui-tabs-nav li {
+    float: right;
+}
+tabs-left-vertical .ui-tabs-panel {
+    padding-left: 3.5em;
+}
+tabs-left-vertical .ui-tabs-panel {
+    height: 20em;
+}
+
+
+
 .fa {
     cursor: pointer;
 }
@@ -486,12 +545,8 @@ th {
 
 body
 {
-    display:inline-block;
     margin-left:auto;
     margin-right:auto;
-    /* padding-left:5px; //Or whatever value you would like
-     padding-right:5px; //Same ^
-     */
     text-align:center;
 }
 .sections {
@@ -1051,7 +1106,6 @@ textarea.EXTTEXT {
     border: 0 solid grey;
     text-decoration: none;
     background-color: yellow;
-
 }
 .closeButton_4 {
     display:inline-block;
@@ -1332,7 +1386,7 @@ input[type=text].fullscreen {
 }
 .ui-widget-header {
     border: 0;
-    background: #fffbeb;
+    background: transparent;
 }
 
 .navbar-custom {
@@ -1511,7 +1565,7 @@ a:hover, a:focus {
 
 #EXAM_KB {
     text-align:center;
-    z-index:14100;
+    z-index:1100;
     position: fixed;
     top: 35px;
     left: 0;
@@ -1877,6 +1931,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
     border:1pt solid black;
     border-radius:3px;
     width:180px;
+    padding:4px 10px;
 }
 .oldies_prefix {
     position:relative;

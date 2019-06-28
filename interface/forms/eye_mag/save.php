@@ -263,8 +263,12 @@ if ($_REQUEST['unlock'] == '1') {
     exit;
 } elseif ($_REQUEST['acquire_lock'] == "1") {
     //we are taking over the form's active state, others will go read-only
-    $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=?,LOCKEDDATE=NOW() where id=?";//" and LOCKEDBY=?";
+    $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=? where id=?";//" and LOCKEDBY=?";
     $result = sqlQuery($query, array($_REQUEST['uniqueID'], $form_id ));
+    $query = "SELECT LOCKEDDATE from form_eye_locking WHERE ID=?";
+    $lock = sqlQuery($query, array($form_id));
+    echo $lock['LOCKEDDATE'];
+    
     exit;
 } else {
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from form_eye_locking WHERE ID=?";
@@ -621,7 +625,7 @@ if ($_REQUEST["mode"] == "new") {
                 } elseif ($form_type == "POS") {
                     $form_type = "surgery";
                     $subtype = "eye";
-                } elseif ($form_type == "Medication") {
+                } elseif (($form_type == "Medication")||($form_type == "Eye Meds")) {
                     $form_type = "medication";
                     if ($_REQUEST['form_eye_subtype']) {
                         $subtype = "eye";
@@ -804,7 +808,9 @@ if ($_REQUEST["mode"] == "new") {
                 "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
                 "VALUES (?,NOW(),?,?,?,?)";
             sqlStatement($sql, array($tracker['id'], $userauthorized, $_POST['new_status'], ' ', ($tracker['lastseq'] + 1)));
-            sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ? WHERE `pc_eid` = ?", array($_POST['new_status'], $tracker['eid']));
+            $sql = "UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ?, pc_room='' WHERE `pc_eid` = ?";
+            sqlStatement($sql, array($_POST['new_status'], $tracker['eid']));
+            echo "saved";
             exit;
         }
         echo "Failed to update Patient Tracker.";

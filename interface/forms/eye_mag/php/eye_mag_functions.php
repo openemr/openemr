@@ -1611,7 +1611,7 @@ function build_PMSFH($pid)
     $PMSFH = [];
     $PMSFH['CHRONIC']=[];
     //Define the PMSFH array elements as you need them:
-    $PMSFH_labels = array("POH", "POS", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
+    $PMSFH_labels = array("POH", "POS", "Eye Meds", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
     foreach ($PMSFH_labels as $panel_type) {
         $PMSFH[$panel_type] = [];
         $subtype = " and (subtype is NULL or subtype ='' )";
@@ -1648,10 +1648,10 @@ function build_PMSFH($pid)
             $subtype=" and subtype ='eye'";
         } elseif ($panel_type =='PMH') {
             $focusISSUE = "medical_problem"; //openEMR ISSUE_TYPE
-            $subtype=" and (subtype = ' ' OR subtype IS NULL)"; //fee_sheet makes subtype=
+            $subtype=" and (subtype = '' OR subtype IS NULL)"; //fee_sheet makes subtype=
         } elseif ($panel_type =='Surgery') {
             $focusISSUE = "surgery"; //openEMR ISSUE_TYPE
-            $subtype="  and (subtype = ' ' OR subtype IS NULL)";
+            $subtype="  and (subtype = '' OR subtype IS NULL)";
             $order = "ORDER BY begdate DESC";
         } elseif ($panel_type =='Allergy') {
             $focusISSUE = "allergy"; //openEMR ISSUE_TYPE
@@ -1659,6 +1659,9 @@ function build_PMSFH($pid)
         } elseif ($panel_type =='Medication') {
             $focusISSUE = "medication"; //openEMR ISSUE_TYPE
             $subtype="";
+        } elseif ($panel_type =='Eye Meds') {
+            $focusISSUE = "medication"; //openEMR ISSUE_TYPE
+            $subtype = "and subtype = 'eye'";// and subtype ='eye' ";
         }
 
         $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
@@ -2068,13 +2071,13 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     }
 
     $counter = "0";
-    $column_max = round($total_PMSFH/$rows);
-    if ($column_max < "18") {
-        $column_max ='18';
+    $column_max = round($total_PMSFH/$rows)+1;
+    if ($column_max < "25") {
+        $column_max ='20';
     }
 
-    $open_table = "<table class='PMSFH_table'><tr><td>";
-    $close_table = "</td></tr></table>";
+    $open_table = "<div style='float:left' class='table PMSFH_table'>";
+    $close_table = "</div>";
     // $div is used when $counter reaches $column_max and a new row is needed.
     // It is used only if $row_count <= $rows, ie. $rows -1 times.
     $div = '</div>
@@ -2104,12 +2107,36 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 </tr>
                 </table>
         ';
-
         if (count($PMSFH[0][$key]) > '0') {
             $index=0;
             foreach ($PMSFH[0][$key] as $item) {
-                if (($key == "Medication") && ($item['status'] == "Inactive")) {
-                    continue; }
+                if (
+                        ( ($key == "Medication") || ($key == "Eye Meds") )
+                    &&
+                        ($item['status'] == "Inactive")
+                ) {
+                    continue;
+                }
+                if ( ($key == "Medication") && ( !empty($item['row_subtype'])) ) {
+                    $subtype_Meds[$item['row_subtype']]['name'] = $item['row_subtype'];
+                    $subtype_Meds[$item['row_subtype']]['header'] = '
+                        <table class="PMSFH_header">
+                            <tr>
+                                <td width="90%">
+                                    <span class="left" style="font-weight:800;font-size:0.9em;">'.xlt(ucwords($item['row_subtype'])).' Meds</span>
+                                </td>
+                                <td>
+                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',\''.attr($key).'\',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
+                                </td>
+                            </tr>
+                        </table>
+                        ';
+                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span $red name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
+                onclick=\"alter_issue2('".attr($item['rowid'])."','".attr($key)."','".attr($index)."');\">".text($item['title']).$reaction."</span><br />";
+                    $index++;
+                    continue;
+                }
+                
                 if ($key == "Allergy") {
                     if ($item['reaction']) {
                         $reaction = " (".text($item['reaction']).")";
@@ -2150,7 +2177,15 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     if ($count >= $column_max) {
         echo $div.$header1;
     }
-
+    
+    echo $display_PMSFH['Eye Meds'];
+    $count = $count + $count['Surgery'] +  4;
+    if (($count >= $column_max) && ($row_count < $rows)) {
+        echo $div;
+        $count=0;
+        $row_count =2;
+    }
+    
     echo $display_PMSFH['PMH'];
     $count = $count + $count['Surgery'] +  4;
     if (($count >= $column_max) && ($row_count < $rows)) {
@@ -2369,7 +2404,30 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         onclick="alter_issue2('0','POS','');" class="disabled_button"><?php echo xlt("None"); ?><br /></span>
         <?php
     }
-
+    
+//<!-- Eye Meds -->
+    echo "<br /><span class='panel_title' title='".xlt("Eye Meds")."'>".xlt("Eye Meds").":</span>";
+    ?><span class="top-right btn-sm" href="#PMH_anchor"
+            onclick="alter_issue2('0','Medication','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
+    <br />
+    <?php
+    if ($PMSFH[0]['Eye Meds']) {
+         $i=0;
+        foreach ($PMSFH[0]['Eye Meds'] as $item) {
+             if ( ($item['status'] == "Inactive") || ($item['row_subtype'] != "eye") ){
+                $i++;
+                continue;
+            }
+            echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
+            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Medication','$i');\">".text($item['title'])."</span><br />";
+            $i++;
+        }
+    } else { ?>
+        <span href="#PMH_anchor"
+        onclick="alter_issue2('0','Medication','');" class="disabled_button"><?php echo xlt("None"); ?><br /></span>
+        <?php
+    }
+    
     //<!-- PMH -->
     echo "<br /> <span class='panel_title' title='".xla('Past Medical History')."'>".xlt("PMH{{Past Medical History}}").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
@@ -2419,8 +2477,11 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     if ($PMSFH[0]['Medication']) {
         $i=0;
         foreach ($PMSFH[0]['Medication'] as $item) {
-            if ($item['status'] == "Inactive") {
-                continue; }
+            
+            if ( ($item['row_subtype'] == "eye") || ($item['status'] == "Inactive") ) {
+                $i++;
+                continue;
+            }
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
             onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Medication','$i');\">".text($item['title'])."</span><br />";
             $i++;
@@ -2583,7 +2644,6 @@ function show_PMSFH_report($PMSFH)
     $counter++;
     echo "<table style='width:700px;'><tr><td style='vertical-align:top;width:150px;' class='show_report'><br /><b>".xlt("POH{{Past Ocular History}}").":</b>";
     //note the HTML2PDF does not like <span style="font-weight:bold;"></span> so we are using the deprecated <b></b>
-    // TODO - now use mPDF, so should test if still need this fix
     ?>
     <br />
     <?php
@@ -2805,10 +2865,12 @@ function display_QP($zone, $provider_id)
         $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
         $result = sqlStatement($query, array("Eye_QP_".$zone."_defaults"));
         $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES (?,?,?,?,?,?,?,?,?)";
+    } else {
+        $SQL_INSERT ='';
     }
 
-    while ($QP= sqlFetchArray($result)) {
-        if ($SQL_INSERT) {
+    while ($QP = sqlFetchArray($result)) {
+        if (!empty($SQL_INSERT)) {
             sqlStatement($SQL_INSERT, array("Eye_QP_".$zone."_".$provider_id,$QP['option_id'],$QP['title'],$QP['seq'],$QP['mapping'],$QP['notes'],$QP['codes'],$QP['activity'],$QP['subtype']));
         }
 
@@ -4577,19 +4639,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     global $ODIOPTARGET;
     global $OSIOPTARGET;
     global $dated;
+    global $visit_date;
 
     if (!$documents) {
         list($documents) = document_engine($pid);
     }
 
-    $count_OCT = empty($documents['docs_in_name']['OCT']) ? 0 : count($documents['docs_in_name']['OCT']);
+    $count_OCT = count((array)$documents['docs_in_name']['OCT']);
     if ($count_OCT > 0) {
         foreach ($documents['docs_in_name']['OCT'] as $OCT) {
             $OCT_date[] = $OCT['docdate'];
         }
     }
 
-    $count_VF = empty($documents['docs_in_name']['VF']) ? 0 : count($documents['docs_in_name']['VF']);
+    $count_VF = count((array)$documents['docs_in_name']['VF']);
     if ($count_VF > 0) {
         foreach ($documents['docs_in_name']['VF'] as $VF) {
             $VF_date[] = $VF['docdate'];
@@ -4598,7 +4661,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
     $i=0;
         //if there are no priors, this is the first visit, display a generic splash screen.
-    if ($priors) {
+    if ((array)$priors) {
         foreach ($priors as $visit) {
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
             if ($visit['date']=='') {
@@ -4741,13 +4804,11 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     $times_OU=$time_OU;
     usort($times_OU, "cmp");
 
-    for ($a=0; $a < count($date_OU); $a++) {
-        if (!empty($GONIO_date)) {
-            foreach ($GONIO_date as $GONIO) {
-                if ($date_OU[$a] == $GONIO) {
-                    $GONIO_values[$a] = "1";
-                    break;
-                }
+    for ($a=0; $a < count((array)$date_OU); $a++) {
+        foreach ((array)$GONIO_date as $GONIO) {
+            if ($date_OU[$a] == $GONIO) {
+                $GONIO_values[$a] = "1";
+                break;
             }
         }
 
@@ -4868,11 +4929,11 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     $count_Meds = count($PMSFH[0]['Medication']);
                 if ($count_Meds > '0') {
                     foreach ($PMSFH[0]['Medication'] as $drug) {
-                        if (($drug['row_subtype'] =="eye") && ($drug['enddate'] !== "")) {
+                        if ( ($drug['row_subtype'] =="eye") && (strtotime($drug['enddate']) < strtotime($visit_date) ) && ($drug['status'] != "Inactive") ) {
                             $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
                                       onclick=\"alter_issue2('".attr(addslashes($drug['rowid']))."','Medication','$i');\">".text($drug['title'])."</span></td>
                                       <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td></tr>";
-                        } else if (($drug['row_subtype'] =="eye")&&($drug['enddate'] > "")&&(strtotime($drug['enddate']) < strtotime($visit_date))) {//what meds have a subtype eye that are discontinued?
+                        } else if (($drug['row_subtype'] =="eye")&& (!empty($drug['enddate']))) {//what meds have a subtype eye that are discontinued?
                             $hideme = "hideme_drugs nodisplay";
                             $FAILED_drugs .= "<tr class='".$hideme."'><td colspan='1' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
                                       onclick=\"alter_issue2('".attr(addslashes($drug['rowid']))."','Medication','$i');\">".text($drug['title'])."</span></td>
@@ -4888,7 +4949,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     }
 
                     foreach ($PMSFH[0]['Medication'] as $drug) {
-                        if (($drug['row_subtype'] =="eye")&&($drug['enddate'] > "")) {
+                        if ( ($drug['row_subtype'] =="eye") && (!empty($drug['enddate'])) ) {
                             $FAILED_drug .= "<li>".text($drug['title'])."</li>";
                         }
                     }
@@ -4998,8 +5059,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 $GONIO_chart .= ',';
                             }
                         }
-
-                        $GONIO = chop($GONIO, ",");
+                    /*    if (!empty($GONIO)) {
+                            $GONIO = chop($GONIO, ",");
+                        }
+                    */
                         if ($count ==0) {
                             $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('Not documented')."</td></tr>";
                         }
@@ -5059,7 +5122,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             </table>
         </div>
-        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/chart.js/dist/Chart.bundle.min.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/Chart.js-2-1-3/dist/Chart.bundle.min.js"></script>
         <div style="position:relative;float:right; margin: 0px 5px;text-align:center;width:60%;">
             <?php
             if ($priors) {
@@ -5789,14 +5852,12 @@ function display_refractive_data($encounter_data)
                 } else if (${"RX_TYPE_$i"} =="3") {
                     $RX_TYPE = xlt('Progressive');
                 }
-
                 /*
-                  Note html2pdf does not like the last field of a table to be blank.
-                  If it is it will squish the lines together.
-                  Work around: if the field is blank, then replace it with a "-" else echo it.
-                  aka echo (text($field))?:"-");
+              Note html2pdf does not like the last field of a table to be blank.
+              If it is it will squish the lines together.
+              Work around: if the field is blank, then replace it with a "-" else echo it.
+              aka echo (text($field))?:"-");
                 */
-                // TODO - now use mPDF, so should test if still need this fix
                 ?>
                 <tr>
                     <td class="bold"><?php echo xlt('Wear RX')." #".$i.": "; ?></td>
@@ -6054,7 +6115,7 @@ if (!empty($COMMENTS)) { ?>
               <td><?php echo xlt('LT{{lens thickness}}'); ?></td>
               <td><?php echo xlt('W2W{{white-to-white}}'); ?></td>
               <td><?php echo xlt('ECL{{equivalent contact lens power at the corneal level}}'); ?></td>
-              <!-- <td><?php echo xlt('pend'); ?></td> -->
+              <td><?php echo xlt('VABiNoc{{Binocular visul acuity}}'); ?></td>
             </tr>
             <tr><td class="bold"><?php echo xlt('OD{{right eye}}'); ?>:</td>
               <td><?php echo text($ODAXIALLENGTH); ?></td>
@@ -6063,7 +6124,7 @@ if (!empty($COMMENTS)) { ?>
               <td><?php echo text($ODLT); ?></td>
               <td><?php echo text($ODW2W); ?></td>
               <td><?php echo text($ODECL); ?></td>
-              <!-- <td><input type=text id="pend" name="pend"  value="<?php echo text($pend); ?>"></td> -->
+              <td><?php echo text($VABINOC); ?></td>
             </tr>
             <tr>
               <td class="bold"><?php echo xlt('OS{{left eye}}'); ?>:</td>
@@ -6094,11 +6155,12 @@ if (!empty($COMMENTS)) { ?>
  */
 function in_array_r($needle, $haystack, $strict = false)
 {
-    if (!empty($haystack)) {
-        foreach ($haystack as $item) {
-            if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
-                return true;
-            }
+    if (empty($haystack)) {
+        return false;
+    }
+    foreach ($haystack as $item) {
+        if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
+            return true;
         }
     }
     return false;

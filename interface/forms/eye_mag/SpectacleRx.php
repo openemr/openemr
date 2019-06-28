@@ -31,7 +31,6 @@ require_once("php/" . $form_folder . "_functions.php");
 
 $RX_expir = "+1 years";
 $CTL_expir = "+6 months";
-//echo "<pre>";var_dump($_REQUEST);exit;
 if (!$_REQUEST['pid'] && $_REQUEST['id']) {
     $_REQUEST['pid'] = $_REQUEST['id'];
 }
@@ -287,18 +286,18 @@ if ($_REQUEST['dispensed']) {
     ?><html>
     <title><?php echo xlt('Rx Dispensed History'); ?></title>
     <head>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-1-10-2/jquery.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/js/bootstrap.min.js"></script>
 
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+        <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','pure', 'bootstrap' ,'jscolor' ]); ?>
 
+        <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
+        <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-themes-1-10-4/themes/ui-lightness/jquery-ui.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
 
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
     <style>
         .title {
@@ -1296,7 +1295,7 @@ if ($REFTYPE == "CTL") {
 
 </body>
 <script>
-    $(function () {
+    $(document).ready(function () {
         $('.header').click(function () {
             var $this = $(this);
             $(this).nextUntil('tr.header').slideToggle(100).promise().done(function () {

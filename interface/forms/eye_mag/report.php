@@ -214,7 +214,6 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 {
     global $form_folder;
     global $PDF_OUTPUT;
-    global $tmp_files_remove;
     global $facilityService;
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
@@ -612,6 +611,11 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
               <td><?php echo text($CONTRASTODVA); ?></td>
               <td><?php echo text($CONTRASTOSVA); ?></td>
             </tr>
+            <?php } if (!empty($BINOCVA)) { ?>
+                <tr>
+                  <td><?php echo xlt('VABiNoc{{|Binocular Visual Acuity}}'); ?></td>
+                  <td rowspan="2"><?php echo text($BINOCVA); ?></td>
+                </tr>
             <?php } ?>
           </table>
         </td>
@@ -991,13 +995,6 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                             $RX_TYPE = xlt('Progressive');
                         }
 
-                        /*
-                          Note html2pdf does not like the last field of a table to be blank.
-                          If it is it will squish the lines together.
-                          Work around: if the field is blank, then replace it with a "-" else echo it.
-                          aka echo (text($field))?:"-");
-                        */
-                        // TODO - now use mPDF, so should test if still need this fix
                         ?>
                   <tr>
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Current RX')." #".$i.": "; ?></td>
@@ -1061,15 +1058,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($ARNEAROSVA)?:"-"); ?></td>
                   </tr>
                         <?php
-                        if (${"COMMENTS_$i"}) {
-                            ?>
+                    }
+    
+                    if (${"CRCOMMENTS"}) {
+                        ?>
                         <tr>
-                      <td></td><td></td>
-                      <td>Comments:</td>
-                          <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
+                            <td></td><td></td>
+                            <td>Comments:</td>
+                            <td colspan="7"><?php echo text(${"CRCOMMENTS"}); ?></td>
                         </tr>
-                            <?php
-                        }
+                        <?php
                     }
 
                     if ($MRODSPH||$MROSSPH) { ?>
@@ -2008,12 +2006,12 @@ if ($ODCMT||$OSCMT) { ?>
             if ($PDF_OUTPUT) {
                 //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
                 //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
-                $from_file = $GLOBALS['fileroot'] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+                $from_file = $GLOBALS["webserver_root"] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
                 if (file_exists($from_file)) {
                     echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />";
                 }
             } else {
-                $signature = $GLOBALS['fileroot']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+                $signature = $GLOBALS["webserver_root"]."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
                 if (file_exists($signature)) {
                         echo "<img style='width:50mm;' src='".$GLOBALS['web_root']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg'><hr style='width:40mm;' />";
                 }
