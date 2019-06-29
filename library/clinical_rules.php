@@ -2368,7 +2368,18 @@ function collect_database_label($label, $table)
             // unknown label, so return the original label
             $returnedLabel = $label;
         }
-    } else {
+   } else if ($table == 'openemr_postcalendar_events') {
+	 // return requested label for prescriptions table
+        if ($label == "pid") {
+            $returnedLabel = "pc_pid";
+        } else if ($label == "date") {
+            $returnedLabel = "pc_eventdate";
+        } else {
+            // unknown label, so return the original label
+            $returnedLabel = $label;
+        }
+    
+   } else {
         // return requested label for default tables
         if ($label == "pid") {
             $returnedLabel = "pid";
