@@ -1626,16 +1626,15 @@ a:hover, a:focus {
     font-size: 0.9em;
     background-color: white;
     box-shadow: 1px 1px 3px #888888;
-    border-radius: 8px 8px 8px 8px;
+    border-radius: 0px 0px 8px 8px;
     position: relative;
     margin: 0px auto 5px;
     padding-bottom: 4px;
-    border: 1.00pt solid #000000;
+    border: 1.00pt solid #c0c0c0;
 }
 .building_blocks dd:last-of-type {
-    border-top: 1px solid black;
-    position: relative;
-    top: 10px;
+    border-radius: 0px;
+    margin-bottom:0px;
 }
 .IMPPLAN_class { margin:1em;}
 .ICD_CODE{
