@@ -117,6 +117,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'css_header',
     'vertical_responsive_menu',
     'menu_styling_vertical',
+    'search_any_patient',
     'default_encounter_view',
     'gbl_pt_list_page_size',
     'gbl_pt_list_new_window',
@@ -207,7 +208,7 @@ $GLOBALS_METADATA = array(
         'css_header' => array(
             xl('General Theme') .'*',
             'css',
-            'style_light.css',
+            'style_mustard_green.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
@@ -276,6 +277,16 @@ $GLOBALS_METADATA = array(
             ),
             '1',
             xl('Vertical Menu Style for frame based layouts')
+        ),
+        
+        'search_any_patient' => array(
+            xl('Search Patient By Any Demographics'),
+            array(
+                'dual' => xl('Dual'),
+                'comprehensive' => xl('Comprehensive'),
+            ),
+            'dual', // default
+            xl('Search Patient By Any Demographics, Dual additionally lets direct access to Patient Finder, Comprehensive has collapsed input box')
         ),
 
         'default_encounter_view' => array(

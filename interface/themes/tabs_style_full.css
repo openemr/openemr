@@ -82,8 +82,7 @@ z-index:10000;
 }
 
 #mainBox_vertical .logo {
-    float: left;
-    margin: 3px 4px 0px 12px;
+    margin: 6px 12px;
     width: 30px;
     z-index: 10000;
 }
@@ -453,12 +452,10 @@ div.menuLabel:hover {
 }
 
 #logout_icon{
-    float:left;
     margin:12px 5px 0 10px;
     cursor: pointer;
 }
 #menu_icon {
-    float:right;
-    margin:12px 14px 0 0;
+    margin: 12px 25px;
     cursor: pointer;
 }
