@@ -182,7 +182,7 @@ foreach (explode(',', $given) as $item) {
 
             if ($local =="1") { // leave FH/SocHx/ROS for later - done below separately
                 while ($res = sqlFetchArray($qry)) { //Should we take the top 10 and display alphabetically?
-                    echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length] = new Option('".attr(trim($res['option_id']))."', '".attr(xl_list_label(trim($res['title'])))."', false, false);\n";
+                    echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length] = new Option('".attr(xl_list_label(trim($res['title'])))."', '".attr(trim($res['option_id']))."', false, false);\n";
                     if ($res['codes']) {
                         echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length-1].setAttribute('data-code','".attr(trim($res['codes']))."');\n";
                     }
