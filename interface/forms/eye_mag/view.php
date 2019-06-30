@@ -89,7 +89,6 @@ list($ODIOPTARGET,$OSIOPTARGET) = getIOPTARGETS($pid, $id, $provider_id);
 $query          = "SELECT * FROM patient_data where pid=?";
 $pat_data       =  sqlQuery($query, array($pid));
 
-$providerNAME   = getProviderName($provider_id);
 $query          = "SELECT * FROM users where id = ?";
 $prov_data      = sqlQuery($query, array($provider_id));
 
@@ -178,8 +177,7 @@ if ($refresh and $refresh != 'fullscreen') {
   <div id="tabs-left" class="tabs ui-tabs ui-widget ui-widget-content ui-corner-all nodisplay">
       <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-corner-all">
           
-          <li id="tabs-left-HPI" class="btn-primary");
-     ">
+          <li id="tabs-left-HPI" class="btn-primary">
               <span>HPI</span>
           </li>
           <li id="tabs-left-PMH" class="btn-primary">
@@ -1888,7 +1886,7 @@ if ($refresh and $refresh != 'fullscreen') {
                   <i class="fa fa-spinner fa-spin"></i>
               </div>
               
-                  <div class=nodisplay" id="DA_EXAM_sections" name="DA_EXAM_sections">
+                  <div class="nodisplay" id="DA_EXAM_sections" name="DA_EXAM_sections">
                   <!-- start External Exam -->
                   <div id="EXT_1" name="EXT_1" class="clear_both">
                       <span class="anchor" id="EXT_anchor"></span>
@@ -3749,7 +3747,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   <div style="padding:5px 20px 5px 20px;">
                                         <?php
                                           $query ="SELECT * FROM users WHERE id=?";
-                                          $pcp_data =  sqlQuery($query, array($pat_data['providerID']));
+                                          $pcp_data =  sqlQuery($query, array($pat_data['referrerID']));
                                           $ref_data =  sqlQuery($query, array($pat_data['ref_providerID']));
                                         ?>
                                       <table style="width:100%;">

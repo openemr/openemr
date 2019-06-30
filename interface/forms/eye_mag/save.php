@@ -243,8 +243,6 @@ if ($providerID == '0') {
     $providerID = $userauthorized;//who is the default provider?
 }
 
-$providerNAME = getProviderName($providerID);
-
 // The form is submitted to be updated or saved in some way.
 // Give each instance of a form a uniqueID.  If the form has no owner, update DB with this uniqueID.
 // If the DB shows a uniqueID ie. an owner, and the save request uniqueID does not = the uniqueID in the DB,
@@ -323,14 +321,14 @@ if ($_REQUEST["mode"] == "new") {
     // The user has write privileges to work with...
 
     if ($_REQUEST['action'] == "store_PDF") {
-        /*
-      * We want to store/overwrite the current PDF version of this encounter's f
-      * Currently this is only called 'beforeunload', ie. when you finish the form
-      * In this current paradigm, anytime the form is opened, then closed, the PDF
-      * is overwritten.  With esign implemented, the PDF should be locked.  I suppose
-      * with esign the form can't even be opened so the only way to get to the PDF
-      * is through the Documents->Encounters links.
-        */
+         /**
+          * We want to store/overwrite the current PDF version of this encounter's f
+          * Currently this is only called 'beforeunload', ie. when you finish the form
+          * In this current paradigm, anytime the form is opened, then closed, the PDF
+          * is overwritten.  With esign implemented, the PDF should be locked.  I suppose
+          * with esign the form can't even be opened so the only way to get to the PDF
+          * is through the Documents->Encounters links.
+          */
         $query = "select id from categories where name = 'Encounters'";
         $result = sqlStatement($query);
         $ID = sqlFetchArray($result);
@@ -447,7 +445,7 @@ if ($_REQUEST["mode"] == "new") {
 
     //change PCP/referring doc
     if ($_REQUEST['action'] == 'docs') {
-        $query = "update patient_data set providerID=?,ref_providerID=? where pid =?";
+        $query = "update patient_data set ref_providerID=?,referrerID=? where pid =?";
         sqlQuery($query, array($_REQUEST['pcp'], $_REQUEST['rDOC'], $pid));
 
         if ($_REQUEST['pcp']) {
