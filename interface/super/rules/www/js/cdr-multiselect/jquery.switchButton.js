@@ -37,29 +37,29 @@
  *
  */
 
-(function($) {
+(function ($) {
 
     $.widget("sylightsUI.switchButton", {
 
         options: {
-            checked: undefined,			// State of the switch
+            checked: undefined,         // State of the switch
 
-            show_labels: true,			// Should we show the on and off labels?
-            labels_placement: "both", 	// Position of the labels: "both", "left" or "right"
-            on_label: "ON",				// Text to be displayed when checked
-            off_label: "OFF",			// Text to be displayed when unchecked
+            show_labels: true,          // Should we show the on and off labels?
+            labels_placement: "both",   // Position of the labels: "both", "left" or "right"
+            on_label: "ON",             // Text to be displayed when checked
+            off_label: "OFF",           // Text to be displayed when unchecked
 
-            width: 25,					// Width of the button in pixels
-            height: 11,					// Height of the button in pixels
-            button_width: 12,			// Width of the sliding part in pixels
+            width: 25,                  // Width of the button in pixels
+            height: 11,                 // Height of the button in pixels
+            button_width: 12,           // Width of the sliding part in pixels
 
-            clear: true,				// Should we insert a div with style="clear: both;" after the switch button?
-            clear_after: null,		    // Override the element after which the clearing div should be inserted (null > right after the button)
-            on_callback: undefined,		//callback function that will be executed after going to on state
-            off_callback: undefined		//callback function that will be executed after going to off state
+            clear: true,                // Should we insert a div with style="clear: both;" after the switch button?
+            clear_after: null,          // Override the element after which the clearing div should be inserted (null > right after the button)
+            on_callback: undefined,     //callback function that will be executed after going to on state
+            off_callback: undefined     //callback function that will be executed after going to off state
         },
 
-        _create: function() {
+        _create: function () {
             // Init the switch from the checkbox if no state was specified on creation
             if (this.options.checked === undefined) {
                 this.options.checked = this.element.prop("checked");
@@ -69,7 +69,7 @@
             this._initEvents();
         },
 
-        _initLayout: function() {
+        _initLayout: function () {
             // Hide the receiver element
             this.element.hide();
 
@@ -88,8 +88,7 @@
             this.button_bg.append(this.button);
 
             // Insert a clearing element after the specified element if needed
-            if(this.options.clear)
-            {
+            if (this.options.clear) {
                 if (this.options.clear_after === null) {
                     this.options.clear_after = this.on_label;
                 }
@@ -108,74 +107,68 @@
             this._toggleSwitch();
         },
 
-        _refresh: function() {
+        _refresh: function () {
             // Refresh labels display
             if (this.options.show_labels) {
                 this.off_label.show();
                 this.on_label.show();
-            }
-            else {
+            } else {
                 this.off_label.hide();
                 this.on_label.hide();
             }
 
             // Move labels around depending on labels_placement option
-            switch(this.options.labels_placement) {
+            switch (this.options.labels_placement) {
                 case "both":
-                {
-                    // Don't move anything if labels are already in place
-                    if(this.button_bg.prev() !== this.off_label || this.button_bg.next() !== this.on_label)
                     {
-                        // Detach labels form DOM and place them correctly
-                        this.off_label.detach();
-                        this.on_label.detach();
-                        this.off_label.insertBefore(this.button_bg);
-                        this.on_label.insertAfter(this.button_bg);
+                        // Don't move anything if labels are already in place
+                        if (this.button_bg.prev() !== this.off_label || this.button_bg.next() !== this.on_label) {
+                            // Detach labels form DOM and place them correctly
+                            this.off_label.detach();
+                            this.on_label.detach();
+                            this.off_label.insertBefore(this.button_bg);
+                            this.on_label.insertAfter(this.button_bg);
 
-                        // Update label classes
-                        this.on_label.addClass(this.options.checked ? "on" : "off").removeClass(this.options.checked ? "off" : "on");
-                        this.off_label.addClass(this.options.checked ? "off" : "on").removeClass(this.options.checked ? "on" : "off");
-
-                    }
-                    break;
+                            // Update label classes
+                            this.on_label.addClass(this.options.checked ? "on" : "off").removeClass(this.options.checked ? "off" : "on");
+                            this.off_label.addClass(this.options.checked ? "off" : "on").removeClass(this.options.checked ? "on" : "off");
+                        }
+                        break;
                 }
 
                 case "left":
-                {
-                    // Don't move anything if labels are already in place
-                    if(this.button_bg.prev() !== this.on_label || this.on_label.prev() !== this.off_label)
                     {
-                        // Detach labels form DOM and place them correctly
-                        this.off_label.detach();
-                        this.on_label.detach();
-                        this.off_label.insertBefore(this.button_bg);
-                        this.on_label.insertBefore(this.button_bg);
+                        // Don't move anything if labels are already in place
+                        if (this.button_bg.prev() !== this.on_label || this.on_label.prev() !== this.off_label) {
+                            // Detach labels form DOM and place them correctly
+                            this.off_label.detach();
+                            this.on_label.detach();
+                            this.off_label.insertBefore(this.button_bg);
+                            this.on_label.insertBefore(this.button_bg);
 
-                        // update label classes
-                        this.on_label.addClass("on").removeClass("off");
-                        this.off_label.addClass("off").removeClass("on");
-                    }
-                    break;
+                            // update label classes
+                            this.on_label.addClass("on").removeClass("off");
+                            this.off_label.addClass("off").removeClass("on");
+                        }
+                        break;
                 }
 
                 case "right":
-                {
-                    // Don't move anything if labels are already in place
-                    if(this.button_bg.next() !== this.off_label || this.off_label.next() !== this.on_label)
                     {
-                        // Detach labels form DOM and place them correctly
-                        this.off_label.detach();
-                        this.on_label.detach();
-                        this.off_label.insertAfter(this.button_bg);
-                        this.on_label.insertAfter(this.off_label);
+                        // Don't move anything if labels are already in place
+                        if (this.button_bg.next() !== this.off_label || this.off_label.next() !== this.on_label) {
+                            // Detach labels form DOM and place them correctly
+                            this.off_label.detach();
+                            this.on_label.detach();
+                            this.off_label.insertAfter(this.button_bg);
+                            this.on_label.insertAfter(this.off_label);
 
-                        // update label classes
-                        this.on_label.addClass("on").removeClass("off");
-                        this.off_label.addClass("off").removeClass("on");
-                    }
-                    break;
+                            // update label classes
+                            this.on_label.addClass("on").removeClass("off");
+                            this.off_label.addClass("off").removeClass("on");
+                        }
+                        break;
                 }
-
             }
 
             // Refresh labels texts
@@ -189,17 +182,17 @@
             this.button.height(this.options.height);
         },
 
-        _initEvents: function() {
+        _initEvents: function () {
             var self = this;
 
             // Toggle switch when the switch is clicked
-            this.button_bg.click(function(e) {
+            this.button_bg.click(function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 self._toggleSwitch();
                 return false;
             });
-            this.button.click(function(e) {
+            this.button.click(function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 self._toggleSwitch();
@@ -207,7 +200,7 @@
             });
 
             // Set switch value when clicking labels
-            this.on_label.click(function(e) {
+            this.on_label.click(function (e) {
                 if (self.options.checked && self.options.labels_placement === "both") {
                     return false;
                 }
@@ -216,7 +209,7 @@
                 return false;
             });
 
-            this.off_label.click(function(e) {
+            this.off_label.click(function (e) {
                 if (!self.options.checked && self.options.labels_placement === "both") {
                     return false;
                 }
@@ -227,7 +220,7 @@
 
         },
 
-        _setOption: function(key, value) {
+        _setOption: function (key, value) {
             if (key === "checked") {
                 this._setChecked(value);
                 return;
@@ -237,7 +230,7 @@
             this._refresh();
         },
 
-        _setChecked: function(value) {
+        _setChecked: function (value) {
             if (value === this.options.checked) {
                 return;
             }
@@ -246,7 +239,7 @@
             this._toggleSwitch();
         },
 
-        _toggleSwitch: function() {
+        _toggleSwitch: function () {
             this.options.checked = !this.options.checked;
             var newLeft = "";
             if (this.options.checked) {
@@ -258,40 +251,37 @@
                 newLeft = "+=" + dLeft;
 
                 // Update labels states
-                if(this.options.labels_placement == "both")
-                {
+                if (this.options.labels_placement == "both") {
                     this.off_label.removeClass("on").addClass("off");
                     this.on_label.removeClass("off").addClass("on");
-                }
-                else
-                {
+                } else {
                     this.off_label.hide();
                     this.on_label.show();
                 }
                 this.button_bg.addClass("checked");
                 //execute on state callback if its supplied
-                if(typeof this.options.on_callback === 'function') this.options.on_callback.call(this);
-            }
-            else {
+                if (typeof this.options.on_callback === 'function') {
+                    this.options.on_callback.call(this);
+                }
+            } else {
                 // Update the underlying checkbox state
                 this.element.prop("checked", false);
                 this.element.change();
                 newLeft = "-1px";
 
                 // Update labels states
-                if(this.options.labels_placement == "both")
-                {
+                if (this.options.labels_placement == "both") {
                     this.off_label.removeClass("off").addClass("on");
                     this.on_label.removeClass("on").addClass("off");
-                }
-                else
-                {
+                } else {
                     this.off_label.show();
                     this.on_label.hide();
                 }
                 this.button_bg.removeClass("checked");
                 //execute off state callback if its supplied
-                if(typeof this.options.off_callback === 'function') this.options.off_callback.call(this);
+                if (typeof this.options.off_callback === 'function') {
+                    this.options.off_callback.call(this);
+                }
             }
             // Animate the switch
             this.button.animate({ left: newLeft }, 250, "easeInOutCubic");

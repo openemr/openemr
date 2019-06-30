@@ -28,8 +28,8 @@ class ModuleconfigForm extends Form
         $this->setAttribute('method', 'post');
 
         /*
-		* Automatic SignOff settings
-		*/
+        * Automatic SignOff settings
+        */
         $this->add(array(
                 'name'      => 'hie_auto_sign_off_id',
                 'attributes'    => array(
@@ -42,8 +42,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* Automatic Tranfer settings
-		*/
+        * Automatic Tranfer settings
+        */
         $this->add(array(
             'type' => 'Zend\Form\Element\Checkbox',
                 'name' => 'hie_auto_send_id',
@@ -58,8 +58,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* Author settings
-		*/
+        * Author settings
+        */
         $this->add(array(
                 'name'  => 'hie_author_id',
                 'type'      => 'Zend\Form\Element\Select',
@@ -77,8 +77,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* Data Enterer settings
-		*/
+        * Data Enterer settings
+        */
         $this->add(array(
                 'name'      => 'hie_data_enterer_id',
                 'type'      => 'Zend\Form\Element\Select',
@@ -96,8 +96,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* Informant settings
-		*/
+        * Informant settings
+        */
         $this->add(array(
                 'name'  => 'hie_informant_id',
                 'type'      => 'Zend\Form\Element\Select',
@@ -115,8 +115,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* Personal Informant settings
-		*/
+        * Personal Informant settings
+        */
         $this->add(array(
                 'name'  => 'hie_personal_informant_id',
                 'attributes'=> array(
@@ -129,8 +129,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* Custodian settings
-		*/
+        * Custodian settings
+        */
         $this->add(array(
                 'name'  => 'hie_custodian_id',
                 'type'      => 'Zend\Form\Element\Select',
@@ -148,8 +148,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* Legal Authenticator settings
-		*/
+        * Legal Authenticator settings
+        */
         $this->add(array(
                 'name'  => 'hie_legal_authenticator_id',
                 'type'      => 'Zend\Form\Element\Select',
@@ -167,8 +167,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* Authenticator settings
-		*/
+        * Authenticator settings
+        */
         $this->add(array(
                 'name'  => 'hie_authenticator_id',
                 'type'      => 'Zend\Form\Element\Select',
@@ -186,8 +186,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* Primary Care Provider settings
-		*/
+        * Primary Care Provider settings
+        */
         $this->add(array(
                 'name'  => 'hie_primary_care_provider_id',
                 'type'      => 'Zend\Form\Element\Select',
@@ -205,8 +205,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* MIRTH IP settings
-		*/
+        * MIRTH IP settings
+        */
         $this->add(array(
                 'name'  => 'hie_mirth_ip',
                 'attributes'=> array(
@@ -219,8 +219,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* MIRTH Client ID
-		*/
+        * MIRTH Client ID
+        */
         $this->add(array(
                 'name'  => 'hie_mirth_clientid',
                 'attributes'=> array(
@@ -233,8 +233,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* MIRTH Username
-		*/
+        * MIRTH Username
+        */
         $this->add(array(
                 'name'  => 'hie_mirth_username',
                 'attributes'=> array(
@@ -247,8 +247,8 @@ class ModuleconfigForm extends Form
             ));
 
         /*
-		* MIRTH Password
-		*/
+        * MIRTH Password
+        */
         $this->add(array(
                 'name'  => 'hie_mirth_password',
                 'attributes'=> array(

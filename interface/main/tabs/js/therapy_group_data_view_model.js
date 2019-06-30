@@ -29,20 +29,16 @@ function therapy_group_view_model(gid,gname)
     self.selectedEncounterID=ko.observable();
     self.selectedEncounter=ko.observable();
     self.selectedEncounterID.extend({notify: 'always'});
-    self.selectedEncounterID.subscribe(function(newVal)
-    {
-       for(var encIdx=0;encIdx<self.encounterArray().length;encIdx++)
-       {
-           var curEnc=self.encounterArray()[encIdx];
-           if(curEnc.id()==newVal)
-           {
-
-               self.selectedEncounter(curEnc);
-               return;
-           }
-       }
+    self.selectedEncounterID.subscribe(function (newVal) {
+        for (var encIdx=0; encIdx<self.encounterArray().length; encIdx++) {
+            var curEnc=self.encounterArray()[encIdx];
+            if (curEnc.id()==newVal) {
+                self.selectedEncounter(curEnc);
+                return;
+            }
+        }
        // No valid encounter ID found, so clear selected encounter;
-       self.selectedEncounter(null);
+        self.selectedEncounter(null);
     });
     return this;
 }

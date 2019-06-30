@@ -1,6 +1,6 @@
-/* This CSS is used ONLY by the form defined in this same folder 
+/* This CSS is used ONLY by the form defined in this same folder
  * customize it as you see fit for your specific form
- */ 
+ */
 
 h1 {
     font-size: 120%;
@@ -47,7 +47,7 @@ h1 {
     font-weight: bold;
 }
 
-.bold { 
+.bold {
     font-size: 110%;
     font-weight: bold;
 }

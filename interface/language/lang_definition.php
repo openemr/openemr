@@ -137,7 +137,7 @@ if ($_POST['load']) {
     }
 
   // query for updating preexistant definitions uses def_id because there is no def yet.
-  // echo ('<pre>');	print_r($_POST['def_id']);	echo ('</pre>');
+  // echo ('<pre>');    print_r($_POST['def_id']);  echo ('</pre>');
     if (!empty($_POST['def_id'])) {
         foreach ($_POST['def_id'] as $key => $value) {
             $value = trim($value);
@@ -290,7 +290,7 @@ if ($_POST['edit']) {
 
     if ($isResults) {
             echo ('<tr><td colspan=3><INPUT TYPE="submit" name="load" Value="' . xla('Load Definitions') . '"></td></tr>');
-                ?>
+        ?>
             <INPUT TYPE="hidden" name="filter_cons" value="<?php echo attr($_POST['filter_cons']); ?>">
             <INPUT TYPE="hidden" name="filter_def" value="<?php echo attr($_POST['filter_def']); ?>">
             <INPUT TYPE="hidden" name="language_select" value="<?php echo attr($_POST['language_select']); ?>">

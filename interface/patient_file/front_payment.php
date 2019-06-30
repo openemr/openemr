@@ -415,13 +415,13 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
     }
 
     // Now proceed with printing the receipt.
-?>
+    ?>
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
-<?php Header::setupHeader(['jquery-ui']); ?>
+    <?php Header::setupHeader(['jquery-ui']); ?>
 <script language="JavaScript">
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
 $(document).ready(function () {
     var win = top.printLogSetup ? top : opener.top;
@@ -564,7 +564,7 @@ function toencounter(enc, datestr, topframe) {
     </center>
 </body>
 
-<?php
+    <?php
   //
   // End of receipt printing logic.
   //
@@ -572,7 +572,7 @@ function toencounter(enc, datestr, topframe) {
   //
   // Here we display the form for data entry.
   //
-?>
+    ?>
 <title><?php echo xlt('Record Payment'); ?></title>
 
 <style type="text/css">
@@ -595,7 +595,7 @@ function toencounter(enc, datestr, topframe) {
 <script language='JavaScript'>
     var mypcc = '1';
 </script>
-<?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
 <script language="javascript" type="text/javascript">
     document.onclick=HideTheAjaxDivs;
 </script>
@@ -603,7 +603,7 @@ function toencounter(enc, datestr, topframe) {
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 
 <script language="JavaScript">
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 function closeHow(e) {
     if (top.tab_mode) {
         top.activateTabByName('pat', true);
@@ -947,9 +947,9 @@ function make_insurance() {
 }
 </style>
 <title><?php echo xlt('Record Payment'); ?></title>
-<?php $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname']; ?>
-<?php
-$arrOeUiSettings = array(
+    <?php $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname']; ?>
+    <?php
+    $arrOeUiSettings = array(
     'heading_title' => xl('Accept Payment'),
     'include_patient_name' => true,// use only in appropriate pages
     'expandable' => false,
@@ -959,9 +959,9 @@ $arrOeUiSettings = array(
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => false,
     'help_file_name' => ""
-);
-$oemr_ui = new OemrUI($arrOeUiSettings);
-?>
+    );
+    $oemr_ui = new OemrUI($arrOeUiSettings);
+    ?>
 </head>
 <body>
     <div class="container"><!--begin container div for form-->
@@ -1276,7 +1276,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </script>
     <?php
 }
-    ?>
+?>
     </div><!--end of container div of accept payment i.e the form-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>

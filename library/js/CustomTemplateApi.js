@@ -8,7 +8,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function doTemplateEditor(_this, event, oContext = '') {
+function doTemplateEditor(_this, event, oContext = '')
+{
     // has to be one of two.
     let id = event.target.id;
     let ccFlag = 'id';

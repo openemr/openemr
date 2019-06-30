@@ -8,7 +8,7 @@
 //-------------------------------------------------------------------
 
 
-/* 
+/*
  *  Fuction to check that the password contains at least 3 of the following:
  *  - an integer one integer
  *  - a lower case letter
@@ -16,7 +16,8 @@
  *  - a special character
  *  Also, the password should be at least 8 characters.
  */
-function passwordvalidate(password_string) {
+function passwordvalidate(password_string)
+{
     var pwd = password_string;
     var items = 0;
     if (pwd.length < 8) {
@@ -45,18 +46,21 @@ function passwordvalidate(password_string) {
 }
 
 // Removes leading whitespaces
-function LTrim(value) {
+function LTrim(value)
+{
     var re = /\s*((\S+\s*)*)/;
     return value.replace(re, "$1");
 }
 
 // Removes ending whitespaces
-function RTrim(value) {
+function RTrim(value)
+{
     var re = /((\s*\S+)*)\s*/;
     return value.replace(re, "$1");
 }
 
 // Removes leading and ending whitespaces
-function trim(value) {
+function trim(value)
+{
     return LTrim(RTrim(value));
 }

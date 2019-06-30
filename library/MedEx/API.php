@@ -212,7 +212,6 @@ class Practice extends Base
             if ($result2['pc_apptstatus'] =='*' ||  //confirmed
                 $result2['pc_apptstatus'] =='%' ||  //cancelled < 24hour
                 $result2['pc_apptstatus'] =='x' ) { //cancelled
-
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
                 sqlQuery($sqlUPDATE, array($result2['pc_apptstatus'],$result2['msg_uid']));
                 //we need to update MedEx regarding actions to try to cancel
@@ -1759,7 +1758,7 @@ class Display extends base
                                                 ?>
                                                 <li class="divider"><hr /></li>
                                                 <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rec' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
-                                            <?php
+                                                <?php
                                             }
                                             ?>
                                             </ul>
@@ -1774,7 +1773,7 @@ class Display extends base
                                             }
                                         }
                                     }
-                                ?>
+                                    ?>
                             </ul>
                         </div><!-- /.navbar-collapse -->
                     </div>
@@ -1949,7 +1948,7 @@ class Display extends base
                                                 </div>
                                                 -->
                                             */
-                                            ?>
+                                                ?>
                                             <input type="hidden" name="ME_username" id="ME_username" value="<?php echo attr($prefs['ME_username']);?>" />
                                             <input type="hidden" name="ME_api_key" id="ME_api_key" value="<?php echo attr($prefs['ME_api_key']);?>" />
                                             </div>
@@ -1977,22 +1976,22 @@ class Display extends base
                                                     </div>
                                                 </div>
                                                 <?php }
-if (!empty($logged_in['products']['not_ordered'])) {
-    ?>
+                                            if (!empty($logged_in['products']['not_ordered'])) {
+                                                ?>
     <div class="divTableRow">
     <div class="divTableCell divTableHeading"><?php echo xlt('Available Services'); ?></div>
         <div class="divTableCell">
         <ul>
-            <?php
-            foreach ($logged_in['products']['not_ordered'] as $service) {
-                ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
-                    <?php
-                    if ($service['product_id'] =='54') {
-                        ?>
+                                                <?php
+                                                foreach ($logged_in['products']['not_ordered'] as $service) {
+                                                    ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
+                                                    <?php
+                                                    if ($service['product_id'] =='54') {
+                                                        ?>
                         <div style="margin-left:10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br />Go Green Messages</div>
-                        <?php
-                    }
-            } ?>
+                                                        <?php
+                                                    }
+                                                } ?>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -2855,7 +2854,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                             echo "</option>\n";
                                         }
                                         echo "</select>";
-                                    ?>
+                                        ?>
                                     </div>
                                 </div>
                                 <div class="divTableRow">
@@ -2873,7 +2872,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                                 echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
                                             }
                                         }
-                                            ?>
+                                        ?>
                                           </select>
                                     </div>
                                 </div>

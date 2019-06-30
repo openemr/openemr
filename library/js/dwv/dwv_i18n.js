@@ -22,8 +22,7 @@ dwv.i18nLocalesPath = null;
  * @external i18nextXHRBackend
  * @external i18nextBrowserLanguageDetector
  */
-dwv.i18nInitialise = function (language, localesPath)
-{
+dwv.i18nInitialise = function (language, localesPath) {
     var lng = (typeof language === "undefined") ? "auto" : language;
     var lpath = (typeof localesPath === "undefined") ? "./../public/assets/dwv" : localesPath;
     // store as global
@@ -40,8 +39,7 @@ dwv.i18nInitialise = function (language, localesPath)
     // use browser language or the specified one
     if (lng === "auto") {
         i18n.use(i18nextBrowserLanguageDetector);
-    }
-    else {
+    } else {
         options.lng = lng;
     }
     // init i18n: will be ready when the 'loaded' event is fired
@@ -56,8 +54,7 @@ dwv.i18nInitialise = function (language, localesPath)
  * @external i18next
  * @external i18nextBrowserLanguageDetector
  */
-dwv.i18nInitialiseWithResources = function (language, resources)
-{
+dwv.i18nInitialiseWithResources = function (language, resources) {
     var lng = (typeof language === "undefined") ? "auto" : language;
     // i18n options: default 'en' language and
     //  only load language, not specialised (for ex en-GB)
@@ -71,8 +68,7 @@ dwv.i18nInitialiseWithResources = function (language, resources)
     if (lng === "auto") {
         var i18n = i18next.use(i18nextBrowserLanguageDetector);
         i18n.init(options);
-    }
-    else {
+    } else {
         options.lng = lng;
         i18next.init(options);
     }

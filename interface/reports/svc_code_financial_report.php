@@ -60,7 +60,7 @@ if ($_POST['form_csvexport']) {
     // CSV headers:
 } // end export
 else {
-?>
+    ?>
 <html>
 <head>
     <title><?php echo xlt('Financial Summary by Service Code') ?></title>
@@ -148,7 +148,7 @@ else {
             }
 
                             echo "   </select>\n";
-                            ?>
+            ?>
                 </td>
         </tr><tr>
                  <td class='control-label'>
@@ -203,7 +203,7 @@ else {
 </table>
 </div> <!-- end of parameters -->
 
-<?php
+    <?php
 }
 
    // end not export
@@ -275,29 +275,29 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"Balance Amt",' . "\n";
         }
     } else {
-?> <div id="report_results">
+        ?> <div id="report_results">
 <table id='mymaintable'>
 <thead>
 <th>
-<?php echo xlt('Procedure Codes'); ?>
+        <?php echo xlt('Procedure Codes'); ?>
 </th>
 <th >
-<?php echo xlt('Units'); ?>
+        <?php echo xlt('Units'); ?>
 </th>
 <th>
-<?php echo xlt('Amt Billed'); ?>
+        <?php echo xlt('Amt Billed'); ?>
 </th>
 <th>
-<?php echo xlt('Paid Amt'); ?>
+        <?php echo xlt('Paid Amt'); ?>
 </th>
 <th >
-<?php echo xlt('Adjustment Amt'); ?>
+        <?php echo xlt('Adjustment Amt'); ?>
 </th>
 <th >
-<?php echo xlt('Balance Amt'); ?>
+        <?php echo xlt('Balance Amt'); ?>
 </th>
 </thead>
-<?php
+        <?php
     }
 
             $orow = -1;
@@ -366,6 +366,6 @@ if (! $_POST['form_csvexport']) {
 </body>
 
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

@@ -471,7 +471,7 @@ $config = 1; /////////////
 //////////////////////////
 ?>
 ';
-    ?><?php // done just for coloring
+        ?><?php // done just for coloring
 
     fwrite($fd, $string) or $it_died++;
     fclose($fd) or $it_died++;

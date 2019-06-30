@@ -830,7 +830,7 @@ $(function() {
                     $("#form_<?php echo $j ?>").val(defaultGlobal);
                 }
             });
-    <?php
+            <?php
         }
     }
     ?>

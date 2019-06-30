@@ -151,7 +151,7 @@ if (isset($this_message['pid'])) {
     $patientID = (isset($pid) ? $pid : 0);
     $reminder_title = xl("Send a Reminder");
 }
-    ?>
+?>
 <html>
   <head>
 

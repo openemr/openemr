@@ -1149,7 +1149,7 @@ class C_Document extends Controller
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
 
-    /*	This is a recursive function to rename a file to something that doesn't already exist.
+    /*  This is a recursive function to rename a file to something that doesn't already exist.
      *      Modified in version 3.2.0 to place a counter within the filename (previously was placed
      *      at end) to ensure documents opened correctly by external browser viewers. If the
      *      counter is at the end of the file, then will use it (to continue to work with older

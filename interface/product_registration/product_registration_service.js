@@ -18,24 +18,25 @@
  */
 
 "use strict";
-function ProductRegistrationService() {
+function ProductRegistrationService()
+{
     var self = this;
 
-    self.getProductStatus = function(callback) {
+    self.getProductStatus = function (callback) {
         jQuery.ajax({
             url: registrationConstants.webroot + '/interface/product_registration/product_registration_controller.php',
             type: 'GET',
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 _genericAjaxSuccessHandler(response, callback);
             },
-            error: function(jqXHR) {
+            error: function (jqXHR) {
                 _genericAjaxFailureHandler(jqXHR, callback);
             }
         });
     };
 
-    self.submitRegistration = function(email, callback) {
+    self.submitRegistration = function (email, callback) {
         jQuery.ajax({
             url: registrationConstants.webroot + '/interface/product_registration/product_registration_controller.php',
             type: 'POST',
@@ -43,16 +44,16 @@ function ProductRegistrationService() {
             data: {
                 email: email
             },
-            success: function(response) {
+            success: function (response) {
                 _genericAjaxSuccessHandler(response, callback);
             },
-            error: function(jqXHR) {
+            error: function (jqXHR) {
                 _genericAjaxFailureHandler(jqXHR, callback);
             }
         });
     };
 
-    var _genericAjaxSuccessHandler = function(response, callback) {
+    var _genericAjaxSuccessHandler = function (response, callback) {
         if (response) {
             return callback(null, response);
         }
@@ -60,7 +61,7 @@ function ProductRegistrationService() {
         return callback(registrationTranslations.genericError, null);
     };
 
-    var _genericAjaxFailureHandler = function(jqXHR, callback) {
+    var _genericAjaxFailureHandler = function (jqXHR, callback) {
         if (jqXHR && jqXHR.hasOwnProperty('responseText')) {
             try {
                 var rawErrorObject = jqXHR.responseText;

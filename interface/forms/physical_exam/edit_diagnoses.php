@@ -78,7 +78,7 @@ if ($_POST['form_save']) {
      "line_id = ? ORDER BY ordering, diagnosis",
      array($line_id)
  );
-?>
+    ?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php echo attr_url($line_id); ?>'
  onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

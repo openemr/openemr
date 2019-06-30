@@ -163,7 +163,7 @@ function authLoginScreen($timed_out = false)
 {
   // See comment in authCloseSession().
     global $incoming_site_id;
-?>
+    ?>
 <script>
  // Find the top level window for this instance of OpenEMR, set a flag indicating
  // session timeout has occurred, and reload the login page into it.  This is so
@@ -174,13 +174,13 @@ function authLoginScreen($timed_out = false)
   w = w.opener;
   wtmp.close();
  }
-<?php if ($timed_out) { ?>
+    <?php if ($timed_out) { ?>
  w.top.timed_out = true;
 <?php } ?>
  w.top.location.href = '<?php echo "{$GLOBALS['login_screen']}?error=1&site=$incoming_site_id"; ?>';
 </script>
-<?php
-  exit;
+    <?php
+    exit;
 }
 
 // Check if the user's password has expired beyond the grace limit.

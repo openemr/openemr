@@ -209,10 +209,10 @@ if ($formid) {
    <input type='text' name='time' size='5' title='Hour or hh:mm' value='<?php echo attr($siinjtime); ?>' />&nbsp;
    <input type='radio' name='timeampm' value='am'<?php if ($siampm == 'am') {
         echo ' checked';
-} ?> />am&nbsp;
+                                                 } ?> />am&nbsp;
    <input type='radio' name='timeampm' value='pm'<?php if ($siampm == 'pm') {
         echo ' checked';
-} ?> />pm&nbsp;
+                                                 } ?> />pm&nbsp;
   </td>
  </tr>
 

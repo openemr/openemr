@@ -143,23 +143,23 @@ if (isset($_GET["res"])) {
 <div id="searchCriteria">
 <form class="form-inline" method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) {
     echo "pflag=0";
-} ?>'>
+                                                                                                   } ?>'>
     <?php echo htmlspecialchars(xl('Search by:'), ENT_NOQUOTES); ?>
    <select name='searchby' class="input-sm">
     <option value="Last"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></option>
     <!-- (CHEMED) Search by phone number -->
     <option value="Phone"<?php if ($searchby == 'Phone') {
         echo ' selected';
-} ?>><?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?></option>
+                         } ?>><?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?></option>
     <option value="ID"<?php if ($searchby == 'ID') {
         echo ' selected';
-} ?>><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></option>
+                      } ?>><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></option>
     <option value="SSN"<?php if ($searchby == 'SSN') {
         echo ' selected';
-} ?>><?php echo htmlspecialchars(xl('SSN'), ENT_NOQUOTES); ?></option>
+                       } ?>><?php echo htmlspecialchars(xl('SSN'), ENT_NOQUOTES); ?></option>
     <option value="DOB"<?php if ($searchby == 'DOB') {
         echo ' selected';
-} ?>><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></option>
+                       } ?>><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></option>
    </select>
     <?php echo htmlspecialchars(xl('for:'), ENT_NOQUOTES); ?>
    <input type='text' class="input-sm" id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars($_REQUEST['searchparm'], ENT_QUOTES); ?>'
@@ -177,13 +177,13 @@ if (isset($_GET["res"])) {
 <br>
 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
 <a class="noresult" href='find_patient_popup.php?res=noresult' 
-<?php
-if (isset($_GET['pflag']) || (!acl_check('patients', 'demo', '', array('write','addonly')))) {
-?> style="display:none;" 
-<?php
-}
-?>  >
-<?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
+    <?php
+    if (isset($_GET['pflag']) || (!acl_check('patients', 'demo', '', array('write','addonly')))) {
+        ?> style="display:none;" 
+        <?php
+    }
+    ?>  >
+    <?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
 </div>
 <?php elseif (count($result)>=100) : ?>
 <div id="searchstatus" class="tooManyResults"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
@@ -192,7 +192,6 @@ if (isset($_GET['pflag']) || (!acl_check('patients', 'demo', '', array('write','
 <?php endif; ?>
 
 <?php if (isset($result)) : ?>
-
 <table class="table table-condensed">
 <thead id="searchResultsHeader" class="head">
  <tr>
@@ -204,36 +203,36 @@ if (isset($_GET['pflag']) || (!acl_check('patients', 'demo', '', array('write','
  </tr>
 </thead>
 <tbody id="searchResults">
-<?php
-foreach ($result as $iter) {
-    $iterpid   = $iter['pid'];
-    $iterlname = $iter['lname'];
-    $iterfname = $iter['fname'];
-    $itermname = $iter['mname'];
-    $iterdob   = $iter['DOB'];
+    <?php
+    foreach ($result as $iter) {
+        $iterpid   = $iter['pid'];
+        $iterlname = $iter['lname'];
+        $iterfname = $iter['fname'];
+        $itermname = $iter['mname'];
+        $iterdob   = $iter['DOB'];
 
-    // If billing note exists, then it gets special coloring and an extra line of output
-    // in the 'name' column.
-    $trClass = "oneresult";
-    if (!empty($iter['billing_note'])) {
-        $trClass .= " billing";
-    }
+        // If billing note exists, then it gets special coloring and an extra line of output
+        // in the 'name' column.
+        $trClass = "oneresult";
+        if (!empty($iter['billing_note'])) {
+            $trClass .= " billing";
+        }
 
-    echo " <tr class='".$trClass."' id='" .
+        echo " <tr class='".$trClass."' id='" .
         htmlspecialchars($iterpid."~".$iterlname."~".$iterfname."~".$iterdob, ENT_QUOTES) . "'>";
-    echo "  <td class='srName'>" . htmlspecialchars($iterlname.", ".$iterfname." ".$itermname, ENT_NOQUOTES);
-    if (!empty($iter['billing_note'])) {
-        echo "<br>" . htmlspecialchars($iter['billing_note'], ENT_NOQUOTES);
-    }
+        echo "  <td class='srName'>" . htmlspecialchars($iterlname.", ".$iterfname." ".$itermname, ENT_NOQUOTES);
+        if (!empty($iter['billing_note'])) {
+            echo "<br>" . htmlspecialchars($iter['billing_note'], ENT_NOQUOTES);
+        }
 
-    echo "</td>\n";
-    echo "  <td class='srPhone'>" . htmlspecialchars($iter['phone_home'], ENT_NOQUOTES) . "</td>\n"; //(CHEMED) Search by phone number
-    echo "  <td class='srSS'>" . htmlspecialchars($iter['ss'], ENT_NOQUOTES) . "</td>\n";
-    echo "  <td class='srDOB'>" . htmlspecialchars($iter['DOB'], ENT_NOQUOTES) . "</td>\n";
-    echo "  <td class='srID'>" . htmlspecialchars($iter['pubpid'], ENT_NOQUOTES) . "</td>\n";
-    echo " </tr>";
-}
-?>
+        echo "</td>\n";
+        echo "  <td class='srPhone'>" . htmlspecialchars($iter['phone_home'], ENT_NOQUOTES) . "</td>\n"; //(CHEMED) Search by phone number
+        echo "  <td class='srSS'>" . htmlspecialchars($iter['ss'], ENT_NOQUOTES) . "</td>\n";
+        echo "  <td class='srDOB'>" . htmlspecialchars($iter['DOB'], ENT_NOQUOTES) . "</td>\n";
+        echo "  <td class='srID'>" . htmlspecialchars($iter['pubpid'], ENT_NOQUOTES) . "</td>\n";
+        echo " </tr>";
+    }
+    ?>
 </tbody>
 </table>
 

@@ -127,7 +127,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <?php
             if ($message) {?>
               <div id="display_msg" class="alert alert-danger" style="font-size:100%; font-weight:700"><?php echo text($message); ?></div>
-            <?php
+                <?php
             }
             ?>
             </div>

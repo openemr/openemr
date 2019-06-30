@@ -48,7 +48,7 @@ function thisLineItem($row, $codetype, $code)
         echo '"' . addslashes($code) . '",';
         echo '"' . addslashes($code_text) . '"' . "\n";
     } else {
-    ?>
+        ?>
    <tr>
     <td class="detail"><?php echo text($row['patient_name'  ]); ?></td>
     <td class="detail"><?php echo text($row['pubpid'        ]); ?></td>
@@ -58,7 +58,7 @@ function thisLineItem($row, $codetype, $code)
     <td class="detail"><?php echo text($code);                  ?></td>
     <td class="detail"><?php echo text($code_text);             ?></td>
  </tr>
-<?php
+        <?php
     } // End not csv export
 }
 
@@ -90,7 +90,7 @@ if ($_POST['form_csvexport']) {
     echo '"' . xl('Code') . '",';
     echo '"' . xl('Service') . '"' . "\n";
 } else { // not export
-?>
+    ?>
 <html>
 <head>
 
@@ -132,24 +132,24 @@ if ($_POST['form_csvexport']) {
 
  <tr>
   <td>
-<?php
+    <?php
   // Build a drop-down list of facilities.
   //
-  $fres = $facilityService->getAll();
-  echo "   <select name='form_facility'>\n";
-  echo "    <option value=''>-- All Facilities --\n";
-foreach ($fres as $frow) {
-    $facid = $frow['id'];
-    echo "    <option value='" . attr($facid) . "'";
-    if ($facid == $form_facility) {
-        echo " selected";
+    $fres = $facilityService->getAll();
+    echo "   <select name='form_facility'>\n";
+    echo "    <option value=''>-- All Facilities --\n";
+    foreach ($fres as $frow) {
+        $facid = $frow['id'];
+        echo "    <option value='" . attr($facid) . "'";
+        if ($facid == $form_facility) {
+            echo " selected";
+        }
+
+        echo ">" . text($frow['name']) . "\n";
     }
 
-    echo ">" . text($frow['name']) . "\n";
-}
-
-  echo "   </select>\n";
-?>
+    echo "   </select>\n";
+    ?>
    &nbsp;<?php echo xlt('From:'); ?>
    <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date); ?>'
     title='yyyy-mm-dd'>
@@ -183,7 +183,7 @@ foreach ($fres as $frow) {
   <td class="dehead"><?php echo xlt('Code') ?></td>
   <td class="dehead"><?php echo xlt('Service') ?></td>
  </tr>
-<?php
+    <?php
 } // end not export
 
 // If generating a report.
@@ -261,13 +261,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 } // end report generation
 
 if (! $_POST['form_csvexport']) {
-?>
+    ?>
 
 </table>
 </form>
 </center>
 </body>
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

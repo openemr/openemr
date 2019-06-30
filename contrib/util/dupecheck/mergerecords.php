@@ -184,11 +184,11 @@ Do you wish to commit these changes to the database?
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type="hidden" name="masterid" value="<?php echo attr($parameters['masterid']); ?>">
 <input type="hidden" name="dupecount" value="<?php echo attr($parameters['dupecount']); ?>">
-<?php
-foreach ($parameters['otherid'] as $otherID) {
-    echo "<input type='hidden' name='otherid[]' value='<?php echo attr($otherID); ?>'>";
-}
-?>
+    <?php
+    foreach ($parameters['otherid'] as $otherID) {
+        echo "<input type='hidden' name='otherid[]' value='<?php echo attr($otherID); ?>'>";
+    }
+    ?>
 <input type="submit" name="confirm" value="yes">
 <input type="button" value="no" onclick="javascript:window.close();"?>
 </form>

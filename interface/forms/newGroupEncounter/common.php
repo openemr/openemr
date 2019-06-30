@@ -230,7 +230,7 @@ $help_icon = '';
                             $sensitivities = acl_get_sensitivities();
                             if ($sensitivities && count($sensitivities)) {
                                 usort($sensitivities, "sensitivity_compare");
-                            ?>
+                                ?>
                             <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Sensitivity'); ?>:</label>
                             <div class="col-sm-3">
                                 <select name='form_sensitivity' id='form_sensitivity' class='form-control col-sm-12' >
@@ -257,11 +257,11 @@ $help_icon = '';
                                 </select>
                                 <?php
                             } else {
-                                    ?>
+                                ?>
 
                                     <?php
                             }
-                                ?>
+                            ?>
                             </div>
                             <div class="clearfix"></div>
                         </div>
@@ -405,10 +405,10 @@ if (!$viewmode) { ?>
         }
         // otherwise just continue normally
     }
-<?php
+    <?php
 
   // Search for an encounter from today
-  $erow = sqlQuery("SELECT fe.encounter, fe.date " .
+    $erow = sqlQuery("SELECT fe.encounter, fe.date " .
     "FROM form_groups_encounter AS fe, forms AS f WHERE " .
     "fe.group_id = ? " .
     " AND fe.date >= ? " .
@@ -417,11 +417,11 @@ if (!$viewmode) { ?>
     "f.formdir = 'newGroupEncounter' AND f.form_id = fe.id AND f.deleted = 0 " .
     "ORDER BY fe.encounter DESC LIMIT 1", array($therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
 
-if (!empty($erow['encounter'])) {
-    // If there is an encounter from today then present the duplicate visit dialog
-    echo "duplicateVisit(" . js_escape($erow['encounter']) . ", " .
+    if (!empty($erow['encounter'])) {
+        // If there is an encounter from today then present the duplicate visit dialog
+        echo "duplicateVisit(" . js_escape($erow['encounter']) . ", " .
         js_escape(oeFormatShortDate(substr($erow['date'], 0, 10))) . ");\n";
-}
+    }
 }
 ?>
 </script>

@@ -35,18 +35,13 @@ function tabs_view_model()
 
 function activateTab(data)
 {
-    for(var tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
-    {
+    for (var tabIdx=0; tabIdx<app_view_model.application_data.tabs.tabsList().length; tabIdx++) {
         var curTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
-        if(data!==curTab)
-        {
-            if(!curTab.locked())
-            {
+        if (data!==curTab) {
+            if (!curTab.locked()) {
                 curTab.visible(false);
             }
-        }
-        else
-        {
+        } else {
             curTab.visible(true);
         }
     }
@@ -55,17 +50,12 @@ function activateTab(data)
 function activateTabByName(name,hideOthers)
 {
 
-    for(var tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
-    {
+    for (var tabIdx=0; tabIdx<app_view_model.application_data.tabs.tabsList().length; tabIdx++) {
         var curTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
-        if(curTab.name()===name)
-        {
+        if (curTab.name()===name) {
             curTab.visible(true);
-        }
-        else if(hideOthers)
-        {
-            if(!curTab.locked())
-            {
+        } else if (hideOthers) {
+            if (!curTab.locked()) {
                 curTab.visible(false);
             }
         }
@@ -84,7 +74,7 @@ function tabRefresh(data,evt)
     try {
         data.window.location = data.window.location;
         activateTab(data);
-    } catch(e) {
+    } catch (e) {
         // Do nothing, but avoid exceptions caused by iFrames from different domain (ie NewCrop)
     }
 }
@@ -94,18 +84,16 @@ function tabClose(data,evt)
     //remove the tab
     app_view_model.application_data.tabs.tabsList.remove(data);
     //activate the next tab
-    if(data.visible()) {
+    if (data.visible()) {
         activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length-1]);
     }
 }
 
 function tabCloseByName(name)
 {
-    for(var tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
-    {
+    for (var tabIdx=0; tabIdx<app_view_model.application_data.tabs.tabsList().length; tabIdx++) {
         var curTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
-        if(curTab.name()===name)
-        {
+        if (curTab.name()===name) {
             tabClose(curTab);
         }
     }
@@ -116,22 +104,19 @@ function navigateTab(url,name,afterLoadFunction)
 
     top.restoreSession();
     var curTab;
-    if($("iframe[name='"+name+"']").length>0)
-    {
-        if(typeof afterLoadFunction !== 'function'){
-            $( "body" ).off( "load", "iframe[name='"+name+"']");
+    if ($("iframe[name='"+name+"']").length>0) {
+        if (typeof afterLoadFunction !== 'function') {
+            $("body").off("load", "iframe[name='"+name+"']");
         } else {
             $("iframe[name='"+name+"']").on('load', function () {
                 afterLoadFunction();
             });
         }
-       $("iframe[name='"+name+"']").get(0).contentWindow.location=url;
-    }
-    else
-    {
+        $("iframe[name='"+name+"']").get(0).contentWindow.location=url;
+    } else {
         curTab=new tabStatus(xl_strings_tabs_view_model.new,url,name,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
-        if(typeof afterLoadFunction === 'function'){
+        if (typeof afterLoadFunction === 'function') {
             afterLoadFunction();
         }
     }
@@ -140,12 +125,9 @@ function navigateTab(url,name,afterLoadFunction)
 function tabLockToggle(data,evt)
 {
     data.locked(!data.locked());
-    if(data.locked())
-    {
+    if (data.locked()) {
         activateTab(data);
-    }
-    else
-    {
+    } else {
         data.visible(false);
     }
 }
@@ -251,7 +233,8 @@ function loadCurrentPatient()
     });
 }
 
-function loadCurrentTherapyGroup() {
+function loadCurrentTherapyGroup()
+{
 
     var url=webroot_url+'/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session'
     navigateTab(url,"gdg", function () {
@@ -267,7 +250,8 @@ function loadCurrentEncounter()
     });
 }
 
-function popMenuDialog(url, title) {
+function popMenuDialog(url, title)
+{
     let notlike = title.toLowerCase();
     dlgopen(url, 'menupopup', 'modal-mlg', 500, '', title, {
         sizeHeight: notlike.search('label') !== -1 ? 'full' : 'auto'
@@ -287,13 +271,10 @@ function menuActionClick(data,evt)
         return popMenuDialog(webroot_url + data.url(), title);
     }
 
-    if(data.enabled())
-    {
-        if(data.requirement===2)
-        {
+    if (data.enabled()) {
+        if (data.requirement===2) {
             var encounterID=app_view_model.application_data[attendant_type]().selectedEncounterID();
-            if(isEncounterLocked(encounterID))
-            {
+            if (isEncounterLocked(encounterID)) {
                 alert(xl_strings_tabs_view_model.encounter_locked);
                 return;
             }
@@ -305,14 +286,14 @@ function menuActionClick(data,evt)
         var matches = dataurl.match(/load_form.php\?formname=(\w+)/);
         if (matches) {
           // If the encounter frameset already exists, just tell it to add a tab for this form.
-          for (var i = 0; i < frames.length; ++i) {
-            if (frames[i].twAddFrameTab) {
-              frames[i].twAddFrameTab('enctabs', data.label(), webroot_url + dataurl);
-              return;
+            for (var i = 0; i < frames.length; ++i) {
+                if (frames[i].twAddFrameTab) {
+                    frames[i].twAddFrameTab('enctabs', data.label(), webroot_url + dataurl);
+                    return;
+                }
             }
-          }
           // Otherwise continue by creating the encounter frameset including this form.
-          dataurl = '/interface/patient_file/encounter/encounter_top.php?formname=' +
+            dataurl = '/interface/patient_file/encounter/encounter_top.php?formname=' +
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
 
@@ -323,19 +304,14 @@ function menuActionClick(data,evt)
         var par = $(evt.currentTarget).closest("ul.menuEntries");
         par.wrap("<ul class='timedReplace' style='display:none;'></ul>");
         par.detach();
-        setTimeout(function() {
-           par.insertBefore(".timedReplace");
+        setTimeout(function () {
+            par.insertBefore(".timedReplace");
             $(".timedReplace").remove();
         }, 500);
-    }
-    else
-    {
-        if(data.requirement===1)
-        {
+    } else {
+        if (data.requirement===1) {
             alert(xl_strings_tabs_view_model.must_select_patient);
-        }
-        else if((data.requirement===2)||data.requirement===3)
-        {
+        } else if ((data.requirement===2)||data.requirement===3) {
             alert(xl_strings_tabs_view_model.must_select_encounter);
         }
     }
@@ -358,15 +334,15 @@ function clearPatient()
     $.ajax({
         type: "POST",
         url: webroot_url+"/library/ajax/unset_session_ajax.php",
-	    data: {
+        data: {
             func: "unset_pid",
             csrf_token_form: csrf_token_js
         },
-	    success:function( msg ) {
+        success:function ( msg ) {
 
 
-	    }
-	});
+        }
+    });
 }
 
 
@@ -388,7 +364,7 @@ function clearTherapyGroup()
             func: "unset_gid",
             csrf_token_form: csrf_token_js
         },
-        success:function( msg ) {
+        success:function ( msg ) {
 
 
         }

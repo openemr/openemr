@@ -114,7 +114,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
         if (!empty($GLOBALS['gbl_pt_list_new_window'])) {
             echo ' checked';
         }
-            ?> /><?php echo xlt('Open in New Window'); ?></label><label for='setting_search_type' id='setting_search_type_label'><input type='checkbox' name='setting_search_type'  id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></form>");
+        ?> /><?php echo xlt('Open in New Window'); ?></label><label for='setting_search_type' id='setting_search_type_label'><input type='checkbox' name='setting_search_type'  id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></form>");
 
         // This is to support column-specific search fields.
         // Borrowed from the multi_filter.html example.

@@ -14,16 +14,14 @@ function code_entry(json_source)
     this.description=ko.observable(json_source.description);
     this.selected=ko.observable(json_source.selected);
     this.priority=ko.observable(99999);
-    this.jsonify=function()
-    {
+    this.jsonify=function () {
         var retval={};
         retval.code=this.code();
         retval.code_type=this.code_type();
         retval.description=this.description();
         return retval;
     }
-    this.key=function()
-    {
+    this.key=function () {
         return this.code_type()+"|"+ this.code();
     }
     return this;
@@ -53,14 +51,11 @@ function procedure(json_source)
             }
         }
     }
-    retval.genJustify=function()
-    {
+    retval.genJustify=function () {
         var justify_string="";
-        for(var idx=0;idx<this.justify().length;idx++)
-        {
+        for (var idx=0; idx<this.justify().length; idx++) {
             var cur_justify=this.justify()[idx];
-            if(cur_justify.selected())
-            {
+            if (cur_justify.selected()) {
                 justify_string+=cur_justify.code_type() +"|"+cur_justify.code()+":";
             }
         }
@@ -69,21 +64,18 @@ function procedure(json_source)
 
     retval.procedure_choices=ko.observableArray();
     retval.procedure_choices.push(new fee_sheet_option(retval.code(), retval.code_type(),retval.description(),retval.fee()));
-    for(idx=0;idx<fee_sheet_options.length;idx++)
-    {
+    for (idx=0; idx<fee_sheet_options.length; idx++) {
         retval.procedure_choices.push(fee_sheet_options[idx]);
     }
     retval.procedure_choice=ko.observable(retval.procedure_choices[0]);
-    retval.change_procedure=function(data,event)
-    {
+    retval.change_procedure=function (data,event) {
         data.description(data.procedure_choice().description);
         data.code(data.procedure_choice().code);
         data.code_type(data.procedure_choice().code_type);
         data.fee(data.procedure_choice().fee);
 
     }
-    retval.jsonify=function()
-    {
+    retval.jsonify=function () {
         var json_return={};
         json_return.code=this.code();
         json_return.code_type=this.code_type();
@@ -100,8 +92,7 @@ function procedure(json_source)
 function map_procedures(json_objects)
 {
     var retval=[];
-    for(var idx=0;idx<json_objects.length;idx++)
-    {
+    for (var idx=0; idx<json_objects.length; idx++) {
         retval.push(procedure(json_objects[idx]));
     }
     return retval;
@@ -113,8 +104,7 @@ function map_procedures(json_objects)
 function map_code_entries(json_objects)
 {
     var retval=[];
-    for(idx=0;idx<json_objects.length;idx++)
-    {
+    for (idx=0; idx<json_objects.length; idx++) {
         retval.push(new code_entry(json_objects[idx]));
     }
     return retval;
@@ -123,46 +113,37 @@ function map_code_entries(json_objects)
 function request_encounter_data(model_data,mode,prev_encounter)
 {
     var request={
-            pid: pid,
-            encounter: enc,
-            mode: mode,
-            task: "retrieve"
-            };
-    if(prev_encounter!=null)
-    {
+        pid: pid,
+        encounter: enc,
+        mode: mode,
+        task: "retrieve"
+    };
+    if (prev_encounter!=null) {
         request.prev_encounter=prev_encounter;
     }
-    $.post(review_ajax,request,function(result){
+    $.post(review_ajax,request,function (result) {
 
                 model_data.prev_encounter(null)
-                if(typeof result.encounters!='undefined')
-                    {
-                        model_data.encounters(result.encounters);
-                        for(idx=0;idx<model_data.encounters().length;idx++)
-                        {
-                            if(model_data.encounters()[idx].id==result.prev_encounter)
-                                {
-                                    model_data.selectedEncounter(model_data.encounters()[idx]);
-                                }
-                        }
-                    }
-                    else
-                        {
-                            model_data.encounters([]);
-                        }
+        if (typeof result.encounters!='undefined') {
+                model_data.encounters(result.encounters);
+            for (idx=0; idx<model_data.encounters().length; idx++) {
+                if (model_data.encounters()[idx].id==result.prev_encounter) {
+                    model_data.selectedEncounter(model_data.encounters()[idx]);
+                }
+            }
+        } else {
+                model_data.encounters([]);
+        }
                 model_data.prev_encounter(result.prev_encounter)
-                if(typeof result.procedures!='undefined')
-                    {
-                        model_data.procedures(map_procedures(result.procedures));
-                    }
-                    else
-                        {
-                            model_data.procedures([]);
-                        }
+        if (typeof result.procedures!='undefined') {
+                model_data.procedures(map_procedures(result.procedures));
+        } else {
+                model_data.procedures([]);
+        }
 
                 model_data.issues(map_code_entries(result.issues));
                 model_data.show(true);
-            },"json");
+    },"json");
 }
 
 function review_event(data,event)
@@ -181,13 +162,11 @@ function cancel_review(data,event)
 
 function choose_encounter(data,event)
 {
-    if(data.prev_encounter()!=null)
-        {
-            if(data.selectedEncounter().id!=data.prev_encounter())
-            {
-                request_encounter_data(data,"encounters",data.selectedEncounter().id)
-            }
+    if (data.prev_encounter()!=null) {
+        if (data.selectedEncounter().id!=data.prev_encounter()) {
+            request_encounter_data(data,"encounters",data.selectedEncounter().id)
         }
+    }
 }
 function fee_sheet_review_view_model()
 {
@@ -199,7 +178,7 @@ function fee_sheet_review_view_model()
                   ,procedures: ko.observableArray()
                   ,issues: ko.observableArray()
                   ,selectedEncounter: ko.observable()
-                 };
+    };
     this.justify= {};
     this.procedure_options={
         current_procedure: ko.observable()
@@ -213,37 +192,33 @@ function fee_sheet_review_view_model()
 function add_review(data,event)
 {
     var diag_list=[];
-    for(var idx=0;idx<data.issues().length;idx++)
-    {
+    for (var idx=0; idx<data.issues().length; idx++) {
         var cur_diag=data.issues()[idx];
-        if(cur_diag.selected())
-        {
+        if (cur_diag.selected()) {
             diag_list.push(cur_diag.jsonify());
         }
     }
 
     var proc_list=[];
-    for(idx=0;idx<data.procedures().length;idx++)
-    {
+    for (idx=0; idx<data.procedures().length; idx++) {
         var cur_proc=data.procedures()[idx];
-        if(cur_proc.selected())
-        {
+        if (cur_proc.selected()) {
             proc_list.push(cur_proc.jsonify());
         }
     }
     top.restoreSession();
-    $.post(review_ajax,{
-        pid: pid,
-        encounter: enc,
-        task: 'add_diags',
-        diags: JSON.stringify(diag_list),
-        procs: JSON.stringify(proc_list)
-    },
-    function(data)
+    $.post(
+        review_ajax,
         {
+            pid: pid,
+            encounter: enc,
+            task: 'add_diags',
+            diags: JSON.stringify(diag_list),
+            procs: JSON.stringify(proc_list)
+        },
+        function (data) {
             refresh_codes();
         }
-
     );
 
     data.show(false);

@@ -24,7 +24,6 @@
 
 <?php require 'header.php'; ?>
 <?php if ($view || $edit) :?>
-
 <main id="group-details">
     <div class="container-group">
         <span class="hidden title"><?php echo text($groupData['group_name']);?></span>
@@ -42,7 +41,7 @@
                             <?php if ($edit_encounter) :?>
                                 <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                             <?php endif;?>
-                        <?php if ($readonly == '') : ?>
+                            <?php if ($readonly == '') : ?>
                             <button  onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
                             <button  id="saveUpdates" ><?php echo xlt('Save');?></button>
                         <?php else : ?>
@@ -173,7 +172,7 @@
                                     <div class="col-md-9 col-sm 12">
                                         <?php if ($savingStatus == 'exist') : ?>
                                             <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4>   <?php if ($edit) :
-?><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button><?php
+                                                ?><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button><?php
                                                                                               endif;?></div>
                                         <?php endif ?>
                                         <?php if ($savingStatus == 'success') : ?>
@@ -248,23 +247,22 @@
     <?php
     if (sqlNumRows($result4)>0) {
         while ($rowresult4 = sqlFetchArray($result4)) {
-        ?>
+            ?>
         EncounterIdArray[Count]=<?php echo js_escape($rowresult4['encounter']); ?>;
     EncounterDateArray[Count]=<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
     CalendarCategoryArray[Count]=<?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
     Count++;
-    <?php
+            <?php
         }
     }
     ?>
     top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
 </script>
-<?php $use_validate_js = 1;?>
-<?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupDetails');?>
-<?php require 'footer.php'; ?>
+    <?php $use_validate_js = 1;?>
+    <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupDetails');?>
+    <?php require 'footer.php'; ?>
 
 <?php else :?>
-
     <div class="container">
 
         <div class="row alert alert-info">

@@ -6,7 +6,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function getSignature(othis) {
+function getSignature(othis)
+{
     let libUrl, signer, signerType = "";
     let isLink = $(othis).attr('src').indexOf('signhere');
 
@@ -45,29 +46,27 @@ function getSignature(othis) {
         }
     }).then(signature => signature.json())
       .then(signature => {
-        placeImg(signature, othis)
-    }).catch(error => alert(error));
+            placeImg(signature, othis)
+        }).catch(error => alert(error));
 }
 
-function placeImg(responseData, el) {
+function placeImg(responseData, el)
+{
     if (responseData == "error") {
         $(el).attr('src', "");
         alert('Error Patient and or User Id missing');
         return;
-    }
-    else if (responseData == "insert error") {
+    } else if (responseData == "insert error") {
         $(el).attr('src', "");
         alert('Error adding signature');
         return;
-    }
-    else if (responseData == "waiting" && $(el).attr('type') == 'patient-signature') {
+    } else if (responseData == "waiting" && $(el).attr('type') == 'patient-signature') {
         $(el).attr('src', "");
         alert('Signature not on file. Please sign');
         $("#isAdmin").attr('checked', false);
         $("#openSignModal").modal("show");
         return;
-    }
-    else if (responseData == "waiting" && $(el).attr('type') == 'admin-signature') {
+    } else if (responseData == "waiting" && $(el).attr('type') == 'admin-signature') {
         $(el).attr('src', "");
         alert('Signature not on file. Please sign');
         $("#isAdmin").attr('checked', true);
@@ -81,13 +80,15 @@ function placeImg(responseData, el) {
     i.src = isDataURL(responseData) ? responseData : 'data:image/png;base64,' + responseData; // load image
 }
 
-function signDoc(signImage) {
+function signDoc(signImage)
+{
     let libUrl, signer, signerType = "";
     let pid = 0;
 
     try {
-        if (webRoot !== undefined && webRoot !== null)
+        if (webRoot !== undefined && webRoot !== null) {
             libUrl = webRoot + '/portal/';
+        }
     } catch (e) {
         libUrl = "./";
     }
@@ -118,14 +119,15 @@ function signDoc(signImage) {
         }
     }).then(response => response.text())
       .then(
-        $("#loading").toggle(),
-        $("#openSignModal").modal("hide")
+          $("#loading").toggle(),
+          $("#openSignModal").modal("hide")
       ).catch(error => alert(error));
 
     $("#loading").toggle();
 }
 
-function isDataURL(dataUrl) {
+function isDataURL(dataUrl)
+{
     return !!dataUrl.match(isDataURL.regex);
 }
 isDataURL.regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
@@ -145,7 +147,8 @@ $(function () {
         .catch((error) => alert(error));
 });
 
-function initSignerApi() {
+function initSignerApi()
+{
     $(function () {
         const canvasOptions = {
             minWidth: 1,
@@ -217,14 +220,16 @@ function initSignerApi() {
             getSignature(showElement);
         });
 
-        function resizeCanvas() {
+        function resizeCanvas()
+        {
             let ratio = Math.max(window.devicePixelRatio || 1, 1);
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             canvas.getContext("2d").scale(ratio, ratio);
         }
 
-        function download(dataURL, filename) {
+        function download(dataURL, filename)
+        {
             let blob = dataURLToBlob(dataURL);
             let url = window.URL.createObjectURL(blob);
             let a = document.createElement("a");
@@ -237,7 +242,8 @@ function initSignerApi() {
             window.URL.revokeObjectURL(url);
         }
 
-        function dataURLToBlob(dataURL) {
+        function dataURLToBlob(dataURL)
+        {
             // Code taken from https://github.com/ebidel/filer.js
             let parts = dataURL.split(';base64,');
             let contentType = parts[0].split(":")[1];
@@ -252,7 +258,8 @@ function initSignerApi() {
             return new Blob([uInt8Array], {type: contentType});
         }
 
-        function drawSignatureLine() {
+        function drawSignatureLine()
+        {
             let context = canvas.getContext('2d');
             context.lineWidth = .4;
             context.strokeStyle = '#333';

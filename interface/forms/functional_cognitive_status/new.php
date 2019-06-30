@@ -187,7 +187,7 @@ $check_res = $formid ? $check_res : array();
                                         <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>">
                                     </div>
                                 </div>
-                            <?php
+                                <?php
                             }
                         } else { ?>
                             <div class="tb_row" id="tb_row_1">

@@ -149,7 +149,7 @@ while ($row = sqlFetchArray($res)) {
     if (!$logstart) {
         $logstart = $row['id'];
     }
-?>
+    ?>
 <tr>
     <td align='center'><?php echo text($row['id']); ?></td>
 
@@ -182,7 +182,7 @@ while ($row = sqlFetchArray($res)) {
     <td align='center'><?php echo text($row['status_ts']); ?></td>
 
 </tr>
-<?php
+    <?php
 } // $row = sqlFetchArray($res) while
 ?>
 </tbody>

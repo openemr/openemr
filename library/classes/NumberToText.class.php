@@ -75,10 +75,10 @@ class NumberToText
 
         // get rid of leading 0's
         /*
-	    while ($number{0} == 0) {
-	        $number = substr($number,1);
-	    }
-	    */
+        while ($number{0} == 0) {
+            $number = substr($number,1);
+        }
+        */
 
         if ($number === 0) {
             return "zero";

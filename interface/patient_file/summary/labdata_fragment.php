@@ -38,11 +38,11 @@ $result=sqlQuery($spell, array($pid));
 if (!$result) { //If there are no lab data recorded
     ?>
   <span class='text'> <?php echo xlt("No lab data documented.");
-?>
+    ?>
   </span>
-<?php
+    <?php
 } else {
-?>
+    ?>
   <span class='text'><b>
     <?php echo xlt('Most recent lab data:'); ?>
   </b>

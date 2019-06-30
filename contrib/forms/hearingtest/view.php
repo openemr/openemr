@@ -33,7 +33,7 @@ $obj = formFetch("form_hearingtest", $_GET["id"]);
 <span class="title">Hearing Test</span><Br><br>
 <input type=checkbox name="with_hearing_aid" <?php if ($obj{"with_hearing_aid"} == "on") {
     echo "checked";
-};?>><span class=text>With hearing Aid?</span><br>
+                                             };?>><span class=text>With hearing Aid?</span><br>
 <table>
 <tr>
 <td>

@@ -10,7 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function expand_vocab(text) {
+function expand_vocab(text)
+{
     text = text.replace(/\binf\b/g,"inferior")
     .replace(/\bsup\b/g,"superior")
     .replace(/\bnas /g,"nasal")
@@ -74,7 +75,8 @@ function expand_vocab(text) {
     .replace(/\bvh\b/i,"vitreous hemorrhage");
     return text;
 }
-function process_kb(field,text,appendix,prior_field,prior_text) {
+function process_kb(field,text,appendix,prior_field,prior_text)
+{
     response = process_kb_1(field,text,appendix);
          // If the field is found, the text is added (or appended) to the field
     if (response['field'] =='error') {
@@ -93,7 +95,8 @@ function process_kb(field,text,appendix,prior_field,prior_text) {
     return response;
 }
 
-function process_kb_1(field,text,appendix) {
+function process_kb_1(field,text,appendix)
+{
     var field2='';
     var nofield = 'error';
     var reaction;
@@ -121,15 +124,33 @@ function process_kb_1(field,text,appendix) {
             //Not FH,SH or ROS though...
             //some aliases:
 
-    if (field == "ALL") field = "Allergy";
-    if (field == "ALLERGY") field = "Allergy";
-    if (field == "MEDICATION") field = "Medication";
-    if (field == "MEDICATIONS") field = "Medication";
-    if (field == "MEDS") field = "Medication";
-    if (field == "SURG") field = "Surgery";
-    if (field == "SURGERY") field = "Surgery";
-    if (field == "PSURG") field = "Surgery";
-    if (field == "PSURGH") field = "Surgery";
+    if (field == "ALL") {
+        field = "Allergy";
+    }
+    if (field == "ALLERGY") {
+        field = "Allergy";
+    }
+    if (field == "MEDICATION") {
+        field = "Medication";
+    }
+    if (field == "MEDICATIONS") {
+        field = "Medication";
+    }
+    if (field == "MEDS") {
+        field = "Medication";
+    }
+    if (field == "SURG") {
+        field = "Surgery";
+    }
+    if (field == "SURGERY") {
+        field = "Surgery";
+    }
+    if (field == "PSURG") {
+        field = "Surgery";
+    }
+    if (field == "PSURGH") {
+        field = "Surgery";
+    }
         //For dictation, will search for the whole phrase, like "Past Surgical History" also
     if ((field =="PMH")||
         (field =="Allergy")||
@@ -145,7 +166,9 @@ function process_kb_1(field,text,appendix) {
         var url = "../../forms/eye_mag/save.php?PMSFH_save=1&mode=update&form_save=1";
         var text_seg = text.match(/[^\.]*/g);
         for (index=0; index < text_seg.length; ++index) {
-            if (text_seg[index] =='') continue;
+            if (text_seg[index] =='') {
+                continue;
+            }
             text_seg[index] = text_seg[index].replace(/UGLYHACK/g,".");
             prior_text = text_seg[index];
             if ((field == "Allergy")&&(text_seg[index].match(/\s/))) {
@@ -154,7 +177,9 @@ function process_kb_1(field,text,appendix) {
                 reaction = allergy[2];
             }
                 //here we can process surg dates also?
-            if (reaction == null) reaction = '';
+            if (reaction == null) {
+                reaction = '';
+            }
             var formData = {
                 'form_save'         : "1",
                 'mode'              : "update",
@@ -169,17 +194,18 @@ function process_kb_1(field,text,appendix) {
             };
             top.restoreSession();
             $.ajax({
-                   type 		: 'POST',
-                   url          : url,
-                   data 		: formData,
-                   success:(function(result) {
-                                obj = JSON.parse(result);
-                                $("#QP_PMH").html(obj.PMH_panel);
-                                if ($('#PMH_right').height() > $('#PMH_left').height()) {
-                                    $('#PMH_left').height($('#PMH_right').height());
-                                } else { $('#PMH_left').height($('#PMH_right').height()); }
-                                $("#right_panel_refresh").html(obj.right_panel);
-                            })
+                type         : 'POST',
+                url          : url,
+                data         : formData,
+                success:(function (result) {
+                             obj = JSON.parse(result);
+                             $("#QP_PMH").html(obj.PMH_panel);
+                    if ($('#PMH_right').height() > $('#PMH_left').height()) {
+                        $('#PMH_left').height($('#PMH_right').height());
+                    } else {
+                        $('#PMH_left').height($('#PMH_right').height()); }
+                             $("#right_panel_refresh").html(obj.right_panel);
+                })
                    });
         }
         response['field'] = field;
@@ -189,7 +215,7 @@ function process_kb_1(field,text,appendix) {
 
             // Second, if the field name actually exists on the form
             // then "field" is not abbreviation so just update it
-    else if ($("#"+field).length){
+    else if ($("#"+field).length) {
         (appendix == ".a") ? ($('#'+field).val($('#'+field).val() +", "+text)) : $('#'+field).val(text);
         $('#'+field).css("background-color","#F0F8FF");
         response['field'] = field;
@@ -204,84 +230,240 @@ function process_kb_1(field,text,appendix) {
     } else {
             //third, if the input fieldname is not on the form, is it a logical abbreviation?
             //if it points to one field specifically, create field2 variable and in the end, update field2
-        if (field == 'CC') field2 = 'CC1';
-        if (field == 'HPI') field2 = 'HPI1';
-        if (field == 'RB' || field == 'RBROW')  field2 = "RBROW";
-        if (field == 'LB' || field == 'LBROW')  field2 = "LBROW";
-        if (field == 'RMC' || field == 'RMCT') field2 = "RMCT";
-        if (field == 'LMC' || field == 'LMCT') field2 = "LMCT";
-        if (field == 'RAD')     field2 = "RADNEXA";
-        if (field == 'LAD')     field2 = "LADNEXA";
-        if (field == 'RVF')     field2 = "RVFISSURE";
-        if (field == 'LVF')     field2 = "LVFISSURE";
-        if (field == 'RCAR')    field2 = "RCAROTID";
-        if (field == 'LCAR')    field2 = "LCAROTID";
-        if (field == 'RTA')     field2 = "RTEMPART";
-        if (field == 'LTA')     field2 = "LTEMPART";
-        if (field == 'RCN5')    field2 = "RCNV";
-        if (field == 'LCN5')    field2 = "LCNVI";
-        if (field == 'RCN7')    field2 = "RCMVII";
-        if (field == 'LCN7')    field2 = "LCNVII";
-        if (field == 'RH')      field2 = "ODHERTEL";
-        if (field == 'LH')      field2 = "OLHERTEL";
-        if (field == 'BHERT')   field2 = "HERTELBASE";
-        if (field == 'EXTCOM')  field2 = 'EXT_COMMENTS';
-        if (field == 'ECOM')    field2 = 'EXT_COMMENTS';
-        if (field == 'RC')      field2 = "ODCONJ";
-        if (field == 'LC')      field2 = "OSCONJ";
-        if (field == 'RK')      field2 = "ODCORNEA";
-        if (field == 'LK')      field2 = "OSCORNEA";
-        if (field == 'RAC')     field2 = "ODAC";
-        if (field == 'LAC')     field2 = "OSAC";
-        if (field == 'RL')      field2 = "ODLENS";
-        if (field == 'LL')      field2 = "OSLENS";
-        if (field == 'RI')      field2 = "ODIRIS";
-        if (field == 'LI')      field2 = "OSIRIS";
-        if (field == 'RG')      field2 = "ODGONIO";
-        if (field == 'LG')      field2 = "OSGONIO";
-        if (field == 'RPACH')   field2 = "ODKTHICKNESS";
-        if (field == 'LPACH')   field2 = "OSKTHICKNESS";
-        if (field == 'RSCH1')   field2 = "ODSCHIRMER1";
-        if (field == 'LSCH1')   field2 = "OSSCHIRMER1";
-        if (field == 'RSCH2')   field2 = "ODSCHIRMER2";
-        if (field == 'LSCH2')   field2 = "OSSCHIRMER2";
-        if (field == 'RTBUT')   field2 = "ODTBUT";
-        if (field == 'LTBUT')   field2 = "OSTBUT";
-        if (field == 'ASCOM')   field2 = 'ANTSEG_COMMENTS';
-        if (field == 'ACOM')   field2 = 'ANTSEG_COMMENTS';
-        if (field == 'RD' || field =='RDISC')      field2 = "ODDISC";
-        if (field == 'LD' || field =='LDISC')      field2 = "OSDISC";
-        if (field == 'RCUP' || field =='RCUP')     field2 = "ODCUP";
-        if (field == 'LCUP' || field =='LCUP')     field2 = "OSCUP";
-        if (field == 'RMAC' || field == 'RMACULA')    field2 = "ODMACULA";
-        if (field == 'LMAC' || field == 'LMACULA')    field2 = "OSMACULA";
-        if (field == 'RV')      field2 = "ODVESSELS";
-        if (field == 'LV')      field2 = "OSVESSELS";
-        if (field == 'RVIT')      field2 = "ODVITREOUS";
-        if (field == 'LVIT')      field2 = "OSVITREOUS";
-        if (field == 'RP')      field2 = "ODPERIPH";
-        if (field == 'LP')      field2 = "OSPERIPH";
-        if (field == 'RCMT')    field2 = "ODCMT";
-        if (field == 'LCMT')    field2 = "OSCMT";
-        if (field == 'RCOM')    field2 = 'RETINA_COMMENTS';
-        if ((field == 'RCOL')||(field =='RCOLOR')) field2 = 'ODCOLOR';
-        if ((field == 'LCOL')||(field =='LCOLOR')) field2 = 'OSCOLOR';
-        if ((field == 'RCOIN')||(field =='RCOINS')) field2 = 'ODCOINS';
-        if ((field == 'LCOIN')||(field =='LCOINS')) field2 = 'OSCOINS';
-        if (field == 'RRED')    field2 = 'ODREDDESAT';
-        if (field == 'LRED')    field2 = 'OSREDDESAT';
-        if (field == 'RNPC')    field2 = 'ODNPC';
-        if (field == 'LNPC')    field2 = 'OSNPC';
-        if (field == 'RNPA')    field2 = 'ODNPA';
-        if (field == 'LNPA')    field2 = 'OSNPA';
-        if (field == 'STEREO')  field2 = 'STEREOPSIS';
-        if (field == 'VERTFUS') field2 = 'VERTFUSAMPS';
-        if (field == 'CAD')     field2 = 'CACCDIST';
-        if (field == 'CAN')     field2 = 'CACCNEAR';
-        if (field == 'DAD')     field2 = 'DACCDIST';
-        if (field == 'DAN')     field2 = 'DACCNEAR';
-        if (field == 'NCOM')    field2 = 'NEURO_COMMENTS';
-        if (field == 'IMPPLAN') field2 = 'IMP';
+        if (field == 'CC') {
+            field2 = 'CC1';
+        }
+        if (field == 'HPI') {
+            field2 = 'HPI1';
+        }
+        if (field == 'RB' || field == 'RBROW') {
+            field2 = "RBROW";
+        }
+        if (field == 'LB' || field == 'LBROW') {
+            field2 = "LBROW";
+        }
+        if (field == 'RMC' || field == 'RMCT') {
+            field2 = "RMCT";
+        }
+        if (field == 'LMC' || field == 'LMCT') {
+            field2 = "LMCT";
+        }
+        if (field == 'RAD') {
+            field2 = "RADNEXA";
+        }
+        if (field == 'LAD') {
+            field2 = "LADNEXA";
+        }
+        if (field == 'RVF') {
+            field2 = "RVFISSURE";
+        }
+        if (field == 'LVF') {
+            field2 = "LVFISSURE";
+        }
+        if (field == 'RCAR') {
+            field2 = "RCAROTID";
+        }
+        if (field == 'LCAR') {
+            field2 = "LCAROTID";
+        }
+        if (field == 'RTA') {
+            field2 = "RTEMPART";
+        }
+        if (field == 'LTA') {
+            field2 = "LTEMPART";
+        }
+        if (field == 'RCN5') {
+            field2 = "RCNV";
+        }
+        if (field == 'LCN5') {
+            field2 = "LCNVI";
+        }
+        if (field == 'RCN7') {
+            field2 = "RCMVII";
+        }
+        if (field == 'LCN7') {
+            field2 = "LCNVII";
+        }
+        if (field == 'RH') {
+            field2 = "ODHERTEL";
+        }
+        if (field == 'LH') {
+            field2 = "OLHERTEL";
+        }
+        if (field == 'BHERT') {
+            field2 = "HERTELBASE";
+        }
+        if (field == 'EXTCOM') {
+            field2 = 'EXT_COMMENTS';
+        }
+        if (field == 'ECOM') {
+            field2 = 'EXT_COMMENTS';
+        }
+        if (field == 'RC') {
+            field2 = "ODCONJ";
+        }
+        if (field == 'LC') {
+            field2 = "OSCONJ";
+        }
+        if (field == 'RK') {
+            field2 = "ODCORNEA";
+        }
+        if (field == 'LK') {
+            field2 = "OSCORNEA";
+        }
+        if (field == 'RAC') {
+            field2 = "ODAC";
+        }
+        if (field == 'LAC') {
+            field2 = "OSAC";
+        }
+        if (field == 'RL') {
+            field2 = "ODLENS";
+        }
+        if (field == 'LL') {
+            field2 = "OSLENS";
+        }
+        if (field == 'RI') {
+            field2 = "ODIRIS";
+        }
+        if (field == 'LI') {
+            field2 = "OSIRIS";
+        }
+        if (field == 'RG') {
+            field2 = "ODGONIO";
+        }
+        if (field == 'LG') {
+            field2 = "OSGONIO";
+        }
+        if (field == 'RPACH') {
+            field2 = "ODKTHICKNESS";
+        }
+        if (field == 'LPACH') {
+            field2 = "OSKTHICKNESS";
+        }
+        if (field == 'RSCH1') {
+            field2 = "ODSCHIRMER1";
+        }
+        if (field == 'LSCH1') {
+            field2 = "OSSCHIRMER1";
+        }
+        if (field == 'RSCH2') {
+            field2 = "ODSCHIRMER2";
+        }
+        if (field == 'LSCH2') {
+            field2 = "OSSCHIRMER2";
+        }
+        if (field == 'RTBUT') {
+            field2 = "ODTBUT";
+        }
+        if (field == 'LTBUT') {
+            field2 = "OSTBUT";
+        }
+        if (field == 'ASCOM') {
+            field2 = 'ANTSEG_COMMENTS';
+        }
+        if (field == 'ACOM') {
+            field2 = 'ANTSEG_COMMENTS';
+        }
+        if (field == 'RD' || field =='RDISC') {
+            field2 = "ODDISC";
+        }
+        if (field == 'LD' || field =='LDISC') {
+            field2 = "OSDISC";
+        }
+        if (field == 'RCUP' || field =='RCUP') {
+            field2 = "ODCUP";
+        }
+        if (field == 'LCUP' || field =='LCUP') {
+            field2 = "OSCUP";
+        }
+        if (field == 'RMAC' || field == 'RMACULA') {
+            field2 = "ODMACULA";
+        }
+        if (field == 'LMAC' || field == 'LMACULA') {
+            field2 = "OSMACULA";
+        }
+        if (field == 'RV') {
+            field2 = "ODVESSELS";
+        }
+        if (field == 'LV') {
+            field2 = "OSVESSELS";
+        }
+        if (field == 'RVIT') {
+            field2 = "ODVITREOUS";
+        }
+        if (field == 'LVIT') {
+            field2 = "OSVITREOUS";
+        }
+        if (field == 'RP') {
+            field2 = "ODPERIPH";
+        }
+        if (field == 'LP') {
+            field2 = "OSPERIPH";
+        }
+        if (field == 'RCMT') {
+            field2 = "ODCMT";
+        }
+        if (field == 'LCMT') {
+            field2 = "OSCMT";
+        }
+        if (field == 'RCOM') {
+            field2 = 'RETINA_COMMENTS';
+        }
+        if ((field == 'RCOL')||(field =='RCOLOR')) {
+            field2 = 'ODCOLOR';
+        }
+        if ((field == 'LCOL')||(field =='LCOLOR')) {
+            field2 = 'OSCOLOR';
+        }
+        if ((field == 'RCOIN')||(field =='RCOINS')) {
+            field2 = 'ODCOINS';
+        }
+        if ((field == 'LCOIN')||(field =='LCOINS')) {
+            field2 = 'OSCOINS';
+        }
+        if (field == 'RRED') {
+            field2 = 'ODREDDESAT';
+        }
+        if (field == 'LRED') {
+            field2 = 'OSREDDESAT';
+        }
+        if (field == 'RNPC') {
+            field2 = 'ODNPC';
+        }
+        if (field == 'LNPC') {
+            field2 = 'OSNPC';
+        }
+        if (field == 'RNPA') {
+            field2 = 'ODNPA';
+        }
+        if (field == 'LNPA') {
+            field2 = 'OSNPA';
+        }
+        if (field == 'STEREO') {
+            field2 = 'STEREOPSIS';
+        }
+        if (field == 'VERTFUS') {
+            field2 = 'VERTFUSAMPS';
+        }
+        if (field == 'CAD') {
+            field2 = 'CACCDIST';
+        }
+        if (field == 'CAN') {
+            field2 = 'CACCNEAR';
+        }
+        if (field == 'DAD') {
+            field2 = 'DACCDIST';
+        }
+        if (field == 'DAN') {
+            field2 = 'DACCNEAR';
+        }
+        if (field == 'NCOM') {
+            field2 = 'NEURO_COMMENTS';
+        }
+        if (field == 'IMPPLAN') {
+            field2 = 'IMP';
+        }
 
         if (field2 > '') {
             (appendix == ".a") ? ($('#'+field2).val($('#'+field2).val() +", "+text)) : $('#'+field2).val(text);
@@ -576,20 +758,30 @@ function process_kb_1(field,text,appendix) {
             return response;
         } else if (field.match(/^(.CDIST|.CNEAR)/i)) {
             field = field.toUpperCase();
-            if (field == 'SCDIST') $('#NEURO_ACT_zone').val('SCDIST').trigger('change');
-            if (field == 'CCDIST') $('#NEURO_ACT_zone').val('CCDIST').trigger('change');
-            if (field == 'SCNEAR') $('#NEURO_ACT_zone').val('SCNEAR').trigger('change');
-            if (field == 'CCNEAR') $('#NEURO_ACT_zone').val('CCNEAR').trigger('change');
+            if (field == 'SCDIST') {
+                $('#NEURO_ACT_zone').val('SCDIST').trigger('change');
+            }
+            if (field == 'CCDIST') {
+                $('#NEURO_ACT_zone').val('CCDIST').trigger('change');
+            }
+            if (field == 'SCNEAR') {
+                $('#NEURO_ACT_zone').val('SCNEAR').trigger('change');
+            }
+            if (field == 'CCNEAR') {
+                $('#NEURO_ACT_zone').val('CCNEAR').trigger('change');
+            }
             response['field'] = field;
             response['prior_text'] = $('#'+field).val();
             return response;
         } else if (field.match(/^(\d{1,2})$/)) {
             var data = text.match(/(\d{0,2}||ortho)(.*)/i);
             var PD = data[1];
-            $('#ACT').prop( "checked", false );
+            $('#ACT').prop("checked", false);
             zone = $("#NEURO_ACT_zone").val();
-            if (PD >'') PD = PD + ' ';
-            var strab = data[2].toUpperCase().replace (/I(.)/g,"$1(T)").replace(/\s*(\d)/,'\n$1');
+            if (PD >'') {
+                PD = PD + ' ';
+            }
+            var strab = data[2].toUpperCase().replace(/I(.)/g,"$1(T)").replace(/\s*(\d)/,'\n$1');
             $('#ACT'+field+zone).val(PD+strab);
             $('#ACT'+field+zone).css("background-color","#F0F8FF");
             response['field'] = 'ACT'+field+zone;

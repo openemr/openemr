@@ -50,7 +50,7 @@ window.close =
         }
 
         if (dialogModal.length > 0) {
-            if(call){
+            if (call) {
                 wframe.setCallBack(call, args);
             }
             dialogModal.modal('hide');
@@ -86,7 +86,7 @@ var dlgclose =
         }
 
         if (dialogModal.length > 0) {
-            if(call){
+            if (call) {
                 wframe.setCallBack(call, args);
             }
             dialogModal.modal('hide');

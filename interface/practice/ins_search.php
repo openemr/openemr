@@ -231,7 +231,7 @@ if ($_POST['form_save']) {
  $xres = sqlStatement(
      "SELECT id, name FROM x12_partners ORDER BY name"
  );
-?>
+    ?>
 <div id="form_entry">
 
 <form method='post' name='theform' action='ins_search.php'

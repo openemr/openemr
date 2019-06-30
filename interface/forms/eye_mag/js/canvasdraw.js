@@ -20,10 +20,11 @@ var zone;
 var cPushArray = new Array();
 var cStep = new Array();
 
-function InitThis(zone) {
+function InitThis(zone)
+{
     ctx[zone] = document.getElementById('myCanvas_'+zone).getContext("2d");
 
-    $('#myCanvas_'+zone).on('touchstart', function(e){
+    $('#myCanvas_'+zone).on('touchstart', function (e) {
         mousePressed = true;
         Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false, zone);
     });
@@ -60,11 +61,12 @@ function InitThis(zone) {
             mousePressed = false;
             cPush(zone);
         }
-    });
+     });
     drawImage(zone);
 }
 
-function drawImage(zone) {
+function drawImage(zone)
+{
     image[zone] = new Image();
         // We need to get the openEMR pointer for this image, which is either
         // a stored image from a previous drawing and is not editable (VIEW)
@@ -75,11 +77,12 @@ function drawImage(zone) {
     $(image[zone]).on('load',function () {
                         ctx[zone].drawImage(image[zone], 0, 0, 450, 225);
                         // using variable size canvas? -> adjust size for canvas
-    cPush(zone);
+        cPush(zone);
     });
 }
 
-function Draw(x, y, isDown,zone) {
+function Draw(x, y, isDown,zone)
+{
     if (isDown) {
         ctx[zone].beginPath();
         ctx[zone].strokeStyle = $('#selColor_'+zone).val();
@@ -94,35 +97,45 @@ function Draw(x, y, isDown,zone) {
     lastY = y;
 }
 
-function cPush(zone) {
-    if (typeof(cStep[zone]) == 'undefined') { cStep[zone] = -1; }
+function cPush(zone)
+{
+    if (typeof(cStep[zone]) == 'undefined') {
+        cStep[zone] = -1; }
     cStep[zone]++;
-    if (typeof(cPushArray[zone]) == 'undefined') { cPushArray[zone] = new Array;}
-    if (cStep[zone] < cPushArray[zone].length) { cPushArray[zone].length = cStep[zone]; }
+    if (typeof(cPushArray[zone]) == 'undefined') {
+        cPushArray[zone] = new Array;}
+    if (cStep[zone] < cPushArray[zone].length) {
+        cPushArray[zone].length = cStep[zone]; }
     cPushArray[zone].push(document.getElementById('myCanvas_'+zone).toDataURL('image/jpeg'));
 }
 
-function cUndo(zone) {
+function cUndo(zone)
+{
     if (cStep[zone] > 0) {
         cStep[zone]--;
         canvasPic = new Image();
         canvasPic.src = cPushArray[zone][cStep[zone]];
-        canvasPic.onload = function () { ctx[zone].drawImage(canvasPic, 0, 0); }
+        canvasPic.onload = function () {
+            ctx[zone].drawImage(canvasPic, 0, 0); }
     }
 }
-function cRedo(zone) {
+function cRedo(zone)
+{
     if (cStep[zone] < cPushArray[zone].length-1) {
         cStep[zone]++;
         canvasPic = new Image();
         canvasPic.src = cPushArray[zone][cStep[zone]];
-        canvasPic.onload = function () { ctx[zone].drawImage(canvasPic, 0, 0); }
+        canvasPic.onload = function () {
+            ctx[zone].drawImage(canvasPic, 0, 0); }
     }
 }
-function cReload(zone) {
+function cReload(zone)
+{
     $('#url_'+zone).val($('#base_url_'+zone).val());
     drawImage(zone);
 }
-function cBlank(zone) {
+function cBlank(zone)
+{
     $('#url_'+zone).val('../images/BLANK_BASE.png');
     drawImage(zone);
 }

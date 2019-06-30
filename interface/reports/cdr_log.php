@@ -139,7 +139,6 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 <br>
 
 <?php if ($_POST['search'] == 1) { ?>
-
  <div id="report_results">
  <table>
 

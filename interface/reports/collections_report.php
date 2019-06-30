@@ -151,8 +151,7 @@ $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
 $grand_total_paid        = 0;
 $grand_total_agedbal = array();
-for ($c = 0; $c < $form_age_cols;
-++$c) {
+for ($c = 0; $c < $form_age_cols; ++$c) {
     $grand_total_agedbal[$c] = 0;
 }
 
@@ -310,7 +309,7 @@ if ($_POST['form_csvexport']) {
     header("Content-Disposition: attachment; filename=collections_report.csv");
     header("Content-Description: File Transfer");
 } else {
-?>
+    ?>
 <html>
 <head>
 
@@ -633,7 +632,7 @@ if ($_POST['form_csvexport']) {
 </div>
 
 
-<?php
+    <?php
 } // end not form_csvexport
 
 if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport']) {
@@ -976,88 +975,88 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             }
         }
     } else {
-    ?>
+        ?>
 
   <div id="report_results">
   <table id='mymaintable'>
 
    <thead>
-    <?php if ($is_due_ins) { ?>
+        <?php if ($is_due_ins) { ?>
     <th>&nbsp;<?php echo xlt('Insurance')?></th>
     <?php } ?>
-    <?php if (!$is_ins_summary) { ?>
+        <?php if (!$is_ins_summary) { ?>
     <th>&nbsp;<?php echo xlt('Name')?></th>
     <?php } ?>
-    <?php if ($form_cb_ssn) { ?>
+        <?php if ($form_cb_ssn) { ?>
     <th>&nbsp;<?php echo xlt('SSN')?></th>
     <?php } ?>
-    <?php if ($form_cb_dob) { ?>
+        <?php if ($form_cb_dob) { ?>
     <th>&nbsp;<?php echo xlt('DOB')?></th>
     <?php } ?>
-    <?php if ($form_cb_pubpid) { ?>
+        <?php if ($form_cb_pubpid) { ?>
     <th>&nbsp;<?php echo xlt('ID')?></th>
     <?php } ?>
-    <?php if ($form_cb_policy) { ?>
+        <?php if ($form_cb_policy) { ?>
     <th>&nbsp;<?php echo xlt('Policy')?></th>
     <?php } ?>
-    <?php if ($form_cb_phone) { ?>
+        <?php if ($form_cb_phone) { ?>
     <th>&nbsp;<?php echo xlt('Phone')?></th>
     <?php } ?>
-    <?php if ($form_cb_city) { ?>
+        <?php if ($form_cb_city) { ?>
     <th>&nbsp;<?php echo xlt('City')?></th>
     <?php } ?>
-    <?php if ($form_cb_ins1 || $form_payer_id) { ?>
+        <?php if ($form_cb_ins1 || $form_payer_id) { ?>
     <th>&nbsp;<?php echo xlt('Primary Ins')?></th>
     <?php } ?>
-    <?php if ($form_provider) { ?>
+        <?php if ($form_provider) { ?>
     <th>&nbsp;<?php echo xlt('Provider')?></th>
     <?php } ?>
-    <?php if ($form_cb_referrer) { ?>
+        <?php if ($form_cb_referrer) { ?>
     <th>&nbsp;<?php echo xlt('Referrer')?></th>
     <?php } ?>
-    <?php if (!$is_ins_summary) { ?>
+        <?php if (!$is_ins_summary) { ?>
     <th>&nbsp;<?php echo xlt('Invoice') ?></th>
     <th>&nbsp;<?php echo xlt('Svc Date') ?></th>
-    <?php if ($form_cb_adate) { ?>
+            <?php if ($form_cb_adate) { ?>
     <th>&nbsp;<?php echo xlt('Act Date')?></th>
     <?php } ?>
     <?php } ?>
     <th align="right"><?php echo xlt('Charge') ?>&nbsp;</th>
     <th align="right"><?php echo xlt('Adjust') ?>&nbsp;</th>
     <th align="right"><?php echo xlt('Paid') ?>&nbsp;</th>
-<?php
+        <?php
     // Generate aging headers if appropriate, else balance header.
-if ($form_age_cols) {
-    for ($c = 0; $c < $form_age_cols;) {
-          echo "  <th class='dehead' align='right'>";
-              echo $form_age_inc * $c;
-        if (++$c < $form_age_cols) {
-            echo "-" . text(($form_age_inc * $c - 1));
-        } else {
-            echo "+";
-        }
+        if ($form_age_cols) {
+            for ($c = 0; $c < $form_age_cols;) {
+                  echo "  <th class='dehead' align='right'>";
+                      echo $form_age_inc * $c;
+                if (++$c < $form_age_cols) {
+                    echo "-" . text(($form_age_inc * $c - 1));
+                } else {
+                    echo "+";
+                }
 
-              echo "</th>\n";
-    }
-} else {
-?>
+                      echo "</th>\n";
+            }
+        } else {
+            ?>
 <th align="right"><?php echo xlt('Balance') ?>&nbsp;</th>
-<?php
-}
-?>
-    <?php if ($form_cb_idays) { ?>
+            <?php
+        }
+        ?>
+        <?php if ($form_cb_idays) { ?>
   <th align="right"><?php echo xlt('IDays')?>&nbsp;</th>
     <?php } ?>
-<?php if (!$is_ins_summary) { ?>
+        <?php if (!$is_ins_summary) { ?>
   <th align="center"><?php echo xlt('Prv') ?></th>
   <th align="center"><?php echo xlt('Sel') ?></th>
 <?php } ?>
-<?php if ($form_cb_err) { ?>
+        <?php if ($form_cb_err) { ?>
   <th>&nbsp;<?php echo xlt('Error')?></th>
 <?php } ?>
  </thead>
 
-<?php
+        <?php
     } // end not export
 
     $ptrow = array('insname' => '', 'pid' => 0);
@@ -1119,118 +1118,118 @@ if ($form_age_cols) {
 
         if (!$is_ins_summary && !$_POST['form_export'] && !$_POST['form_csvexport']) {
             $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
-        ?>
+            ?>
        <tr bgcolor='<?php echo attr($bgcolor) ?>'>
-<?php
-if ($ptrow['count'] == 1) {
-    if ($is_due_ins) {
-        echo "  <td class='detail'>&nbsp;" . text($insname) ."</td>\n";
-    }
+            <?php
+            if ($ptrow['count'] == 1) {
+                if ($is_due_ins) {
+                    echo "  <td class='detail'>&nbsp;" . text($insname) ."</td>\n";
+                }
 
-    echo "  <td class='detail'>&nbsp;" . text($ptname) ."</td>\n";
-    if ($form_cb_ssn) {
-        echo "  <td class='detail'>&nbsp;" . text($row['ss']) . "</td>\n";
-    }
+                echo "  <td class='detail'>&nbsp;" . text($ptname) ."</td>\n";
+                if ($form_cb_ssn) {
+                    echo "  <td class='detail'>&nbsp;" . text($row['ss']) . "</td>\n";
+                }
 
-    if ($form_cb_dob) {
-        echo "  <td class='detail'>&nbsp;" . text(oeFormatShortDate($row['DOB'])) . "</td>\n";
-    }
+                if ($form_cb_dob) {
+                    echo "  <td class='detail'>&nbsp;" . text(oeFormatShortDate($row['DOB'])) . "</td>\n";
+                }
 
-    if ($form_cb_pubpid) {
-        echo "  <td class='detail'>&nbsp;" . text($row['pubpid']) . "</td>\n";
-    }
+                if ($form_cb_pubpid) {
+                    echo "  <td class='detail'>&nbsp;" . text($row['pubpid']) . "</td>\n";
+                }
 
-    if ($form_cb_policy) {
-        echo "  <td class='detail'>&nbsp;" . text($row['policy']) . "</td>\n";
-    }
+                if ($form_cb_policy) {
+                    echo "  <td class='detail'>&nbsp;" . text($row['policy']) . "</td>\n";
+                }
 
-    if ($form_cb_phone) {
-        echo "  <td class='detail'>&nbsp;" . text($row['phone']) . "</td>\n";
-    }
+                if ($form_cb_phone) {
+                    echo "  <td class='detail'>&nbsp;" . text($row['phone']) . "</td>\n";
+                }
 
-    if ($form_cb_city) {
-        echo "  <td class='detail'>&nbsp;" . text($row['city']) . "</td>\n";
-    }
+                if ($form_cb_city) {
+                    echo "  <td class='detail'>&nbsp;" . text($row['city']) . "</td>\n";
+                }
 
-    if ($form_cb_ins1 || $form_payer_id) {
-        echo "  <td class='detail'>&nbsp;" . text($row['ins1']) . "</td>\n";
-    }
+                if ($form_cb_ins1 || $form_payer_id) {
+                    echo "  <td class='detail'>&nbsp;" . text($row['ins1']) . "</td>\n";
+                }
 
-    if ($form_provider) {
-        echo "  <td class='detail'>&nbsp;" . text($provider_name) . "</td>\n";
-    }
+                if ($form_provider) {
+                    echo "  <td class='detail'>&nbsp;" . text($provider_name) . "</td>\n";
+                }
 
-    if ($form_cb_referrer) {
-        echo "  <td class='detail'>&nbsp;" . text($row['referrer']) . "</td>\n";
-    }
-} else {
-    echo "  <td class='detail' colspan='" . attr($initial_colspan) . "'>";
-    echo "&nbsp;</td>\n";
-}
-?>
+                if ($form_cb_referrer) {
+                    echo "  <td class='detail'>&nbsp;" . text($row['referrer']) . "</td>\n";
+                }
+            } else {
+                echo "  <td class='detail' colspan='" . attr($initial_colspan) . "'>";
+                echo "&nbsp;</td>\n";
+            }
+            ?>
   <td class="detail">
      &nbsp;<a href="#" onclick="editInvoice(event,<?php echo attr_js($row['id']) ?>)">
-        <?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?></a>
+            <?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?></a>
   </td>
   <td class="detail">
    &nbsp;<?php echo text(oeFormatShortDate($row['dos'])); ?>
   </td>
-<?php if ($form_cb_adate) { ?>
+            <?php if ($form_cb_adate) { ?>
   <td class='detail'>
    &nbsp;<?php echo text(oeFormatShortDate($row['ladate'])); ?>
   </td>
 <?php } ?>
   <td class="detail" align="right">
-    <?php echo text(bucks($row['charges'])) ?>&nbsp;
+            <?php echo text(bucks($row['charges'])) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-    <?php echo text(bucks($row['adjustments'])) ?>&nbsp;
+            <?php echo text(bucks($row['adjustments'])) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-    <?php echo text(bucks($row['paid'])) ?>&nbsp;
+            <?php echo text(bucks($row['paid'])) ?>&nbsp;
   </td>
-<?php
-if ($form_age_cols) {
-    for ($c = 0; $c < $form_age_cols; ++$c) {
-        echo "  <td class='detail' align='right'>";
-        if ($c == $agecolno) {
-            echo text(bucks($balance));
-        }
+            <?php
+            if ($form_age_cols) {
+                for ($c = 0; $c < $form_age_cols; ++$c) {
+                    echo "  <td class='detail' align='right'>";
+                    if ($c == $agecolno) {
+                        echo text(bucks($balance));
+                    }
 
-        echo "&nbsp;</td>\n";
-    }
-} else {
-?>
+                    echo "&nbsp;</td>\n";
+                }
+            } else {
+                ?>
 <td class="detail" align="right"><?php echo text(bucks($balance)); ?>&nbsp;</td>
-<?php
-} // end else
-?>
-<?php
-if ($form_cb_idays) {
-    echo "  <td class='detail' align='right'>";
-    echo text($row['inactive_days']) . "&nbsp;</td>\n";
-}
-?>
+                <?php
+            } // end else
+            ?>
+            <?php
+            if ($form_cb_idays) {
+                echo "  <td class='detail' align='right'>";
+                echo text($row['inactive_days']) . "&nbsp;</td>\n";
+            }
+            ?>
   <td class="detail" align="center">
-    <?php echo $row['duncount'] ? text($row['duncount']) : "&nbsp;" ?>
+            <?php echo $row['duncount'] ? text($row['duncount']) : "&nbsp;" ?>
   </td>
   <td class="detail" align="center">
-<?php
-if ($in_collections) {
-    echo "   <b><font color='red'>IC</font></b>\n";
-} else {
-    echo "   <input type='checkbox' name='form_cb[" .  attr($row['invnumber'])  . "]' />\n";
-}
-?>
+            <?php
+            if ($in_collections) {
+                echo "   <b><font color='red'>IC</font></b>\n";
+            } else {
+                echo "   <input type='checkbox' name='form_cb[" .  attr($row['invnumber'])  . "]' />\n";
+            }
+            ?>
   </td>
-<?php
-if ($form_cb_err) {
-    echo "  <td class='detail'>&nbsp;";
-    echo text($row['billing_errmsg']) . "</td>\n";
-}
-?>
+            <?php
+            if ($form_cb_err) {
+                echo "  <td class='detail'>&nbsp;";
+                echo text($row['billing_errmsg']) . "</td>\n";
+            }
+            ?>
  </tr>
-<?php
+            <?php
         } // end not export and not insurance summary
 
         else if ($_POST['form_csvexport']) {
@@ -1351,7 +1350,7 @@ if ($form_cb_err) {
 
 if (!$_POST['form_csvexport']) {
     if (!$_POST['form_export']) {
-    ?>
+        ?>
 
   <div style='float;margin-top:5px'>
     <div class="btn-group pull-left" role="group">
@@ -1378,20 +1377,20 @@ if (!$_POST['form_csvexport']) {
   </div>
 </div>
 
-<?php
+        <?php
     } // end not export
-?>
+    ?>
 </form>
 </center>
 <script language="JavaScript">
-<?php
-if ($alertmsg) {
-    echo "alert(" . js_escape($alertmsg) . ");\n";
-}
-?>
+    <?php
+    if ($alertmsg) {
+        echo "alert(" . js_escape($alertmsg) . ");\n";
+    }
+    ?>
 </script>
 </body>
 </html>
-<?php
+    <?php
 } // end not form_csvexport
 ?>

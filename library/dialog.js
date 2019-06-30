@@ -7,7 +7,8 @@
 // of the License, or (at your option) any later version.
 
 // open a new cascaded window
-function cascwin(url, winname, width, height, options) {
+function cascwin(url, winname, width, height, options)
+{
     var mywin = window.parent ? window.parent : window;
     var newx = 25, newy = 25;
     if (!isNaN(mywin.screenX)) {
@@ -29,8 +30,9 @@ function cascwin(url, winname, width, height, options) {
     if (navigator.appName == 'Microsoft Internet Explorer') {
         var ua = navigator.userAgent;
         var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-        if (re.exec(ua) != null)
+        if (re.exec(ua) != null) {
             rv = parseFloat(RegExp.$1); // this holds the version number
+        }
         height = height + 28;
     }
 
@@ -43,8 +45,11 @@ function cascwin(url, winname, width, height, options) {
 }
 
 // recursive window focus-event grabber
-function grabfocus(w) {
-    for (var i = 0; i < w.frames.length; ++i) grabfocus(w.frames[i]);
+function grabfocus(w)
+{
+    for (var i = 0; i < w.frames.length; ++i) {
+        grabfocus(w.frames[i]);
+    }
     w.onfocus = top.imfocused;
 }
 
@@ -53,9 +58,12 @@ function grabfocus(w) {
 // ui's.Use dlgopen() for responsive b.s modal dialogs.
 // Can now use anywhere to cascade natives...12/1/17 sjp
 //
-function dlgOpenWindow(url, winname, width, height) {
+function dlgOpenWindow(url, winname, width, height)
+{
     if (top.modaldialog && !top.modaldialog.closed) {
-        if (window.focus) top.modaldialog.focus();
+        if (window.focus) {
+            top.modaldialog.focus();
+        }
         if (top.modaldialog.confirm(top.oemr_dialog_close_msg)) {
             top.modaldialog.close();
             top.modaldialog = null;
@@ -63,15 +71,21 @@ function dlgOpenWindow(url, winname, width, height) {
             return false;
         }
     }
-    top.modaldialog = cascwin(url, winname, width, height,
-        "resizable=1,scrollbars=1,location=0,toolbar=0");
+    top.modaldialog = cascwin(
+        url,
+        winname,
+        width,
+        height,
+        "resizable=1,scrollbars=1,location=0,toolbar=0"
+    );
     grabfocus(top);
     return false;
 }
 
 // This is called from del_related() which in turn is invoked by find_code_dynamic.php.
 // Deletes the specified codetype:code from the indicated input text element.
-function my_del_related(s, elem, usetitle) {
+function my_del_related(s, elem, usetitle)
+{
     if (!s) {
         // Deleting everything.
         elem.value = '';
@@ -96,8 +110,10 @@ function my_del_related(s, elem, usetitle) {
     }
 }
 
-function dialogID() {
-    function s4() {
+function dialogID()
+{
+    function s4()
+    {
         return Math.floor((1 + Math.random()) * 0x10000)
             .toString(16)
             .substring(1);
@@ -116,7 +132,8 @@ function dialogID() {
 * @param {string} 'script' | 'link'.
 *
 * */
-function includeScript(url, async, type) {
+function includeScript(url, async, type)
+{
 
     try {
         let rqit = new XMLHttpRequest();
@@ -147,7 +164,6 @@ function includeScript(url, async, type) {
         }
 
         throw new Error("Failed to get URL:" + url);
-
     } catch (e) {
         throw e;
     }
@@ -155,7 +171,8 @@ function includeScript(url, async, type) {
 }
 
 // test for and/or remove dependency.
-function inDom(dependency, type, remove) {
+function inDom(dependency, type, remove)
+{
     let el = type;
     let attr = type === 'script' ? 'src' : type === 'link' ? 'href' : 'none';
     let all = document.getElementsByTagName(el)
@@ -187,18 +204,21 @@ if (typeof top.tab_mode === "undefined" && opener) {
 if (typeof top.set_opener !== "function") {
     var opener_list = [];
 
-    function set_opener(window, opener) {
+    function set_opener(window, opener)
+    {
         top.opener_list[window] = opener;
     }
 
-    function get_opener(window) {
+    function get_opener(window)
+    {
         return top.opener_list[window];
     }
 }
 
 // universal alert popup message
 if (typeof alertMsg !== "function") {
-    function alertMsg(message, timer = 5000, type = 'danger', size = '', persist = '') {
+    function alertMsg(message, timer = 5000, type = 'danger', size = '', persist = '')
+    {
         // example of get php to js variables.
         let isPromise = top.jsFetchGlobals('alert');
         isPromise.then(xl => {
@@ -271,7 +291,8 @@ if (typeof dlgclose !== "function") {
         }
     }
 
-    function dlgclose(call, args) {
+    function dlgclose(call, args)
+    {
         var frameName = window.name;
         var wframe = opener;
         if (frameName === '') {
@@ -338,7 +359,8 @@ if (typeof dlgclose !== "function") {
 * @param {Object} opts Dialogs options.
 * @returns {Object} dialog object reference.
 * */
-function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
+function dlgopen(url, winname, width, height, forceNewWindow, title, opts)
+{
     // First things first...
     top.restoreSession();
     // A matter of Legacy
@@ -376,8 +398,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             }
         }
         if (typeof jQuery.fn.modal === 'undefined') {
-            if (!inDom('bootstrap.min.js', 'script', false))
+            if (!inDom('bootstrap.min.js', 'script', false)) {
                 includeScript(bsurl, false, 'script');
+            }
         }
         if (typeof jQuery.ui === 'undefined') {
             includeScript(jqui, false, 'script');
@@ -398,7 +421,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         onClosed: false,
         callBack: false // use {call: 'functionName, args: args, args} if known or use dlgclose.
     };
-    if (!opts) var opts = {};
+    if (!opts) {
+        var opts = {};
+    }
 
     opts = jQuery.extend({}, opts_defaults, opts);
     opts.type = opts.type ? opts.type.toLowerCase() : '';
@@ -654,7 +679,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     }); // end events
 // Ajax call with promise
-    function dialogAjax(data, $dialog) {
+    function dialogAjax(data, $dialog)
+    {
         var params = {
             async: data.async,
             method: data.method || '',
@@ -673,13 +699,15 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
         return true;
 
-        function aOkay(html) {
+        function aOkay(html)
+        {
             $dialog.find('.modal-body').html(data.success ? data.success(html) : html);
 
             return true;
         }
 
-        function oops(r, s) {
+        function oops(r, s)
+        {
             var msg = data.error ?
                 data.error(r, s, params) :
                 '<div class="alert alert-danger">' +
@@ -691,7 +719,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         }
     }
 
-    function buildFooter() {
+    function buildFooter()
+    {
         if (opts.buttons === false) {
             return '';
         }
@@ -743,7 +772,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     }
 
     // dynamic sizing - special case for full height - @todo use for fixed wt and ht
-    function sizing(e, height) {
+    function sizing(e, height)
+    {
         let viewPortHt = 0;
         let $idoc = jQuery(e.currentTarget);
         if (top.tab_mode) {
@@ -769,7 +799,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     }
 
     // sizing for modals with iframes
-    function SizeModaliFrame(e, minSize) {
+    function SizeModaliFrame(e, minSize)
+    {
         let viewPortHt;
         let idoc = e.currentTarget.contentDocument ? e.currentTarget.contentDocument : e.currentTarget.contentWindow.document;
         jQuery(e.currentTarget).parents('div.modal-content').height('');

@@ -209,7 +209,6 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
 <?php endif; ?>
 
 <?php if (isset($result)) : ?>
-
 <div id="searchResultsHeader">
 <table>
  <tr>

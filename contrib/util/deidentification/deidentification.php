@@ -10,14 +10,14 @@
         * truncating the log tables since personal information may be stored there
         * removes data in forms - END USER MUST EDIT deIdForms function to enure all form data is removed.
 
-	There is no turnging back.......
+    There is no turnging back.......
 
-	To use: 
-	
-	1) Enter values for host, user, database, password
-	2) type: php deidentification_OpenEMR.php 
-	
-	Your database now has deidientified all data and can never be restored. 
+    To use:
+
+    1) Enter values for host, user, database, password
+    2) type: php deidentification_OpenEMR.php
+
+    Your database now has deidientified all data and can never be restored.
 
  * Copyright (C) 2017 Daniel Pflieger <growlingflea@gmail.com daniel@mi-squared.com and OEMR <www.oemr.org>
  *
@@ -36,9 +36,9 @@
  * @author  Daniel Pflieger <growlingflea@gmail.com> <daniel@mi-squared.com>
  * @link    http://www.open-emr.org
 
-	
+
     NOTE:  IT IS STILL THE RESPONSIBILITY OF THE USER TO ENSURE THAT ALL PERSONAL IDENTIFIABLE INFORMATION HAS BEEN DELETED FROM THE DATABASE.  THE END USER
-    MUST MAKE SURE THAT ALL TEXT AREAS IN FORMS DO NOT INCLUDE THE PATIENTS REAL NAME. 
+    MUST MAKE SURE THAT ALL TEXT AREAS IN FORMS DO NOT INCLUDE THE PATIENTS REAL NAME.
 */
 
 

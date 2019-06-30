@@ -80,7 +80,7 @@
           margin-bottom: 10px !important;
     }
     #print_table {
-          display: none !important; 
+          display: none !important;
     }
  }
  
@@ -89,5 +89,5 @@
         visibility: hidden !important;
         display: none !important;
        
-    } 
+    }
  }

@@ -67,25 +67,18 @@ global_reqs['Fax/Scan']=['enable_hylafax','enable_scanner'];
 
 function set_acl_reqs(entry)
 {
-    if('url' in entry)
-    {
-        if(entry.label in acl_reqs)
-        {
+    if ('url' in entry) {
+        if (entry.label in acl_reqs) {
             var reqs=acl_reqs[entry.label];
-            if(reqs.length===3)
-            {
-                if(entry.url.indexOf(reqs[2])!==-1)
-                {
+            if (reqs.length===3) {
+                if (entry.url.indexOf(reqs[2])!==-1) {
                     entry.acl_req=[reqs[0],reqs[1]];
                 }
-            }
-            else
-            {
+            } else {
                 entry.acl_req=acl_reqs[entry.label];
             }
         }
-        if(entry.label in global_reqs)
-        {
+        if (entry.label in global_reqs) {
             entry.global_req=global_reqs[entry.label];
         }
     }
@@ -93,26 +86,20 @@ function set_acl_reqs(entry)
 
 function setTarget(entry,target)
 {
-    if('url' in entry)
-    {
+    if ('url' in entry) {
         entry.target=target
-    }
-    else
-    {
-        for(var idx=0;idx<entry.children.length;idx++)
-        {
+    } else {
+        for (var idx=0; idx<entry.children.length; idx++) {
             setTarget(entry.children[idx],target);
         }
     }
 }
 function post_process(menu_entries)
 {
-    for(var idx=0;idx<menu_entries.length;idx++)
-    {
+    for (var idx=0; idx<menu_entries.length; idx++) {
         var curEntry=menu_entries[idx];
         set_acl_reqs(curEntry);
-        if(curEntry.label in targets)
-        {
+        if (curEntry.label in targets) {
             setTarget(curEntry,targets[curEntry.label]);
         }
         post_process(curEntry.children);
@@ -120,40 +107,31 @@ function post_process(menu_entries)
 }
 function parse_link(link,entry)
 {
-    if(link)
-    {
+    if (link) {
         var parameters=link.substring(link.indexOf('(')+1,link.indexOf(')'));
-        if(parameters==='')
-        {
+        if (parameters==='') {
             parameters=link;
         }
-        if(link.indexOf("loadFrame2")===-1)
-        {
+        if (link.indexOf("loadFrame2")===-1) {
             var url=parameters.replace(/\'/g,"").replace(/\"/g,"").replace("../","/interface/");
             entry.url=url;
             entry.target="report";
-        }
-        else
-        {
+        } else {
             parameters=parameters.replace(/\'/g,"").replace(/\"/g,"");
             var params=parameters.split(",");
             entry.target=params[1];
-            if(entry.target==='RTop')
-            {
+            if (entry.target==='RTop') {
                 entry.target='pat';
             }
-            if(entry.target==='RBot')
-            {
+            if (entry.target==='RBot') {
                 entry.target='enc';
             }
 
 
             entry.url=params[2].replace("../","/");
-            if(entry.url.indexOf("/")>0)
-            {
+            if (entry.url.indexOf("/")>0) {
                 entry.url="/interface/"+entry.url;
             }
-
         }
     }
 }
@@ -168,27 +146,19 @@ function menu_entry(label,link,menu_id)
     self.icon=icon;
     self.helperText=helperText;
     self.requirement=0;
-    if(menu_id)
-    {
-        if(menu_id.charAt(3)==='1')
-        {
-            if(self.label==='Summary')
-            {
+    if (menu_id) {
+        if (menu_id.charAt(3)==='1') {
+            if (self.label==='Summary') {
                 self.target="pat";
-            }
-            else
-            {
+            } else {
                 self.target="enc";
             }
             self.requirement=1;
-        } else
-        if(menu_id.charAt(3)==='2')
-        {
+        } else if (menu_id.charAt(3)==='2') {
             self.target="enc";
             self.requirement=2;
             // Special case for "Current" visit entry
-            if(self.label==="Current")
-            {
+            if (self.label==="Current") {
                 self.requirement=3;
             }
         }
@@ -207,15 +177,11 @@ function analyze_menu()
 {
     alert('I think you will never see this. --Rod'); // debugging
 
-    if(!top.left_nav)
-    {
+    if (!top.left_nav) {
         setTimeout(analyze_menu,1000);
         return;
-    }
-    else
-    {
-        if(!top.left_nav.$)
-        {
+    } else {
+        if (!top.left_nav.$) {
             alert("no jq!");
             setTimeout(analyze_menu,1000);
             return;
@@ -223,72 +189,59 @@ function analyze_menu()
     }
     var jqLeft=top.left_nav.$(top.left_nav.document)
     var $=top.left_nav.$;
-    jqLeft.ready(function(){
+    jqLeft.ready(function () {
 
         var menuTop=jqLeft.find("#navigation-slide");
         menuTop.children().each(
-                function(idx,elem)
-                {
+            function (idx,elem) {
                     // Header or content
                     var jqElem=$(elem);
                     var anchor=jqElem.children("a");
                     var subMenu = jqElem.children("ul");
 
                     var newEntry=menu_entry_from_jq(anchor);
-                    if(subMenu.length>0)
-                    {
-                        // 2 (Second) level menu items
-                        subMenu.children("li").each(function(idx,elem)
-                        {
-                            var sub_anchor=$(elem).children("a");
-                            var sub_entry=menu_entry_from_jq(sub_anchor);
-                            if(sub_anchor.length!==1)
-                            {
-                                alert(sub_anchor.text());
-                            }
-                            var subSubMenu=$(elem).children("ul");
-                            //Third Level Menu Items
-                            if(subSubMenu.length>0 && sub_entry.label !=="Visit Forms")
-                            {
-                                subSubMenu.children("li").each(function(idx,elem)
-                                {
-                                    var sub_sub_anchor=$(elem).children("a");
-                                    var sub_sub_entry=menu_entry_from_jq(sub_sub_anchor);
-                                    sub_entry.children.push(sub_sub_entry);
+                if (subMenu.length>0) {
+                    // 2 (Second) level menu items
+                    subMenu.children("li").each(function (idx,elem) {
+                        var sub_anchor=$(elem).children("a");
+                        var sub_entry=menu_entry_from_jq(sub_anchor);
+                        if (sub_anchor.length!==1) {
+                            alert(sub_anchor.text());
+                        }
+                        var subSubMenu=$(elem).children("ul");
+                        //Third Level Menu Items
+                        if (subSubMenu.length>0 && sub_entry.label !=="Visit Forms") {
+                            subSubMenu.children("li").each(function (idx,elem) {
+                                var sub_sub_anchor=$(elem).children("a");
+                                var sub_sub_entry=menu_entry_from_jq(sub_sub_anchor);
+                                sub_entry.children.push(sub_sub_entry);
 
-                                });
-
-                            }
-                            //End Third Level Menu Items
-                            newEntry.children.push(sub_entry);
-                        });
-                        // End Second level menu items
-                    }
-                    else
-                    {
-
-
-                    };
+                            });
+                        }
+                        //End Third Level Menu Items
+                        newEntry.children.push(sub_entry);
+                    });
+                    // End Second level menu items
+                } else {
+                };
                     menu_entries.push(newEntry);
 
 
-                }
+            }
         );
         // Scan popup select
         var popups = jqLeft.find("select[name='popups'] option");
         var popups_menu_header=new menu_entry("Popups","","popup");
         menu_entries.push(popups_menu_header);
-        popups.each(function(idx,elem)
-            {
+        popups.each(function (idx,elem) {
                 var jqElem=$(elem);
-                if(jqElem.val()!=='')
-                {
-                    var popup_entry=new menu_entry(jqElem.text(),jqElem.val(),"Popup:"+jqElem.text());
-                    popup_entry.target="pop";
-                    popup_entry.requirement=1;
-                    popups_menu_header.children.push(popup_entry);
-                }
-            });
+            if (jqElem.val()!=='') {
+                var popup_entry=new menu_entry(jqElem.text(),jqElem.val(),"Popup:"+jqElem.text());
+                popup_entry.target="pop";
+                popup_entry.requirement=1;
+                popups_menu_header.children.push(popup_entry);
+            }
+        });
         // Process Complete
 
         post_process(menu_entries);

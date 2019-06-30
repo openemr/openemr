@@ -53,7 +53,7 @@ var config = {
 };
 
 /**
- * Clean up lingering static assets 
+ * Clean up lingering static assets
  */
 gulp.task('clean', function () {
     return del.sync([config.dest.themes + "/*"]);
@@ -176,7 +176,9 @@ gulp.task('rtl:setup', function (callback) {
 
     // backup and update directional file
     fs.copyFile(config.src.styles.directional, config.src.styles.directional + '.temp', (err) => {
-        if (err) throw err;
+        if (err) {
+            throw err;
+        }
         replace({
             files: config.src.styles.directional,
             from: /ltr \!default/g,
@@ -192,7 +194,9 @@ gulp.task('rtl:teardown', function (callback) {
         to: 'ltr !default',
     }).then(function () {
         fs.unlink(config.src.styles.directional + '.temp', (err) => {
-            if (err) throw err;
+            if (err) {
+                throw err;
+            }
             callback();
         });
     });
@@ -234,7 +238,7 @@ gulp.task('watch', function () {
     // watch all changes and re-run styles
     gulp.watch('./interface/**/*.scss', { interval: 1000, mode: 'poll' }, ['styles']);
 
-    // watch all changes to css/php files in themes and copy to public  
+    // watch all changes to css/php files in themes and copy to public
     return watch('./interface/themes/*.{css,php}', { ignoreInitial: false })
         .pipe(gulp.dest(config.dest.themes));
 });

@@ -362,13 +362,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     $patient_id = $orow['patient_id'];
     $language = $orow['language'];
 
-?>
+    ?>
 
-<?php if ($genstyles) { ?>
+    <?php if ($genstyles) { ?>
 <style>
 
-    <?php if (empty($_SESSION['language_direction']) || $_SESSION['language_direction'] == 'ltr') { ?>
-
+        <?php if (empty($_SESSION['language_direction']) || $_SESSION['language_direction'] == 'ltr') { ?>
     .labres tr.head {
         font-size: 10pt;
         background-color: #e9e9e9;
@@ -396,7 +395,6 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     }
 
     <?php } else { ?>
-
     .labres tr.head {
         font-size: 10pt;
         text-align: center;
@@ -429,13 +427,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 </style>
 <?php } ?>
 
-<?php if ($input_form) { ?>
+    <?php if ($input_form) { ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
 <?php } // end if input form
-?>
+    ?>
 
-<?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
-
+    <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
 <script language="JavaScript">
     let mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
     if (typeof top.tab_mode === "undefined") {
@@ -478,7 +475,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 </script>
 
 <?php } // end if not patient report ?>
-<?php if ($input_form) { ?>
+    <?php if ($input_form) { ?>
 <form method='post' action='single_order_results.php?orderid=<?php echo attr_url($orderid); ?>'>
     <?php } // end if input form
     ?>
@@ -744,6 +741,6 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 </form>
 <?php } // end if input form ?>
 
-<?php
+    <?php
 } // end function generate_order_report
 ?>

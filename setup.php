@@ -379,7 +379,7 @@ function cloneClicked() {
 
             <?php
             if ($state == 8) {
-            ?>
+                ?>
 
             <fieldset>
             <legend>Final step - Success</legend>
@@ -398,37 +398,37 @@ function cloneClicked() {
                 <li>We pursue grants to help fund the future development of OpenEMR.  To apply for these grants, we need to estimate how many times this program is installed and how many practices are evaluating or using this software.  It would be awesome if you would email us at <a href="mailto:hello@open-emr.org">hello@open-emr.org</a> if you have installed this software. The more details about your plans with this software, the better, but even just sending us an email stating you just installed it is very helpful.</li>
             </ul>
             <p>We recommend you print these instructions for future reference.</p>
-            <?php
-            echo "<p> The selected theme is :</p>";
+                <?php
+                echo "<p> The selected theme is :</p>";
                 $installer->displayNewThemeDiv();
-            if (empty($installer->clone_database)) {
-                echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'".$installer->iuser."'</span> and the password is <span class='text-primary'>'".$installer->iuserpass."'</span></b></p>";
-            } else {
-                echo "<p>The initial OpenEMR user name and password is the same as that of source site <b>'". $installer->source_site_id ."'</span></b></p>";
-            }
-            echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
-            echo "<p>In Linux use the following command:</p>";
-            echo "<p><code>sudo apachectl -k restart</code></p>";
+                if (empty($installer->clone_database)) {
+                    echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'".$installer->iuser."'</span> and the password is <span class='text-primary'>'".$installer->iuserpass."'</span></b></p>";
+                } else {
+                    echo "<p>The initial OpenEMR user name and password is the same as that of source site <b>'". $installer->source_site_id ."'</span></b></p>";
+                }
+                echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
+                echo "<p>In Linux use the following command:</p>";
+                echo "<p><code>sudo apachectl -k restart</code></p>";
 
-            ?>
+                ?>
             <p>
              <a href='./?site=<?php echo $site_id; ?>'>Click here to start using OpenEMR. </a>
             </p>
             </fieldset>
-            <?php
-            $installer->setCurrentTheme();
+                <?php
+                $installer->setCurrentTheme();
 
-            $end_div = <<<ENDDIV
+                $end_div = <<<ENDDIV
             </div>
         </div>
     </div><!--end of container div-->
 ENDDIV;
-            echo $end_div . "\r\n";
-            $installer->setupHelpModal();
-            echo "</body>". "\r\n";
-            echo "</html>". "\r\n";
+                echo $end_div . "\r\n";
+                $installer->setupHelpModal();
+                echo "</body>". "\r\n";
+                echo "</html>". "\r\n";
 
-            exit();
+                exit();
             }
             ?>
 
@@ -1586,7 +1586,7 @@ FRM;
                             </div>
 BOT;
                         echo $bot ."\r\n";
-                        ?>
+            ?>
 
 
     </div><!--end of container div -->

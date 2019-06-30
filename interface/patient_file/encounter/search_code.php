@@ -99,49 +99,49 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
         }
 
         echo "</div>";
-?>
+        ?>
 <div id="results">
 <table><tr class='text'><td valign='top'>
-<?php
-$count = 0;
-$total = 0;
+        <?php
+        $count = 0;
+        $total = 0;
 
-if ($result) {
-    foreach ($result as $iter) {
-        if ($count == $N) {
-            echo "</td><td valign='top'>\n";
-            $count = 0;
+        if ($result) {
+            foreach ($result as $iter) {
+                if ($count == $N) {
+                    echo "</td><td valign='top'>\n";
+                    $count = 0;
+                }
+
+                echo "<div class='oneresult' style='padding: 3px 0px 3px 0px;'>";
+                echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
+                    "&type="     . attr_url($code_type) .
+                    "&code="     . attr_url($iter{"code"}) .
+                    "&modifier=" . attr_url($iter{"modifier"}) .
+                    "&units="    . attr_url($iter{"units"}) .
+                    // "&fee="      . attr_url($iter{"fee"}) .
+                    "&fee="      . attr_url($iter['pr_price']) .
+                    "&text="     . attr_url($iter{"code_text"}) .
+                    "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
+                    "' onclick='top.restoreSession()'>";
+                echo ucwords("<b>" . text(strtoupper($iter{"code"})) . "&nbsp;" . text($iter['modifier']) .
+                    "</b>" . " " . text(strtolower($iter{"code_text"})));
+                echo "</a><br>\n";
+                echo "</div>";
+
+                $count++;
+                $total++;
+
+                if ($total == $M) {
+                    echo "</span><span class='alert-custom'>" . xlt('Some codes were not displayed.') . "</span>\n";
+                    break;
+                }
+            }
         }
-
-        echo "<div class='oneresult' style='padding: 3px 0px 3px 0px;'>";
-        echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
-            "&type="     . attr_url($code_type) .
-            "&code="     . attr_url($iter{"code"}) .
-            "&modifier=" . attr_url($iter{"modifier"}) .
-            "&units="    . attr_url($iter{"units"}) .
-            // "&fee="      . attr_url($iter{"fee"}) .
-            "&fee="      . attr_url($iter['pr_price']) .
-            "&text="     . attr_url($iter{"code_text"}) .
-            "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
-            "' onclick='top.restoreSession()'>";
-        echo ucwords("<b>" . text(strtoupper($iter{"code"})) . "&nbsp;" . text($iter['modifier']) .
-            "</b>" . " " . text(strtolower($iter{"code_text"})));
-        echo "</a><br>\n";
-        echo "</div>";
-
-        $count++;
-        $total++;
-
-        if ($total == $M) {
-            echo "</span><span class='alert-custom'>" . xlt('Some codes were not displayed.') . "</span>\n";
-            break;
-        }
-    }
-}
-?>
+        ?>
 </td></tr></table>
 </div>
-<?php
+        <?php
     }
 }
 ?>

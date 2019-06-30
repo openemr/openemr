@@ -13,7 +13,8 @@
  */
 
 // start app function
-function startApp() {
+function startApp()
+{
     // main application
     var myapp = new dwv.App();
     // initialise the application
@@ -40,13 +41,14 @@ dwv.image.decoderScripts = {
 var domContentLoaded = false;
 var i18nInitialised = false;
 // launch when both DOM and i18n are ready
-function launchApp() {
+function launchApp()
+{
     if ( domContentLoaded && i18nInitialised ) {
         startApp();
     }
 }
 // i18n ready?
-dwv.i18nOnInitialised( function () {
+dwv.i18nOnInitialised(function () {
     i18nInitialised = true;
     launchApp();
 });

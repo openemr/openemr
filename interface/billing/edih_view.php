@@ -349,7 +349,7 @@ if (!acl_check('acct', 'eob')) {
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
     };
 /* *** variables for upload maximums *** */
-/* *** phpserver: 'maxfsize''maxfuploads''postmaxsize''tmpdir'	phpserver['postmaxsize'] *** */
+/* *** phpserver: 'maxfsize''maxfuploads''postmaxsize''tmpdir'  phpserver['postmaxsize'] *** */
     var phpserver = [];
     jQuery(function() {
         jQuery.ajax({
@@ -471,7 +471,7 @@ jQuery-UI dialog
         jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
             .load(jQuery(this).attr('href')).appendTo('#tbcsvhist').dialog(options);
     });
-/* #csvTable  ****	*/
+/* #csvTable  ****  */
     jQuery('#tblshow').on('click', 'a', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -489,7 +489,7 @@ jQuery-UI dialog
             .load(jQuery(this).attr('href')).appendTo('#tblshow').dialog(options);
     });
 */
-/* **** links in dialog in uploads - processed div  ****	*/
+/* **** links in dialog in uploads - processed div  ****    */
     jQuery('#processed').on('click', 'a', function(e) {
         e.preventDefault();
         e.stopPropagation();

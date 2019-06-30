@@ -1,9 +1,9 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Form:	Psychiatrisch Onderzoek - Delete Autosave
-// Package:	remove autosaved form  - Dutch specific form
-// Created by:	Larry Lart
-// Version:	1.0 - 29-03-2008
+// Form:    Psychiatrisch Onderzoek - Delete Autosave
+// Package: remove autosaved form  - Dutch specific form
+// Created by:  Larry Lart
+// Version: 1.0 - 29-03-2008
 ////////////////////////////////////////////////////////////////////
 
 //local includes

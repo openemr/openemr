@@ -26,8 +26,7 @@ function Add($tag, $text)
     global $out, $indent;
     $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
     if ($text) {
-        for ($i = 0; $i < $indent;
-        ++$i) {
+        for ($i = 0; $i < $indent; ++$i) {
             $out .= "\t";
         }
 
@@ -38,8 +37,7 @@ function Add($tag, $text)
 function OpenTag($tag)
 {
     global $out, $indent;
-    for ($i = 0; $i < $indent;
-    ++$i) {
+    for ($i = 0; $i < $indent; ++$i) {
         $out .= "\t";
     }
 
@@ -51,8 +49,7 @@ function CloseTag($tag)
 {
     global $out, $indent;
     --$indent;
-    for ($i = 0; $i < $indent;
-    ++$i) {
+    for ($i = 0; $i < $indent; ++$i) {
         $out .= "\t";
     }
 

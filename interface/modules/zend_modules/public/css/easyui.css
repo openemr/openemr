@@ -2192,18 +2192,18 @@ a.s-btn-plain-active {
 }
 
 .icon-lab-group{
-	background: url('images/tree_icons.png')  no-repeat -208px 0  !important;
+    background: url('images/tree_icons.png')  no-repeat -208px 0  !important;
 }
 
 .icon-lab-order{
-	background:url('icons/lab_order.png') no-repeat center center !important;
+    background:url('icons/lab_order.png') no-repeat center center !important;
 }
 .icon-lab-result{
-	background:url('icons/lab_result.png') no-repeat center center !important;
+    background:url('icons/lab_result.png') no-repeat center center !important;
 }
 
 .icon-lab-reccomendation{
-	background: url('images/tree_icons.png') no-repeat -240px 0 !important;
+    background: url('images/tree_icons.png') no-repeat -240px 0 !important;
 }
 
 

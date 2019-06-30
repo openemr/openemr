@@ -165,7 +165,7 @@ function check_search_str()
         document.theform.search_term.value=" ";
         document.theform.search_term.focus();
         </script>
-        <?php
+            <?php
         }
 
         $query = "SELECT drug_id, name FROM drugs " .
@@ -178,13 +178,13 @@ function check_search_str()
               $row_count = $row_count + 1;
               $itercode = $row['drug_id'];
               $itertext = ucfirst(strtolower(trim($row['name'])));
-                ?>
+            ?>
                <input type="checkbox" id="chkbox" name ="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
         }
     }
 
     }
-?>
+    ?>
 </td>
 </tr>
  </table>

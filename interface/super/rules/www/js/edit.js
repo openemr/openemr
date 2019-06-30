@@ -1,14 +1,14 @@
 /*
  *
  */
-var rule_edit = function( args ) {
+var rule_edit = function ( args ) {
 
-    var fn_work = function() {
+    var fn_work = function () {
         // setup required
-        $(".req").each( function() {
+        $(".req").each(function () {
             var txt = $(this).text();
             txt = "<span class='required'>*</span>" + txt;
-            $(this).html( txt );
+            $(this).html(txt);
         });
 
         if ($(".req").length > 0) {
@@ -16,8 +16,8 @@ var rule_edit = function( args ) {
         }
     }
 
-    var fn_validate = function() {
-        String.prototype.trim = function() {
+    var fn_validate = function () {
+        String.prototype.trim = function () {
             return this.replace(/^\s+|\s+$/g,"");
         }
 
@@ -26,7 +26,7 @@ var rule_edit = function( args ) {
         $(".field_err_lbl_marker").removeClass("field_err_lbl_marker");
 
         var success = true;
-        $(".req").each( function() {
+        $(".req").each(function () {
             var label = $(this);
 
             // test field
@@ -78,22 +78,22 @@ var rule_edit = function( args ) {
         return success;
     }
 
-    var fn_wire_events = function() {
-        $('#btn_save').on("click", function() {
-           if ( fn_validate() ) {
-               top.restoreSession();
-               $('#frm_submit').trigger("submit");
-           }
+    var fn_wire_events = function () {
+        $('#btn_save').on("click", function () {
+            if ( fn_validate() ) {
+                top.restoreSession();
+                $('#frm_submit').trigger("submit");
+            }
         });
     }
 
     return {
-            init: function() {
-                $( document ).ready( function() {
-                    fn_wire_events();
-                    fn_work();
-                });
-            }
+        init: function () {
+            $(document).ready(function () {
+                fn_wire_events();
+                fn_work();
+            });
+        }
     };
 
 }

@@ -5,42 +5,46 @@
 // modified to use activeElement for general edit sjpadgett@gmail.com 06/18/2019
 //
 
-function moveOptions_11(theSelFrom, theSelTo){
+function moveOptions_11(theSelFrom, theSelTo)
+{
     document.getElementById(theSelFrom).style.color="red";
     document.getElementById(theSelFrom).style.fontStyle="italic";
     var str=document.getElementById(theSelFrom).innerHTML;
-    if(window.frames[0].document.body.innerHTML=='<br>')
-    window.frames[0].document.body.innerHTML="";
+    if (window.frames[0].document.body.innerHTML=='<br>') {
+        window.frames[0].document.body.innerHTML="";
+    }
     var patt=/\?\?/;
     var result=patt.test(str);
-    if(result){
+    if (result) {
         url = 'quest_popup.php?content='+str;
         window.open(url,'quest_pop','width=640,height=190,menubar=no,toolbar=0,location=0, directories=0, status=0,left=400,top=375');
         //dlgopen(url,'quest_pop', '', 640, 190);
-    }
-    else{
+    } else {
         val = str;
-       CKEDITOR.instances.textarea1.insertText(val);
+        CKEDITOR.instances.textarea1.insertText(val);
     }
 }
-function movePD(val,theSelTo){
+function movePD(val,theSelTo)
+{
     var textAreaContent = window.frames[0].document.body.innerHTML;
     var textFrom = val;
-    if(textAreaContent != '')
-    textAreaContent += "  "+textFrom;
-    else
-    textAreaContent += textFrom;
+    if (textAreaContent != '') {
+        textAreaContent += "  "+textFrom;
+    } else {
+        textAreaContent += textFrom;
+    }
     window.frames[0].document.body.innerHTML=textAreaContent;
 }
-function edit(id, ccFlag = ''){
+function edit(id, ccFlag = '')
+{
     let val = '';
     if (ccFlag) {
-        if(ccFlag === 'id') {
+        if (ccFlag === 'id') {
             val = window.opener.document.getElementById(id).value;
         } else {
             // must be name attr.
             val = window.opener.document.querySelector('textarea[name='+id+']').value;
-            if(val === null) {
+            if (val === null) {
                 val = window.opener.document.querySelector("input[name="+id+"]").value;
             }
         }
@@ -51,185 +55,197 @@ function edit(id, ccFlag = ''){
     arr=val.split("|*|*|*|");
     document.getElementById('textarea1').value=arr[0];
 }
-function ascii_write(asc, theSelTo){
+function ascii_write(asc, theSelTo)
+{
     var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
     var is_ie = navigator.userAgent.toLowerCase().indexOf('msie') > -1;
     var is_apple = navigator.userAgent.toLowerCase().indexOf('apple') > -1;
-    if(asc == 13)
-    {
-        if(!is_ie){
-        var plugin = CKEDITOR.plugins.enterkey,
-		enterBr = plugin.enterBr,
-        editor=CKEDITOR.instances.textarea1;
-        forceMode = editor.config.forceEnterMode;
-        mode = editor.config.enterMode;
-        editor.fire( 'saveSnapshot' );	// Save undo step.
-                enterBr( editor, mode, null, forceMode );
-                if(is_chrome || is_apple)
-                enterBr( editor, mode, null, forceMode );
-        }
-        else{
+    if (asc == 13) {
+        if (!is_ie) {
+            var plugin = CKEDITOR.plugins.enterkey,
+            enterBr = plugin.enterBr,
+            editor=CKEDITOR.instances.textarea1;
+            forceMode = editor.config.forceEnterMode;
+            mode = editor.config.enterMode;
+            editor.fire('saveSnapshot');  // Save undo step.
+                enterBr(editor, mode, null, forceMode);
+            if (is_chrome || is_apple) {
+                enterBr(editor, mode, null, forceMode);
+            }
+        } else {
             CKEDITOR.instances.textarea1.insertText('\r\n');
         }
-    }
-    else{
-        if (asc == 'para'){
-        var textFrom = "\r\n\r\n";
-        CKEDITOR.instances.textarea1.insertText(textFrom);
-        if(is_chrome || is_apple)
-        CKEDITOR.instances.textarea1.insertText(textFrom);
-        }
-        else
-        {
-            if (asc == 32)
-            var textFrom = "  ";
-            else
-            var textFrom = String.fromCharCode(asc);
+    } else {
+        if (asc == 'para') {
+            var textFrom = "\r\n\r\n";
+            CKEDITOR.instances.textarea1.insertText(textFrom);
+            if (is_chrome || is_apple) {
+                CKEDITOR.instances.textarea1.insertText(textFrom);
+            }
+        } else {
+            if (asc == 32) {
+                var textFrom = "  ";
+            } else {
+                var textFrom = String.fromCharCode(asc);
+            }
             CKEDITOR.instances.textarea1.insertText(textFrom);
         }
     }
 }
-function SelectToSave(textara, ccFlag = '') {
+function SelectToSave(textara, ccFlag = '')
+{
     let textAreaContent = '';
     mainform = window.opener.document;
     if (ccFlag) {
         textAreaContent = window.frames[0].document.body.textContent;
-        if(ccFlag === 'id') {
+        if (ccFlag === 'id') {
             val = mainform.getElementById(textara).value = textAreaContent;
         } else {
             val = mainform.querySelector('textarea[name='+textara+']').value = textAreaContent;
-            if(val === null) {
+            if (val === null) {
                 val = mainform.querySelector("input[name="+textara+"]").value = textAreaContent;
             }
         }
     } else {
         textAreaContent = window.frames[0].document.body.innerHTML;
-        if (mainform.getElementById(textara + '_div'))
+        if (mainform.getElementById(textara + '_div')) {
             mainform.getElementById(textara + '_div').innerHTML = textAreaContent;
-        if (mainform.getElementById(textara + '_optionTD') && document.getElementById('options'))
+        }
+        if (mainform.getElementById(textara + '_optionTD') && document.getElementById('options')) {
             mainform.getElementById(textara + '_optionTD').innerHTML = document.getElementById('options').innerHTML;
+        }
         if (mainform.getElementById(textara)) {
             mainform.getElementById(textara).value = textAreaContent;
-            if (document.getElementById('options'))
+            if (document.getElementById('options')) {
                 mainform.getElementById(textara).value += "|*|*|*|" + document.getElementById('options').innerHTML;
+            }
         }
     }
     dlgclose();
 }
-function removeHTMLTags(strInputCode){
+function removeHTMLTags(strInputCode)
+{
             /*
                     This line is optional, it replaces escaped brackets with real ones,
                     i.e. < is replaced with < and > is replaced with >
             */
-            strInputCode = strInputCode.replace(/&(lt|gt);/g, function (strMatch, p1){
+            strInputCode = strInputCode.replace(/&(lt|gt);/g, function (strMatch, p1) {
                     return (p1 == "lt")? "<" : ">";
             });
             var strTagStrippedText = strInputCode.replace(/<\/?[^>]+(>|$)/g, "");
 }
-function TemplateSentence(val){
-    if(val){
+function TemplateSentence(val)
+{
+    if (val) {
         document.getElementById('share').style.display='';
-    }
-    else{
+    } else {
         document.getElementById('share').style.display='none';
     }
     $.ajax({
-    type: "POST",
-    url: "ajax_code.php",
-    dataType: "html",
-    data: {
-         templateid: 	val
-    },
-    success: function(thedata){
+        type: "POST",
+        url: "ajax_code.php",
+        dataType: "html",
+        data: {
+            templateid:    val
+        },
+        success: function (thedata) {
                 //alert(thedata)
                 document.getElementById('template_sentence').innerHTML = thedata;
-                },
-    error:function(){
-        //alert("fail");
-    }
-   });
-   return;
+        },
+        error:function () {
+            //alert("fail");
+        }
+    });
+    return;
 }
-function delete_item(id){
+function delete_item(id)
+{
     //alert(id);
-    if(confirm("Do you really wants to delete this?")){
-    $.ajax({
-    type: "POST",
-    url: "ajax_code.php",
-    dataType: "html",
-    data: {
-         templateid: document.getElementById('template').value,
-         item: id,
-         source: "delete_item"
-    },
-    success: function(thedata){
+    if (confirm("Do you really wants to delete this?")) {
+        $.ajax({
+            type: "POST",
+            url: "ajax_code.php",
+            dataType: "html",
+            data: {
+                templateid: document.getElementById('template').value,
+                item: id,
+                source: "delete_item"
+            },
+            success: function (thedata) {
                 //alert(thedata)
                 document.getElementById('template_sentence').innerHTML = thedata;
-                },
-    error:function(){
-        //alert("fail");
-    }
-   });
-   return;
+            },
+            error:function () {
+                //alert("fail");
+            }
+        });
+        return;
     }
     return false;
 }
-function add_item(){
+function add_item()
+{
     document.getElementById('new_item').style.display='';
     document.getElementById('item').focus();
 }
-function cancel_item(id){
-    if(document.getElementById('new_item'))
-    document.getElementById('new_item').style.display='none';
-    if(document.getElementById('update_item'+id))
-    document.getElementById('update_item'+id).style.display='none';
+function cancel_item(id)
+{
+    if (document.getElementById('new_item')) {
+        document.getElementById('new_item').style.display='none';
+    }
+    if (document.getElementById('update_item'+id)) {
+        document.getElementById('update_item'+id).style.display='none';
+    }
 }
-function save_item(){
+function save_item()
+{
     $.ajax({
-    type: "POST",
-    url: "ajax_code.php",
-    dataType: "html",
-    data: {
-         item: 	document.getElementById('item').value,
-         templateid: document.getElementById('template').value,
-         source: "add_item"
+        type: "POST",
+        url: "ajax_code.php",
+        dataType: "html",
+        data: {
+            item:  document.getElementById('item').value,
+            templateid: document.getElementById('template').value,
+            source: "add_item"
 
-    },
-    success: function(thedata){
+        },
+        success: function (thedata) {
                 //alert(thedata)
                 document.getElementById('template_sentence').innerHTML = thedata;
                 cancel_item('');
-                },
-    error:function(){
-        //alert("fail");
-    }
-   });
-   return;
+        },
+        error:function () {
+            //alert("fail");
+        }
+    });
+    return;
 }
-function update_item_div(id){
+function update_item_div(id)
+{
     document.getElementById('update_item'+id).style.display='';
     document.getElementById('update_item_txt'+id).focus();
 }
-function update_item(id){
+function update_item(id)
+{
     $.ajax({
-    type: "POST",
-    url: "ajax_code.php",
-    dataType: "html",
-    data: {
-         item: 	id,
-         templateid: document.getElementById('template').value,
-         content: document.getElementById('update_item_txt'+id).value,
-         source: "update_item"
+        type: "POST",
+        url: "ajax_code.php",
+        dataType: "html",
+        data: {
+            item:  id,
+            templateid: document.getElementById('template').value,
+            content: document.getElementById('update_item_txt'+id).value,
+            source: "update_item"
 
-    },
-    success: function(thedata){
+        },
+        success: function (thedata) {
                 //alert(thedata)
                 document.getElementById('template_sentence').innerHTML = thedata;
                 cancel_item(id);
-                },
-    error:function(){
-        //alert("fail");
-    }
-   });
-   return;
+        },
+        error:function () {
+            //alert("fail");
+        }
+    });
+    return;
 }

@@ -5,7 +5,7 @@
  */
 
 $.extend($.ui.multiselect.locale, {
-	addAll:'Add all rules to plan',
-	removeAll:'Remove all rules from plan',
-	itemsCount:'rules already in plan'
+    addAll:'Add all rules to plan',
+    removeAll:'Remove all rules from plan',
+    itemsCount:'rules already in plan'
 });

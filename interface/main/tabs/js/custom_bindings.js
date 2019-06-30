@@ -11,13 +11,12 @@
  */
 
 ko.bindingHandlers.location={
-    init: function(element,valueAccessor, allBindings,viewModel, bindingContext)
-    {
+    init: function (element,valueAccessor, allBindings,viewModel, bindingContext) {
         var tabData = ko.unwrap(valueAccessor());
         tabData.window=element.contentWindow;
-        element.addEventListener("load",
-            function()
-            {
+        element.addEventListener(
+            "load",
+            function () {
 
                 var cwDocument;
                 try {
@@ -33,70 +32,63 @@ ko.bindingHandlers.location={
                             var titleDocument = jqDocument.attr('title');
                             var titleText = "Unknown";
                             var titleClass = jqDocument.find(".title:first");
-                            if (titleDocument.length >= 1) {
-                                titleText = titleDocument;
-                            }
-                            else if (titleClass.length >= 1) {
-                                titleText = titleClass.text();
-                            }
-                            else {
-                                var frameDocument = jqDocument.find("frame");
-                                if (frameDocument.length >= 1) {
-                                    titleText = frameDocument.attr("name");
-                                    var jqFrameDocument = $(frameDocument.get(0).contentWindow.document);
-                                    titleClass = jqFrameDocument.find(".title:first");
-                                    if (titleClass.length >= 1) {
-                                        titleText = titleClass.text();
-                                    }
-                                    var subFrame = frameDocument.get(0);
-                                    subFrame.addEventListener("load",
-                                        function () {
-                                            var subFrameDocument = $(subFrame.contentWindow.document);
-                                            titleClass = $(subFrameDocument).find(".title:first");
-                                            if (titleClass.length >= 1) {
-                                                titleText = titleClass.text();
-                                                tabData.title(titleText);
-                                            }
-
-                                        });
+                        if (titleDocument.length >= 1) {
+                            titleText = titleDocument;
+                        } else if (titleClass.length >= 1) {
+                            titleText = titleClass.text();
+                        } else {
+                            var frameDocument = jqDocument.find("frame");
+                            if (frameDocument.length >= 1) {
+                                titleText = frameDocument.attr("name");
+                                var jqFrameDocument = $(frameDocument.get(0).contentWindow.document);
+                                titleClass = jqFrameDocument.find(".title:first");
+                                if (titleClass.length >= 1) {
+                                    titleText = titleClass.text();
                                 }
-                                else {
-                                    var bold = jqDocument.find("b:first");
-                                    if (bold.length) {
-                                        titleText = bold.text();
-                                    }
-                                    else {
-                                        var title = jqDocument.find("title");
-                                        if (title.length) {
-                                            titleText = title.text();
+                                var subFrame = frameDocument.get(0);
+                                subFrame.addEventListener(
+                                    "load",
+                                    function () {
+                                        var subFrameDocument = $(subFrame.contentWindow.document);
+                                        titleClass = $(subFrameDocument).find(".title:first");
+                                        if (titleClass.length >= 1) {
+                                            titleText = titleClass.text();
+                                            tabData.title(titleText);
                                         }
+
                                     }
-
+                                );
+                            } else {
+                                var bold = jqDocument.find("b:first");
+                                if (bold.length) {
+                                    titleText = bold.text();
+                                } else {
+                                    var title = jqDocument.find("title");
+                                    if (title.length) {
+                                        titleText = title.text();
+                                    }
                                 }
-
                             }
-                            tabData.title(titleText);
                         }
-                    );
+                            tabData.title(titleText);
+                    });
                 }
             }
-            ,true
+            ,
+            true
         );
 
     },
-    update: function(element,valueAccessor, allBindings,viewModel, bindingContext)
-    {
+    update: function (element,valueAccessor, allBindings,viewModel, bindingContext) {
         var tabData = ko.unwrap(valueAccessor());
         element.src=tabData.url();
     }
 }
 
 ko.bindingHandlers.iframeName = {
-    init: function(element,valueAccessor, allBindings,viewModel, bindingContext)
-    {
+    init: function (element,valueAccessor, allBindings,viewModel, bindingContext) {
     },
-    update: function(element,valueAccessor, allBindings,viewModel, bindingContext)
-    {
+    update: function (element,valueAccessor, allBindings,viewModel, bindingContext) {
         element.name=ko.unwrap(valueAccessor());
     }
 }

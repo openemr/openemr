@@ -272,7 +272,7 @@ foreach ($db_list as $db) {
         </div>
           </div>
     </div>
-<?php
+    <?php
 }
 ?>
 </div>

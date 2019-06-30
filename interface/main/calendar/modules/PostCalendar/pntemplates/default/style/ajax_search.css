@@ -43,7 +43,7 @@
 #calsearch_results_data a {
     text-decoration: underline;
 }
-/* for the DIV that makes people think the computer is doing something 
+/* for the DIV that makes people think the computer is doing something
  * after they press the 'search' button */
 #calsearch_status {
     display: inline;

@@ -240,7 +240,7 @@ if (is_dir($mainPATH)) {
 
             if ($supported_file === 1) {
                 ?><div class="stg"><?php echo text(basename($file)); ?></div>
-            <?php
+                <?php
             } else {
                 ?>
                 <div class="error_msg"><?php echo xlt("UNSUPPORTED database load file"); ?>: <BR><?php echo text(basename($file)) ?><span class="msg" id="<?php echo attr($db); ?>_unsupportedmsg">!</span></div>
@@ -292,8 +292,8 @@ if ($supported_file === 1) {
                 ?>
                 <div class="error_msg"><?php echo xlt("The staged files release dates are not all from the same release."); ?></div>
           <div class="stg msg"><?php echo xlt("Follow these instructions for installing or upgrading the following database") . ": " . text($db); ?><span class="msg" id="<?php echo attr($db); ?>_instrmsg">?</span></div>
-            <?php
-            $success_flag=0;
+                <?php
+                $success_flag=0;
             }
         }
 
@@ -306,8 +306,8 @@ if ($supported_file === 1) {
                 ?>
                 <div class="error_msg"><?php echo xlt("The staged files revisions are not all from the same release."); ?></div>
           <div class="stg msg"><?php echo xlt("Follow these instructions for installing or upgrading the following database") . ": " . text($db); ?><span class="msg" id="<?php echo attr($db); ?>_instrmsg">?</span></div>
-            <?php
-            $success_flag=0;
+                <?php
+                $success_flag=0;
             }
         }
 
@@ -346,14 +346,14 @@ if ($supported_file === 1) {
                 // a complete SNOMED pacakge.
                 ?>
                 <div class="stg"><?php echo text(basename($file_revision_path)); ?> <?php echo xlt("is a different version of the following database") . ": " . text($db); ?></div>
-            <?php
-            $action=xl("REPLACE");
+                <?php
+                $action=xl("REPLACE");
             } else if ($current_name=="SNOMED" && $current_version!=$file_revision && $file_revision!="US Extension") {
                 // A different language version of the SNOMED database has been staged, and will offer to Replace database with this staged version.
                 ?>
                 <div class="stg"><?php echo text(basename($file_revision_path)); ?> <?php echo xlt("is a different language version of the following database") . ": " . text($db); ?></div>
-            <?php
-            $action=xl("REPLACE");
+                <?php
+                $action=xl("REPLACE");
             } else if ($current_name=="SNOMED" && $current_version=="US Extension" && $file_revision=="US Extension") {
                 // The Staged US Extension SNOMED package has already been installed
                 // Note the US extension package has been deprecated for some time and was replaced by the Complete US extension package, which is
@@ -361,7 +361,7 @@ if ($supported_file === 1) {
                 ?>
                 <div class="error_msg"><?php echo xlt("The compatible staged US Extension SNOMED package has already been installed."); ?></div>
             <div class="stg msg"><?php echo xlt("Follow these instructions for installing or upgrading the following database") . ": " . text($db); ?><span class="msg" id="<?php echo attr($db); ?>_instrmsg">?</span></div>
-            <?php
+                <?php
             } else if ($current_name=="SNOMED" && $current_version!="International:English" && $file_revision=="US Extension") {
                 // The Staged US Extension SNOMED file is not compatible with non-english snomed sets
                 // Note the US extension package has been deprecated for some time and was replaced by the Complete US extension package, which is
@@ -369,7 +369,7 @@ if ($supported_file === 1) {
                 ?>
                 <div class="error_msg"><?php echo xlt("The installed International SNOMED version is not compatible with the staged US Extension SNOMED package."); ?></div>
             <div class="stg msg"><?php echo xlt("Follow these instructions for installing or upgrading the following database") . ": " . text($db); ?><span class="msg" id="<?php echo attr($db); ?>_instrmsg">?</span></div>
-            <?php
+                <?php
             } else if (($current_name=="SNOMED" && $current_version=="International:English" && $file_revision=="US Extension") && ((strtotime($current_revision." +6 month") < strtotime($file_revision_date)) || (strtotime($current_revision." -6 month") > strtotime($file_revision_date)))) {
                 // The Staged US Extension SNOMED file is not compatible with the current SNOMED International Package (ie. the International package is outdated)
                 // Note the US extension package has been deprecated for some time and was replaced by the Complete US extension package, which is
@@ -377,23 +377,23 @@ if ($supported_file === 1) {
                 ?>
                 <div class="error_msg"><?php echo xlt("The installed International SNOMED version is out of date and not compatible with the staged US Extension SNOMED file."); ?></div>
             <div class="stg msg"><?php echo xlt("Follow these instructions for installing or upgrading the following database") . ": " . text($db); ?><span class="msg" id="<?php echo attr($db); ?>_instrmsg">?</span></div>
-            <?php
+                <?php
             } else if ($current_name=="SNOMED" && $current_version=="International:English" && $file_revision=="US Extension") {
                 // Note the US extension package has been deprecated for some time and was replaced by the Complete US extension package, which is
                 // a complete SNOMED pacakge.
                 // Offer to upgrade to the US Extension.
                 ?>
                 <div class="stg"><?php echo text(basename($file_revision_path)); ?> <?php echo xlt("is an extension of the following database") . ": " . text($db); ?></div>
-            <?php
-            $action=xl("UPGRADE");
+                <?php
+                $action=xl("UPGRADE");
             } else if ((strtotime($current_revision) == strtotime($file_revision_date))) {
                 // Note the exception here when installing US Extension
                 // Note the US extension package has been deprecated for some time and was replaced by the Complete US extension package, which is
                 // a complete SNOMED pacakge.
-            ?>
+                ?>
             <div class="error_msg"><?php echo xlt("The installed version and the staged files are the same."); ?></div>
             <div class="stg msg"><?php echo xlt("Follow these instructions for installing or upgrading the following database") . ": " . text($db); ?><span class="msg" id="<?php echo attr($db); ?>_instrmsg">?</span></div>
-        <?php
+                <?php
             } else if (strtotime($current_revision) > strtotime($file_revision_date)) {
                 // Note the exception here when installing US Extension
                 // Note the US extension package has been deprecated for some time and was replaced by the Complete US extension package, which is
@@ -416,7 +416,7 @@ if ($supported_file === 1) {
                 ?>
                 <div class="error_msg"><?php echo xlt("The staged US Extension SNOMED package can not be installed until after the International SNOMED package has been installed."); ?></div>
             <div class="stg msg"><?php echo xlt("Follow these instructions for installing or upgrading the following database") . ": " . text($db); ?><span class="msg" id="<?php echo attr($db); ?>_instrmsg">?</span></div>
-            <?php
+                <?php
             } else if (count($files_array) > 0) {
                 $action=xl("INSTALL");
             } else {
@@ -432,7 +432,7 @@ if ($supported_file === 1) {
             ?>
             <input id="<?php echo attr($db); ?>_install_button" version="<?php echo attr($file_revision); ?>" rf="<?php echo $rf; ?>" file_revision_date="<?php echo attr($file_revision_date); ?>" file_checksum="<?php echo attr($file_checksum); ?>" type="button" value="<?php echo attr($action); ?>"/>
       </div>
-        <?php
+            <?php
         }
     }
 }

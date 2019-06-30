@@ -287,34 +287,34 @@ function update_event($eid)
                         "exdate" => ""
                     );
     // Useless garbage that we must save.
-    $locationspecs = array("event_location" => "",
+        $locationspecs = array("event_location" => "",
                             "event_street1" => "",
                             "event_street2" => "",
                             "event_city" => "",
                             "event_state" => "",
                             "event_postal" => ""
                         );
-    $locationspec = serialize($locationspecs);
-    $args['event_date'] = date('Y-m-d');
-    $args['duration'] = $duration;
+        $locationspec = serialize($locationspecs);
+        $args['event_date'] = date('Y-m-d');
+        $args['duration'] = $duration;
     // this event is forced to NOT REPEAT
-    $args['form_repeat'] = "0";
-    $args['recurrspec'] = $noRecurrspec;
-    $args['form_enddate'] = "0000-00-00";
-    $args['starttime'] = $starttime;
-    $args['endtime'] = $endtime;
-    $args['locationspec'] = $locationspec;
-    $args['form_category']=$origEvent['pc_catid'];
-    $args['new_multiple_value']=$origEvent['pc_multiple'];
-    $args['form_provider']=$origEvent['pc_aid'];
-    $args['form_pid']=$origEvent['pc_pid'];
-    $args['form_title']=$origEvent['pc_title'];
-    $args['form_allday']=$origEvent['pc_alldayevent'];
-    $args['form_apptstatus']='@';
-    $args['form_prefcat']=$origEvent['pc_prefcatid'];
-    $args['facility']=$origEvent['pc_facility'];
-    $args['billing_facility']=$origEvent['pc_billing_location'];
-    InsertEvent($args, 'payment');
+        $args['form_repeat'] = "0";
+        $args['recurrspec'] = $noRecurrspec;
+        $args['form_enddate'] = "0000-00-00";
+        $args['starttime'] = $starttime;
+        $args['endtime'] = $endtime;
+        $args['locationspec'] = $locationspec;
+        $args['form_category']=$origEvent['pc_catid'];
+        $args['new_multiple_value']=$origEvent['pc_multiple'];
+        $args['form_provider']=$origEvent['pc_aid'];
+        $args['form_pid']=$origEvent['pc_pid'];
+        $args['form_title']=$origEvent['pc_title'];
+        $args['form_allday']=$origEvent['pc_alldayevent'];
+        $args['form_apptstatus']='@';
+        $args['form_prefcat']=$origEvent['pc_prefcatid'];
+        $args['facility']=$origEvent['pc_facility'];
+        $args['billing_facility']=$origEvent['pc_billing_location'];
+        InsertEvent($args, 'payment');
 }
 //===============================================================================
 // check if event exists

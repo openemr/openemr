@@ -769,7 +769,7 @@ if ($_GET['original']=='original') {
 
     ?>
     </table>
-<?php
+    <?php
 }
 ?>
 </center>

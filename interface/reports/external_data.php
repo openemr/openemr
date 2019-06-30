@@ -181,7 +181,7 @@ $records2 = array();
                                     <td><span class="dm-ed-in-7"><?php echo text($value1['provider']); ?></span></td>
                                     <td><span class="dm-ed-in-7"><?php echo text($value1['facility']); ?></span></td>
                                 </tr>
-                            <?php
+                                <?php
                             } ?>
                         </table>
                         <?php if (empty($records1)) { ?>
@@ -215,12 +215,12 @@ $records2 = array();
                                     <td><span class="dm-ed-in-7"><?php echo text($value2['ep_code_text']); ?></span></td>
                                     <td><span class="dm-ed-in-7"><?php echo text($value2['facility']); ?></span></td>
                                 </tr>
-                            <?php
+                                <?php
                             } ?>
                         </table>
                             <?php if (empty($records2)) { ?>
                             <div class="dm-ed-in-8">
-                            <?php echo xlt('Nothing to display'); ?>
+                                <?php echo xlt('Nothing to display'); ?>
                             </div>
                             <?php } ?>
                     </div>

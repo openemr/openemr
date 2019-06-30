@@ -158,7 +158,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         </tr>
                                     </table>
                                 </div>
-                            <?php
+                                <?php
                             } ?>
 
                         </div>
@@ -193,14 +193,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </tr>
                                 </table>
                             </div>
-                        <?php
+                            <?php
                         } ?>
                         </div>
                     </fieldset>
                 </form>
                 <hr/>
             </div>
-        <?php
+            <?php
         } // end CCR/CCD reporting options ?>
 
         <form name='report_form' id="report_form" method='post' action='custom_report.php'>
@@ -347,7 +347,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php
                         if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) { ?>
                             (Encounters not authorized)
-                        <?php
+                            <?php
                         } else { ?>
                             <?php
                             $isfirst = 1;
@@ -442,7 +442,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             ?>
 
-                        <?php
+                            <?php
                         } ?>
                                 </div> <!-- end encounters DIV -->
                     </td>
@@ -534,7 +534,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php
                 if ($cmsportal) { ?>
                     <button type="button" class="genportal btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
-                <?php
+                    <?php
                 } ?>
             </div>
             </div>

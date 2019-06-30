@@ -1,4 +1,4 @@
-.treeview, .treeview ul { 
+.treeview, .treeview ul {
   padding: 0;
   margin: 0;
   list-style: none;
@@ -23,7 +23,7 @@
   float:none;
 }
 
-.treeview li { 
+.treeview li {
   margin: 0;
   padding: 0px 16px 2px 0px;
 }
@@ -49,19 +49,19 @@
 .treeview-red .hitarea { background-image: url(rtl-treeview-red-c.gif); }
 .treeview-red .expandable-hitarea { background-image: url(rtl-treeview-red-e.gif); }
 .treeview-red div.lastCollapsable-hitarea { background-image: url(rtl-treeview-red-lc.gif); }
-.treeview-red div.lastExpandable-hitarea { background-image: url(rtl-treeview-red-le.gif); } 
+.treeview-red div.lastExpandable-hitarea { background-image: url(rtl-treeview-red-le.gif); }
 
 .treeview-black li { background-image: url(rtl-treeview-black-line.gif); }
 .treeview-black .hitarea { background-image: url(rtl-treeview-black-c.gif); }
 .treeview-black .expandable-hitarea { background-image: url(rtl-treeview-black-e.gif); }
 .treeview-black div.lastCollapsable-hitarea { background-image: url(rtl-treeview-black-lc.gif); }
-.treeview-black div.lastExpandable-hitarea { background-image: url(rtl-treeview-black-le.gif); } 
+.treeview-black div.lastExpandable-hitarea { background-image: url(rtl-treeview-black-le.gif); }
 
 .treeview-gray li { background-image: url(rtl-treeview-gray-line.gif); }
 .treeview-gray .hitarea { background-image: url(rtl-treeview-gray-c.gif); }
 .treeview-gray .expandable-hitarea { background-image: url(rtl-treeview-gray-e.gif); }
 .treeview-gray div.lastCollapsable-hitarea { background-image: url(rtl-treeview-gray-lc.gif); }
-.treeview-gray div.lastExpandable-hitarea { background-image: url(rtl-treeview-gray-le.gif); } 
+.treeview-gray div.lastExpandable-hitarea { background-image: url(rtl-treeview-gray-le.gif); }
 
 .filetree li { padding: 0px 16px 2px 0; }
 .filetree span.folder, .filetree span.file { padding: 0px 16px 2px 0; display: block; }

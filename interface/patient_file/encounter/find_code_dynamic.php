@@ -146,7 +146,6 @@ $(function() {
 });
 
 <?php if ($what == 'codes') { ?>
-
 // Pass info back to the opener and close this window. Specific to billing/product codes.
 function selcode(codetype, code, selector, codedesc) {
  if (opener.closed || ! opener.set_related) {
@@ -175,7 +174,6 @@ function delcode() {
 }
 
 <?php } else if ($what == 'fields') { ?>
-
 function selectField(jobj) {
   if (opener.closed || ! opener.SetField) {
     alert('The destination form was closed; I cannot act on your selection.');
@@ -206,7 +204,6 @@ function newField() {
 }
 
 <?php } else if ($what == 'lists') { ?>
-
 function SelectList(jobj) {
   if (opener.closed || ! opener.SetList)
     alert('The destination form was closed; I cannot act on your selection.');
@@ -217,7 +214,6 @@ function SelectList(jobj) {
 };
 
 <?php } else if ($what == 'groups') { ?>
-
 var SelectItem = function(jobj) {
   if (opener.closed)
     alert('The destination form was closed; I cannot act on your selection.');

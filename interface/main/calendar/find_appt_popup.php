@@ -349,7 +349,6 @@ form {
 </form>
 </div>
 <?php if (!empty($slots)) : ?>
-
 <table class="table">
 <thead id="searchResultsHeader" class="head">
  <tr>
@@ -358,72 +357,72 @@ form {
  </tr>
 </thead>
 <tbody id="searchResults">
-<?php
+    <?php
     $lastdate = "";
     $ampmFlag = "am"; // establish an AM-PM line break flag
-for ($i = 0; $i < $slotcount; ++$i) {
-    $available = true;
-    for ($j = $i; $j < $i + $evslots; ++$j) {
-        if ($slots[$j] >= 4) {
-            $available = false;
-        }
-    }
-
-    if (!$available) {
-        continue; // skip reserved slots
-    }
-
-    $utime = ($slotbase + $i) * $slotsecs;
-    $thisdate = date("Y-m-d", $utime);
-    if ($thisdate != $lastdate) {
-        // if a new day, start a new row
-        if ($lastdate) {
-            echo "</div>";
-            echo "</td>\n";
-            echo " </tr>\n";
+    for ($i = 0; $i < $slotcount; ++$i) {
+        $available = true;
+        for ($j = $i; $j < $i + $evslots; ++$j) {
+            if ($slots[$j] >= 4) {
+                $available = false;
+            }
         }
 
-        $lastdate = $thisdate;
-        $dayName = date("l", $utime);
-        echo " <tr class='oneresult'>\n";
-        echo "  <td class='srDate'>" . xlt($dayName)."<br>". text(oeFormatSDFT($utime)) . "</td>\n";
-        echo "  <td class='srTimes'>";
-        echo "<div id='am'>AM ";
-        $ampmFlag = "am";  // reset the AMPM flag
+        if (!$available) {
+            continue; // skip reserved slots
+        }
+
+        $utime = ($slotbase + $i) * $slotsecs;
+        $thisdate = date("Y-m-d", $utime);
+        if ($thisdate != $lastdate) {
+            // if a new day, start a new row
+            if ($lastdate) {
+                echo "</div>";
+                echo "</td>\n";
+                echo " </tr>\n";
+            }
+
+            $lastdate = $thisdate;
+            $dayName = date("l", $utime);
+            echo " <tr class='oneresult'>\n";
+            echo "  <td class='srDate'>" . xlt($dayName)."<br>". text(oeFormatSDFT($utime)) . "</td>\n";
+            echo "  <td class='srTimes'>";
+            echo "<div id='am'>AM ";
+            $ampmFlag = "am";  // reset the AMPM flag
+        }
+
+        $ampm = date('a', $utime);
+        if ($ampmFlag != $ampm) {
+            echo "</div><div id='pm'>PM ";
+        }
+
+        $ampmFlag = $ampm;
+
+        $atitle = "Choose ".date("h:i a", $utime);
+        $adate = getdate($utime);
+        $anchor = "<a href='' onclick='return setappt(" .
+        attr_js($adate['year']) . "," .
+        attr_js($adate['mon']) . "," .
+        attr_js($adate['mday']) . "," .
+        attr_js($adate['hours']) . "," .
+        attr_js($adate['minutes']) . ")'".
+        " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'".
+        ">";
+        echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
+        $anchor . date("g:i", $utime) . "</a> ";
+
+        // If the duration is more than 1 slot, increment $i appropriately.
+        // This is to avoid reporting available times on undesirable boundaries.
+        $i += $evslots - 1;
     }
 
-    $ampm = date('a', $utime);
-    if ($ampmFlag != $ampm) {
-        echo "</div><div id='pm'>PM ";
+    if ($lastdate) {
+        echo "</td>\n";
+        echo " </tr>\n";
+    } else {
+        echo " <tr><td colspan='2'> " . xlt('No openings were found for this period.') . "</td></tr>\n";
     }
-
-    $ampmFlag = $ampm;
-
-    $atitle = "Choose ".date("h:i a", $utime);
-    $adate = getdate($utime);
-    $anchor = "<a href='' onclick='return setappt(" .
-    attr_js($adate['year']) . "," .
-    attr_js($adate['mon']) . "," .
-    attr_js($adate['mday']) . "," .
-    attr_js($adate['hours']) . "," .
-    attr_js($adate['minutes']) . ")'".
-    " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'".
-    ">";
-    echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
-    $anchor . date("g:i", $utime) . "</a> ";
-
-    // If the duration is more than 1 slot, increment $i appropriately.
-    // This is to avoid reporting available times on undesirable boundaries.
-    $i += $evslots - 1;
-}
-
-if ($lastdate) {
-    echo "</td>\n";
-    echo " </tr>\n";
-} else {
-    echo " <tr><td colspan='2'> " . xlt('No openings were found for this period.') . "</td></tr>\n";
-}
-?>
+    ?>
 </tbody>
 </table>
 <?php endif; ?>
@@ -461,28 +460,28 @@ if (!$ckavail) {
             //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
             if ($isProv) { ?>
                 if (confirm(<?php echo xlj('Provider not available, use it anyway?'); ?>)) {
-            <?php
+                <?php
             } else { ?>
                 if (confirm(<?php echo xlj('This appointment slot is already used, use it anyway?'); ?>)) {
-            <?php
+                <?php
             } ?>
             opener.top.restoreSession();
             opener.document.forms[0].submit();
             dlgclose();
         }
-    <?php
+            <?php
         }
     } else {
         if ($is_holiday) { ?>
             alert(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>);
-        <?php
+            <?php
         } else {
             if ($isProv) { ?>
                 alert(<?php echo xlj('Provider not available, please choose another.'); ?>);
-            <?php
+                <?php
             } else { ?>
                 alert(<?php echo xlj('This appointment slot is already used, please choose another.'); ?>);
-            <?php
+                <?php
             }
         } //close if is holiday
     }

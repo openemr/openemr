@@ -947,7 +947,7 @@ textarea{
 <?php if ($isAuthorized !== true) {?>
 <h3 class='formhide'><em><?php echo xlt('Claim Edit') ?> </em><button class="btn btn-xs btn-warning" onclick="myZoom()" ><?php echo xlt('Zoom'); ?></button></h3>
 <div class="navbar-fixed-top formhide" id='menu'>
-<?php if ($pid && $encounter) {?>
+    <?php if ($pid && $encounter) {?>
     <button class="btn btn-xs btn-success" onclick="disposeSave('form')" title=<?php echo xla("Save for printing with form") ?>><?php echo xlt('Pdf With Form'); ?></button>
     <button class="btn btn-xs btn-success" onclick="disposeSave('noform')" title=<?php echo xla("Save for printing to a pre printed sheet"); ?>><?php echo xlt('Pdf Without Form'); ?></button>
     <button class="btn btn-xs btn-success" onclick="postClaim('batch_save')" title=<?php echo xla("Save claim for batch processing"); ?>><?php echo xlt('Save Claim'); ?></button>

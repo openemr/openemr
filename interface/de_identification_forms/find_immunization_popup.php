@@ -149,40 +149,40 @@ function check_search_str()
 <table border='0'>
  <tr>
   <td colspan="4">
-<?php
-  $search_term = $_REQUEST['search_term'];
-  {
+    <?php
+    $search_term = $_REQUEST['search_term'];
+    {
     $query = "SELECT count(*) as count FROM list_options " .
       "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " ;
     $res = sqlStatement($query, array('%'.$search_term.'%'));
-if ($row = sqlFetchArray($res)) {
-    $no_of_items = $row['count'];
-    if ($no_of_items < 1) {
-        ?>
+    if ($row = sqlFetchArray($res)) {
+        $no_of_items = $row['count'];
+        if ($no_of_items < 1) {
+            ?>
      <script language='JavaScript'>
         alert(<?php echo xlj('Search string does not match with list in database'); ?> + '\n' + <?php echo xlj('Please enter new search string'); ?>);
      document.theform.search_term.value=" ";
      document.theform.search_term.focus();
      </script>
-        <?php
-    }
+            <?php
+        }
 
-    $query = "SELECT option_id,title FROM list_options " .
-    "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " .
-    "ORDER BY title";
-    $res = sqlStatement($query, array('%'.$search_term.'%'));
-    $row_count = 0;
-    while ($row = sqlFetchArray($res)) {
-        $row_count = $row_count + 1;
-        $itercode = $row['option_id'];
-        $itertext = ucfirst(strtolower(trim($row['title'])));
-        ?>
+        $query = "SELECT option_id,title FROM list_options " .
+        "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " .
+        "ORDER BY title";
+        $res = sqlStatement($query, array('%'.$search_term.'%'));
+        $row_count = 0;
+        while ($row = sqlFetchArray($res)) {
+            $row_count = $row_count + 1;
+            $itercode = $row['option_id'];
+            $itertext = ucfirst(strtolower(trim($row['title'])));
+            ?>
        <input type="checkbox" id="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
+        }
     }
-}
 
-  }
-?>
+    }
+    ?>
 </td>
 </tr>
  </table>

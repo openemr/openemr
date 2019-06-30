@@ -118,7 +118,7 @@ use OpenEMR\Core\Header;
 $res = sqlStatement("SELECT *, (`next_run` - INTERVAL `execute_interval` MINUTE) as `last_run_start`" .
   " FROM `background_services` ORDER BY `sort_order`");
 while ($row = sqlFetchArray($res)) {
-?>
+    ?>
   <tr>
       <td align='center'><?php echo xlt($row['title']); ?></td>
 
@@ -157,7 +157,7 @@ while ($row = sqlFetchArray($res)) {
         <?php } ?>
 
   </tr>
-<?php
+    <?php
 } // $row = sqlFetchArray($res) while
 ?>
 </tbody>

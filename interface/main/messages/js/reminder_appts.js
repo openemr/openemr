@@ -18,7 +18,8 @@ var show_just;
  * It returns pid, lname, fname, dob to function "setpatient" below
  * which then populates the form with the select patient data
  */
-function recall_name_click(field) {
+function recall_name_click(field)
+{
     dlgopen('../../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
 }
 
@@ -26,7 +27,8 @@ function recall_name_click(field) {
  * Function to insert patient data into addRecall fields
  * pid is sent to server for the data to display
  */
-function setpatient(pid, lname='', fname='', dob='') {
+function setpatient(pid, lname='', fname='', dob='')
+{
     top.restoreSession();
     $.ajax({
         type: "POST",
@@ -45,7 +47,7 @@ function setpatient(pid, lname='', fname='', dob='') {
             var dolv = moment(obj.DOLV); // another date
             var duration = dolv.diff(now, 'days');
             if (duration > '0') { //it's a future appt dude!
-                alert(xljs_NOTE + ': ' + xljs_PthsApSched + ' ' + obj.DOLV );
+                alert(xljs_NOTE + ': ' + xljs_PthsApSched + ' ' + obj.DOLV);
             }
         }
         $(".news").removeClass('nodisplay');
@@ -93,7 +95,8 @@ function setpatient(pid, lname='', fname='', dob='') {
 /**
  *  This function is called with pressing Submit on the Add a Recall page
  */
-function add_this_recall(e) {
+function add_this_recall(e)
+{
     if ($('#form_recall_date').val() === '') {
         alert(xljs_PlsDecRecDate);
         $("#form_recall_date").focus();
@@ -119,7 +122,8 @@ function add_this_recall(e) {
 /**
  * This function is called when a preference is changed
  */
-function save_preferences(event) {
+function save_preferences(event)
+{
     event.preventDefault;
     var url = "save.php";
     formData = JSON.stringify($("form#addRecall").serialize());
@@ -137,7 +141,8 @@ function save_preferences(event) {
     });
 }
 
-function show_patient(newpid) {
+function show_patient(newpid)
+{
     if (newpid.length === 0) {
         return;
     }
@@ -150,7 +155,8 @@ function show_patient(newpid) {
  *  The goal is to select visible checkboxes in the selected column,
  *  which can then be printed locally (labels or postcards at present 10/31/2016).
  */
-function checkAll(chk, set) {
+function checkAll(chk, set)
+{
     if ($("#chk_" + chk).hasClass('fa-square-o')) {
         $("[name=" + chk + "]").each(function () {
             this.checked = !$(this).parents('.nodisplay').length;
@@ -166,7 +172,8 @@ function checkAll(chk, set) {
 /**
  * This function sends a list of checked items to the server for processing.
  */
-function process_this(material, id, eid='') {
+function process_this(material, id, eid='')
+{
     var make_this = [];
     var make_that = [];
     var make_all = [];
@@ -199,8 +206,12 @@ function process_this(material, id, eid='') {
             'item': material
         }
     }).done(function (result) {
-        if (material === 'labels') window.open("../../patient_file/addr_appt_label.php", "_blank");
-        if (material === 'postcards') window.open("print_postcards.php", "rbot");
+        if (material === 'labels') {
+            window.open("../../patient_file/addr_appt_label.php", "_blank");
+        }
+        if (material === 'postcards') {
+            window.open("print_postcards.php", "rbot");
+        }
         //now change the checkmark to a date, turn it red and leave a comment
         $('input:checkbox[name=' + material + ']:checked').each(function () {
             r_uid = this.value;
@@ -215,7 +226,7 @@ function process_this(material, id, eid='') {
             } else {
                 $("#msg_phone_" + r_uid).append('<br />' + dateval);
             }
-         });
+        });
     });
     //
 
@@ -255,14 +266,16 @@ $(function () {
 });
 
 // Open the add-event dialog.
-function newEvt(pid, pc_eid) {
+function newEvt(pid, pc_eid)
+{
     var f = document.forms[0];
     var url = '../../main/calendar/add_edit_event.php?patientid=' + pid + '&eid=' + pc_eid;
     dlgopen(url, '_blank', 800, 480);
     return false;
 }
 
-function delete_Recall(pid, r_ID) {
+function delete_Recall(pid, r_ID)
+{
     if (confirm('Are you sure you want to delete this Recall?')) {
         //top.restoreSession();
         var url = 'save.php';
@@ -282,13 +295,15 @@ function delete_Recall(pid, r_ID) {
 
 }
 
-function refresh_me() {
+function refresh_me()
+{
     location.reload();
 }
 
 /****  FUNCTIONS RELATED TO NAVIGATION *****/
 // Process click to pop up the edit window.
-function doRecallclick_edit(goHere) {
+function doRecallclick_edit(goHere)
+{
     top.restoreSession();
     if (window.location.pathname.match(/patient_tracker/)) {
         zone ='main/';
@@ -298,23 +313,27 @@ function doRecallclick_edit(goHere) {
     dlgopen('../'+zone+'messages/messages.php?nomenu=1&go=' + goHere, '_blank', 900, 400);
 }
 
-function goReminderRecall(choice) {
+function goReminderRecall(choice)
+{
     tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
 }
 
-function goMessages() {
+function goMessages()
+{
     R = 'messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1';
     top.restoreSession();
     location.href = R;
 }
 
-function goMedEx() {
+function goMedEx()
+{
     location.href = 'https://medexbank.com/cart/upload/index.php?route=information/campaigns';
 }
 
 /****  END FUNCTIONS RELATED TO NAVIGATION *****/
 
-function show_this(colorish='') {
+function show_this(colorish='')
+{
     var facV = $("#form_facility").val();
     var provV = $("#form_provider").val();
     var pidV = $("#form_patient_id").val();
@@ -340,7 +359,8 @@ function show_this(colorish='') {
 }
 
 //in bootstrap_menu.js
-function tabYourIt(tabNAME, url) {
+function tabYourIt(tabNAME, url)
+{
     if (!top.tab_mode) {
         tabNAME = window.name;
     }
@@ -368,7 +388,9 @@ $(function () {
             (!$(this).hasClass('greenish')) &&
             (!$(this).parents().hasClass('newRecall')) &&
             (!$(this).parents().hasClass('prefs'))
-        ) $(this).addClass("yellow").css('cursor', 'pointer');
+        ) {
+            $(this).addClass("yellow").css('cursor', 'pointer');
+        }
     });
     $(".divTableRow").mouseout(function () {
         $(this).removeClass('yellow');

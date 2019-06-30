@@ -1227,9 +1227,9 @@ function writeITLine($it_array)
                     <b>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('CVX Code Mapping'); ?></b>
                 </th>
             <?php }
-if ($GLOBALS['ippf_specific']) { ?>
+            if ($GLOBALS['ippf_specific']) { ?>
     <th><b><?php echo xlt('Global ID'); ?></b></th>
-<?php } ?>
+            <?php } ?>
             <th><b><?php
             if ($list_id == 'language') {
                 echo xlt('ISO 639-2 Code');
@@ -1267,7 +1267,7 @@ if ($GLOBALS['ippf_specific']) { ?>
             <?php
             if (preg_match('/_issue_list$/', $list_id)) { ?>
                 <th><b><?php echo xlt('Subtype'); ?></b></th>
-            <?php
+                <?php
             }
         endif; // end not fee sheet ?>
     </tr>

@@ -11,40 +11,40 @@ class Note extends ORDataObject
 {
 
     /*
-	*	Database unique identifier
-	*	@var id
-	*/
+    *   Database unique identifier
+    *   @var id
+    */
     var $id;
 
     /*
-	*	DB unique identifier reference to some other table, this is not unique in the notes table
-	*	@var int
-	*/
+    *   DB unique identifier reference to some other table, this is not unique in the notes table
+    *   @var int
+    */
     var $foreign_id;
 
     /*
-	*	Narrative comments about whatever object is represented by the foreign id this note is associated with
-	*	@var string upto 255 character string
-	*/
+    *   Narrative comments about whatever object is represented by the foreign id this note is associated with
+    *   @var string upto 255 character string
+    */
     var $note;
 
     /*
-	*	Foreign key identifier of who initially persisited the note,
-	*	potentially ownership could be changed but that would be up to an external non-document object process
-	*	@var int
-	*/
+    *   Foreign key identifier of who initially persisited the note,
+    *   potentially ownership could be changed but that would be up to an external non-document object process
+    *   @var int
+    */
     var $owner;
 
     /*
-	*	Date the note was first persisted
-	*	@var date
-	*/
+    *   Date the note was first persisted
+    *   @var date
+    */
     var $date;
 
     /*
-	*	Timestamp of the last time the note was changed and persisted, auto maintained by DB, manually change at your own peril
-	*	@var int
-	*/
+    *   Timestamp of the last time the note was changed and persisted, auto maintained by DB, manually change at your own peril
+    *   @var int
+    */
     var $revision;
 
     /**
@@ -120,9 +120,9 @@ class Note extends ORDataObject
     }
 
     /**#@+
-	*	Getter/Setter methods used by reflection to affect object in persist/poulate operations
-	*	@param mixed new value for given attribute
-	*/
+    *   Getter/Setter methods used by reflection to affect object in persist/poulate operations
+    *   @param mixed new value for given attribute
+    */
     function set_id($id)
     {
         $this->id = $id;
@@ -164,20 +164,20 @@ class Note extends ORDataObject
         return $this->owner;
     }
     /*
-	*	No getter for revision because it is updated automatically by the DB.
-	*/
+    *   No getter for revision because it is updated automatically by the DB.
+    */
     function set_revision($revision)
     {
         $this->revision = $revision;
     }
 
     /*
-	*	Overridden function to store current object state in the db.
-	*	This overide is to allow for a "just in time" foreign id, often this is needed
-	*	when the object is never directly exposed and is handled as part of a larger
-	*	object hierarchy.
-	*	@param int $fid foreign id that should be used so that this note can be related (joined) on it later
-	*/
+    *   Overridden function to store current object state in the db.
+    *   This overide is to allow for a "just in time" foreign id, often this is needed
+    *   when the object is never directly exposed and is handled as part of a larger
+    *   object hierarchy.
+    *   @param int $fid foreign id that should be used so that this note can be related (joined) on it later
+    */
 
     function persist($fid = "")
     {

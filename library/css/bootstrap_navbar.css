@@ -91,10 +91,10 @@ a:hover, a:focus {
 }
 
 .Xnavbar-nav > li > a:hover {
-	color: #ffffff;
+    color: #ffffff;
 }
 .dropdown {
-	margin-bottom: 0px;
-	padding: 1px;
+    margin-bottom: 0px;
+    padding: 1px;
     list-style:none;
 }

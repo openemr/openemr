@@ -18,19 +18,21 @@ function codes_ok(data,event)
     codes_choices_vm.show_choices(false);
         var f = document.forms[0];
         var choices=codes_choices_vm.active_category().codes();
-        for (var i = 0; i < choices.length; ++i) {
-          if (choices[i].selected()) {
-            if (f.newcodes.value) f.newcodes.value += '~';
+    for (var i = 0; i < choices.length; ++i) {
+        if (choices[i].selected()) {
+            if (f.newcodes.value) {
+                f.newcodes.value += '~';
+            }
             f.newcodes.value += choices[i].value();
             choices[i].selected(false);
-          }
         }
-        if (f.newcodes.value) {
-          // top.restoreSession();
-          // f.submit();
-          // This supports the option to immediately save:
-          codeselect(null);
-        }
+    }
+    if (f.newcodes.value) {
+      // top.restoreSession();
+      // f.submit();
+      // This supports the option to immediately save:
+        codeselect(null);
+    }
     return false;
 }
 
@@ -82,15 +84,13 @@ function populate_vm_categories(idx,elem)
     codes_choices_vm.categories().push(category);
 
     var choices=jqElem.find("option:not([value=''])");
-    choices.each(function(idx,elem)
-        {
+    choices.each(function (idx,elem) {
             var jqChoice=$(elem);
             var description=jqChoice.text();
             var value=jqChoice.attr("value");
             var choice=new code_choice(description,value);
             category.codes().push(choice);
-        }
-    );
+    });
 }
 
 function analyze_codes()

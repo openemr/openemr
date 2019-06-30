@@ -232,7 +232,7 @@ class FormVitals extends ORDataObject
         $this->temp_method = $tm;
     }
     // function get_temp_methods() {
-    // 	return $this->temp_methods;
+    //  return $this->temp_methods;
     // }
     function get_pulse()
     {

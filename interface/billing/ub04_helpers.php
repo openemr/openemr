@@ -50,7 +50,7 @@ function sendSelection(value)
 <?php
 while ($row = sqlFetchArray($users)) {
     $data = json_encode($row);
-?>
+    ?>
 <tr>
     <td><button onclick='sendSelection(<?php echo $data;?>)'><?php echo text($row['fname'] . ' ' . $row['lname'])?></button></td>
     <td><?php echo text($row['id']) ?></td>

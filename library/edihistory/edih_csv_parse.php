@@ -27,9 +27,9 @@
 /* ========= notes
  * EDI files may contain multiple ISA envelopes.  Each ISA envelope is treated as a "file" here.
  * The same file name may have one or more ISA control numbers
- * The ISA control number is associated with each GS and ST envelope and each included transaction. 
+ * The ISA control number is associated with each GS and ST envelope and each included transaction.
  * Each transaction will also link to the ISA control number as a means of retrieving the file.
- * 
+ *
  * The CSV data column headers are the array keys for each EDI file type.
  */
 
@@ -230,12 +230,12 @@ function edih_835_csv_data($obj835)
 }
 
 
-/* 
+/*
  * Parse csv data from 837 files
  * Note that this can return false provider values for extensive claims
  * since loops are not tracked and 837 claims can have numerous
  * providers, but probably not an issue for OpenEMR
- * 
+ *
  * @param object  edih_x12_ file object
  * @return array  data to write csv file and csv clain table rows
  */
@@ -1476,14 +1476,14 @@ function edih_271_csv_data($obj270)
 
                 //
                 /*
-				if (strncmp($seg, 'REF'.$de.'EJ'.$de, 7) === 0 ) {
-					// patient account -- replaces or replaced by TRN02 
-					$sar = explode($de, $seg);
-					$ret_ar[$icn]['claim'][$cdx]['PtAcct'] =  $sar[2];   //$ptacct =  $sar[2];
-					//
-					continue;
-				}
-				*/
+                if (strncmp($seg, 'REF'.$de.'EJ'.$de, 7) === 0 ) {
+                    // patient account -- replaces or replaced by TRN02
+                    $sar = explode($de, $seg);
+                    $ret_ar[$icn]['claim'][$cdx]['PtAcct'] =  $sar[2];   //$ptacct =  $sar[2];
+                    //
+                    continue;
+                }
+                */
                 //
             } // end foreach($stsegs as $seg)
             //
@@ -1514,14 +1514,14 @@ function edih_271_csv_data($obj270)
  * the object to the parsing function according to the x12 type
  * csvdata array design:
  *  [$icn]['claims'][i]  [$icn]['files'][i]  [$icn]['type']
- * 
+ *
  * @uses edih_835_csv_data()
  * @uses edih_837_csv_data()
  * @uses edih_277_csv_data()
  * @uses edih_271_csv_data()
  * @uses edih_278_csv_data()
  * @uses edih_997_csv_data()
- * 
+ *
  * @param string     path to file
  * @return array     data for csv table records
  */

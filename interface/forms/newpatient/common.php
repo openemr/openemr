@@ -325,9 +325,9 @@ if ($GLOBALS['enable_help'] == 1) {
                                         </select>
                                         <?php
                                     } else {
-                                    ?>
+                                        ?>
 
-                                    <?php
+                                        <?php
                                     }
                                     ?>
                                     </div>
@@ -393,15 +393,15 @@ if ($GLOBALS['enable_help'] == 1) {
                                             if ($facilities) {
                                                 foreach ($facilities as $iter) { ?>
                                             <option value="<?php echo attr($iter['id']); ?>"
-                                                <?php
-                                                if ($def_facility == $iter['id']) {
-                                                    if (!$viewmode) {
-                                                        $posCode = $iter['pos_code'];
-                                                    }
-                                                    echo "selected";
-                                                }?>><?php echo text($iter['name']); ?>
+                                                    <?php
+                                                    if ($def_facility == $iter['id']) {
+                                                        if (!$viewmode) {
+                                                            $posCode = $iter['pos_code'];
+                                                        }
+                                                        echo "selected";
+                                                    }?>><?php echo text($iter['name']); ?>
                                             </option>
-                                            <?php
+                                                    <?php
                                                 }
                                             }
                                             ?>
@@ -460,7 +460,7 @@ if ($GLOBALS['enable_help'] == 1) {
                         }
                     }
                     if ($issuesauth) {
-                    ?>
+                        ?>
                     <fieldset>
                         <legend><?php echo xlt('Link/Add Issues (Injuries/Medical/Allergy) to Current Visit')?></legend>
                             <div id = "visit-issues">
@@ -514,7 +514,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                 </div>
                             </div>
                     </fieldset>
-                    <?php
+                        <?php
                     }
                     ?>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
@@ -558,10 +558,10 @@ if (!$viewmode) { ?>
         }
         // otherwise just continue normally
     }
-<?php
+    <?php
 
   // Search for an encounter from today
-  $erow = sqlQuery("SELECT fe.encounter, fe.date " .
+    $erow = sqlQuery("SELECT fe.encounter, fe.date " .
     "FROM form_encounter AS fe, forms AS f WHERE " .
     "fe.pid = ? " .
     " AND fe.date >= ? " .
@@ -570,11 +570,11 @@ if (!$viewmode) { ?>
     "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0 " .
     "ORDER BY fe.encounter DESC LIMIT 1", array($pid,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
 
-if (!empty($erow['encounter'])) {
-    // If there is an encounter from today then present the duplicate visit dialog
-    echo "duplicateVisit(" . js_escape($erow['encounter']) . ", " .
+    if (!empty($erow['encounter'])) {
+        // If there is an encounter from today then present the duplicate visit dialog
+        echo "duplicateVisit(" . js_escape($erow['encounter']) . ", " .
         js_escape(oeFormatShortDate(substr($erow['date'], 0, 10))) . ");\n";
-}
+    }
 }
 ?>
 
@@ -609,9 +609,9 @@ if ($GLOBALS['enable_group_therapy']) { ?>
     <?php
     if ($viewmode && in_array($result['pc_catid'], $therapyGroupCategories)) {?>
         $('#therapy_group_name').show();
-    <?php
+        <?php
     } ?>
-<?php
+    <?php
 } ?>
 
 $(function (){

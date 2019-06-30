@@ -250,7 +250,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <input type="button" class="generateCCR" value="<?php echo xla('Generate Report'); ?>" />
 <!-- <input type="button" class="generateCCR_download_h" value="<?php echo xl('Download')." (Hybrid)"; ?>" /> -->
 <input type="button" class="generateCCR_download_p" value="<?php echo xla('Download'); ?>" />
-<?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
+    <?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
 <input type="button" class="viewCCR_send_dialog" value="<?php echo xla('Transmit'); ?>" />
              <br>
              <div id="ccr_send_dialog" style="display:none" >
@@ -278,7 +278,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <br/>
 <input type="button" class="viewCCD" value="<?php echo xla('Generate Report'); ?>" />
 <input type="button" class="viewCCD_download" value="<?php echo xla('Download'); ?>" />
-<?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
+    <?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
 <input type="button" class="viewCCD_send_dialog" value="<?php echo xla('Transmit'); ?>" />
              <br>
              <div id="ccd_send_dialog" style="display:none" >
@@ -323,7 +323,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
    <input type='checkbox' name='include_billing' id='include_billing' value="billing"
     <?php if (!$GLOBALS['simplified_demographics']) {
         echo 'checked';
-} ?>><?php echo xlt('Billing'); ?><br>
+    } ?>><?php echo xlt('Billing'); ?><br>
   </td>
   <td class='text'>
    <!--
@@ -428,11 +428,10 @@ while ($prow = sqlFetchArray($pres)) {
 <?php if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) : ?>
 (Encounters not authorized)
 <?php else : ?>
+    <?php
 
-<?php
-
-$isfirst = 1;
-$res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
+    $isfirst = 1;
+    $res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
                     "forms.formdir, forms.date AS fdate, form_encounter.date " .
                     ",form_encounter.reason ".
                     "FROM forms, form_encounter WHERE " .
@@ -440,94 +439,94 @@ $res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
                     "form_encounter.encounter = forms.encounter " .
                     " AND forms.deleted=0 ". // --JRM--
                     "ORDER BY form_encounter.date DESC, fdate ASC", [$pid, $pid]);
-$res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
-$html_strings = array();
-$registry_form_name = array();
-while ($result2 = sqlFetchArray($res2)) {
-    array_push($registry_form_name, trim($result2['name']));
-}
+    $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
+    $html_strings = array();
+    $registry_form_name = array();
+    while ($result2 = sqlFetchArray($res2)) {
+        array_push($registry_form_name, trim($result2['name']));
+    }
 
-while ($result = sqlFetchArray($res)) {
-    if ($result{"form_name"} == "New Patient Encounter") {
-        if ($isfirst == 0) {
-            foreach ($registry_form_name as $var) {
-                if ($toprint = $html_strings[$var]) {
-                    foreach ($toprint as $var) {
-                        print $var;
+    while ($result = sqlFetchArray($res)) {
+        if ($result{"form_name"} == "New Patient Encounter") {
+            if ($isfirst == 0) {
+                foreach ($registry_form_name as $var) {
+                    if ($toprint = $html_strings[$var]) {
+                        foreach ($toprint as $var) {
+                            print $var;
+                        }
                     }
                 }
+
+                $html_strings = array();
+                echo "</div>\n"; // end DIV encounter_forms
+                echo "</div>\n\n";  //end DIV encounter_data
+                echo "<br>";
             }
 
-            $html_strings = array();
-            echo "</div>\n"; // end DIV encounter_forms
-            echo "</div>\n\n";  //end DIV encounter_data
-            echo "<br>";
-        }
-
-        $isfirst = 0;
-        echo "<div class='encounter_data'>\n";
-        echo "<input type=checkbox ".
+            $isfirst = 0;
+            echo "<div class='encounter_data'>\n";
+            echo "<input type=checkbox ".
                 " name='" . attr($result{"formdir"}) . "_" .  attr($result{"form_id"}) . "'".
                 " id='" . attr($result{"formdir"}) . "_" .  attr($result{"form_id"}) . "'".
                 " value='" . attr($result{"encounter"}) . "'" .
                 " class='encounter'".
                 " >";
 
-        // show encounter reason, not just 'New Encounter'
-        // trim to a reasonable length for display purposes --cfapress
-        $maxReasonLength = 20;
-        if (strlen($result["reason"]) > $maxReasonLength) {
-            $result['reason'] = substr($result['reason'], 0, $maxReasonLength) . " ... ";
-        }
+            // show encounter reason, not just 'New Encounter'
+            // trim to a reasonable length for display purposes --cfapress
+            $maxReasonLength = 20;
+            if (strlen($result["reason"]) > $maxReasonLength) {
+                $result['reason'] = substr($result['reason'], 0, $maxReasonLength) . " ... ";
+            }
 
-        echo attr($result{"reason"}) .
+            echo attr($result{"reason"}) .
                 " (" . date("Y-m-d", strtotime($result{"date"})) .
                 ")\n";
-        echo "<div class='encounter_forms'>\n";
-    } else {
-        $form_name = trim($result{"form_name"});
-        //if form name is not in registry, look for the closest match by
-        // finding a registry name which is  at the start of the form name.
-        //this is to allow for forms to put additional helpful information
-        //in the database in the same string as their form name after the name
-        $form_name_found_flag = 0;
-        foreach ($registry_form_name as $var) {
-            if ($var == $form_name) {
-                $form_name_found_flag = 1;
-            }
-        }
-
-        // if the form does not match precisely with any names in the registry, now see if any front partial matches
-        // and change $form_name appropriately so it will print above in $toprint = $html_strings[$var]
-        if (!$form_name_found_flag) {
+            echo "<div class='encounter_forms'>\n";
+        } else {
+            $form_name = trim($result{"form_name"});
+            //if form name is not in registry, look for the closest match by
+            // finding a registry name which is  at the start of the form name.
+            //this is to allow for forms to put additional helpful information
+            //in the database in the same string as their form name after the name
+            $form_name_found_flag = 0;
             foreach ($registry_form_name as $var) {
-                if (strpos($form_name, $var) == 0) {
-                    $form_name = $var;
+                if ($var == $form_name) {
+                    $form_name_found_flag = 1;
                 }
             }
-        }
 
-        if (!is_array($html_strings[$form_name])) {
-            $html_strings[$form_name] = array();
-        }
+            // if the form does not match precisely with any names in the registry, now see if any front partial matches
+            // and change $form_name appropriately so it will print above in $toprint = $html_strings[$var]
+            if (!$form_name_found_flag) {
+                foreach ($registry_form_name as $var) {
+                    if (strpos($form_name, $var) == 0) {
+                        $form_name = $var;
+                    }
+                }
+            }
 
-        array_push($html_strings[$form_name], "<input type='checkbox' ".
+            if (!is_array($html_strings[$form_name])) {
+                $html_strings[$form_name] = array();
+            }
+
+            array_push($html_strings[$form_name], "<input type='checkbox' ".
                                                 " name='" . attr($result{"formdir"}) . "_" . attr($result{"form_id"}) . "'".
                                                 " id='" . attr($result{"formdir"}) . "_" . attr($result{"form_id"}) . "'".
                                                 " value='" . attr($result{"encounter"}) . "'" .
                                                 " class='encounter_form' ".
                                                 ">" . text(xl_form_title($result{"form_name"})) . "<br>\n");
-    }
-}
-
-foreach ($registry_form_name as $var) {
-    if ($toprint = $html_strings[$var]) {
-        foreach ($toprint as $var) {
-            print $var;
         }
     }
-}
-?>
+
+    foreach ($registry_form_name as $var) {
+        if ($toprint = $html_strings[$var]) {
+            foreach ($toprint as $var) {
+                print $var;
+            }
+        }
+    }
+    ?>
 
 <?php endif; ?>
 
