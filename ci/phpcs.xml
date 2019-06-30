@@ -19,7 +19,7 @@
   <!-- Code MUST use an indent of 4 spaces, and MUST NOT use tabs for indenting. -->
   <rule ref="Generic.WhiteSpace.ScopeIndent">
     <properties>
-      <property name="ignoreIndentationTokens" type="array" value="T_COMMENT,T_DOC_COMMENT_OPEN_TAG, T_OPEN_TAG, T_CLOSE_TAG" />
+      <property name="ignoreIndentationTokens" type="array" value="T_COMMENT,T_DOC_COMMENT_OPEN_TAG, T_OPEN_TAG, T_CLOSE_TAG, T_INLINE_HTML" />
     </properties>
   </rule>
 
