@@ -553,7 +553,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                         <input type="text" disabled name="PRIOR_ODCUP" size="4" id="PRIOR_ODCUP" value="<?php echo attr($ODCUP); ?>">
                     </td>
                     <td>
-                        <input type="text" disabled name="PRIOR_OSCUP" size="4" id=PRIOR_OSCUP" value="<?php echo attr($OSCUP); ?>">
+                        <input type="text" disabled name="PRIOR_OSCUP" size="4" id="PRIOR_OSCUP" value="<?php echo attr($OSCUP); ?>">
                     </td>
                 </tr>
 
@@ -3936,7 +3936,7 @@ function menu_overhaul_left($pid, $encounter)
             $prov = sqlQuery($query, array($pat_data['ref_providerID']));
             $Ref_provider = $prov['fname']." ".$prov['lname'];
             $prov = sqlQuery($query, array($pat_data['providerID']));
-           // $PCP = $prov['fname']." ".$prov['lname'];
+            $PCP = $prov['fname']." ".$prov['lname'];
 
             $query = "Select * from insurance_companies where id in (select provider from insurance_data where pid =? and type='primary')";
             $ins = sqlQuery($query, array($pid));
@@ -3962,11 +3962,21 @@ function menu_overhaul_left($pid, $encounter)
                             $uname = text($urow['lname'] . ' ' . $urow['fname']);
                             $optionId = attr($urow['id']);
                             echo "<option value='$optionId'";
-                            if ($urow['id'] == $pat_data['providerID']) {
+                            //  providerID is the practice's provider
+                            //  ref_providerID is the PCP.
+                            //      Demographics call this field "Referring Provider".
+                            //      We are using it as the PCP.
+                            //  referrerID is the actual referring person, used if not the PCP, like an optom
+                            //      a hair dresser, a Spa, or anyone in the address book 
+                            //      even if they don't have an NPI.
+                            // 
+                            //  This is different behavior from 5.0.1.
+                            //  After an upgrade, when a new Eye Form encounter is opened, 
+                            //      these fields will need to be updated manually, once per patient.
+                            if ($urow['id'] == $pat_data['ref_providerID']) {
                                 echo " selected";
                                 $got_selected = true;
                             }
-
                             echo ">$uname</option>";
                         }
 
@@ -3994,7 +4004,7 @@ function menu_overhaul_left($pid, $encounter)
                         $uname = text($urow['lname'] . ' ' . $urow['fname']);
                         $optionId = attr($urow['id']);
                         echo "<option value='$optionId'";
-                        if ($urow['id'] == $pat_data['ref_providerID']) {
+                        if ($urow['id'] == $pat_data['referrerID']) {
                             echo " selected";
                             $got_selected = true;
                         }
@@ -5873,7 +5883,7 @@ function display_refractive_data($encounter_data)
                    </tr>
                    <tr>
                     <td><?php echo $RX_TYPE; ?></td>
-                    <td class="bold""><?php echo xlt('OS{{left eye}}'); ?></td>
+                    <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
                     <td ><?php echo (text(${"OSSPH_$i"})?:"-"); ?></td>
                     <td ><?php echo (text(${"OSCYL_$i"})?:"-"); ?></td>
                     <td ><?php echo (text(${"OSAXIS_$i"})?:"-"); ?></td>
