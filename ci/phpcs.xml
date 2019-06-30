@@ -19,13 +19,19 @@
   <!-- Code MUST use an indent of 4 spaces, and MUST NOT use tabs for indenting. -->
   <rule ref="Generic.WhiteSpace.ScopeIndent">
     <properties>
-      <property name="ignoreIndentationTokens" type="array" value="T_COMMENT,T_DOC_COMMENT_OPEN_TAG" />
+      <property name="ignoreIndentationTokens" type="array" value="T_COMMENT,T_DOC_COMMENT_OPEN_TAG, T_OPEN_TAG, T_CLOSE_TAG" />
     </properties>
   </rule>
 
   <exclude-pattern>*/vendor/*</exclude-pattern>
   <exclude-pattern>*/bower_components/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>*/portal/assets/*</exclude-pattern>
+  <exclude-pattern>*/portal/patient/fwk/*</exclude-pattern>
+  <exclude-pattern>*/portal/patient/libs/*</exclude-pattern>
+  <exclude-pattern>*/portal/patient/templates/*</exclude-pattern>
+  <exclude-pattern>*/portal/patient/scripts/*</exclude-pattern>
+  <exclude-pattern>*/portal/patient/styles/*</exclude-pattern>
   <exclude-pattern>*/public/assets/*</exclude-pattern>
   <exclude-pattern>*/gacl/*</exclude-pattern>
   <exclude-pattern>*/library/classes/fpdf/*</exclude-pattern>
