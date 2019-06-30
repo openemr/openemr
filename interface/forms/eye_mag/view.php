@@ -3922,9 +3922,9 @@ if ($refresh and $refresh != 'fullscreen') {
                       </div>
                   </div>
                   </div>
+                </div>
               </div>
               <!-- END IMP/PLAN -->
-            </div>
             <!-- end form_container for the main body of the form -->
           </div>
           <!-- end Layer1 -->

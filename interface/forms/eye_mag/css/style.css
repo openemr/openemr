@@ -1122,6 +1122,22 @@ textarea.EXTTEXT {
     text-decoration: none;
     background-color: yellow;
 }
+.closeButton_5 {
+    display:inline-block;
+    float:right;
+    position:absolute;
+    top:8px;
+    right:96px;
+    padding: 0px 5px;
+    font-size:12px;
+}
+.closeButton_5:hover {
+    cursor:pointer;
+    border: 0 solid grey;
+    text-decoration: none;
+    background-color: yellow;
+}
+
 /* testing out the tabs header stuff for ACT */
 #header ul {
     list-style: none;
