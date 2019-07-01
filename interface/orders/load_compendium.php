@@ -245,9 +245,8 @@ if ($form_step == 1) {
                             }
                         } // end if
                     } // end while
-                } // end load compendium
-
-                else if ($form_action == 2) { // load questions
+                } else if ($form_action == 2) { // end load compendium
+                    // load questions
                     // Delete the vendor's current questions.
                     sqlStatement(
                         "DELETE FROM procedure_questions WHERE lab_id = ?",
@@ -329,9 +328,8 @@ if ($form_step == 1) {
                                       );
                         }
                     } // end while
-                } // end load questions
-
-                else if ($form_action == 3) { // load question options
+                } else if ($form_action == 3) { // end load questions
+                    // load question options
                     // What should be uploaded is the "AOE Options" spreadsheet provided
                     // by YPMG, saved in "Text CSV" format from OpenOffice, using its
                     // default settings.  Values for each row are:

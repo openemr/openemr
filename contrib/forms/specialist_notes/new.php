@@ -68,9 +68,7 @@ if ($_POST['bn_save']) {
           followup_location = ?
           WHERE id = ?";
         sqlStatement($query, array($_POST['form_notes'], cbvalue('fu_required'), $fu_timing, $fu_location, $formid));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_specialist_notes ( " .
          "notes, followup_required, followup_timing, followup_location " .
          ") VALUES ( ?, ?, ?, ? )";

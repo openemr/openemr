@@ -98,14 +98,12 @@ function cms_field_to_lbf($data_type, $field_id, &$fldarr)
             // Lifestyle Status.
             if ($data_type == '28') {
                 $newvalue = "|$newvalue$field_id|";
-            } // Smoking Status.
-            else if ($data_type == '32') {
+            } else if ($data_type == '32') { // Smoking Status.
                 // See the smoking_status list for these array values:
                 $ssarr = array('current' => 1, 'quit' => 3, 'never' => 4, 'not_applicable' => 9);
                 $ssindex = isset($ssarr[$newvalue]) ? $ssarr[$newvalue] : 0;
                 $newvalue = "|$newvalue$field_id||$ssindex";
-            } // Checkbox list.
-            else if (is_array($newvalue)) {
+            } else if (is_array($newvalue)) { // Checkbox list.
                 $tmp = '';
                 foreach ($newvalue as $value) {
                     if ($tmp !== '') {

@@ -42,9 +42,7 @@ if ($_POST['bn_save']) {
          plan = ?,
          WHERE id = ?";
         sqlStatement($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], $formid ));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_hist_exam_plan (
          history, examination, plan
          ) VALUES ( ?, ?, ? )";

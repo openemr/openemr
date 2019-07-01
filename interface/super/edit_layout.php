@@ -521,29 +521,28 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . add_escape_custom(trim($_POST['gnewbackuplistid'])) . "'" .
       " )");
     addOrDeleteColumn($layout_id, trim($_POST['gnewid']), true);
-} /**********************************************************************
-else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
+    /**********************************************************************
+    else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
+    CsrfUtils::csrfNotVerified();
     }
 
     // drop the fields from the related table (this is critical)
     $res = sqlStatement("SELECT field_id FROM layout_options WHERE " .
-      "form_id = '" . $_POST['layout_id'] . "' ".
-      "AND group_name = '" . $_POST['deletegroupname'] . "'");
+    "form_id = '" . $_POST['layout_id'] . "' ".
+    "AND group_name = '" . $_POST['deletegroupname'] . "'");
     while ($row = sqlFetchArray($res)) {
-        addOrDeleteColumn($layout_id, $row['field_id'], false);
+    addOrDeleteColumn($layout_id, $row['field_id'], false);
     }
 
     // Delete an entire group from the form
     sqlStatement("DELETE FROM layout_options WHERE ".
-                " form_id = '".$_POST['layout_id']."' ".
-                " AND group_name = '".$_POST['deletegroupname']."'"
-                );
-}
-**********************************************************************/
-
-else if ($_POST['formaction'] == "movegroup" && $layout_id) {
+    " form_id = '".$_POST['layout_id']."' ".
+    " AND group_name = '".$_POST['deletegroupname']."'"
+    );
+    }
+     **********************************************************************/
+} else if ($_POST['formaction'] == "movegroup" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }

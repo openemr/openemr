@@ -1132,14 +1132,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $alast = count($amain) - 1;
             $rlast = count($amain[$alast]['res']) - 1;
             $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3], true) . $commentdelim;
-        } // Ensoftek: Get data from SPM segment for specimen.
-        // SPM segment always occurs after the OBX segment.
-        else if ('SPM' == $a[0] && 'ORU' == $msgtype) {
+        } else if ('SPM' == $a[0] && 'ORU' == $msgtype) { // Ensoftek: Get data from SPM segment for specimen.
+            // SPM segment always occurs after the OBX segment.
             rhl7UpdateReportWithSpecimen($amain, $a, $d2);
-        } // Add code here for any other segment types that may be present.
-
-        // Ensoftek: Get data from SPM segment for specimen. Comes in with MU2 samples, but can be ignored.
-        else if ('TQ1' == $a[0] && 'ORU' == $msgtype) {
+        } else if ('TQ1' == $a[0] && 'ORU' == $msgtype) { // Add code here for any other segment types that may be present.
+            // Ensoftek: Get data from SPM segment for specimen. Comes in with MU2 samples, but can be ignored.
             // Ignore and do nothing.
         } else {
             return rhl7LogMsg(xl('Segment name') . " '${a[0]}' " . xl('is misplaced or unknown'));
@@ -1300,9 +1297,7 @@ function poll_hl7_results(&$info)
                     }
                 }
             } // end of this file
-        } // end SFTP
-
-        else if ($protocol == 'FS') {
+        } else if ($protocol == 'FS') { // end SFTP
             // Filesystem directory containing results files.
             $pathname = $pprow['results_path'];
             if (!($dh = opendir($pathname))) {

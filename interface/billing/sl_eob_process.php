@@ -380,8 +380,7 @@ function era_callback(&$out)
                 ****/
 
                 unset($codes[$codekey]);
-            } // If the service item is not in our database...
-            else {
+            } else { // If the service item is not in our database...
                 // This is not an error. If we are not in error mode and not debugging,
                 // insert the service item into SL.  Then display it (in green if it
                 // was inserted, or in red if we are in error mode).
@@ -513,10 +512,9 @@ function era_callback(&$out)
                         } else if ($adj['reason_code'] == '3') {
                             $reason = "$inslabel copay: ";
                         }
-                    } // Non-primary insurance adjustments are garbage, either repeating
-                    // the primary or are not adjustments at all.  Report them as notes
-                    // but do not post any amounts.
-                    else {
+                    } else { // Non-primary insurance adjustments are garbage, either repeating
+                        // the primary or are not adjustments at all.  Report them as notes
+                        // but do not post any amounts.
                         $reason = "$inslabel note " . $adj['reason_code'] . ': ';
                 /****
                     $reason .= sprintf("%.2f", $adj['amount']);
@@ -542,8 +540,7 @@ function era_callback(&$out)
 
                     writeMessageLine($bgcolor, $class, $description . ' ' .
                     sprintf("%.2f", $adj['amount']));
-                } // Other group codes for primary insurance are real adjustments.
-                else {
+                } else { // Other group codes for primary insurance are real adjustments.
                     if (!$error && !$debug) {
                         SLEOB::arPostAdjustment(
                             $pid,

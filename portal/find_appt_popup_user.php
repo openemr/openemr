@@ -235,9 +235,9 @@ if ($_REQUEST['startdate'] && preg_match(
 
                             $adate['mday'] += $my_repeat_on_day - $dow;
                         }
-                    } // end recurrtype 2
-
-                    else { // recurrtype 1
+                        // end recurrtype 2
+                    } else {
+                        // recurrtype 1
                         if ($repeattype == 0) { // daily
                             $adate['mday'] += 1;
                         } else if ($repeattype == 1) { // weekly

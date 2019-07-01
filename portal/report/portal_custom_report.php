@@ -902,9 +902,8 @@ foreach ($ar as $key => $val) {
                 } // end if-else
             } // end Documents loop
             echo "</div>";
-        } // Procedures is an array of checkboxes whose values are procedure order IDs.
-        //
-        else if ($key == "procedures") {
+        } elseif ($key == "procedures") {
+            // Procedures is an array of checkboxes whose values are procedure order IDs.//
             if ($auth_med) {
                 echo "<hr />";
                 echo "<div class='text documents'>";
@@ -919,9 +918,8 @@ foreach ($ar as $key => $val) {
 
                 echo "</div>";
             }
-        } else if (strpos($key, "issue_") === 0) {
+        } elseif (strpos($key, "issue_") === 0) {
             // display patient Issues
-
             if ($first_issue) {
                 $prevIssueType = 'asdf1234!@#$'; // random junk so as to not match anything
                 $first_issue = 0;
@@ -963,7 +961,7 @@ foreach ($ar as $key => $val) {
                 echo "   <table>\n";
                 display_layout_rows('GCA', sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", [$rowid]));
                 echo "   </table>\n";
-            } else if ($irow['type'] == 'contraceptive') {
+            } elseif ($irow['type'] == 'contraceptive') {
                 echo "   <table>\n";
                 display_layout_rows('CON', sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", [$rowid]));
                 echo "   </table>\n";

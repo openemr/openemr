@@ -58,8 +58,7 @@ if ($_POST['form_csvexport']) {
     header("Content-Disposition: attachment; filename=svc_financial_report_".attr($form_from_date)."--".attr($form_to_date).".csv");
     header("Content-Description: File Transfer");
     // CSV headers:
-} // end export
-else {
+} else { // end export
     ?>
 <html>
 <head>

@@ -242,8 +242,8 @@ if (sqlNumRows($res) >= 1) { //display table ?>
         echo "</tr>";
     } ?>
   </table>
-<?php } //display table if statement
-else { //no entries
+<?php } else { //display table if statement
+    //no entries
     echo "<p>" . xlt('No previous entries.') . "</p>";
 } ?>
 </div>

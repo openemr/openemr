@@ -131,8 +131,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 " WHERE id = ? AND rownbr >= 0 AND colnbr >= 0",
                 array($formid)
             );
-        } // If adding a new form...
-        else {
+        } else { // If adding a new form...
             $tmprow = sqlQuery(
                 "SELECT pid FROM form_encounter WHERE encounter = ? ORDER BY id DESC LIMIT 1",
                 array($thisenc)
@@ -197,8 +196,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                     " WHERE id = ? AND rownbr >= 0 AND colnbr >= 0",
                     array($tempid)
                 );
-            } // If adding a new template...
-            else {
+            } else { // If adding a new template...
                 sqlStatement(
                     "LOCK TABLES " . escape_table_name('form_' . $spreadsheet_form_name) .
                     " WRITE, log WRITE"
@@ -281,8 +279,7 @@ if ($formid) {
     );
     $num_used_rows = $tmprow['rowmax'] + 1;
     $num_used_cols = $tmprow['colmax'] + 1;
-} # Otherwise if we are editing a template, get it.
-else if ($tempid) {
+} else if ($tempid) { # Otherwise if we are editing a template, get it.
     $dres = sqlStatement(
         "SELECT * FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
         " WHERE id = ? ORDER BY rownbr, colnbr",

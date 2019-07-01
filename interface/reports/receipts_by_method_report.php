@@ -657,8 +657,7 @@ if ($_POST['form_refresh']) {
   </td>
  </tr>
             <?php
-        } // Payer summary: need to sort and then print it all.
-        else {
+        } else { // Payer summary: need to sort and then print it all.
             ksort($insarray);
             foreach ($insarray as $key => $value) {
                 if (empty($key)) {

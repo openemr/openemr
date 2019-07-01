@@ -405,9 +405,8 @@ MSG;
                             break;
                         }// if close
                     }//for close
-                } //if close
-                /* To handle replace statements */
-                else if (strcasecmp($tokens[3], "SET")==0) {
+                } else if (strcasecmp($tokens[3], "SET")==0) { //if close
+                    /* To handle replace statements */
                     if ((strcasecmp($tokens[4], "ID")==0) || (strcasecmp($tokens[4], "`ID`")==0)) {
                         $rid=$tokens[6];
                     }// if close
@@ -415,8 +414,7 @@ MSG;
                     return "";
                 }
             }
-        } /* Identifying the id for update statements for calculating the checksum */
-        else if (strcasecmp($tokens[0], "UPDATE")==0) {
+        } else if (strcasecmp($tokens[0], "UPDATE")==0) { /* Identifying the id for update statements for calculating the checksum */
             $table = $tokens[1];
 
             $offset = 3;
@@ -456,20 +454,17 @@ MSG;
                 if (($tokens[$offset] == "$id=") && ($offset + 1 < $total)) {
                     $rid = $tokens[$offset+1];
                     break;
-                } /* 'id', '=', '123' */
-                else if ($tokens[$offset] == "$id" && $tokens[$offset+1] == "=" && ($offset+2 < $total)) {
+                } else if ($tokens[$offset] == "$id" && $tokens[$offset+1] == "=" && ($offset+2 < $total)) { /* 'id', '=', '123' */
                     $rid = $tokens[$offset+2];
                     break;
-                } /*id=123*/
-                else if (strpos($tokens[$offset], "$id=") === 0) {
+                } else if (strpos($tokens[$offset], "$id=") === 0) { /*id=123*/
                     $tid = substr($tokens[$offset], strlen($id)+1);
                     if (is_numeric($tid)) {
                         $rid=$tid;
                     }
 
                     break;
-                } /*'id', '=123' */
-                else if ($tokens[$offset] == "$id") {
+                } else if ($tokens[$offset] == "$id") { /*'id', '=123' */
                     $tid = substr($tokens[$offset+1], 1);
                     if (is_numeric($tid)) {
                         $rid=$tid;

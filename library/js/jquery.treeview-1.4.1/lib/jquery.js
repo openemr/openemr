@@ -4221,9 +4221,7 @@
             all = jQuery.merge(this.get(), set);
 
             return this.pushStack(
-                isDisconnected(set[0]) || isDisconnected(all[0]) ?
-            all :
-                jQuery.unique(all)
+                isDisconnected(set[0]) || isDisconnected(all[0]) ? all : jQuery.unique(all)
             );
         },
 

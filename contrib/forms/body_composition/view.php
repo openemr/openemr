@@ -70,9 +70,7 @@ if ($_POST['bn_save']) {
          trim($_POST['form_tbw']), trim($_POST['form_other']), $formid ));
 
         sqlStatement($query);
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_body_composition 
           ( body_type, height, weight, bmi, bmr, impedance, 
           fat_pct, fat_mass, ffm, tbw, other ) 

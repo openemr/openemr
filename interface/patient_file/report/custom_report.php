@@ -665,8 +665,7 @@ foreach ($ar as $key => $val) {
                 } // end if-else
             } // end Documents loop
             echo "</div>";
-        } // Procedures is an array of checkboxes whose values are procedure order IDs.
-        else if ($key == "procedures") {
+        } else if ($key == "procedures") { // Procedures is an array of checkboxes whose values are procedure order IDs.
             if ($auth_med) {
                 echo "<hr />";
                 echo "<div class='text documents'>";

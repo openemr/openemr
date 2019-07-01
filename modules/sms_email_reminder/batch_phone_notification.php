@@ -127,8 +127,7 @@ function cron_updateentry($type, $pid, $pc_eid)
         $query.=" pc_sendalertsms='YES' ";
     } elseif ($type=='Email') {
         $query.=" pc_sendalertemail='YES' ";
-    } //Added by Yijin for phone reminder.. Uses the same field as SMS.
-    elseif ($type=='Phone') {
+    } elseif ($type=='Phone') { //Added by Yijin for phone reminder.. Uses the same field as SMS.
         $query.=" pc_sendalertsms='YES' ";
     }
 

@@ -40,9 +40,7 @@ if ($_POST['bn_save']) {
     if ($formid) {
         $query = "UPDATE form_scanned_notes SET notes = ? WHERE id = ?";
         sqlStatement($query, array($_POST['form_notes'], $formid));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_scanned_notes (notes) VALUES (?)";
         $formid = sqlInsert($query, array($_POST['form_notes']));
         addForm($encounter, "Scanned Notes", $formid, "scanned_notes", $pid, $userauthorized);

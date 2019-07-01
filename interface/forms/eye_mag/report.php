@@ -2085,8 +2085,7 @@ function display_draw_image($zone, $encounter, $pid)
             $filetoshow = $GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr_url($pid)."&document_id=".attr_url($doc['id'])."&as_file=false&blahblah=".attr_url(rand());
             echo "<img src='".$filetoshow."' style='width:220px;height:120px;'>";
         }
-    } //else show base_image
-    else {
+    } else { //else show base_image
         $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
         if ($PDF_OUTPUT) {
             $filetoshow = $GLOBALS["webroot"] ."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";

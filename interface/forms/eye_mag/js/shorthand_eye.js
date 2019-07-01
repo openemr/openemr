@@ -211,11 +211,8 @@ function process_kb_1(field,text,appendix)
         response['field'] = field;
         response['prior_text'] = prior_text;
         return response;
-    }
-
-            // Second, if the field name actually exists on the form
-            // then "field" is not abbreviation so just update it
-    else if ($("#"+field).length) {
+    } else if ($("#"+field).length) { // Second, if the field name actually exists on the form
+        // then "field" is not abbreviation so just update it
         (appendix == ".a") ? ($('#'+field).val($('#'+field).val() +", "+text)) : $('#'+field).val(text);
         $('#'+field).css("background-color","#F0F8FF");
         response['field'] = field;

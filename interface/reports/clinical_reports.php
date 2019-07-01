@@ -1040,8 +1040,7 @@ if ($_POST['form_refresh']) {
             </table> <!-- Main table ends -->
         <?php
     } //End if $result
-} //End if form_refresh
-else {
+} else { //End if form_refresh
     ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
 }
 ?>

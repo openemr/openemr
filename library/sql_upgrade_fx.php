@@ -871,15 +871,15 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } // perform special actions if table has specific engine
-        else if (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
+        } else if (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
+            // perform special actions if table has specific engine
             $skipping = !tableHasEngine($matches[1], $matches[2]);
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } // find MyISAM tables and attempt to convert them
-        else if (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
-            //tables that need to skip InnoDB migration (stay at MyISAM for now)
+        } else if (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
+            // find MyISAM tables and attempt to convert them
+            // tables that need to skip InnoDB migration (stay at MyISAM for now)
             $tables_skip_migration = array('form_eye_mag');
 
             $tables_list = getTablesList(array('engine'=>'MyISAM'));

@@ -174,8 +174,7 @@ if ($form_action == 'export') {
     echo '"' . xl('Amount') . '",';
     echo '"' . xl('Billed') . '",';
     echo '"' . xl('Notes') . '"' . "\n";
-} // end export
-else {
+} else { // end export
     ?>
 <html>
 <head>

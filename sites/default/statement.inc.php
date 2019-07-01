@@ -151,7 +151,7 @@ function create_HTML_statement($stmt)
     $remit_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
 
     ob_start();
-?><div style="padding-left:25px;">
+    ?><div style="padding-left:25px;">
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
@@ -852,7 +852,7 @@ function osp_create_HTML_statement($stmt)
     $remit_csz = $clinic_csz;
 
     ob_start();
-?><div style="padding-left:25px;">
+    ?><div style="padding-left:25px;">
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
@@ -1135,4 +1135,3 @@ function osp_create_HTML_statement($stmt)
     return $output;
 }
 
-        ?>

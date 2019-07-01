@@ -209,10 +209,9 @@ function doSubs($s)
             $s = keyReplace($s, dataFixup(getIssues('medication'), xl('Medications')));
         } else if (keySearch($s, '{ProblemList}')) {
             $s = keyReplace($s, dataFixup(getIssues('medical_problem'), xl('Problem List')));
-        } // This tag indicates the fields from here until {/GRP} are a group of fields
-        // separated by semicolons.  Fields with no data are omitted, and fields with
-        // data are prepended with their field label from the form layout.
-        else if (keySearch($s, '{GRP}')) {
+        } else if (keySearch($s, '{GRP}')) { // This tag indicates the fields from here until {/GRP} are a group of fields
+            // separated by semicolons.  Fields with no data are omitted, and fields with
+            // data are prepended with their field label from the form layout.
             ++$groupLevel;
             $groupCount = 0;
             $s = keyReplace($s, '');
@@ -222,15 +221,13 @@ function doSubs($s)
             }
 
             $s = keyReplace($s, '');
-        } // This is how we specify the separator between group items in a way that
-        // is independent of the document format. Whatever is between {ITEMSEP} and
-        // {/ITEMSEP} is the separator string.  Default is "; ".
-        else if (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $keyLocation), $matches)) {
+        } else if (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $keyLocation), $matches)) { // This is how we specify the separator between group items in a way that
+            // is independent of the document format. Whatever is between {ITEMSEP} and
+            // {/ITEMSEP} is the separator string.  Default is "; ".
             $itemSeparator = $matches[1];
             $keyLength = strlen($matches[0]);
             $s = keyReplace($s, '');
-        } // This handles keys like {LBFxxx:fieldid} for layout-based encounter forms.
-        else if (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+        } else if (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $keyLocation), $matches)) { // This handles keys like {LBFxxx:fieldid} for layout-based encounter forms.
             $formname = $matches[1];
             $fieldid  = $matches[2];
             $keyLength = 3 + strlen($formname) + strlen($fieldid);
@@ -262,8 +259,7 @@ function doSubs($s)
             }
 
             $s = keyReplace($s, dataFixup($data, $title));
-        } // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
-        else if (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+        } else if (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) { // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
             $formname = $matches[1];
             $fieldid  = $matches[2];
             $keyLength = 3 + strlen($formname) + strlen($fieldid);

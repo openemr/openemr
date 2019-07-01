@@ -290,8 +290,7 @@ if ($_POST['form_csvexport']) {
         echo '"Qty",';
         echo '"Total"' . "\n";
     }
-} // end export
-else {
+} else { // end export
     ?>
 <html>
 <head>

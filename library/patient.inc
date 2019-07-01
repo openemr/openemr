@@ -89,11 +89,9 @@ function getInsuranceProviders()
         for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
             $returnval[$row['id']] = $row['name'];
         }
-    } // Please leave this here. I have a user who wants to see zip codes and PO
-    // box numbers listed along with the insurance company names, as many companies
-    // have different billing addresses for different plans.  -- Rod Roark
-    //
-    else {
+    } else { // Please leave this here. I have a user who wants to see zip codes and PO
+        // box numbers listed along with the insurance company names, as many companies
+        // have different billing addresses for different plans.  -- Rod Roark
         $sql = "select insurance_companies.name, insurance_companies.id, " .
           "addresses.zip, addresses.line1 " .
           "from insurance_companies, addresses " .
@@ -1549,13 +1547,12 @@ function getPatientAgeYMD($dob, $date = null)
 
     if ($mo==05 or $mo==07 or $mo==10 or $mo==12) {  //determined by monthnow-1
         $nd=30; //nd = number of days in a month, if monthnow is 5, 7, 9, 12 then
-    } // look at April, June, September, November for calculation.  These months only have 30 days.
-    elseif ($mo==03) { // for march, look to the month of February for calculation, check for leap year
+    } elseif ($mo==03) { // look at April, June, September, November for calculation.  These months only have 30 days.
+        // for march, look to the month of February for calculation, check for leap year
         $check_leap_Y=$yearnow/4; // To check if this is a leap year.
         if (is_int($check_leap_Y)) {
             $nd=29;
-        } //If it true then this is the leap year
-        else {
+        } else { //If it true then this is the leap year
             $nd=28;
         } //otherwise, it is not a leap year.
     } else {

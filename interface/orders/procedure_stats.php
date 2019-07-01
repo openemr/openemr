@@ -265,9 +265,7 @@ function process_result_code($row)
     if ($form_by === '4') {
         $key = $row['order_name'] . ' / ' . $row['result_name'];
         loadColumnData($key, $row);
-    } // Recommended followup services.
-  //
-    else if ($form_by === '5') {
+    } else if ($form_by === '5') { // Recommended followup services.
         if (!empty($row['related_code'])) {
             $relcodes = explode(';', $row['related_code']);
             foreach ($relcodes as $codestring) {

@@ -1599,9 +1599,7 @@ class BillingUtilities
 
             sqlStatement($sql, $sqlBindArray);
             sqlCommitTrans();
-        } // Otherwise update the existing claim row.
-        //
-        else if ($claimset) {
+        } else if ($claimset) { // Otherwise update the existing claim row.
             $sqlBindArray = $sqlBindClaimset;
             array_push($sqlBindArray, $patient_id, $encounter_id, $row['version']);
             $claimset = substr($claimset, 2);

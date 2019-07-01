@@ -620,9 +620,7 @@ function process_ippf_code($row, $code, $quantity = 1)
                 return;
             }
         }
-    } // General Service Category
-  //
-    else if ($form_by === '3') {
+    } else if ($form_by === '3') { // General Service Category
         if (preg_match('/^1/', $code)) {
             $key = xl('SRH - Family Planning');
         } else if (preg_match('/^2/', $code)) {
@@ -634,9 +632,7 @@ function process_ippf_code($row, $code, $quantity = 1)
         } else {
             $key = xl('Invalid Service Codes');
         }
-    } // Abortion-Related Category
-  //
-    else if ($form_by === '13') {
+    } else if ($form_by === '13') { // Abortion-Related Category
         if (preg_match('/^252221/', $code)) {
             $key = xl('Pre-Abortion Counseling');
         } else if (preg_match('/^252222/', $code)) {
@@ -658,13 +654,9 @@ function process_ippf_code($row, $code, $quantity = 1)
                 return;
             }
         }
-    } // Specific Services. One row for each IPPF code.
-  //
-    else if ($form_by === '4') {
+    } else if ($form_by === '4') { // Specific Services. One row for each IPPF code.
         $key = $code;
-    } // Specific Contraceptive Services. One row for each IPPF code.
-  //
-    else if ($form_by === '104') {
+    } else if ($form_by === '104') { // Specific Contraceptive Services. One row for each IPPF code.
         if ($form_content != 5) {
             // Skip codes not for contraceptive services.
             $tmp = getContraceptiveMethod($code);
@@ -674,9 +666,7 @@ function process_ippf_code($row, $code, $quantity = 1)
         }
 
         $key = $code;
-    } // Abortion Method.
-  //
-    else if ($form_by === '5') {
+    } else if ($form_by === '5') { // Abortion Method.
         $key = getAbortionMethod($code);
         if (empty($key)) {
             if ($form_content != 5) {
@@ -685,9 +675,7 @@ function process_ippf_code($row, $code, $quantity = 1)
 
             $key = 'Unspecified';
         }
-    } // Contraceptive Method.
-  //
-    else if ($form_by === '6') {
+    } else if ($form_by === '6') { // Contraceptive Method.
         $key = getContraceptiveMethod($code);
         if (empty($key)) {
             if ($form_content != 5) {
@@ -696,33 +684,33 @@ function process_ippf_code($row, $code, $quantity = 1)
 
             $key = 'Unspecified';
         }
-    } /*******************************************************************
-  // Contraceptive method for new contraceptive adoption following abortion.
-  // Get it from the IPPF code if an abortion issue is linked to the visit.
-  // Note we are handling this during processing of services rather than
-  // by enumerating issues, because we need the service date.
-  //
-  else if ($form_by === '7') {
-    $key = getContraceptiveMethod($code);
-    if (empty($key)) return;
-    $patient_id = $row['pid'];
-    $encounter_id = $row['encounter'];
-    $query = "SELECT COUNT(*) AS count " .
-      "FROM lists AS l " .
-      "JOIN issue_encounter AS ie ON ie.pid = '$patient_id' AND " .
-      "ie.encounter = '$encounter_id' AND ie.list_id = l.id " .
-      "WHERE l.pid = '$patient_id' AND " .
-      "l.activity = 1 AND l.type = 'ippf_gcac'";
-    // echo "<!-- $key: $query -->\n"; // debugging
-    $irow = sqlQuery($query);
-    if (empty($irow['count'])) return;
-  }
-  *******************************************************************/
+        /*******************************************************************
+        // Contraceptive method for new contraceptive adoption following abortion.
+        // Get it from the IPPF code if an abortion issue is linked to the visit.
+        // Note we are handling this during processing of services rather than
+        // by enumerating issues, because we need the service date.
+        //
+        else if ($form_by === '7') {
+        $key = getContraceptiveMethod($code);
+        if (empty($key)) return;
+        $patient_id = $row['pid'];
+        $encounter_id = $row['encounter'];
+        $query = "SELECT COUNT(*) AS count " .
+        "FROM lists AS l " .
+        "JOIN issue_encounter AS ie ON ie.pid = '$patient_id' AND " .
+        "ie.encounter = '$encounter_id' AND ie.list_id = l.id " .
+        "WHERE l.pid = '$patient_id' AND " .
+        "l.activity = 1 AND l.type = 'ippf_gcac'";
+        // echo "<!-- $key: $query -->\n"; // debugging
+        $irow = sqlQuery($query);
+        if (empty($irow['count'])) return;
+        }
+         *******************************************************************/
 
-  // Contraceptive method for new contraceptive adoption following abortion.
-  // Get it from the IPPF code if there is a suitable recent GCAC form.
-  //
-    else if ($form_by === '7') {
+        // Contraceptive method for new contraceptive adoption following abortion.
+        // Get it from the IPPF code if there is a suitable recent GCAC form.
+        //
+    } else if ($form_by === '7') {
         $key = getContraceptiveMethod($code);
         if (empty($key)) {
             return;
@@ -748,65 +736,61 @@ function process_ippf_code($row, $code, $quantity = 1)
                 return;
             }
         }
-    } // Post-Abortion Care and Followup by Source.
-  // Requirements just call for counting sessions, but this way the columns
-  // can be anything - age category, religion, whatever.
-  //
-    else if ($form_by === '8') {
+    } else if ($form_by === '8') { // Post-Abortion Care and Followup by Source.
+        // Requirements just call for counting sessions, but this way the columns
+        // can be anything - age category, religion, whatever.
         if (preg_match('/^25222[567]/', $code)) { // care, followup and incomplete abortion treatment
             $key = getGcacClientStatus($row);
         } else {
             return;
         }
-    } /*******************************************************************
-  // Complications of abortion by abortion method and complication type.
-  // These may be noted either during recovery or during a followup visit.
-  // Again, driven by services in order to report by service date.
-  // Note: If there are multiple complications, they will all be reported.
-  //
-  else if ($form_by === '11') {
-    $compl_type = '';
-    if (preg_match('/^25222[345]/', $code)) { // all abortions including incomplete
-      $compl_type = 'rec_compl';
-    }
-    else if (preg_match('/^25222[67]/', $code)) { // all post-abortion care and followup
-      $compl_type = 'fol_compl';
-    }
-    else {
-      return;
-    }
-    $irow = getGcacData($row, "lg.$compl_type, lo.title",
-      "LEFT JOIN list_options AS lo ON lo.list_id = 'in_ab_proc' AND " .
-      "lo.option_id = lg.in_ab_proc");
-    if (empty($irow)) return; // this should not happen
-    if (empty($irow[$compl_type])) return; // ok, no complications
-    // We have one or more complications.
-    $abtype = empty($irow['title']) ? xl('Indeterminate') : $irow['title'];
-    $acompl = explode('|', $irow[$compl_type]);
-    foreach ($acompl as $compl) {
-      $crow = sqlQuery("SELECT title FROM list_options WHERE " .
+        /*******************************************************************
+        // Complications of abortion by abortion method and complication type.
+        // These may be noted either during recovery or during a followup visit.
+        // Again, driven by services in order to report by service date.
+        // Note: If there are multiple complications, they will all be reported.
+        //
+        else if ($form_by === '11') {
+        $compl_type = '';
+        if (preg_match('/^25222[345]/', $code)) { // all abortions including incomplete
+        $compl_type = 'rec_compl';
+        }
+        else if (preg_match('/^25222[67]/', $code)) { // all post-abortion care and followup
+        $compl_type = 'fol_compl';
+        }
+        else {
+        return;
+        }
+        $irow = getGcacData($row, "lg.$compl_type, lo.title",
+        "LEFT JOIN list_options AS lo ON lo.list_id = 'in_ab_proc' AND " .
+        "lo.option_id = lg.in_ab_proc");
+        if (empty($irow)) return; // this should not happen
+        if (empty($irow[$compl_type])) return; // ok, no complications
+        // We have one or more complications.
+        $abtype = empty($irow['title']) ? xl('Indeterminate') : $irow['title'];
+        $acompl = explode('|', $irow[$compl_type]);
+        foreach ($acompl as $compl) {
+        $crow = sqlQuery("SELECT title FROM list_options WHERE " .
         "list_id = 'complication' AND option_id = '$compl'");
-      $key = "$abtype / " . $crow['title'];
-      loadColumnData($key, $row);
-    }
-    return; // because loadColumnData() is already done.
-  }
-  *******************************************************************/
+        $key = "$abtype / " . $crow['title'];
+        loadColumnData($key, $row);
+        }
+        return; // because loadColumnData() is already done.
+        }
+         *******************************************************************/
 
-  // Pre-Abortion Counseling.  Three possible situations:
-  //   Provided abortion in the MA clinics
-  //   Referred to other service providers (govt,private clinics)
-  //   Decided not to have the abortion
-  //
-    else if ($form_by === '12') {
+        // Pre-Abortion Counseling.  Three possible situations:
+        //   Provided abortion in the MA clinics
+        //   Referred to other service providers (govt,private clinics)
+        //   Decided not to have the abortion
+        //
+    } else if ($form_by === '12') {
         if (preg_match('/^252221/', $code)) { // all pre-abortion counseling
             $key = getGcacClientStatus($row);
         } else {
             return;
         }
-    } // Patient Name.
-  //
-    else if ($form_by === '17') {
+    } else if ($form_by === '17') { // Patient Name.
         $key = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
     } else {
         return; // no match, so do nothing
@@ -830,17 +814,11 @@ function process_ma_code($row)
         if (!empty($row['lo_title'])) {
             $key = xl($row['lo_title']);
         }
-    } // Specific Services. One row for each MA code.
-  //
-    else if ($form_by === '102') {
+    } else if ($form_by === '102') { // Specific Services. One row for each MA code.
         $key = $row['code'];
-    } // One row for each referral source.
-  //
-    else if ($form_by === '103') {
+    } else if ($form_by === '103') { // One row for each referral source.
         $key = $row['referral_source'];
-    } // Just one row.
-  //
-    else if ($form_by === '2') {
+    } else if ($form_by === '2') { // Just one row.
         $key = $arr_content[$form_content];
     } else {
         return;
@@ -905,11 +883,9 @@ function process_visit($row)
         }
       }
         *****************************************************************/
-    } // Complications of abortion by abortion method and complication type.
-  // These may be noted either during recovery or during a followup visit.
-  // Note: If there are multiple complications, they will all be reported.
-  //
-    else if ($form_by === '11') {
+    } else if ($form_by === '11') { // Complications of abortion by abortion method and complication type.
+        // These may be noted either during recovery or during a followup visit.
+        // Note: If there are multiple complications, they will all be reported.
         $dres = LBFgcac_query($row['pid'], $row['encounter'], 'complications');
         while ($drow = sqlFetchArray($dres)) {
             $a = explode('|', $drow['field_value']);

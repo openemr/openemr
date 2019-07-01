@@ -44,8 +44,7 @@ if ($_GET['mode'] == 'new') {
 
     //Database insertions for participants
     participant_insertions($newid, $therapy_group, $group_encounter_data, $appt_data);
-} //If editing a form
-elseif ($_GET['mode'] == 'update') {
+} elseif ($_GET['mode'] == 'update') { //If editing a form
     //Update form_group_attendance table
     $id = $_GET['id'];
     $sql_for_form_tga = "UPDATE form_group_attendance SET date = NOW(), user = ?, groupname = ?, authorized = ? WHERE id = ?;";

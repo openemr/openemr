@@ -1230,9 +1230,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             ?>
  </tr>
             <?php
-        } // end not export and not insurance summary
-
-        else if ($_POST['form_csvexport']) {
+        } else if ($_POST['form_csvexport']) {  // end not export and not insurance summary
           // The CSV detail line is written here added conditions for checked items (TLH).
           // Added zero balances for a complete spreadsheet view
             $balance = $row['charges'] + $row['adjustments'] - $row['paid'];

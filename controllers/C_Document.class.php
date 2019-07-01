@@ -945,8 +945,7 @@ class C_Document extends Controller
                 $this->assign("messages", $messages);
                 return $this->list_action($patient_id);
             }
-        } //in this case return the document to the queue instead of moving it
-        elseif (strtolower($new_patient_id) == "q" && is_numeric($document_id)) {
+        } elseif (strtolower($new_patient_id) == "q" && is_numeric($document_id)) { //in this case return the document to the queue instead of moving it
             $d = new Document($document_id);
             $new_path = $this->_config['repository'];
             $fname = $d->get_url_file();
