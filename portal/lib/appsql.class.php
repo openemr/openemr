@@ -293,9 +293,9 @@ class ApplicationTable
     {
         if ($format == "0") {
             $date_format = 'yyyy/mm/dd';
-        } else if ($format == 1) {
+        } elseif ($format == 1) {
             $date_format = 'mm/dd/yyyy';
-        } else if ($format == 2) {
+        } elseif ($format == 2) {
             $date_format = 'dd/mm/yyyy';
         } else {
             $date_format = $format;

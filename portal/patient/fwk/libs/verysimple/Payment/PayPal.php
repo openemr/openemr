@@ -71,20 +71,20 @@ class PayPal extends PaymentProcessor
         
         if ("SUCCESS" == strtoupper($resp->RawResponse ["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($resp->RawResponse ["ACK"])) {
             /*
-			 * SAMPLE SUCCESS RESPONSE
-			 * Array (
-			 * [REFUNDTRANSACTIONID] => 5L51568382268602F
-			 * [FEEREFUNDAMT] => 0%2e18
-			 * [GROSSREFUNDAMT] => 5%2e15
-			 * [NETREFUNDAMT] => 4%2e97
-			 * [CURRENCYCODE] => USD
-			 * [TIMESTAMP] => 2012%2d03%2d22T23%3a25%3a25Z
-			 * [CORRELATIONID] => 2a2cc13c7c64a
-			 * [ACK] => Success
-			 * [VERSION] => 62%2e0
-			 * [BUILD] => 2649250
-			 * )
-			 */
+             * SAMPLE SUCCESS RESPONSE
+             * Array (
+             * [REFUNDTRANSACTIONID] => 5L51568382268602F
+             * [FEEREFUNDAMT] => 0%2e18
+             * [GROSSREFUNDAMT] => 5%2e15
+             * [NETREFUNDAMT] => 4%2e97
+             * [CURRENCYCODE] => USD
+             * [TIMESTAMP] => 2012%2d03%2d22T23%3a25%3a25Z
+             * [CORRELATIONID] => 2a2cc13c7c64a
+             * [ACK] => Success
+             * [VERSION] => 62%2e0
+             * [BUILD] => 2649250
+             * )
+             */
             
             $resp->IsSuccess = true;
             $resp->TransactionId = $resp->RawResponse ['REFUNDTRANSACTIONID'];
@@ -92,18 +92,18 @@ class PayPal extends PaymentProcessor
             $resp->ResponseMessage = urldecode($resp->RawResponse ['GROSSREFUNDAMT'] . ' ' . $resp->RawResponse ['CURRENCYCODE']) . " was sucessfully refunded.";
         } else {
             /*
-			 * SAMPLE ERROR RESPONSE:
-			 * Array (
-			 * [TIMESTAMP] => 2012%2d03%2d22T23%3a15%3a22Z
-			 * [CORRELATIONID] => ae19bab2b4b1
-			 * [ACK] => Failure [VERSION] => 62%2e0
-			 * [BUILD] => 2649250
-			 * [L_ERRORCODE0] => 10004
-			 * [L_SHORTMESSAGE0] => Transaction%20refused%20because%20of%20an%20invalid%20argument%2e%20See%20additional%20error%20messages%20for%20details%2e
-			 * [L_LONGMESSAGE0] => The%20transaction%20id%20is%20not%20valid
-			 * [L_SEVERITYCODE0] => Error
-			 * )
-			 */
+             * SAMPLE ERROR RESPONSE:
+             * Array (
+             * [TIMESTAMP] => 2012%2d03%2d22T23%3a15%3a22Z
+             * [CORRELATIONID] => ae19bab2b4b1
+             * [ACK] => Failure [VERSION] => 62%2e0
+             * [BUILD] => 2649250
+             * [L_ERRORCODE0] => 10004
+             * [L_SHORTMESSAGE0] => Transaction%20refused%20because%20of%20an%20invalid%20argument%2e%20See%20additional%20error%20messages%20for%20details%2e
+             * [L_LONGMESSAGE0] => The%20transaction%20id%20is%20not%20valid
+             * [L_SEVERITYCODE0] => Error
+             * )
+             */
             
             $resp->IsSuccess = false;
             $resp->ResponseCode = urldecode($this->GetArrayVal($resp->RawResponse, "L_ERRORCODE0"));
@@ -225,21 +225,21 @@ class PayPal extends PaymentProcessor
     private function GetErrorMessage($httpParsedResponseAr)
     {
         /*
-		 * SAMPLE RETURN VALUE
-		 * (
-		 * [TIMESTAMP] => 2012%2d03%2d23T01%3a47%3a01Z
-		 * [CORRELATIONID] => c9dcc0b7acd94
-		 * [ACK] => Failure
-		 * [VERSION] => 62%2e0
-		 * [BUILD] => 2649250
-		 * [L_ERRORCODE0] => 10507
-		 * [L_SHORTMESSAGE0] => Invalid%20Configuration
-		 * [L_LONGMESSAGE0] => This%20transaction%20cannot%20be%20processed%2e%20Please%20contact%20PayPal%20Customer%20Service%2e
-		 * [L_SEVERITYCODE0] => Error
-		 * [AMT] => 103%2e00
-		 * [CURRENCYCODE] => USD
-		 * )
-		 */
+         * SAMPLE RETURN VALUE
+         * (
+         * [TIMESTAMP] => 2012%2d03%2d23T01%3a47%3a01Z
+         * [CORRELATIONID] => c9dcc0b7acd94
+         * [ACK] => Failure
+         * [VERSION] => 62%2e0
+         * [BUILD] => 2649250
+         * [L_ERRORCODE0] => 10507
+         * [L_SHORTMESSAGE0] => Invalid%20Configuration
+         * [L_LONGMESSAGE0] => This%20transaction%20cannot%20be%20processed%2e%20Please%20contact%20PayPal%20Customer%20Service%2e
+         * [L_SEVERITYCODE0] => Error
+         * [AMT] => 103%2e00
+         * [CURRENCYCODE] => USD
+         * )
+         */
         $errmsg = $this->GetArrayVal($httpParsedResponseAr, "L_SHORTMESSAGE0") . ": ";
         
         // figure out the message as PayPal reports it
@@ -367,20 +367,20 @@ class PayPal extends PaymentProcessor
         
         // @TODO these have proven to be unreliable, but maybe somebody can do something better?
         /*
-		 * $responses = Array();
-		 * $responses['0005'] = "The transaction was declined without explanation by the card issuer.";
-		 * $responses['0013'] = "The transaction amount is greater than the maximum the issuer allows.";
-		 * $responses['0014'] = "The issuer indicates that this card is not valid.";
-		 * $responses['0051'] = "The credit limit for this account has been exceeded.";
-		 * $responses['0054'] = "The card is expired.";
-		 * $responses['1015'] = "The credit card number was invalid.";
-		 * $responses['1511'] = "Duplicate transaction attempt.";
-		 * $responses['1899'] = "Timeout waiting for host response.";
-		 * $responses['2075'] = "Approval from the card issuer's voice center is required to process this transaction.";
-		 *
-		 * return array_key_exists($code,$responses)
-		 * ? "Error Code " . $code . ": " .$responses[$code]
-		 * : "Error Code " . $code;
-		 */
+         * $responses = Array();
+         * $responses['0005'] = "The transaction was declined without explanation by the card issuer.";
+         * $responses['0013'] = "The transaction amount is greater than the maximum the issuer allows.";
+         * $responses['0014'] = "The issuer indicates that this card is not valid.";
+         * $responses['0051'] = "The credit limit for this account has been exceeded.";
+         * $responses['0054'] = "The card is expired.";
+         * $responses['1015'] = "The credit card number was invalid.";
+         * $responses['1511'] = "Duplicate transaction attempt.";
+         * $responses['1899'] = "Timeout waiting for host response.";
+         * $responses['2075'] = "Approval from the card issuer's voice center is required to process this transaction.";
+         *
+         * return array_key_exists($code,$responses)
+         * ? "Error Code " . $code . ": " .$responses[$code]
+         * : "Error Code " . $code;
+         */
     }
 }

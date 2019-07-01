@@ -108,8 +108,8 @@ var page = {
                 function todocument(docid)
                 {
                     // not used
-                  h = webRoot+'/controller.php?document&view&patient_id=30&doc_id=' + docid;
-                  location.href = h;
+                    h = webRoot+'/controller.php?document&view&patient_id=30&doc_id=' + docid;
+                    location.href = h;
                 }
                 $("#signTemplate").hide();
                 $("#printTemplate").hide();
@@ -136,14 +136,14 @@ var page = {
                      pageAudit.onsitePortalActivity.set('actionUser',cuser)
                     // $("#template").submit();
                     var posting = $.post(
-                         "./../lib/doc_lib.php",
-                         {
-                                cpid: cpid,
-                                docid: docid,
-                                content: documentContents,
-                                handler: "chart"
+                        "./../lib/doc_lib.php",
+                        {
+                            cpid: cpid,
+                            docid: docid,
+                            content: documentContents,
+                            handler: "chart"
                          }
-                     );
+                    );
                      posting.done(function ( rtn ) {
                         if (rtn.indexOf("ERROR") !== -1) {
                             alert(rtn);
@@ -185,8 +185,7 @@ var page = {
                 $("#content").val(documentContents);
                 if (page.onsiteDocument.get('denialReason') == 'In Review') {
                     pageAudit.onsitePortalActivity.set('status', 'waiting')
-                }
-                else {
+                } else {
                     pageAudit.onsitePortalActivity.set('status', 'editing')
                     page.updateModel();
                 }
@@ -214,8 +213,7 @@ var page = {
             $("#submitTemplate").on('click', function () {
                 if (page.onsiteDocument.get('denialReason') == 'In Review') {
                     pageAudit.onsitePortalActivity.set('status', 'waiting')
-                }
-                else {
+                } else {
                     pageAudit.onsitePortalActivity.set('status', 'editing')
 
                     flattenDocument();

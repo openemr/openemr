@@ -147,11 +147,11 @@ function Zip($source, $destination)
             $file = str_replace('\\', '/', realpath($file));
             if (is_dir($file) === true) {
                 $zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
-            } else if (is_file($file) === true) {
+            } elseif (is_file($file) === true) {
                 $zip->addFromString(str_replace($source . '/', '', $file), file_get_contents($file));
             }
         }
-    } else if (is_file($source) === true) {
+    } elseif (is_file($source) === true) {
         $zip->addFromString(basename($source), file_get_contents($source));
     }
 

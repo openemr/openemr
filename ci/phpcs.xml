@@ -32,14 +32,7 @@
   <exclude-pattern>*/library/classes/smtp/*</exclude-pattern>
   <exclude-pattern>*/library/classes/PDF_Label.php</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
-  <exclude-pattern>*/portal/assets/*</exclude-pattern>
-  <exclude-pattern>*/portal/patient/fwk/*</exclude-pattern>
-  <exclude-pattern>*/portal/patient/libs/*</exclude-pattern>
-  <exclude-pattern>*/portal/patient/templates/*</exclude-pattern>
-  <exclude-pattern>*/portal/patient/scripts/*</exclude-pattern>
-  <exclude-pattern>*/portal/patient/styles/*</exclude-pattern>
   <exclude-pattern>*/public/assets/*</exclude-pattern>
-  <exclude-pattern>*/src/FHIR/*</exclude-pattern>
   <exclude-pattern>*/vendor/*</exclude-pattern>
 
 </ruleset>

@@ -117,7 +117,7 @@ class DataAdapter implements IObservable
                     try {
                         Includer::IncludeFile("verysimple/DB/DataDriver/" . $this->ConnectionSetting->Type . ".php");
                         $classname = "DataDriver" . $this->ConnectionSetting->Type;
-                        $this->_driver = new $classname ();
+                        $this->_driver = new $classname();
                     } catch (IncludeException $ex) {
                         throw new Exception('Unknown DataDriver "' . $this->ConnectionSetting->Type . '" specified in connection settings');
                     }

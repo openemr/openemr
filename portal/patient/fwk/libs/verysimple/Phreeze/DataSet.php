@@ -412,7 +412,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
                 // we know we just have one page
                 if ($page->TotalPages > 0 && $page->TotalPages <= $page->PageSize) {
                     $page->TotalPages = 1;
-                } else if ($pagesize == 0) {
+                } elseif ($pagesize == 0) {
                     // we don't want paging to occur in this case
                     $page->TotalPages = 1;
                 } else {

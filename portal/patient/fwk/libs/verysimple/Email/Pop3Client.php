@@ -296,7 +296,7 @@ class Pop3Client
                 
                 if ($structure->encoding == 3) {
                     return imap_base64($text);
-                } else if ($structure->encoding == 4) {
+                } elseif ($structure->encoding == 4) {
                     return imap_qprint($text);
                 } else {
                     return $text;

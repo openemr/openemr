@@ -365,10 +365,10 @@ class VerySimpleStringUtil
             if ($ascii < 128) {
                 // one-byte character
                 $result .= $char;
-            } else if ($ascii < 192) {
+            } elseif ($ascii < 192) {
                 // non-utf8 character or not a start byte
                 $result .= ($encodeControlCharacters) ? htmlentities($char) : '';
-            } else if ($ascii < 224) {
+            } elseif ($ascii < 224) {
                 // two-byte character
                 $encoded = htmlentities(substr($utf8, $i, 2), ENT_QUOTES, 'UTF-8');
                 
@@ -379,14 +379,14 @@ class VerySimpleStringUtil
                 
                 $result .= $encoded;
                 $i ++;
-            } else if ($ascii < 240) {
+            } elseif ($ascii < 240) {
                 // three-byte character
                 $ascii1 = ord($utf8 [$i + 1]);
                 $ascii2 = ord($utf8 [$i + 2]);
                 $unicode = (15 & $ascii) * 4096 + (63 & $ascii1) * 64 + (63 & $ascii2);
                 $result .= "&#$unicode;";
                 $i += 2;
-            } else if ($ascii < 248) { // (TODO: should this be 245 or 248 ??)
+            } elseif ($ascii < 248) { // (TODO: should this be 245 or 248 ??)
                                        // four-byte character
                 $ascii1 = ord($utf8 [$i + 1]);
                 $ascii2 = ord($utf8 [$i + 2]);
@@ -454,7 +454,7 @@ class VerySimpleStringUtil
         $h = ord($c {0});
         if ($h <= 0x7F) { // 127
             return $c;
-        } else if ($h < 0xC2) { // 194
+        } elseif ($h < 0xC2) { // 194
             return $c;
         }
         
@@ -462,11 +462,11 @@ class VerySimpleStringUtil
             $h = ($h & 0x1F) << 6 | (ord($c {1}) & 0x3F); // 0x0F = 15, 0x1F = 31, 0x3F = 63
             $h = "&#" . $h . ";";
             return $h;
-        } else if ($h <= 0xEF) { // 0xEF = 239
+        } elseif ($h <= 0xEF) { // 0xEF = 239
             $h = ($h & 0x0F) << 12 | (ord($c {1}) & 0x3F) << 6 | (ord($c {2}) & 0x3F);
             $h = "&#" . $h . ";";
             return $h;
-        } else if ($h <= 0xF4) { // 0xF4 = 244 (TODO: should this be 244 or 247 ??)
+        } elseif ($h <= 0xF4) { // 0xF4 = 244 (TODO: should this be 244 or 247 ??)
             $h = ($h & 0x0F) << 18 | (ord($c {1}) & 0x3F) << 12 | (ord($c {2}) & 0x3F) << 6 | (ord($c {3}) & 0x3F);
             $h = "&#" . $h . ";";
             return $h;

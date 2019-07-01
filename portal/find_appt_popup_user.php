@@ -80,7 +80,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
             }
 
             break; // ignore any positive duration for IN
-        } else if ($catid == 3) { // out of office
+        } elseif ($catid == 3) { // out of office
             $slots[$i] |= 2;
             break; // ignore any positive duration for OUT
         } else { // all other events reserve time
@@ -240,29 +240,29 @@ if ($_REQUEST['startdate'] && preg_match(
                         // recurrtype 1
                         if ($repeattype == 0) { // daily
                             $adate['mday'] += 1;
-                        } else if ($repeattype == 1) { // weekly
+                        } elseif ($repeattype == 1) { // weekly
                             $adate['mday'] += 7;
-                        } else if ($repeattype == 2) { // monthly
+                        } elseif ($repeattype == 2) { // monthly
                             $adate['mon'] += 1;
-                        } else if ($repeattype == 3) { // yearly
+                        } elseif ($repeattype == 3) { // yearly
                             $adate['year'] += 1;
-                        } else if ($repeattype == 4) { // work days
+                        } elseif ($repeattype == 4) { // work days
                             if ($adate['wday'] == 5) {      // if friday, skip to monday
                                 $adate['mday'] += 3;
-                            } else if ($adate['wday'] == 6) { // saturday should not happen
+                            } elseif ($adate['wday'] == 6) { // saturday should not happen
                                 $adate['mday'] += 2;
                             } else {
                                 $adate['mday'] += 1;
                             }
-                        } else if ($repeattype == 5) { // monday
+                        } elseif ($repeattype == 5) { // monday
                             $adate['mday'] += 7;
-                        } else if ($repeattype == 6) { // tuesday
+                        } elseif ($repeattype == 6) { // tuesday
                             $adate['mday'] += 7;
-                        } else if ($repeattype == 7) { // wednesday
+                        } elseif ($repeattype == 7) { // wednesday
                             $adate['mday'] += 7;
-                        } else if ($repeattype == 8) { // thursday
+                        } elseif ($repeattype == 8) { // thursday
                             $adate['mday'] += 7;
-                        } else if ($repeattype == 9) { // friday
+                        } elseif ($repeattype == 9) { // friday
                             $adate['mday'] += 7;
                         } else {
                              die("Invalid repeat type '$repeattype'");

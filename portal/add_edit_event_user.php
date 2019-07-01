@@ -459,7 +459,7 @@ if ($_POST['form_action'] == "save") {
                 "1, " . (int)$_POST['facility'] . ")"); // FF stuff
         } // INSERT single
     } // else - insert
-} else if ($_POST['form_action'] == "delete") {
+} elseif ($_POST['form_action'] == "delete") {
       // =======================================
       //  multi providers case
       // =======================================

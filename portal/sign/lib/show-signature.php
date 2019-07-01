@@ -27,7 +27,7 @@ if ($type == 'patient-signature') {
     } else {
         exit();
     }
-} else if ($type == 'admin-signature') {
+} elseif ($type == 'admin-signature') {
     // authorize via main openemr
     $ignoreAuth = false;
 } else {

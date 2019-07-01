@@ -52,7 +52,7 @@ function addPortalMailboxMail(
         } else {
             $replyid = $master_note;
         }
-    } else if ($owner != $sid) {
+    } elseif ($owner != $sid) {
         $replyid = $master_note-1;
     } else {
         $replyid = $master_note;

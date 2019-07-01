@@ -51,13 +51,13 @@ class OnsiteDocumentReporter extends Reporter
     public $FilePath;
 
     /*
-	* GetCustomQuery returns a fully formed SQL statement.  The result columns
-	* must match with the properties of this reporter object.
-	*
-	* @see Reporter::GetCustomQuery
-	* @param Criteria $criteria
-	* @return string SQL statement
-	*/
+    * GetCustomQuery returns a fully formed SQL statement.  The result columns
+    * must match with the properties of this reporter object.
+    *
+    * @see Reporter::GetCustomQuery
+    * @param Criteria $criteria
+    * @return string SQL statement
+    */
     static function GetCustomQuery($criteria)
     {
         $sql = "select
@@ -92,14 +92,14 @@ class OnsiteDocumentReporter extends Reporter
     }
 
     /*
-	* GetCustomCountQuery returns a fully formed SQL statement that will count
-	* the results.  This query must return the correct number of results that
-	* GetCustomQuery would, given the same criteria
-	*
-	* @see Reporter::GetCustomCountQuery
-	* @param Criteria $criteria
-	* @return string SQL statement
-	*/
+    * GetCustomCountQuery returns a fully formed SQL statement that will count
+    * the results.  This query must return the correct number of results that
+    * GetCustomQuery would, given the same criteria
+    *
+    * @see Reporter::GetCustomCountQuery
+    * @param Criteria $criteria
+    * @return string SQL statement
+    */
     static function GetCustomCountQuery($criteria)
     {
         $sql = "select count(1) as counter from `onsite_documents`";

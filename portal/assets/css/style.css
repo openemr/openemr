@@ -4249,77 +4249,77 @@ padding: 6px 10px;
 }
 /*
 .modal.left .modal-dialog, .modal.right .modal-dialog {
-	position: fixed;
-	margin: auto;
-	width: 100%; //
-	height: 75%;
-	-webkit-transform: translate3d(0%, 0, 0);
-	-ms-transform: translate3d(0%, 0, 0);
-	-o-transform: translate3d(0%, 0, 0);
-	transform: translate3d(0%, 0, 0);
+    position: fixed;
+    margin: auto;
+    width: 100%; //
+    height: 75%;
+    -webkit-transform: translate3d(0%, 0, 0);
+    -ms-transform: translate3d(0%, 0, 0);
+    -o-transform: translate3d(0%, 0, 0);
+    transform: translate3d(0%, 0, 0);
 }
 
 .modal.left .modal-content, .modal.right .modal-content { //
-	height: 75%;
-	overflow-y: auto;
+    height: 75%;
+    overflow-y: auto;
 }
 
 .modal.left .modal-body, .modal.right .modal-body { //
-	padding: 15px 15px 80px;
+    padding: 15px 15px 80px;
 }
 
 Left
 .modal.left.fade .modal-dialog {
-	left: -320px;
-	-webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
-	-moz-transition: opacity 0.3s linear, left 0.3s ease-out;
-	-o-transition: opacity 0.3s linear, left 0.3s ease-out;
-	transition: opacity 0.3s linear, left 0.3s ease-out;
+    left: -320px;
+    -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
+    -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
+    -o-transition: opacity 0.3s linear, left 0.3s ease-out;
+    transition: opacity 0.3s linear, left 0.3s ease-out;
 }
 
 .modal.left.fade.in .modal-dialog {
-	left: 0;
+    left: 0;
 }
 
 .modal.right.fade .modal-dialog {
-	right: -320px;
-	-webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
-	-moz-transition: opacity 0.3s linear, right 0.3s ease-out;
-	-o-transition: opacity 0.3s linear, right 0.3s ease-out;
-	transition: opacity 0.3s linear, right 0.3s ease-out;
+    right: -320px;
+    -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+    -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+    -o-transition: opacity 0.3s linear, right 0.3s ease-out;
+    transition: opacity 0.3s linear, right 0.3s ease-out;
 }
 
 .modal.right.fade.in .modal-dialog {
-	right: 0;
+    right: 0;
 }
 
 ----- MODAL STYLE -----
 .modal-content {
-	border-radius: 0;
-	border: none;
+    border-radius: 0;
+    border: none;
 }
 
 .modal-header {
-	border-bottom-color: #EEEEEE;
-	background-color: #FAFAFA;
+    border-bottom-color: #EEEEEE;
+    background-color: #FAFAFA;
 }
 
 .close {
-	background-color: #999999;
-	color: #000000;
-	line-height: 35px;
-	position: absolute;
-	left: -5px;
-	text-align: center;
-	top: -15px;
-	width: 35px;
-	text-decoration: none;
-	font-weight: bold;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
-	border-radius: 12px;
-	-moz-box-shadow: 1px 1px 3px #000;
-	-webkit-box-shadow: 1px 1px 3px #000;
-	box-shadow: 1px 1px 3px #000;
+    background-color: #999999;
+    color: #000000;
+    line-height: 35px;
+    position: absolute;
+    left: -5px;
+    text-align: center;
+    top: -15px;
+    width: 35px;
+    text-decoration: none;
+    font-weight: bold;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
+    -moz-box-shadow: 1px 1px 3px #000;
+    -webkit-box-shadow: 1px 1px 3px #000;
+    box-shadow: 1px 1px 3px #000;
 }
  */

@@ -53,7 +53,7 @@ if (! isset($_POST['pass']) || empty($_POST['pass'])) {
 // set the language
 if (! empty($_POST['languageChoice'])) {
     $_SESSION['language_choice'] = (int) $_POST['languageChoice'];
-} else if (empty($_SESSION['language_choice'])) {
+} elseif (empty($_SESSION['language_choice'])) {
     // just in case both are empty, then use english
     $_SESSION['language_choice'] = 1;
 } else {

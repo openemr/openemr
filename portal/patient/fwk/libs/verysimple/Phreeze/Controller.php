@@ -514,7 +514,7 @@ abstract class Controller
                 foreach ($additionalProps as $meth => $propPair) {
                     $props = explode(",", $propPair);
                     foreach ($props as $prop) {
-                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars($obj->$meth ()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
+                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars($obj->$meth()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
                     }
                 }
             }
@@ -872,7 +872,7 @@ abstract class Controller
         if (is_a($var, 'DataSet') || is_a($var, 'DataPage')) {
             // if a dataset or datapage can be converted directly into an array without enumerating twice
             $obj = $var->ToObjectArray($useSimpleObject, $options);
-        } else if ($useSimpleObject) {
+        } elseif ($useSimpleObject) {
             // we need to figure out what type
             if (is_array($var) || is_a($var, 'SplFixedArray')) {
                 $obj = array ();
@@ -1006,13 +1006,13 @@ abstract class Controller
         if (is_string($input)) {
             // pop recursion here
             $input = utf8_encode($input);
-        } else if (is_array($input)) {
+        } elseif (is_array($input)) {
             foreach ($input as &$value) {
                 $this->UTF8Encode($value);
             }
 
             unset($value);
-        } else if (is_object($input)) {
+        } elseif (is_object($input)) {
             $vars = array_keys(get_object_vars($input));
             foreach ($vars as $var) {
                 $this->UTF8Encode($input->$var);

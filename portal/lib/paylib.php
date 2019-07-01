@@ -125,7 +125,7 @@ if ($_POST['mode'] == 'portal-save') {
     }
 
     echo true;
-} else if ($_POST['mode'] == 'review-save') {
+} elseif ($_POST['mode'] == 'review-save') {
     $form_pid = $_POST['form_pid'];
     $form_method = trim($_POST['form_method']);
     $form_source = trim($_POST['form_source']);
