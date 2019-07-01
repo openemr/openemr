@@ -358,8 +358,9 @@ if ($GLOBALS['enable_help'] == 1) {
                                 <div class="form-group"
                                     <?php
                                     if (!$GLOBALS['gbl_visit_referral_source']) {
-                                        echo "style='display:none'";
-                                    } ?>>">
+                                        echo "style='display:none' " ;
+                                    } ?>
+                                    >
                                     <label  class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Referral Source'); ?>:</label>
                                     <div class="col-sm-3">
                                         <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', '');?>
