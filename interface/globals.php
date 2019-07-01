@@ -89,22 +89,31 @@ if (preg_match("/^[^\/]/", $web_root)) {
 // only if you have some reason to.
 $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 
-// The session name names a cookie stored in the browser.
-// Now that restore_session() is implemented in javaScript, session IDs are
-// effectively saved in the top level browser window and there is no longer
-// any need to change the session name for different OpenEMR instances.
-// On 4/8/17, added cookie_path to improve security when using different
-// OpenEMR instances on same server to prevent session conflicts; also
-// modified interface/login/login.php and library/restoreSession.php to be
-// consistent with this.
-// Defaults for session.gc_maxlifetime is often too small. You might choose to
-// adjust it further.
+// OpenEMR session/cookie strategy:
+//  1. If a session does not yet exist, then will start the OpenEMR session, which
+//     will create a cookie with OpenEMR name. If a session already exists, then
+//     this means portal is being used and will bypass setting of the OpenEMR session/cookie.
+//  2. If using php version 7.3.0 or above, then will set the cookie_samesite in order
+//     to prevent csrf vulnerabilities. Setting it to Strict for now; if this is to
+//     strict on testing, then will instead set it to Lax.
+//  3. Need to set cookie_httponly to false, since javascript needs to be able to
+//     access/modify the cookie to support separate logins into OpenEMR. This is important
+//     to support in OpenEMR since the application needs to robustly support access of
+//     separate patients via separate logins by same users. This is done via custom
+//     restore_session() javascript function; session IDs are effectively saved in the
+//     top level browser window.
+//  4. Using use_strict_mode to optimize security.
+//  5. Using sid_bits_per_character of 6 to optimize security. This does allow comma to
+//     be used in the session id, so need to ensure properly escape it when modify it in
+//     cookie.
+//  6. Using sid_length of 48 to optimize security.
+//  7. Setting gc_maxlifetime to 14400 since defaults for session.gc_maxlifetime is
+//     often too small.
+//  8. Setting cookie_path to improve security when using different OpenEMR instances
+//     on same server to prevent session conflicts.
 if (session_status() === PHP_SESSION_NONE) {
-    // Only can run these when do not have an active session yet
-    // (for example, need to skip this in the portal where the session is already active)
+    // Below for main OpenEMR
     if (version_compare(phpversion(), '7.3.0', '>=')) {
-        // For php 7.3.0 versions and greater, have support for cookie_samesite
-        //  to prevent csrf
         session_start([
             'cookie_samesite' => "Strict",
             'name'=> 'OpenEMR',
@@ -126,8 +135,10 @@ if (session_status() === PHP_SESSION_NONE) {
             'cookie_path' => $web_root ? $web_root : '/'
         ]);
     }
+} else {
+    // Below for OpenEMR patient portal
+    session_start();
 }
-session_start();
 
 // Set the site ID if required.  This must be done before any database
 // access is attempted.
