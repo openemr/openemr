@@ -570,8 +570,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         }
         $id1 = $id2;
     }
-} // Renaming a group. This might include moving to a different parent group.
-else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
+} else if ($_POST['formaction'] == "renamegroup" && $layout_id) { // Renaming a group. This might include moving to a different parent group.
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
