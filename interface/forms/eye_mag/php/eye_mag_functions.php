@@ -3674,7 +3674,7 @@ function display($pid, $encounter, $category_value)
         $count_here = empty($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) ? 0 : count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
 
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here-1]['document_id'];
-
+        $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", $documents['zones'][$category_value][$j]['name']);
         $episode .= "<tr>
         <td class='right'><b>".text($documents['zones'][$category_value][$j]['name'])."</b>:&nbsp;</td>
         <td>
