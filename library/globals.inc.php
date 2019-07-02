@@ -208,7 +208,7 @@ $GLOBALS_METADATA = array(
         'css_header' => array(
             xl('General Theme') .'*',
             'css',
-            'style_mustard_green.css',
+            'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
@@ -278,7 +278,7 @@ $GLOBALS_METADATA = array(
             '1',
             xl('Vertical Menu Style for frame based layouts')
         ),
-        
+
         'search_any_patient' => array(
             xl('Search Patient By Any Demographics'),
             array(
