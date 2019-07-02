@@ -14,7 +14,7 @@
 
 if (!$isBilled) {
     require_once("code_check.php");
-?>
+    ?>
 <script>
     var webroot = <?php echo js_escape($web_root); ?>;
     var pid = <?php echo js_escape($pid); ?>;
@@ -42,7 +42,7 @@ if (!$isBilled) {
 <script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_review_view_model.js"></script>
 <script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_justify_view_model.js"></script>
 
-<?php
+    <?php
     // knockoutjs template files
     include_once("views/review.php");
     include_once("views/procedure_select.php");

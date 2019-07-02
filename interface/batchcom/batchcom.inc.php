@@ -57,7 +57,7 @@ function register_email($patient_id, $sent_by, $msg_type, $msg_subject, $msg_tex
 
 function generate_csv($sql_result)
 {
-    /*	batch CSV processor, included from batchcom */
+    /*  batch CSV processor, included from batchcom */
     // create file header.
     // menu for fields could be added in the future
 

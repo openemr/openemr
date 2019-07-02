@@ -45,9 +45,9 @@
         </p>
 
     <?php foreach (ReminderIntervalType::values() as $type) { ?>
-    <?php foreach (ReminderIntervalRange::values() as $range) { ?>
-    <?php $first = true;
-    $detail = $intervals->getDetailFor($type, $range); ?>
+        <?php foreach (ReminderIntervalRange::values() as $range) { ?>
+            <?php $first = true;
+            $detail = $intervals->getDetailFor($type, $range); ?>
         <p>
             <span class="left_col <?php echo $first ? "req" : ""?>" data-grp="<?php echo attr($type->code); ?>"><?php echo text($type->lbl); ?></span>
             <span class="mid_col"><?php echo xlt($range->lbl); ?></span>
@@ -61,7 +61,7 @@
             <?php echo timeunit_select(array( "context"=>"rule_reminder_intervals", "target"=>$type->code, "name"=>$type->code."-".$range->code."-timeunit", "value" => $detail->timeUnit )); ?>
             </span>
         </p>
-    <?php $first = false; ?>
+            <?php $first = false; ?>
     <?php } ?>
     <?php } ?>
 

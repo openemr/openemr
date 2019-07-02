@@ -1,12 +1,12 @@
 <?php
 
 ////////////////////////////////////////////////////////////////////
-// Package:	sms_cron_notification
-// Purpose:	to be run by cron every hour, look for appointments
-//		in the pre-notification period and send an sms reminder
+// Package: sms_cron_notification
+// Purpose: to be run by cron every hour, look for appointments
+//      in the pre-notification period and send an sms reminder
 //
 // Created by:
-// Updated by:	Larry Lart on 11/03/2008
+// Updated by:  Larry Lart on 11/03/2008
 ////////////////////////////////////////////////////////////////////
 
 // comment below exit if plan to use this script
@@ -71,13 +71,13 @@ for ($p=0; $p<count($db_patient); $p++) {
 
     // my_print_r($prow);
     /*
-	if($prow['pc_eventDate'] < $check_date)
-	{
-		$app_date = date("Y-m-d")." ".$prow['pc_startTime'];
-	}else{
-		$app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
-	}
-	*/
+    if($prow['pc_eventDate'] < $check_date)
+    {
+        $app_date = date("Y-m-d")." ".$prow['pc_startTime'];
+    }else{
+        $app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
+    }
+    */
     $app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
     $app_time = strtotime($app_date);
 

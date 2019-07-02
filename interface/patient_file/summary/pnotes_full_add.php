@@ -283,7 +283,7 @@ while ($urow = sqlFetchArray($ures)) {
         ?>
      </td>
  </tr>
-<?php
+    <?php
 }
 ?>
 <tr>
@@ -370,9 +370,9 @@ if ($result_count == $N) {
 <?php
 if ($_GET['set_pid']) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
-?>
+    ?>
  parent.left_nav.setPatient(<?php echo js_escape($ndata['fname']." ".$ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
-<?php
+    <?php
 }
 
 // If this note references a new patient document, pop up a display
@@ -383,10 +383,10 @@ if ($noteid /* && $title == 'New Document' */) {
     if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
         $docid = $matches[1];
         $docname = $matches[2];
-    ?>
+        ?>
      window.open('../../../controller.php?document&retrieve&patient_id=<?php echo attr_url($patient_id); ?>&document_id=<?php echo attr_url($docid); ?>&<?php echo attr_url($docname)?>&as_file=true',
   '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
-<?php
+        <?php
     }
 }
 ?>

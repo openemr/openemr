@@ -159,7 +159,7 @@ if ($GLOBALS['medex_enable'] == '1') {
 }
 
 if (!$_REQUEST['flb_table']) {
-?>
+    ?>
 <html>
 <head>
     <title><?php echo xlt('Flow Board'); ?></title>
@@ -453,7 +453,7 @@ if (!$_REQUEST['flb_table']) {
         $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
     }
 
-                ?>
+    ?>
                 <div class="col-sm-12 text-center" style='margin:5px;'>
                 <span class="hidden-xs" id="status_summary">
                     <?php
@@ -921,7 +921,7 @@ if (!$_REQUEST['flb_table']) {
                     </tbody>
                 </table>
 
-<?php
+    <?php
 }
 if (!$_REQUEST['flb_table']) { ?>
                    </div>
@@ -940,7 +940,7 @@ if (!$_REQUEST['flb_table']) { ?>
     <?php echo myLocalJS(); ?>
 </body>
 </html>
-<?php
+    <?php
 } //end of second !$_REQUEST['flb_table']
 
 
@@ -948,7 +948,7 @@ exit;
 
 function myLocalJS()
 {
-?>
+    ?>
     <script type="text/javascript">
         var auto_refresh = null;
         //this can be refined to redact HIPAA material using @media print options.

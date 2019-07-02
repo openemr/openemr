@@ -60,19 +60,18 @@ if (!$thisauth) {
 <div id='pnotes'>
 
 <?php if (acl_check('patients', 'notes', '', array('write','addonly'))) : ?>
-
 <a href="pnotes_full.php?<?php echo $urlparms; ?>" onclick="top.restoreSession()">
 
 <span class="title"><?php echo xlt('Notes'); ?>
-<?php
-if ($docid) {
-    echo " " . xlt("linked to document") . " ";
-    $d = new Document($docid);
-    echo text($d->get_url_file());
-} else if ($orderid) {
-    echo " " . xlt("linked to procedure order") . " " . text($orderid);
-}
-?>
+    <?php
+    if ($docid) {
+        echo " " . xlt("linked to document") . " ";
+        $d = new Document($docid);
+        echo text($d->get_url_file());
+    } else if ($orderid) {
+        echo " " . xlt("linked to procedure order") . " " . text($orderid);
+    }
+    ?>
 </span>
 <span class=more><?php echo text($tmore);?></span>
 </a>

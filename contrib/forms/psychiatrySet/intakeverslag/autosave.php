@@ -1,9 +1,9 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Form:	Intakeverslag - Autosave
-// Package:	Report of First visit - Dutch specific form
-// Created by:	Larry Lart
-// Version:	1.0 - 28-03-2008
+// Form:    Intakeverslag - Autosave
+// Package: Report of First visit - Dutch specific form
+// Created by:  Larry Lart
+// Version: 1.0 - 28-03-2008
 ////////////////////////////////////////////////////////////////////
 
 //local includes

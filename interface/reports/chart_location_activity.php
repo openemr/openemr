@@ -155,7 +155,7 @@ if (!empty($ptrow)) {
 
 <?php
 if ($_POST['form_refresh'] || !empty($ptrow)) {
-?>
+    ?>
 <div id="report_results">
 <table>
 <thead>
@@ -163,30 +163,30 @@ if ($_POST['form_refresh'] || !empty($ptrow)) {
 <th> <?php echo xlt('Destination'); ?> </th>
 </thead>
 <tbody>
-<?php
-$row = array();
-if (!empty($ptrow)) {
-    $res = PatientService::getChartTrackerInformationActivity($curr_pid);
-    while ($row = sqlFetchArray($res)) {
-    ?>
+    <?php
+    $row = array();
+    if (!empty($ptrow)) {
+        $res = PatientService::getChartTrackerInformationActivity($curr_pid);
+        while ($row = sqlFetchArray($res)) {
+            ?>
    <tr>
     <td>
-        <?php echo text(oeFormatDateTime($row['ct_when'], "global", true)); ?>
+            <?php echo text(oeFormatDateTime($row['ct_when'], "global", true)); ?>
   </td>
   <td>
-<?php
-if (!empty($row['ct_location'])) {
-    echo generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $row['ct_location']);
-} else if (!empty($row['ct_userid'])) {
-    echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']);
-}
-?>
+            <?php
+            if (!empty($row['ct_location'])) {
+                echo generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $row['ct_location']);
+            } else if (!empty($row['ct_userid'])) {
+                echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']);
+            }
+            ?>
   </td>
  </tr>
-<?php
-    } // end while
-} // end if
-?>
+            <?php
+        } // end while
+    } // end if
+    ?>
 </tbody>
 </table>
 </div> <!-- end of results -->

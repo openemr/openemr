@@ -33,7 +33,7 @@ function restoreSession() {
  for (var i = 0; i < ca.length; ++i) {
   var c = ca[i].split('=');
   if (c[0] == oemr_session_name && c[1] != oemr_session_id) {
-<?php if ($GLOBALS['restore_sessions'] == 2) { ?>
+    <?php if ($GLOBALS['restore_sessions'] == 2) { ?>
    alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
 <?php } ?>
    document.cookie = encodeURIComponent(oemr_session_name) + '=' + encodeURIComponent(oemr_session_id) + '; path=<?php echo($web_root ? $web_root : '/');?>';

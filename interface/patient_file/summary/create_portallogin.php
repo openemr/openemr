@@ -200,12 +200,12 @@ function transmit(){
         </tr>
     <?php
     if ($portalsite == 'off') {
-    ?>
+        ?>
     <tr class="text">
     <td><?php echo text(xl('Provider Id').':');?></td>
     <td><span><?php echo text($GLOBALS['portal_offsite_providerid']);?></span></td>
     </tr>
-    <?php
+        <?php
     }
     ?>
         <tr class="text">

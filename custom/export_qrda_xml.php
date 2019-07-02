@@ -780,7 +780,7 @@ if (count($dataSheet) > 0) {
         //if($row['cqm_nqf_code'] == "0028a") continue;
 
         //if($row['cqm_nqf_code'] == "0038"){
-        //	if(in_array($row['numerator_label'], $NQF38NumArr)) continue;
+        //  if(in_array($row['numerator_label'], $NQF38NumArr)) continue;
         //}
 
         if (in_array($row['cqm_nqf_code'], $multNumNQFArr)) {
@@ -1344,14 +1344,14 @@ if (count($dataSheet) > 0) {
                 $xml->add_entryEffectTime($timeArr);
 
                 /*
-				//Value Tag Open
-				$xml->open_customTag('value', array('xsi:type'=>'CD', 'nullFlavor'=>'OTH'));
+                //Value Tag Open
+                $xml->open_customTag('value', array('xsi:type'=>'CD', 'nullFlavor'=>'OTH'));
 
-				$xml->self_customTag('translation', array('code'=>$PKey, 'displayName'=>$PVal, 'codeSystem'=>'2.16.840.1.113883.3.249.12', 'codeSystemName'=>'CMS Clinical Codes'));
+                $xml->self_customTag('translation', array('code'=>$PKey, 'displayName'=>$PVal, 'codeSystem'=>'2.16.840.1.113883.3.249.12', 'codeSystemName'=>'CMS Clinical Codes'));
 
-				//Value Tag Close
-				$xml->close_customTag();
-				*/
+                //Value Tag Close
+                $xml->close_customTag();
+                */
 
                 //Value Tag
                 $xml->self_customTag('value', array('xsi:type'=>'CD', 'code'=>$mainQrdaPayerCodeSendArr[$PKey], 'codeSystem'=>'2.16.840.1.113883.3.221.5' , 'codeSystemName'=>'SOP', 'displayName'=>$PVal));

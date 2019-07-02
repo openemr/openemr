@@ -622,7 +622,6 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                 }
             }
         } else {//end of clone others
-
             if ($_POST['hidden_mode'] == 'clone last visit') {
                 //go back $stepback # of encounters...
             //This has been changed to clone last visit based on actual last encounter rather than as it was
@@ -1036,13 +1035,13 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     f2.hidden_item.value = item_value;
 <?php
 if (!$out_of_encounter) {
-?>
+    ?>
     f2.action = '<?php print $GLOBALS['webroot'] ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
-<?php
+    <?php
 } else {
-?>
+    ?>
     f2.action = '<?php print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/new.php?mode=external';
-<?php
+    <?php
 }
 ?>
     f2.target = '_self';
@@ -1103,8 +1102,8 @@ function processEnter(e,message) {
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
 if (!$out_of_encounter) {
-//	echo "<h1>$out_of_encounter</h1>\n";
-?>
+//  echo "<h1>$out_of_encounter</h1>\n";
+    ?>
 <input type=button name=clone value='<?php echo xla('Clone'); ?>' onClick="js_button('clone', 'clone')">
 <input type=button name=clone_visit value='<?php echo xla('Clone Past Visit'); ?>' onClick="js_button('clone last visit', 'clone last visit')">
 <select name=stepback>
@@ -1121,12 +1120,12 @@ if (!$out_of_encounter) {
   <option value=11><?php echo xlt('Back eleven visits'); ?></option>
   <option value=12><?php echo xlt('Back twelve visits'); ?></option>
 </select>
-<?php
-echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xlt('Leave The Form')."]</a>";
-?>
+    <?php
+    echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xlt('Leave The Form')."]</a>";
+    ?>
 <input type=button name='hide columns' value='<?php echo xla('Hide/Show Columns'); ?>' onClick="hide_columns()">
 <input type=button name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
-<?php
+    <?php
 } //end of if !$out_of_encounter
 ?>
 <div id=id_info style="display:inline">
@@ -1167,12 +1166,12 @@ if ($error != '') {
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
-?>
+    ?>
     <input type=text name=change_category><br>
     <input type=button name=add1 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_category')">
     <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_category')">
     <input type=button name=del1 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_category')"><br>
-<?php
+    <?php
 }
 ?>
   </div> <!-- end of id_category_column -->
@@ -1183,12 +1182,12 @@ if (myAuth() == 1) {//root user only can see administration option
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
-?>
+    ?>
     <input type=text name=change_subcategory><br>
     <input type=button name=add2 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_subcategory')">
     <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_subcategory')">
     <input type=button name=del2 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_subcategory')"><br>
-<?php
+    <?php
 }
 ?>
   </div> <!-- end of id_subcategory_column -->
@@ -1199,12 +1198,12 @@ if (myAuth() == 1) {//root user only can see administration option
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
-?>
+    ?>
     <input type=text name=change_item><br>
     <input type=button name=add3 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_item')">
     <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_item')">
     <input type=button name=del3 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_item')"><br>
-<?php
+    <?php
 }
 ?>
   </div> <!-- end of id_item_column -->
@@ -1219,21 +1218,21 @@ if (myAuth() == 1) {//root user only can see administration option
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
-?>
+    ?>
 <div id=id_main_content_buttons style="display:block">
     <input type=button name=add4 value='<?php echo xla('Add'); ?>' onClick="js_button('add','change_content')">
     <input type=button name=add4 value='<?php echo xla('Add to'); ?>' onClick="js_button('add to','change_content')">
     <input type=button name=lock value='<?php echo xla('Lock'); ?>' onClick="lock_content()">
-<?php
+    <?php
 
-if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-?>
+    if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
+        ?>
     <input type=button name=icd9 value='<?php echo xla('ICD9'); ?>' onClick="append_icd9()">
 </div> <!-- end of id_main_content_buttons-->
-<?php
-}
-?>
-<?php
+        <?php
+    }
+    ?>
+    <?php
 }
 ?>
   </td>
@@ -1254,10 +1253,10 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 <?php
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-?>
+    ?>
 <input type=button name='submit form' value='<?php echo xla('Submit All Content'); ?>' onClick="js_button('submit','submit')">
 <input type=button name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
-<?php
+    <?php
 }
 ?>
 <?php

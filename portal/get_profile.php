@@ -83,21 +83,21 @@ $N = 7;
         <?php
                     $result1 = getPatientData($pid);
                     $result2 = getEmployerData($pid);
-                    ?>
+        ?>
         <div class="panel panel-primary" >
                 <header class="panel-heading"><?php echo xlt('Profile Demographics'); ?>
                 <?php if ($pending) {
                     echo '<button type="button" id="editDems" class="btn btn-danger btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Pending Review') . '</button>';
-} else {
-    echo '<button type="button" id="editDems" class="btn btn-success btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Revise') . '</button>';
-}
-                        ?>
+                } else {
+                    echo '<button type="button" id="editDems" class="btn btn-success btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Revise') . '</button>';
+                }
+                ?>
                 </header>
                 <div class="panel-body " id="dempanel">
                     <table class='table table-responsive table-condensed'>
         <?php
                     display_layout_rows('DEM', $result1, $result2);
-                    ?>
+        ?>
                     </table>
                 </div>
                 <div class="panel-footer"></div>
@@ -112,7 +112,7 @@ $N = 7;
                     <div class="panel-body">
         <?php
                     printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-                    ?>
+        ?>
                     </div>
                 </div>
                 <div class="panel panel-primary">
@@ -120,14 +120,14 @@ $N = 7;
                     <div class="panel-body">
         <?php
                     printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-                    ?></div>
+        ?></div>
                 </div>
                 <div class="panel panel-primary">
                     <header class="panel-heading"><?php echo xlt('Tertiary Insurance');?></header>
                     <div class="panel-body">
         <?php
                     printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
-                    ?></div>
+        ?></div>
                 </div>
             </div>
         </div>

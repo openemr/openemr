@@ -107,7 +107,7 @@ if (isset($_GET['typeid'])) {
             if (isset($_GET['formseq'])) {
                 echo " + '&formseq=' + " . js_url($_GET['formseq']);
             }
-                ?> + '&typeid=' + encodeURIComponent(typeid);
+            ?> + '&typeid=' + encodeURIComponent(typeid);
             return false;
         }
     </script>

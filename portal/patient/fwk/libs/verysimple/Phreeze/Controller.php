@@ -514,7 +514,7 @@ abstract class Controller
                 foreach ($additionalProps as $meth => $propPair) {
                     $props = explode(",", $propPair);
                     foreach ($props as $prop) {
-                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars($obj->$meth ()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
+                        $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars($obj->$meth()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
                     }
                 }
             }

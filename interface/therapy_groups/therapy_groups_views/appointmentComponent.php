@@ -22,13 +22,13 @@
 
 
 <?php if ($view || $edit) :?>
-<?php
+    <?php
 //If coming from participants controller groupId contains the id.
 //If from group controller it's contained in groupData array.
-if ($groupData['group_id']) {
-    $groupId = $groupData['group_id'];
-}
-?>
+    if ($groupData['group_id']) {
+        $groupId = $groupData['group_id'];
+    }
+    ?>
 <div class="row" xmlns="http://www.w3.org/1999/html">
     <div class="col-md-7">
         <h5><?php echo xlt('Group appointments')?></h5>

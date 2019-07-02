@@ -135,13 +135,12 @@ if ($saved) {
                 <td class='detail' nowrap>
                     <?php
                     if (!empty($csv_file_data)) {?>
-
                         <?php $path=explode("/", $holidays_controller->get_target_file());?>
                         <?php $filename=$path[count($path)-1];?>
                         <?php unset($path[count($path)-1]);?>
 
                         <a href="#" onclick='window.open("import_holidays.php?download_file=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>")'><?php echo text($csv_file_data['date']);?></a>
-                    <?php
+                        <?php
                     } else {
                         echo xlt('File not found');
                     } ?>

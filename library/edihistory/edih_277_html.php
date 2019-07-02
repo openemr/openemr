@@ -200,7 +200,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                 continue;
             }
 
-            //								//
+            //                              //
             if (strncmp('PER'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //

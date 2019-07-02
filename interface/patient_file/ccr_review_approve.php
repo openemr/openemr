@@ -167,7 +167,7 @@ function submit_form(val){
                                     }
                                 }
                             }
-                        ?>
+                            ?>
                     </tr>
                 </table>
             </td>
@@ -451,7 +451,7 @@ function submit_form(val){
                                     "<td><select name='procedure_result-sel[]'><option value='ignore' >" . xlt('Ignore') . "</option>" .
                                 "<option value='insert' >" . xlt('Insert') . "</option></select></td></tr>";
                             }
-                        ?>
+                            ?>
                     </tr>
                 </table>
             </td>

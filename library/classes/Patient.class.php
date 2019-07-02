@@ -1,6 +1,6 @@
 <?php
 /************************************************************************
-  			aptient.php - Copyright duhlman
+            aptient.php - Copyright duhlman
 
 /usr/share/apps/umbrello/headings/heading.php
 

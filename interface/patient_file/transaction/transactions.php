@@ -89,7 +89,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 <?php
                 if ($result = getTransByPid($pid)) {
-                ?>
+                    ?>
 
                     <table class="table table-striped">
                     <thead>
@@ -149,17 +149,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <td><?php echo text($item['user']); ?></td>
                                 <td><?php echo text($item['body']); ?></td>
                             </tr>
-                        <?php
+                            <?php
                         }
                         ?>
                     </tbody>
                     </table>
 
-                <?php
+                    <?php
                 } else {
-                ?>
+                    ?>
                 <span class="text"><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo xlt('There are no transactions on file for this patient.'); ?></span>
-                <?php
+                    <?php
                 }
                 ?>
             </div>

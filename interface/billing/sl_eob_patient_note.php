@@ -56,7 +56,7 @@ if ($_POST['form_save']) {
 
   $row = sqlQuery("select fname, lname, billing_note " .
     "from patient_data where pid = ? limit 1", array($patient_id));
-?>
+    ?>
 <div class="container">
     <div class = "row">
         <div class="page-header">

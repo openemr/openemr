@@ -384,7 +384,6 @@ foreach ($imageslist as $sfname) {
 </div>
 
 <?php if ($GLOBALS['secure_upload']) { ?>
-
 <div id="file_type_whitelist">
     <h2><?php echo xlt('Create custom white list of MIME content type of a files to secure your documents system');?></h2>
     <form id="whitelist_form" method="post">

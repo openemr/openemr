@@ -445,10 +445,10 @@ function getAllImmunization($xml, $patient_id)
             //manufacturerOrganization open
             /*$xml->open_customTag('manufacturerOrganization');
 
-			$xml->element('name', 'Medication, Administered Vaccine');
+            $xml->element('name', 'Medication, Administered Vaccine');
 
-			//manufacturerOrganization Close
-			$xml->close_customTag();*/
+            //manufacturerOrganization Close
+            $xml->close_customTag();*/
 
             //manufacturedMaterial Close
                 $xml->close_customTag();
@@ -768,7 +768,7 @@ function getAllOrderMedications($xml, $patient_id)
 
             if($medRow['units'] != "" && $medRow['size_type'] != "")
                 $xml->emptyelement('rateQuantity', array('units'=>$medRow['size_type'], 'value'=>$medRow['units']));
-			}*/
+            }*/
 
             //consumable open
             $xml->open_customTag('consumable');
@@ -791,10 +791,10 @@ function getAllOrderMedications($xml, $patient_id)
             //manufacturerOrganization open
             /*$xml->open_customTag('manufacturerOrganization');
 
-			$xml->element('name', 'Medication Factory Inc.');
+            $xml->element('name', 'Medication Factory Inc.');
 
-			//manufacturerOrganization Close
-			$xml->close_customTag();*/
+            //manufacturerOrganization Close
+            $xml->close_customTag();*/
 
             //manufacturedMaterial Close
             $xml->close_customTag();

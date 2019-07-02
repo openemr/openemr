@@ -49,7 +49,7 @@ $rule = $viewBean->rule ?>
         <input name="fld_ruleTypes[]"
                value="<?php echo attr($type); ?>"
                type="checkbox" <?php echo $rule->hasRuleType(RuleType::from($type)) ? "CHECKED": "" ?>>
-        <?php echo text(RuleType::from($type)->lbl); ?>
+            <?php echo text(RuleType::from($type)->lbl); ?>
         <?php } ?>
     </span>
     </p>

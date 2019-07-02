@@ -105,7 +105,7 @@ if ($bigdata != false) {
             "select priority, category, nickname, aco_spec from registry where id = ?",
             array($registry['id'])
         );
-    ?>
+        ?>
       <tr>
     <td bgcolor="<?php echo $color; ?>" width="2%">
       <span class='text'><?php echo text($registry['id']); ?></span>
@@ -113,14 +113,14 @@ if ($bigdata != false) {
     <td bgcolor="<?php echo attr($color); ?>" width="30%">
       <span class='bold'><?php echo text(xl_form_title($registry['name'])); ?></span>
     </td>
-    <?php
-    if ($registry['sql_run'] == 0) {
-        echo "<td bgcolor='" . attr($color) . "' width='10%'><span class='text'>" . xlt('registered') . "</span>";
-    } elseif ($registry['state'] == "0") {
-        echo "<td bgcolor='#FFCCCC' width='10%'><a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=enable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('disabled') . "</a>";
-    } else {
-        echo "<td bgcolor='#CCFFCC' width='10%'><a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=disable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('enabled') . "</a>";
-    }
+        <?php
+        if ($registry['sql_run'] == 0) {
+            echo "<td bgcolor='" . attr($color) . "' width='10%'><span class='text'>" . xlt('registered') . "</span>";
+        } elseif ($registry['state'] == "0") {
+            echo "<td bgcolor='#FFCCCC' width='10%'><a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=enable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('disabled') . "</a>";
+        } else {
+            echo "<td bgcolor='#CCFFCC' width='10%'><a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=disable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('enabled') . "</a>";
+        }
         ?></td>
         <td bgcolor="<?php echo attr($color); ?>" width="10%">
       <span class='text'><?php
@@ -160,7 +160,7 @@ if ($bigdata != false) {
         }
     } //end of foreach
 }
-    ?>
+?>
 </table>
 <hr>
 
@@ -207,7 +207,7 @@ foreach ($inDir as $fname) {
             } else {
                 $form_title = $fname;
             }
-                ?>
+            ?>
             <span class=bold><?php echo text(xl_form_title($form_title)); ?></span>
         </td>
         <td bgcolor="<?php echo $color?>" width="10%"><?php

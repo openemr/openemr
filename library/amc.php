@@ -8,13 +8,13 @@
 //
 //
 // This file contains functions to:
-//   --manage AMC items in the amc_misc_data sql table 
+//   --manage AMC items in the amc_misc_data sql table
 //   --support the AMC Tracking report
 
 // Main function to process items in the amc_misc_data sql table
 // Parameter:
 //   $amc_id     - amc rule id
-//   $complete   - boolean for whether to complete the date_completed row 
+//   $complete   - boolean for whether to complete the date_completed row
 //   $mode       - 'add' or 'remove'
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)

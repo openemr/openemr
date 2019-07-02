@@ -858,7 +858,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                         echo "</div>";
                         echo "</fieldset>";
-                    ?>
+                        ?>
 
                     <fieldset>
                     <legend><?php echo xlt("Select Code")?></legend>
@@ -956,7 +956,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $ndc_applies = true; // Assume all payers require NDC info.
 
                                 echo $i ? "  <td></td>\n </tr>\n" : "";
-                                ?>
+                            ?>
 
                                 </table>
                             </div>
@@ -975,7 +975,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $nofs_code_types[$key] = $value;
                                 }
                                     $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
-                                    ?>
+                                ?>
 
                                     <?php
                                     foreach ($nofs_code_types as $key => $value) {
@@ -1388,7 +1388,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     echoProductLines();
                                     // Ensure DOM is updated.
                                     echo "<script>reinitForm();</script>";
-                                ?>
+                                    ?>
                             </table>
                         </div>
 

@@ -351,7 +351,7 @@ if ($_REQUEST['form_csvexport']) {
     header("Content-Disposition: attachment; filename=svc_financial_report_".attr($form_from_date)."--".attr($form_to_date).".csv");
     header("Content-Description: File Transfer");
 } else {
-?>
+    ?>
 <html>
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
@@ -441,7 +441,7 @@ function sel_patient() {
 
 </head>
 <body class="skin-blue">
-<?php if ($type_form == '0') { ?>
+    <?php if ($type_form == '0') { ?>
 <span class='title' id='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Patient Ledger by Date'); ?></span>
 <?php } else { ?>
 <span class='title' id='title'><?php echo xlt('Patient Ledger'); ?></span>
@@ -540,7 +540,7 @@ function sel_patient() {
 </table>
 </div> <!-- end of parameters -->
 
-<?php
+    <?php
 } // end not export
   $from_date = $form_from_date . ' 00:00:00';
   $to_date = $form_to_date . ' 23:59:59';
@@ -589,7 +589,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
         $pat_dob = $patient['DOB'];
         $pat_name = $patient['fname']. ' ' . $patient['lname'];
-?>
+        ?>
 <div id="report_header">
 <table width="98%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
@@ -656,7 +656,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     <td colspan="2" class='bold' ><?php echo xlt('Description'); ?></td>
     <td class='bold' ><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
     <td class='bold' ><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <?php echo xlt('Units'); ?></td>
+        <?php echo xlt('Units'); ?></td>
     <td class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
     <td align='right' class='bold' >&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
     <td align='right' class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
@@ -673,7 +673,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     <td>&nbsp;</td>
     <td>&nbsp;</td>
  </tr>
-    <?php
+        <?php
     }
 
     $orow = 0;
@@ -799,31 +799,31 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_adj)) ."</td>\n";
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_bal)) . "</td>\n";
         echo " </tr>\n";
-    ?>
+        ?>
     </table>
   <tr><td>&nbsp;</td></tr><br><br>
-    <?php if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
+        <?php if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
                     $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
                     # add one day to date so it will not get todays appointment
                     $current_date2 = date('Y-m-d', $next_day);
                     $events = fetchNextXAppts($current_date2, $form_pid);
                     $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
                     $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
-        if (strlen(umname) != 0) {
-            $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
-        } else {
-            $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
-        }
+            if (strlen(umname) != 0) {
+                $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
+            } else {
+                $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
+            }
 
-        if (strlen($next_appoint_time) != 0) {
-    ?>
+            if (strlen($next_appoint_time) != 0) {
+                ?>
   <tr>
     <td class="title" ><?php echo xlt('Next Appointment Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider); ?></td>
   </tr>
 
-    <?php
-        }
-} // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
+                <?php
+            }
+        } // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
     } // end (!$_REQUEST['form_csvexport'] && $orow)
       echo "</div>\n";
 }
@@ -841,13 +841,13 @@ if (! $_REQUEST['form_csvexport']) {
     <div class='text'>
             <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
     </div>
-    <?php
+        <?php
     }
     ?>
 </form>
 </body>
 
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

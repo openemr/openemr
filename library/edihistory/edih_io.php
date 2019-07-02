@@ -363,9 +363,9 @@ function edih_disp_x12trans()
     // claim: err_seg  fname=$fn1&ftype=$ft&trace=$trc&rsptype=$typ&err=$err   filename x12type trace(bht03syn) response_type error_segment
     //
     // use files (1) x12 display of file segments (2) 835 html RA or Payment Trace (3) trace from 997 or 271/277/278
-    //					$fn or $icn	& $ft						$fn $icn  $trace & $ft    $trace & $rsptype
+    //                  $fn or $icn & $ft                       $fn $icn  $trace & $ft    $trace & $rsptype
     //    claims (1) html of transaction (2) segments of transaction (3) trace to precedent transaction
-    //					$fn	& $ft $ pid										$trace & $rsptype
+    //                  $fn & $ft $ pid                                     $trace & $rsptype
     //
     $str_htm = '';
     if (isset($_GET['gtbl'])) {

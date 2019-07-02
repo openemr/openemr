@@ -858,7 +858,7 @@ if ($issue) {
                                 <?php
                                 if ($issue && acl_check('admin', 'super')) { ?>
                                     <button type='submit' name='form_delete'  class="btn btn-default btn-cancel btn-delete btn-separate-left" onclick='deleteme()' value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
-                                <?php
+                                    <?php
                                 } ?>
                             </div>
                         </div>

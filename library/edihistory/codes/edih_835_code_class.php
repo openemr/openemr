@@ -1,25 +1,25 @@
 <?php
 /*
  * edih_835_code_class.php
- * 
+ *
  * Copyright 2016 Kevin McCormick <kevin@kt61p>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
- * 
- * 
+ *
+ *
  */
  
 /**
@@ -43,9 +43,9 @@ class edih_835_codes
     private $code835 = array();
     private $ds = '';
     private $dr = '';
-// the key_match array is a concept of matching code lists to 
-// segment elements when diferent segments are looking for the same 
-// code or reference lists  
+// the key_match array is a concept of matching code lists to
+// segment elements when diferent segments are looking for the same
+// code or reference lists
 //  -- a very tedious project and immediately put on hold
 //public $key_match = array('HCR04'=>array('CRC02');
 //

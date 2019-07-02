@@ -343,7 +343,7 @@ if ($value_select) {
                 $value_matrix[$i][result_code]          = $myrow['result_code'];
                 $value_matrix[$i][result_text]          = $myrow['result_text'];
                 $value_matrix[$i][result]               = $myrow['result'];
-                // $value_matrix[$i][units] 				= generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) ;
+                // $value_matrix[$i][units]                 = generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) ;
                 $value_matrix[$i][units]                = $myrow['units'];
                 $value_matrix[$i][range]                = $myrow['range'];
                 $value_matrix[$i][abnormal]             = $myrow['abnormal'];

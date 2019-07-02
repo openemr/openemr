@@ -93,7 +93,7 @@ function input_focus()
         });
     </script>
 
-<?php
+    <?php
 }
 
 function generate_html_top()

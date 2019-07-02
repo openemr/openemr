@@ -79,8 +79,8 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 <?php if ($imauthorized) { ?>
 <span class='title'>
 <a href='authorizations_full.php' onclick='top.restoreSession()'>
-<?php echo xlt('Authorizations'); ?> <span class='more'><?php echo text($tmore); ?></span></a>
-<?php
+    <?php echo xlt('Authorizations'); ?> <span class='more'><?php echo text($tmore); ?></span></a>
+    <?php
 }
 ?>
 </span>
@@ -160,75 +160,75 @@ if ($imauthorized && $see_auth > 1) {
             }
         }
     }
-?>
+    ?>
 
 <table border='0' cellpadding='0' cellspacing='2' width='100%'>
 <tr>
 <td valign='top'>
 
-<?php
-if ($authorize) {
-    $count = 0;
+    <?php
+    if ($authorize) {
+        $count = 0;
 
-    while (list($ppid,$patient) = each($authorize)) {
-        $name = getPatientData($ppid);
+        while (list($ppid,$patient) = each($authorize)) {
+            $name = getPatientData($ppid);
 
-        // If I want to see mine only and this patient is not mine, skip it.
-        if ($see_auth == 2 && $_SESSION['authUserID'] != $name['id']) {
-            continue;
-        }
+            // If I want to see mine only and this patient is not mine, skip it.
+            if ($see_auth == 2 && $_SESSION['authUserID'] != $name['id']) {
+                continue;
+            }
 
-        if ($count >= $N) {
-            print "<tr><td colspan='5' align='center'><a" .
-            " href='authorizations_full.php?active=1' class='alert' onclick='top.restoreSession()'>" .
-            xlt('Some authorizations were not displayed. Click here to view all') .
-            "</a></td></tr>\n";
-            break;
-        }
+            if ($count >= $N) {
+                print "<tr><td colspan='5' align='center'><a" .
+                " href='authorizations_full.php?active=1' class='alert' onclick='top.restoreSession()'>" .
+                xlt('Some authorizations were not displayed. Click here to view all') .
+                "</a></td></tr>\n";
+                break;
+            }
 
-        echo "<tr><td valign='top'>";
-        // Clicking the patient name will load both frames for that patient,
-        // as demographics.php takes care of loading the bottom frame.
-        echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=" .
+            echo "<tr><td valign='top'>";
+            // Clicking the patient name will load both frames for that patient,
+            // as demographics.php takes care of loading the bottom frame.
+            echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=" .
             attr_url($ppid) . "' target='RTop' onclick='top.restoreSession()'>";
 
-        echo "<span class='bold'>" . text($name{"fname"}) . " " .
-        text($name{"lname"}) . "</span></a><br>" .
-        "<a class=link_submit href='authorizations.php?mode=authorize" .
-        "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
-        xlt('Authorize') . "</a></td>\n";
+            echo "<span class='bold'>" . text($name{"fname"}) . " " .
+            text($name{"lname"}) . "</span></a><br>" .
+            "<a class=link_submit href='authorizations.php?mode=authorize" .
+            "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
+            xlt('Authorize') . "</a></td>\n";
 
-        /****
-      //Michael A Rowley MD 20041012.
-      // added below 4 lines to add provider to authorizations for ez reference.
-      $providerID = sqlFetchArray(sqlStatement(
-        "select providerID from patient_data where pid=?", array($ppid) ));
-      $userID=$providerID{"providerID"};
-      $providerName = sqlFetchArray(sqlStatement(
-        "select lname from users where id=?", array($userID) ));
-        ****/
-        // Don't use sqlQuery because there might be no match.
-        $providerName = sqlFetchArray(sqlStatement(
-            "select lname from users where id = ?",
-            array($name['providerID'])
-        ));
+            /****
+          //Michael A Rowley MD 20041012.
+          // added below 4 lines to add provider to authorizations for ez reference.
+          $providerID = sqlFetchArray(sqlStatement(
+            "select providerID from patient_data where pid=?", array($ppid) ));
+          $userID=$providerID{"providerID"};
+          $providerName = sqlFetchArray(sqlStatement(
+            "select lname from users where id=?", array($userID) ));
+            ****/
+            // Don't use sqlQuery because there might be no match.
+            $providerName = sqlFetchArray(sqlStatement(
+                "select lname from users where id = ?",
+                array($name['providerID'])
+            ));
 
-        echo "<td valign=top><span class=bold>".xlt('Provider').":</span><span class=text><br>" .
-          text($providerName{"lname"}) . "</td>\n";
-        echo "<td valign=top><span class=bold>".xlt('Billing').":</span><span class=text><br>" .
-          $patient{"billing"} . "</td>\n";
-        echo "<td valign=top><span class=bold>".xlt('Transactions').":</span><span class=text><br>" .
-          $patient{"transaction"} . "</td>\n";
-        echo "<td valign=top><span class=bold>".xlt('Patient Notes').":</span><span class=text><br>" .
-          $patient{"pnotes"} . "</td>\n";
-        echo "<td valign=top><span class=bold>".xlt('Encounter Forms').":</span><span class=text><br>" .
-          $patient{"forms"} . "</td>\n";
-        echo "</tr>\n";
+            echo "<td valign=top><span class=bold>".xlt('Provider').":</span><span class=text><br>" .
+              text($providerName{"lname"}) . "</td>\n";
+            echo "<td valign=top><span class=bold>".xlt('Billing').":</span><span class=text><br>" .
+              $patient{"billing"} . "</td>\n";
+            echo "<td valign=top><span class=bold>".xlt('Transactions').":</span><span class=text><br>" .
+              $patient{"transaction"} . "</td>\n";
+            echo "<td valign=top><span class=bold>".xlt('Patient Notes').":</span><span class=text><br>" .
+              $patient{"pnotes"} . "</td>\n";
+            echo "<td valign=top><span class=bold>".xlt('Encounter Forms').":</span><span class=text><br>" .
+              $patient{"forms"} . "</td>\n";
+            echo "</tr>\n";
 
-        $count++;
+            $count++;
+        }
     }
-}
-?>
+    ?>
 
 </td>
 

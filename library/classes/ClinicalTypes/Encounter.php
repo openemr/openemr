@@ -51,11 +51,11 @@ class Encounter extends ClinicalType
     }
     
     /*
-     * 	Fetch an array of all dates on which this encounter took place for a patient.
-     * 
-     * 	@param (CqmPatient) $patient
-     * 	@param $beginDate beginning of date range to search in, if specified
-     * 	@param $endDate end of date range to search in, if specified
+     *  Fetch an array of all dates on which this encounter took place for a patient.
+     *
+     *  @param (CqmPatient) $patient
+     *  @param $beginDate beginning of date range to search in, if specified
+     *  @param $endDate end of date range to search in, if specified
      */
     public function fetchDates(RsPatient $patient, $beginDate = null, $endDate = null)
     {

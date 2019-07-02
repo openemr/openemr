@@ -124,8 +124,7 @@ function end_row()
     global $cell_count, $CPR;
     end_cell();
     if ($cell_count > 0) {
-        for (; $cell_count < $CPR;
-        ++$cell_count) {
+        for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
         }
 
@@ -403,7 +402,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                     </div>
                                 </div>
-                            <?php
+                                <?php
                             } ?>
                         </div>
                     </fieldset>

@@ -7,8 +7,8 @@
 // of the License, or (at your option) any later version.
 //
 require_once("CqmPatient.php");
-/*	Defines a population of patients
- * 
+/*  Defines a population of patients
+ *
  */
 class CqmPopulation extends RsPopulation
 {

@@ -218,8 +218,8 @@ function generate_select_list(
     }
 
     /*
-	  To show the inactive item in the list if the value is saved to database
-	  */
+      To show the inactive item in the list if the value is saved to database
+      */
     if (!$got_selected && strlen($currvalue) > 0) {
         $lres_inactive = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 0 AND option_id = ? ORDER BY seq, title", array($list_id, $currvalue));
@@ -2782,8 +2782,7 @@ function disp_end_row()
     global $cell_count, $CPR;
     disp_end_cell();
     if ($cell_count > 0) {
-        for (; $cell_count < $CPR;
-        ++$cell_count) {
+        for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
         }
 
@@ -3093,12 +3092,12 @@ function display_layout_tabs($formtype, $result1, $result2 = '')
         if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
             continue;
         }
-?>
+        ?>
         <li <?php echo $first ? 'class="current"' : '' ?>>
         <a href="#" id="header_tab_<?php echo attr($group_name); ?>">
         <?php echo text(xl_layout_label($group_name)); ?></a>
         </li>
-<?php
+        <?php
         $first = false;
     }
 }
@@ -3129,7 +3128,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
         $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
           "WHERE form_id = ? AND uor > 0 AND group_id = ? " .
           "ORDER BY seq", array($formtype, $this_group));
-    ?>
+        ?>
 
         <div class="tab <?php echo $first ? 'current' : '' ?>">
             <table border='0' cellpadding='0'>
@@ -3299,7 +3298,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
         $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
             "WHERE form_id = ? AND uor > 0 AND group_id = ? " .
             "ORDER BY seq", array($formtype, $this_group));
-    ?>
+        ?>
 
         <div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo str_replace(' ', '_', $group_name_esc)?>" >
             <table border='0' cellpadding='0'>

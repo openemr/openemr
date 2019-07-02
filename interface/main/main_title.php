@@ -105,9 +105,9 @@ $res = sqlQuery("select * from users where username=?", array($_SESSION{"authUse
     <td align="left" style="width:<?php echo attr($width_column) ?>">
         <div class="tinylogocontainer"><span><?php if ($GLOBALS['tiny_logo_1']) {
             echo $tinylogocode1;
-} if ($GLOBALS['tiny_logo_2']) {
-    echo $tinylogocode2;
-} ?></span></div>
+                                             } if ($GLOBALS['tiny_logo_2']) {
+                                                 echo $tinylogocode2;
+                                             } ?></span></div>
     </td>
 <?php } ?>
 

@@ -488,7 +488,7 @@ body{
                     <?php
                       # Generate drop down list for Ethnoracial
                       //echo generate_select_list('ethnoracial', 'ethrace', $row['ethnoracial'], xl('Ethnoracial'), 'Unassigned', "form-control");
-                        ?>
+                    ?>
                         <span class="help-inline"></span>
                     </div>
                 </div> -->

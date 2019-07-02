@@ -634,7 +634,7 @@ function proc_type_changed() {
                                                     'list_id' => 'proc_lat',
                                                     'description' => xl('Laterality of this procedure, if applicable')
                                                 ), $row['laterality']);
-                                            ?>
+                                                ?>
                                         </div>
                                     </div>
                                     <div id="laterality_info" class="collapse">
@@ -658,7 +658,7 @@ function proc_type_changed() {
                                                     'list_id' => 'proc_unit',
                                                     'description' => xl('Optional default units for manual entry of results')
                                                 ), $row['units']);
-                                            ?>
+                                                ?>
                                         </div>
                                     </div>
                                     <div id="units_info" class="collapse">

@@ -93,7 +93,7 @@ function getUsername($uID)
     return "";
 }
 
-//	returns an array of facility id and names
+//  returns an array of facility id and names
 function getUserFacilities($uID)
 {
     if (!$GLOBALS['restrict_user_facility']) {

@@ -148,7 +148,7 @@ if ($editlid) {
         } else {?>
             <input type=entry name=recipient_name size=20 value="">
         </td>
-        <?php
+            <?php
         }?>
     </tr>
     <tr>

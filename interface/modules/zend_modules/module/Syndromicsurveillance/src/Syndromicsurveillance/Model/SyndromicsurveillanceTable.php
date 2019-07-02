@@ -25,10 +25,10 @@ use \Application\Model\ApplicationTable;
 class SyndromicsurveillanceTable extends AbstractTableGateway
 {
     /*
-	* Fetch the reportable ICD9 codes
-	*
-	* @return	codes		array		list of replrtable ICD9 codes
-	*/
+    * Fetch the reportable ICD9 codes
+    *
+    * @return   codes       array       list of replrtable ICD9 codes
+    */
     function non_reported_codes()
     {
         $query      = "select id, concat('ICD9:',code) as name from codes where reportable = 1 ORDER BY name";
@@ -44,10 +44,10 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     }
 
     /*
-	* Get list of providers in EMR
-	*
-	* @return	rows	Array	List of providers
-	*/
+    * Get list of providers in EMR
+    *
+    * @return   rows    Array   List of providers
+    */
     function getProviderList()
     {
         global $encounter;
@@ -92,19 +92,19 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     }
 
     /*
-	* Fetch the list of patients having the reportable ICD9
-	*
-	* @param	fromDate		date		encounter date
-	* @param	toDate			date		encounter date
-	* @param	code_selected	string		selected ICD9 codes from the filter
-	* @param	provider_selected		integer		provider id from the filter
-	* @param	start			integer		pagination start
-	* @param	end				integer		pagination end
-	* @param	get_count		integer		flag to identify whether to return the selected rows or the number of rows
-	*
-	* @return	records			array		return the list of patients having the reportable ICD9 codes
-	* @return	count			integer		return the count of patients having the reportable ICD9 codes
-	*/
+    * Fetch the list of patients having the reportable ICD9
+    *
+    * @param    fromDate        date        encounter date
+    * @param    toDate          date        encounter date
+    * @param    code_selected   string      selected ICD9 codes from the filter
+    * @param    provider_selected       integer     provider id from the filter
+    * @param    start           integer     pagination start
+    * @param    end             integer     pagination end
+    * @param    get_count       integer     flag to identify whether to return the selected rows or the number of rows
+    *
+    * @return   records         array       return the list of patients having the reportable ICD9 codes
+    * @return   count           integer     return the count of patients having the reportable ICD9 codes
+    */
     function fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end, $get_count = null)
     {
         $records = array();
@@ -186,17 +186,17 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     }
 
     /*
-	* generate the HL7
-	*
-	* @param	fromDate		date		encounter date
-	* @param	toDate			date		encounter date
-	* @param	code_selected	string		selected ICD9 codes from the filter
-	* @param	provider_selected		integer		provider id from the filter
-	* @param	start			integer		pagination start
-	* @param	end				integer		pagination end
-	*
-	* @return	download the generated HL7
-	*/
+    * generate the HL7
+    *
+    * @param    fromDate        date        encounter date
+    * @param    toDate          date        encounter date
+    * @param    code_selected   string      selected ICD9 codes from the filter
+    * @param    provider_selected       integer     provider id from the filter
+    * @param    start           integer     pagination start
+    * @param    end             integer     pagination end
+    *
+    * @return   download the generated HL7
+    */
     function generate_hl7($fromDate, $toDate, $code_selected, $provider_selected, $start, $end)
     {
         $records = array();
@@ -512,8 +512,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     }
 
     /*
-	* date format conversion
-	*/
+    * date format conversion
+    */
     public function convert_to_yyyymmdd($date)
     {
         $date   = str_replace('/', '-', $date);
@@ -525,10 +525,10 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     /*
     * Convert date from database format to required format
     *
-    * @param	String		$date		Date from database (format: YYYY-MM-DD)
-    * @param	String		$format		Required date format
+    * @param    String      $date       Date from database (format: YYYY-MM-DD)
+    * @param    String      $format     Required date format
     *
-    * @return	String		$formatted_date	New formatted date
+    * @return   String      $formatted_date New formatted date
     */
     public function date_format($date, $format)
     {
@@ -551,8 +551,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     }
 
     /*
-    * param		string		Content in HL7 format
-    * return	string		Formatted HL7 string
+    * param     string      Content in HL7 format
+    * return    string      Formatted HL7 string
     */
     function tr($a)
     {

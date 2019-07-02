@@ -68,12 +68,12 @@ use OpenEMR\Services\VersionService;
             'genericError' => xla('Error. Try again later'),
             'closeTooltip' => ''
         ));
-        ?>;
+            ?>;
 
         var registrationConstants = <?php echo json_encode(array(
             'webroot' => $GLOBALS['webroot']
         ))
-        ?>;
+            ?>;
     </script>
 
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js?v=<?php echo $v_js_includes; ?>"></script>

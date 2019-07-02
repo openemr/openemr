@@ -36,9 +36,9 @@ $result = sqlQuery($spell, array($pid, 'track_anything'));
 if (!$result) { //If there are no disclosures recorded
     ?>
   <span class='text'> <?php echo xlt("No tracks have been documented.");
-?>
+    ?>
   </span>
-<?php
+    <?php
 } else {  // We have some tracks here...
     echo "<span class='text'>";
     echo xlt('Available Tracks') . ":";

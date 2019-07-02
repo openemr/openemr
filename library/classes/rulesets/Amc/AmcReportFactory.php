@@ -23,7 +23,7 @@ class AmcReportFactory extends RsReportFactoryAbstract
     {
         $reportObject = null;
         if (class_exists($className)) {
-            $reportObject = new $className( $rowRule, $patientData, $dateTarget, $options );
+            $reportObject = new $className($rowRule, $patientData, $dateTarget, $options);
         } else {
             $reportObject = new AMC_Unimplemented();
         }

@@ -1035,7 +1035,7 @@ if ($form_output == 3) {
     header("Content-Disposition: attachment; filename=service_statistics_report.csv");
     header("Content-Description: File Transfer");
 } else {
-?>
+    ?>
 <html>
 <head>
 <title><?php echo text($report_title); ?></title>
@@ -1114,21 +1114,21 @@ $(function() {
 <!-- Begin experimental code -->
 <tr<?php echo (empty($arr_report)) ? " style='display:none'" : ""; ?>>
 <td valign='top' class='dehead' nowrap>
-<?php echo xlt('Report'); ?>:
+    <?php echo xlt('Report'); ?>:
 </td>
 <td valign='top' class='detail' colspan='3'>
  <select name='form_report' title='Predefined reports' onchange='selreport()'>
-<?php
-echo "    <option value=''>" . xlt('Custom') . "</option>\n";
-foreach ($arr_report as $key => $value) {
-    echo "    <option value='" . attr($key) . "'";
-    if ($key == $form_report) {
-        echo " selected";
-    }
+    <?php
+    echo "    <option value=''>" . xlt('Custom') . "</option>\n";
+    foreach ($arr_report as $key => $value) {
+        echo "    <option value='" . attr($key) . "'";
+        if ($key == $form_report) {
+            echo " selected";
+        }
 
-    echo ">" . text($value) . "</option>\n";
-}
-?>
+        echo ">" . text($value) . "</option>\n";
+    }
+    ?>
  </select>
 </td>
 <td valign='top' class='detail'>
@@ -1139,37 +1139,37 @@ foreach ($arr_report as $key => $value) {
 
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php echo xlt('Rows'); ?>:
+    <?php echo xlt('Rows'); ?>:
 </td>
 <td valign='top' class='detail'>
  <select name='form_by' title='Left column of report'>
-<?php
-foreach ($arr_by as $key => $value) {
-    echo "    <option value='" . attr($key) . "'";
-    if ($key == $form_by) {
-        echo " selected";
-    }
+    <?php
+    foreach ($arr_by as $key => $value) {
+        echo "    <option value='" . attr($key) . "'";
+        if ($key == $form_by) {
+            echo " selected";
+        }
 
-    echo ">" . text($value) . "</option>\n";
-}
-?>
+        echo ">" . text($value) . "</option>\n";
+    }
+    ?>
  </select>
 </td>
 <td valign='top' class='dehead' nowrap>
-<?php echo xlt('Content'); ?>:
+    <?php echo xlt('Content'); ?>:
 </td>
 <td valign='top' class='detail'>
 <select name='form_content' title='<?php echo xla('What is to be counted?'); ?>'>
-<?php
-foreach ($arr_content as $key => $value) {
-    echo "    <option value='" . attr($key) . "'";
-    if ($key == $form_content) {
-        echo " selected";
-    }
+    <?php
+    foreach ($arr_content as $key => $value) {
+        echo "    <option value='" . attr($key) . "'";
+        if ($key == $form_content) {
+            echo " selected";
+        }
 
-    echo ">" . text($value) ."</option>\n";
-}
-?>
+        echo ">" . text($value) ."</option>\n";
+    }
+    ?>
  </select>
 </td>
 <td valign='top' class='detail'>
@@ -1178,30 +1178,30 @@ foreach ($arr_content as $key => $value) {
 </tr>
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php echo xlt('Columns'); ?>:
+    <?php echo xlt('Columns'); ?>:
 </td>
 <td valign='top' class='detail'>
  <select name='form_show[]' size='4' multiple
 title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
-<?php
-foreach ($arr_show as $key => $value) {
-    $title = $value['title'];
-    if (empty($title) || $key == 'title') {
-        $title = $value['description'];
-    }
+    <?php
+    foreach ($arr_show as $key => $value) {
+        $title = $value['title'];
+        if (empty($title) || $key == 'title') {
+            $title = $value['description'];
+        }
 
-    echo "    <option value='" . attr($key) . "'";
-    if (is_array($form_show) && in_array($key, $form_show)) {
-        echo " selected";
-    }
+        echo "    <option value='" . attr($key) . "'";
+        if (is_array($form_show) && in_array($key, $form_show)) {
+            echo " selected";
+        }
 
-    echo ">" . text($title) . "</option>\n";
-}
-?>
+        echo ">" . text($title) . "</option>\n";
+    }
+    ?>
  </select>
 </td>
 <td valign='top' class='dehead' nowrap>
-<?php echo xlt('Filters'); ?>:
+    <?php echo xlt('Filters'); ?>:
 </td>
 <td colspan='2' class='detail' style='border-style:solid;border-width:1px;border-color:#cccccc'>
  <table>
@@ -1211,16 +1211,16 @@ foreach ($arr_show as $key => $value) {
    </td>
    <td class='detail' valign='top'>
   <select name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
-<?php
-foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
-    echo "       <option value='" . attr($key) . "'";
-    if ($key == $form_sexes) {
-        echo " selected";
-    }
+    <?php
+    foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
+        echo "       <option value='" . attr($key) . "'";
+        if ($key == $form_sexes) {
+            echo " selected";
+        }
 
-    echo ">" . text($value) . "</option>\n";
-}
-?>
+        echo ">" . text($value) . "</option>\n";
+    }
+    ?>
     </select>
    </td>
   </tr>
@@ -1229,24 +1229,24 @@ foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Onl
     <?php echo xlt('Facility'); ?>:
    </td>
    <td valign='top' class='detail'>
-<?php
+    <?php
 // Build a drop-down list of facilities.
 //
-$fres = $facilityService->getAll();
-echo "      <select name='form_facility'>\n";
-echo "       <option value=''>-- All Facilities --\n";
-foreach ($fres as $frow) {
-    $facid = $frow['id'];
-    echo "       <option value='" . attr($facid) . "'";
-    if ($facid == $_POST['form_facility']) {
-        echo " selected";
+    $fres = $facilityService->getAll();
+    echo "      <select name='form_facility'>\n";
+    echo "       <option value=''>-- All Facilities --\n";
+    foreach ($fres as $frow) {
+        $facid = $frow['id'];
+        echo "       <option value='" . attr($facid) . "'";
+        if ($facid == $_POST['form_facility']) {
+            echo " selected";
+        }
+
+        echo ">" . text($frow['name']) . "\n";
     }
 
-    echo ">" . text($frow['name']) . "\n";
-}
-
-echo "      </select>\n";
-?>
+    echo "      </select>\n";
+    ?>
    </td>
   </tr>
   <tr>
@@ -1262,19 +1262,19 @@ echo "      </select>\n";
 </tr>
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php echo xlt('To'); ?>:
+    <?php echo xlt('To'); ?>:
 </td>
 <td colspan='3' valign='top' class='detail' nowrap>
-<?php
-foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
-    echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
-    if ($key == $form_output) {
-        echo ' checked';
-    }
+    <?php
+    foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
+        echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
+        if ($key == $form_output) {
+            echo ' checked';
+        }
 
-    echo " />" . text($value) . " &nbsp;";
-}
-?>
+        echo " />" . text($value) . " &nbsp;";
+    }
+    ?>
 </td>
 <td align='right' valign='top' class='detail' nowrap>
 <input type='submit' name='form_submit' value='<?php echo xla('Submit'); ?>'
@@ -1286,7 +1286,7 @@ title='<?php echo xla('Click to generate the report'); ?>' />
 </td>
 </tr>
 </table>
-<?php
+    <?php
 } // end not export
 
 if ($_POST['form_submit']) {
@@ -1703,13 +1703,13 @@ if ($_POST['form_submit']) {
 } // end of if refresh or export
 
 if ($form_output != 3) {
-?>
+    ?>
 </form>
 </center>
 
 <script language='JavaScript'>
 selreport();
-<?php if ($form_output == 2) { ?>
+    <?php if ($form_output == 2) { ?>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);
 <?php } ?>
@@ -1717,6 +1717,6 @@ selreport();
 
 </body>
 </html>
-<?php
+    <?php
 } // end not export
 ?>

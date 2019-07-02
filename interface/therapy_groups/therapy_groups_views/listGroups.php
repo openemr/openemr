@@ -21,7 +21,6 @@
 
 <?php require 'header.php'; ?>
 <?php if ($view || $edit) :?>
-
 <span class="hidden title"><?php echo xlt('Therapy Group Finder');?></span>
 <div id="therapy_groups_list_container" class="container">
 
@@ -136,7 +135,7 @@
                     <td>
                         <?php foreach ($group['counselors'] as $counselor) {
                             echo text($counselor) . " </br> ";
-} ;?>
+                        } ;?>
                     </td>
                     <td><?php echo text($group['group_notes']);?></td>
                     <td class="delete_btn">
@@ -414,9 +413,8 @@
 
 </script>
 
-<?php require  'footer.php'; ?>
+    <?php require  'footer.php'; ?>
 <?php else :?>
-
     <div class="container">
 
         <div class="row alert alert-info">

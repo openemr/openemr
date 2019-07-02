@@ -31,7 +31,7 @@ $result = getPatientData($pid, "fname,lname,pid,pubpid,phone_home,sex,pharmacy_i
 $provider_results = sqlQuery("select * from users where username= ?", array($_SESSION{"authUser"}));
 
 ////////////////////////////////////////////////////////////////////
-// Function:	getPatientDateOfLastEncounter
+// Function:    getPatientDateOfLastEncounter
 function getPatientDateOfLastEncounter($nPid)
 {
   // get date of last encounter no codes

@@ -282,7 +282,7 @@ if ($popup) {
   </td>
   <td>
     <?php if ($from_page == "cdr_report") { ?>
-    <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label']) . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='css_button' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
+        <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label']) . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='css_button' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
   <td class='text' align='right'>
@@ -332,7 +332,7 @@ if ($fend > $count) {
         echo " - ";
         echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
         echo "</td>";
-} ?>
+    } ?>
  </tr>
 </table>
 
@@ -352,17 +352,17 @@ if ($fend > $count) {
 <th class="srNumDays"><?php echo xlt('[Days Since Last Encounter]'); ?></th>
 <th class="srDateLast"><?php echo xlt('[Date of Last Encounter]'); ?></th>
 <th class="srDateNext">
-<?php
-$add_days = 90;
-if (!$popup && preg_match('/^(\d+)\s*(.*)/', $patient, $matches) > 0) {
-    $add_days = $matches[1];
-    $patient = $matches[2];
-}
-?>
+    <?php
+    $add_days = 90;
+    if (!$popup && preg_match('/^(\d+)\s*(.*)/', $patient, $matches) > 0) {
+        $add_days = $matches[1];
+        $patient = $matches[2];
+    }
+    ?>
 [<?php echo attr($add_days);?> <?php echo xlt('Days From Last Encounter'); ?>]
 </th>
 
-<?php
+    <?php
 } else {
   // Alternate patient search results style; this gets address plus other
   // fields that are mandatory, up to a limit of 5.

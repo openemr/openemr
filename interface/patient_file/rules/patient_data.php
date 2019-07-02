@@ -192,7 +192,7 @@ if (isset($entryID)) {
         echo "<input type='hidden' name='form_entryID' value='" .
         attr($entryID)  . "' />";
     }
-?>
+    ?>
 </form>
 <?php
 

@@ -54,13 +54,13 @@ if ($_POST['form_csvexport']) {
     header("Content-Disposition: attachment; filename=patient_list.csv");
     header("Content-Description: File Transfer");
 } else {
-?>
+    ?>
 <html>
 <head>
 
 <title><?php echo xlt('Patient List'); ?></title>
 
-<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
 <script language="JavaScript">
 
@@ -120,8 +120,8 @@ $(function() {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Patient List'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php if (!(empty($to_date) && empty($from_date))) { ?>
-    <?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to') . " &nbsp; " . text(oeFormatShortDate($to_date)); ?>
+    <?php if (!(empty($to_date) && empty($from_date))) { ?>
+        <?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to') . " &nbsp; " . text(oeFormatShortDate($to_date)); ?>
 <?php } ?>
 </div>
 
@@ -194,7 +194,7 @@ $(function() {
 </table>
 </div> <!-- end of parameters -->
 
-<?php
+    <?php
 } // end not form_csvexport
 
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
@@ -212,7 +212,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         echo '"' . xl('Home Phone') . '",';
         echo '"' . xl('Work Phone') . '"' . "\n";
     } else {
-    ?>
+        ?>
 
   <div id="report_results">
   <table id='mymaintable'>
@@ -228,7 +228,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     <th> <?php echo xlt('Work Phone'); ?> </th>
  </thead>
  <tbody>
-<?php
+        <?php
     } // end not export
     $totalpts = 0;
     $sqlArrayBind = array();
@@ -307,42 +307,42 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . qescape($row['phone_home']) . '",';
             echo '"' . qescape($row['phone_biz']) . '"' . "\n";
         } else {
-        ?>
+            ?>
        <tr>
         <td>
-        <?php echo text(oeFormatShortDate(substr($row['edate'], 0, 10))); ?>
+            <?php echo text(oeFormatShortDate(substr($row['edate'], 0, 10))); ?>
    </td>
    <td>
-        <?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>
+            <?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>
    </td>
    <td>
-        <?php echo text($row['pubpid']); ?>
+            <?php echo text($row['pubpid']); ?>
    </td>
    <td>
-        <?php echo xlt($row['street']); ?>
+            <?php echo xlt($row['street']); ?>
    </td>
    <td>
-        <?php echo xlt($row['city']); ?>
+            <?php echo xlt($row['city']); ?>
    </td>
    <td>
-        <?php echo xlt($row['state']); ?>
+            <?php echo xlt($row['state']); ?>
    </td>
    <td>
-        <?php echo text($row['postal_code']); ?>
+            <?php echo text($row['postal_code']); ?>
    </td>
    <td>
-        <?php echo text($row['phone_home']); ?>
+            <?php echo text($row['phone_home']); ?>
    </td>
    <td>
-        <?php echo text($row['phone_biz']); ?>
+            <?php echo text($row['phone_biz']); ?>
    </td>
   </tr>
-    <?php
+            <?php
         } // end not export
         ++$totalpts;
     } // end while
     if (!$_POST['form_csvexport']) {
-    ?>
+        ?>
 
    <tr class="report_totals">
     <td colspan='9'>
@@ -355,25 +355,25 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 </tbody>
 </table>
 </div> <!-- end of results -->
-<?php
+        <?php
     } // end not export
 } // end if refresh or export
 
 if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) {
-?>
+    ?>
 <div class='text'>
     <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
-<?php
+    <?php
 }
 
 if (!$_POST['form_csvexport']) {
-?>
+    ?>
 
 </form>
 </body>
 
 </html>
-<?php
+    <?php
 } // end not export
 ?>

@@ -1,18 +1,18 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Form:	PSYCHIATRISCH ONDERZOEK
-// Package:	Research psihiatric - Dutch specific form
-// Created by:	Larry Lart
-// Version:	1.0 - 29-03-2008
+// Form:    PSYCHIATRISCH ONDERZOEK
+// Package: Research psihiatric - Dutch specific form
+// Created by:  Larry Lart
+// Version: 1.0 - 29-03-2008
 ////////////////////////////////////////////////////////////////////
 
 require_once("../../globals.php");
 require_once($GLOBALS["srcdir"]."/api.inc");
 
 ////////////////////////////////////////////////////////////////////
-// Function:	psychiatrisch_onderzoek_report
-// Purpose:	callback func?
-// Input:	pid? encounter, cols, id ?
+// Function:    psychiatrisch_onderzoek_report
+// Purpose: callback func?
+// Input:   pid? encounter, cols, id ?
 ////////////////////////////////////////////////////////////////////
 function psychiatrisch_onderzoek_report($pid, $encounter, $cols, $id)
 {

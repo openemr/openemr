@@ -7,12 +7,12 @@
 // of the License, or (at your option) any later version.
 //
 ////////////////////////////////////////////////////////////////////
-// Package:	cron_phone_notification
-// Purpose:	to be run by cron every hour, look for appointments
-//		in the pre-notification period and send an phone reminder
-//		Based on cron_email_notification by Larry Lart
+// Package: cron_phone_notification
+// Purpose: to be run by cron every hour, look for appointments
+//      in the pre-notification period and send an phone reminder
+//      Based on cron_email_notification by Larry Lart
 // Created by:
-// Updated by:	Maviq on 01/12/2010
+// Updated by:  Maviq on 01/12/2010
 ////////////////////////////////////////////////////////////////////
 
 // comment below exit if plan to use this script
@@ -114,8 +114,8 @@ for ($p=0; $p<count($db_patient); $p++) {
 sqlClose();
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_updateentry
-// Purpose:	update status yes if alert send to patient
+// Function:    cron_updateentry
+// Purpose: update status yes if alert send to patient
 ////////////////////////////////////////////////////////////////////
 function cron_updateentry($type, $pid, $pc_eid)
 {
@@ -138,8 +138,8 @@ function cron_updateentry($type, $pid, $pc_eid)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getPhoneAlertpatientData
-// Purpose:	get patient data for send to alert
+// Function:    cron_getPhoneAlertpatientData
+// Purpose: get patient data for send to alert
 ////////////////////////////////////////////////////////////////////
 function cron_getPhoneAlertpatientData($type, $trigger_hours)
 {
@@ -176,8 +176,8 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_InsertNotificationLogEntry
-// Purpose:	insert log entry in table
+// Function:    cron_InsertNotificationLogEntry
+// Purpose: insert log entry in table
 ////////////////////////////////////////////////////////////////////
 function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway)
 {
@@ -191,8 +191,8 @@ function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	WriteLog
-// Purpose:	written log into file
+// Function:    WriteLog
+// Purpose: written log into file
 ////////////////////////////////////////////////////////////////////
 function WriteLog($data)
 {
@@ -215,8 +215,8 @@ function WriteLog($data)
     }
 }
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getFacilities
-// Purpose:	get facilities data once and store in map
+// Function:    cron_getFacilities
+// Purpose: get facilities data once and store in map
 ////////////////////////////////////////////////////////////////////
 function cron_getFacilitiesMap()
 {

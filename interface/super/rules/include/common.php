@@ -24,7 +24,7 @@ function implode_funcs($glue, array $pieces, array $funcs)
     foreach ($pieces as $piece) {
         $new_piece = $piece;
         foreach ($funcs as $func) {
-            $new_piece = $func( $new_piece );
+            $new_piece = $func($new_piece);
         }
 
         $new_pieces []= $new_piece;

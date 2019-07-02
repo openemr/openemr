@@ -217,7 +217,7 @@ function edih_278_transaction_html($obj278, $bht03)
                 continue;
             }
 
-            //								//
+            //                              //
             if (strncmp('PER'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 $elem01 = (isset($sar[1])) ? $sar[1] : '';
@@ -317,20 +317,20 @@ function edih_278_transaction_html($obj278, $bht03)
                 }
 
                 /* UM05 -- not used
-				 $elem05 = (isset($sar[5])) ? $sar[5] : '';
-				 $elem05a = '';
-				 if (strpos($elem05, $ds) {
-					$elem05_ar = explode($ds, $elem05);
-					$elem05a .= (isset($elem05_ar[0])) ? $cd27x->get_271_code('POS', $elem05_ar[0]) : '';
-					$elem05a .= (isset($elem05_ar[1])) ? $cd27x->get_271_code('POS', $elem05_ar[1]) : '';
-					$elem05a .= (isset($elem05_ar[2])) ? $cd27x->get_271_code('POS', $elem05_ar[2]) : '';
-					$elem05a .= (isset($elem05_ar[3])) ? 'State Code: '.$elem05_ar[3] : '';
-					$elem05a .= (isset($elem05_ar[3])) ? 'Country Code: '.$elem05_ar[4] : '';
-				} else {
-					$elem05a .= $elem05;
-				}
-				//
-				* */
+                 $elem05 = (isset($sar[5])) ? $sar[5] : '';
+                 $elem05a = '';
+                 if (strpos($elem05, $ds) {
+                    $elem05_ar = explode($ds, $elem05);
+                    $elem05a .= (isset($elem05_ar[0])) ? $cd27x->get_271_code('POS', $elem05_ar[0]) : '';
+                    $elem05a .= (isset($elem05_ar[1])) ? $cd27x->get_271_code('POS', $elem05_ar[1]) : '';
+                    $elem05a .= (isset($elem05_ar[2])) ? $cd27x->get_271_code('POS', $elem05_ar[2]) : '';
+                    $elem05a .= (isset($elem05_ar[3])) ? 'State Code: '.$elem05_ar[3] : '';
+                    $elem05a .= (isset($elem05_ar[3])) ? 'Country Code: '.$elem05_ar[4] : '';
+                } else {
+                    $elem05a .= $elem05;
+                }
+                //
+                * */
                 $elem06 = (isset($sar[6])) ? $cd27x->get_271_code('UM06', $sar[6]) : '';
                 // UM07 UM08 not used
                 //$elem07 = (isset($sar[7])) ? $cd27x->get_271_code('UM07', $sar[7]) : '';
@@ -751,8 +751,7 @@ function edih_278_transaction_html($obj278, $bht03)
                     }
 
                     if ($elem01 && $ct > 2) {
-                        for ($i=2; $i<$ct;
-                        $i++) {
+                        for ($i=2; $i<$ct; $i++) {
                             $elem01 .= ' '.$ar01[$i];
                         }
                     }
@@ -795,8 +794,7 @@ function edih_278_transaction_html($obj278, $bht03)
                     }
 
                     if ($elem01 && count($ar01) > 2) {
-                        for ($i=2; $i<$ct;
-                        $i++) {
+                        for ($i=2; $i<$ct; $i++) {
                             $elem01 .= ' '.$ar01[$i];
                         }
                     }

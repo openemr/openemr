@@ -136,7 +136,7 @@ div.section {
   // is likely to happen (i.e. where all form options are listed).
   // TODO - now use mPDF, so should test if still need this fix
 if (!$isform) {
-?>
+    ?>
 border-style: solid;
 border-width: 1px;
 border-color: #000000;
@@ -226,8 +226,7 @@ function end_row()
     global $cell_count, $CPR;
     end_cell();
     if ($cell_count > 0) {
-        for (; $cell_count < $CPR;
-        ++$cell_count) {
+        for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
         }
 
@@ -400,7 +399,7 @@ if ($PDF_OUTPUT) {
     $pdf->writeHTML($content);
     $pdf->Output('Demographics_form.pdf', 'D'); // D = Download, I = Inline
 } else {
-?>
+    ?>
 <!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->
 <script language='JavaScript'>
 opener.top.printLogPrint(window);

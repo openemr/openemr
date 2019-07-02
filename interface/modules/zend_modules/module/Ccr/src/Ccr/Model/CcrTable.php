@@ -535,8 +535,8 @@ class CcrTable extends AbstractTableGateway
   /*
   * Fetch a document from the database
   *
-  * @param	$document_id		Integer		Document ID
-  * @return	$content			String		File content
+  * @param  $document_id        Integer     Document ID
+  * @return $content            String      File content
   */
     public function getDocument($document_id)
     {
