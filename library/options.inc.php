@@ -582,7 +582,6 @@ function generate_form_field($frow, $currvalue)
         }
 
         echo "</select>";
-
     } elseif ($data_type == 14) {
         // Address book, preferring organization name if it exists and is not in
         // parentheses, and excluding local users who are not providers.

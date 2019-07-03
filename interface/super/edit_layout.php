@@ -543,7 +543,6 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     );
     }
      **********************************************************************/
-
 } else if ($_POST['formaction'] == "movegroup" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();

@@ -1041,7 +1041,7 @@ if ($_POST['form_refresh']) {
         <?php
     } //End if $result
 } else { //End if form_refresh
-            ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
+    ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
 }
 ?>
 </form>

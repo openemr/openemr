@@ -785,8 +785,7 @@ if (empty($collectthis)) {
                         sqlStatement("UPDATE openemr_postcalendar_events SET " .
                         " pc_enddate = ? " .
                         " WHERE " . $whereClause, array($selected_date));
-                    } // In case of a change in the event head
-                    else {
+                    } else { // In case of a change in the event head
                         sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
                     }
                 }

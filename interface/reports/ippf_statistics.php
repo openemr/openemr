@@ -711,7 +711,6 @@ function process_ippf_code($row, $code, $quantity = 1)
         // Contraceptive method for new contraceptive adoption following abortion.
         // Get it from the IPPF code if there is a suitable recent GCAC form.
         //
-
     } else if ($form_by === '7') {
         $key = getContraceptiveMethod($code);
         if (empty($key)) {
@@ -738,11 +737,9 @@ function process_ippf_code($row, $code, $quantity = 1)
                 return;
             }
         }
-    } // Post-Abortion Care and Followup by Source.
-  // Requirements just call for counting sessions, but this way the columns
-  // can be anything - age category, religion, whatever.
-  //
-    else if ($form_by === '8') {
+    } else if ($form_by === '8') { // Post-Abortion Care and Followup by Source.
+        // Requirements just call for counting sessions, but this way the columns
+        // can be anything - age category, religion, whatever.
         if (preg_match('/^25222[567]/', $code)) { // care, followup and incomplete abortion treatment
             $key = getGcacClientStatus($row);
         } else {
@@ -789,7 +786,6 @@ function process_ippf_code($row, $code, $quantity = 1)
         //   Referred to other service providers (govt,private clinics)
         //   Decided not to have the abortion
         //
-
     } else if ($form_by === '12') {
         if (preg_match('/^252221/', $code)) { // all pre-abortion counseling
             $key = getGcacClientStatus($row);

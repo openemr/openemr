@@ -175,7 +175,7 @@ if ($form_action == 'export') {
     echo '"' . xl('Billed') . '",';
     echo '"' . xl('Notes') . '"' . "\n";
 } else { // end export
-?>
+    ?>
 <html>
 <head>
 <title><?php echo xlt('Inventory Transactions'); ?></title>

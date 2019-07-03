@@ -291,7 +291,7 @@ if ($_POST['form_csvexport']) {
         echo '"Total"' . "\n";
     }
 } else { // end export
-?>
+    ?>
 <html>
 <head>
 

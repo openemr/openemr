@@ -162,7 +162,6 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
             $s .= "</select>";
             }
              *****************************************************************/
-
         } else if ($fldtype == 'M') {
             // List of checkboxes.
             $a = explode(';', $qrow['options']);

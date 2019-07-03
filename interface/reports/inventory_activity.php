@@ -389,7 +389,7 @@ if ($form_action == 'export') {
         echo '"' . esc4export(xl('End')) . '"' . "\n";
     }
 } else { // end export
-?>
+    ?>
 <html>
 <head>
 <title><?php echo xlt('Inventory Activity'); ?></title>
