@@ -59,7 +59,7 @@ if ($_POST['form_csvexport']) {
     header("Content-Description: File Transfer");
     // CSV headers:
 } else { // end export
-?>
+    ?>
 <html>
 <head>
     <title><?php echo xlt('Financial Summary by Service Code') ?></title>
