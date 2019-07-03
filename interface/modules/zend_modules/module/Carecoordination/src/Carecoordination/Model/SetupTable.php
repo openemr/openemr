@@ -148,8 +148,8 @@ class SetupTable extends AbstractTableGateway
     /*
     * Function to fetch the mapped CCDA components and forms
 
-    *  @param		None
-    *  @return		$mapped_values
+    *  @param       None
+    *  @return      $mapped_values
     */
     public function getMappedFields($id)
     {
@@ -203,8 +203,8 @@ class SetupTable extends AbstractTableGateway
 
     /*Function to fetch the maximum id of the CCDA template from mapping table
 
-    * @param	None
-    * @return	$id
+    * @param    None
+    * @return   $id
     */
     public function getMaxIdCcda()
     {
@@ -218,8 +218,8 @@ class SetupTable extends AbstractTableGateway
 
     /*Saving the CCDA structure in the master table
 
-    * @param	$values		Array of values to be inserted in the table
-    * @return	$row['id']	Last inserted ID from the table
+    * @param    $values     Array of values to be inserted in the table
+    * @return   $row['id']  Last inserted ID from the table
     */
     public function insertMaster($values)
     {
@@ -237,8 +237,8 @@ class SetupTable extends AbstractTableGateway
 
     /*Saving the CCDA structure in the child table
 
-    * @param	None
-    * @return	None
+    * @param    None
+    * @return   None
     */
     public function insertChild($values)
     {
@@ -249,8 +249,8 @@ class SetupTable extends AbstractTableGateway
 
     /*Deleted existing CCDA mapped fields
 
-    * @param	None
-    * @return	None
+    * @param    None
+    * @return   None
     */
     public function updateExistingMappedFields($values)
     {

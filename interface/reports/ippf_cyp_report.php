@@ -65,7 +65,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
                     echo '"' . formatcyp($producttotal) . '"' . "\n";
                 }
             } else {
-        ?>
+                ?>
 
        <tr bgcolor="#ddddff">
         <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
@@ -105,7 +105,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
             echo '"' . formatcyp($rowcyp) . '",';
             echo '"' . formatcyp($rowresult) . '"' . "\n";
         } else {
-        ?>
+            ?>
 
      <tr>
       <td class="detail">
@@ -113,22 +113,22 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
             $productleft = "&nbsp;"; ?>
   </td>
   <td class="dehead">
-        <?php echo text(oeFormatShortDate($transdate)); ?>
+            <?php echo text(oeFormatShortDate($transdate)); ?>
   </td>
   <td class="detail">
-        <?php echo text($invnumber); ?>
+            <?php echo text($invnumber); ?>
   </td>
   <td class="dehead" align="right">
-        <?php echo text($qty); ?>
+            <?php echo text($qty); ?>
   </td>
   <td class="dehead" align="right">
-        <?php echo text(formatcyp($rowcyp)); ?>
+            <?php echo text(formatcyp($rowcyp)); ?>
   </td>
   <td class="dehead" align="right">
-        <?php echo text(formatcyp($rowresult)); ?>
+            <?php echo text(formatcyp($rowresult)); ?>
   </td>
  </tr>
-<?php
+            <?php
         } // End not csv export
     } // end details
     $producttotal += $rowresult;
@@ -167,7 +167,7 @@ if ($_POST['form_csvexport']) {
         echo '"Result"' . "\n";
     }
 } else { // not export
-?>
+    ?>
 <html>
 <head>
 
@@ -208,25 +208,25 @@ if ($_POST['form_csvexport']) {
 
  <tr>
   <td>
-<?php
+    <?php
   // Build a drop-down list of facilities.
   //
-  $query = "SELECT id, name FROM facility ORDER BY name";
-  $fres = sqlStatement($query);
-  echo "   <select name='form_facility'>\n";
-  echo "    <option value=''>-- All Facilities --\n";
-while ($frow = sqlFetchArray($fres)) {
-    $facid = $frow['id'];
-    echo "    <option value='" . attr($facid) . "'";
-    if ($facid == $form_facility) {
-        echo " selected";
+    $query = "SELECT id, name FROM facility ORDER BY name";
+    $fres = sqlStatement($query);
+    echo "   <select name='form_facility'>\n";
+    echo "    <option value=''>-- All Facilities --\n";
+    while ($frow = sqlFetchArray($fres)) {
+        $facid = $frow['id'];
+        echo "    <option value='" . attr($facid) . "'";
+        if ($facid == $form_facility) {
+            echo " selected";
+        }
+
+        echo ">" . text($frow['name']) . "\n";
     }
 
-    echo ">" . text($frow['name']) . "\n";
-}
-
-  echo "   </select>\n";
-?>
+    echo "   </select>\n";
+    ?>
    &nbsp;<?xl('From:','e')?>
    <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
    &nbsp;To:
@@ -255,12 +255,12 @@ while ($frow = sqlFetchArray($fres)) {
   <td class="dehead">
     <?php echo xlt('Item') ?>
   </td>
-<?php if ($_POST['form_details']) { ?>
+    <?php if ($_POST['form_details']) { ?>
   <td class="dehead">
-    <?php echo xlt('Date') ?>
+        <?php echo xlt('Date') ?>
   </td>
   <td class="dehead">
-    <?php echo xlt('Invoice') ?>
+        <?php echo xlt('Invoice') ?>
   </td>
 <?php } ?>
   <td class="dehead" align="right">
@@ -273,7 +273,7 @@ while ($frow = sqlFetchArray($fres)) {
     <?php echo xlt('Result') ?>
   </td>
  </tr>
-<?php
+    <?php
 } // end not export
 
 // If generating a report.
@@ -363,7 +363,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . formatcyp($producttotal) . '"' . "\n";
         }
     } else {
-    ?>
+        ?>
 
    <tr bgcolor="#ddddff">
     <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
@@ -404,13 +404,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 } // end report generation
 
 if (! $_POST['form_csvexport']) {
-?>
+    ?>
 
 </table>
 </form>
 </center>
 </body>
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

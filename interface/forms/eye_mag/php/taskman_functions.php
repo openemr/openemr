@@ -397,7 +397,7 @@ function make_document($task)
                     <td class='col2'>
                     <?php if ($from_data['name']) {
                         echo text($from_data['name'])."<br />";
-} ?>
+                    } ?>
                     <?php echo text($from_data['street']); ?><br />
                     <?php echo text($from_data['city']); ?>, <?php echo text($from_data['state'])." ".text($from_data['zip']); ?>
                         <br />
@@ -456,17 +456,17 @@ function make_document($task)
                     </tr>
             </table>
         </div>
-    <?php
-    echo '<page></page><div style="page-break-after:always; clear:both"></div>';
+        <?php
+        echo '<page></page><div style="page-break-after:always; clear:both"></div>';
     }
 
-        // 	If the doc_id does exit, why remake it?
-        //	We could just add another attachment, stopping here at the coversheet, and adding the doc_name that we sent...
-        //	No.  We actually need a physical copy of what we sent, since the report itself can be overwritten.  Keep it legal.
-        //	Unless the Report.pdf can be merged with the cover sheet.  Until then, just redo it all.
+        //  If the doc_id does exit, why remake it?
+        //  We could just add another attachment, stopping here at the coversheet, and adding the doc_name that we sent...
+        //  No.  We actually need a physical copy of what we sent, since the report itself can be overwritten.  Keep it legal.
+        //  Unless the Report.pdf can be merged with the cover sheet.  Until then, just redo it all.
         $tmp_files_remove = array();
         echo narrative($pid, $encounter, $task['DOC_TYPE'], $form_id);
-        ?>
+    ?>
     </body>
     </html>
     <?php

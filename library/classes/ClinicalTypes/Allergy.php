@@ -41,12 +41,12 @@ class Allergy extends ClinicalType
     }
     
     /*
-     * 	Check to see if a patient had an allergy to THIS thing between $beginDate and $endDate
-     * 	$beginDate and $endDate can be the same, indicating a check for allergy on particular date
-     * 
-     * 	@param	(RsPatient) $patient	Patient to check
-     * 	@param	(date) $beginDate		Lower bound on date to check for allergy
-     * 	@param	(date) $endDate			Upper bound on date to check for allergy
+     *  Check to see if a patient had an allergy to THIS thing between $beginDate and $endDate
+     *  $beginDate and $endDate can be the same, indicating a check for allergy on particular date
+     *
+     *  @param  (RsPatient) $patient    Patient to check
+     *  @param  (date) $beginDate       Lower bound on date to check for allergy
+     *  @param  (date) $endDate         Upper bound on date to check for allergy
      */
     public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {

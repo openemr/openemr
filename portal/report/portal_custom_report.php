@@ -187,10 +187,10 @@ input[type="checkbox"], input[type="radio"] {
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript">var $j = jQuery.noConflict();</script>
 
-<?php // if the track_anything form exists, then include the styling
-if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
+    <?php // if the track_anything form exists, then include the styling
+    if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-<?php  } ?>
+    <?php  } ?>
 
 <script type="text/javascript">
 
@@ -533,15 +533,15 @@ if ($printable) {
     }
     ?>
     <h2><?php echo text($facility['name']); ?></h2>
-<?php echo text($facility['street']); ?><br>
-<?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
-<?php echo $facility['phone'] ?><br>
+    <?php echo text($facility['street']); ?><br>
+    <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
+    <?php echo $facility['phone'] ?><br>
 
 <a href="javascript:window.close();"><span class='title'><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br>
 <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
 <br><br>
 
-<?php
+    <?php
 } else { // not printable
     ?>
 
@@ -902,9 +902,7 @@ foreach ($ar as $key => $val) {
                 } // end if-else
             } // end Documents loop
             echo "</div>";
-        } // Procedures is an array of checkboxes whose values are procedure order IDs.
-        //
-        else if ($key == "procedures") {
+        } else if ($key == "procedures") { // Procedures is an array of checkboxes whose values are procedure order IDs.
             if ($auth_med) {
                 echo "<hr />";
                 echo "<div class='text documents'>";
@@ -1087,7 +1085,7 @@ if ($PDF_OUTPUT) {
         unlink($tmp_file);
     }
 } else {
-?>
+    ?>
 </body>
 </html>
 <?php } ?>

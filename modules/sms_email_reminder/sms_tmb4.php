@@ -1,6 +1,6 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Class:	TM4B SMS Api
+// Class:   TM4B SMS Api
 // Usage:
 // <code>
 // require_once("sms_tm4b.php");
@@ -8,9 +8,9 @@
 // $sms->send("123456789","sender","message");
 // </code>
 //
-// Package:	sms_tm4b
-// Created by:	Avasiloaei Dorin
-// Modified by:	Larry Lart
+// Package: sms_tm4b
+// Created by:  Avasiloaei Dorin
+// Modified by: Larry Lart
 ////////////////////////////////////////////////////////////////////
 class sms
 {

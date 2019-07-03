@@ -542,7 +542,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         if (isset($fs)) {
         // jsLineItemValidation() function for the fee sheet stuff.
             echo $fs->jsLineItemValidation('form_fs_bill', 'form_fs_prod');
-        ?>
+            ?>
 
         // Add a service line item.
         function fs_append_service(code_type, code, desc, price) {
@@ -735,7 +735,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
 <body class="body_top"<?php if ($from_issue_form) {
     echo " style='background-color:#ffffff'";
-} ?>>
+                      } ?>>
 <div class='container'>
     <?php
     echo "<form method='post' " .
@@ -813,7 +813,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             die(text($portalres['errmsg']));
         }
     }
-            ?>
+    ?>
 
             <!-- This is where a chart might display. -->
             <div id="chart"></div>

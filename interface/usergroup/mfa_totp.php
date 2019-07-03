@@ -92,7 +92,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                     </div>
                 </div>
             </div>
-    <?php
+        <?php
     } ?>    <div class="row">
                 <div class="col-sm-12">
                     <form method='post' class="form-horizontal" action='mfa_totp.php' onsubmit='return top.restoreSession()'>
@@ -130,7 +130,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                     </div>
                                 </div>
                             </div>
-                    <?php
+                            <?php
                         // step 2 is to validate password and display qr code
                         } elseif ($action == 'reg2') {
                             if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -212,7 +212,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                     </div>
                                 </div>
                             </div>
-                    <?php
+                            <?php
                         // step 3 is to save the qr code
                         } elseif ($action == 'reg3') {
                             if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {

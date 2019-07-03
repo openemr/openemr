@@ -39,10 +39,10 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
 <font class=more><?php echo text($tback); ?></font></a>
 
 <?php
-//	billing
-//	forms
-//	pnotes
-//	transactions
+//  billing
+//  forms
+//  pnotes
+//  transactions
 
 //fetch billing information:
 if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user from billing LEFT JOIN users as u on billing.user = u.id where billing.authorized=0 and groupname=?", array ($groupname))) {
@@ -79,8 +79,7 @@ if ($res = sqlStatement("select * from transactions where authorized=0 and group
 if (empty($GLOBALS['ignore_pnotes_authorization'])) {
   //fetch pnotes information, exclude ALL deleted notes
     if ($res = sqlStatement("select * from pnotes where authorized=0 and deleted!=1 and groupname=?", array($groupname))) {
-        for ($iter = 0; $row = sqlFetchArray($res);
-        $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result3[$iter] = $row;
         }
 

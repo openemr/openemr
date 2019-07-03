@@ -61,7 +61,7 @@ if (empty($order)) {
     $provLabId = getLabconfig();
 
 
-    ?>
+?>
 
 <!DOCTYPE html>
 <html>
@@ -181,7 +181,7 @@ table, th, td {
             <?php echo text($pp['organization'])."</br>".
             text($pp['street'])." | ".text($pp['city']).", ".text($pp['state'])." ".text($pp['zip'])."</br>".
             "O:".text($pp['phone'])." | F:".text($pp['fax'])."</br>";
-                    ?></font></p>
+            ?></font></p>
 
            </div>
         </div>
@@ -243,8 +243,8 @@ table, th, td {
                         <?php echo "/"; ?></br>
                         <?php if (!empty($responsibleParty)) {
                             echo 'self';}
-if (!empty($ins[0]['subscriber_relationship']) && $ins[0]['subscriber_relationship'] == 'child') {
-    echo xlt("Parent");}
+                        if (!empty($ins[0]['subscriber_relationship']) && $ins[0]['subscriber_relationship'] == 'child') {
+                            echo xlt("Parent");}
 
                         ?></br>
 
@@ -271,8 +271,8 @@ if (!empty($ins[0]['subscriber_relationship']) && $ins[0]['subscriber_relationsh
                     <div class="pFill">
                         <?php if (empty($ins[0]['name'])) {
                             echo "Patient Bill";
-} else {
-    echo xlt("Insurance");} ?></br>
+                        } else {
+                            echo xlt("Insurance");} ?></br>
                         <?php echo "/"; ?></br>
                         <?php echo text($ins[0]['name']); ?></br>
                         <?php echo text($ins[0]['line1']); ?></br>
@@ -303,9 +303,9 @@ if (!empty($ins[0]['subscriber_relationship']) && $ins[0]['subscriber_relationsh
                      <div class="pFill">
                         <?php if (empty($ins[1]['name'])) {
                             echo " ";
-} else {
-    echo xlt("Insurance");
-}; ?></br>
+                        } else {
+                            echo xlt("Insurance");
+                        }; ?></br>
                         <?php echo "/"; ?></br>
                         <?php echo text($ins[1]['name']); ?></br>
                         <?php echo text($ins[1]['line1']); ?></br>

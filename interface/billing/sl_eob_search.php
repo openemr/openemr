@@ -1034,7 +1034,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
                                     "matching encounters in OpenEMR. ";
                             }
-                        ?>
+                            ?>
                         <table class="table table-striped table-condensed">
                             <thead>
                             <tr>
@@ -1086,8 +1086,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 // yet closed out insurance.
                                 //
                                 if (!$duncount) {
-                                    for ($i = 1; $i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i);
-                                         ++$i) {
+                                    for ($i = 1; $i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i); ++$i) {
                                     }
                                     $duncount = $row['last_level_closed'] + 1 - $i;
                                 }
@@ -1174,7 +1173,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 <?php
                             } // end while
                         } // end search/print logic
-                            ?>
+                        ?>
                         </table>
                     </div><!--End of table-responsive div-->
                 </fieldset>

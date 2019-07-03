@@ -47,8 +47,7 @@ class FeeSheetHtml extends FeeSheet
         if ($GLOBALS['gbl_restrict_provider_facility']) {
             $query .= " AND ( facility_id = 0 OR facility_id = ? )";
             $query .= " ORDER BY lname, fname";
-        } // If not restricting then sort the matching providers first.
-        else {
+        } else { // If not restricting then sort the matching providers first.
             $query .= " ORDER BY (facility_id = ?) DESC, lname, fname";
         }
 

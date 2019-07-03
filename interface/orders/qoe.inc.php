@@ -137,32 +137,32 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
 
             $s .= "</select>";
             $s .= " " . xlt('days');
-        } // Possible alternative code instead of radio buttons and checkboxes.
-        // Might use this for cases where the list of choices is large.
-        /*****************************************************************
-      else {
-        // Single- or multi-select list.
-        $multiple = false;
-        if (substr($options, 0, 2) == '+;') {
-        $multiple = true;
-        $options = substr($options, 2);
-        }
-        $s .= "<select name='$qfieldid'";
-        if ($multiple) $s .= " multiple";
-        $s .= ">";
-        $a = explode(';', $qrow['options']);
-        foreach ($a as $aval) {
-        list($desc, $code) = explode(':', $aval);
-        if (empty($code)) $code = $desc;
-        $s .= "<option value='" . attr($code) . "'";
-        if (in_array($code, $answers)) $s .= " selected";
-        $s .= ">" . text($desc) . "</option>";
-        }
-        $s .= "</select>";
-      }
-        *****************************************************************/
 
-        else if ($fldtype == 'M') {
+            // Possible alternative code instead of radio buttons and checkboxes.
+            // Might use this for cases where the list of choices is large.
+            /*****************************************************************
+            else {
+            // Single- or multi-select list.
+            $multiple = false;
+            if (substr($options, 0, 2) == '+;') {
+            $multiple = true;
+            $options = substr($options, 2);
+            }
+            $s .= "<select name='$qfieldid'";
+            if ($multiple) $s .= " multiple";
+            $s .= ">";
+            $a = explode(';', $qrow['options']);
+            foreach ($a as $aval) {
+            list($desc, $code) = explode(':', $aval);
+            if (empty($code)) $code = $desc;
+            $s .= "<option value='" . attr($code) . "'";
+            if (in_array($code, $answers)) $s .= " selected";
+            $s .= ">" . text($desc) . "</option>";
+            }
+            $s .= "</select>";
+            }
+             *****************************************************************/
+        } else if ($fldtype == 'M') {
             // List of checkboxes.
             $a = explode(';', $qrow['options']);
             $i = 0;

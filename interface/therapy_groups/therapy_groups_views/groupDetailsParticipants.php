@@ -38,7 +38,7 @@
                             <?php if ($edit_encounter) :?>
                                 <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                             <?php endif;?>
-                        <?php if ($readonly == '') : ?>
+                            <?php if ($readonly == '') : ?>
                             <button  onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupId); ?>'"><?php echo xlt('Cancel');?></button>
                             <button  id="saveForm"><?php echo xlt('Save');?></button>
                         <?php else : ?>
@@ -141,7 +141,7 @@
                                                             <?php foreach ($statuses as $key => $status) : ?>
                                                                 <option value="<?php echo attr($key);?>" <?php if ($key == $participant['group_patient_status']) {
                                                                     echo 'selected';
-} ?> > <?php echo text($status); ?> </option>
+                                                                               } ?> > <?php echo text($status); ?> </option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </td>
@@ -293,25 +293,24 @@
     <?php
     if (sqlNumRows($result4)>0) {
         while ($rowresult4 = sqlFetchArray($result4)) {
-        ?>
+            ?>
         EncounterIdArray[Count]=<?php echo js_escape($rowresult4['encounter']); ?>;
     EncounterDateArray[Count]=<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
     CalendarCategoryArray[Count]=<?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
     Count++;
-    <?php
+            <?php
         }
     }
     ?>
     top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
 
 </script>
-<?php    $use_validate_js = 1;?>
-<?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupParticipants');?>
+    <?php    $use_validate_js = 1;?>
+    <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupParticipants');?>
 <script src="<?php echo $GLOBALS['webroot']?>/library/dialog.js"></script>
-<?php require 'footer.php'; ?>
+    <?php require 'footer.php'; ?>
 
 <?php else :?>
-
     <div class="container">
 
         <div class="row alert alert-info">

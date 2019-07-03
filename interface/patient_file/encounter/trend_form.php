@@ -137,7 +137,7 @@ $(function (){
 
   // show blood pressure graph by default
 <?php if ($is_lbf) { ?>
-<?php if (!empty($default)) { ?>
+    <?php if (!empty($default)) { ?>
   show_graph(<?php echo js_escape($formname); ?>,<?php echo js_escape($default['field_id']); ?>,<?php echo js_escape($default['title']); ?>);
 <?php } ?>
 <?php } else { ?>

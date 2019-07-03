@@ -308,7 +308,7 @@ WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_o
             </td>
         </tr>
 </table>
-    <?php
+        <?php
     } else {
         echo htmlspecialchars(xl('NO SUCH CONTEXT NAME') . $contextName, ENT_QUOTES);
     }

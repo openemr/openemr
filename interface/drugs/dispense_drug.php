@@ -213,7 +213,7 @@ if (false) { // if PDF output is desired
     $pdf->ezText($label_text, 9, array('justification'=>'center'));
     $pdf->ezStream();
 } else { // HTML output
-?>
+    ?>
 <html>
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <head>
@@ -260,6 +260,6 @@ body {
 </script>
 </body>
 </html>
-<?php
+    <?php
 }
 ?>

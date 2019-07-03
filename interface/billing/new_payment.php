@@ -460,7 +460,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                         <br>
                         <?php
                         if ($payment_id*1>0) {
-                        ?>
+                            ?>
                             <?php
                             if ($PaymentType=='patient' && $default_search_patient != "default_search_patient") {
                                 $default_search_patient = "default_search_patient";
@@ -473,8 +473,8 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                             ?>
                             <?php
                             if ($CountIndexBelow>0) {
-                            ?>
-                            <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
+                                ?>
+                                <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                             <div class="form-group clearfix">
                             <div class="col-sm-12 text-left position-override">
                                 <div class="btn-group btn-group-pinch" role="group">
@@ -484,10 +484,10 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                                 </div>
                             </div>
                             </div>
-                            <?php
+                                <?php
                             }//if($CountIndexBelow>0)
                             ?>
-                        <?php
+                            <?php
                         }
                         ?>
                     </fieldset>

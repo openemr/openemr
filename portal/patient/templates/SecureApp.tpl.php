@@ -27,7 +27,6 @@
     <!-- #### this view/tempalate is used for multiple pages.  the controller sets the 'page' variable to display differnet content ####  -->
 
     <?php if ($this->page == 'login') { ?>
-
         <div class="hero-unit">
             <h1><?php echo xlt('Login'); ?></h1>
             <p><?php echo xlt('This portals authentication.'); ?> <strong><?php echo xlt('Your credentials are provided by your provider'); ?></strong>.</p>
@@ -56,7 +55,6 @@
         </form>
 
     <?php } else { ?>
-
         <div class="hero-unit">
             <h1>Secure <?php $this->eprint($this->page == 'userpage' ? 'Patient' : 'Provider'); ?> Page</h1>
             <p>This page is accessible only to <?php $this->eprint($this->page == 'userpage' ? 'authenticated patients' : 'administrators'); ?>.

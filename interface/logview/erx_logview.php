@@ -121,10 +121,10 @@ if (array_key_exists('search_logs', $_POST)) {
                 $check_for_file = 1;
                 $fd = fopen($error_log_path.'/'.$file, 'r');
                 $bat_content = fread($fd, filesize($error_log_path.'/'.$file));
-?>
+                ?>
                 <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr_url($file); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"><?php echo text($file); ?></a></p>
                 <textarea rows="35" cols="132"><?php echo text($bat_content); ?></textarea>
-<?php
+                <?php
             }
         }
     }

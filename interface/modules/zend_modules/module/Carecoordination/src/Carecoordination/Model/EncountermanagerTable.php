@@ -118,10 +118,10 @@ class EncountermanagerTable extends AbstractTableGateway
     /*
     * Convert date from database format to required format
     *
-    * @param	String		$date		Date from database (format: YYYY-MM-DD)
-    * @param	String		$format		Required date format
+    * @param    String      $date       Date from database (format: YYYY-MM-DD)
+    * @param    String      $format     Required date format
     *
-    * @return	String		$formatted_date	New formatted date
+    * @return   String      $formatted_date New formatted date
     */
     public function date_format($date, $format)
     {
@@ -358,9 +358,9 @@ class EncountermanagerTable extends AbstractTableGateway
     /*
     * Save new user with abook type emr_direct
     *
-    * @param	String		first name
-    * @param	String		last name
-    * @param	String		direct address
+    * @param    String      first name
+    * @param    String      last name
+    * @param    String      direct address
     *
     */
     public function AddNewUSer($data = array())

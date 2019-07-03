@@ -108,7 +108,7 @@ function download_file()
 
         if ($reIdentificationStatus == 1) {
             //1 - A Re Identification process is currently in progress
-                ?>
+            ?>
         <table>
         <tr>
             <td>&nbsp;</td>
@@ -142,7 +142,7 @@ function download_file()
                 <?php
         } else if ($reIdentificationStatus == 0) {
            //0 - There is no Re Identification in progress. (start new Re Identification process)
-                ?>
+            ?>
         <center></br>
         </br>
                 <?php echo xlt('Enter the Re Identification code'); ?> <input

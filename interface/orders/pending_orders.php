@@ -39,7 +39,7 @@ function thisLineItem($row)
         echo '"' . addslashes($row['priority_name' ]) . '",';
         echo '"' . addslashes($row['status_name'   ]) . '"' . "\n";
     } else {
-    ?>
+        ?>
    <tr>
     <td class="detail"><?php echo text($row['patient_name'  ]); ?></td>
     <td class="detail"><?php echo text($row['pubpid'        ]); ?></td>
@@ -49,7 +49,7 @@ function thisLineItem($row)
     <td class="detail"><?php echo text($row['priority_name' ]); ?></td>
     <td class="detail"><?php echo text($row['status_name'   ]); ?></td>
  </tr>
-<?php
+        <?php
     } // End not csv export
 }
 
@@ -82,7 +82,7 @@ if ($_POST['form_csvexport']) {
     echo '"' . xl('Priority') . '",';
     echo '"' . xl('Status') . '"' . "\n";
 } else { // not export
-?>
+    ?>
 <html>
 <head>
     <title><?php echo xlt('Pending Orders') ?></title>
@@ -160,7 +160,7 @@ if ($_POST['form_csvexport']) {
   <td class="dehead"><?php echo xlt('Priority'); ?></td>
   <td class="dehead"><?php echo xlt('Status'); ?></td>
  </tr>
-<?php
+    <?php
 } // end not export
 
 // If generating a report.
@@ -209,7 +209,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 } // end report generation
 
 if (! $_POST['form_csvexport']) {
-?>
+    ?>
 
 </table>
 </form>
@@ -217,6 +217,6 @@ if (! $_POST['form_csvexport']) {
 </body>
 
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

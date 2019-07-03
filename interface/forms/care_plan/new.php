@@ -139,7 +139,7 @@ endforeach;
                     <?php
                     if (!empty($check_res)) {
                         foreach ($check_res as $key => $obj) {
-                    ?>
+                            ?>
                     <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
                     <div class="form-group">
                         <div class=" forms col-xs-3">
@@ -175,10 +175,10 @@ endforeach;
                         <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>">
                     </div>
                     </div>
-                    <?php
+                            <?php
                         }
                     } else {
-                    ?>
+                        ?>
                     <div class="tb_row" id="tb_row_1">
                         <div class="form-group">
                             <div class=" forms col-xs-3">

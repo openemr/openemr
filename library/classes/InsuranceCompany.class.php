@@ -1,6 +1,6 @@
 <?php
 /************************************************************************
-  			InsuranceCompany.php - Copyright duhlman
+            InsuranceCompany.php - Copyright duhlman
 
 
 
@@ -55,18 +55,18 @@ class InsuranceCompany extends ORDataObject
     var $x12_default_partner_id;
     var $x12_default_eligibility_id;
     /*
-	*	OpenEMR used this value to determine special formatting for the specified type of payer.
-	*	This value is a mutually exclusive choice answering the FB.Payer.isX API calls
-	*	It references a set of constant defined in this file INS_TYPE_XXX
-	*	Defaults to type INS_TYPE_OTHER_HCFA
-	*	@var int Holds constant for type of payer as far as INS is concerned, see FB.Payer.isXXX API calls
-	*/
+    *   OpenEMR used this value to determine special formatting for the specified type of payer.
+    *   This value is a mutually exclusive choice answering the FB.Payer.isX API calls
+    *   It references a set of constant defined in this file INS_TYPE_XXX
+    *   Defaults to type INS_TYPE_OTHER_HCFA
+    *   @var int Holds constant for type of payer as far as INS is concerned, see FB.Payer.isXXX API calls
+    */
     var $ins_type_code;
 
     /*
-	*	Array used to populate select dropdowns or other form elements, it must coincide with the INS_TYPE_XXX constants
-	*	@var array Values are display strings that match constants for FB.Payer.isXXX payer types, used for populating select dropdowns, etc
-	*/
+    *   Array used to populate select dropdowns or other form elements, it must coincide with the INS_TYPE_XXX constants
+    *   @var array Values are display strings that match constants for FB.Payer.isXXX payer types, used for populating select dropdowns, etc
+    */
     var $ins_type_code_array = array('','Other HCFA'
                                         ,'Medicare Part B'
                                         ,'Medicaid'

@@ -459,39 +459,39 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         </td>
     </tr>
 
-    <?php
-    if ($patient_id && $incl_reminders) {
-        // collect reminders first, so can skip it if empty
-        $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
-    }
-    ?>
-    <?php
-    if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
+        <?php
+        if ($patient_id && $incl_reminders) {
+            // collect reminders first, so can skip it if empty
+            $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
+        }
+        ?>
+        <?php
+        if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
     <tr valign='top' id='p2.<?php echo attr($patient_id) ?>' >
        <td colspan=<?php echo $showDate ? '"3"' : '"2"' ?> class="detail" />
        <td colspan=<?php echo ($incl_reminders ? "3":"6") ?> class="detail" align='left'>
-        <?php
-        if (trim($appointment['pc_hometext'])) {
-            echo '<b>'.xlt('Comments') .'</b>: '.text($appointment['pc_hometext']);
-        }
-
-        if ($incl_reminders) {
-            echo "<td class='detail' colspan='3' align='left'>";
-            $new_line = '';
-            foreach ($rems as $rem_due => $rem_items) {
-                echo "$new_line<b>$rem_due</b>: ".attr($rem_items);
-                $new_line = '<br>';
+            <?php
+            if (trim($appointment['pc_hometext'])) {
+                echo '<b>'.xlt('Comments') .'</b>: '.text($appointment['pc_hometext']);
             }
 
-            echo "</td>";
-        }
-        ?>
+            if ($incl_reminders) {
+                echo "<td class='detail' colspan='3' align='left'>";
+                $new_line = '';
+                foreach ($rems as $rem_due => $rem_items) {
+                    echo "$new_line<b>$rem_due</b>: ".attr($rem_items);
+                    $new_line = '<br>';
+                }
+
+                echo "</td>";
+            }
+            ?>
         </td>
     </tr>
-    <?php
-    } // End of row 2 display
+            <?php
+        } // End of row 2 display
 
-    $lastdocname = $docname;
+        $lastdocname = $docname;
     }
 
     // assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.

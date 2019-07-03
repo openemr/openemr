@@ -79,8 +79,8 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
         <div class="button_wrap">
             <span class='title'><?php echo xlt('Group Attendance Form'); ?></span>
             <input class="button-css add_button" type="button" value="<?php echo xla('Add'); ?>" <?php if (!$can_edit) {
-?> disabled <?php
-} ?> >
+                ?> disabled <?php
+                                                                      } ?> >
         </div>
         <div id="add_participant_element"  style="display: none;">
             <div class="patient_wrap">
@@ -117,19 +117,19 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 <td ><?php echo text($participant['pid']); ?></td>
                 <td >
                     <select class="status_select" name="<?php echo "patientData[" . attr($participant['pid']) . "][status]" ;?>" <?php if (!$can_edit) {
-?> disabled <?php
-} ?> >
+                        ?> disabled <?php
+                                                        } ?> >
                         <?php foreach ($statuses_in_meeting as $status_in_meeting) {?>
                             <option value="<?php echo attr($status_in_meeting['option_id']); ?>" <?php if ($participant['meeting_patient_status'] == $status_in_meeting['option_id']) {
                                 echo 'selected';
-}?> > <?php echo xlt($status_in_meeting['title']); ?></option>
+                                           }?> > <?php echo xlt($status_in_meeting['title']); ?></option>
                         <?php } ?>
                     </select>
                 </td>
                 <td >
                     <input class="comment" type="text" name="<?php echo "patientData[" . attr($participant['pid']) . "][comment]";  ?>" value="<?php echo attr($participant['meeting_patient_comment']) ;?>" <?php if (!$can_edit) {
-?> disabled <?php
-} ?> ></input>
+                        ?> disabled <?php
+                                                             } ?> ></input>
                 </td>
             </tr>
         <?php } ?>
@@ -137,8 +137,8 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
     </table>
     <div class="action_buttons">
         <input name="submit" class="button-css" type="submit" value="<?php echo xla('Save'); ?>" <?php if (!$can_edit) {
-?> disabled <?php
-} ?> >
+            ?> disabled <?php
+                                                                     } ?> >
         <input class="button-css cancel" type="button" value="<?php echo xla('Cancel'); ?>">
     </div>
 </form>

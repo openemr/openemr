@@ -167,14 +167,14 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
                         while ($row = sqlFetchArray($res)) {
                             $i++;
                             $class = ($class=='class1') ? 'class2' : 'class1';
-                        ?>
+                            ?>
                             <tr class="text <?php echo $class;?>">
                                 <td class="right bottom left"><?php echo htmlspecialchars($i, ENT_QUOTES);?></td>
                                 <td class="right bottom"><?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES);?></td>
                                 <td class="right bottom"><a href="#" onclick='editme("<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES);?>","<?php echo htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES);?>")'><img src='<?php echo $GLOBALS['images_static_relative']; ?>/b_edit.png' border=0></a></td>
                                 <td class="right bottom"><a href="#" onclick="deleteme(<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES);?>)"><img src='<?php echo $GLOBALS['images_static_relative']; ?>/deleteBtn.png' border=0></a></td>
                             </tr>
-                        <?php
+                            <?php
                         }
                         ?>
                     </table>

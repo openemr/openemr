@@ -36,8 +36,8 @@ function addPortalMailboxPnote(
     $pname = $_SESSION['ptName']?$_SESSION['ptName']:$user;
 
     /* $body =  " ($pname";
-	if ($assigned_to) $body .= " to $assigned_to";
-	$body = $body . ') ' . $newtext; */
+    if ($assigned_to) $body .= " to $assigned_to";
+    $body = $body . ') ' . $newtext; */
 
     $body = $newtext;
 

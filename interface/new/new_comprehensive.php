@@ -456,8 +456,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         global $cell_count, $CPR;
                         end_cell();
                         if ($cell_count > 0) {
-                            for (; $cell_count < $CPR;
-                            ++$cell_count) {
+                            for (; $cell_count < $CPR; ++$cell_count) {
                                 echo "<td></td>";
                             }
 
@@ -617,7 +616,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                         for ($i=1; $i<=3; $i++) {
                             $result3 = $insurance_info[$i];
-                        ?>
+                            ?>
                         <table border="0">
                             <tr>
                                 <td valign='top' colspan='2'>
@@ -793,7 +792,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             </tr>
                         </table>
                         <hr />
-                        <?php
+                            <?php
                         }
 
                         echo "</div>\n";
@@ -824,7 +823,6 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 // hard code validation for old validation, in the new validation possible to add match rules
 <?php if ($GLOBALS['new_validate'] == 0) { ?>
-
 // fix inconsistently formatted phone numbers from the database
 var f = document.forms[0];
 if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
@@ -900,7 +898,7 @@ $(function () {
 
             $mflist .= js_escape($field_id);
         }
-?>
+        ?>
         <?php if (($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive())) :?>
             // Use zend module patient validation hook to open the controller and send the dup-checker fields.
             var url ='<?php echo $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation"; ?>';

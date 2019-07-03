@@ -91,7 +91,7 @@ while ($row = sqlFetchArray($res)) {
           <th> <?php echo xlt('As Of'); ?> </th>
      </thead>
      <tbody>
-    <?php
+        <?php
     } ?>
 
  <tr>
@@ -108,14 +108,14 @@ while ($row = sqlFetchArray($res)) {
     <?php echo text(oeFormatDateTime($row['ct_when'], "global", true)); ?>
   </td>
  </tr>
-<?php
+    <?php
 
-$data_ctr++;
+    $data_ctr++;
 } // end while
 
 if ($data_ctr < 1) { ?>
 <span class='text'><?php echo xla('There are no charts checked out.'); ?></span>
-<?php
+    <?php
 }
 ?>
 

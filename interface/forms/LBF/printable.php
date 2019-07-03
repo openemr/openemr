@@ -166,7 +166,7 @@ div.section {
   // is likely to happen (i.e. where all form options are listed).
   // TODO - now use mPDF, so should test if still need this fix
 if (!$isblankform) {
-?>
+    ?>
 border-style: solid;
 border-width: 1px;
 border-color: #ffffff #ffffff #ffffff #ffffff;
@@ -295,8 +295,7 @@ function end_row()
     global $cell_count, $CPR;
     end_cell();
     if ($cell_count > 0) {
-        for (; $cell_count < $CPR;
-        ++$cell_count) {
+        for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
         }
 
@@ -606,7 +605,7 @@ if ($PDF_OUTPUT) {
     $pdf->writeHTML($content);
     $pdf->Output('form.pdf', 'I'); // D = Download, I = Inline
 } else {
-?>
+    ?>
 <script language='JavaScript'>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);

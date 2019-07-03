@@ -1,6 +1,6 @@
 <?php
 /************************************************************************
-  			phone_number.php - Copyright duhlman
+            phone_number.php - Copyright duhlman
 
 /usr/share/apps/umbrello/headings/heading.php
 
@@ -210,5 +210,5 @@ $p = new PhoneNumber(true);
 
 $ps = PhoneNumber::factory_phone_numbers(55);
 foreach($ps as $p) {
-	echo $p->toString(true);
+    echo $p->toString(true);
 }*/

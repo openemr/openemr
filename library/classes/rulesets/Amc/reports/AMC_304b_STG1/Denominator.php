@@ -20,7 +20,7 @@
  * @author  Ensoftek
  * @link    http://www.open-emr.org
  */
-// Denominator: 
+// Denominator:
 // Number of prescriptions written for drugs requiring a prescription in order to be
 // dispensed other than controlled substances during the EHR reporting period
 

@@ -133,16 +133,16 @@ do {
 
     // complex type should go in different find and should be included in createCCR.php
 /*
-	function sourceType($ccr, $uuid){
-		
-		$e_Source = $ccr->createElement('Source');
-		
-		$e_Actor = $ccr->createElement('Actor');
-		$e_Source->appendChild($e_Actor);
-		
-		$e_ActorID = $ccr->createElement('ActorID',$uuid);
-		$e_Actor->appendChild($e_ActorID);
-		
-		return $e_Source;
-	}
+    function sourceType($ccr, $uuid){
+
+        $e_Source = $ccr->createElement('Source');
+
+        $e_Actor = $ccr->createElement('Actor');
+        $e_Source->appendChild($e_Actor);
+
+        $e_ActorID = $ccr->createElement('ActorID',$uuid);
+        $e_Actor->appendChild($e_ActorID);
+
+        return $e_Source;
+    }
 */

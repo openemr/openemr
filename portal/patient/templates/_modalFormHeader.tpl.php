@@ -15,7 +15,7 @@
 <meta charset="utf-8">
 
 <title><?php $this->eprint($this->title); ?></title>
-<meta content="width=device-width, initial-scale=1, user-scalable=no"	name="viewport">
+<meta content="width=device-width, initial-scale=1, user-scalable=no"   name="viewport">
 
 
 <meta name="description" content="Patient Profile" />

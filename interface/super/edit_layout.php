@@ -521,29 +521,29 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . add_escape_custom(trim($_POST['gnewbackuplistid'])) . "'" .
       " )");
     addOrDeleteColumn($layout_id, trim($_POST['gnewid']), true);
-} /**********************************************************************
-else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
+
+    /**********************************************************************
+    else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
+    CsrfUtils::csrfNotVerified();
     }
 
     // drop the fields from the related table (this is critical)
     $res = sqlStatement("SELECT field_id FROM layout_options WHERE " .
-      "form_id = '" . $_POST['layout_id'] . "' ".
-      "AND group_name = '" . $_POST['deletegroupname'] . "'");
+    "form_id = '" . $_POST['layout_id'] . "' ".
+    "AND group_name = '" . $_POST['deletegroupname'] . "'");
     while ($row = sqlFetchArray($res)) {
-        addOrDeleteColumn($layout_id, $row['field_id'], false);
+    addOrDeleteColumn($layout_id, $row['field_id'], false);
     }
 
     // Delete an entire group from the form
     sqlStatement("DELETE FROM layout_options WHERE ".
-                " form_id = '".$_POST['layout_id']."' ".
-                " AND group_name = '".$_POST['deletegroupname']."'"
-                );
-}
-**********************************************************************/
-
-else if ($_POST['formaction'] == "movegroup" && $layout_id) {
+    " form_id = '".$_POST['layout_id']."' ".
+    " AND group_name = '".$_POST['deletegroupname']."'"
+    );
+    }
+     **********************************************************************/
+} else if ($_POST['formaction'] == "movegroup" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -571,8 +571,8 @@ else if ($_POST['formaction'] == "movegroup" && $layout_id) {
         }
         $id1 = $id2;
     }
-} // Renaming a group. This might include moving to a different parent group.
-else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
+} else if ($_POST['formaction'] == "renamegroup" && $layout_id) { // Renaming a group. This might include moving to a
+    // different parent group.
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -1326,7 +1326,7 @@ if ($lastgroup) {
 <input type='button' class='addgroup'  id='addgroup'  value='<?php echo xla('Add Group'); ?>' />
 <span style="font-size:90%"> &nbsp;
 <input type='button' class="btn btn-danger" name='save' id='save' value='<?php echo xla('Save Changes'); ?>' /></span> &nbsp;&nbsp;
-<?php echo xlt('With selected:');?>
+    <?php echo xlt('With selected:');?>
 <input type='button' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' style="font-size:90%" disabled="disabled" />
 <input type='button' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' style="font-size:90%" disabled="disabled" />
 <input type='button' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
@@ -1416,7 +1416,7 @@ while ($row = sqlFetchArray($res)) {
         echo "<input type='button' value='" . xla('Group Properties') . "' onclick='edit_layout_props(" . attr_js($group_id) . ")' />";
         echo "</div>";
         $firstgroup = false;
-    ?>
+        ?>
   <table class='table table-condensed table-striped'>
   <thead>
    <tr class='head'>
@@ -1424,10 +1424,10 @@ while ($row = sqlFetchArray($res)) {
     <th <?php echo " $lbfonly"; ?>style='width:5%'><?php echo xlt('Source'); ?></th>
     <th style='width:5%'><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
     <th style='width:10%'><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
-    <?php // if not english and showing layout label translations, then show translation header for title
-    if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-        echo "<th>" . xlt('Translation')."<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
-    } ?>
+        <?php // if not english and showing layout label translations, then show translation header for title
+        if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+            echo "<th>" . xlt('Translation')."<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
+        } ?>
       <th style='width:6%'><?php echo xlt('UOR'); ?></th>
       <th style='width:10%'><?php echo xlt('Data Type'); ?></th>
       <th style='width:1%'><?php echo xlt('Size'); ?></th>
@@ -1447,7 +1447,7 @@ while ($row = sqlFetchArray($res)) {
   </thead>
   <tbody>
 
-    <?php
+        <?php
     } // end if-group_name
 
     writeFieldLine($row);

@@ -232,8 +232,8 @@ function form_validate()
     echo xlt("variable to one to run de-identification upgrade script");
     echo "</br></br>";
     echo "([OPENEMR]/contrib/util/de_identification_upgrade.php)";
-} else {
-    echo xlt('Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process');?></p></br>
+   } else {
+       echo xlt('Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process');?></p></br>
         <table class="de_id_upgrade_login" align="center">
     <tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
     <tr valign="top">
@@ -256,7 +256,7 @@ function form_validate()
 
     </table>
 <p><input type='submit' name='form_submit' value="<?php echo xla('Upgrade Database');?>"  /></p>
-<?php } ?>
+    <?php } ?>
 </form>
 </center>
 </body>

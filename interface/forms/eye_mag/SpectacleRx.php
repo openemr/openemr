@@ -405,7 +405,7 @@ if ($_REQUEST['dispensed']) {
 
     </script>
 </head>
-<?php echo report_header($pid, "web"); ?>
+    <?php echo report_header($pid, "web"); ?>
 <div class="row">
     <div class="col-sm-8 offset-sm-2" style="margin:5;text-align:center;width:560px;">
         <table>
@@ -469,7 +469,7 @@ if ($_REQUEST['dispensed']) {
                         <td class="right bold"><b><?php echo xlt('Expiration Date'); ?>: </b></td>
                         <td>&nbsp;&nbsp;<?php
                             echo text($expir_date);
-                            ?>
+                        ?>
                         </td>
                     </tr>
 
@@ -593,7 +593,7 @@ if ($_REQUEST['dispensed']) {
                                         <td><?php echo text($row['ODDIAM']); ?></td>
                                         <?php
                                         if ($adds) {
-                                        ?>
+                                            ?>
                                         <td><?php echo text($row['ODADD']); ?></td>
                                         <?php } ?>
                                     </tr>
@@ -698,7 +698,7 @@ if ($_REQUEST['dispensed']) {
 }
 
    ob_start();
-    ?>
+?>
     <html>
     <head>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-1-10-2/jquery.js"></script>
@@ -1022,12 +1022,12 @@ if ($REFTYPE == "CTL") {
                                                         $ODMPDD || $ODMPDN || $OSMPDD || $OSMPDN || $BPDD || $BPDN ||
                                                         $LENS_MATERIAL || $LENS_TREATMENTS) {
                                                           $detailed = '1';
-                                                        ?><i class="fa fa-minus-square-o"></i><?php
+                                                    ?><i class="fa fa-minus-square-o"></i><?php
                                                 } else {
                                                     $detailed = '0';
                                                     ?><i class="fa fa-plus-square-o"></i><?php
                                                 }
-                                                    ?>
+                                                ?>
                                                 </span>
 
                                 </td>
@@ -1123,7 +1123,7 @@ if ($REFTYPE == "CTL") {
                                 </td>
                                 <td colspan="2">   <?php
                                     echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', array('style' => 'width:120px'));
-                                    ?>
+                                ?>
                                 </td>
                             </tr>
                             <tr>
@@ -1169,7 +1169,7 @@ if ($REFTYPE == "CTL") {
                                 <td><?php echo xlt('DIAM{{Diameter}}'); ?></td>
                                 <?php
                                 if ($adds) {
-                                ?>
+                                    ?>
                                 <td><?php echo xlt('ADD{{Bifocal Add}}'); ?></td>
                                 <?php } ?>
                             </tr>
@@ -1186,7 +1186,7 @@ if ($REFTYPE == "CTL") {
                                            value="<?php echo attr($ODDIAM); ?>"></td>
                                 <?php
                                 if ($adds) {
-                                ?>
+                                    ?>
                                 <td><input type=text id="CTLODADD" name="CTLODADD" value="<?php echo attr($ODADD); ?>">
                                 </td>
                                 <?php } ?>
@@ -1216,7 +1216,7 @@ if ($REFTYPE == "CTL") {
                                 <td><?php echo xlt('DIAM{{Diameter}}'); ?></td>
                                 <?php
                                 if ($adds) {
-                                ?>
+                                    ?>
                                 <td><?php echo xlt('ADD{{Bifocal Add}}'); ?></td>
                                 <?php } ?>
                             </tr>
@@ -1233,7 +1233,7 @@ if ($REFTYPE == "CTL") {
                                            value="<?php echo attr($OSDIAM); ?>"></td>
                                 <?php
                                 if ($adds) {
-                                ?>
+                                    ?>
                                 <td><input type=text id="CTLOSADD" name="CTLOSADD" value="<?php echo attr($OSADD); ?>"></td>
                                 <?php } ?>
                             </tr>

@@ -65,7 +65,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
                 $m_error_count++;
             }
         }
-    ?>
+        ?>
     </ul>
     <?php
     if ($m_error) {

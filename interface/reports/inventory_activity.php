@@ -196,7 +196,7 @@ function thisLineItem(
                     <?php echo text($secei); ?>
                 </td>
                 </tr>
-            <?php
+                <?php
             } // End not csv export
         }
 
@@ -219,7 +219,7 @@ function thisLineItem(
               getEndInventory(0, $last_warehouse_id);
             // Print first column total.
             if ($form_action != 'export') {
-            ?>
+                ?>
 
                 <tr bgcolor="#ffdddd">
                 <td class="detail">
@@ -388,9 +388,8 @@ if ($form_action == 'export') {
         echo '"' . esc4export(xl('Adjustments')) . '",';
         echo '"' . esc4export(xl('End')) . '"' . "\n";
     }
-} // end export
-else {
-?>
+} else { // end export
+    ?>
 <html>
 <head>
 <title><?php echo xlt('Inventory Activity'); ?></title>
@@ -501,25 +500,25 @@ table.mymaintable td, table.mymaintable th {
         <?php echo xlt('For'); ?>:
      </td>
      <td nowrap>
-<?php
+    <?php
 // Build a drop-down list of products.
 //
-$query = "SELECT drug_id, name FROM drugs ORDER BY name, drug_id";
-$pres = sqlStatement($query);
-echo "      <select name='form_product'>\n";
-echo "       <option value=''>-- " . xlt('All Products') . " --\n";
-while ($prow = sqlFetchArray($pres)) {
-    $drug_id = $prow['drug_id'];
-    echo "       <option value='" . attr($drug_id) . "'";
-    if ($drug_id == $form_product) {
-        echo " selected";
+    $query = "SELECT drug_id, name FROM drugs ORDER BY name, drug_id";
+    $pres = sqlStatement($query);
+    echo "      <select name='form_product'>\n";
+    echo "       <option value=''>-- " . xlt('All Products') . " --\n";
+    while ($prow = sqlFetchArray($pres)) {
+        $drug_id = $prow['drug_id'];
+        echo "       <option value='" . attr($drug_id) . "'";
+        if ($drug_id == $form_product) {
+            echo " selected";
+        }
+
+        echo ">" . text($prow['name']) . "\n";
     }
 
-    echo ">" . text($prow['name']) . "\n";
-}
-
-echo "      </select>\n";
-?>
+    echo "      </select>\n";
+    ?>
      </td>
      <td class='label_custom'>
         <?php echo xlt('Details'); ?>:
@@ -537,7 +536,7 @@ echo "      </select>\n";
       <a href='#' class='css_button' onclick='mysubmit("submit")' style='margin-left:1em'>
        <span><?php echo xlt('Submit'); ?></span>
       </a>
-<?php if ($form_action) { ?>
+    <?php if ($form_action) { ?>
       <a href='#' class='css_button' id='printbutton' style='margin-left:1em'>
        <span><?php echo xlt('Print'); ?></span>
       </a>
@@ -553,56 +552,55 @@ echo "      </select>\n";
 </table>
 </div>
 
-<?php if ($form_action) { // if submit (already not export here) ?>
-
+    <?php if ($form_action) { // if submit (already not export here) ?>
 <div id="report_results">
 <table width='98%' id='mymaintable' class='mymaintable'>
  <thead>
  <tr bgcolor="#dddddd">
   <td class="dehead">
-    <?php echo text($product_first ? xl('Product') : xl('Warehouse')); ?>
+        <?php echo text($product_first ? xl('Product') : xl('Warehouse')); ?>
   </td>
-<?php if ($_POST['form_details']) { ?>
+        <?php if ($_POST['form_details']) { ?>
   <td class="dehead">
-    <?php echo text($product_first ? xl('Warehouse') : xl('Product')); ?>
-  </td>
-  <td class="dehead">
-    <?php echo xlt('Date'); ?>
+            <?php echo text($product_first ? xl('Warehouse') : xl('Product')); ?>
   </td>
   <td class="dehead">
-    <?php echo xlt('Invoice'); ?>
+            <?php echo xlt('Date'); ?>
+  </td>
+  <td class="dehead">
+            <?php echo xlt('Invoice'); ?>
   </td>
 <?php } else { ?>
   <td class="dehead" colspan="3">
-    <?php echo text($product_first ? xl('Warehouse') : xl('Product')); ?>
+            <?php echo text($product_first ? xl('Warehouse') : xl('Product')); ?>
   </td>
 <?php } ?>
   <td class="dehead" align="right" width="8%">
-    <?php echo xlt('Start'); ?>
+        <?php echo xlt('Start'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo xlt('Sales'); ?>
+        <?php echo xlt('Sales'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo xlt('Distributions'); ?>
+        <?php echo xlt('Distributions'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo xlt('Purchases'); ?>
+        <?php echo xlt('Purchases'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo xlt('Transfers'); ?>
+        <?php echo xlt('Transfers'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo xlt('Adjustments'); ?>
+        <?php echo xlt('Adjustments'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo xlt('End'); ?>
+        <?php echo xlt('End'); ?>
   </td>
  </tr>
  </thead>
  <tbody>
-<?php
-} // end if submit
+        <?php
+    } // end if submit
 } // end not export
 
 if ($form_action) { // if submit or export

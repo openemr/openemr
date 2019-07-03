@@ -192,7 +192,7 @@ if (isset($entryID)) {
         echo "<input type='hidden' name='form_entryID' value='" .
         attr($entryID)  . "' />";
     }
-?>
+    ?>
 </form>
 <?php
 
@@ -242,8 +242,7 @@ if (sqlNumRows($res) >= 1) { //display table ?>
         echo "</tr>";
     } ?>
   </table>
-<?php } //display table if statement
-else { //no entries
+<?php } else { //no entries
     echo "<p>" . xlt('No previous entries.') . "</p>";
 } ?>
 </div>

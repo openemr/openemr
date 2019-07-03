@@ -32,7 +32,7 @@ class Therapy_Groups_Counselors
     public function getAllCounselors()
     {
 
-        $sql = 'SELECT * FROM ' . SELf::TABLE;
+        $sql = 'SELECT * FROM ' . self::TABLE;
 
         $counselors = array();
         $result = sqlStatement($sql);

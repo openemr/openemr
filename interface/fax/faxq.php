@@ -214,7 +214,7 @@ function dosdclick(sfname) {
    <table width='100%' cellpadding='1' cellspacing='2' id='table_faxin'
     <?php if (!$GLOBALS['enable_hylafax']) {
         echo "style='display:none;'";
-} ?>>
+    } ?>>
     <tr class='head'>
      <td colspan='2' title='Click to view'><?php echo xlt('Document'); ?></td>
      <td><?php echo xlt('Received'); ?></td>
@@ -287,7 +287,7 @@ foreach ($dlines as $matches) {
    <table width='100%' cellpadding='1' cellspacing='2' id='table_scanin'
     <?php if ($GLOBALS['enable_hylafax']) {
         echo "style='display:none;'";
-} ?>>
+    } ?>>
     <tr class='head'>
      <td colspan='2' title='Click to view'><?php echo xlt('Filename'); ?></td>
      <td><?php echo xlt('Scanned'); ?></td>

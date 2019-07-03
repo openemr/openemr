@@ -3,7 +3,7 @@
  * This is an inventory transactions list.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
@@ -91,7 +91,7 @@ function thisLineItem($row, $xfer = false)
         echo '"' . esc4Export($row['notes'])            . '"' . "\n";
     } else {
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
-    ?>
+        ?>
 
      <tr bgcolor="<?php echo $bgcolor; ?>">
   <td class="detail">
@@ -125,7 +125,7 @@ function thisLineItem($row, $xfer = false)
         <?php echo text($row['notes']); ?>
   </td>
  </tr>
-<?php
+        <?php
     } // End not csv export
 
     $grandtotal   += $row['fee'];
@@ -174,9 +174,8 @@ if ($form_action == 'export') {
     echo '"' . xl('Amount') . '",';
     echo '"' . xl('Billed') . '",';
     echo '"' . xl('Notes') . '"' . "\n";
-} // end export
-else {
-?>
+} else { // end export
+    ?>
 <html>
 <head>
 <title><?php echo xlt('Inventory Transactions'); ?></title>
@@ -257,23 +256,23 @@ else {
      </td>
      <td nowrap>
       <select name='form_trans_type' onchange='trans_type_changed()'>
-<?php
-foreach (array(
-  '0' => xl('All'),
-  '2' => xl('Purchase/Return'),
-  '1' => xl('Sale'),
-  '6' => xl('Distribution'),
-  '4' => xl('Transfer'),
-  '5' => xl('Adjustment'),
-) as $key => $value) {
-    echo "       <option value='" . attr($key) . "'";
-    if ($key == $form_trans_type) {
-        echo " selected";
-    }
+    <?php
+    foreach (array(
+    '0' => xl('All'),
+    '2' => xl('Purchase/Return'),
+    '1' => xl('Sale'),
+    '6' => xl('Distribution'),
+    '4' => xl('Transfer'),
+    '5' => xl('Adjustment'),
+    ) as $key => $value) {
+        echo "       <option value='" . attr($key) . "'";
+        if ($key == $form_trans_type) {
+            echo " selected";
+        }
 
-    echo ">" . text($value) . "</option>\n";
-}
-?>
+        echo ">" . text($value) . "</option>\n";
+    }
+    ?>
       </select>
      </td>
      <td class='label_custom'>
@@ -300,7 +299,7 @@ foreach (array(
       <a href='#' class='css_button' onclick='mysubmit("submit")' style='margin-left:1em'>
        <span><?php echo xlt('Submit'); ?></span>
       </a>
-<?php if ($form_action) { ?>
+    <?php if ($form_action) { ?>
       <a href='#' class='css_button' id='printbutton' style='margin-left:1em'>
        <span><?php echo xlt('Print'); ?></span>
       </a>
@@ -316,47 +315,46 @@ foreach (array(
 </table>
 </div>
 
-<?php if ($form_action) { // if submit (already not export here) ?>
-
+    <?php if ($form_action) { // if submit (already not export here) ?>
 <div id="report_results">
 <table border='0' cellpadding='1' cellspacing='2' width='98%' id='mymaintable' class='mymaintable'>
  <thead>
  <tr bgcolor="#dddddd">
   <td class="dehead">
-    <?php echo xlt('Date'); ?>
+        <?php echo xlt('Date'); ?>
   </td>
   <td class="dehead">
-    <?php echo xlt('Transaction'); ?>
+        <?php echo xlt('Transaction'); ?>
   </td>
   <td class="dehead">
-    <?php echo xlt('Product'); ?>
+        <?php echo xlt('Product'); ?>
   </td>
   <td class="dehead">
-    <?php echo xlt('Lot'); ?>
+        <?php echo xlt('Lot'); ?>
   </td>
   <td class="dehead">
-    <?php echo xlt('Warehouse'); ?>
+        <?php echo xlt('Warehouse'); ?>
   </td>
   <td class="dehead">
-    <?php echo xlt('Who'); ?>
+        <?php echo xlt('Who'); ?>
   </td>
   <td class="dehead" align="right">
-    <?php echo xlt('Qty'); ?>
+        <?php echo xlt('Qty'); ?>
   </td>
   <td class="dehead" align="right">
-    <?php echo xlt('Amount'); ?>
+        <?php echo xlt('Amount'); ?>
   </td>
   <td class="dehead" align="Center">
-    <?php echo xlt('Billed'); ?>
+        <?php echo xlt('Billed'); ?>
   </td>
   <td class="dehead">
-    <?php echo xlt('Notes'); ?>
+        <?php echo xlt('Notes'); ?>
   </td>
  </tr>
  </thead>
  <tbody>
-<?php
-} // end if submit
+        <?php
+    } // end if submit
 } // end not export
 
 if ($form_action) { // if submit or export
@@ -406,7 +404,7 @@ if ($form_action) { // if submit or export
 
   // Grand totals line.
     if ($form_action != 'export') { // if submit
-    ?>
+        ?>
 
    <tr bgcolor="#dddddd">
     <td class="dehead" colspan="6">
@@ -423,24 +421,24 @@ if ($form_action) { // if submit or export
   </td>
  </tr>
 
-<?php
+        <?php
     } // End if submit
 } // end if submit or export
 
 if ($form_action != 'export') {
     if ($form_action) {
-    ?>
+        ?>
    </tbody>
   </table>
   </div>
-    <?php
+        <?php
     } // end if ($form_action)
-?>
+    ?>
 
 </form>
 </center>
 </body>
 </html>
-<?php
+    <?php
 } // End not export
 ?>

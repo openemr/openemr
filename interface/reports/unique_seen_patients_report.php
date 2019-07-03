@@ -35,7 +35,7 @@ if ($_POST['form_labels']) {
     header("Content-Disposition: attachment; filename=labels.txt");
     header("Content-Description: File Transfer");
 } else {
-?>
+    ?>
 <html>
 <head>
 
@@ -65,7 +65,7 @@ if ($_POST['form_labels']) {
 </style>
 <title><?php echo xlt('Front Office Receipts'); ?></title>
 
-<?php Header::setupHeader('datetime-picker'); ?>
+    <?php Header::setupHeader('datetime-picker'); ?>
 
 <script language="JavaScript">
 
@@ -117,7 +117,7 @@ $(function() {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Unique Seen Patients'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt("to") . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt("to") . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' method='post' action='unique_seen_patients_report.php' id='theform' onsubmit='return top.restoreSession()'>
@@ -193,7 +193,7 @@ $(function() {
 <th> <?php echo xlt('Secondary Insurance'); ?> </th>
 </thead>
 <tbody>
-<?php
+    <?php
 } // end not generating labels
 
 if ($_POST['form_refresh'] || $_POST['form_labels']) {
@@ -249,40 +249,40 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
              $row['street'] . '","' . $row['city'] . '","' . $row['state'] . '","' .
              $row['postal_code'] . '"' . "\n";
         } else { // not labels
-        ?>
+            ?>
        <tr>
         <td>
-        <?php echo text(oeFormatShortDate(substr($row['edate'], 0, 10))); ?>
+            <?php echo text(oeFormatShortDate(substr($row['edate'], 0, 10))); ?>
    </td>
    <td>
-        <?php echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']); ?>
+            <?php echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']); ?>
    </td>
    <td style="text-align:center">
-        <?php echo text($row['ecount']); ?>
+            <?php echo text($row['ecount']); ?>
    </td>
    <td>
-        <?php echo text($age); ?>
+            <?php echo text($age); ?>
    </td>
    <td>
-        <?php echo text($row['sex']); ?>
+            <?php echo text($row['sex']); ?>
    </td>
    <td>
-        <?php echo text($row['ethnoracial']); ?>
+            <?php echo text($row['ethnoracial']); ?>
    </td>
    <td>
-        <?php echo text($row['cname1']); ?>
+            <?php echo text($row['cname1']); ?>
    </td>
    <td>
-        <?php echo text($row['cname2']); ?>
+            <?php echo text($row['cname2']); ?>
    </td>
   </tr>
-    <?php
+            <?php
         } // end not labels
         ++$totalpts;
     }
 
     if (!$_POST['form_labels']) {
-    ?>
+        ?>
    <tr class='report_totals'>
     <td colspan='2'>
         <?php echo xlt('Total Number of Patients'); ?>
@@ -293,12 +293,12 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
   <td colspan='5'>&nbsp;</td>
  </tr>
 
-<?php
+        <?php
     } // end not labels
 } // end refresh or labels
 
 if (!$_POST['form_labels']) {
-?>
+    ?>
 </tbody>
 </table>
 </div>
@@ -306,6 +306,6 @@ if (!$_POST['form_labels']) {
 </body>
 
 </html>
-<?php
+    <?php
 } // end not labels
 ?>

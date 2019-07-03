@@ -278,10 +278,10 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <li id="tab1_CC" class="active" ><a class="fa fa-check" href="#tab1"> <?php echo xlt('CC{{Chief Complaint}}'); ?> 1</a></li>
                                 <li id="tab2_CC"><a <?php if ($CC2 >'') {
                                     echo 'class="fa fa-check"';
-} ?> href="#tab2"><?php echo xlt('CC{{Chief Complaint}}'); ?> 2</a></li>
+                                                    } ?> href="#tab2"><?php echo xlt('CC{{Chief Complaint}}'); ?> 2</a></li>
                                 <li id="tab3_CC"><a <?php if ($CC3 >'') {
                                     echo 'class="fa fa-check"';
-} ?> href="#tab3"><?php echo xlt('CC{{Chief Complaint}}'); ?> 3</a></li>
+                                                    } ?> href="#tab3"><?php echo xlt('CC{{Chief Complaint}}'); ?> 3</a></li>
                               </ul>
                             </div>
                             <div id="tabs_content_container" class="borderShadow">
@@ -388,13 +388,13 @@ if ($refresh and $refresh != 'fullscreen') {
                               <ul id="tabs">
                                 <li id="tab1_HPI_tab" class="active" ><a type="button" <?php if ($CC1 >'') {
                                     echo 'class="fa fa-check" ';
-} ?> href="#tab1"> <?php echo xlt('HPI'); ?> 1</a></li>
+                                                                                       } ?> href="#tab1"> <?php echo xlt('HPI'); ?> 1</a></li>
                                 <li id="tab2_HPI_tab" ><a <?php if ($CC2 >'') {
                                     echo 'class="fa fa-check"';
-} ?> href="#tab2"><?php echo xlt('HPI'); ?> 2</a></li>
+                                                          } ?> href="#tab2"><?php echo xlt('HPI'); ?> 2</a></li>
                                 <li id="tab3_HPI_tab" ><a <?php if ($CC3 >'') {
                                     echo 'class="fa fa-check"';
-} ?> href="#tab3"><?php echo xlt('HPI'); ?> 3</a></li>
+                                                          } ?> href="#tab3"><?php echo xlt('HPI'); ?> 3</a></li>
                               </ul>
                             </div>
                             <div id="tabs_content_container" class="borderShadow">
@@ -741,15 +741,15 @@ if ($refresh and $refresh != 'fullscreen') {
                   <br />
                   <input type="checkbox" name="alert" id="alert" <?php if ($alert) {
                         echo "checked='checked'";
-} ?> value="1">
+                                                                 } ?> value="1">
                   <label for="alert" class="input-helper input-helper--checkbox"><?php echo xlt('Alert{{Mental Status}}'); ?></label><br />
                   <input type="checkbox" name="oriented" id="oriented" <?php if ($oriented) {
                         echo "checked='checked'";
-} ?> value="1">
+                                                                       } ?> value="1">
                   <label for="oriented" class="input-helper input-helper--checkbox"><?php echo xlt('Oriented TPP{{oriented to person and place}}'); ?></label><br />
                   <input type="checkbox" name="confused" id="confused" <?php if ($confused) {
                         echo "checked='checked'";
-} ?> value="1">
+                                                                       } ?> value="1">
                   <label for="confused" class="input-helper input-helper--checkbox"><?php echo xlt('Mood/Affect Nml{{Mood and affect normal}}'); ?></label><br />
 
                 </div>
@@ -1041,7 +1041,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <label for="PUPIL_NORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
                               <input id="PUPIL_NORMAL" name="PUPIL_NORMAL" type="checkbox"  <?php if ($PUPIL_NORMAL =='1') {
                                     echo 'checked="checked" value="1"';
-} ?>>
+                                                                                            } ?>>
                   </div>
                   <div id="Lyr70">
                     <table>
@@ -1219,19 +1219,19 @@ if ($refresh and $refresh != 'fullscreen') {
                             <label for="Single_1" class="input-helper input-helper--checkbox"><?php echo xlt('Single'); ?></label>
                             <input type="radio" value="0" id="Single_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '0') {
                                 echo 'checked="checked"';
-} ?> /></span><br />
+                                                                                         } ?> /></span><br />
                             <label for="Bifocal_1" class="input-helper input-helper--checkbox"><?php echo xlt('Bifocal'); ?></label>
                             <input type="radio" value="1" id="Bifocal_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '1') {
                                 echo 'checked="checked"';
-} ?> /></span><br />
+                                                                                          } ?> /></span><br />
                             <label for="Trifocal_1" class="input-helper input-helper--checkbox"><?php echo xlt('Trifocal'); ?></label>
                             <input type="radio" value="2" id="Trifocal_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '2') {
                                 echo 'checked="checked"';
-} ?> /></span><br />
+                                                                                           } ?> /></span><br />
                             <label for="Progressive_1" class="input-helper input-helper--checkbox"><?php echo xlt('Prog.{{Progressive lenses}}'); ?></label>
                             <input type="radio" value="3" id="Progressive_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '3') {
                                 echo 'checked="checked"';
-} ?> /></span><br />
+                                                                                              } ?> /></span><br />
                           </td>
                         </tr>
                         <tr>
@@ -1342,7 +1342,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <th NOWRAP colspan="2">
                         <input type="checkbox" name="BALANCED" id="Balanced" value="on" <?php if ($BALANCED =='on') {
                             echo "checked='checked'";
-} ?> tabindex="10182">
+                                                                                        } ?> tabindex="10182">
                         <label for="Balanced" class="input-helper input-helper--checkbox"><?php echo xlt('Balanced'); ?></label>
                       </th>
 
@@ -1393,20 +1393,20 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <li>
                                     <input type="radio" name="WETTYPE" id="Streak" value="Streak" <?php if ($WETTYPE == "Streak") {
                                         echo "checked='checked'";
-} ?>/>
+                                                                                                  } ?>/>
                                     <label for="Streak" class="input-helper input-helper--checkbox"><?php echo xlt('Streak'); ?></label>
                                 </li>
                                 <li>
                                     <input type="radio" name="WETTYPE" id="Auto" value="Auto" <?php if ($WETTYPE == "Auto") {
                                         echo "checked='checked'";
-} ?>>
+                                                                                              } ?>>
                                     <label for="Auto" class="input-helper input-helper--checkbox"><?php echo xlt('Auto{{autorefraction}}'); ?></label>
                                 </li>
 
                                 <li>
                                     <input type="radio" name="WETTYPE" id="Manual" value="Manual" <?php if ($WETTYPE == "Manual") {
                                         echo "checked='checked'";
-} ?>>
+                                                                                                  } ?>>
                                     <label for="Manual" class="input-helper input-helper--checkbox"><?php echo xlt('Manual'); ?></label>
                                 </li>
                             </ul>
@@ -2114,31 +2114,31 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <tr>
                                   <td><input type="checkbox" class="dil_drug" id="CycloMydril" name="CYCLOMYDRIL" value="Cyclomydril" <?php if ($CYCLOMYDRIL == 'Cyclomydril') {
                                             echo "checked='checked'";
-} ?> /><label for="CycloMydril" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('CycloMydril'); ?></label>
+                                                                                                                                      } ?> /><label for="CycloMydril" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('CycloMydril'); ?></label>
                                   </td>
                                   <td><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') {
                                             echo "checked='checked'";
-} ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 2.5%'); ?></label>
+                                                                                                                                           } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 2.5%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
                                   <td><input type="checkbox" class="dil_drug" id="Neo25" name="NEO25" value="Neosynephrine 2.5%"  <?php if ($NEO25 =='Neosynephrine 2.5%') {
                                             echo "checked='checked'";
-} ?> /><label for="Neo25" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Neo 2.5%'); ?></label>
+                                                                                                                                  } ?> /><label for="Neo25" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Neo 2.5%'); ?></label>
                                   </td>
                                   <td><input type="checkbox" class="dil_drug" id="Neo10" name="NEO10" value="Neosynephrine 10%"  <?php if ($NEO10 =='Neosynephrine 10%') {
                                             echo "checked='checked'";
-} ?> /><label for="Neo10" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Neo 10%'); ?></label>
+                                                                                                                                 } ?> /><label for="Neo10" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Neo 10%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
                                   <td><input type="checkbox" class="dil_drug" id="Cyclogyl" name="CYCLOGYL" value="Cyclopentolate 1%"  <?php if ($CYCLOGYL == 'Cyclopentolate 1%') {
                                             echo "checked='checked'";
-} ?> /><label for="Cyclogyl" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Cyclo 1%'); ?></label>
+                                                                                                                                       } ?> /><label for="Cyclogyl" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Cyclo 1%'); ?></label>
                                   </td>
                                   <td><input type="checkbox" class="dil_drug" id="Atropine" name="ATROPINE" value="Atropine 1%"  <?php if ($ATROPINE == 'Atropine 1%') {
                                         echo "checked='checked'";
-} ?> /><label for="Atropine" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Atropine 1%'); ?></label>
+                                                                                                                                 } ?> /><label for="Atropine" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Atropine 1%'); ?></label>
                                   </td>
                                 </tr>
                               </table>
@@ -2255,7 +2255,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <b><?php echo xlt('Retina'); ?>:</b><div class="kb kb_left" title="<?php echo xla("Retina Default Values"); ?>"><?php echo text('DRET'); ?></div>
                         <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" value="on" <?php if ($DIL_RISKS =='on') {
                             echo "checked='checked'";
-} ?>>
+                                                                                          } ?>>
                         <label for="DIL_RISKS" class="input-helper input-helper--checkbox"><?php echo xlt('Dilation orders/risks reviewed'); ?></label>
                       <br />
                       <div id="RETINA_left_1" class="text_clinical">
@@ -2429,14 +2429,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <td class="right"><?php echo xlt('Color'); ?>: </td>
                                 <td><input type="text"  name="ODCOLOR" id="ODCOLOR" value="<?php if ($ODCOLOR) {
                                     echo  text($ODCOLOR);
-} else {
-    echo "";
-} ?>"/></td>
+                                                                                           } else {
+                                                                                               echo "";
+                                                                                           } ?>"/></td>
                                 <td><input type="text" name="OSCOLOR" id="OSCOLOR" value="<?php if ($OSCOLOR) {
                                     echo  text($OSCOLOR);
-} else {
-    echo "";
-} ?>"/></td>
+                                                                                          } else {
+                                                                                              echo "";
+                                                                                          } ?>"/></td>
                                 <td style="text-align:bottom;"><!-- //Normals may be 11/11 or 15/15.  Need to make a preference here for the user.
                                     //or just take the normal they use and incorporate that ongoing?  -->
                                   &nbsp;<span title="<?php echo xlt('Insert normals'); ?> - 11/11" class="fa fa-reply" id="NEURO_COLOR" name="NEURO_COLOR" ></span>
@@ -2484,7 +2484,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                     <label for="ACT" class="input-helper input-helper--checkbox"><?php echo xlt('Ortho{{orthophoric}}'); ?></label>
                                     <input type="checkbox" name="ACT" id="ACT" <?php if ($ACT =='on' or $ACT=='1') {
                                         echo "checked='checked'";
-} ?> /></span>
+                                                                               } ?> /></span>
                                 </td>
                             </tr>
                             <tr>
@@ -2715,7 +2715,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                     <label for="MOTILITYNORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
                                     <input id="MOTILITYNORMAL" name="MOTILITYNORMAL" type="checkbox" <?php if ($MOTILITYNORMAL =='on') {
                                         echo "checked='checked'";
-} ?>>
+                                                                                                     } ?>>
                                 </td>
                             </tr>
                             <tr>
@@ -3150,16 +3150,16 @@ if ($refresh and $refresh != 'fullscreen') {
                         <div class="borderShadow ACT_boxed"><span class="underline"><?php echo xlt('Rx/Distance'); ?></span><br />
                           <span class="eye_button <?php if ($ACT_SHOW =='SCDIST') {
                                 echo "eye_button_selected";
-} ?>" id="NEURO_ACT_zone_SCDIST" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('SCDIST').trigger('change');"> <?php echo xlt('scDist{{without correction distance}}'); ?> </span>
+                                                  } ?>" id="NEURO_ACT_zone_SCDIST" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('SCDIST').trigger('change');"> <?php echo xlt('scDist{{without correction distance}}'); ?> </span>
                           <span class="eye_button <?php if ($ACT_SHOW =='CCDIST') {
                                 echo "eye_button_selected";
-} ?>" id="NEURO_ACT_zone_CCDIST" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCDIST').trigger('change');"> <?php echo xlt('ccDist{{with correction distance}}'); ?> </span>
+                                                  } ?>" id="NEURO_ACT_zone_CCDIST" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCDIST').trigger('change');"> <?php echo xlt('ccDist{{with correction distance}}'); ?> </span>
                           <span class="eye_button <?php if ($ACT_SHOW =='SCNEAR') {
                                 echo "eye_button_selected";
-} ?>" id="NEURO_ACT_zone_SCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('SCNEAR').trigger('change');"> <?php echo xlt('scNear{{without correction near}}'); ?> </span>
+                                                  } ?>" id="NEURO_ACT_zone_SCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('SCNEAR').trigger('change');"> <?php echo xlt('scNear{{without correction near}}'); ?> </span>
                           <span class="eye_button <?php if ($ACT_SHOW =='CCNEAR') {
                                 echo "eye_button_selected";
-} ?>" id="NEURO_ACT_zone_CCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCNEAR').trigger('change');"> <?php echo xlt('ccNear{{with correction at near}}'); ?> </span>
+                                                  } ?>" id="NEURO_ACT_zone_CCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCNEAR').trigger('change');"> <?php echo xlt('ccNear{{with correction at near}}'); ?> </span>
                         </div>
                         <div class="borderShadow ACT_boxed"><span class="underline"><?php echo xlt('Position of Gaze'); ?></span><br />
                           <span class="eye_button_blank"> <?php echo xlt('R{{right}}'); ?> </span>
@@ -3430,10 +3430,10 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                   if ($fs_category !== $last_category) {
                                                                       $last_category = $fs_category;
                                                                       echo "    <option value=''> " . text(substr($fs_category, 1)) . "</option>\n";
-                                                                    }
+                                                                  }
                                                                     $code_text = (strlen(substr($fs_option, 1)) > 26) ? substr(substr($fs_option, 1), 0, 24).'...' : substr($fs_option, 1);
                                                                     echo "    <option value='" . attr($fs_codes) . "'>" . text($code)." ".text(substr($fs_category, 1)).": ".text($code_text) . "</option>\n";
-                                                                }
+                                                              }
 
                                                               // Create drop-lists based on categories defined within the codes.
                                                                 $pres = sqlStatement("SELECT option_id, title FROM list_options " .
@@ -3455,7 +3455,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                           attr($row['code']) . ':'. attr($row['modifier']) . "|'>" . text($code_text) . "</option>\n";
                                                                     }
                                                                 }
-                                                            ?>
+                                                                ?>
                                                       </select>
                                                   </div>
                                               </td>
@@ -3773,7 +3773,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                             <span id="status_Fax_ref"><i class="fa fa-fax fa-fw"></i></span>
                                                             <?php
                                                         }
-} ?>
+                                                    } ?>
                                                   </span>
                                               </td>
                                           </tr>
@@ -3965,15 +3965,15 @@ if ($refresh and $refresh != 'fullscreen') {
                         IMP_target = target;
                         <?php
                         if ($irow['type'] == 'PMH') { //or POH
-                        ?>
+                            ?>
             dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
-            <?php
+                            <?php
                         } else {
-                        ?>
+                            ?>
                         dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
-            <?php
+                            <?php
                         }
-            ?>
+                        ?>
         }
 
         var obj =[];
@@ -3982,7 +3982,7 @@ if ($refresh and $refresh != 'fullscreen') {
         $codes_found = start_your_engines($encounter_data);
         if ($codes_found) { ?>
         obj.Clinical = [<?php echo json_encode($codes_found[0]); ?>];
-        <?php
+            <?php
         } ?>
 
         $.undone();

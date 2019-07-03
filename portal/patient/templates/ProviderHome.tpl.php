@@ -21,7 +21,7 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
         });
     });
 </script>
-<div class="modal fade" id="formdialog" tabindex="-1" role="dialog"	aria-hidden="true">
+<div class="modal fade" id="formdialog" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" style="background:white">
         <div class="modal-content">
             <div class="modal-header">

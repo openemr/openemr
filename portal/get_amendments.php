@@ -30,7 +30,6 @@ $query = "SELECT a.*,lo.title AS AmendmentBy,lo1.title AS AmendmentStatus FROM a
 	WHERE a.pid = ? ORDER BY amendment_date DESC";
 $res = sqlStatement($query, array($pid));
 if (sqlNumRows($res) > 0) { ?>
-
     <table class="table table-striped">
         <tr class="header">
             <th><?php echo xlt('Date'); ?></th>

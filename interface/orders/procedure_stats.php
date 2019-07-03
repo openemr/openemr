@@ -265,9 +265,7 @@ function process_result_code($row)
     if ($form_by === '4') {
         $key = $row['order_name'] . ' / ' . $row['result_name'];
         loadColumnData($key, $row);
-    } // Recommended followup services.
-  //
-    else if ($form_by === '5') {
+    } else if ($form_by === '5') {  // Recommended followup services.
         if (!empty($row['related_code'])) {
             $relcodes = explode(';', $row['related_code']);
             foreach ($relcodes as $codestring) {
@@ -295,7 +293,7 @@ if ($form_output == 3) {
     header("Content-Disposition: attachment; filename=service_statistics_report.csv");
     header("Content-Description: File Transfer");
 } else {
-?>
+    ?>
 <html>
 <head>
 <title><?php echo text($report_title); ?></title>
@@ -338,24 +336,24 @@ $(function() {
 
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php echo xlt('Rows'); ?>:
+    <?php echo xlt('Rows'); ?>:
 </td>
 <td valign='top' class='detail'>
  <select name='form_by' title='Left column of report'>
-<?php
-foreach ($arr_by as $key => $value) {
-    echo "    <option value='" . attr($key) . "'";
-    if ($key == $form_by) {
-        echo " selected";
-    }
+    <?php
+    foreach ($arr_by as $key => $value) {
+        echo "    <option value='" . attr($key) . "'";
+        if ($key == $form_by) {
+            echo " selected";
+        }
 
-    echo ">" . text($value) . "</option>\n";
-}
-?>
+        echo ">" . text($value) . "</option>\n";
+    }
+    ?>
  </select>
 </td>
 <td valign='top' class='dehead' nowrap>
-<?php echo xlt('Filters'); ?>:
+    <?php echo xlt('Filters'); ?>:
 </td>
 <td rowspan='2' colspan='2' class='detail'
  style='border-style:solid;border-width:1px;border-color:#cccccc'>
@@ -366,16 +364,16 @@ foreach ($arr_by as $key => $value) {
    </td>
    <td class='detail' valign='top'>
   <select name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
-<?php
-foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
-    echo "       <option value='" . attr($key) . "'";
-    if ($key == $form_sexes) {
-        echo " selected";
-    }
+    <?php
+    foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
+        echo "       <option value='" . attr($key) . "'";
+        if ($key == $form_sexes) {
+            echo " selected";
+        }
 
-    echo ">" . text($value) . "</option>\n";
-}
-?>
+        echo ">" . text($value) . "</option>\n";
+    }
+    ?>
     </select>
    </td>
   </tr>
@@ -400,44 +398,44 @@ foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Onl
 </tr>
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php echo xlt('Columns'); ?>:
+    <?php echo xlt('Columns'); ?>:
 </td>
 <td valign='top' class='detail'>
  <select name='form_show[]' size='4' multiple
 title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
-<?php
-foreach ($arr_show as $key => $value) {
-    $title = $value['title'];
-    if (empty($title) || $key == 'title') {
-        $title = $value['description'];
-    }
+    <?php
+    foreach ($arr_show as $key => $value) {
+        $title = $value['title'];
+        if (empty($title) || $key == 'title') {
+            $title = $value['description'];
+        }
 
-    echo "    <option value='" . attr($key) . "'";
-    if (is_array($form_show) && in_array($key, $form_show)) {
-        echo " selected";
-    }
+        echo "    <option value='" . attr($key) . "'";
+        if (is_array($form_show) && in_array($key, $form_show)) {
+            echo " selected";
+        }
 
-    echo ">" . text($title) . "</option>\n";
-}
-?>
+        echo ">" . text($title) . "</option>\n";
+    }
+    ?>
  </select>
 </td>
 </tr>
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php echo xlt('To'); ?>:
+    <?php echo xlt('To'); ?>:
 </td>
 <td colspan='3' valign='top' class='detail' nowrap>
-<?php
-foreach (array(1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')) as $key => $value) {
-    echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
-    if ($key == $form_output) {
-        echo ' checked';
-    }
+    <?php
+    foreach (array(1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')) as $key => $value) {
+        echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
+        if ($key == $form_output) {
+            echo ' checked';
+        }
 
-    echo " />" . text($value) . " &nbsp;";
-}
-?>
+        echo " />" . text($value) . " &nbsp;";
+    }
+    ?>
 </td>
 <td align='right' valign='top' class='detail' nowrap>
 <input type='submit' name='form_submit' value='<?php echo xla('Submit'); ?>'
@@ -449,7 +447,7 @@ title='<?php echo xla('Click to generate the report'); ?>' />
 </td>
 </tr>
 </table>
-<?php
+    <?php
 } // end not export
 
 if ($_POST['form_submit']) {
@@ -653,12 +651,12 @@ if ($_POST['form_submit']) {
 } // end of if refresh or export
 
 if ($form_output != 3) {
-?>
+    ?>
 </form>
 </center>
 
 <script language='JavaScript'>
-<?php if ($form_output == 2) { ?>
+    <?php if ($form_output == 2) { ?>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);
 <?php } ?>
@@ -666,6 +664,6 @@ if ($form_output != 3) {
 
 </body>
 </html>
-<?php
+    <?php
 } // end not export
 ?>

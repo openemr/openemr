@@ -391,7 +391,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             $onclick = "";
                         }
 
-                    ?>
+                        ?>
                         <div class='col-md-12'>
                             <fieldset>
                             <legend><?php echo text($message_legend); ?></legend>
@@ -594,7 +594,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             </fieldset>
                         </div>
                         </form>
-                    <?php
+                        <?php
                     } else {
                     // This is for sorting the records.
                         $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
@@ -734,7 +734,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 </tr>
                             </table>
                             <br>";
-                    ?>
+                        ?>
 
                         <script language="javascript">
                             // This is to confirm delete action.
@@ -781,7 +781,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 document.getElementById(row).style.background = "#F7F7F7";
                             }
                         </script>
-                    <?php
+                        <?php
                     }
                     ?>
                 </div>
@@ -1018,12 +1018,12 @@ if (!empty($_REQUEST['go'])) { ?>
             <?php
             if (isset($enc_list) && sqlNumRows($enc_list) > 0) {
                 while ($row = sqlFetchArray($enc_list)) {
-                ?>
+                    ?>
                 EncounterIdArray[Count] = '<?php echo attr($row['encounter']); ?>';
             EncounterDateArray[Count] = '<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
             CalendarCategoryArray[Count] = '<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
             Count++;
-            <?php
+                    <?php
                 }
             }
             ?>
@@ -1133,7 +1133,7 @@ if (!empty($_REQUEST['go'])) { ?>
             }
         }
     </script>
-<?php
+    <?php
 }
 ?>
 </body>

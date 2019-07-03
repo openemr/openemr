@@ -93,7 +93,7 @@ if (isset($_GET['starttimeh'])) {
 
  $info_msg = "";
 
-    ?>
+?>
 
 <?php $g_edit = acl_check("groups", "gcalendar", false, 'write');?>
 <?php $g_view = acl_check("groups", "gcalendar", false, 'view');?>
@@ -410,15 +410,15 @@ if (empty($collectthis)) {
                     );
 
             //
-        if ($my_recurrtype == 2) { // Added by epsdky 2016 (details in commit)
-            if ($_POST['old_repeats'] == 2) {
-                if ($_POST['rt2_flag2']) {
+            if ($my_recurrtype == 2) { // Added by epsdky 2016 (details in commit)
+                if ($_POST['old_repeats'] == 2) {
+                    if ($_POST['rt2_flag2']) {
+                        $recurrspec['rt2_pf_flag'] = "1";
+                    }
+                } else {
                     $recurrspec['rt2_pf_flag'] = "1";
                 }
-            } else {
-                $recurrspec['rt2_pf_flag'] = "1";
-            }
-        } // End of addition by epsdky
+            } // End of addition by epsdky
             //
             // no recurr specs, this is used for adding a new non-recurring event
             $noRecurrspec = array("event_repeat_freq" => "",
@@ -504,8 +504,7 @@ if (empty($collectthis)) {
                         $args['locationspec'] = $locationspec;
                         InsertEvent($args);
                     }
-                } // ===== Future Recurring events of a repeating series =====
-                else if ($_POST['recurr_affect'] == 'future') {
+                } else if ($_POST['recurr_affect'] == 'future') { // ===== Future Recurring events of a repeating series =====
                     // update all existing event records to
                     // stop recurring on this date-1
                     $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
@@ -516,8 +515,7 @@ if (empty($collectthis)) {
                             sqlStatement("UPDATE openemr_postcalendar_events SET " .
                             " pc_enddate = ? " .
                             " WHERE pc_aid = ? AND pc_multiple=?", array($selected_date, $provider, $row['pc_multiple']));
-                        } // In case of a change in the event head
-                        else {
+                        } else { // In case of a change in the event head
                             sqlStatement("DELETE FROM openemr_postcalendar_events " .
                             " WHERE pc_aid = ? AND pc_multiple=?", array($provider, $row['pc_multiple']));
                         }
@@ -735,10 +733,7 @@ if (empty($collectthis)) {
             // done with EVENT insert/update statements
 
             DOBandEncounter(isset($eid) ? $eid : null);
-    } // =======================================
-//    DELETE EVENT(s)
-// =======================================
-    else if ($_POST['form_action'] == "delete") {
+    } else if ($_POST['form_action'] == "delete") { //    DELETE EVENT(s)
         // =======================================
         //  multi providers event
         // =======================================
@@ -790,8 +785,7 @@ if (empty($collectthis)) {
                         sqlStatement("UPDATE openemr_postcalendar_events SET " .
                         " pc_enddate = ? " .
                         " WHERE " . $whereClause, array($selected_date));
-                    } // In case of a change in the event head
-                    else {
+                    } else { // In case of a change in the event head
                         sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
                     }
                 }
@@ -799,13 +793,9 @@ if (empty($collectthis)) {
                 // really delete the event from the database
                 sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
             }
-        } // =======================================
-        //  single provider event
-        // =======================================
-        else {
+        } else { //  single provider event
             if ($_POST['recurr_affect'] == 'current') {
                 // mod original event recur specs to exclude this date
-
                 // get the original event's repeat specs
                 $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
                 $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
@@ -1025,7 +1015,7 @@ if (empty($collectthis)) {
         }
     }
 
-?>
+    ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -1436,7 +1426,7 @@ if ($_GET['prov']==true) {
             <?php if ($have_group_global_enabled) :?>
          <li <?php echo $group_class ;?>>
             <a href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
-            <?php echo xlt('Group');?></a>
+                <?php echo xlt('Group');?></a>
          </li>
             <?php endif ?>
         </ul>
@@ -1617,7 +1607,7 @@ if ($_GET['group']==true &&  $have_group_global_enabled) {
    </span>
   </td>
  </tr>
-<?php
+    <?php
 }
 ?>
  <tr>
@@ -1925,7 +1915,7 @@ if ($repeatexdate != "") {
         ?>
      </td>
     </tr>
-    <?php
+        <?php
     } ?>
  <tr>
   <td nowrap>
@@ -2095,7 +2085,7 @@ function validateform(event,valu){
 
     <?php
     if ($GLOBALS['select_multi_providers']) {
-    ?>
+        ?>
     //If multiple providers is enabled, create provider validation (Note: if no provider is chosen it causes bugs when deleting recurrent events).
     if(typeof (collectvalidation) == 'undefined'){
         collectvalidation = {form_provider:{presence: true}};
@@ -2103,7 +2093,7 @@ function validateform(event,valu){
     else{
         collectvalidation.form_provider = {presence: true};
     }
-    <?php
+        <?php
     }
     ?>
 
@@ -2173,18 +2163,18 @@ function SubmitForm() {
         f.submit();
     }
     <?php } else { ?>
-    <?php
+        <?php
     /*Support Multi-Provider Events in features*/
-    $sdate=$date;
-    $edate=new DateTime($date);
-    $edate->modify('tomorrow');
-    $edate=$edate->format('Y-m-d');
-    $is_holiday=false;
-    $holidays_controller = new Holidays_Controller();
-    $holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
-    if (in_array($sdate, $holidays)) {
-        $is_holiday=true;
-    }?>
+        $sdate=$date;
+        $edate=new DateTime($date);
+        $edate->modify('tomorrow');
+        $edate=$edate->format('Y-m-d');
+        $is_holiday=false;
+        $holidays_controller = new Holidays_Controller();
+        $holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
+        if (in_array($sdate, $holidays)) {
+            $is_holiday=true;
+        }?>
     if (f.form_action.value != 'delete') {
         <?php if ($is_holiday) {?>
         if (!confirm('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>')) {

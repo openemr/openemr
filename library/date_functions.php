@@ -3,9 +3,9 @@
 // dateformat
 //
 // return a formated string for date
-// @args:	string (date string), boolean (include day of week)
+// @args:   string (date string), boolean (include day of week)
 //              (it uses $_SESSION['language_choice'] )
-// @return:	$date_string (string) - formated string
+// @return: $date_string (string) - formated string
 // Cristian Navalici lemonsoftware at gmail dot com
 //
 // For Hebrew must be implemented a special calendar functions

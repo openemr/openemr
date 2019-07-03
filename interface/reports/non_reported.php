@@ -441,7 +441,7 @@ while ($crow = sqlFetchArray($cres)) {
 
 <?php
 if ($_POST['form_refresh']) {
-?>
+    ?>
 <div id="report_results">
 <table>
 <thead align="left">
@@ -453,38 +453,38 @@ if ($_POST['form_refresh']) {
 <th> <?php echo xlt('Issue Date'); ?> </th>
 </thead>
 <tbody>
-<?php
-$total = 0;
+    <?php
+    $total = 0;
 //echo "<p> DEBUG query: $query </p>\n"; // debugging
-$res = sqlStatement($query, $sqlBindArray);
+    $res = sqlStatement($query, $sqlBindArray);
 
 
-while ($row = sqlFetchArray($res)) {
-?>
+    while ($row = sqlFetchArray($res)) {
+        ?>
 <tr>
 <td>
-<?php echo text($row['patientid']) ?>
+        <?php echo text($row['patientid']) ?>
 </td>
 <td>
-<?php echo text($row['patientname']) ?>
+        <?php echo text($row['patientname']) ?>
 </td>
 <td>
-<?php echo text($row['diagnosis']) ?>
+        <?php echo text($row['diagnosis']) ?>
 </td>
 <td>
-<?php echo text($row['issueid']) ?>
+        <?php echo text($row['issueid']) ?>
 </td>
 <td>
-<?php echo text($row['issuetitle']) ?>
+        <?php echo text($row['issuetitle']) ?>
 </td>
 <td>
-<?php echo text($row['issuedate']) ?>
+        <?php echo text($row['issuedate']) ?>
 </td>
 </tr>
-<?php
-++$total;
-}
-?>
+        <?php
+        ++$total;
+    }
+    ?>
 <tr class="report_totals">
  <td colspan='9'>
     <?php echo xlt('Total Number of Issues'); ?>

@@ -599,12 +599,12 @@ if ($_POST["mode"] == "create_client_certificate") {
     unset($_SESSION["zip_error"]); ?></div>
     <?php } else { ?>
   <span class='text'>
-    <?php
-    if ($error_msg != "") {
-        echo "<font class='redtext'>" . text($error_msg) . "</font><br><br>";
-    }
-    ?>
-    <?php echo xlt('To setup https access with client certificate authentication, do the following'); ?>
+        <?php
+        if ($error_msg != "") {
+            echo "<font class='redtext'>" . text($error_msg) . "</font><br><br>";
+        }
+        ?>
+        <?php echo xlt('To setup https access with client certificate authentication, do the following'); ?>
   <ul>
     <li><?php echo xlt('Create the SSL Certificate Authority and Server certificates.'); ?>
     <li><?php echo xlt('Configure Apache to use HTTPS.'); ?>
@@ -613,11 +613,11 @@ if ($_POST["mode"] == "create_client_certificate") {
     <li><?php echo xlt('Create a Client side SSL certificate for each user or client machine.'); ?>
   </ul>
   <br>
-    <?php
-    if ($GLOBALS['certificate_authority_crt'] != "" && $GLOBALS['is_client_ssl_enabled']) {
-        echo xlt('OpenEMR already has a Certificate Authority configured.');
-    }
-    ?>
+        <?php
+        if ($GLOBALS['certificate_authority_crt'] != "" && $GLOBALS['is_client_ssl_enabled']) {
+            echo xlt('OpenEMR already has a Certificate Authority configured.');
+        }
+        ?>
   <form method='post' name=ssl_certificate_frm action='ssl_certificates_admin.php'>
   <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
   <input type='hidden' name='mode' value='download_certificates'>
@@ -628,7 +628,7 @@ if ($_POST["mode"] == "create_client_certificate") {
     2. <?php echo xlt('Click Download Certificate to download the certificates in the file ssl.zip'); ?> <br>
     3. <?php echo xlt('Extract the zip file');
     echo ": ssl.zip "; ?><br></br>
-    <?php echo xlt('The zip file will contain the following items'); ?> <br>
+        <?php echo xlt('The zip file will contain the following items'); ?> <br>
     <ul>
       <li>Server.crt : <?php echo xlt('The Apache SSL server certificate and public key'); ?>
       <li>Server.key : <?php echo xlt('The corresponding private key'); ?>
@@ -700,14 +700,14 @@ if ($_POST["mode"] == "create_client_certificate") {
   <div class="borderbox">
     <b><?php echo xlt('Configure Apache to use HTTPS.'); ?></b><br>
     <br>
-    <?php echo xlt('Add new certificates to the Apache configuration file'); ?>:<br>
+        <?php echo xlt('Add new certificates to the Apache configuration file'); ?>:<br>
     <br>
     SSLEngine on<br>
     SSLCertificateFile   /path/to/Server.crt<br>
     SSLCertificateKeyFile /path/to/Server.key<br>
     SSLCACertificateFile /path/to/CertificateAuthority.crt<br>
     <br>
-    <?php echo xlt('Note'); ?>:
+        <?php echo xlt('Note'); ?>:
     <ul>
       <li><?php echo xlt('To Enable only HTTPS, perform the above changes and restart Apache server. If you want to configure client side certificates also, please configure them in the next section.'); ?></br>
     <li> <?php echo xlt('To Disable HTTPS, comment the above lines in Apache configuration file and restart Apache server.'); ?>
@@ -720,7 +720,7 @@ if ($_POST["mode"] == "create_client_certificate") {
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <b><?php echo xlt('Configure Apache to use Client side SSL certificates'); ?> </b>
     <br></br>
-    <?php echo xlt('Add following lines to the Apache configuration file'); ?>:<br>
+        <?php echo xlt('Add following lines to the Apache configuration file'); ?>:<br>
     </br>
     SSLVerifyClient require<br>
     SSLVerifyDepth 2<br>
@@ -778,14 +778,14 @@ if ($_POST["mode"] == "create_client_certificate") {
   <div class="borderbox">
     <b><?php echo xlt('Create Client side SSL certificates'); ?></b><br>
     <br>
-    <?php echo xlt('Create a client side SSL certificate for either a user or a client hostname.'); ?>
+        <?php echo xlt('Create a client side SSL certificate for either a user or a client hostname.'); ?>
     <br>
-    <?php
-    if (!$GLOBALS['is_client_ssl_enabled'] ||
+        <?php
+        if (!$GLOBALS['is_client_ssl_enabled'] ||
            $GLOBALS['certificate_authority_crt'] == "") {
-        echo "<font class='redtext'>" . xlt('OpenEMR must be configured to use certificates before it can create client certificates.') . "</font><br>";
-    }
-    ?>
+            echo "<font class='redtext'>" . xlt('OpenEMR must be configured to use certificates before it can create client certificates.') . "</font><br>";
+        }
+        ?>
     <form name='client_cert_frm' method='post' action='ssl_certificates_admin.php'>
       <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
       <input type='hidden' name='mode' value='create_client_certificate'>

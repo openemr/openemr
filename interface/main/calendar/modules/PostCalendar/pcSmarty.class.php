@@ -53,8 +53,8 @@ class pcSmarty extends Smarty
         $this->right_delimiter  =   '-]';
 
         //============================================================
-        //	checks for safe mode
-        //	i think it's safe to say we can do this automagically now
+        //  checks for safe mode
+        //  i think it's safe to say we can do this automagically now
         //============================================================
         $safe_mode      = ini_get('safe_mode');
         $safe_mode_gid  = ini_get('safe_mode_gid');

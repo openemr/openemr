@@ -152,7 +152,6 @@ foreach ($dataSheet as $row) {
          $firstProviderFlag = false;
          $existProvider = true;
     } else { // isset($row['is_plan'])
-
         if ($firstPlanFlag == false) {
             if ($firstProviderFlag == false) {
                 $xml->close_provider();

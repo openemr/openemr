@@ -20,7 +20,7 @@
 
     $providerID = $_REQUEST['providerID'];
 
-    ?>
+?>
 var prior_field;
 var prior_text;
 var response = [];
@@ -4021,7 +4021,7 @@ update_PREFS();
                   scroll='1';
                     <?php if ($GLOBALS['new_tabs_layout'] !=='1') {
                         ?>  $("[class='tabHide']").css("display","inline-block"); <?php
-}
+                    }
                     ?>
                   $("input,textarea,text").focus(function(){
                                                  $(this).css("background-color","#ffff99");

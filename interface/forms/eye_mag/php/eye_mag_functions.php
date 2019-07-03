@@ -425,7 +425,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     <?php
                     // This is going to be based off a list in the near future
                     // to allow for end-user customization
-                        ?>
+                    ?>
                     <span id="PRIORS_dil_listbox_title"><?php echo xlt('Dilated with'); ?>:</span><br />
                     <table id="PRIORS_dil_listbox">
                       <tr>
@@ -2307,7 +2307,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             }
 
                     echo $close_table;
-        ?>
+            ?>
         </div>
             <?php
             $PMH_panel = ob_get_contents();
@@ -2476,7 +2476,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         ?>
         <span href="#PMH_anchor"
         onclick="alter_issue2('0','SOCH','');" class="disabled_button"><?php echo xlt("Negative"); ?><br /></span>
-    <?php
+        <?php
     }
 
     //<!-- Family History -->
@@ -3737,7 +3737,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 <li id="menu_fullscreen" name="menu_fullscreen" <?php echo $fullscreen; ?>>
                                     <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup('<?php echo $_SERVER['REQUEST_URI']. '&display=fullscreen&encounter='.$encounter; ?>');" href="JavaScript:void(0);" class=""><?php echo xlt('Fullscreen'); ?></a>
                                 </li>
-                            <?php
+                                <?php
                             } ?>
                         </ul>
                     </li>
@@ -3805,7 +3805,7 @@ function menu_overhaul_left($pid, $encounter)
     if (!$documents) {
         list($documents) = document_engine($pid);
     }
-        ?>
+    ?>
     <div class="borderShadow" id="title_bar">
         <div id="left_menu" name="left_menu" class="col-md-4">
             <div style="padding-left: 18px;">
@@ -3858,9 +3858,9 @@ function menu_overhaul_left($pid, $encounter)
                 ?>
                 <object><embed src="<?php echo $GLOBALS['webroot']; ?>/controller.php?document&amp;retrieve&amp;patient_id=<?php echo attr($pid); ?>&amp;document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&amp;as_file=false" frameborder="0"
                      type="<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['mimetype']); ?>" allowscriptaccess="always" allowfullscreen="false" height="50"></embed></object>
-            <?php
+                <?php
             } else {
-            ?>
+                ?>
             <object><embed src="<?php echo $GLOBALS['web_root']; ?>/interface/forms/<?php echo $form_folder; ?>/images/anon.gif" frameborder="0"
                  type="image/gif" height="50"></embed></object>
                 <?php
@@ -3947,7 +3947,7 @@ function menu_overhaul_left($pid, $encounter)
                     } else {
                         echo "</select>";
                     }
-                        ?>
+                    ?>
                     </td></tr>
                 <tr><td class="right"><b><?php echo xlt("Insurance"); ?>:</b>&nbsp;</td><td>&nbsp;<?php echo text($ins_co1); ?></td></tr>
                 <tr><td class="right"><b><?php echo xlt("Secondary"); ?>:</b>&nbsp;</td><td>&nbsp;<?php echo text($ins_co2); ?></td></tr>
@@ -5003,7 +5003,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                         if ($count ==0) {
                             $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('Not documented')."</td></tr>";
                         }
-                    ?>
+                        ?>
                 <tr>
                     <td class="GFS_title_1" id="GFS_gonios" name="GFS_gonios" style="position:relative;"><?php echo xlt('Gonioscopy'); ?>:</td>
                     <?php
@@ -5996,12 +5996,12 @@ function display_refractive_data($encounter_data)
                            <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLOSQUANTITY); ?></td>
                        </tr>
                     <?php }
-if (!empty($COMMENTS)) { ?>
+                    if (!empty($COMMENTS)) { ?>
                             <tr>
                                 <td></td>
                                 <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($COMMENTS); ?></td>
                             </tr>
-                    <?php }
+                                        <?php }
             }
             ?>
             <tr><td colspan="10">--------------------------------------------------------</td></tr>

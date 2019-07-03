@@ -130,7 +130,6 @@ $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 if ($userData = sqlQuery($sql, array(
     $auth['pid']
 ))) { // if query gets executed
-
     if (empty($userData)) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':not active patient'), '', '0');
         session_destroy();
