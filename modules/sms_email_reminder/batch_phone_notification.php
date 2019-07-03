@@ -1,19 +1,15 @@
 <?php
-// Copyright (C) 2010 Maviq <info@maviq.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-////////////////////////////////////////////////////////////////////
-// Package: cron_phone_notification
-// Purpose: to be run by cron every hour, look for appointments
-//      in the pre-notification period and send an phone reminder
-//      Based on cron_email_notification by Larry Lart
-// Created by:
-// Updated by:  Maviq on 01/12/2010
-////////////////////////////////////////////////////////////////////
+/*
+ * Purpose: to be run by cron every hour, look for appointments
+ * in the pre-notification period and send an phone reminder
+ * Based on cron_email_notification by Larry Lart
+ *
+ * @package OpenEMR
+ * @author Maviq <info@maviq.com>
+ * @copyright Copyright (c) 2010 Maviq <info@maviq.com>
+ * @link https://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // comment below exit if plan to use this script
 exit;
@@ -127,13 +123,12 @@ function cron_updateentry($type, $pid, $pc_eid)
         $query.=" pc_sendalertsms='YES' ";
     } elseif ($type=='Email') {
         $query.=" pc_sendalertemail='YES' ";
-    } //Added by Yijin for phone reminder.. Uses the same field as SMS.
-    elseif ($type=='Phone') {
+    } elseif ($type=='Phone') { // Added by Yijin for phone reminder.. Uses the same field as SMS.
         $query.=" pc_sendalertsms='YES' ";
     }
 
     $query .=" where pc_pid=? and pc_eid=? ";
-    //echo "<br>".$query;
+    // echo "<br>".$query;
     $db_sql = (sqlStatement($query, array($pid, $pc_eid)));
 }
 

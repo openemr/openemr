@@ -752,9 +752,7 @@ while ($result4 = sqlFetchArray($res4)) {
         for ($i = 1; $i < 5; ++$i) {
             echo "<td class='text right'>". $binfo[$i] . "</td>\n";
         }
-    } // end if authorized
-
-    else {
+    } /* end if authorized */ else {
         echo "<td class='text' valign='top' colspan='5' rowspan='" . attr($encounter_rows) . "'>(" . xlt("No access") . ")</td>\n";
     }
 

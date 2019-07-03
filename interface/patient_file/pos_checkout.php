@@ -1078,8 +1078,8 @@ function generate_receipt($patient_id, $encounter = 0)
                                 </div>
                             </div>
                                 <?php
-                            } // Otherwise if there is an invoice reference number mask, ask for the refno.
-                            elseif (!empty($GLOBALS['gbl_mask_invoice_number'])) {
+                            } elseif (!empty($GLOBALS['gbl_mask_invoice_number'])) { // Otherwise if there is an invoice
+                                // reference number mask, ask for the refno.
                                 ?>
                             <div class="col-xs-12 oe-custom-line">
                                 <div class="col-xs-3 col-lg-offset-3">

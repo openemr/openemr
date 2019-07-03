@@ -504,8 +504,7 @@ if (empty($collectthis)) {
                         $args['locationspec'] = $locationspec;
                         InsertEvent($args);
                     }
-                } // ===== Future Recurring events of a repeating series =====
-                else if ($_POST['recurr_affect'] == 'future') {
+                } else if ($_POST['recurr_affect'] == 'future') { // ===== Future Recurring events of a repeating series =====
                     // update all existing event records to
                     // stop recurring on this date-1
                     $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
@@ -516,8 +515,7 @@ if (empty($collectthis)) {
                             sqlStatement("UPDATE openemr_postcalendar_events SET " .
                             " pc_enddate = ? " .
                             " WHERE pc_aid = ? AND pc_multiple=?", array($selected_date, $provider, $row['pc_multiple']));
-                        } // In case of a change in the event head
-                        else {
+                        } else { // In case of a change in the event head
                             sqlStatement("DELETE FROM openemr_postcalendar_events " .
                             " WHERE pc_aid = ? AND pc_multiple=?", array($provider, $row['pc_multiple']));
                         }
@@ -735,10 +733,7 @@ if (empty($collectthis)) {
             // done with EVENT insert/update statements
 
             DOBandEncounter(isset($eid) ? $eid : null);
-    } // =======================================
-//    DELETE EVENT(s)
-// =======================================
-    else if ($_POST['form_action'] == "delete") {
+    } else if ($_POST['form_action'] == "delete") { //    DELETE EVENT(s)
         // =======================================
         //  multi providers event
         // =======================================
@@ -799,13 +794,9 @@ if (empty($collectthis)) {
                 // really delete the event from the database
                 sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
             }
-        } // =======================================
-        //  single provider event
-        // =======================================
-        else {
+        } else { //  single provider event
             if ($_POST['recurr_affect'] == 'current') {
                 // mod original event recur specs to exclude this date
-
                 // get the original event's repeat specs
                 $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
                 $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);

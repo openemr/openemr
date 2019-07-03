@@ -157,8 +157,8 @@ class PHPFHIRResponseParser
             } else {
                 $this->_triggerPropertyNotFoundError($fhirElementName, 'value');
             }
-        } // TODO: This is probably very not ok...
-        else if (isset($jsonEntry['resourceType']) && $jsonEntry['resourceType'] !== $fhirElementName) {
+        } else if (isset($jsonEntry['resourceType']) && $jsonEntry['resourceType'] !== $fhirElementName) { // TODO:
+            // This is probably very not ok...
             $propertyMap = $properties[$jsonEntry['resourceType']];
             $setter = $propertyMap['setter'];
             $element = $propertyMap['element'];

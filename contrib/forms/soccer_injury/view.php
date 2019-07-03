@@ -137,9 +137,7 @@ if ($_POST['bn_save']) {
         cbvalue('equip_2'), cbvalue('equip_3'), cbvalue('equip_4'), cbvalue('equip_5'), cbvalue('equip_6'), rbvalue('side'), rbvalue('removed'), cbvalue('treat_1'), cbvalue('treat_2'),
         cbvalue('treat_3'), cbvalue('treat_4'), cbvalue('treat_5'), cbvalue('treat_6'), cbvalue('treat_7'), cbvalue('treat_8'), cbvalue('treat_9'), cbvalue('treat_10'), $sistreat_other, cbvalue('noreturn'),
         $formid));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_soccer_injury ( " .
          "siinjtime, sigametime, simechanism, simech_other, sisurface, " .
          "siposition, sifootwear, " .

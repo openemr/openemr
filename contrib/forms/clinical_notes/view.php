@@ -97,9 +97,7 @@ if ($_POST['bn_save']) {
          WHERE id = ?";
 
         sqlStatement($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing, $formid));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_clinical_notes ( " .
          "history, examination, plan, followup_required, followup_timing 
          ) VALUES ( ?, ?, ?, ?, ? )";

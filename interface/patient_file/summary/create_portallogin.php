@@ -68,8 +68,7 @@ function messageCreate($uname, $pass, $site)
         }
 
         $message .= "<br>";
-    } // $site == "off"
-    else {
+    } else { // $site == "off"
         $offsite_portal_patient_link = $GLOBALS['portal_offsite_address_patient_link'] ?  $GLOBALS['portal_offsite_address_patient_link'] : "https://mydocsportal.com";
         $message .= "<a href='" . attr($offsite_portal_patient_link) . "'>" .
             text($offsite_portal_patient_link) . "</a><br><br>";

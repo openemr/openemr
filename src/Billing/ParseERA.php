@@ -6,7 +6,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (C) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -173,10 +173,7 @@ class ParseERA
                 }
 
                 $out['production_date'] = trim($seg[2]); // yyyymmdd
-            } //
-            // Loop 1000A is Payer Information.
-            //
-            else if ($segid == 'N1' && $seg[1] == 'PR') {
+            } else if ($segid == 'N1' && $seg[1] == 'PR') { // Loop 1000A is Payer Information.
                 if ($out['loopid']) {
                     return 'Unexpected N1|PR segment';
                 }
@@ -322,25 +319,22 @@ class ParseERA
                 // ignore
             } else if ($segid == 'DTM' && $seg[1] == '050' && $out['loopid'] == '2100') {
                 $out['claim_date'] = trim($seg[2]); // yyyymmdd
-            } // 036 = expiration date of coverage
-            // 050 = date claim received by payer
-            // 232 = claim statement period start
-            // 233 = claim statement period end
-            else if ($segid == 'DTM' && $out['loopid'] == '2100') {
+            } else if ($segid == 'DTM' && $out['loopid'] == '2100') { // 036 = expiration date of coverage
+                // 050 = date claim received by payer
+                // 232 = claim statement period start
+                // 233 = claim statement period end
                 // ignore?
             } else if ($segid == 'PER' && $out['loopid'] == '2100') {
                 $out['payer_insurance'] = trim($seg[2]);
                 $out['warnings'] .= 'Claim contact information: ' .
                     $seg[4] . "\n";
-            } // For AMT01 see the Amount Qualifier Codes on pages 135-135 of the
-            // Implementation Guide.  AMT is only good for comments and is not
-            // part of claim balancing.
-            else if ($segid == 'AMT' && $out['loopid'] == '2100') {
+            } else if ($segid == 'AMT' && $out['loopid'] == '2100') { // For AMT01 see the Amount Qualifier Codes on
+                // pages 135-135 of the Implementation Guide.
+                // AMT is only good for comments and is not part of claim balancing.
                 $out['warnings'] .= "AMT segment at claim level ignored.\n";
-            } // For QTY01 see the Quantity Qualifier Codes on pages 137-138 of the
-            // Implementation Guide.  QTY is only good for comments and is not
-            // part of claim balancing.
-            else if ($segid == 'QTY' && $out['loopid'] == '2100') {
+            } else if ($segid == 'QTY' && $out['loopid'] == '2100') { // For QTY01 see the Quantity Qualifier Codes on
+                // pages 137-138 of the Implementation Guide.
+                // QTY is only good for comments and is not part of claim balancing.
                 $out['warnings'] .= "QTY segment at claim level ignored.\n";
             } else if ($segid == 'SVC') { // Loop 2110 is Service Payment Information.
                 if (!$out['loopid']) {
@@ -385,11 +379,10 @@ class ParseERA
                 $out['svc'][$i]['adj'] = array();
                 // Note: SVC05, if present, indicates the paid units of service.
                 // It defaults to 1.
-            } // DTM01 identifies the type of service date:
-            // 472 = a single date of service
-            // 150 = service period start
-            // 151 = service period end
-            else if ($segid == 'DTM' && $out['loopid'] == '2110') {
+            } else if ($segid == 'DTM' && $out['loopid'] == '2110') { // DTM01 identifies the type of service date:
+                // 472 = a single date of service
+                // 150 = service period start
+                // 151 = service period end
                 $out['dos'] = trim($seg[2]); // yyyymmdd
             } else if ($segid == 'CAS' && $out['loopid'] == '2110') {
                 $i = count($out['svc']) - 1;

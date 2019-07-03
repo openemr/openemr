@@ -1,13 +1,14 @@
 <?php
-
-////////////////////////////////////////////////////////////////////
-// Package: cron_email_notification
-// Purpose: to be run by cron every hour, look for appointments
-//      in the pre-notification period and send an email reminder
-//
-// Created by:
-// Updated by:  Larry Lart on 10/03/2008
-////////////////////////////////////////////////////////////////////
+/*
+ * Purpose: to be run by cron every hour, look for appointments
+ * in the pre-notification period and send an email reminder
+ *
+ * @package OpenEMR
+ * @author Larry Lart
+ * @copyright Copyright (c) 2008 Larry Lart
+ * @link https://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // comment below exit if plan to use this script
 exit;

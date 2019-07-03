@@ -364,12 +364,10 @@ function writeOptionLine(
         echo "<input type='text' name='opt[" . attr($opt_line_no) . "][value]' value='" .
             attr($value) . "' size='8' maxlength='15' class='optin' />";
         echo "</td>\n";
-    } // Adjustment reasons use option_value as a reason category.  This is
-    // needed to distinguish between adjustments that change the invoice
-    // balance and those that just shift responsibility of payment or
-    // are used as comments.
-    //
-    elseif ($list_id == 'adjreason') {
+    } elseif ($list_id == 'adjreason') { // Adjustment reasons use option_value as a reason category.  This is
+        // needed to distinguish between adjustments that change the invoice
+        // balance and those that just shift responsibility of payment or
+        // are used as comments.
         echo "  <td>";
         echo "<select name='opt[" . attr($opt_line_no) . "][value]' class='optin'>";
         foreach (array(
@@ -387,10 +385,8 @@ function writeOptionLine(
         }
         echo "</select>";
         echo "</td>\n";
-    } // Address book categories use option_value to flag category as a
-    // person-centric vs company-centric vs indifferent.
-    //
-    elseif ($list_id == 'abook_type') {
+    } elseif ($list_id == 'abook_type') { // Address book categories use option_value to flag category as a
+        // person-centric vs company-centric vs indifferent.
         echo "  <td>";
         echo "<select name='opt[" . attr($opt_line_no) . "][value]' class='optin'>";
         foreach (array(
@@ -406,10 +402,7 @@ function writeOptionLine(
         }
         echo "</select>";
         echo "</td>\n";
-    } // Immunization categories use option_value to map list items
-    // to CVX codes.
-    //
-    elseif ($list_id == 'immunizations') {
+    } elseif ($list_id == 'immunizations') { // Immunization categories use option_value to map list items to CVX codes.
         echo "  <td>";
         echo "<input type='text' size='10' name='opt[" . attr($opt_line_no) . "][value]' " .
             "value='" . attr($value) . "' onclick='sel_cvxcode(this)' " .

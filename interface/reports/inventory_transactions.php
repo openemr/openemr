@@ -3,7 +3,7 @@
  * This is an inventory transactions list.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
@@ -174,9 +174,8 @@ if ($form_action == 'export') {
     echo '"' . xl('Amount') . '",';
     echo '"' . xl('Billed') . '",';
     echo '"' . xl('Notes') . '"' . "\n";
-} // end export
-else {
-    ?>
+} else { // end export
+?>
 <html>
 <head>
 <title><?php echo xlt('Inventory Transactions'); ?></title>

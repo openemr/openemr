@@ -79,9 +79,7 @@ if ($_POST['bn_save']) {
         sqlStatement($query, array($_POST['form_height_meters'], $_POST['form_weight_kg'], $_POST['form_skin_folds_9x'], $_POST['form_skin_folds_5x'], $_POST['form_pct_body_fat'], rbvalue('form_method_body_fat'),
         $_POST['form_pulse'], $_POST['form_bps'], $_POST['form_bpd'], $_POST['form_beep_level'], $_POST['form_beep_shuttles'], $_POST['form_beep_vo2_max'], $_POST['form_vertical_jump_meters'],
         $_POST['form_agility_505'], $_POST['form_sit_and_reach_cm'], $_POST['form_other'], $formid));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_sports_fitness ( " .
          "height_meters, weight_kg, skin_folds_9x, skin_folds_5x, " .
          "pct_body_fat, method_body_fat, pulse, bps, bpd, " .

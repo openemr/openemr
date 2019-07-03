@@ -206,8 +206,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
             <?php
-        } // end of deciding if we are printing the above rx block
-        else {
+        } else { // end of deciding if we are printing the above rx block
             print "<img src='./xout.jpg' id='rx1'>\n";
         }
         ?>
@@ -238,8 +237,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
             <?php
-        } // end of deciding if we are printing the above rx block
-        else {
+        } else { // end of deciding if we are printing the above rx block
             print "<img src='./xout.jpg' id='rx2'>\n";
         }
         ?>
@@ -270,8 +268,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
             <?php
-        } // end of deciding if we are printing the above rx block
-        else {
+        } else { // end of deciding if we are printing the above rx block
             print "<img src='./xout.jpg' id='rx3'>\n";
         }
         ?>
@@ -302,18 +299,16 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
             <?php
-        } // end of deciding if we are printing the above rx block
-        else {
+        } else { // end of deciding if we are printing the above rx block
             print "<img src='./xout.jpg' id='rx4'>\n";
         }
         ?>
 </body>
 </html>
         <?php
-    } //end of printing to rx not letterhead
-    elseif ($_GET['letterhead']) { //OPTION print to letterhead
+    } elseif ($_GET['letterhead']) { // end of printing to rx not letterhead. OPTION print to letterhead
         $content = preg_replace('/PATIENTNAME/i', $patient_name, $camos_content[0]);
-        if ($_POST['print_html']) { //print letterhead to html
+        if ($_POST['print_html']) { // print letterhead to html
             ?>
         <html>
         <head>
@@ -412,10 +407,9 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             }
 
             $pdf->ezStream();
-        } //end of html vs pdf print
+        } // end of html vs pdf print
     }
-} //end of if print
-else { //OPTION selection of what to print
+} else { // end of if print. OPTION selection of what to print
     ?>
 <html>
 <head>

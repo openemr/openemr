@@ -166,8 +166,7 @@ if ($row_currentMed['size'] > 0) {
             $widgetAuth = acl_check_issue($key, '', array('write', 'addonly'));
             $fixedWidth = false;
             expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-        } // end embeddedScreen
-        else {
+        } else { // end embeddedScreen
             ?>
             <tr class='issuetitle'>
             <td colspan='$numcols'>

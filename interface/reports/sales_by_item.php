@@ -3,7 +3,7 @@
  * This is a report of sales by item description.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -290,9 +290,8 @@ if ($_POST['form_csvexport']) {
         echo '"Qty",';
         echo '"Total"' . "\n";
     }
-} // end export
-else {
-    ?>
+} else { // end export
+?>
 <html>
 <head>
 

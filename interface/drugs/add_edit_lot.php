@@ -273,8 +273,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                 sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ? " .
                 "AND inventory_id = ?", array($drug_id,$lot_id));
             }
-        } // Destination lot will be created.
-        else {
+        } else { // Destination lot will be created.
             if ($form_quantity < 0) {
                 $info_msg = xl('Transaction failed, quantity is less than zero');
             } else {

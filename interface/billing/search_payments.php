@@ -657,9 +657,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </td>
                                 </tr>
                                 <?php
-                            }//End of while ($RowSearch = sqlFetchArray($ResultSearch))
-                        } //End of if(sqlNumRows($ResultSearch)>0)
-                        else {
+                            }// End of while ($RowSearch = sqlFetchArray($ResultSearch))
+                        } else { // End of if(sqlNumRows($ResultSearch)>0)
                             ?>
                       <tr>
                       <td class="text" colspan="11"><?php echo xlt('No Result Found, for the above search criteria.'); ?></td>
