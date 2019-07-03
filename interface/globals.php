@@ -93,9 +93,8 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 //  1. If a session does not yet exist, then will start the OpenEMR session, which
 //     will create a cookie with OpenEMR name. If a session already exists, then
 //     this means portal is being used and will bypass setting of the OpenEMR session/cookie.
-//  2. If using php version 7.3.0 or above, then will set the cookie_samesite in order
-//     to prevent csrf vulnerabilities. Setting it to Strict for now; if this is to
-//     strict on testing, then will instead set it to Lax.
+//  2. If using php version 7.3.0 or above, then will set the cookie_samesite to Strict in
+//     order to prevent csrf vulnerabilities.
 //  3. Need to set cookie_httponly to false, since javascript needs to be able to
 //     access/modify the cookie to support separate logins into OpenEMR. This is important
 //     to support in OpenEMR since the application needs to robustly support access of
