@@ -2102,7 +2102,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                         <span class="left" style="font-weight:800;font-size:0.9em;">'.xlt($key).'</span>
                     </td>
                     <td>
-                        <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',\''.attr($key).'\',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
+                        <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\','.attr_js($key).',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
                     </td>
                 </tr>
                 </table>
@@ -2131,8 +2131,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                             </tr>
                         </table>
                         ';
-                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span $red name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
-                onclick=\"alter_issue2('".attr($item['rowid'])."','".attr($key)."','".attr($index)."');\">".text($item['title']).$reaction."</span><br />";
+                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span $red name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
+                            onclick=\"alter_issue2(".attr_js($item['rowid']).",".attr_js($key).",".attr_js($index).");\">".text($item['title'].$reaction)."</span><br />";
                     $index++;
                     continue;
                 }
@@ -2375,7 +2375,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         $i=0;
         foreach ($PMSFH[0]['POH'] as $item) {
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','POH','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'POH','$i');\">".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
