@@ -4011,10 +4011,10 @@ var allPanels = $('.building_blocks > dd').hide();
                   });
 
                   build_IMPPLAN(obj.IMPPLAN_items);
-                  scroll='1';
-                    <?php if ($GLOBALS['new_tabs_layout'] !=='1') {
-                        ?>  $("[class='tabHide']").css("display","inline-block"); <?php
-}
+                    <?php
+                        if ($GLOBALS['new_tabs_layout'] !=='1') {
+                            ?>  $("[class='tabHide']").css("display","inline-block"); <?php
+                        }
                     ?>
 
                     $('[id^="BUTTON_TAB_"]').on('click', function () {

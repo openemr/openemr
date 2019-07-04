@@ -207,7 +207,7 @@ function deliver_document($task)
     $mail->SetFrom($email_sender, $from_name);
     $mail->AddAddress($to_email); //, $to_name);
     $mail->Subject = $from_fax;
-    $mail->MsgHTML("<html><HEAD> <TITLE>Fax Central OpenEMR</TITLE> <BASE HREF='http://www.oculoplasticsllc.com'> </HEAD><body><div class='wrapper'>".$cover_page."</div></body></html>");
+    $mail->MsgHTML("<html><HEAD> <TITLE>Fax Central OpenEMR</TITLE> </HEAD><body><div class='wrapper'>".$cover_page."</div></body></html>");
     $mail->IsHTML(true);
     $mail->AltBody = $cover_page;
     $mail->AddAttachment($file_to_attach, $file_name);
