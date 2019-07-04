@@ -21,8 +21,12 @@
  * @link http://www.open-emr.org
  *
  */
-// starting the PHP session (also regenerating the session id to avoid session fixation attacks)
-session_start();
+// starting the PHP session
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionStartUtil.php");
+OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
+
+// regenerating the session id to avoid session fixation attacks
 session_regenerate_id(true);
 //
 

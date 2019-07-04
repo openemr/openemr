@@ -89,54 +89,14 @@ if (preg_match("/^[^\/]/", $web_root)) {
 // only if you have some reason to.
 $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 
-// OpenEMR session/cookie strategy:
-//  1. If a session does not yet exist, then will start the OpenEMR session, which
-//     will create a cookie with OpenEMR name. If a session already exists, then
-//     this means portal is being used and will bypass setting of the OpenEMR session/cookie.
-//  2. If using php version 7.3.0 or above, then will set the cookie_samesite to Strict in
-//     order to prevent csrf vulnerabilities.
-//  3. Need to set cookie_httponly to false, since javascript needs to be able to
-//     access/modify the cookie to support separate logins into OpenEMR. This is important
-//     to support in OpenEMR since the application needs to robustly support access of
-//     separate patients via separate logins by same users. This is done via custom
-//     restore_session() javascript function; session IDs are effectively saved in the
-//     top level browser window.
-//  4. Using use_strict_mode to optimize security.
-//  5. Using sid_bits_per_character of 6 to optimize security. This does allow comma to
-//     be used in the session id, so need to ensure properly escape it when modify it in
-//     cookie.
-//  6. Using sid_length of 48 to optimize security.
-//  7. Setting gc_maxlifetime to 14400 since defaults for session.gc_maxlifetime is
-//     often too small.
-//  8. Setting cookie_path to improve security when using different OpenEMR instances
-//     on same server to prevent session conflicts.
+// If a session does not yet exist, then will start the core OpenEMR session.
+//  If a session already exists, then this means portal is being used, which
+//  has already created a portal session/cookie, so will bypass setting of
+//  the core OpenEMR session/cookie.
 if (session_status() === PHP_SESSION_NONE) {
-    // Below for main OpenEMR
-    if (version_compare(phpversion(), '7.3.0', '>=')) {
-        session_start([
-            'cookie_samesite' => "Strict",
-            'name'=> 'OpenEMR',
-            'use_strict_mode' => true,
-            'cookie_httponly' => false,
-            'sid_bits_per_character' => 6,
-            'sid_length' => 48,
-            'gc_maxlifetime' => 14400,
-            'cookie_path' => $web_root ? $web_root : '/'
-        ]);
-    } else {
-        session_start([
-            'name' => 'OpenEMR',
-            'use_strict_mode' => true,
-            'cookie_httponly' => false,
-            'sid_bits_per_character' => 6,
-            'sid_length' => 48,
-            'gc_maxlifetime' => 14400,
-            'cookie_path' => $web_root ? $web_root : '/'
-        ]);
-    }
-} else {
-    // Below for OpenEMR patient portal
-    session_start();
+    // core openemr session
+    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionStartUtil.php");
+    OpenEMR\Common\Session\SessionStartUtil::coreSessionStart($web_root);
 }
 
 // Set the site ID if required.  This must be done before any database

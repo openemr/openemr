@@ -10,7 +10,10 @@
  */
 
 //authencate for portal or main- never know where it gets used
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionStartUtil.php");
+OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
+
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;

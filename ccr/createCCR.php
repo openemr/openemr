@@ -21,7 +21,10 @@ if (isset($_GET['portal_auth']) || isset($_GET['portal_auth_two'])) {
         $landingpage = "../portal/index.php";
     }
 
-    session_start();
+    // Will start the (patient) portal OpenEMR session/cookie.
+    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionStartUtil.php");
+    OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
+
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         $pid = $_SESSION['pid'];
         $ignoreAuth=true;

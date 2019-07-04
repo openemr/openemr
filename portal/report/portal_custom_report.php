@@ -12,7 +12,9 @@
  */
 
 
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionStartUtil.php");
+OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
 $landingpage = "../index.php?site=" . urlencode($_SESSION['site_id']);

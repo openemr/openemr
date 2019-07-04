@@ -11,7 +11,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionStartUtil.php");
+OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
 session_regenerate_id(true);
 
 unset($_SESSION['itsme']);

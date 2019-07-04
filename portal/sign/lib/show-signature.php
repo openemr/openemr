@@ -19,7 +19,11 @@ $signer = $data['signer'];
 // this script is used by both the patient portal and main openemr; below does authorization.
 if ($type == 'patient-signature') {
     // authorize via patient portal
-    session_start();
+
+    // Will start the (patient) portal OpenEMR session/cookie.
+    require_once(dirname(__FILE__) . "/../../../src/Common/Session/SessionStartUtil.php");
+    OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
+
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         // authorized by patient portal
         $pid = $_SESSION['pid'];
