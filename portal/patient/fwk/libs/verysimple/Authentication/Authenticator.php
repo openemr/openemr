@@ -93,6 +93,6 @@ class Authenticator
 
         self::UnsetAllSessionVars();
 
-        @session_destroy();
+        session_destroy();
     }
 }

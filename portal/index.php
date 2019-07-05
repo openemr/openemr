@@ -16,8 +16,8 @@
 //setting the session & other config options
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionStartUtil.php");
-OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //don't require standard openemr authorization in globals.php
 $ignoreAuth = 1;

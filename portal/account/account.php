@@ -10,8 +10,8 @@
  */
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionStartUtil.php");
-OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if ($_SESSION['register'] === true && isset($_SESSION['pid'])) {
     $ignoreAuth_onsite_portal_two = true;
@@ -70,7 +70,7 @@ if ($action == 'set_lang') {
     unset($_SESSION['site_id']);
     unset($_SESSION['register']);
     echo 'gone';
-    session_destroy(); // I know, makes little sense.
+    OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy(); // I know, makes little sense.
 } else {
     exit();
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * start session for OpenEMR or OpenEMR portal
+ * start/destroy session/cookie for OpenEMR or OpenEMR portal
  *
  * OpenEMR session/cookie strategy:
  *  1. If using php version 7.3.0 or above, then will set the cookie_samesite to Strict in
@@ -22,6 +22,7 @@
  *  8. Ensuring that use_cookies and use_only_cookies are turned on.
  *  9. For core OpenEMR, setting cookie_path to improve security when using different OpenEMR instances
  *     on same server to prevent session conflicts.
+ * 10. Standardize session/cookie destroy in 1 function.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -33,12 +34,12 @@
 
 namespace OpenEMR\Common\Session;
 
-class SessionStartUtil
+class SessionUtil
 {
     private static $gc_maxlifetime = 14400;
-    private static $use_strict_mode = true;
     private static $sid_bits_per_character = 6;
     private static $sid_length = 48;
+    private static $use_strict_mode = true;
     private static $use_cookies = true;
     private static $use_only_cookies = true;
 
@@ -51,9 +52,9 @@ class SessionStartUtil
                 'cookie_httponly' => false,
                 'cookie_path' => $web_root ? $web_root : '/',
                 'gc_maxlifetime' => self::$gc_maxlifetime,
-                'use_strict_mode' => self::$use_strict_mode,
                 'sid_bits_per_character' => self::$sid_bits_per_character,
                 'sid_length' => self::$sid_length,
+                'use_strict_mode' => self::$use_strict_mode,
                 'use_cookies' => self::$use_cookies,
                 'use_only_cookies' => self::$use_only_cookies
             ]);
@@ -63,9 +64,9 @@ class SessionStartUtil
                 'cookie_httponly' => false,
                 'cookie_path' => $web_root ? $web_root : '/',
                 'gc_maxlifetime' => self::$gc_maxlifetime,
-                'use_strict_mode' => self::$use_strict_mode,
                 'sid_bits_per_character' => self::$sid_bits_per_character,
                 'sid_length' => self::$sid_length,
+                'use_strict_mode' => self::$use_strict_mode,
                 'use_cookies' => self::$use_cookies,
                 'use_only_cookies' => self::$use_only_cookies
             ]);
@@ -80,9 +81,9 @@ class SessionStartUtil
                 'name'=> 'PortalOpenEMR',
                 'cookie_httponly' => true,
                 'gc_maxlifetime' => self::$gc_maxlifetime,
-                'use_strict_mode' => self::$use_strict_mode,
                 'sid_bits_per_character' => self::$sid_bits_per_character,
                 'sid_length' => self::$sid_length,
+                'use_strict_mode' => self::$use_strict_mode,
                 'use_cookies' => self::$use_cookies,
                 'use_only_cookies' => self::$use_only_cookies
             ]);
@@ -91,12 +92,30 @@ class SessionStartUtil
                 'name' => 'PortalOpenEMR',
                 'cookie_httponly' => true,
                 'gc_maxlifetime' => self::$gc_maxlifetime,
-                'use_strict_mode' => self::$use_strict_mode,
                 'sid_bits_per_character' => self::$sid_bits_per_character,
                 'sid_length' => self::$sid_length,
+                'use_strict_mode' => self::$use_strict_mode,
                 'use_cookies' => self::$use_cookies,
                 'use_only_cookies' => self::$use_only_cookies
             ]);
         }
+    }
+
+    public static function sessionCookieDestroy()
+    {
+        // Destroy the cookie
+        $params = session_get_cookie_params();
+        setcookie(
+            session_name(),
+            '',
+            time() - 42000,
+            $params["path"],
+            $params["domain"],
+            $params["secure"],
+            $params["httponly"]
+        );
+
+        // Destroy the session.
+        session_destroy();
     }
 }

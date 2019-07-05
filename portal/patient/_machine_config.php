@@ -17,8 +17,8 @@
 /* */
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionStartUtil.php");
-OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) || $_SESSION['register'] === true)) {
     $pid = $_SESSION['pid'];
@@ -26,7 +26,7 @@ if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) ||
     GlobalConfig::$PORTAL = true;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
     GlobalConfig::$PORTAL = false;
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");

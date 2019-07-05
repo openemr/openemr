@@ -16,8 +16,8 @@
  */
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionStartUtil.php");
-OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 require_once("./../library/pnotes.inc");
 
@@ -29,7 +29,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }

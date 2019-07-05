@@ -14,23 +14,19 @@
 
 // check if using the patient portal
 //(if so, then use the portal authorization)
-if (isset($_GET['portal_auth']) || isset($_GET['portal_auth_two'])) {
-    if (isset($_GET['portal_auth'])) {
-        $landingpage = "../patients/index.php";
-    } else { // isset($_GET['portal_auth_two'])
-        $landingpage = "../portal/index.php";
-    }
+if (isset($_GET['portal_auth'])) {
+    $landingpage = "../portal/index.php";
 
     // Will start the (patient) portal OpenEMR session/cookie.
-    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionStartUtil.php");
-    OpenEMR\Common\Session\SessionStartUtil::portalSessionStart();
+    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         $pid = $_SESSION['pid'];
         $ignoreAuth=true;
         global $ignoreAuth;
     } else {
-        session_destroy();
+        OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
         header('Location: '.$landingpage.'?w');
         exit;
     }
