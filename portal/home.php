@@ -18,6 +18,7 @@ require_once("lib/portal_mail.inc");
 
 
 if ($_SESSION['register'] === true) {
+    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
     OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit();
