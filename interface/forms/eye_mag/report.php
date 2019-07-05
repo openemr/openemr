@@ -1657,6 +1657,16 @@ if ($ANTSEG_COMMENTS) { ?>
             <td  style="text-align:left;padding:1px;vertical-align:top;">
                   <b><u><?php echo xlt('Retina'); ?>:</u></b>
                   <table class="report_section">
+                      <?php
+                      if ($DIL_MEDS) { ?>
+                      <tr>
+                          <td colspan="3" class="report_text left">
+                              <b><?php echo xlt('Dilation Time'); ?>:</b> <?php echo text($DIL_MEDS); ?>
+                          </td>
+                          
+                      </tr>
+                      <?php
+                    } ?>
                     <tr>
                       <td class="bold" style="text-align:right;text-decoration:underline;max-width:150px;"><?php echo xlt('Right'); ?></td>
                       <td style="width:100px;"></td>
@@ -1702,8 +1712,9 @@ if ($ODCMT||$OSCMT) { ?>
                       <td class="middle"><?php echo xlt('Central Macular Thickness'); ?> </td>
                       <td class="report_text left" >&nbsp;<?php echo text($OSCMT); ?></td>
                     </tr>
-                    <?php } ?>
-                    <?php if ($RETINA_COMMENTS) { ?>
+                    <?php }
+                    
+                    if ($RETINA_COMMENTS) { ?>
                     <tr>
                       <td colspan="2" class="report_text left">
                         <b><?php echo xlt('Comments'); ?>:</b> <?php echo text($RETINA_COMMENTS); ?>

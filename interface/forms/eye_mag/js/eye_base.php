@@ -1,4 +1,5 @@
 <?php
+
 /**
  * forms/eye_mag/js/eye_base.php
  *
@@ -6,11 +7,10 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Ray Magauran <magauran@MedFetch.com>
- * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
     include_once("../../../globals.php");
     include_once("$srcdir/acl.inc");
@@ -2087,19 +2087,22 @@ function showpnotes(docid) {
         return false;
     }
 }
+function getTimeStamp() {
+    var now = new Date();
+    var AMPM = now.getHours() >= 12 ? 'PM' : 'AM';
+    return now.getHours() + ':' + ((now.getMinutes() < 10) ? ("0" + now.getMinutes()) : (now.getMinutes())) + AMPM;
+}
 
 $(function() {
                   check_lock();
 
-var allPanels = $('.building_blocks > dd').hide();
+                  var allPanels = $('.building_blocks > dd').hide();
                   var allPanels2 = $('.building_blocks2 > dd').hide();
                   refresh_page();
-                  // AUTO- CODING FEATURES
                   check_CPT_92060();
                   check_exam_detail();
                   hide_DRAW();
                   hide_right();
-
                   Suggest_visit_code();
                   show_QP_section('IMPPLAN','1');
 
@@ -2479,9 +2482,10 @@ var allPanels = $('.building_blocks > dd').hide();
                                          });
                   $(".dil_drug").change(function(o) {
                                         if ($(this).is(':checked')) {
-                                        //($(".DIL_RISKS").removeClass("nodisplay"));
-                                        $("#DIL_RISKS").prop("checked","checked");
-                                        check_exam_detail();
+                                            $("#DIL_RISKS").prop("checked","checked");
+                                            check_exam_detail();
+                                            var timestamp = getTimeStamp();
+                                            $("#DIL_MEDS").val(timestamp);
                                         }});
 
                   //neurosens exam = stereopsis + strab||NPC||NPA||etc

@@ -1377,26 +1377,25 @@ foreach (explode(',', $given) as $item) {
           </p>
       </form>
     </div>
-    <script language='JavaScript'>
-       newtype('<?php if (!$form_index) {
-            echo "POH";
-} else {
-    echo $type_index;
-} ?>');
-
-        $(function() {
-
-            $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-            });
-          });
-
-          $('[title]').tooltip();
-    </script>
   </body>
+  <script language='JavaScript'>
+      newtype('<?php if (!$form_index) {
+          echo "POH";
+      } else {
+          echo $type_index;
+      } ?>');
+      newtype('Eye Meds');
+      $(function() {
+          $('.datepicker').datetimepicker({
+                                              <?php $datetimepicker_timepicker = false; ?>
+                                              <?php $datetimepicker_showseconds = false; ?>
+                                              <?php $datetimepicker_formatInput = true; ?>
+                                              <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                                              <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                                          });
+      });
+
+      $('[title]').tooltip();
+  </script>
 </html>
 

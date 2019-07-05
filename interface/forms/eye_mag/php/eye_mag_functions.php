@@ -365,7 +365,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 </table>
             </div>  <br />
             <div class="QP_lengthen"> <b><?php echo xlt('Comments'); ?>:</b><br />
-                  <textarea disabled id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS" Xstyle="width:4.0in;height:3em;"><?php echo text($EXT_COMMENTS); ?></textarea>
+                  <textarea disabled id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS"><?php echo text($EXT_COMMENTS); ?></textarea>
             </div>
 
             <?php
@@ -426,7 +426,10 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     // This is going to be based off a list in the near future
                     // to allow for end-user customization
                         ?>
-                    <span id="PRIORS_dil_listbox_title"><?php echo xlt('Dilated with'); ?>:</span><br />
+                    <span id="PRIORS_dil_listbox_title"><?php echo xlt('Dilation'); ?>:</span>
+                      <span id="PRIORS_dil_meds" class="pull-right"><?php
+                              if ($DIL_MEDS) echo text($DIL_MEDS);
+                          ?></span><br />
                     <table id="PRIORS_dil_listbox">
                       <tr>
                         <td>
@@ -2947,7 +2950,7 @@ function display_QP($zone, $provider_id)
         }
     } //end QP section items
     ?>
-    <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone)."_".attr($provider_id); ?>" target="RTop"
+      <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone)."_".attr($provider_id); ?>','QP Editor');"
       title="<?php echo xla('Click here to Edit this Doctor\'s Quick Pick list'); ?>"
       name="provider_todo" style="color:black;font-weight:600;"><i class="closeButton pull-right fa fa-pencil fa-fw"></i> </a>
         <?php
@@ -3936,7 +3939,6 @@ function menu_overhaul_left($pid, $encounter)
             $prov = sqlQuery($query, array($pat_data['ref_providerID']));
             $Ref_provider = $prov['fname']." ".$prov['lname'];
             $prov = sqlQuery($query, array($pat_data['providerID']));
-            $PCP = $prov['fname']." ".$prov['lname'];
 
             $query = "Select * from insurance_companies where id in (select provider from insurance_data where pid =? and type='primary')";
             $ins = sqlQuery($query, array($pid));

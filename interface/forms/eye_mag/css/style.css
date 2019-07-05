@@ -3,10 +3,11 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Ray Magauran <magauran@MedFetch.com>
- * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 .pure-form input[type="text"],
 .pure-form input[type="password"],
 .pure-form input[type="email"],
@@ -185,13 +186,13 @@ textarea.ACT {
     position: relative;
     display: inline-block;
     cursor: pointer;
-    padding-left: 2px;
+    padding-left: 3px;
 }
 .input-helper:before {
     content: '';
     display: block;
     position: relative;
-    padding-left:8px;
+    padding-left:10px;
 }
 
 .input-helper--radio {
@@ -206,7 +207,7 @@ textarea.ACT {
     border: 1px solid #222;
 }
 label {
-    font-size: 10px;
+    font-size: 11px;
     padding-left:3px;
 }
 .bigger {
@@ -2005,4 +2006,10 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 }
 .flip-left {
     transform: rotate(90deg) scaleX(-1);
+}
+#DIL_MEDS, #PRIORS_dil_meds {
+    background-color: #fff;
+    font-size:0.8em;
+    width: 75px;
+    height: 16px;
 }
