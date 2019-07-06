@@ -329,7 +329,7 @@ function editAppointment(mode,deid){
                         <header class="panel-heading"><?php echo xlt('Ledger');?> </header>
                         <div id="patledger" class="panel-body"></div>
                         <div class="panel-footer">
-                          <iframe src="./report/pat_ledger.php?form=1&patient_id=<?php echo attr_url($pid); ?>" width="100%" height="475" scrolling="yes"></iframe>
+                          <iframe src="./report/pat_ledger.php" width="100%" height="475" scrolling="yes"></iframe>
                         </div>
                     </div>
                 </div><!-- /.col -->

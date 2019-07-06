@@ -1,29 +1,33 @@
 <?php
 /**
- * start/destroy session/cookie for OpenEMR or OpenEMR portal
+ * start/destroy session/cookie for OpenEMR or OpenEMR (patient) portal
  *
  * OpenEMR session/cookie strategy:
- *  1. If using php version 7.3.0 or above, then will set the cookie_samesite to Strict in
+ *  1. The vital difference between the OpenEMR and OpenEMR (patient) portal session/cookie is the
+ *     cookie_httponly setting.
+ *     a. For core OpenEMR, need to set cookie_httponly to false, since javascript needs to be able to
+ *        access/modify the cookie to support separate logins into OpenEMR. This is important
+ *        to support in OpenEMR since the application needs to robustly support access of
+ *        separate patients via separate logins by same users. This is done via custom
+ *        restore_session() javascript function; session IDs are effectively saved in the
+ *        top level browser window.
+ *     b. For (patient) portal OpenEMR, setting cookie_httponly to true. Since only one patient will
+ *        be logging into the patient portal, can set this to true, which will help to prevent XSS
+ *        vulnerabilities.
+ *  2. If using php version 7.3.0 or above, then will set the cookie_samesite to Strict in
  *     order to prevent csrf vulnerabilities.
- *  2. For core OpenEMR, need to set cookie_httponly to false, since javascript needs to be able to
- *     access/modify the cookie to support separate logins into OpenEMR. This is important
- *     to support in OpenEMR since the application needs to robustly support access of
- *     separate patients via separate logins by same users. This is done via custom
- *     restore_session() javascript function; session IDs are effectively saved in the
- *     top level browser window.
- *  3. For (patient) portal OpenEMR, setting cookie_httponly to true.
- *  4. Using use_strict_mode to optimize security.
- *  5. Using sid_bits_per_character of 6 to optimize security. This does allow comma to
+ *  3. Using use_strict_mode, use_cookies, and use_only_cookies to optimize security.
+ *  4. Using sid_bits_per_character of 6 to optimize security. This does allow comma to
  *     be used in the session id, so need to ensure properly escape it when modify it in
  *     cookie.
- *  6. Using sid_length of 48 to optimize security.
- *  7. Setting gc_maxlifetime to 14400 since defaults for session.gc_maxlifetime is
+ *  5. Using sid_length of 48 to optimize security.
+ *  6. Setting gc_maxlifetime to 14400 since defaults for session.gc_maxlifetime is
  *     often too small.
- *  8. Ensuring that use_cookies and use_only_cookies are turned on.
- *  9. For core OpenEMR, setting cookie_path to improve security when using different OpenEMR instances
+ *  7. For core OpenEMR, setting cookie_path to improve security when using different OpenEMR instances
  *     on same server to prevent session conflicts.
- * 10. Standardize session/cookie destroy within functions. For core OpenEMR, destroy the session, but
- *     keep the cookie. For api OpenEMR and (patient) portal OpenEMR, destroy the session and cookie.
+ *  8. Centralize session/cookie destroy.
+ *     a.  For core OpenEMR, destroy the session, but keep the cookie.
+ *     b.  For api OpenEMR and (patient) portal OpenEMR, destroy the session and cookie.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
