@@ -6,7 +6,7 @@
  *  1. The vital difference between the OpenEMR and OpenEMR (patient) portal session/cookie is the
  *     cookie_httponly setting.
  *     a. For core OpenEMR, need to set cookie_httponly to false, since javascript needs to be able to
- *        access/modify the cookie to support separate logins into OpenEMR. This is important
+ *        access/modify the cookie to support separate logins in OpenEMR. This is important
  *        to support in OpenEMR since the application needs to robustly support access of
  *        separate patients via separate logins by same users. This is done via custom
  *        restore_session() javascript function; session IDs are effectively saved in the
@@ -80,7 +80,6 @@ class SessionUtil
 
     public static function coreSessionDestroy()
     {
-       // Destroy the session.
         session_destroy();
     }
 
@@ -88,7 +87,6 @@ class SessionUtil
     {
         self::portalSessionCookieDestroy();
     }
-
 
     public static function portalSessionStart()
     {
