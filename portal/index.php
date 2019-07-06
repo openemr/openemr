@@ -97,10 +97,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <?php
-        $css = $GLOBALS['css_header'];
-        $GLOBALS['css_header'] = "";
         Header::setupHeader(['no_main-theme', 'datetime-picker']);
-        //$GLOBALS['css_header'] = $css;
     ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/js/jquery.gritter.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/css/jquery.gritter.css" />

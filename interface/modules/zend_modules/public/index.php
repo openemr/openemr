@@ -26,11 +26,8 @@ $controllerName = isset($urlArray[$countUrlArray-2]) ? $urlArray[$countUrlArray-
 //skipping OpenEMR authentication if the controller is SOAP and action is INDEX
 //SOAP authentication is done in the contoller EncounterccdadispatchController
 if ($_REQUEST['recipient'] === 'patient' && $_REQUEST['site'] && $controllerName) {
-
-    // TODO, figure out what to do HERE!!!!
     session_id($_REQUEST['me']);
     session_start();
-
     $ignoreAuth_onsite_portal_two = false; // eval'ed in globals but why not...
     if ($_SESSION['pid'] && $_SESSION['sessionUser']=='-patient-' && $_SESSION['portal_init']) {
         // Onsite portal was validated and patient authorized and re-validated via forwarded session.

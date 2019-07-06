@@ -9,7 +9,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-//authencate for portal or main- never know where it gets used
+//authenticate for portal or main- never know where it gets used
 
 // Will start the (patient) portal OpenEMR session/cookie.
 require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
@@ -87,7 +87,7 @@ function portalccdafetching($pid, $server_url, $parameterArray)
     $parameters = http_build_query($parameterArray); // future use
     try {
         $ch = curl_init();
-        $url = $server_url . "/interface/modules/zend_modules/public/encounterccdadispatch/index?site=$site_id&me=" . urlencode(session_id()) . "&param=1&view=1&combination=$pid&recipient=patient";
+        $url = $server_url . "/interface/modules/zend_modules/public/encounterccdadispatch/index?site=" . urlencode($site_id) . "&me=" . urlencode(session_id()) . "&param=1&view=1&combination=" . urlencode($pid) . "&recipient=patient";
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0); // set true for look see
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);

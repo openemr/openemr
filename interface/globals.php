@@ -94,9 +94,6 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 //  has already created a portal session/cookie, so will bypass setting of
 //  the core OpenEMR session/cookie.
 if (session_status() === PHP_SESSION_NONE) {
-
-    error_log("create openemr session");
-
     require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
     OpenEMR\Common\Session\SessionUtil::coreSessionStart($web_root);
 }
