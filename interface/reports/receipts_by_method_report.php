@@ -523,12 +523,13 @@ if ($_POST['form_refresh']) {
         $sqlBindArray = array();
         $query = "SELECT a.pid, a.encounter, a.post_time, a.pay_amount, " .
           "a.adj_amount, a.memo, a.session_id, a.code, a.payer_type, fe.id, fe.date, " .
-          "fe.invoice_refno, s.deposit_date, s.payer_id, s.reference, s.payment_method, i.name " .
+          "fe.invoice_refno, s.deposit_date, s.payer_id, s.reference, s.payment_method, i.name, l.option_id, l.title " .
           "FROM ar_activity AS a " .
           "JOIN form_encounter AS fe ON fe.pid = a.pid AND fe.encounter = a.encounter " .
           "JOIN forms AS f ON f.pid = a.pid AND f.encounter = a.encounter AND f.formdir = 'newpatient' " .
           "LEFT JOIN ar_session AS s ON s.session_id = a.session_id " .
           "LEFT JOIN insurance_companies AS i ON i.id = s.payer_id " .
+          "LEFT JOIN list_options AS l ON l.option_id = s.payment_method " .
           "WHERE ( a.pay_amount != 0 OR a.adj_amount != 0 )";
         //
         if ($form_use_edate) {
@@ -588,7 +589,7 @@ if ($_POST['form_refresh']) {
                 if (empty($row['session_id'])) {
                     $rowmethod = trim($row['memo']);
                 } else {
-                    $rowmethod = trim($row['payment_method']);
+                    $rowmethod = trim($row['title']);
                     $rowreference = trim($row['reference']);
                 }
             }
