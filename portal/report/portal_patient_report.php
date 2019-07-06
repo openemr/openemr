@@ -24,7 +24,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $user = $_SESSION['sessionUser'];
 } else {
-    OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }

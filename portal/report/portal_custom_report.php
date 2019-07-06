@@ -25,7 +25,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $user = $_SESSION['sessionUser'];
 } else {
-    OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
@@ -550,7 +550,7 @@ if ($printable) {
     <!-- old href was here
     <br><br> -->
 
-    <a href="./report/portal_custom_report.php?printable=1&<?php echo postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+    <a href="./report/portal_custom_report.php?printable=1&<?php echo postToGet($ar); ?>" class='link_submit' target='new'>
 <button><?php echo xlt('Printable Version'); ?></button>
 </a><br>
 <!--<div class="report_search_bar" style="width:100%;" id="search_options">

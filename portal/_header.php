@@ -31,7 +31,10 @@ use OpenEMR\Core\Header;
 
 <script type="text/javascript">
     var tab_mode = true; // for dialogs
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    function restoreSession(){
+        //dummy functions so the dlgopen function will work in the patient portal
+        return true;
+    }
 </script>
 
 <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>

@@ -70,7 +70,7 @@ if ($action == 'set_lang') {
     unset($_SESSION['site_id']);
     unset($_SESSION['register']);
     echo 'gone';
-    OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy(); // I know, makes little sense.
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy(); // I know, makes little sense.
 } else {
     exit();
 }

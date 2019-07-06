@@ -111,12 +111,11 @@ function generate_html_middle()
     posted_to_hidden('clearPass');
 }
 
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 function generate_html_end()
 {
     echo "</div></body></html>\n";
-    session_unset();
-    session_destroy();
-    unset($_COOKIE[session_name()]);
+    OpenEMR\Common\Session\SessionUtil::coreSessionDestroy();
     return 0;
 }
 

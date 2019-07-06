@@ -44,7 +44,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
-    OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }

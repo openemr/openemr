@@ -26,7 +26,7 @@ if (isset($_GET['portal_auth'])) {
         $ignoreAuth=true;
         global $ignoreAuth;
     } else {
-        OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         header('Location: '.$landingpage.'?w');
         exit;
     }

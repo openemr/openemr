@@ -526,7 +526,7 @@ function sel_patient() {
                     <!-- <a href='#' class='css_button' id='printbutton'>
                          <span><?php //echo xlt('Print Ledger'); ?></span></a> -->
                     <?php if ($type_form == '1') { ?>
-                    <!--  <a href="../patient_file/summary/demographics.php" <?php // if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">-->
+                    <!--  <a href="../patient_file/summary/demographics.php" <?php // if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button">-->
                          <!-- <span><?php //echo xlt('Back To Patient');?></span></a> -->
                     <?php } ?>
                     </div>

@@ -25,6 +25,7 @@ class Context
     {
         if (session_id() == '') {
             session_start();
+            error_log("DEBUG: This session_start, which is in Context.php, should never be called.");
         }
     }
 

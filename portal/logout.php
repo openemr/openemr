@@ -31,7 +31,7 @@ $logit->portalLog('logout', $_SESSION['pid'], ($_SESSION['portal_username'].': '
 
 //log out by killing the session
 require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
+OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
 
 //redirect to pretty login/logout page
 // $landingpage is defined in above verify_session.php script

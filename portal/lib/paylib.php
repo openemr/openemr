@@ -18,7 +18,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $ignoreAuth = true;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
 } else {
-    OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {

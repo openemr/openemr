@@ -22,7 +22,8 @@
  *  8. Ensuring that use_cookies and use_only_cookies are turned on.
  *  9. For core OpenEMR, setting cookie_path to improve security when using different OpenEMR instances
  *     on same server to prevent session conflicts.
- * 10. Standardize session/cookie destroy in 1 function.
+ * 10. Standardize session/cookie destroy within functions. For core OpenEMR, destroy the session, but
+ *     keep the cookie. For api OpenEMR and (patient) portal OpenEMR, destroy the session and cookie.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -73,6 +74,18 @@ class SessionUtil
         }
     }
 
+    public static function coreSessionDestroy()
+    {
+       // Destroy the session.
+        session_destroy();
+    }
+
+    public static function apiSessionCookieDestroy()
+    {
+        self::portalSessionCookieDestroy();
+    }
+
+
     public static function portalSessionStart()
     {
         if (version_compare(phpversion(), '7.3.0', '>=')) {
@@ -101,7 +114,7 @@ class SessionUtil
         }
     }
 
-    public static function sessionCookieDestroy()
+    public static function portalSessionCookieDestroy()
     {
         // Destroy the cookie
         $params = session_get_cookie_params();

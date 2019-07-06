@@ -147,6 +147,7 @@ function authCheckSession()
     }
 }
 
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
 function authCloseSession()
 {
   // Before destroying the session, save its site_id so that the next
@@ -154,9 +155,7 @@ function authCloseSession()
     global $incoming_site_id;
     $incoming_site_id = $_SESSION['site_id'];
     ob_start();
-    session_unset();
-    session_destroy();
-    unset($_COOKIE[session_name()]);
+    OpenEMR\Common\Session\SessionUtil::coreSessionDestroy();
 }
 
 function authLoginScreen($timed_out = false)

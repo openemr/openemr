@@ -21,7 +21,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['portal_username']);
 } else {
-    OpenEMR\Common\Session\SessionUtil::sessionCookieDestroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
     if (! isset($_SESSION['authUserID'])) {
@@ -95,7 +95,7 @@ function getAuthPortalUsers()
     content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Mail Application" />
 
-<?php Header::setupHeader(['summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
+<?php Header::setupHeader(['no_main-theme', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
 
 </head>
 <body class="skin-blue">

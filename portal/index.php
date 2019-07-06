@@ -99,7 +99,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     <?php
         $css = $GLOBALS['css_header'];
         $GLOBALS['css_header'] = "";
-        Header::setupHeader(['datetime-picker']);
+        Header::setupHeader(['no_main-theme', 'datetime-picker']);
         //$GLOBALS['css_header'] = $css;
     ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/js/jquery.gritter.min.js"></script>

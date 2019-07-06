@@ -29,6 +29,7 @@ class Authenticator
 
             if (session_id() == '') {
                 session_start();
+                error_log("DEBUG: This session_start, which is in Authenticator.php, should never be called.");
             }
         }
     }
@@ -94,5 +95,6 @@ class Authenticator
         self::UnsetAllSessionVars();
 
         session_destroy();
+        error_log("DEBUG: This session_destroy, which is in Authenticator.php, should never be called.");
     }
 }
