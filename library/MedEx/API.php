@@ -141,7 +141,7 @@ class Practice extends Base
         $runQuery = "SELECT * FROM facility WHERE service_location='1'";
         $ures = sqlStatement($runQuery);
         while ($urow = sqlFetchArray($ures)) {
-            if (in_array($urow['id'], $facilities)) {
+            if (in_array($urow['id'], $facilities, true)) {
                 $urow['messages_active'] = '1';
                 $fields2['facilities'][] = $urow;
             }
@@ -447,7 +447,7 @@ class Events extends Base
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt= sqlFetchArray($result)) {
                         list($response,$results) = $this->MedEx->checkModality($event, $appt);
-                        if ($results==false) {
+                        if ($results===false) {
                             continue; //not happening - either not allowed or not possible
                         }
                         if ( ($appt['pc_recurrtype'] !='0') && ($interval =="+") ) {
@@ -506,7 +506,7 @@ class Events extends Base
 
                 while ($recall = sqlFetchArray($result)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $recall);
-                    if ($results==false) {
+                    if ($results===false) {
                         continue; //not happening - either not allowed or not possible
                     }
                     $show = $this->MedEx->display->show_progress_recall($recall, $event);
@@ -678,7 +678,7 @@ class Events extends Base
 
                 while ($appt= sqlFetchArray($result)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $appt);
-                    if ($results==false) {
+                    if ($results===false) {
                         continue; //not happening - either not allowed or not possible
                     }
                     if ($appt['pc_recurrtype'] !='0') {
@@ -753,7 +753,7 @@ class Events extends Base
                 }
                     $all_providers = explode('|', $pref['ME_providers']);
                 foreach ($event['survey'] as $k => $v) {
-                    if (($v <= 0) || (empty($event['providers'])) || (!in_array($k, $all_providers))) {
+                    if (($v <= 0) || (empty($event['providers'])) || (!in_array($k, $all_providers, true))) {
                         continue;
                     }
                     $escapedArr[] = $k;
@@ -778,7 +778,7 @@ class Events extends Base
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt= sqlFetchArray($result)) {
                         list($response,$results) = $this->MedEx->checkModality($event, $appt);
-                        if ($results==false) {
+                        if ($results===false) {
                             continue; //not happening - either not allowed or not possible
                         }
                         $appt2 = array();
@@ -830,7 +830,7 @@ class Events extends Base
                     $returnval=array();
                     while ($urow = sqlFetchArray($ures)) {
                         list($response,$results) = $this->MedEx->checkModality($event, $urow);
-                        if ($results==false) {
+                        if ($results===false) {
                             continue; //not happening - either not allowed or not possible
                         }
                         $fields2['clinical_reminders'][] = $urow;
@@ -1032,7 +1032,7 @@ class Events extends Base
                 }
                 while ($appt = sqlFetchArray($result)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $appt);
-                    if ($results==false) {
+                    if ($results===false) {
                             continue; //not happening - either not allowed or not possible
                     }
                     if ($no_fu) {
@@ -1322,7 +1322,7 @@ class Events extends Base
                             }
                         }
     
-                        if ($excluded == false) {
+                        if ($excluded === false) {
                             $data[] = $occurence;
                         }
                         $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
@@ -1380,7 +1380,7 @@ class Events extends Base
                                 }
                             }
     
-                            if ($excluded == false) {
+                            if ($excluded === false) {
                                 $event['pc_eventDate'] = $occurence;
                                 $event['pc_endDate'] = '0000-00-00';
                                 $events2[] = $event;
