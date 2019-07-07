@@ -14,9 +14,6 @@ namespace Installer;
 
 // Add these import statements:
 use Installer\Model\InstModule;
-use Zend\Session\Config\SessionConfig;
-use Zend\Session\SessionManager;
-use Zend\Session\Container;
 use Installer\Model\InstModuleTable;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\TableGateway\TableGateway;
@@ -43,16 +40,5 @@ class Module
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
-    }
-
-
-    public function onBootstrap(\Zend\EventManager\EventInterface $e)
-    {
-        $config = $e->getApplication()->getServiceManager()->get('Configuration');
-        $sessionConfig = new SessionConfig();
-        $sessionConfig->setOptions($config['session']);
-        $sessionManager = new SessionManager($sessionConfig, null, null);
-        Container::setDefaultManager($sessionManager);
-        $sessionManager->start();
     }
 }
