@@ -794,8 +794,10 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </fieldset>
                 <fieldset id="search-upload">
                     <legend>
-                        <i id='select-method-tooltip' class="fa fa-info-circle" aria-hidden="true"></i>
-                        <div id="radio-div" class="pull-left oe-legend-radio">
+                        &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip' 
+                        class="fa fa-info-circle oe-superscript" aria-hidden="true"></i>
+                                      
+                        <div id="radio-div" class="oe-pull-away oe-legend-radio">
                             <label class="radio-inline">
                                 <input type="radio" id="invoice_search" name="radio-search" onclick=""
                                        value="inv-search"><?php echo xlt('Invoice Search'); ?>
@@ -891,7 +893,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </div>
                 <fieldset id="search-results" class="oe-show-hide">
                     <legend><span><?php echo xlt('Search Results'); ?></span>
-                        <div class="pull-right oe-legend-radio">
+                        <div class="oe-pull-away oe-legend-radio">
                             <label class="checkbox-inline">
                                 <input type="checkbox" id="posting_adj_disable" name="posting_adj_disable"
                                        onchange='persistCriteria(this, event)'
@@ -1034,7 +1036,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
                                     "matching encounters in OpenEMR. ";
                             }
-                            ?>
+                        ?>
                         <table class="table table-striped table-condensed">
                             <thead>
                             <tr>
