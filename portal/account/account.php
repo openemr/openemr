@@ -2,14 +2,19 @@
 /**
  * Ajax Handler for Register
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+
 if ($_SESSION['register'] === true && isset($_SESSION['pid'])) {
     $ignoreAuth_onsite_portal_two = true;
 }
@@ -67,7 +72,7 @@ if ($action == 'set_lang') {
     unset($_SESSION['site_id']);
     unset($_SESSION['register']);
     echo 'gone';
-    session_destroy(); // I know, makes little sense.
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy(); // I know, makes little sense.
 } else {
     exit();
 }

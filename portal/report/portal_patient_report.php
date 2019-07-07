@@ -11,7 +11,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
 $landingpage = "../index.php?site=" . urlencode($_SESSION['site_id']);
@@ -22,7 +24,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $user = $_SESSION['sessionUser'];
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
@@ -209,7 +211,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <?php if ($GLOBALS['activate_ccr_ccd_report']) { // show CCR/CCD reporting options ?>
 <div id="ccr_report">
 
-<form name='ccr_form' id='ccr_form' method='post' action="../ccr/createCCR.php?portal_auth_two=1">
+<form name='ccr_form' id='ccr_form' method='post' action="../ccr/createCCR.php?portal_auth=1">
 <span class='title'><?php echo xlt('Continuity of Care Record (CCR)'); ?></span>&nbsp;&nbsp;
 <br/>
 <span class='text'>(<?php echo xlt('Pop ups need to be enabled to see these reports'); ?>)</span>
@@ -648,7 +650,7 @@ initReport = function(){
             title: title,
             type: "POST",
             url: '../ccr/createCCR.php',
-            data:{'portal_auth_two':'1','ccrAction':'generate','raw':'yes'}
+            data:{'portal_auth':'1','ccrAction':'generate','raw':'yes'}
         };
 
         return eModal

@@ -11,6 +11,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+
 use OpenEMR\RestControllers\AuthRestController;
 
 // also a handy place to add utility methods
@@ -119,22 +121,7 @@ class RestConfig
 
     static function destroySession()
     {
-        if (!isset($_SESSION)) {
-            return;
-        }
-        $_SESSION = array();
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
-            );
-        }
+        OpenEMR\Common\Session\SessionUtil::apiSessionCookieDestroy();
     }
 
     static function getPostData($data)

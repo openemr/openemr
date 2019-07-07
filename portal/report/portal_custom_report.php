@@ -12,7 +12,9 @@
  */
 
 
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
 $landingpage = "../index.php?site=" . urlencode($_SESSION['site_id']);
@@ -23,7 +25,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $user = $_SESSION['sessionUser'];
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
@@ -548,7 +550,7 @@ if ($printable) {
     <!-- old href was here
     <br><br> -->
 
-    <a href="./report/portal_custom_report.php?printable=1&<?php echo postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+    <a href="./report/portal_custom_report.php?printable=1&<?php echo postToGet($ar); ?>" class='link_submit' target='new'>
 <button><?php echo xlt('Printable Version'); ?></button>
 </a><br>
 <!--<div class="report_search_bar" style="width:100%;" id="search_options">
@@ -1062,7 +1064,6 @@ if ($PDF_OUTPUT) {
         $ptdata = getPatientData($pid, 'cmsportal_login');
         $contents = $pdf->Output('', true);
         echo "<html><head>\n";
-        echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
         echo "</head><body class='body_top'>\n";
         $result = cms_portal_call(array(
         'action'   => 'putmessage',

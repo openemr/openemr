@@ -2,24 +2,15 @@
 /**
  * Authorization functions.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @author  ViCarePlus <visolve_emr@visolve.com>
- * @author  cfapress
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    ViCarePlus <visolve_emr@visolve.com>
+ * @author    cfapress
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 //----------THINGS WE ALWAYS DO
@@ -33,7 +24,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 $incoming_site_id = '';
 
 if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
-    isset($_POST['clearPass']) && isset($_POST['authProvider'])) {
+    isset($_POST['clearPass']) && isset($_POST['authProvider']) && isset($_POST['new_login_session_management'])) {
     $clearPass=$_POST['clearPass'];
     // set the language
     if (!empty($_POST['languageChoice'])) {
@@ -147,6 +138,7 @@ function authCheckSession()
     }
 }
 
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
 function authCloseSession()
 {
   // Before destroying the session, save its site_id so that the next
@@ -154,9 +146,7 @@ function authCloseSession()
     global $incoming_site_id;
     $incoming_site_id = $_SESSION['site_id'];
     ob_start();
-    session_unset();
-    session_destroy();
-    unset($_COOKIE[session_name()]);
+    OpenEMR\Common\Session\SessionUtil::coreSessionDestroy();
 }
 
 function authLoginScreen($timed_out = false)

@@ -111,252 +111,252 @@ function generate_html_middle()
     posted_to_hidden('clearPass');
 }
 
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 function generate_html_end()
 {
     echo "</div></body></html>\n";
-    session_unset();
-    session_destroy();
-    unset($_COOKIE[session_name()]);
+    OpenEMR\Common\Session\SessionUtil::coreSessionDestroy();
     return 0;
 }
 
+if (isset($_POST['new_login_session_management'])) {
 ///////////////////////////////////////////////////////////////////////
 // Begin code to support U2F and APP Based TOTP logic.
 ///////////////////////////////////////////////////////////////////////
-$errormsg = '';
-$regs = array();          // for mapping device handles to their names
-$registrations = array(); // the array of stored registration objects
-$res1 = sqlStatement(
-    "SELECT a.name, a.method, a.var1 FROM login_mfa_registrations AS a " .
-    "WHERE a.user_id = ? AND (a.method = 'TOTP' OR a.method = 'U2F') ORDER BY a.name",
-    array($_SESSION['authId'])
-);
+    $errormsg = '';
+    $regs = array();          // for mapping device handles to their names
+    $registrations = array(); // the array of stored registration objects
+    $res1 = sqlStatement(
+        "SELECT a.name, a.method, a.var1 FROM login_mfa_registrations AS a " .
+        "WHERE a.user_id = ? AND (a.method = 'TOTP' OR a.method = 'U2F') ORDER BY a.name",
+        array($_SESSION['authId'])
+    );
 
-$registrationAttempt = false;
-$isU2F = false;
-$isTOTP = false;
-while ($row1 = sqlFetchArray($res1)) {
-    $registrationAttempt = true;
-    if ($row1['method'] == 'U2F') {
-        $isU2F = true;
-        $regobj = json_decode($row1['var1']);
-        $regs[json_encode($regobj->keyHandle)] = $row1['name'];
-        $registrations[] = $regobj;
-    } else { // $row1['method'] == 'TOTP'
-        $isTOTP = true;
+    $registrationAttempt = false;
+    $isU2F = false;
+    $isTOTP = false;
+    while ($row1 = sqlFetchArray($res1)) {
+        $registrationAttempt = true;
+        if ($row1['method'] == 'U2F') {
+            $isU2F = true;
+            $regobj = json_decode($row1['var1']);
+            $regs[json_encode($regobj->keyHandle)] = $row1['name'];
+            $registrations[] = $regobj;
+        } else { // $row1['method'] == 'TOTP'
+            $isTOTP = true;
+        }
     }
-}
 
-if ($registrationAttempt) {
-    $requests = '';
-    $errortype = '';
-    if ($isU2F) {
-        // There is at least one U2F key registered so we have to request or verify key data.
-        // https is required, and with a proxy the server might not see it.
-        $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
-        $appId = $scheme . $_SERVER['HTTP_HOST'];
-        $u2f = new u2flib_server\U2F($appId);
-    }
-    $userid = $_SESSION['authId'];
-    $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
-    if ($form_response) {
-        // TOTP METHOD enabled if TOTP is visible in post request
-        if (isset($_POST['totp']) && trim($_POST['totp']) != "" && $isTOTP) {
-            $errormsg = false;
+    if ($registrationAttempt) {
+        $requests = '';
+        $errortype = '';
+        if ($isU2F) {
+            // There is at least one U2F key registered so we have to request or verify key data.
+            // https is required, and with a proxy the server might not see it.
+            $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
+            $appId = $scheme . $_SERVER['HTTP_HOST'];
+            $u2f = new u2flib_server\U2F($appId);
+        }
+        $userid = $_SESSION['authId'];
+        $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
+        if ($form_response) {
+            // TOTP METHOD enabled if TOTP is visible in post request
+            if (isset($_POST['totp']) && trim($_POST['totp']) != "" && $isTOTP) {
+                $errormsg = false;
 
-            $form_response = '';
+                $form_response = '';
 
-            $res1 = sqlQuery(
-                "SELECT a.var1 FROM login_mfa_registrations AS a WHERE a.user_id = ? AND a.method = 'TOTP'",
-                array($_SESSION['authId'])
-            );
-            $registrationSecret = false;
-            if (!empty($res1['var1'])) {
-                $registrationSecret = $res1['var1'];
-            }
-
-            // Decrypt the secret
-            // First, try standard method that uses standard key
-            $cryptoGen = new CryptoGen();
-            $secret = $cryptoGen->decryptStandard($registrationSecret);
-            if (empty($secret)) {
-                // Second, try the password hash, which was setup during install and is temporary
-                $passwordResults = privQuery(
-                    "SELECT password FROM users_secure WHERE username = ?",
-                    array($_POST["authUser"])
+                $res1 = sqlQuery(
+                    "SELECT a.var1 FROM login_mfa_registrations AS a WHERE a.user_id = ? AND a.method = 'TOTP'",
+                    array($_SESSION['authId'])
                 );
-                if (!empty($passwordResults["password"])) {
-                    $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
-                    if (!empty($secret)) {
-                        error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
-                        // Re-encrypt with the more secure standard key
-                        $secretEncrypt = $cryptoGen->encryptStandard($secret);
-                        privStatement(
-                            "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
-                            array($secretEncrypt, $userid)
-                        );
+                $registrationSecret = false;
+                if (!empty($res1['var1'])) {
+                    $registrationSecret = $res1['var1'];
+                }
+
+                // Decrypt the secret
+                // First, try standard method that uses standard key
+                $cryptoGen = new CryptoGen();
+                $secret = $cryptoGen->decryptStandard($registrationSecret);
+                if (empty($secret)) {
+                    // Second, try the password hash, which was setup during install and is temporary
+                    $passwordResults = privQuery(
+                        "SELECT password FROM users_secure WHERE username = ?",
+                        array($_POST["authUser"])
+                    );
+                    if (!empty($passwordResults["password"])) {
+                        $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
+                        if (!empty($secret)) {
+                            error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
+                            // Re-encrypt with the more secure standard key
+                            $secretEncrypt = $cryptoGen->encryptStandard($secret);
+                            privStatement(
+                                "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
+                                array($secretEncrypt, $userid)
+                            );
+                        }
                     }
                 }
-            }
 
-            if (!empty($secret)) {
-                $googleAuth = new Totp($secret);
-                $form_response = $googleAuth->validateCode($_POST['totp']);
-            }
+                if (!empty($secret)) {
+                    $googleAuth = new Totp($secret);
+                    $form_response = $googleAuth->validateCode($_POST['totp']);
+                }
 
-            if ($form_response) {
-                // Keep track of when challenges were last answered correctly.
-                privStatement(
-                    "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                    array($_SESSION['authId'])
-                );
-            } else {
-                $errormsg = xl("The code you entered was not valid");
-                $errortype = "TOTP";
-            }
-        } elseif ($isU2F) { // Otherwise use U2F METHOD
-            // We have key data, check if it matches what was registered.
-            $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($userid));
-            try {
-                $registration = $u2f->doAuthenticate(
-                    json_decode($tmprow['login_work_area']), // these are the original challenge requests
-                    $registrations,
-                    json_decode($_POST['form_response'])
-                );
-                // Stored registration data needs to be updated because the usage count has changed.
-                // We have to use the matching registered key.
-                $strhandle = json_encode($registration->keyHandle);
-                if (isset($regs[$strhandle])) {
-                    sqlStatement(
-                        "UPDATE login_mfa_registrations SET `var1` = ? WHERE " .
-                        "`user_id` = ? AND `method` = 'U2F' AND `name` = ?",
-                        array(json_encode($registration), $userid, $regs[$strhandle])
+                if ($form_response) {
+                    // Keep track of when challenges were last answered correctly.
+                    privStatement(
+                        "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
+                        array($_SESSION['authId'])
                     );
                 } else {
-                    error_log("Unexpected keyHandle returned from doAuthenticate(): '" . errorLogEscape($strhandle) . "'");
+                    $errormsg = xl("The code you entered was not valid");
+                    $errortype = "TOTP";
                 }
-                // Keep track of when challenges were last answered correctly.
-                sqlStatement(
-                    "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                    array($_SESSION['authId'])
-                );
-            } catch (u2flib_server\Error $e) {
-                // Authentication failed so we will build the U2F form again.
+            } elseif ($isU2F) { // Otherwise use U2F METHOD
+                // We have key data, check if it matches what was registered.
+                $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($userid));
+                try {
+                    $registration = $u2f->doAuthenticate(
+                        json_decode($tmprow['login_work_area']), // these are the original challenge requests
+                        $registrations,
+                        json_decode($_POST['form_response'])
+                    );
+                    // Stored registration data needs to be updated because the usage count has changed.
+                    // We have to use the matching registered key.
+                    $strhandle = json_encode($registration->keyHandle);
+                    if (isset($regs[$strhandle])) {
+                        sqlStatement(
+                            "UPDATE login_mfa_registrations SET `var1` = ? WHERE " .
+                            "`user_id` = ? AND `method` = 'U2F' AND `name` = ?",
+                            array(json_encode($registration), $userid, $regs[$strhandle])
+                        );
+                    } else {
+                        error_log("Unexpected keyHandle returned from doAuthenticate(): '" . errorLogEscape($strhandle) . "'");
+                    }
+                    // Keep track of when challenges were last answered correctly.
+                    sqlStatement(
+                        "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
+                        array($_SESSION['authId'])
+                    );
+                } catch (u2flib_server\Error $e) {
+                    // Authentication failed so we will build the U2F form again.
+                    $form_response = '';
+                    $errormsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
+                    $errortype = "U2F";
+                }
+            } else {
+                // do nothing
                 $form_response = '';
-                $errormsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
-                $errortype = "U2F";
             }
-        } else {
-            // do nothing
-            $form_response = '';
+        }
+        if (!$form_response) {
+            generate_html_start();
+            if ($isU2F) {
+                generate_html_u2f();
+            }
+            if ($isTOTP) {
+                input_focus();
+            }
+            generate_html_top();
+            if ($isTOTP) {
+                echo '<div class="container">';
+                echo '<div class="row">';
+                echo '    <div class="col-sm-12">';
+                echo '        <div class="page-header">';
+                echo '            <h2>' . xlt('TOTP Verification') . '</h2>';
+                echo '        </div>';
+                echo '    </div>';
+                echo '</div>';
+                if ($errormsg && $errortype == "TOTP") {
+                    echo '<div class="row"><div class="col-sm-12"><div class="alert alert-danger alert-msg">' . text($errormsg) . '</div></div></div>';
+                }
+
+                echo '<div class="row">';
+                echo '  <div class="col-sm-12">';
+                echo '      <form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form" id=="challenge_form">';
+                echo '              <fieldset>';
+                echo '                  <legend>' . xlt('Provide TOTP code') . '</legend>';
+                echo '                  <div class="form-group">';
+                echo '                      <div class="col-sm-6 col-sm-offset-3">';
+                echo '                          <label for="totp">' . xlt('Enter the code from your authentication application on your device') . ':</label>';
+                echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" maxlength="12" required>';
+                echo '                          <input type="hidden" name="form_response" value="true" />';
+                generate_html_middle();
+                echo '                  </div>';
+                echo '              </fieldset>';
+                echo '                  <div class="form-group clearfix">';
+                echo '                      <div class="col-sm-12 text-left position-override">';
+                echo '                          <button type="submit" class="btn btn-default btn-save">' . xlt('Authenticate TOTP') . '</button>';
+                echo '                  </div>';
+                echo '              </div>';
+                echo '          </div>';
+                echo '      </form>';
+                echo '  </div>';
+                echo '</div>';
+            }
+            if ($isU2F) {
+                // There is no key data yet or authentication failed, so we need to solicit it.
+                $requests = json_encode($u2f->getAuthenticateData($registrations));
+                // Persist the challenge also in the database because the browser is untrusted.
+                sqlStatement(
+                    "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
+                    array($requests, $userid)
+                );
+
+                echo '<div class="container">';
+                echo '<div class="row">';
+                echo '    <div class="col-sm-12">';
+                echo '        <div class="page-header">';
+                echo '            <h2>' . xlt('U2F Key Verification') . '</h2>';
+                echo '        </div>';
+                echo '    </div>';
+                echo '</div>';
+                if ($errormsg && $errortype == "U2F") {
+                    echo '<div class="row"><div class="col-sm-12"><div class="alert alert-danger  alert-msg">' . text($errormsg) . '</div></div></div>';
+                }
+                echo '<div class="row">';
+                echo '  <div class="col-sm-12">';
+                echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top">';
+                echo '              <fieldset>';
+                echo '                  <legend>' . xlt('Insert U2F Key') . '</legend>';
+                echo '                  <div class="form-group">';
+                echo '                      <div class="col-sm-6 col-sm-offset-3">';
+                echo '                          <ul>';
+                echo '                              <li>' . xlt('Insert your key into a USB port and click the Authenticate button below.') . '</li>';
+                echo '                              <li>' . xlt('Then press the flashing button on your key within 1 minute.') . '</li>';
+                echo '                          </ul>';
+                echo '                  </div>';
+                echo '              </fieldset>';
+                echo '                  <div class="form-group clearfix">';
+                echo '                      <div class="col-sm-12 text-left position-override">';
+                echo '                          <button type="button"  id="authutf" class="btn btn-default btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</button>';
+                echo '                          <input type="hidden" name="form_requests" value="' . attr($requests) . '" />';
+                echo '                          <input type="hidden" name="form_response" value="" />';
+                generate_html_middle();
+                echo '                      </div>';
+                echo '                  </div>';
+                echo '          </form>';
+                echo '  </div>';
+                echo '</div>';
+            }
+            exit(generate_html_end());
         }
     }
-    if (!$form_response) {
-        generate_html_start();
-        if ($isU2F) {
-            generate_html_u2f();
-        }
-        if ($isTOTP) {
-            input_focus();
-        }
-        generate_html_top();
-        if ($isTOTP) {
-            echo '<div class="container">';
-            echo '<div class="row">';
-            echo '    <div class="col-sm-12">';
-            echo '        <div class="page-header">';
-            echo '            <h2>' . xlt('TOTP Verification') . '</h2>';
-            echo '        </div>';
-            echo '    </div>';
-            echo '</div>';
-            if ($errormsg && $errortype == "TOTP") {
-                echo '<div class="row"><div class="col-sm-12"><div class="alert alert-danger alert-msg">' . text($errormsg) . '</div></div></div>';
-            }
+    ///////////////////////////////////////////////////////////////////////
+    // End of U2F and APP Based TOTP logic.
+    ///////////////////////////////////////////////////////////////////////
 
-            echo '<div class="row">';
-            echo '  <div class="col-sm-12">';
-            echo '      <form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form" id=="challenge_form">';
-            echo '              <fieldset>';
-            echo '                  <legend>'. xlt('Provide TOTP code') .'</legend>';
-            echo '                  <div class="form-group">';
-            echo '                      <div class="col-sm-6 col-sm-offset-3">';
-            echo '                          <label for="totp">' . xlt('Enter the code from your authentication application on your device') . ':</label>';
-            echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" maxlength="12" required>';
-            echo '                          <input type="hidden" name="form_response" value="true" />';
-            generate_html_middle();
-            echo '                  </div>';
-            echo '              </fieldset>';
-            echo '                  <div class="form-group clearfix">';
-            echo '                      <div class="col-sm-12 text-left position-override">';
-            echo '                          <button type="submit" class="btn btn-default btn-save">' . xlt('Authenticate TOTP') . '</button>';
-            echo '                  </div>';
-            echo '              </div>';
-            echo '          </div>';
-            echo '      </form>';
-            echo '  </div>';
-            echo '</div>';
-        }
-        if ($isU2F) {
-            // There is no key data yet or authentication failed, so we need to solicit it.
-            $requests = json_encode($u2f->getAuthenticateData($registrations));
-            // Persist the challenge also in the database because the browser is untrusted.
-            sqlStatement(
-                "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
-                array($requests, $userid)
-            );
 
-            echo '<div class="container">';
-            echo '<div class="row">';
-            echo '    <div class="col-sm-12">';
-            echo '        <div class="page-header">';
-            echo '            <h2>' . xlt('U2F Key Verification') . '</h2>';
-            echo '        </div>';
-            echo '    </div>';
-            echo '</div>';
-            if ($errormsg && $errortype == "U2F") {
-                echo '<div class="row"><div class="col-sm-12"><div class="alert alert-danger  alert-msg">' . text($errormsg) . '</div></div></div>';
-            }
-            echo '<div class="row">';
-            echo '  <div class="col-sm-12">';
-            echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top">';
-            echo '              <fieldset>';
-            echo '                  <legend>'. xlt('Insert U2F Key') .'</legend>';
-            echo '                  <div class="form-group">';
-            echo '                      <div class="col-sm-6 col-sm-offset-3">';
-            echo '                          <ul>';
-            echo '                              <li>' . xlt('Insert your key into a USB port and click the Authenticate button below.') . '</li>';
-            echo '                              <li>' . xlt('Then press the flashing button on your key within 1 minute.') . '</li>';
-            echo '                          </ul>';
-            echo '                  </div>';
-            echo '              </fieldset>';
-            echo '                  <div class="form-group clearfix">';
-            echo '                      <div class="col-sm-12 text-left position-override">';
-            echo '                          <button type="button"  id="authutf" class="btn btn-default btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</button>';
-            echo '                          <input type="hidden" name="form_requests" value="' . attr($requests) . '" />';
-            echo '                          <input type="hidden" name="form_response" value="" />';
-            generate_html_middle();
-            echo '                      </div>';
-            echo '                  </div>';
-            echo '          </form>';
-            echo '  </div>';
-            echo '</div>';
-        }
-        exit(generate_html_end());
-    }
-}
+    // Creates a new session id when load this outer frame
+    // (allows creations of separate OpenEMR frames to view patients concurrently
+    //  on different browser frame/windows)
+    // This session id is used below in the restoreSession.php include to create a
+    // session cookie for this specific OpenEMR instance that is then maintained
+    // within the OpenEMR instance by calling top.restoreSession() whenever
+    // refreshing or starting a new script.
 
-///////////////////////////////////////////////////////////////////////
-// End of U2F and APP Based TOTP logic.
-///////////////////////////////////////////////////////////////////////
-
-// Creates a new session id when load this outer frame
-// (allows creations of separate OpenEMR frames to view patients concurrently
-//  on different browser frame/windows)
-// This session id is used below in the restoreSession.php include to create a
-// session cookie for this specific OpenEMR instance that is then maintained
-// within the OpenEMR instance by calling top.restoreSession() whenever
-// refreshing or starting a new script.
-if (isset($_POST['new_login_session_management'])) {
     // This is a new login, so create a new session id and remove the old session
     session_regenerate_id(true);
 } else {
