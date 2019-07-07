@@ -61,9 +61,6 @@ return array(
         ),
         'layout' => 'site/layout',
     ),
-    'session' => array(
-
-    ),
     'moduleconfig' => array(
 
     ),
