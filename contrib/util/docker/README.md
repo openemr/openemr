@@ -69,7 +69,7 @@ options to choose from:
 - http://localhost:8152 (with Nginx and PHP-FPM 7.1 with redis)
 - http://localhost:8153 (with Nginx and PHP-FPM 7.2 with redis)
 - http://localhost:8154 (with Nginx and PHP-FPM 7.3 with redis)
-- http://localhost:8155 (with Nginx and PHP-FPM 7.4 with redis) (Note redis is not yet working on the build; will keep trying)
+- http://localhost:8155 (with Nginx and PHP-FPM 7.4 with redis)
 - https://localhost:9080 with SSL (with Apache and PHP 7.1)
 - https://localhost:9081 with SSL (with Apache and PHP 7.2)
 - https://localhost:9082 with SSL (with Apache and PHP 7.3)
@@ -89,7 +89,7 @@ options to choose from:
 - https://localhost:9152 with SSL (with Nginx and PHP-FPM 7.1 with redis)
 - https://localhost:9153 with SSL (with Nginx and PHP-FPM 7.2 with redis)
 - https://localhost:9154 with SSL (with Nginx and PHP-FPM 7.3 with redis)
-- https://localhost:9154 with SSL (with Nginx and PHP-FPM 7.4 with redis) (Note redis is not yet working on the build; will keep trying)
+- https://localhost:9154 with SSL (with Nginx and PHP-FPM 7.4 with redis)
 
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
