@@ -62,4 +62,9 @@ class UpdateEvent extends Event
     {
         return $this->authorized;
     }
+
+    public function setAuthorized($authorized)
+    {
+        $this->authorized = $authorized;
+    }
 }
