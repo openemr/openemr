@@ -141,9 +141,9 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
 function era_callback(&$out)
 {
     global $where, $eracount, $eraname;
-// print_r($out); // debugging
+    // print_r($out); // debugging
     ++$eracount;
-// $eraname = $out['isa_control_number'];
+    // $eraname = $out['isa_control_number'];
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
         '_' . ltrim($out['payer_id'], '0');
     list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
@@ -230,11 +230,11 @@ function upload_file_to_client($file_to_send)
     header("Content-Disposition: attachment; filename=" . basename($file_to_send));
     header("Content-Description: File Transfer");
     readfile($file_to_send);
-// flush the content to the browser. If you don't do this, the text from the subsequent
-// output from this script will be in the file instead of sent to the browser.
+    // flush the content to the browser. If you don't do this, the text from the subsequent
+    // output from this script will be in the file instead of sent to the browser.
     flush();
     exit(); //added to exit from process properly in order to stop bad html code -ehrlive
-// sleep one second to ensure there's no follow-on.
+    // sleep one second to ensure there's no follow-on.
     sleep(1);
 }
 
@@ -256,8 +256,8 @@ function upload_file_to_client_email($ppid, $file_to_send)
 
 function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID = null, $flagCFN = false)
 {
-//modified for statement title name
-//Function reads a HTML file and converts to pdf.
+    //modified for statement title name
+    //Function reads a HTML file and converts to pdf.
 
     $aPatFName = convert_safe_file_dir_name($aPatFirstName); //modified for statement title name
     if ($flagCFN) {
@@ -356,11 +356,11 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     header("Content-Disposition: attachment; filename=" . basename($STMT_TEMP_FILE_PDF));
     header("Content-Description: File Transfer");
     readfile($STMT_TEMP_FILE_PDF);
-// flush the content to the browser. If you don't do this, the text from the subsequent
-// output from this script will be in the file instead of sent to the browser.
+    // flush the content to the browser. If you don't do this, the text from the subsequent
+    // output from this script will be in the file instead of sent to the browser.
     flush();
     exit(); //added to exit from process properly in order to stop bad html code -ehrlive
-// sleep one second to ensure there's no follow-on.
+    // sleep one second to ensure there's no follow-on.
     sleep(1);
 }
 
@@ -404,8 +404,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     $multiplePatients = false;
     $usePatientNamePdf = false;
 
-// get pids for delimits
-// need to only use summary invoice for multi visits
+    // get pids for delimits
+    // need to only use summary invoice for multi visits
     $inv_pid = array();
     $inv_count = -1;
     if ($_REQUEST['form_portalnotify']) {
@@ -423,8 +423,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         }
         $rcnt++;
     }
-// This loops once for each invoice/encounter.
-//
+    // This loops once for each invoice/encounter.
+    //
     $rcnt = 0;
     while ($row = $rows[$rcnt++]) {
         $svcdate = substr($row['date'], 0, 10);
@@ -446,25 +446,25 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             }
         }
 
-// If this is a new patient then print the pending statement
-// and start a new one.  This is an associative array:
-//
-//  cid     = same as pid
-//  pid     = OpenEMR patient ID
-//  patient = patient name
-//  amount  = total amount due
-//  adjust  = adjustments (already applied to amount)
-//  duedate = due date of the oldest included invoice
-//  age     = number of days from duedate to today
-//  to      = array of addressee name/address lines
-//  lines   = array of:
-//    dos     = date of service "yyyy-mm-dd"
-//    desc    = description
-//    amount  = charge less adjustments
-//    paid    = amount paid
-//    notice  = 1 for first notice, 2 for second, etc.
-//    detail  = array of details, see invoice_summary.inc.php
-//
+        // If this is a new patient then print the pending statement
+        // and start a new one.  This is an associative array:
+        //
+        //  cid     = same as pid
+        //  pid     = OpenEMR patient ID
+        //  patient = patient name
+        //  amount  = total amount due
+        //  adjust  = adjustments (already applied to amount)
+        //  duedate = due date of the oldest included invoice
+        //  age     = number of days from duedate to today
+        //  to      = array of addressee name/address lines
+        //  lines   = array of:
+        //    dos     = date of service "yyyy-mm-dd"
+        //    desc    = description
+        //    amount  = charge less adjustments
+        //    paid    = amount paid
+        //    notice  = 1 for first notice, 2 for second, etc.
+        //    detail  = array of details, see invoice_summary.inc.php
+        //
         if ($stmt['cid'] != $row['pid']) {
             if (!empty($stmt)) {
                 ++$stmt_count;
@@ -480,9 +480,9 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
             $stmt['encounter'] = $row['encounter'];
             $stmt['provider_id'] = $row['provider_id'];
-#If you use the field in demographics layout called
-#guardiansname this will allow you to send statements to the parent
-#of a child or a guardian etc
+            #If you use the field in demographics layout called
+            #guardiansname this will allow you to send statements to the parent
+            #of a child or a guardian etc
             if (strlen($row['guardiansname']) == 0) {
                 $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
             } else {
@@ -500,13 +500,13 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             $stmt['today'] = $today;
             $stmt['duedate'] = $duedate;
         } else {
-// Report the oldest due date.
+            // Report the oldest due date.
             if ($duedate < $stmt['duedate']) {
                 $stmt['duedate'] = $duedate;
             }
         }
 
-// Recompute age at each invoice.
+        // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
 
         $invlines = ar_get_invoice_summary($row['pid'], $row['encounter'], true);
@@ -529,7 +529,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             $stmt['ins_paid'] = $stmt['ins_paid'] + $value['ins'];
         }
 
-// Record that this statement was run.
+        // Record that this statement was run.
         if (!$DEBUG && !$_REQUEST['form_without']) {
             sqlStatement("UPDATE form_encounter SET " .
                 "last_stmt_date = ?, stmt_count = stmt_count + 1 " .
@@ -542,7 +542,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 break;
             }
             $pvoice[] = $stmt;
-// we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
+            // we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
             if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
                 fwrite($fhprint, make_statement($stmt));
                 if (!notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])) {
@@ -574,7 +574,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
     fclose($fhprint);
     sleep(1);
-// Download or print the file, as selected
+    // Download or print the file, as selected
     if ($_REQUEST['form_download']) {
         upload_file_to_client($STMT_TEMP_FILE);
     } elseif ($_REQUEST['form_pdf']) {
@@ -794,8 +794,10 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </fieldset>
                 <fieldset id="search-upload">
                     <legend>
-                        <i id='select-method-tooltip' class="fa fa-info-circle" aria-hidden="true"></i>
-                        <div id="radio-div" class="pull-left oe-legend-radio">
+                        &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip' 
+                        class="fa fa-info-circle oe-superscript" aria-hidden="true"></i>
+                                      
+                        <div id="radio-div" class="oe-pull-away oe-legend-radio">
                             <label class="radio-inline">
                                 <input type="radio" id="invoice_search" name="radio-search" onclick=""
                                        value="inv-search"><?php echo xlt('Invoice Search'); ?>
@@ -891,7 +893,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </div>
                 <fieldset id="search-results" class="oe-show-hide">
                     <legend><span><?php echo xlt('Search Results'); ?></span>
-                        <div class="pull-right oe-legend-radio">
+                        <div class="oe-pull-away oe-legend-radio">
                             <label class="checkbox-inline">
                                 <input type="checkbox" id="posting_adj_disable" name="posting_adj_disable"
                                        onchange='persistCriteria(this, event)'
@@ -916,8 +918,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
                             $where = "";
 
-                        // Handle X12 835 file upload.
-                        //
+                            // Handle X12 835 file upload.
+                            //
                             if ($_FILES['form_erafile']['size']) {
                                 $tmp_name = $_FILES['form_erafile']['tmp_name'];
 
@@ -1000,8 +1002,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 }
                             }
 
-                        // Notes that as of release 4.1.1 the copays are stored
-                        // in the ar_activity table marked with a PCP in the account_code column.
+                            // Notes that as of release 4.1.1 the copays are stored
+                            // in the ar_activity table marked with a PCP in the account_code column.
                             $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
                             "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
                             "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " .
@@ -1019,11 +1021,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             "WHERE $where " .
                             "ORDER BY p.lname, p.fname, p.mname, f.pid, f.encounter";
 
-                        // Note that unlike the SQL-Ledger case, this query does not weed
-                        // out encounters that are paid up.  Also the use of sub-selects
-                        // will require MySQL 4.1 or greater.
+                            // Note that unlike the SQL-Ledger case, this query does not weed
+                            // out encounters that are paid up.  Also the use of sub-selects
+                            // will require MySQL 4.1 or greater.
 
-                        // echo "<!-- $query -->\n"; // debugging
+                            // echo "<!-- $query -->\n"; // debugging
                                 $num_invoices = 0;
                             if (!$alertmsg) {
                                 $t_res = sqlStatement($query);

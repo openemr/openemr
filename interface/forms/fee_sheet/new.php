@@ -487,9 +487,9 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
         $current_checksum = $fs->visitChecksum();
     }
 
-  // Note: Taxes are computed at checkout time (in pos_checkout.php which
-  // also posts to SL).  Currently taxes with insurance claims make no sense,
-  // so for now we'll ignore tax computation in the insurance billing logic.
+    // Note: Taxes are computed at checkout time (in pos_checkout.php which
+    // also posts to SL).  Currently taxes with insurance claims make no sense,
+    // so for now we'll ignore tax computation in the insurance billing logic.
 
     if ($_POST['running_as_ajax']) {
         // In the case of running as an AJAX handler, we need to return this same
@@ -540,7 +540,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
 if (!$alertmsg && $_POST['bn_reopen']) {
     BillingUtilities::doVoid($fs->pid, $fs->encounter, true);
     $current_checksum = $fs->visitChecksum();
-  // Remove the line items so they are refreshed from the database on redisplay.
+    // Remove the line items so they are refreshed from the database on redisplay.
     unset($_POST['bill']);
     unset($_POST['prod']);
 }
@@ -808,13 +808,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 <body class="body_top">
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
-         <div class="row">
+        <div class="row">
             <div class="col-sm-12">
                 <div class="page-header clearfix">
                     <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
-           </div>
+       </div>
         <div class="row">
             <div class="col-sm-12">
                 <form method="post" name="fee_sheet_form" id="fee_sheet_form" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php?<?php
@@ -1423,9 +1423,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     <?php
                     if ($fs->contraception_code && !$isBilled) {
-                      // This will give the form save logic the associated contraceptive method.
+                        // This will give the form save logic the associated contraceptive method.
                         echo "<input type='hidden' name='ippfconmeth' value='" . attr($fs->contraception_code) . "'>\n";
-                      // If needed, this generates a dropdown to ask about prior contraception.
+                        // If needed, this generates a dropdown to ask about prior contraception.
                         echo $fs->generateContraceptionSelector();
                     }
                     ?>
