@@ -476,7 +476,7 @@
         "global_req": "enable_batch_payment"
       },
       {
-        "label": "Posting",
+        "label": "Posting Payments",
         "menu_id": "eob",
         "target": "bil",
         "url": "/interface/billing/sl_eob_search.php",
