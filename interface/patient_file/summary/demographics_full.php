@@ -24,7 +24,6 @@ use OpenEMR\Services\UserService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
-
 // Session pid must be right or bad things can happen when demographics are saved!
 //
 $set_pid = $_GET["set_pid"] ? $_GET["set_pid"] : $_GET["pid"];
@@ -37,7 +36,6 @@ $result2 = getEmployerData($pid);
 
  // Check authorization.
 if ($pid) {
-
     // Create and fire the patient demographics update event
     $patientService  = new PatientService();
     $patientService->setPid($pid);

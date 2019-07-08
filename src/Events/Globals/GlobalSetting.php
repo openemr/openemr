@@ -23,7 +23,7 @@ class GlobalSetting
     protected $default = null;
     protected $description = null;
     protected $isUserSetting = false;
-    
+
     public function __construct($label, $dataType, $default, $description, $isUserSetting = false)
     {
         $this->label = $label;
@@ -32,15 +32,15 @@ class GlobalSetting
         $this->description = $description;
         $this->isUserSetting = $isUserSetting;
     }
-    
+
     public function format()
     {
-        return array(
-        	xl( $this->label ),
+        return [
+            xl($this->label),
             $this->dataType,
             $this->default,
-            xl( $this->description )
-        );
+            xl($this->description)
+        ];
     }
 
     public function isUserSetting()

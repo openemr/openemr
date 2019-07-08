@@ -86,12 +86,10 @@ class GlobalsInitializedEvent extends Event
         if (!isset($this->globalsMetadata[$section])) {
             if ($beforeSection !== false &&
                 isset($this->globalsMetadata[$beforeSection])) {
-
                 $beforeSectionIndex = array_search($beforeSection, array_keys($this->globalsMetadata));
                 $this->globalsMetadata = array_slice($this->globalsMetadata, 0, $beforeSectionIndex, true) +
                     array($section => []) +
                     array_slice($this->globalsMetadata, $beforeSectionIndex, count($this->globalsMetadata) - 1, true) ;
-
             } else {
                 $this->globalsMetadata[$section] = [];
             }
@@ -103,7 +101,7 @@ class GlobalsInitializedEvent extends Event
     public function appendToSection($section, $key, GlobalSetting $global)
     {
         $this->globalsMetadata[$section][$key] = $global->format();
-        if ( $global->isUserSetting() ) {
+        if ($global->isUserSetting()) {
             $this->userSpecificGlobals[]= $key;
         }
     }
