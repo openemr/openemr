@@ -1036,7 +1036,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
                                     "matching encounters in OpenEMR. ";
                             }
-                        ?>
+                            ?>
                         <table class="table table-striped table-condensed">
                             <thead>
                             <tr>

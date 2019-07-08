@@ -858,7 +858,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                         echo "</div>";
                         echo "</fieldset>";
-                    ?>
+                        ?>
 
                     <fieldset>
                     <legend><?php echo xlt("Select Code")?></legend>
@@ -1388,7 +1388,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     echoProductLines();
                                     // Ensure DOM is updated.
                                     echo "<script>reinitForm();</script>";
-                                ?>
+                                    ?>
                             </table>
                         </div>
 
