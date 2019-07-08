@@ -128,7 +128,6 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
             ]
         );
     } // If adding a new form...
-    //
     else {
         $query = "INSERT INTO procedure_order SET $sets";
         $formid = sqlInsert(
