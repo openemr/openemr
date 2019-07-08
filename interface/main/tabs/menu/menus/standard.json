@@ -434,7 +434,7 @@
         ]
       },
       {
-        "label": "Billing",
+        "label": "Billing Manager",
         "menu_id": "bil0",
         "target": "bil",
         "url": "/interface/billing/billing_report.php",
@@ -1521,7 +1521,7 @@
             ]
           },
           {
-            "label": "Collections",
+            "label": "Collections and Aging",
             "menu_id": "rep0",
             "target": "rep",
             "url": "/interface/reports/collections_report.php",
