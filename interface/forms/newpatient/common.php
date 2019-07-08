@@ -319,7 +319,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <select name='form_sensitivity' id='form_sensitivity' class='form-control col-sm-12' >
                                             <?php
                                             foreach ($sensitivities as $value) {
-                                               // Omit sensitivities to which this user does not have access.
+                                                // Omit sensitivities to which this user does not have access.
                                                 if (acl_check('sensitivities', $value[1])) {
                                                     echo "       <option value='" . attr($value[1]) . "'";
                                                     if ($viewmode && $result['sensitivity'] == $value[1]) {

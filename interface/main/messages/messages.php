@@ -287,7 +287,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         </div>
                         <div class="oe-margin-b-10">
                             <?php
-                        //show the activity links
+                            //show the activity links
                             if (empty($task) || $task == "add" || $task == "delete") { ?>
                                     <?php if ($active == "all") { ?>
                                 <span><strong><?php echo xlt('All Messages'); ?></strong></span>
@@ -614,7 +614,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             </form>
                         <?php
                         } else {
-                        // This is for sorting the records.
+                            // This is for sorting the records.
                             $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
                             $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[3];
                             $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "desc";
@@ -635,7 +635,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     } break;
                                 }
                             }
-                        // Manage page numbering and display beneath the Messages table.
+                            // Manage page numbering and display beneath the Messages table.
                             $listnumber = 25;
                             $total = getPnotesByUser($active, $show_all, $_SESSION['authUser'], true);
                             if ($begin == "" or $begin == 0) {
@@ -666,7 +666,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             } else {
                                 $nextlink = "<i class=\"fa . $chevron_icon_right .\" style=\"color:grey\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
                             }
-                        // Display the Messages table header.
+                            // Display the Messages table header.
                             echo "
                                 <table width=100%>
                                     <tr>
@@ -687,7 +687,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                                                 <td width=\"15%\" style=\"border-bottom: 1px #000000 solid; \" class=bold>&nbsp;<b>" .
                                                         xlt('Status') . "</b> $sortlink[4]</td>
                                                     </tr>";
-                        // Display the Messages table body.
+                            // Display the Messages table body.
                             $count = 0;
                             $result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
                             while ($myrow = sqlFetchArray($result)) {
@@ -736,7 +736,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         </td>
                                     </tr>";
                             }
-                        // Display the Messages table footer.
+                            // Display the Messages table footer.
 
                             echo "  </table>
                                             </form>
