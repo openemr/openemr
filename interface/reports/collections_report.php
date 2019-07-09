@@ -779,8 +779,12 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         }
       // Skip invoices not in the desired "Due..." category.
       //
-        if ($is_due_ins && $duncount >= 0) continue;
-        if ($is_due_pt  && $duncount <  0) continue;
+        if ($is_due_ins && $duncount >= 0) {
+            continue;
+        }
+        if ($is_due_pt  && $duncount <  0) {
+            continue;
+        }
 
 
       // echo "<!-- " . $erow['encounter'] . ': ' . $erow['charges'] . ' + ' . $erow['sales'] . ' + ' . $erow['copays'] . ' - ' . $erow['payments'] . ' - ' . $erow['adjustments'] . "  -->\n"; // debugging
@@ -1022,7 +1026,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     // Generate aging headers if appropriate, else balance header.
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols;) {
-          echo "  <th class='dehead' align='left'>";
+                echo "  <th class='dehead' align='left'>";
                       echo $form_age_inc * $c;
                 if (++$c < $form_age_cols) {
                     echo "-" . text(($form_age_inc * $c - 1));
@@ -1185,7 +1189,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             <?php
             if ($form_age_cols) {
                 for ($c = 0; $c < $form_age_cols; ++$c) {
-        echo "  <td class='detail' align='left'>";
+                    echo "  <td class='detail' align='left'>";
                     if ($c == $agecolno) {
                         echo text(bucks($balance));
                     }
