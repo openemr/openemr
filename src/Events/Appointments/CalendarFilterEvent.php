@@ -57,4 +57,9 @@ class CalendarFilterEvent extends Event
     {
         return $this->customWhereFilter;
     }
+
+    public function setCustomWhereFilter($customWhereFilter)
+    {
+        $this->customWhereFilter = $customWhereFilter;
+    }
 }
