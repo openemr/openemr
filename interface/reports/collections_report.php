@@ -584,13 +584,13 @@ if ($_POST['form_csvexport']) {
                             <?php echo xlt('Aging Columns') ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_age_cols' class='form-control' size='2' value='<?php echo attr($form_age_cols) ? $form_age_cols : "3" ; ?>' />
+                           <input type='text' name='form_age_cols' class='form-control' size='2' value='<?php echo ($form_age_cols) ? attr($form_age_cols) : "3" ; ?>' />
                         </td>
                         <td class='control-label'>
                             <?php echo xlt('Days/Col') ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_age_inc' class='form-control' size='3' value='<?php echo attr($form_age_inc) ? $form_age_inc : "30"; ?>' />
+                           <input type='text' name='form_age_inc' class='form-control' size='3' value='<?php echo ($form_age_inc) ? attr($form_age_inc) : "30"; ?>' />
                         </td>
                         <td>
               <div class="checkbox">
@@ -765,22 +765,22 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             for ($i = 1; $i <= 3; ++$i) {
                 $tmp = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
                 if (empty($tmp)) {
-                $payerids[] = $tmp;
-            }
+                    $payerids[] = $tmp;
+                }
 
-            $duncount = $last_level_closed - count($payerids);
-            if ($duncount < 0) {
-                if (!empty($payerids[$last_level_closed])) {
-                    $insname = getInsName($payerids[$last_level_closed]);
-                    $insposition = $last_level_closed + 1;
+                $duncount = $last_level_closed - count($payerids);
+                if ($duncount < 0) {
+                    if (!empty($payerids[$last_level_closed])) {
+                        $insname = getInsName($payerids[$last_level_closed]);
+                        $insposition = $last_level_closed + 1;
+                    }
                 }
             }
         }
-
       // Skip invoices not in the desired "Due..." category.
       //
-      if ($is_due_ins && $duncount >= 0) continue;
-      if ($is_due_pt  && $duncount <  0) continue;
+        if ($is_due_ins && $duncount >= 0) continue;
+        if ($is_due_pt  && $duncount <  0) continue;
 
 
       // echo "<!-- " . $erow['encounter'] . ': ' . $erow['charges'] . ' + ' . $erow['sales'] . ' + ' . $erow['copays'] . ' - ' . $erow['payments'] . ' - ' . $erow['adjustments'] . "  -->\n"; // debugging
@@ -936,8 +936,8 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
                 echo '"' . xl('DOB') . '",';
             }
 
-            if ($form_cb_pubid) {
-                echo '"' . xl('Pubid') . '",';
+            if ($form_cb_pubpid) {
+                echo '"' . xl('Pubpid') . '",';
             }
 
             if ($form_cb_policy) {
@@ -1239,7 +1239,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
                     echo '"' . oeFormatShortDate($row['DOB'])       . '",';
                 }
 
-                if ($form_cb_pubid) {
+                if ($form_cb_pubpid) {
                     echo '"' . $row['pubpid']                       . '",';
                 }
 
