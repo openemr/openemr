@@ -8,7 +8,6 @@
 
 namespace OpenEMR\Events\Appointments;
 
-use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -29,12 +28,6 @@ class AppointmentsFilterEvent extends Event
     const EVENT_HANDLE = 'appointments.customFilter';
 
     /**
-     * @var null|UserService
-     *
-     */
-    private $userService = null;
-
-    /**
      * @var string
      *
      * This is the custom filter that can add to the appointment fetching query
@@ -42,23 +35,20 @@ class AppointmentsFilterEvent extends Event
     private $customWhereFilter= '1';
 
     /**
+     * Get an string representing the appointment filter
      *
+     * @return string
      */
-    public function __construct(UserService $userService)
-    {
-        $this->userService = $userService;
-    }
-
-    public function getUserService()
-    {
-        return $this->userService;
-    }
-
     public function getCustomWhereFilter()
     {
         return $this->customWhereFilter;
     }
 
+    /**
+     * @param $customWhereFilter
+     *
+     * Add a custom filter to the WHERE clause of appointment fetch query
+     */
     public function setCustomWhereFilter($customWhereFilter)
     {
         $this->customWhereFilter = $customWhereFilter;

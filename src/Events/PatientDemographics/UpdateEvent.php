@@ -8,8 +8,6 @@
 
 namespace OpenEMR\Events\PatientDemographics;
 
-use OpenEMR\Services\PatientService;
-use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -29,40 +27,44 @@ class UpdateEvent extends Event
     const EVENT_HANDLE = 'patientDemographics.update';
 
     /**
-     * @var null|UserService
+     * @var null|integer
      *
+     * Represents the patient we are considering access to
      */
-    private $userService = null;
-
-    /**
-     * @var null|PatientService
-     */
-    private $patientService = null;
+    private $pid = null;
 
     /**
      * @var bool
+     *
+     * true if the  user is authorized, false ow
      */
     private $authorized = true;
 
     /**
+     * UpdateEvent constructor.
      *
+     * @param integer $pid Patient Identifier
      */
-    public function __construct(UserService $userService, PatientService $patientService)
+    public function __construct($pid)
     {
-        $this->userService = $userService;
-        $this->patientService = $patientService;
+        $this->pid = $pid;
     }
 
-    public function getUserService()
-    {
-        return $this->userService;
-    }
-
+    /**
+     * @return bool
+     *
+     * Is user authorized to update patient?
+     */
     public function authorized()
     {
         return $this->authorized;
     }
 
+    /**
+     * @param bool $authorized
+     *
+     * Use this function to set whether or not this user is authorized to update patient
+     */
     public function setAuthorized($authorized)
     {
         $this->authorized = $authorized;

@@ -6,12 +6,12 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Events\Globals;
+namespace OpenEMR\Services\Globals;
 
 /**
  * Represents a global setting
  *
- * @package OpenEMR\Events
+ * @package OpenEMR\Services
  * @subpackage Globals
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>

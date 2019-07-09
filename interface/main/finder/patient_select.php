@@ -16,7 +16,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\UserService;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 
 if (!empty($_REQUEST)) {
@@ -197,7 +196,7 @@ if ($popup) {
     }
 
     // Custom filtering which enables module developer to filter patients out of search
-    $patientSelectFilterEvent = new PatientSelectFilterEvent(new UserService());
+    $patientSelectFilterEvent = new PatientSelectFilterEvent();
     $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientSelectFilterEvent::EVENT_HANDLE, $patientSelectFilterEvent, 10);
     $customWhere = $patientSelectFilterEvent->getCustomWhereFilter();
 

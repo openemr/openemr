@@ -77,7 +77,7 @@
 //   Urdu                           // xl('Urdu')
 //   Vietnamese                     // xl('Vietnamese')
 
-use \OpenEMR\Services\UserService;
+use \OpenEMR\Services\Globals\GlobalsService;
 use \OpenEMR\Events\Globals\GlobalsInitializedEvent;
 
 // OS-dependent stuff.
@@ -3575,5 +3575,6 @@ $GLOBALS_METADATA = array(
     ),
 );
 
-$globalsInitEvent = new GlobalsInitializedEvent(new UserService(), $GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS);
+$globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
 $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(GlobalsInitializedEvent::EVENT_HANDLE, $globalsInitEvent, 10);
+$globalsService = $globalsInitEvent->getGlobalsService()->save();

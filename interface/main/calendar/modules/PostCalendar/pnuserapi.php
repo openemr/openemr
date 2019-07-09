@@ -38,7 +38,6 @@ require_once("modules/$pcDir/common.api.php");
 unset($pcModInfo, $pcDir);
 
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
-use OpenEMR\Services\UserService;
 
 /**
  *  postcalendar_userapi_buildView
@@ -885,7 +884,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "a.pc_eventDate <= '" . pnVarPrepForStore($end) . "')) ";
 
     // Custom filtering
-    $calFilterEvent = new CalendarFilterEvent(new UserService());
+    $calFilterEvent = new CalendarFilterEvent();
     $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(CalendarFilterEvent::EVENT_HANDLE, $calFilterEvent, 10);
     $calFilter = $calFilterEvent->getCustomWhereFilter();
     $sql .= " AND $calFilter ";

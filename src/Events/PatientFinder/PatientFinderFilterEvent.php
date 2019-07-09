@@ -8,7 +8,6 @@
 
 namespace OpenEMR\Events\PatientFinder;
 
-use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -27,12 +26,6 @@ class PatientFinderFilterEvent extends Event
      * alter the results of the patient finder query
      */
     const EVENT_HANDLE = 'patientFinder.customFilter';
-
-    /**
-     * @var null|UserService
-     *
-     */
-    private $userService = null;
 
     /**
      * @var array
@@ -63,16 +56,10 @@ class PatientFinderFilterEvent extends Event
      * @param $displayedColumns
      * @param array of ColumnFilter objects $userColumnFilters
      */
-    public function __construct(UserService $userService, $displayedColumns, $userColumnFilters = [])
+    public function __construct($displayedColumns, $userColumnFilters = [])
     {
-        $this->userService = $userService;
         $this->displayedColumns = $displayedColumns;
         $this->userColumnFilters = $userColumnFilters;
-    }
-
-    public function getUserService()
-    {
-        return $this->userService;
     }
 
     public function getDisplayedColumns()
@@ -91,7 +78,7 @@ class PatientFinderFilterEvent extends Event
     }
 
     /**
-     * Get an string representing a patinet filter
+     * Get an string representing a patient filter
      *
      * @return string
      */
@@ -100,6 +87,11 @@ class PatientFinderFilterEvent extends Event
         return $this->customWhereFilter;
     }
 
+    /**
+     * @param $customWhereFilter
+     *
+     * Add a custom filter to the WHERE clause of patient finder query
+     */
     public function setCustomWhereFilter($customWhereFilter)
     {
         $this->customWhereFilter = $customWhereFilter;

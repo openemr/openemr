@@ -20,8 +20,6 @@ require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Services\UserService;
-use OpenEMR\Services\PatientService;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
 // Session pid must be right or bad things can happen when demographics are saved!
@@ -36,16 +34,13 @@ $result2 = getEmployerData($pid);
 
  // Check authorization.
 if ($pid) {
-    // Create and fire the patient demographics update event
-    $patientService  = new PatientService();
-    $patientService->setPid($pid);
-    $updateEvent = new UpdateEvent(new UserService(), $patientService);
-    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UpdateEvent::EVENT_HANDLE, $updateEvent, 10);
-    if (!$updateEvent->authorized()) {
-        die(xlt('Updating demographics is not authorized.'));
-    }
 
-    if (!acl_check('patients', 'demo', '', 'write')) {
+    // Create and fire the patient demographics update event
+    $updateEvent = new UpdateEvent($pid);
+    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UpdateEvent::EVENT_HANDLE, $updateEvent, 10);
+
+    if (!$updateEvent->authorized() ||
+        !acl_check('patients', 'demo', '', 'write')) {
         die(xlt('Updating demographics is not authorized.'));
     }
 

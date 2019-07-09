@@ -148,7 +148,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 // Custom filtering, before datatables filtering created by the user
 // This allows a module to subscribe to a 'patient-finder.filter' event and
 // add filtering before data ever gets to the user
-$patientFinderFilterEvent = new PatientFinderFilterEvent(new \OpenEMR\Services\UserService(), $aColumns, $columnFilters);
+$patientFinderFilterEvent = new PatientFinderFilterEvent($aColumns, $columnFilters);
 $patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientFinderFilterEvent::EVENT_HANDLE, $patientFinderFilterEvent, 10);
 $customWhere = $patientFinderFilterEvent->getCustomWhereFilter();
 

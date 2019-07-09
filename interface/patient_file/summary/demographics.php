@@ -34,8 +34,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Services\UserService;
-use OpenEMR\Services\PatientService;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 
 if (isset($_GET['set_pid'])) {
@@ -717,9 +715,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         // Create and fire the patient demographics view event
-        $patientService  = new PatientService();
-        $patientService->setPid($pid);
-        $viewEvent = new ViewEvent(new UserService(), $patientService);
+        $viewEvent = new ViewEvent($pid);
         $viewEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(ViewEvent::EVENT_HANDLE, $viewEvent, 10);
 
         if (!$thisauth ||

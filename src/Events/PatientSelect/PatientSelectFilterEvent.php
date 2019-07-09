@@ -8,7 +8,6 @@
 
 namespace OpenEMR\Events\PatientSelect;
 
-use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -29,12 +28,6 @@ class PatientSelectFilterEvent extends Event
     const EVENT_HANDLE = 'patientSelect.customFilter';
 
     /**
-     * @var null|UserService
-     *
-     */
-    private $userService = null;
-
-    /**
      * @var array
      *
      * Custom where filter, applied "before" the user-generated filters through the UI.
@@ -45,22 +38,7 @@ class PatientSelectFilterEvent extends Event
     private $customWhereFilter = "1";
 
     /**
-     * PatientSelectFilterEvent constructor.
-     *
-     * @param UserService $userService
-     */
-    public function __construct(UserService $userService)
-    {
-        $this->userService = $userService;
-    }
-
-    public function getUserService()
-    {
-        return $this->userService;
-    }
-
-    /**
-     * Get an string representing a patinet filter
+     * Get an string representing a patient filter
      *
      * @return string
      */
@@ -69,6 +47,11 @@ class PatientSelectFilterEvent extends Event
         return $this->customWhereFilter;
     }
 
+    /**
+     * @param $customWhereFilter
+     *
+     * Add a custom filter to the WHERE clause of patient select query
+     */
     public function setCustomWhereFilter($customWhereFilter)
     {
         $this->customWhereFilter = $customWhereFilter;
