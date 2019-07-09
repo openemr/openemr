@@ -6,7 +6,6 @@
  * @link      http://www.open-emr.org
  * @author Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2017 - 2018 Ranganath Pathak <pathak@scrs1.org>
- * @version 1.1.0
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -57,7 +56,7 @@ require_once("../../interface/globals.php");
                 </ul>
             </div>
             <div class= "row" id="price_level">
-                <h4 class="oe-help-heading"><?php echo xlt("Set Price Level"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Set Price Level"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("This lets you set the price level for the charges and let you charge different rates for different modes of payment.");?>
 
                 <p><?php echo xlt("The default is 'Standard' usually used to reflect rates charged for insurance billing. You can have a different amount charged for credit card payment and for cash payment"); ?>.
@@ -71,7 +70,7 @@ require_once("../../interface/globals.php");
                 <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("The actual amounts that will be displayed must exist in the database"); ?>.</strong> <strong><a href="#setup" class="oe-help-redirect"><?php echo xlt("See Setup the Fee Sheet"); ?></a></strong>
             </div>
             <div class= "row" id="select_code">
-                <h4 class="oe-help-heading"><?php echo xlt("Select Code"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Select Code"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("This section is where the codes use to charge for the visit are selected"); ?>.
 
                 <p><?php echo xlt("The default has two buttons that is set for 'New Patient' and 'Established' patient"); ?>.
@@ -85,7 +84,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("This section can be customized to group the codes into various categories"); ?>. <strong><a href="#customize" class="oe-help-redirect"><?php echo xlt("See Customize the Fee Sheet"); ?></a></strong>
             </div>
             <div class= "row" id="search_additional">
-                <h4 class="oe-help-heading"><?php echo xlt("Search for Additional Codes"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Search for Additional Codes"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("This section lets you search for the needed code if it is not in the default or customized options in 'Select Code' section"); ?>.
 
                 <p><?php echo xlt("It lets you search by ICD 9 and ICD 10 diagnostic codes and CPT4 and HCPCS service/procedure codes"); ?>.
@@ -104,7 +103,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("The selected codes will then appear in the 'Selected Fee Sheet Codes and Charges for Current Encounter' section"); ?>
             </div>
             <div class= "row" id="selected_codes">
-                <h4 class="oe-help-heading"><?php echo xlt("Selected Fee Sheet Codes and Charges for Current Encounter"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Selected Fee Sheet Codes and Charges for Current Encounter"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("The selections in this section will be used in charging for this encounter"); ?>.
 
                 <p><?php echo xlt("They are displayed in rows and are sub divided into three groups"); ?>.
@@ -150,7 +149,7 @@ require_once("../../interface/globals.php");
 
             </div>
             <div class= "row" id="select_providers">
-                <h4 class="oe-help-heading"><?php echo xlt("Select Providers"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Select Providers"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("Both rendering and supervising providers can be set here"); ?>.
 
                 <p><?php echo xlt("The default values for the rendering providers can be set"); ?>. <strong><a href="#customize" class="oe-help-redirect"><?php echo xlt("See Setup the Fee Sheet"); ?></a></strong>
@@ -159,7 +158,7 @@ require_once("../../interface/globals.php");
 
             </div>
             <div class= "row" id="setup">
-                <h4 class="oe-help-heading"><?php echo xlt("Setup the Fee Sheet"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Setup the Fee Sheet"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><i class="fa fa-exclamation-triangle oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to perform the setup"); ?>.</strong>
 
                 <p><?php echo xlt("The very first step would be install the ICD codes. Go to Administraion > Other > External Data Loads. Select the Code sets you want to install and click Install"); ?>.
@@ -191,7 +190,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("For added ease of use the Fee Sheet needs to be customized"); ?>.
             </div>
             <div class= "row" id="customize">
-                <h4 class="oe-help-heading"><?php echo xlt("Customize the Fee Sheet"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Customize the Fee Sheet"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("There are several ways to customize the fee sheet. It depends on how comfortable you are in adding information to the database itself"); ?>.
 
                 <p><?php echo xlt("Read these two wiki articles for customizing the Fee Sheet"); ?>. <strong><a href="https://www.open-emr.org/wiki/index.php/HOWTO:_Create_Multiple_Code_Fee_Sheet_List_Categories" rel="noopener" target="_blank"><?php echo xlt("Article"); ?> 1 </a></strong> <strong><a href="http://openemr.sourceforge.net/wiki/index.php/Preparing_for_Billing_and_using_the_Fee_Sheet" rel="noopener" target="_blank"><?php echo xlt("Article"); ?> 2</a></strong>

@@ -5,7 +5,6 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author Ranganath Pathak <pathak@scrs1.org>
- * @version 1.0.0
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -80,7 +79,7 @@ require_once("../../interface/globals.php");
                 </ul>
             </div>
             <div class= "row" id="select_option">
-                <h4 class="oe-help-heading"><?php echo xlt("Select Options for Current Encounter"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Select Options for Current Encounter"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("Enter needed information to help process this particular claim");?>.
 
                 <p><?php echo xlt("Checking any of the check boxes will result in a Yes on the CMS 1500 form");?>.
@@ -108,7 +107,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("X12 only: Replacement Claim, X12 only ICN resubmission No is used for electronic resubmission of claims. Requirement varies by insurer");?>.
             </div>
             <div class= "row" id="add_notes">
-                <h4 class="oe-help-heading"><?php echo xlt("Additional Notes"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Additional Notes"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("Additional Notes field is for local use in openEMR");?>.
 
                 <p><?php echo xlt("Used to enter information that pertains to this particular claim in order to facilitate processing and submitting this claim");?>.
