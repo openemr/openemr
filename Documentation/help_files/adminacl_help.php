@@ -5,7 +5,6 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ranganath Pathak <pathak01@hotmail.com>
- * @version 1.1.0
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -171,7 +170,7 @@ use OpenEMR\Core\Header;
                 </ul>
             </div>
             <div class= "row" id="users_section">
-                <h4 class="oe-help-heading"><?php echo xlt("User Memberships"); ?><a href="#listed_items"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("User Memberships"); ?><a href="#listed_items"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("By default the User Memberships section is selected and all the active registered users will be listed in alphabetical order by their user names."); ?>
 
                 <p><?php echo xlt("Clicking on the icon next to their name will bring up the 'Edit' window."); ?>
@@ -187,7 +186,7 @@ use OpenEMR\Core\Header;
                 <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("Note there is no 'Save' button."); ?></strong>
             </div>
             <div class= "row" id="groups_section">
-                <h4 class="oe-help-heading"><?php echo xlt("Groups and Access Controls"); ?><a href="#listed_items"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Groups and Access Controls"); ?><a href="#listed_items"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("Checking the Groups and Access Controls checkbox will reveal this section that lists all the categories with sub-categories (ACOs), i.e. the parts of the program controlled by the access control list privileges."); ?>
 
                 <p><?php echo xlt("It also lets you create new groups (AROs) as well as remove existing ones."); ?>
@@ -255,7 +254,7 @@ use OpenEMR\Core\Header;
                 <p><?php echo xlt("Click the 'Delete Group' button to completely remove this group."); ?>
             </div>
             <div class= "row" id="advanced_acl">
-                <h4 class="oe-help-heading"><?php echo xlt("Advanced - Finer Access Control"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Advanced - Finer Access Control"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("Click on the icon next to the 'Access Control List Administration' title to go to the phpGACL page."); ?> <i id='advanced' class='fa fa-external-link small' aria-hidden='true'></i>
 
                 <p><?php echo xlt("Here you can customize the ACL further."); ?>
