@@ -34,7 +34,6 @@ $result2 = getEmployerData($pid);
 
  // Check authorization.
 if ($pid) {
-
     // Create and fire the patient demographics update event
     $updateEvent = new UpdateEvent($pid);
     $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UpdateEvent::EVENT_HANDLE, $updateEvent, 10);
