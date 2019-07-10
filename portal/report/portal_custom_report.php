@@ -681,10 +681,10 @@ foreach ($ar as $key => $val) {
             echo "<hr />";
             echo "<div class='text billing'>";
             print "<h1>".xlt('Billing Information').":</h1>";
-            if (count($ar['newpatient']) > 0) {
+            if ((!empty($ar['newpatient'])) && (count($ar['newpatient']) > 0)) {
                 $billings = array();
                 echo "<table>";
-                echo "<tr><td width='400' class='bold'>Code</td><td class='bold'>".xlt('Fee')."</td></tr>\n";
+                echo "<tr><td width='400' class='bold'>" . xlt('Code') . "</td><td class='bold'>".xlt('Fee')."</td></tr>\n";
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
@@ -783,7 +783,7 @@ foreach ($ar as $key => $val) {
             // echo $sql;
             $result = sqlStatement($sql, [$pid]);
             while ($row=sqlFetchArray($result)) {
-                echo text($row{'batchcom_data'}).", By: ".text($row{'user_name'})."<br>Text:<br> ".text($row{'msg_txt'})."<br>\n";
+                echo text($row{'batchcom_data'}).", " . xlt('By') . ": ".text($row{'user_name'})."<br>" . xlt('Text') . ":<br> ".text($row{'msg_txt'})."<br>\n";
             }
 
             echo "</div>\n";
