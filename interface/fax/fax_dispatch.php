@@ -208,11 +208,8 @@ if ($_POST['form_save']) {
                 // Link the new patient note to the document.
                 setGpRelation(1, $newid, 6, $noteid);
             } // end post patient note
-        } // end copy to documents
-
-        // Otherwise creating a scanned encounter note...
-        //
-        else {
+        } else { // end copy to documents
+            // Otherwise creating a scanned encounter note...
             // Get desired $encounter_id.
             $encounter_id = 0;
             if (empty($_POST['form_copy_sn_visit'])) {

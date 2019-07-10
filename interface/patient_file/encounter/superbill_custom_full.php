@@ -488,12 +488,12 @@ if ($fend > $count) {
                                 <?php if ($mode != "modify") { ?>
                                     <option value="<?php  echo attr($value['id']) ?>"<?php if ($code_type == $value['id']) {
                                         echo " selected";
-} ?>><?php echo xlt($value['label']) ?></option>
+                                                   } ?>><?php echo xlt($value['label']) ?></option>
                                 <?php } ?>
                             <?php } ?>
                             <?php if ($value['external']) {
                                 array_push($external_sets, $key);
-} ?>
+                            } ?>
                         <?php } // end foreach ?>
 
                         <?php if ($mode != "modify") { ?>
@@ -531,7 +531,7 @@ if ($fend > $count) {
                     &nbsp;&nbsp;
                     <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == null)) {
                         echo ' checked';
-} ?> />
+                                                                  } ?> />
                     <?php echo xlt('Active'); ?>
                 </td>
             </tr>
@@ -566,19 +566,19 @@ if ($fend > $count) {
                     &nbsp;&nbsp;
                     <input type='checkbox' title='<?php echo xla("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) {
                         echo ' checked';
-} ?> />
+                                                  } ?> />
                     <?php echo xlt('Diagnosis Reporting'); ?>
                     &nbsp;&nbsp;&nbsp;&nbsp;
                     <input type='checkbox' title='<?php echo xla("Service Code Finance Reporting") ?>' name='financial_reporting' value='1'<?php if (!empty($financial_reporting)) {
                         echo ' checked';
-} ?> />
+                                                  } ?> />
                     <?php echo xlt('Service Reporting'); ?>
                 </td>
             </tr>
 
             <tr<?php if (empty($GLOBALS['ippf_specific'])) {
                 echo " style='display:none'";
-} ?>>
+               } ?>>
                 <td><?php echo xlt('CYP Factor'); ?>:</td>
                 <td></td>
                 <td>
@@ -589,7 +589,7 @@ if ($fend > $count) {
 
             <tr<?php if (!related_codes_are_used()) {
                 echo " style='display:none'";
-} ?>>
+               } ?>>
                 <td><?php echo xlt('Relate To'); ?>:</td>
                 <td></td>
                 <td>
@@ -649,7 +649,7 @@ if ($fend > $count) {
                         <?php echo $taxline ?>
                     </td>
                 </tr>
-            <?php
+                <?php
             } ?>
 
             <tr>
@@ -692,12 +692,12 @@ if ($fend > $count) {
                     <input type="submit" name="go" value='<?php echo xla('Search'); ?>'>&nbsp;&nbsp;
                     <input type='checkbox' title='<?php echo xla("Only Show Diagnosis Reporting Codes") ?>' name='search_reportable' value='1'<?php if (!empty($search_reportable)) {
                         echo ' checked';
-} ?> />
+                                                  } ?> />
                     <?php echo xlt('Diagnosis Reporting Only'); ?>
                     &nbsp;&nbsp;&nbsp;&nbsp;
                     <input type='checkbox' title='<?php echo xla("Only Show Service Code Finance Reporting Codes") ?>' name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) {
                         echo ' checked';
-} ?> />
+                                                  } ?> />
                     <?php echo xlt('Service Reporting Only'); ?>
                     <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'>
                 </td>
@@ -754,8 +754,7 @@ if ($fend > $count) {
         $res = main_code_set_search($filter_key, $search, null, null, false, null, false, $fstart, ($fend - $fstart), $filter_elements);
     }
 
-    for ($i = 0; $row = sqlFetchArray($res);
-    $i++) {
+    for ($i = 0; $row = sqlFetchArray($res); $i++) {
         $all[$i] = $row;
     }
 

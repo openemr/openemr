@@ -301,7 +301,7 @@ $title = text(getPatientName($patient_id));
             <div class="page-header">
                 <h3><?php echo xlt('Patient Messages') . text($title_docname) . " " . xlt('for');
                 if (!$orderid) {
-?>&nbsp;
+                    ?>&nbsp;
                         <span><a href="../summary/demographics.php"
                                            onclick="return top.restoreSession()"><?php echo $title; ?></a></span>
                     <?php } else { ?>
@@ -340,7 +340,6 @@ $title = text(getPatientName($patient_id));
             ?>
 
             <?php if ($billing_note || $balance) { ?>
-
                 <div style='margin-top:3px'>
                     <table width='80%'>
                         <?php
@@ -746,10 +745,10 @@ if ($result_sent_count == $M) {
 <?php
 if ($_GET['set_pid']) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
-?>
+    ?>
  parent.left_nav.setPatient(<?php echo js_escape($ndata['fname']." ".$ndata['lname']) . "," .
      js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
-<?php
+    <?php
 }
 
 // If this note references a new patient document, pop up a display
@@ -760,10 +759,10 @@ if ($noteid /* && $title == 'New Document' */) {
     if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
         $docid = $matches[1];
         $docname = $matches[2];
-    ?>
+        ?>
      window.open('../../../controller.php?document&retrieve&patient_id=<?php echo attr_url($patient_id); ?>&document_id=<?php echo attr_url($docid); ?>&<?php echo attr_url($docname);?>&as_file=true',
   '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
-<?php
+        <?php
     }
 }
 ?>

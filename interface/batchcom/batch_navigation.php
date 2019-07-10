@@ -20,7 +20,7 @@
                     <?php echo xlt('BatchCom'); ?>
                 </a>
             </li>
-        <?php
+            <?php
         }
 
         if (acl_check('admin', 'notification')) { ?>
@@ -29,7 +29,7 @@
                     <?php echo xlt('SMS Notification'); ?>
                 </a>
             </li>
-        <?php
+            <?php
         }
         ?>
         <li role="presentation" title="<?php echo xla('Email Notification'); ?>">

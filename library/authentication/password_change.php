@@ -158,7 +158,6 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
             purgeCompatabilityPassword($unm[COL_UNM], $targetUser);
         }
     } else { // We are trying to update the password of an existing user
-
         if ($create) {
             $errMsg=xl("Trying to create user with existing username!");
             return false;

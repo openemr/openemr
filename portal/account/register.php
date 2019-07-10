@@ -11,7 +11,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 session_regenerate_id(true);
 
 unset($_SESSION['itsme']);
@@ -397,31 +399,31 @@ function callServer(action, value, value2, last, first) {
                         <legend class='bg-primary'><?php echo xlt('Contact') ?></legend>
                         <div class="well">
                         <?php if ($GLOBALS['language_menu_login']) { ?>
-                        <?php if (count($result3) != 1) { ?>
+                            <?php if (count($result3) != 1) { ?>
                         <div class="form-group row">
                             <label for="selLanguage"><?php echo xlt('Language'); ?></label>
                             <select class="form-control" id="selLanguage" name="languageChoice">
-                            <?php
+                                <?php
                                 echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                                     text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
-                            foreach ($result3 as $iter) {
-                                if ($GLOBALS['language_menu_showall']) {
-                                    if (! $GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                        continue; // skip the dummy language
-                                    }
-                                    echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                        text($iter['trans_lang_description']) . "</option>\n";
-                                } else {
-                                    if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
+                                foreach ($result3 as $iter) {
+                                    if ($GLOBALS['language_menu_showall']) {
                                         if (! $GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                             continue; // skip the dummy language
                                         }
                                         echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                        text($iter['trans_lang_description']) . "</option>\n";
+                                    } else {
+                                        if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
+                                            if (! $GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                                continue; // skip the dummy language
+                                            }
+                                            echo "<option value='" . attr($iter['lang_id']) . "'>" .
                                             text($iter['trans_lang_description']) . "</option>\n";
+                                        }
                                     }
                                 }
-                            }
-                            ?>
+                                ?>
                           </select>
                         </div>
                         <?php } } ?>

@@ -461,8 +461,7 @@ function end_row()
     global $cell_count, $CPR;
     end_cell();
     if ($cell_count > 0) {
-        for (; $cell_count < $CPR;
-        ++$cell_count) {
+        for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
         }
 
@@ -537,7 +536,7 @@ echo xlt($CapInstype); ?></a></li><?php
     <?php
     for ($i=1; $i<=3; $i++) {
         $result3 = $insurance_info[$i];
-    ?>
+        ?>
 
      <div class="tab <?php echo $i == 1 ? 'current': '' ?>" style='height:auto;width:auto'>     <!---display icky, fix to auto-->
 
@@ -609,7 +608,7 @@ echo xlt($CapInstype); ?></a></li><?php
 
             <tr<?php if ($GLOBALS['omit_employers']) {
                 echo " style='display:none'";
-} ?>>
+               } ?>>
              <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br><label style='font-weight:normal'>
               (<?php echo xlt('if unemployed enter Student'); ?>,<br><?php echo xlt('PT Student, or leave blank'); ?>) </label></td>
               <td class='required'>:</td>
@@ -620,7 +619,7 @@ echo xlt($CapInstype); ?></a></li><?php
 
             <tr<?php if ($GLOBALS['omit_employers']) {
                 echo " style='display:none'";
-} ?>>
+               } ?>>
              <td><label class=required><?php echo xlt('SE Address'); ?></label></td>
              <td class='required'>:</td>
              <td><input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_employer_street
@@ -630,7 +629,7 @@ echo xlt($CapInstype); ?></a></li><?php
 
             <tr<?php if ($GLOBALS['omit_employers']) {
                 echo " style='display:none'";
-} ?>>
+               } ?>>
              <td colspan="3">
               <table>
                <tr>
@@ -672,7 +671,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td colspan=3><?php
                  // Modified 6/2009 by BM to use list_options and function
                  generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_relationship'),'list_id'=>'sub_relation','empty_title'=>' '), $result3['subscriber_relationship']);
-                    ?>
+                ?>
 
                 <a href="javascript:popUp('browse.php?browsenum=<?php echo attr_url($i); ?>')" class=text>(<?php echo xlt('Browse'); ?>)</a></td>
                 <td></td><td></td><td></td><td></td>
@@ -694,7 +693,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td><?php
                  // Modified 6/2009 by BM to use list_options and function
                  generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_sex'),'list_id'=>'sex'), $result3['subscriber_sex']);
-                    ?>
+                ?>
                 </td>
                 <td></td><td></td> <td></td><td></td>
             </tr>
@@ -714,7 +713,7 @@ echo xlt($CapInstype); ?></a></li><?php
                     <?php
                     // Modified 7/2009 by BM to incorporate data types
                     generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_state']);
-                ?>
+                    ?>
                 </td>
             </tr>
             <tr>
@@ -722,7 +721,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td class=required>:</td>
                 <td><input type=entry class='form-control' size=11 name=i<?php echo attr($i); ?>subscriber_city value="<?php echo attr($result3{"subscriber_city"}); ?>" onchange="capitalizeMe(this);" /></td><td class=leftborder><label class='required'<?php if ($GLOBALS['omit_employers']) {
                     echo " style='display:none'";
-} ?>><?php echo xlt('Country'); ?>: </label></td><td>
+                                                                         } ?>><?php echo xlt('Country'); ?>: </label></td><td>
                     <?php
                     // Modified 7/2009 by BM to incorporate data types
                     generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
@@ -751,10 +750,10 @@ echo xlt($CapInstype); ?></a></li><?php
                     <select class='form-control' name=i<?php echo attr($i); ?>accept_assignment>
                      <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") {
                             echo "selected";
-}?>><?php echo xlt('YES'); ?></option>
+                                          }?>><?php echo xlt('YES'); ?></option>
                      <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") {
                             echo "selected";
-}?>><?php echo xlt('NO'); ?></option>
+                                           }?>><?php echo xlt('NO'); ?></option>
                     </select>
                 </td>
                 <td></td><td></td>
@@ -766,16 +765,16 @@ echo xlt($CapInstype); ?></a></li><?php
         <td class='bold'>:</td>
         <td colspan='6'>
           <select class='form-control sel2' name=i<?php echo attr($i); ?>policy_type>
-<?php
-foreach ($policy_types as $key => $value) {
-    echo "            <option value ='" . attr($key) . "'";
-    if ($key == $result3['policy_type']) {
-        echo " selected";
-    }
+        <?php
+        foreach ($policy_types as $key => $value) {
+            echo "            <option value ='" . attr($key) . "'";
+            if ($key == $result3['policy_type']) {
+                echo " selected";
+            }
 
-    echo ">" . text($value) . "</option>\n";
-}
-?>
+            echo ">" . text($value) . "</option>\n";
+        }
+        ?>
         </select>
       </td>
     </tr>
@@ -786,7 +785,7 @@ foreach ($policy_types as $key => $value) {
 
       </div>
 
-    <?php
+        <?php
     } //end insurer for loop ?>
 
    </div>
@@ -815,11 +814,11 @@ var skipArray = [
  if (f.form_phone_biz    ) phonekeyup(f.form_phone_biz    ,mypcc);
  if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
 
-<?php if (! $GLOBALS['simplified_demographics']) { ?>
+    <?php if (! $GLOBALS['simplified_demographics']) { ?>
  phonekeyup(f.i1subscriber_phone,mypcc);
  phonekeyup(f.i2subscriber_phone,mypcc);
  phonekeyup(f.i3subscriber_phone,mypcc);
-<?php } ?>
+    <?php } ?>
 
 <?php }?>
 
@@ -848,7 +847,6 @@ $use_validate_js=$GLOBALS['new_validate'];
 
 //This code deals with demographics before save action -
     <?php if (($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive())) :?>
-
                 //Use the Zend patient validation hook.
                 //TODO - get the edit part of patient validation hook to work smoothly and then
                 //       remove the closeBeforeOpening=1 in the url below.

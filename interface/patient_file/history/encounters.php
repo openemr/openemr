@@ -328,7 +328,7 @@ for ($idx=0; $idx<count($pagesizes); $idx++) {
 <?php if ($billing_view) { ?>
   <th class='billing_note'><?php echo xlt('Billing Note'); ?></th>
 <?php } else { ?>
-<?php if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues?>
+    <?php if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues?>
   <th><?php echo xlt('Issue'); ?></th>
 <?php } ?>
   <th><?php echo xlt('Reason/Form'); ?></th>
@@ -699,8 +699,7 @@ while ($result4 = sqlFetchArray($res4)) {
                 }
                 if ($billing_view) {
                     if ($binfo[1]) {
-                        for ($i = 1; $i < 5;
-                        ++$i) {
+                        for ($i = 1; $i < 5; ++$i) {
                             $binfo[$i] .= '<br>';
                         }
                     }
@@ -712,8 +711,7 @@ while ($result4 = sqlFetchArray($res4)) {
                             $binfo[1] .= text(oeFormatMoney($iter2['fee']));
                         }
 
-                        for ($i = 2; $i < 5;
-                        ++$i) {
+                        for ($i = 2; $i < 5; ++$i) {
                             $binfo[$i] .= '&nbsp;';
                         }
                     } else {
@@ -731,13 +729,11 @@ while ($result4 = sqlFetchArray($res4)) {
             if (!empty($arinvoice)) {
                 foreach ($arinvoice as $codekey => $val) {
                     if ($binfo[0]) {
-                        for ($i = 0; $i < 5;
-                        ++$i) {
+                        for ($i = 0; $i < 5; ++$i) {
                             $binfo[$i] .= '<br>';
                         }
                     }
-                    for ($i = 0; $i < 5;
-                    ++$i) {
+                    for ($i = 0; $i < 5; ++$i) {
                         $binfo[$i] .= "<font color='red'>";
                     }
                     $binfo[0] .= text($codekey);
@@ -745,8 +741,7 @@ while ($result4 = sqlFetchArray($res4)) {
                     $binfo[2] .= text(oeFormatMoney($val['chg'] - $val['bal']));
                     $binfo[3] .= text(oeFormatMoney($val['adj']));
                     $binfo[4] .= text(oeFormatMoney($val['bal']));
-                    for ($i = 0; $i < 5;
-                    ++$i) {
+                    for ($i = 0; $i < 5; ++$i) {
                         $binfo[$i] .= "</font>";
                     }
                 }
@@ -757,9 +752,7 @@ while ($result4 = sqlFetchArray($res4)) {
         for ($i = 1; $i < 5; ++$i) {
             echo "<td class='text right'>". $binfo[$i] . "</td>\n";
         }
-    } // end if authorized
-
-    else {
+    } /* end if authorized */ else {
         echo "<td class='text' valign='top' colspan='5' rowspan='" . attr($encounter_rows) . "'>(" . xlt("No access") . ")</td>\n";
     }
 

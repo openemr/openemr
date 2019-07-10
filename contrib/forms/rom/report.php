@@ -12,7 +12,7 @@ function rom_report($pid, $encounter, $cols, $id)
     $count = 0;
     $data = formFetch("form_rom", $id);
     if ($data) {
-    ?>
+        ?>
 
   <table border='1' bordercolor='#000000' cellpadding='7' cellspacing='0'  class='text'>
         <col>
@@ -1110,7 +1110,7 @@ function rom_report($pid, $encounter, $cols, $id)
             </td>
         </tr>
 </tbody></table>
-    <?php if ($data['notes'] != '') {?>
+        <?php if ($data['notes'] != '') {?>
     </p>
     <table border='0' cellpadding='0' cellspacing='0' class='text'>
         <tr class='text'>
@@ -1122,7 +1122,7 @@ function rom_report($pid, $encounter, $cols, $id)
     </table>
     <?php } ?>
 
-<?php
+        <?php
     }
 }
 ?>

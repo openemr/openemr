@@ -291,90 +291,90 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
       <th id="sortby_checksum" class="sortby" title="<?php echo xla('Sort by Checksum'); ?>"><?php echo xlt('Checksum'); ?></th>
         <?php } ?>
      </tr>
-    <?php
-    ?>
+        <?php
+        ?>
     <input type="hidden" name="event" value="<?php echo attr($eventname) . "-" . attr($type_event) ?>">
-    <?php
+        <?php
 
-    $tevent="";
-    $gev="";
-    if ($eventname != "" && $type_event != "") {
-        $getevent=$eventname."-".$type_event;
-    }
+        $tevent="";
+        $gev="";
+        if ($eventname != "" && $type_event != "") {
+            $getevent=$eventname."-".$type_event;
+        }
 
-    if (($eventname == "") && ($type_event != "")) {
-        $tevent=$type_event;
-    } else if ($type_event =="" && $eventname != "") {
-        $gev=$eventname;
-    } else if ($eventname == "") {
-        $gev = "";
-    } else {
+        if (($eventname == "") && ($type_event != "")) {
+            $tevent=$type_event;
+        } else if ($type_event =="" && $eventname != "") {
+            $gev=$eventname;
+        } else if ($eventname == "") {
+            $gev = "";
+        } else {
             $gev = $getevent;
-    }
+        }
 
-    if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
-        // Set up crypto object (object will increase performance since caches used keys)
-        $cryptoGen = new CryptoGen();
+        if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
+            // Set up crypto object (object will increase performance since caches used keys)
+            $cryptoGen = new CryptoGen();
 
-        foreach ($ret as $iter) {
-            //translate comments
-            $patterns = array ('/^success/','/^failure/','/ encounter/');
-            $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
+            foreach ($ret as $iter) {
+                //translate comments
+                $patterns = array ('/^success/','/^failure/','/ encounter/');
+                $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
 
-            $log_id = $iter['id'];
-            $commentEncrStatus = "No";
-            $encryptVersion = 0;
-            $logEncryptData = EventAuditLogger::instance()->logCommentEncryptData($log_id);
-            if (count($logEncryptData) > 0) {
-                $commentEncrStatus = $logEncryptData['encrypt'];
-                $encryptVersion = $logEncryptData['version'];
-            }
-
-            //July 1, 2014: Ensoftek: Decrypt comment data if encrypted
-            if ($commentEncrStatus == "Yes") {
-                if ($encryptVersion == 3) {
-                    // Use new openssl method
-                    if (extension_loaded('openssl')) {
-                        $trans_comments = $cryptoGen->decryptStandard($iter["comments"]);
-                        if ($trans_comments !== false) {
-                            $trans_comments = preg_replace($patterns, $replace, $trans_comments);
-                        } else {
-                            $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
-                        }
-                    } else {
-                        $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                    }
-                } else if ($encryptVersion == 2) {
-                    // Use new openssl method
-                    if (extension_loaded('openssl')) {
-                        $trans_comments = $cryptoGen->aes256DecryptTwo($iter["comments"]);
-                        if ($trans_comments !== false) {
-                            $trans_comments = preg_replace($patterns, $replace, $trans_comments);
-                        } else {
-                            $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
-                        }
-                    } else {
-                        $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                    }
-                } else if ($encryptVersion == 1) {
-                    // Use new openssl method
-                    if (extension_loaded('openssl')) {
-                        $trans_comments = preg_replace($patterns, $replace, $cryptoGen->aes256DecryptOne($iter["comments"]));
-                    } else {
-                        $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                    }
-                } else { //$encryptVersion == 0
-                    // Use old mcrypt method
-                    if (extension_loaded('mcrypt')) {
-                        $trans_comments = preg_replace($patterns, $replace, $cryptoGen->aes256Decrypt_mycrypt($iter["comments"]));
-                    } else {
-                        $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is not installed.");
-                    }
+                $log_id = $iter['id'];
+                $commentEncrStatus = "No";
+                $encryptVersion = 0;
+                $logEncryptData = EventAuditLogger::instance()->logCommentEncryptData($log_id);
+                if (count($logEncryptData) > 0) {
+                    $commentEncrStatus = $logEncryptData['encrypt'];
+                    $encryptVersion = $logEncryptData['version'];
                 }
-            } else {
-                $trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
-            }
-            ?>
+
+                //July 1, 2014: Ensoftek: Decrypt comment data if encrypted
+                if ($commentEncrStatus == "Yes") {
+                    if ($encryptVersion == 3) {
+                        // Use new openssl method
+                        if (extension_loaded('openssl')) {
+                            $trans_comments = $cryptoGen->decryptStandard($iter["comments"]);
+                            if ($trans_comments !== false) {
+                                $trans_comments = preg_replace($patterns, $replace, $trans_comments);
+                            } else {
+                                $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
+                            }
+                        } else {
+                            $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
+                        }
+                    } else if ($encryptVersion == 2) {
+                        // Use new openssl method
+                        if (extension_loaded('openssl')) {
+                            $trans_comments = $cryptoGen->aes256DecryptTwo($iter["comments"]);
+                            if ($trans_comments !== false) {
+                                $trans_comments = preg_replace($patterns, $replace, $trans_comments);
+                            } else {
+                                $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
+                            }
+                        } else {
+                            $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
+                        }
+                    } else if ($encryptVersion == 1) {
+                        // Use new openssl method
+                        if (extension_loaded('openssl')) {
+                            $trans_comments = preg_replace($patterns, $replace, $cryptoGen->aes256DecryptOne($iter["comments"]));
+                        } else {
+                            $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
+                        }
+                    } else { //$encryptVersion == 0
+                        // Use old mcrypt method
+                        if (extension_loaded('mcrypt')) {
+                            $trans_comments = preg_replace($patterns, $replace, $cryptoGen->aes256Decrypt_mycrypt($iter["comments"]));
+                        } else {
+                            $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is not installed.");
+                        }
+                    }
+                } else {
+                    $trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
+                }
+                ?>
            <TR>
             <TD><?php echo text(oeFormatDateTime($iter["date"])); ?></TD>
         <TD><?php echo text(preg_replace('/select$/', 'Query', $iter["event"])); //Convert select term to Query for MU2 requirements ?></TD>
@@ -385,21 +385,21 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
         <TD><?php echo text($iter["patient_id"]); ?></TD>
         <TD><?php echo text($iter["success"]); ?></TD>
         <TD><?php echo nl2br(text(preg_replace('/^select/i', 'Query', $trans_comments))); //Convert select term to Query for MU2 requirements ?></TD>
-        <?php  if ($check_sum) { ?>
+                <?php  if ($check_sum) { ?>
       <TD><?php echo text($iter["checksum"]); ?></TD>
         <?php } ?>
          </TR>
 
-        <?php
+                <?php
+            }
         }
-    }
 
-    if (($eventname=="disclosure") || ($gev == "")) {
-        $eventname="disclosure";
-        if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
-            foreach ($ret as $iter) {
-                $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
-                ?>
+        if (($eventname=="disclosure") || ($gev == "")) {
+            $eventname="disclosure";
+            if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
+                foreach ($ret as $iter) {
+                    $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
+                    ?>
                 <TR>
                   <TD><?php echo text(oeFormatDateTime($iter["date"])); ?></TD>
               <TD><?php echo xlt($iter["event"]); ?></TD>
@@ -410,15 +410,15 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
               <TD><?php echo text($iter["patient_id"]); ?></TD>
               <TD><?php echo text($iter["success"]); ?></TD>
               <TD><?php echo text($comments); ?></TD>
-                <?php  if ($check_sum) { ?>
+                    <?php  if ($check_sum) { ?>
                     <TD><?php echo text($iter["checksum"]); ?></TD>
                 <?php } ?>
          </TR>
-        <?php
+                    <?php
+                }
             }
         }
-    }
-    ?>
+        ?>
     </table>
     </div>
 

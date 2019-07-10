@@ -96,7 +96,7 @@ if (sqlNumRows($resultSet)) { ?>
 
         <?php while ($row = sqlFetchArray($resultSet)) {
             $amendmentLink = "<a href='add_edit_amendments.php?id=" . attr_url($row['amendment_id']) . "'>" . text(oeFormatShortDate($row['amendment_date'])) . "</a>";
-        ?>
+            ?>
             <tr class="amendmentrow" id="<?php echo attr($row['amendment_id']); ?>">
                 <td><input id="check_list[]" name="check_list[]" type="checkbox" value="<?php echo attr($row['amendment_id']); ?>"></td>
                 <td class=text><?php echo $amendmentLink; ?> </td>

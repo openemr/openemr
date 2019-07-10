@@ -104,7 +104,7 @@ if ($_POST['form_save']) {
 
  $row = sqlQuery("SELECT * FROM drug_inventory WHERE drug_id = ? " .
   "AND inventory_id = ?", array($drug_id,$lot_id));
-?>
+    ?>
 
 <form method='post' name='theform' action='destroy_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

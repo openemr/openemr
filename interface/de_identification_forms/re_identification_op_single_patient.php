@@ -33,15 +33,15 @@ $res = sqlStatement($query);
 if ($row = sqlFetchArray($res)) {
     $status = $row['status'];
     /* $Status:
-	*  0 - There is no Re Identification in progress. (start new Re Identification process)
-	*  1 - A Re Identification process is currently in progress.
-	*  2 - The Re Identification process completed and xls file is ready to download
-	*/
+    *  0 - There is no Re Identification in progress. (start new Re Identification process)
+    *  1 - A Re Identification process is currently in progress.
+    *  2 - The Re Identification process completed and xls file is ready to download
+    */
 }
 
 if ($status == 0) {
  //0 - There is no Re Identification in progress. (start new Re Identification process)
-?>
+    ?>
 <html>
 <head>
 <title><?php echo xlt('Re Identification'); ?></title>

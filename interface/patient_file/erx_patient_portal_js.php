@@ -10,7 +10,7 @@
   * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
   * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
   */
-    ?>
+?>
 //erx account status and patient portal username generator popup modals
 $(document).ready(function(){
     $(".iframe1").on('click', function(e) {

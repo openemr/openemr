@@ -61,11 +61,6 @@ return array(
         ),
         'layout' => 'site/layout',
     ),
-    'session' => array(
-                    'remember_me_seconds' => 2419200,
-                    'use_cookies' => true,
-                    'cookie_httponly' => true,
-    ),
     'moduleconfig' => array(
 
     ),

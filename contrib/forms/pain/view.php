@@ -34,13 +34,13 @@ $obj = formFetch("form_pain", $_GET["id"]);
 
 <input type=checkbox name="dull"  <?php if ($obj{"dull"} == "on") {
     echo "checked";
-};?>><span class=text>Dull</span>
+                                  };?>><span class=text>Dull</span>
 <input type=checkbox name="colicky"  <?php if ($obj{"colicky"} == "on") {
     echo "checked";
-};?>><span class=text>Colicky</span>
+                                     };?>><span class=text>Colicky</span>
 <input type=checkbox name="sharp"  <?php if ($obj{"sharp"} == "on") {
     echo "checked";
-};?>><span class=text>Sharp</span>
+                                   };?>><span class=text>Sharp</span>
 <span class=text>Duration of Pain: </span><input type=entry name="duration_of_pain" value="<?php echo attr($obj{"duration_of_pain"});?>" ><br>
 
 

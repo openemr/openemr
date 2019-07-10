@@ -160,7 +160,7 @@ function generate_receipt($patient_id, $encounter = 0)
     echo "<!DOCTYPE html>". PHP_EOL;
     echo "<html>".PHP_EOL;
     echo"<head>".PHP_EOL;
-?>
+    ?>
 
         <?php Header::setupHeader(['datetime-picker']);?>
         <title><?php echo xlt('Receipt for Payment'); ?></title>
@@ -377,7 +377,7 @@ function generate_receipt($patient_id, $encounter = 0)
         echo"</body>".PHP_EOL;
         echo "</html>".PHP_EOL;
 } // end function generate_receipt()
-    ?>
+?>
     <?php
 
 
@@ -1035,7 +1035,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                             }
                                             echo "<option value='".attr($brow1112['option_id'])."'>".text(xl_list_label($brow1112['title']))."</option>";
                                         }
-                                            ?>
+                                        ?>
                                     </select>
                                 </div>
                             </div>
@@ -1068,7 +1068,7 @@ function generate_receipt($patient_id, $encounter = 0)
                             // invoice reference number.
                             $irnumber = BillingUtilities::getInvoiceRefNumber();
                             if (!empty($irnumber)) {
-                            ?>
+                                ?>
                             <div class="col-xs-12 oe-custom-line">
                                 <div class="col-xs-3 col-lg-offset-3">
                                     <label class="control-label" for="form_tentative"><?php echo xlt('Tentative Invoice Ref No'); ?>:</label>
@@ -1077,10 +1077,10 @@ function generate_receipt($patient_id, $encounter = 0)
                                     <div name='form_source' id='form_tentative' id='form_tentative' class= 'form-control'><?php echo text($irnumber); ?></div>
                                 </div>
                             </div>
-                            <?php
-                            } // Otherwise if there is an invoice reference number mask, ask for the refno.
-                            elseif (!empty($GLOBALS['gbl_mask_invoice_number'])) {
-                            ?>
+                                <?php
+                            } elseif (!empty($GLOBALS['gbl_mask_invoice_number'])) { // Otherwise if there is an invoice
+                                // reference number mask, ask for the refno.
+                                ?>
                             <div class="col-xs-12 oe-custom-line">
                                 <div class="col-xs-3 col-lg-offset-3">
                                     <label class="control-label" for="form_irnumber"><?php echo xlt('Invoice Reference Number'); ?>:</label>
@@ -1089,7 +1089,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                     <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,<?php echo attr_js($GLOBALS['gbl_mask_invoice_number']); ?>)' onblur='maskblur(this,<?php echo attr_js($GLOBALS['gbl_mask_invoice_number']); ?>)' />
                                 </div>
                             </div>
-                            <?php
+                                <?php
                             }
                             ?>
                         </fieldset>

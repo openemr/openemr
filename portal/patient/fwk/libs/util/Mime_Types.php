@@ -156,9 +156,9 @@ class Mime_Types
                     $type
             );
             if (isset($method)) {
-                $res = $callback [0]->$method ( $this, $ext_type, $param );
+                $res = $callback [0]->$method($this, $ext_type, $param);
             } else {
-                $res = $callback ( $this, $ext_type, $param );
+                $res = $callback($this, $ext_type, $param);
             }
 
             if (! $res) {

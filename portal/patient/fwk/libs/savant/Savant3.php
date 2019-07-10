@@ -188,18 +188,18 @@ class Savant3
         // the slowdown.
         switch (count($args)) {
             case 0:
-                return $plugin->$func ();
+                return $plugin->$func();
             
             case 1:
-                return $plugin->$func ( $args [0] );
+                return $plugin->$func($args [0]);
                 break;
             
             case 2:
-                return $plugin->$func ( $args [0], $args [1] );
+                return $plugin->$func($args [0], $args [1]);
                 break;
             
             case 3:
-                return $plugin->$func ( $args [0], $args [1], $args [2] );
+                return $plugin->$func($args [0], $args [1], $args [2]);
                 break;
             
             default:
@@ -299,7 +299,7 @@ class Savant3
             $opts ['Savant'] = $this;
             
             // instantiate the plugin with its options.
-            $plugins [$name] = new $class ( $opts );
+            $plugins [$name] = new $class($opts);
         }
         
         // return the plugin object
@@ -586,7 +586,7 @@ class Savant3
             foreach ($this->__config ['escape'] as $func) {
                 // this if() shaves 0.001sec off of 300 calls.
                 if (is_string($func)) {
-                    $value = $func ( $value );
+                    $value = $func($value);
                 } else {
                     $value = call_user_func($func, $value);
                 }
@@ -602,7 +602,7 @@ class Savant3
             foreach ($callbacks as $func) {
                 // this if() shaves 0.001sec off of 300 calls.
                 if (is_string($func)) {
-                    $value = $func ( $value );
+                    $value = $func($value);
                 } else {
                     $value = call_user_func($func, $value);
                 }

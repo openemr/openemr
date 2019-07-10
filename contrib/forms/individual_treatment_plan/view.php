@@ -76,19 +76,19 @@ $result = SqlFetchArray($res); ?>
 <b>Recommendations:</b><br>
 <input type="checkbox" name="individual_family_therapy" <?php if ($obj{"individual_family_therapy"} == "on") {
     echo "checked";
-};?>>&nbsp;<b>Individual and / or Family Therapy</b></input>
+                                                        };?>>&nbsp;<b>Individual and / or Family Therapy</b></input>
 <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="6" height="1">
 <input type="checkbox" name="substance_abuse" <?php if ($obj{"substance_abuse"} == "on") {
     echo "checked";
-};?>>&nbsp;<b>Substance Abuse</b></input><br>
+                                              };?>>&nbsp;<b>Substance Abuse</b></input><br>
 
 <input type="checkbox" name="group_therapy" <?php if ($obj{"group_therapy"} == "on") {
     echo "checked";
-};?>>&nbsp;<b>Group Therapy - psychoeducational group</b></input>
+                                            };?>>&nbsp;<b>Group Therapy - psychoeducational group</b></input>
 <img src="<?php echo $GLOBALS['images_static_relative'];?>/space.gif" width="6" height="1">
 <input type="checkbox" name="parenting" <?php if ($obj{"parenting"} == "on") {
     echo "checked";
-};?>>&nbsp;<b>Parenting</b></input><br><br>
+                                        };?>>&nbsp;<b>Parenting</b></input><br><br>
 
 <b>Action Steps by supports - family:</b><br>
 <textarea cols=85 rows=3 wrap=virtual name="action_steps_by_supports" ><?php echo text($obj{"action_steps_by_supports"});?></textarea><br><br>

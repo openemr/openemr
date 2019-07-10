@@ -57,7 +57,7 @@ if (isset($_POST['drR'])) {
 
       $reminders = RemindersArray($days_to_show, $today, $alerts_to_show);
 
-        ?>
+?>
 
       <style type="text/css">
          div.dr{

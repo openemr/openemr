@@ -14,7 +14,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+
 $isPortal = false;
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
@@ -22,7 +25,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $isPortal = true;
     require_once(dirname(__FILE__) . "/../interface/globals.php");
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
@@ -548,7 +551,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
-            ?>;
+        ?>;
         var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_public_key'])); ?>;
         var apiKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_api_key'])); ?>;
 
@@ -992,7 +995,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                     <td colspan='2'>
                         <?php if ($ccdata['authCode'] && empty($payrow['source'])) {
                             $payrow['source'] = $ccdata['authCode'] . " : " .$ccdata['transId'];
-}
+                        }
                         ?>
                         <input class="form-control input-sm" id='check_number' name='form_source' style='' value='<?php echo attr($payrow['source']) ?>'>
                     </td>
@@ -1001,10 +1004,10 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 <?php if (isset($_SESSION['authUserID'])) {
                         $hide = '';
                         echo '<tr height="5"><td colspan="3"></td></tr><tr">';
-} else {
-    $hide = 'hidden';
-    echo '<tr class="hidden">';
-}
+                } else {
+                    $hide = 'hidden';
+                    echo '<tr class="hidden">';
+                }
                 ?>
                 <td class='text' valign="middle">
                     <?php echo xlt('Patient Coverage'); ?>:
@@ -1446,9 +1449,9 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                             <button id="payAurhorizeNet" class="btn btn-primary"
                                     onclick="sendPaymentDataToAnet(event)"><?php echo xlt('Pay Now'); ?></button>
                         <?php }
-if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+                        if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
                             <button id="stripeSubmit" class="btn btn-primary"><?php echo xlt('Pay Now'); ?></button>
-                        <?php } ?>
+                                                <?php } ?>
                     </div>
                 </div>
             </div>

@@ -300,7 +300,7 @@ function genDualLink($topname, $botname, $title)
 function genPopupsList($style = '')
 {
     global $disallowed, $webserver_root;
-        ?>
+    ?>
         <select name='popups' onchange='selpopup(this)' style='background-color:transparent;font-size:9pt;<?php echo $style; ?>'>
      <option value=''><?php echo xla('Popups'); ?></option>
     <?php if (!$disallowed['iss']) { ?>
@@ -308,15 +308,15 @@ function genPopupsList($style = '')
     <?php } ?>
     <?php if (!$GLOBALS['ippf_specific'] && acl_check('patients', 'demo')) { ?>
      <option value='../../custom/export_xml.php'><?php echo xlt('Export'); ?></option>
-    <?php if (acl_check('patients', 'demo', '', 'write')) { ?>
+        <?php if (acl_check('patients', 'demo', '', 'write')) { ?>
      <option value='../../custom/import_xml.php'><?php echo xlt('Import'); ?></option>
     <?php }
-}
+    }
 
-if (!$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) { ?>
+    if (!$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) { ?>
      <option value='../reports/appointments_report.php?patient=<?php if (isset($pid)) {
             echo attr_url($pid);
-} ?>'><?php echo xlt('Appts'); ?></option>
+                                                               } ?>'><?php echo xlt('Appts'); ?></option>
     <?php } ?>
         <?php if (acl_check('patients', 'med')) { ?>
      <option value='../patient_file/printed_fee_sheet.php?fill=1'><?php echo xlt('Superbill'); ?></option>
@@ -345,7 +345,7 @@ if (!$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) { ?>
 
 function genFindBlock()
 {
-        ?>
+    ?>
     <table cellpadding='0' cellspacing='0' border='0'>
      <tr>
           <td class='smalltext'><?php echo xlt('Find') ?>:&nbsp;</td>
@@ -381,7 +381,7 @@ function genFindBlock()
   </td>
  </tr>
 </table>
-<?php
+    <?php
 } // End function genFindBlock()
 
 /**
@@ -1267,91 +1267,90 @@ if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal', 'portal')) {
 ?>
 
 <?php if (acl_check('patients', 'demo') || acl_check('patients', 'appt') || acl_check_form('newpatient', '', array('write', 'addonly')) || acl_check('patients', 'med')) { ?>
-
   <li class="open"><a class="collapsed" id="patimg" ><i class="fa fa-fw fa-user fa-2x"></i>&nbsp;<span><?php echo xlt('Patient/Client') ?></span></a>
     <ul>
         <?php if (acl_check('patients', 'demo')) {
             genMiscLink('RTop', 'fin', '0', xl('Patients'), 'main/finder/dynamic_finder.php');
-} ?>
+        } ?>
         <?php if (acl_check('patients', 'demo', '', 'write') || acl_check('patients', 'demo', '', 'addonly')) {
             genTreeLink('RTop', 'new', ($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New')));
-} ?>
+        } ?>
         <?php if (acl_check('patients', 'demo')) {
             genTreeLink('RTop', 'dem', xl('Summary'));
-} ?>
+        } ?>
 
-<?php if (acl_check('patients', 'appt') || acl_check_form('newpatient', '', array('write', 'addonly'))) { ?>
+    <?php if (acl_check('patients', 'appt') || acl_check_form('newpatient', '', array('write', 'addonly'))) { ?>
       <li class="open"><a class="expanded_lv2"><span><?php echo xlt('Visits') ?></span></a>
         <ul>
             <?php if (acl_check_form('newpatient', '', array('write', 'addonly'))) {
                 genTreeLink('RBot', 'nen', xl('Create Visit'));
-} ?>
+            } ?>
             <?php if (acl_check('patients', 'appt')) {
                 genTreeLink('RBot', 'enc', xl('Current'));
-} ?>
+            } ?>
             <?php if (acl_check('patients', 'appt')) {
                 genTreeLink('RBot', 'ens', xl('Visit History'));
-} ?>
+            } ?>
         </ul>
       </li>
-<?php } ?>
+    <?php } ?>
 
-<?php if (acl_check('patients', 'med')) { ?>
+    <?php if (acl_check('patients', 'med')) { ?>
       <li><a class="collapsed_lv2"><span><?php echo xlt('Records') ?></span></a>
         <ul>
             <?php genTreeLink('RTop', 'prq', xl('Patient Record Request')); ?>
         </ul>
       </li>
-<?php } ?>
+    <?php } ?>
 
-<?php if ($GLOBALS['gbl_nav_visit_forms'] && acl_check('patients', 'demo')) { ?>
+    <?php if ($GLOBALS['gbl_nav_visit_forms'] && acl_check('patients', 'demo')) { ?>
       <li><a class="collapsed_lv2"><span><?php echo xlt('Visit Forms') ?></span></a>
         <ul>
-<?php
-// Generate the items for visit forms, both traditional and LBF.
-//
-$reglastcat = '';
-$regrows = getFormsByCategory(); // defined in registry.inc
-foreach ($regrows as $entry) {
-    $option_id = $entry['directory'];
-    $title = trim($entry['nickname']);
-    if ($option_id == 'fee_sheet') {
-        continue;
-    }
-    if ($option_id == 'newpatient') {
-        continue;
-    }
-    // Check permission to create forms of this type.
-    $tmp = explode('|', $entry['aco_spec']);
-    if (!empty($tmp[1])) {
-        if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
-            continue;
+        <?php
+    // Generate the items for visit forms, both traditional and LBF.
+    //
+        $reglastcat = '';
+        $regrows = getFormsByCategory(); // defined in registry.inc
+        foreach ($regrows as $entry) {
+            $option_id = $entry['directory'];
+            $title = trim($entry['nickname']);
+            if ($option_id == 'fee_sheet') {
+                continue;
+            }
+            if ($option_id == 'newpatient') {
+                continue;
+            }
+            // Check permission to create forms of this type.
+            $tmp = explode('|', $entry['aco_spec']);
+            if (!empty($tmp[1])) {
+                if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
+                    continue;
+                }
+            }
+            if (empty($title)) {
+                $title = $entry['name'];
+            }
+            if ($entry['category'] != $reglastcat) {
+                if ($reglastcat) {
+                    echo "        </ul></li>\n";
+                }
+                echo "        <li><a class='collapsed_lv3'><span>" . xlt($entry['category']) . "</span></a><ul>\n";
+                $reglastcat = $entry['category'];
+            }
+            genMiscLink(
+                'RBot',
+                'enc',
+                '2',
+                xl_form_title($title),
+                $option_id,
+                false,
+                true
+            );
         }
-    }
-    if (empty($title)) {
-        $title = $entry['name'];
-    }
-    if ($entry['category'] != $reglastcat) {
         if ($reglastcat) {
             echo "        </ul></li>\n";
         }
-        echo "        <li><a class='collapsed_lv3'><span>" . xlt($entry['category']) . "</span></a><ul>\n";
-        $reglastcat = $entry['category'];
-    }
-    genMiscLink(
-        'RBot',
-        'enc',
-        '2',
-        xl_form_title($title),
-        $option_id,
-        false,
-        true
-    );
-}
-if ($reglastcat) {
-    echo "        </ul></li>\n";
-}
-?>
+        ?>
         </ul>
       </li>
       <li class="collapsed" ><a class="collapsed_lv2"><span><?php echo xlt('Import') ?></span></a>
@@ -1392,28 +1391,28 @@ if ($reglastcat) {
     <ul>
         <?php if (acl_check('encounters', 'coding')) {
             genMiscLink('RBot', 'cod', '2', xl('Fee Sheet'), 'fee_sheet', false, true);
-} ?>
+        } ?>
         <?php if ($GLOBALS['use_charges_panel'] && acl_check('encounters', 'coding')) {
             genTreeLink('RBot', 'cod', xl('Charges'));
-} ?>
+        } ?>
         <?php if (acl_check('acct', 'bill', '', 'write')) {
             genMiscLink('RBot', 'pay', '1', xl('Payment'), 'patient_file/front_payment.php');
-} ?>
+        } ?>
         <?php if (acl_check('acct', 'bill', '', 'write')) {
             genMiscLink('RBot', 'bil', '1', xl('Checkout'), 'patient_file/pos_checkout.php?framed=1');
-} ?>
+        } ?>
         <?php if (!$GLOBALS['simplified_demographics'] && (acl_check('acct', 'bill', '', 'write') || acl_check('acct', 'eob', '', 'write'))) {
             genTreeLink('RTop', 'bil', xl('Billing'));
-} ?>
+        } ?>
         <?php if ($GLOBALS['enable_batch_payment'] && (acl_check('acct', 'bill', '', 'write') || acl_check('acct', 'eob', '', 'write'))) {
             genTreeLink('RTop', 'npa', xl('Batch Payments'), false, 2);
-}?>
+        }?>
         <?php if ($GLOBALS['enable_posting'] && acl_check('acct', 'eob', '', 'write')) {
             genMiscLink('RTop', 'eob', '0', xl('Posting'), 'billing/sl_eob_search.php');
-} ?>
+        } ?>
         <?php if ($GLOBALS['enable_edihistory_in_left_menu'] && acl_check('acct', 'eob')) {
             genTreeLink('RTop', 'edi', xl('EDI History'), false, 2);
-}?>
+        }?>
     </ul>
   </li>
     <?php } ?>
@@ -1421,11 +1420,11 @@ if ($reglastcat) {
     <?php  if (acl_check('menus', 'modle')) {?>
    <li><a class="collapsed" id="modimg" ><span><?php echo xlt('Modules') ?></span></a>
     <ul>
-    <?php
-    if (acl_check('admin', 'manage_modules')) {
-        genMiscLink('RTop', 'adm', '0', xl('Manage Modules'), 'modules/zend_modules/public/Installer');
-    }
-    ?>
+        <?php
+        if (acl_check('admin', 'manage_modules')) {
+            genMiscLink('RTop', 'adm', '0', xl('Manage Modules'), 'modules/zend_modules/public/Installer');
+        }
+        ?>
 
         <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
         <?php
@@ -1456,13 +1455,13 @@ if ($reglastcat) {
     <ul>
         <?php if (acl_check('admin', 'super')) {
             genTreeLink('RTop', 'orl', xl('Providers'));
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'super')) {
             genTreeLink('RTop', 'ort', xl('Configuration'));
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'super')) {
             genTreeLink('RTop', 'orc', xl('Load Compendium'));
-} ?>
+        } ?>
         <?php genTreeLink('RTop', 'orp', xl('Pending Review')); ?>
         <?php genTreeLink('RTop', 'orr', xl('Patient Results')); ?>
         <?php genTreeLink('RTop', 'lda', xl('Lab Overview')); ?>
@@ -1477,7 +1476,7 @@ if ($reglastcat) {
     if ($GLOBALS['erx_enable'] && acl_check('patients', 'rx')) {
         $newcrop_user_role = sqlQuery("SELECT newcrop_user_role FROM users WHERE username = ?", array($_SESSION['authUser']));
         if ($newcrop_user_role['newcrop_user_role']) {
-        ?>
+            ?>
         <li><a class="collapsed" id="feeimg" ><span><?php echo xlt('New Crop') ?></span></a>
     <ul>
         <li><a class="collapsed_lv2"><span><?php echo xlt('Status') ?></span></a>
@@ -1486,12 +1485,12 @@ if ($reglastcat) {
             <?php genMiscLink('RTop', 'err', '0', xl('e-Rx Renewal'), 'eRx.php?page=status'); ?>
             <?php if ($newcrop_user_role['newcrop_user_role'] === 'erxadmin') {
                 genMiscLink('RTop', 'ere', '0', xl('e-Rx EPCS'), 'eRx.php?page=epcs-admin');
-} ?>
+            } ?>
         </ul>
       </li>
     </ul>
       </li>
-        <?php
+            <?php
         }
     }
     ?>
@@ -1501,16 +1500,16 @@ if ($reglastcat) {
     <ul>
         <?php if (acl_check('admin', 'super')) {
             genMiscLink('RTop', 'adm', '0', xl('Globals'), 'super/edit_globals.php');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'users')) {
             genMiscLink('RTop', 'adm', '0', xl('Facilities'), 'usergroup/facilities.php');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'users')) {
             genMiscLink('RTop', 'adm', '0', xl('Users'), 'usergroup/usergroup_admin.php');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'practice')) {
             genTreeLink('RTop', 'adb', xl('Addr Book'));
-} ?>
+        } ?>
         <?php
       // Changed the target URL from practice settings -> Practice Settings - Pharmacy... Dec 09,09 .. Visolve ... This replaces empty frame with Pharmacy window
         if (acl_check('admin', 'practice')) {
@@ -1518,54 +1517,54 @@ if ($reglastcat) {
         } ?>
         <?php if (acl_check('admin', 'superbill')) {
             genTreeLink('RTop', 'sup', xl('Codes'));
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'super')) {
             genMiscLink('RTop', 'adm', '0', xl('Layouts'), 'super/edit_layout.php');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'super')) {
             genMiscLink('RTop', 'adm', '0', xl('Lists'), 'super/edit_list.php');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'acl')) {
             genMiscLink('RTop', 'adm', '0', xl('ACL'), 'usergroup/adminacl.php');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'super')) {
             genMiscLink('RTop', 'adm', '0', xl('Files'), 'super/manage_site_files.php');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'super')) {
             genMiscLink('RTop', 'adm', '0', xl('Backup'), 'main/backup.php');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'super') && $GLOBALS['enable_cdr']) {
             genMiscLink('RTop', 'adm', '0', xl('Rules'), 'super/rules/index.php?action=browse!list');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'super') && $GLOBALS['enable_cdr']) {
             genMiscLink('RTop', 'adm', '0', xl('Alerts'), 'super/rules/index.php?action=alerts!listactmgr');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'super') && $GLOBALS['enable_cdr']) {
             genMiscLink('RTop', 'adm', '0', xl('Patient Reminders'), 'patient_file/reminder/patient_reminders.php?mode=admin&patient_id=');
-} ?>
+        } ?>
         <?php if (($GLOBALS['include_de_identification']) && (acl_check('admin', 'super'))) {
             genMiscLink('RTop', 'adm', '0', xl('De Identification'), 'de_identification_forms/de_identification_screen1.php');
-} ?>
+        } ?>
             <?php if (($GLOBALS['include_de_identification']) && (acl_check('admin', 'super'))) {
                 genMiscLink('RTop', 'adm', '0', xl('Re Identification'), 'de_identification_forms/re_identification_input_screen.php');
-} ?>
+            } ?>
         <?php if (acl_check('admin', 'super') && !empty($GLOBALS['code_types']['IPPF'])) {
             genMiscLink('RTop', 'adm', '0', xl('Export'), 'main/ippf_export.php');
-} ?>
+        } ?>
       <li><a class="collapsed_lv2"><span><?php echo xlt('Other') ?></span></a>
         <ul>
             <?php if (acl_check('admin', 'language')) {
                 genMiscLink('RTop', 'adm', '0', xl('Language'), 'language/language.php');
-} ?>
+            } ?>
             <?php if (acl_check('admin', 'forms')) {
                 genMiscLink('RTop', 'adm', '0', xl('Forms'), 'forms_admin/forms_admin.php');
-} ?>
+            } ?>
             <?php if (acl_check('admin', 'calendar') && !$GLOBALS['disable_calendar']) {
                 genMiscLink('RTop', 'adm', '0', xl('Calendar'), 'main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig');
-} ?>
+            } ?>
             <?php if (acl_check('admin', 'users')) {
                 genMiscLink('RTop', 'adm', '0', xl('Logs'), 'logview/logview.php');
-} ?>
+            } ?>
             <?php
             if ($newcrop_user_role['newcrop_user_role'] || $GLOBALS['erx_enable']) {
                 if (acl_check('admin', 'users')) {
@@ -1575,22 +1574,22 @@ if ($reglastcat) {
             ?>
             <?php if (acl_check('admin', 'users')) {
                 genMiscLink('RTop', 'adm', '0', xl('Certificates'), 'usergroup/ssl_certificates_admin.php');
-} ?>
+            } ?>
             <?php if (acl_check('admin', 'super')) {
                 genMiscLink('RTop', 'adm', '0', xl('Native Data Loads'), '../interface/super/load_codes.php');
-} ?>
+            } ?>
             <?php if (acl_check('admin', 'super')) {
                 genMiscLink('RTop', 'adm', '0', xl('External Data Loads'), '../interface/code_systems/dataloads_ajax.php');
-} ?>
+            } ?>
             <?php if (acl_check('admin', 'super')) {
                 genMiscLink('RTop', 'adm', '0', xl('Merge Patients'), 'patient_file/merge_patients.php');
-} ?>
+            } ?>
             <?php if (acl_check('admin', 'super')) {
                 genMiscLink('RTop', 'adm', '0', xl('Import Holidays'), '../interface/main/holidays/import_holidays.php');
-} ?>
+            } ?>
             <?php if ($GLOBALS['enable_auditlog_encryption']) {
                 genMiscLink('RTop', 'rep', '0', xl('Audit Log Tamper'), 'reports/audit_log_tamper_report.php');
-} ?>
+            } ?>
         </ul>
       </li>
     </ul>
@@ -1606,7 +1605,7 @@ if ($reglastcat) {
                 $updatedSecurityEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(MenuEvent::MENU_RESTRICT, new MenuEvent($updatedMenuEvent->getMenu()));
                 $updatedMenuItems = $updatedSecurityEvent->getMenu();
                 genModuleMenuFromMenuItems($updatedSecurityEvent->getMenu(), $disallowed);
-?>
+                ?>
 
         <?php if (acl_check('patients', 'demo') || acl_check('patients', 'med') ||
         (acl_check('patients', 'rx') && !$GLOBALS['disable_prescriptions'])) { ?>
@@ -1614,22 +1613,22 @@ if ($reglastcat) {
         <ul>
         <?php if (acl_check('patients', 'demo')) {
             genMiscLink('RTop', 'rep', '0', xl('List'), 'reports/patient_list.php');
-} ?>
+        } ?>
     <?php if (acl_check('patients', 'rx') && !$GLOBALS['disable_prescriptions']) {
         genMiscLink('RTop', 'rep', '0', xl('Rx'), 'reports/prescriptions_report.php');
-} ?>
+    } ?>
     <?php if (acl_check('patients', 'med')) {
         genMiscLink('RTop', 'rep', '0', xl('Patient List Creation'), 'reports/patient_list_creation.php');
-} ?>
+    } ?>
     <?php if (acl_check('patients', 'med')) {
         genMiscLink('RTop', 'rep', '0', xl('Clinical'), 'reports/clinical_reports.php');
-} ?>
+    } ?>
         <?php if (acl_check('patients', 'med')) {
             genMiscLink('RTop', 'rep', '0', xl('Referrals'), 'reports/referrals_report.php');
-} ?>
+        } ?>
         <?php if (acl_check('patients', 'med')) {
             genMiscLink('RTop', 'rep', '0', xl('Immunization Registry'), 'reports/immunization_report.php');
-} ?>
+        } ?>
         </ul>
       </li>
     <?php } ?>
@@ -1639,22 +1638,22 @@ if ($reglastcat) {
         <ul>
             <?php if (($GLOBALS['enable_cdr'] || $GLOBALS['enable_cqm']  || $GLOBALS['enable_amc']) && acl_check('patients', 'med')) {
                 genMiscLink('RTop', 'rep', '0', xl('Report Results'), 'reports/report_results.php');
-} ?>
+            } ?>
             <?php if ($GLOBALS['enable_cdr'] && acl_check('patients', 'med')) {
                 genMiscLink('RTop', 'rep', '0', xl('Standard Measures'), 'reports/cqm.php?type=standard');
-} ?>
+            } ?>
             <?php if ($GLOBALS['enable_cqm'] && acl_check('patients', 'med')) {
                 genMiscLink('RTop', 'rep', '0', xl('Quality Measures (CQM)'), 'reports/cqm.php?type=cqm');
-} ?>
+            } ?>
             <?php if ($GLOBALS['enable_amc'] && acl_check('patients', 'med')) {
                 genMiscLink('RTop', 'rep', '0', xl('Automated Measures (AMC)'), 'reports/cqm.php?type=amc');
-} ?>
+            } ?>
             <?php if ($GLOBALS['enable_amc_tracking'] && acl_check('patients', 'med')) {
                 genMiscLink('RTop', 'rep', '0', xl('AMC Tracking'), 'reports/amc_tracking.php');
-} ?>
+            } ?>
             <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_alert_log'] && acl_check('patients', 'med')) {
                 genMiscLink('RTop', 'rep', '0', xl('Alerts Log'), 'reports/cdr_log.php');
-} ?>
+            } ?>
         </ul>
       </li>
         <?php } ?>
@@ -1663,38 +1662,38 @@ if ($reglastcat) {
         <ul>
             <?php if (acl_check('acct', 'rep_a')) {
                 genMiscLink('RTop', 'rep', '0', xl('Daily Report'), 'reports/daily_summary_report.php');
-} ?>
+            } ?>
             <?php if (!$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) {
                 genMiscLink('RTop', 'rep', '0', xl('Appointments'), 'reports/appointments_report.php');
-} ?>
+            } ?>
             <?php if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) {
                 genMiscLink('RTop', 'rep', '0', xl('Patient Flow Board'), 'reports/patient_flow_board_report.php');
-} ?>
+            } ?>
             <?php if (acl_check('encounters', 'coding_a')) {
                 genMiscLink('RTop', 'rep', '0', xl('Encounters'), 'reports/encounters_report.php');
-} ?>
+            } ?>
             <?php if (!$GLOBALS['disable_calendar'] && acl_check('acct', 'rep_a')) {
                 genMiscLink('RTop', 'rep', '0', xl('Appt-Enc'), 'reports/appt_encounter_report.php');
-} ?>
+            } ?>
             <?php if (empty($GLOBALS['code_types']['IPPF']) && acl_check('encounters', 'coding_a')) {
                 genMiscLink('RTop', 'rep', '0', xl('Superbill'), 'reports/custom_report_range.php');
-} ?>
+            } ?>
             <?php if (acl_check('patients', 'demo')) {
                 genMiscLink('RTop', 'rep', '0', xl('Eligibility'), 'reports/edi_270.php');
-} ?>
+            } ?>
             <?php if (acl_check('patients', 'demo')) {
                 genMiscLink('RTop', 'rep', '0', xl('Eligibility Response'), 'reports/edi_271.php');
-} ?>
+            } ?>
                 <?php if (!$GLOBALS['disable_chart_tracker'] && acl_check('patients', 'appt')) {
                     genMiscLink('RTop', 'rep', '0', xl('Chart Activity'), 'reports/chart_location_activity.php');
-} ?>
+                } ?>
             <?php if (!$GLOBALS['disable_chart_tracker'] && acl_check('patients', 'appt')) {
                 genMiscLink('RTop', 'rep', '0', xl('Charts Out'), 'reports/charts_checked_out.php');
-} ?>
+            } ?>
             <?php genMiscLink('RTop', 'rep', '0', xl('Services'), 'reports/services_by_category.php'); ?>
             <?php if (acl_check('patients', 'med')) {
                 genMiscLink('RTop', 'rep', '0', xl('Syndromic Surveillance'), 'reports/non_reported.php');
-} ?>
+            } ?>
         </ul>
       </li>
 
@@ -1728,7 +1727,7 @@ if ($reglastcat) {
             <?php genPopLink(xl('Pending Res'), '../orders/pending_orders.php'); ?>
             <?php if (!empty($GLOBALS['code_types']['IPPF'])) {
                 genPopLink(xl('Pending F/U'), '../orders/pending_followup.php');
-} ?>
+            } ?>
             <?php genPopLink(xl('Statistics'), '../orders/procedure_stats.php'); ?>
         </ul>
       </li>
@@ -1739,13 +1738,13 @@ if ($reglastcat) {
         <ul>
             <?php if (acl_check('acct', 'rep_a')) {
                 genMiscLink('RTop', 'rep', '0', xl('Distribution'), 'reports/insurance_allocation_report.php');
-} ?>
+            } ?>
             <?php if (acl_check('acct', 'rep_a')) {
                 genMiscLink('RTop', 'rep', '0', xl('Indigents'), 'billing/indigent_patients_report.php');
-} ?>
+            } ?>
             <?php if (acl_check('patients', 'demo')) {
                 genMiscLink('RTop', 'rep', '0', xl('Unique SP'), 'reports/unique_seen_patients_report.php');
-} ?>
+            } ?>
         </ul>
       </li>
 <?php } ?>
@@ -1820,40 +1819,40 @@ if ($reglastcat) {
         <?php genTreeLink('RTop', 'ped', xl('Patient Education')); ?>
         <?php if (acl_check('encounters', 'auth')) {
             genTreeLink('RBot', 'aun', xl('Authorizations'));
-} ?>
+        } ?>
         <?php if (acl_check('patients', 'docs')) {
             genTreeLink('RTop', 'fax', xl('Fax/Scan'));
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'practice')) {
             genTreeLink('RTop', 'adb', xl('Addr Book'));
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'practice')) {
             genTreeLink('RTop', 'ort', xl('Order Catalog'));
-} ?>
+        } ?>
         <?php if (!$GLOBALS['disable_chart_tracker'] && acl_check('patients', 'appt')) {
             genTreeLink('RTop', 'cht', xl('Chart Tracker'));
-} ?>
+        } ?>
         <?php if (acl_check('encounters', 'notes')) {
             genTreeLink('RTop', 'ono', xl('Ofc Notes'));
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'batchcom') || acl_check('admin', 'practice')) {
             genMiscLink('RTop', 'adm', '0', xl('BatchCom'), 'batchcom/batchcom.php');
-} ?>
+        } ?>
         <?php $myrow = sqlQuery("SELECT state FROM registry WHERE directory = 'track_anything'");
         if ($myrow['state']=='1') {
             genTreeLink('RTop', 'tan', xl('Configure Tracks'));
         } ?>
         <?php if (!$GLOBALS['use_active_directory']) {
             genTreeLink('RTop', 'pwd', xl('Password'));
-} ?>
+        } ?>
         <?php genTreeLink('RTop', 'mfa', xl('MFA Manaagement')); ?>
         <?php genMiscLink('RTop', 'prf', '0', xl('Preferences'), 'super/edit_globals.php?mode=user'); ?>
         <?php if (acl_check('patients', 'docs', '', 'write') || acl_check('patients', 'docs', '', 'addonly')) {
             genMiscLink('RTop', 'adm', '0', xl('New Documents'), '../controller.php?document&list&patient_id=00');
-} ?>
+        } ?>
         <?php if (acl_check('admin', 'practice')) {
             genMiscLink('RTop', 'adm', '0', xl('Document Templates'), 'super/manage_document_templates.php');
-} ?>
+        } ?>
     </ul>
   </li>
 

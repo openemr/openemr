@@ -125,18 +125,18 @@ $(function (){
   </td>
   <td>
    <select name='title'>
-<?php
-$ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'titles' AND activity = 1 ORDER BY seq");
-while ($orow = sqlFetchArray($ores)) {
-    echo "    <option value='" . attr($orow['option_id']) . "'";
-    if ($orow['option_id'] == $form_title) {
-        echo " selected";
-    }
+    <?php
+    $ores = sqlStatement("SELECT option_id, title FROM list_options " .
+    "WHERE list_id = 'titles' AND activity = 1 ORDER BY seq");
+    while ($orow = sqlFetchArray($ores)) {
+        echo "    <option value='" . attr($orow['option_id']) . "'";
+        if ($orow['option_id'] == $form_title) {
+            echo " selected";
+        }
 
-    echo ">" . text($orow['title']) . "</option>\n";
-}
-?>
+        echo ">" . text($orow['title']) . "</option>\n";
+    }
+    ?>
    </select>
   </td>
  </tr>
@@ -200,18 +200,18 @@ while ($orow = sqlFetchArray($ores)) {
   <td>
    <select name='refsource'>
     <option value=''>Unassigned</option>
-<?php
-$ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'refsource' AND activity = 1 ORDER BY seq");
-while ($orow = sqlFetchArray($ores)) {
-    echo "    <option value='" . attr($orow['option_id']) . "'";
-    if ($orow['option_id'] == $form_refsource) {
-        echo " selected";
-    }
+    <?php
+    $ores = sqlStatement("SELECT option_id, title FROM list_options " .
+    "WHERE list_id = 'refsource' AND activity = 1 ORDER BY seq");
+    while ($orow = sqlFetchArray($ores)) {
+        echo "    <option value='" . attr($orow['option_id']) . "'";
+        if ($orow['option_id'] == $form_refsource) {
+            echo " selected";
+        }
 
-    echo ">" . text($orow['title']) . "</option>\n";
-}
-?>
+        echo ">" . text($orow['title']) . "</option>\n";
+    }
+    ?>
    </select>
   </td>
  </tr>

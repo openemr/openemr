@@ -17,17 +17,18 @@
 class Context
 {
     public $GUID;
-    
+
     /**
      * Constructor initializes the session
      */
     public function __construct()
     {
         if (session_id() == '') {
-            @session_start();
+            session_start();
+            error_log("DEBUG: This session_start, which is in Context.php, should never be called.");
         }
     }
-    
+
     /**
      * Returns a persisted object or value
      *
@@ -41,7 +42,7 @@ class Context
     {
         return (isset($_SESSION [$this->GUID . "_" . $var])) ? unserialize($_SESSION [$this->GUID . "_" . $var]) : null;
     }
-    
+
     /**
      * Persists an object or value
      *

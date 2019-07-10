@@ -156,7 +156,7 @@ if ($_POST['form_refresh']) {
             $drug_name  = '&nbsp;';
             $ndc_number = '&nbsp;';
         }
-    ?>
+        ?>
    <tr>
     <td class='detail'>
         <?php echo text($drug_name); ?>
@@ -186,8 +186,8 @@ if ($_POST['form_refresh']) {
         <?php echo text($row['destroy_notes']); ?>
   </td>
  </tr>
-<?php
-     $last_drug_id = $row['drug_id'];
+        <?php
+        $last_drug_id = $row['drug_id'];
     } // end while
 } // end if
 ?>

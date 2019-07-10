@@ -31,7 +31,7 @@ $provider_results = sqlQuery("select * from users where username= ?", array($_SE
 $age = getPatientAge($result["DOB_YMD"]);
 
 ////////////////////////////////////////////////////////////////////
-// Function:	getPatientDateOfLastEncounter
+// Function:    getPatientDateOfLastEncounter
 function getPatientDateOfLastEncounter($nPid)
 {
     $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max

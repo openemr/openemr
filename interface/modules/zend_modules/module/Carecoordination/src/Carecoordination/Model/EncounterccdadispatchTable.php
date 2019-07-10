@@ -741,7 +741,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $start_date     = $start_date ? $start_date : '0';
                 $end_date           = $end_date ? $end_date : '0';
 
-                //Active - 55561003 	Completed - 73425007
+                //Active - 55561003     Completed - 73425007
                 if ($end_date) {
                     $status         = 'completed';
                     $status_table   = 'Resolved';
@@ -2198,10 +2198,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     /*
     * Convert date from database format to required format
     *
-    * @param	String		$date		Date from database (format: YYYY-MM-DD)
-    * @param	String		$format		Required date format
+    * @param    String      $date       Date from database (format: YYYY-MM-DD)
+    * @param    String      $format     Required date format
     *
-    * @return	String		$formatted_date	New formatted date
+    * @return   String      $formatted_date New formatted date
     */
     public function date_format($date, $format = null)
     {
@@ -2231,9 +2231,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * and the result is again parsed. We again take the alternate letters from the string. This is done twice to reduce
     * duplicate codes beign generated from this function.
     *
-    * @param	String		Code text
+    * @param    String      Code text
     *
-    * @return	String		Code
+    * @return   String      Code
     */
     public function generate_code($code_text)
     {

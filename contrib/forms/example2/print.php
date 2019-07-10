@@ -107,11 +107,11 @@ Use this space to express notes <br>
 Signature?
 <input type="radio" id="sig" name="sig" value="y" <?php if ($record["sig"] == 'y') {
     echo "CHECKED";
-} ?>>Yes
+                                                  } ?>>Yes
 /
 <input type="radio" id="sig" name="sig" value="n" <?php if ($record["sig"] == 'n') {
     echo "CHECKED";
-} ?>>No
+                                                  } ?>>No
 &nbsp;&nbsp;
 Date of signature:
    <input type='text' size='10' name='sig_date' id='sig_date'

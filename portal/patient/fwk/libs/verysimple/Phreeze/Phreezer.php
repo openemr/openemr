@@ -821,12 +821,12 @@ class Phreezer extends Observable
     {
         // TODO: if a php memory error occurs within this method, uncomment this block to debug
         /*
-		 * if (Phreezer::$cnt++ > 500)
-		 * {
-		 * throw new Exception("A sanity limit was exceeded when recursing KeyMaps for `$objectclass`. Please check your Map for circular joins.");
-		 * }
-		 * //
-		 */
+         * if (Phreezer::$cnt++ > 500)
+         * {
+         * throw new Exception("A sanity limit was exceeded when recursing KeyMaps for `$objectclass`. Please check your Map for circular joins.");
+         * }
+         * //
+         */
         
         // this is a temporary ram cache
         $kms = $this->_mapCache->Get($objectclass . "KeyMaps");

@@ -13,10 +13,10 @@ global $SMS_NOTIFICATION_HOUR;
 global $EMAIL_NOTIFICATION_HOUR;
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_SendMail
-// Purpose:	send mail
-// Input:	to, subject, email body and from
-// Output:	status - if sent or not
+// Function:    cron_SendMail
+// Purpose: send mail
+// Input:   to, subject, email body and from
+// Output:  status - if sent or not
 ////////////////////////////////////////////////////////////////////
 function cron_SendMail($to, $subject, $vBody, $from)
 {
@@ -144,8 +144,8 @@ function cron_SendMail($to, $subject, $vBody, $from)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	WriteLog
-// Purpose:	written log into file
+// Function:    WriteLog
+// Purpose: written log into file
 ////////////////////////////////////////////////////////////////////
 function WriteLog($data)
 {
@@ -181,8 +181,8 @@ if (!function_exists('my_print_r')) {
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_SendSMS
-// Purpose:	send sms
+// Function:    cron_SendSMS
+// Purpose: send sms
 ////////////////////////////////////////////////////////////////////
 function cron_SendSMS($to, $subject, $vBody, $from)
 {
@@ -206,8 +206,8 @@ function cron_SendSMS($to, $subject, $vBody, $from)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_updateentry
-// Purpose:	update status yes if alert send to patient
+// Function:    cron_updateentry
+// Purpose: update status yes if alert send to patient
 ////////////////////////////////////////////////////////////////////
 function cron_updateentry($type, $pid, $pc_eid)
 {
@@ -231,8 +231,8 @@ function cron_updateentry($type, $pid, $pc_eid)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getAlertpatientData
-// Purpose:	get patient data for send to alert
+// Function:    cron_getAlertpatientData
+// Purpose: get patient data for send to alert
 ////////////////////////////////////////////////////////////////////
 function cron_getAlertpatientData($type)
 {
@@ -285,8 +285,8 @@ function cron_getAlertpatientData($type)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getNotificationData
-// Purpose:	get alert notification data
+// Function:    cron_getNotificationData
+// Purpose: get alert notification data
 ////////////////////////////////////////////////////////////////////
 function cron_getNotificationData($type)
 {
@@ -301,8 +301,8 @@ function cron_getNotificationData($type)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_InsertNotificationLogEntry
-// Purpose:	insert log entry in table
+// Function:    cron_InsertNotificationLogEntry
+// Purpose: insert log entry in table
 ////////////////////////////////////////////////////////////////////
 function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg)
 {
@@ -342,8 +342,8 @@ function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_setmessage
-// Purpose:	set the message
+// Function:    cron_setmessage
+// Purpose: set the message
 ////////////////////////////////////////////////////////////////////
 function cron_setmessage($prow, $db_email_msg)
 {
@@ -368,8 +368,8 @@ function cron_setmessage($prow, $db_email_msg)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_GetNotificationSettings
-// Purpose:	get notification settings
+// Function:    cron_GetNotificationSettings
+// Purpose: get notification settings
 ////////////////////////////////////////////////////////////////////
 function cron_GetNotificationSettings()
 {

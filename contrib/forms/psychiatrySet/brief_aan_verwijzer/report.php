@@ -1,18 +1,18 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Form:	BRIEF AAN VERWIJZER
-// Package:	letter to - Dutch specific form
-// Created by:	Larry Lart
-// Version:	1.0 - 30-03-2008
+// Form:    BRIEF AAN VERWIJZER
+// Package: letter to - Dutch specific form
+// Created by:  Larry Lart
+// Version: 1.0 - 30-03-2008
 ////////////////////////////////////////////////////////////////////
 
 require_once("../../globals.php");
 require_once($GLOBALS["srcdir"]."/api.inc");
 
 ////////////////////////////////////////////////////////////////////
-// Function:	brief_aan_verwijzer_report
-// Purpose:	callback func?
-// Input:	pid? encounter, cols, id ?
+// Function:    brief_aan_verwijzer_report
+// Purpose: callback func?
+// Input:   pid? encounter, cols, id ?
 ////////////////////////////////////////////////////////////////////
 function brief_aan_verwijzer_report($pid, $encounter, $cols, $id)
 {

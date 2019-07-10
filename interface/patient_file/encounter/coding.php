@@ -35,7 +35,7 @@ use OpenEMR\Core\Header;
 <?php foreach ($code_types as $key => $value) { ?>
 <dd><a class="text" href="search_code.php?type=<?php echo attr_url($key); ?>"
  target="Codes" onclick="top.restoreSession()">
-<?php echo text($key); ?> <?php echo xlt('Search'); ?></a></dd>
+    <?php echo text($key); ?> <?php echo xlt('Search'); ?></a></dd>
 <?php } ?>
 
 <dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php echo xlt('Copay'); ?></a></dd>

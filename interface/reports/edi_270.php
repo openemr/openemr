@@ -199,7 +199,7 @@ if ($exclude_policy != "") {
         }
         return $rtn_array;
     }
-?>
+    ?>
 
 <html>
 
@@ -421,8 +421,8 @@ if ($exclude_policy != "") {
 
                                                     <?php if ($GLOBALS['enable_oa']) {
                                                         echo "<a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch(true);'>" . xlt('Request Eligibility') . "</a>\n";
-}
-                                                ?>
+                                                    }
+                                                    ?>
                                                     <input type='hidden' name='form_xmit' id='form_xmit' value=''></input>
                                                 </a>
                                             </div>

@@ -21,15 +21,15 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 ?>
 <?php
 if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['encounter'])) {
-?>
+    ?>
 <html>
 <head>
 <title>
-<?php echo xlt('Print Notes'); ?>
+    <?php echo xlt('Print Notes'); ?>
 </title>
 </head>
 <body>
-<?php echo xlt('Choose print format for this encounter report.'); ?><br><br>
+    <?php echo xlt('Choose print format for this encounter report.'); ?><br><br>
 <form method=post name=choose_patients>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type='submit' name='submit_pdf' value='<?php echo xla('Print (PDF)'); ?>'>
@@ -37,17 +37,17 @@ if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['
 </form>
 </body>
 </html>
-<?php
-exit;
+    <?php
+    exit;
 }
 
 if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['encounter'])) {
-?>
+    ?>
 <html>
 <head>
 
 <title>
-<?php echo xlt('Print Notes'); ?>
+    <?php echo xlt('Print Notes'); ?>
 </title>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
@@ -108,7 +108,7 @@ title='<?php echo xla('yyyy-mm-dd last date of this event'); ?>' />
 </form>
 </body>
 </html>
-<?php
+    <?php
 }
 
 if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['encounter'])) {
@@ -120,7 +120,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
     $output = getFormData(trim($_POST["start"]), trim($_POST["end"]), trim($_POST["lname"]), trim($_POST["fname"]));
     ksort($output);
     if ($_POST['submit_html']) { //print as html
-?>
+        ?>
         <html>
         <head>
         <style>
@@ -157,109 +157,109 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
     </head>
         <body>
     <div class='paddingdiv'>
-<?php
-foreach ($output as $datekey => $dailynote) {
-    foreach ($dailynote as $note_id => $notecontents) {
-        preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
-        $pid = $matches[1];
-        $enc = $matches[2];
+        <?php
+        foreach ($output as $datekey => $dailynote) {
+            foreach ($dailynote as $note_id => $notecontents) {
+                preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
+                $pid = $matches[1];
+                $enc = $matches[2];
 
-        //new page code here
-        print "<DIV class='page'>";
+                //new page code here
+                print "<DIV class='page'>";
 
-        print xlt("Date").": ".text($notecontents['date']) . "<br/>";
-        print xlt("Name").": ".text($notecontents['name']) . "<br/>";
-            print xlt("DOB").": ".text($notecontents['dob']) . "<br/>";
+                print xlt("Date").": ".text($notecontents['date']) . "<br/>";
+                print xlt("Name").": ".text($notecontents['name']) . "<br/>";
+                    print xlt("DOB").": ".text($notecontents['dob']) . "<br/>";
                     print xlt("Claim")."# ".text($notecontents['pubpid']) . "<br/>";
 
-        print "<br/>";
-        print xlt("Chief Complaint").": ".text($notecontents['reason']) . "<br/>";
-        if ($notecontents['vitals']) {
-            print "<br/>";
-            print text($notecontents['vitals']) . "<br/>";
-        }
-
-        if (count($notecontents['exam']) > 0) {
-            print "<br/>";
-            print "<span class='heading'>" . xlt("Progress Notes") . "</span><br/>";
-            print "<br/>";
-            foreach ($notecontents['exam'] as $examnote) {
-                print nl2br(text(replace($pid, $enc, $examnote))) . "<br/>";
-            }
-        }
-
-        if (count($notecontents['prescriptions']) > 0) {
-            print "<br/>";
-            print "<span class='heading'>" . xlt("Prescriptions") . "</span><br/>";
-            print "<br/>";
-            foreach ($notecontents['prescriptions'] as $rx) {
-                print nl2br(text(replace($pid, $enc, $rx))) . "<br/>";
-            }
-        }
-
-        if (count($notecontents['other']) > 0) {
-            print "<br/>";
-            print "<span class='heading'>" . xlt("Other") . "</span><br/>";
-            print "<br/>";
-            foreach ($notecontents['other'] as $other => $othercat) {
-                print nl2br(text($other)) . "<br/>";
-                foreach ($othercat as $items) {
-                    print nl2br(text(replace($pid, $enc, $items))) . "<br/>";
-                }
-            }
-        }
-
-        if (count($notecontents['billing']) > 0) {
-            $tmp = array();
-            foreach ($notecontents['billing'] as $code) {
-                $tmp[$code]++;
-            }
-
-            if (count($tmp) > 0) {
                 print "<br/>";
-                print "<span class='heading'>" . xlt("Coding") . "</span><br/>";
-                print "<br/>";
-                foreach ($tmp as $code => $val) {
-                    print nl2br(text($code)) . "<br/>";
+                print xlt("Chief Complaint").": ".text($notecontents['reason']) . "<br/>";
+                if ($notecontents['vitals']) {
+                    print "<br/>";
+                    print text($notecontents['vitals']) . "<br/>";
                 }
+
+                if (count($notecontents['exam']) > 0) {
+                    print "<br/>";
+                    print "<span class='heading'>" . xlt("Progress Notes") . "</span><br/>";
+                    print "<br/>";
+                    foreach ($notecontents['exam'] as $examnote) {
+                        print nl2br(text(replace($pid, $enc, $examnote))) . "<br/>";
+                    }
+                }
+
+                if (count($notecontents['prescriptions']) > 0) {
+                    print "<br/>";
+                    print "<span class='heading'>" . xlt("Prescriptions") . "</span><br/>";
+                    print "<br/>";
+                    foreach ($notecontents['prescriptions'] as $rx) {
+                        print nl2br(text(replace($pid, $enc, $rx))) . "<br/>";
+                    }
+                }
+
+                if (count($notecontents['other']) > 0) {
+                    print "<br/>";
+                    print "<span class='heading'>" . xlt("Other") . "</span><br/>";
+                    print "<br/>";
+                    foreach ($notecontents['other'] as $other => $othercat) {
+                        print nl2br(text($other)) . "<br/>";
+                        foreach ($othercat as $items) {
+                            print nl2br(text(replace($pid, $enc, $items))) . "<br/>";
+                        }
+                    }
+                }
+
+                if (count($notecontents['billing']) > 0) {
+                    $tmp = array();
+                    foreach ($notecontents['billing'] as $code) {
+                        $tmp[$code]++;
+                    }
+
+                    if (count($tmp) > 0) {
+                        print "<br/>";
+                        print "<span class='heading'>" . xlt("Coding") . "</span><br/>";
+                        print "<br/>";
+                        foreach ($tmp as $code => $val) {
+                            print nl2br(text($code)) . "<br/>";
+                        }
+                    }
+                }
+
+                if (count($notecontents['calories']) > 0) {
+                    $sum = 0;
+                    print "<br/>";
+                    print "<span class='heading'>" . xlt("Calories") . "</span><br/>";
+                    print "<br/>";
+                    foreach ($notecontents['calories'] as $calories => $value) {
+                        print text($value['content']).' - '.text($value['item']).' - '.text($value['date']) . "<br/>";
+                        $sum += $value['content'];
+                    }
+
+                    print "--------" . "<br/>";
+                    print text($sum) . "<br/>";
+                }
+
+                print "<br/>";
+                print "<br/>";
+                print "<span class='heading'>" . xlt("Digitally Signed") . "</span><br/>";
+
+                $query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
+                    "(t1.user like t2.username) where t1.pid=? and t1.encounter=?", array($pid, $encounter));
+                if ($results = sqlFetchArray($query)) {
+                    $name = $results['fname']." ".$results['lname'].", ".$results['title'];
+                    $user_id = $results['id'];
+                }
+
+                $path = $GLOBALS['fileroot']."/interface/forms/CAMOS";
+                if (file_exists($path."/sig".convert_safe_file_dir_name($user_id).".jpg")) {
+                //show the image here
+                }
+
+                print "<span class='heading'>" . text($name) . "</span><br/>";
+                    print "</DIV>"; //end of last page
             }
         }
-
-        if (count($notecontents['calories']) > 0) {
-            $sum = 0;
-            print "<br/>";
-            print "<span class='heading'>" . xlt("Calories") . "</span><br/>";
-            print "<br/>";
-            foreach ($notecontents['calories'] as $calories => $value) {
-                print text($value['content']).' - '.text($value['item']).' - '.text($value['date']) . "<br/>";
-                $sum += $value['content'];
-            }
-
-            print "--------" . "<br/>";
-            print text($sum) . "<br/>";
-        }
-
-        print "<br/>";
-        print "<br/>";
-        print "<span class='heading'>" . xlt("Digitally Signed") . "</span><br/>";
-
-        $query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
-            "(t1.user like t2.username) where t1.pid=? and t1.encounter=?", array($pid, $encounter));
-        if ($results = sqlFetchArray($query)) {
-            $name = $results['fname']." ".$results['lname'].", ".$results['title'];
-            $user_id = $results['id'];
-        }
-
-        $path = $GLOBALS['fileroot']."/interface/forms/CAMOS";
-        if (file_exists($path."/sig".convert_safe_file_dir_name($user_id).".jpg")) {
-        //show the image here
-        }
-
-        print "<span class='heading'>" . text($name) . "</span><br/>";
-            print "</DIV>"; //end of last page
-    }
-}
-?>
+        ?>
         <script language='JavaScript'>
         var win = top.printLogPrint ? top : opener.top;
         win.printLogPrint(window);
@@ -267,8 +267,8 @@ foreach ($output as $datekey => $dailynote) {
         </div>
         </body>
         </html>
-<?php
-    exit;
+        <?php
+        exit;
     } else { // print as pdf
         $pdf = new Cezpdf();
         $pdf->selectFont('Helvetica');

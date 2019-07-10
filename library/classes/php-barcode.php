@@ -17,7 +17,7 @@
  * @package BCC Library
  * @author DEMONTE Jean-Baptiste <jbdemonte@gmail.com>
  * @author HOUREZ Jonathan
- * @copyright 2013 
+ * @copyright 2013
  *
  * Added to Openemr by Terry Hill terry@lillysystems.com
  * this is from the barcode-coder website
@@ -139,8 +139,7 @@ class Barcode
     {
         $d = array();
         $len = strlen($digit);
-        for ($i=0; $i<$len;
-        $i++) {
+        for ($i=0; $i<$len; $i++) {
             $d[$i] = $digit[$i];
         }
 
@@ -1068,8 +1067,7 @@ class BarcodeDatamatrix
         $correctionCW = array();
 
         for ($k = 0; $k < $blocks; $k++) {
-            for ($i=0; $i < $errorBlocks;
-            $i++) {
+            for ($i=0; $i < $errorBlocks; $i++) {
                 $correctionCW[$i] = 0;
             }
 

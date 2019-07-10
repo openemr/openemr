@@ -30,7 +30,7 @@ class CcdTable extends AbstractTableGateway
     /*
      *  Fetch the component values from the CCDA XML*
      *
-     * @param	$components		Array of components
+     * @param   $components     Array of components
      */
     public function import($xml, $document_id)
     {

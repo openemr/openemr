@@ -164,11 +164,11 @@ class ActionRouter implements IRouter
         switch ($this->_mode) {
             // TODO: Determine mobile/joomla URL action (if different from default)
             /*
-			 * case UrlWriterMode::JOOMLA:
-			 * break;
-			 * case UrlWriterMode::MOBILE:
-			 * break;
-			 */
+             * case UrlWriterMode::JOOMLA:
+             * break;
+             * case UrlWriterMode::MOBILE:
+             * break;
+             */
             default:
                 // default is to return the standard browser-based action=%s.%s&%s:
                 return RequestUtil::Get($url_param, $default_action);

@@ -121,7 +121,7 @@ function leg_length_report($pid, $encounter, $cols, $id)
     </tbody>
   </table>
 
-    <?php if ($data['notes'] != '') {?>
+        <?php if ($data['notes'] != '') {?>
     </p>
     <table border='0' cellpadding='0' cellspacing='0' class='text'>
         <tr class='text'>
@@ -133,7 +133,7 @@ function leg_length_report($pid, $encounter, $cols, $id)
     </table>
     <?php } ?>
 
-    <?php
+        <?php
     }
 }
 ?>

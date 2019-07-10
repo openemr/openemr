@@ -31,7 +31,7 @@
  * $xmltoarray->xmlparser_setoption(XML_OPTION_CASE_FOLDING, 0);
  * $xmltoarray->xmlparser_fix_into_struct($xmlstring); //fixes html values for XML
  * $array = $xmltoarray->createArray(); //creates an array with fixed html values
- * foreach($array as $key => $value){ 
+ * foreach($array as $key => $value){
  *	$array[$key] = $xmltoarray->fix_html_entities($value); //returns proper html values
  * }
  */

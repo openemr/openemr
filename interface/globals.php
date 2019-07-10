@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -89,24 +89,14 @@ if (preg_match("/^[^\/]/", $web_root)) {
 // only if you have some reason to.
 $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 
-// The session name names a cookie stored in the browser.
-// Now that restore_session() is implemented in javaScript, session IDs are
-// effectively saved in the top level browser window and there is no longer
-// any need to change the session name for different OpenEMR instances.
-// On 4/8/17, added cookie_path to improve security when using different
-// OpenEMR instances on same server to prevent session conflicts; also
-// modified interface/login/login.php and library/restoreSession.php to be
-// consistent with this.
-// Defaults for session.gc_maxlifetime is often too small. You might choose to
-// adjust it further.
+// If a session does not yet exist, then will start the core OpenEMR session.
+//  If a session already exists, then this means portal is being used, which
+//  has already created a portal session/cookie, so will bypass setting of
+//  the core OpenEMR session/cookie.
 if (session_status() === PHP_SESSION_NONE) {
-    // Only can run these when do not have an active session yet
-    // (for example, need to skip this in the portal where the session is already active)
-    ini_set('session.gc_maxlifetime', '14400');
-    ini_set('session.cookie_path', $web_root ? $web_root : '/');
-    session_name("OpenEMR");
+    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+    OpenEMR\Common\Session\SessionUtil::coreSessionStart($web_root);
 }
-session_start();
 
 // Set the site ID if required.  This must be done before any database
 // access is attempted.

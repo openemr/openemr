@@ -38,8 +38,8 @@ class CarecoordinationTable extends AbstractTableGateway
     /*
      * Fetch the category ID using category name
      *
-     * @param		$title		String		Category Name
-     * @return		$records	Array		Category ID
+     * @param       $title      String      Category Name
+     * @return      $records    Array       Category ID
      */
     public function fetch_cat_id($title)
     {
@@ -131,7 +131,7 @@ class CarecoordinationTable extends AbstractTableGateway
     /*
      * Fetch the component values from the CCDA XML
      *
-     * @param	$components		Array of components
+     * @param   $components     Array of components
      */
     public function import($xml, $document_id)
     {
@@ -929,8 +929,8 @@ class CarecoordinationTable extends AbstractTableGateway
     /*
      * Fetch a document from the database
      *
-     * @param	$document_id		Integer		Document ID
-     * @return	$content		String		File content
+     * @param   $document_id        Integer     Document ID
+     * @return  $content        String      File content
      */
     public function getDocument($document_id)
     {
@@ -2274,34 +2274,34 @@ class CarecoordinationTable extends AbstractTableGateway
                           '228274009' => 'Never'
                       );
                       $alcohol = explode("|", $newdata['social_history']['alcohol']);
-                if ($alcohol[2] != 0) {
-                    $alcohol_date = $this->formatDate($alcohol[2], 1);
-                } else {
+                      if ($alcohol[2] != 0) {
+                          $alcohol_date = $this->formatDate($alcohol[2], 1);
+                      } else {
                                 $alcohol_date = $alcohol[2];
-                }
+                      }
 
                       $alcohol_date_value = fixDate($alcohol_date);
-                foreach ($alcohol_status as $key => $value) {
-                    if ($alcohol[1] == $key) {
-                        $alcohol[1] = strtolower($value) . "alcohol";
-                    }
-                }
+                      foreach ($alcohol_status as $key => $value) {
+                          if ($alcohol[1] == $key) {
+                              $alcohol[1] = strtolower($value) . "alcohol";
+                          }
+                      }
 
                       $alcohol_value = $alcohol[0] . "|" . $alcohol[1] . "|" . $alcohol_date_value;
 
                       $tobacco = explode("|", $newdata['social_history']['smoking']);
-                if ($tobacco[2] != 0) {
-                      $smoking_date = $this->formatDate($tobacco[2], 1);
-                } else {
+                      if ($tobacco[2] != 0) {
+                            $smoking_date = $this->formatDate($tobacco[2], 1);
+                      } else {
                                 $smoking_date = $tobacco[2];
-                }
+                      }
 
                       $smoking_date_value = fixDate($smoking_date);
-                foreach ($tobacco_status as $key => $value2) {
-                    if ($tobacco[1] == $key) {
-                        $tobacco[1] = strtolower($value2) . "tobacco";
-                    }
-                }
+                      foreach ($tobacco_status as $key => $value2) {
+                          if ($tobacco[1] == $key) {
+                              $tobacco[1] = strtolower($value2) . "tobacco";
+                          }
+                      }
 
                       $smoking_value = $tobacco[0] . "|" . $tobacco[1] . "|" . $smoking_date_value;
 

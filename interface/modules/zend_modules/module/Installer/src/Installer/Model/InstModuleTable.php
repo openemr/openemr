@@ -695,7 +695,7 @@ class InstModuleTable
             $check    = $row;
         }
 
-        if ((count($check) > 0)&& is_array($check)) {
+        if (is_array($check) && (count($check) > 0)) {
             if ($check['mod_active'] == "1") {
                 return "Enabled";
             } else {

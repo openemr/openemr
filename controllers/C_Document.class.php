@@ -945,8 +945,8 @@ class C_Document extends Controller
                 $this->assign("messages", $messages);
                 return $this->list_action($patient_id);
             }
-        } //in this case return the document to the queue instead of moving it
-        elseif (strtolower($new_patient_id) == "q" && is_numeric($document_id)) {
+        } elseif (strtolower($new_patient_id) == "q" && is_numeric($document_id)) { // in this case return the document
+            // to the queue instead of moving it
             $d = new Document($document_id);
             $new_path = $this->_config['repository'];
             $fname = $d->get_url_file();
@@ -1149,7 +1149,7 @@ class C_Document extends Controller
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
 
-    /*	This is a recursive function to rename a file to something that doesn't already exist.
+    /*  This is a recursive function to rename a file to something that doesn't already exist.
      *      Modified in version 3.2.0 to place a counter within the filename (previously was placed
      *      at end) to ensure documents opened correctly by external browser viewers. If the
      *      counter is at the end of the file, then will use it (to continue to work with older

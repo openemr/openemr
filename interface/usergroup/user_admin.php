@@ -340,8 +340,8 @@ if ($fres) {
         ?>
           <option value="<?php echo attr($iter2['id']); ?>" <?php if ($iter['facility_id'] == $iter2['id']) {
                 echo "selected";
-} ?>><?php echo text($iter2['name']); ?></option>
-<?php
+                         } ?>><?php echo text($iter2['name']); ?></option>
+        <?php
     }
 }
 ?>
@@ -354,23 +354,23 @@ if ($fres) {
  <td><span class=text><?php echo xlt('Schedule Facilities:');?></td>
  <td>
   <select name="schedule_facility[]" multiple style="width:150px;" class="form-control">
-<?php
-  $userFacilities = getUserFacilities($_GET['id']);
-  $ufid = array();
-foreach ($userFacilities as $uf) {
-    $ufid[] = $uf['id'];
-}
+    <?php
+    $userFacilities = getUserFacilities($_GET['id']);
+    $ufid = array();
+    foreach ($userFacilities as $uf) {
+        $ufid[] = $uf['id'];
+    }
 
-  $fres = $facilityService->getAllServiceLocations();
-if ($fres) {
-    foreach ($fres as $frow) :
-?>
+    $fres = $facilityService->getAllServiceLocations();
+    if ($fres) {
+        foreach ($fres as $frow) :
+            ?>
    <option <?php echo in_array($frow['id'], $ufid) || $frow['id'] == $iter['facility_id'] ? "selected" : null ?>
            class="form-control" value="<?php echo attr($frow['id']); ?>"><?php echo text($frow['name']) ?></option>
-<?php
-    endforeach;
-}
-?>
+            <?php
+        endforeach;
+    }
+    ?>
   </select>
  </td>
 </tr>
@@ -450,25 +450,25 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 <tr>
  <td class="text"><?php echo xlt('Default Warehouse'); ?>: </td>
  <td class='text'>
-<?php
-echo generate_select_list(
-    'default_warehouse',
-    'warehouse',
-    $iter['default_warehouse'],
-    ''
-);
-?>
+    <?php
+    echo generate_select_list(
+        'default_warehouse',
+        'warehouse',
+        $iter['default_warehouse'],
+        ''
+    );
+    ?>
  </td>
  <td class="text"><?php echo xlt('Invoice Refno Pool'); ?>: </td>
  <td class='text'>
-<?php
-echo generate_select_list(
-    'irnpool',
-    'irnpool',
-    $iter['irnpool'],
-    xl('Invoice reference number pool, if used')
-);
-?>
+    <?php
+    echo generate_select_list(
+        'irnpool',
+        'irnpool',
+        $iter['irnpool'],
+        xl('Invoice reference number pool, if used')
+    );
+    ?>
  </td>
 </tr>
 <?php } ?>
@@ -489,7 +489,7 @@ foreach ($list_acl_groups as $value) {
         echo " <option value='" . attr($value) . "'>" . text(xl_gacl_group($value)) . "</option>\n";
     }
 }
-    ?>
+?>
   </select></td>
   <td><span class=text><?php echo xlt('Additional Info'); ?>:</span></td>
   <td><textarea style="width:150px;" name="comments" wrap=auto rows=4 cols=25 class="form-control"><?php echo text($iter["info"]); ?></textarea></td>

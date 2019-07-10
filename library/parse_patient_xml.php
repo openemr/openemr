@@ -168,18 +168,18 @@ function insert_patient($audit_master_id)
                 "'".add_escape_custom($newdata['immunizations']['note'])."')");
         } elseif ($table == 'procedure_result') {
             /*sqlStatement("INSERT INTO procedure_result(".
-				"date,result,abnormal".
-				") VALUES (".
-				"'".add_escape_custom($newdata['procedure_result']['date'])."',".
-				"'".add_escape_custom($newdata['procedure_result']['result'])."',".
-				"'".add_escape_custom($newdata['procedure_result']['abnormal'])."')"
-			);*/
+                "date,result,abnormal".
+                ") VALUES (".
+                "'".add_escape_custom($newdata['procedure_result']['date'])."',".
+                "'".add_escape_custom($newdata['procedure_result']['result'])."',".
+                "'".add_escape_custom($newdata['procedure_result']['abnormal'])."')"
+            );*/
         } elseif ($table == 'procedure_type') {
             /*sqlStatement("INSERT INTO procedure_type(".
-				"name".
-				") VALUES (".
-				"'".add_escape_custom($newdata['procedure_type']['name'])."')"
-			);*/
+                "name".
+                ") VALUES (".
+                "'".add_escape_custom($newdata['procedure_type']['name'])."')"
+            );*/
         } elseif ($table == 'misc_address_book') {
             sqlStatement("INSERT INTO misc_address_book(".
                 "lname,fname,street,city,state,zip,phone".

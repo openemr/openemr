@@ -226,7 +226,7 @@ class eRxXMLBuilder
         if (is_a($element, 'DOMNode') && is_array($children) && count($children)) {
             foreach ($children as $child) {
                 // if(is_array($child)) {
-                // 	$this->appendChildren($element, $child);
+                //  $this->appendChildren($element, $child);
                 // }
                 $element->appendChild($child);
             }

@@ -47,13 +47,13 @@ if ($_POST['form_csvexport']) {
         echo '"Pt Pct"' . "\n";
     }
 } else {
-?>
+    ?>
 <html>
 <head>
 
 <title><?php echo xlt('Patient Insurance Distribution'); ?></title>
 
-<?php Header::setupHeader('datetime-picker'); ?>
+    <?php Header::setupHeader('datetime-picker'); ?>
 
 <script language="JavaScript">
     $(function() {
@@ -106,7 +106,7 @@ if ($_POST['form_csvexport']) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Patient Insurance Distribution'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt("to") . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt("to") . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' method='post' action='insurance_allocation_report.php' id='theform' onsubmit='return top.restoreSession()'>
@@ -181,7 +181,7 @@ if ($_POST['form_csvexport']) {
   <th align='right'> <?php echo xlt('Pt %'); ?> </th>
  </thead>
  <tbody>
-<?php
+    <?php
 } // end not export
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $query = "SELECT b.pid, b.encounter, SUM(b.fee) AS charges, " .
@@ -227,31 +227,31 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . $val['patients']                                    . '",';
             echo '"' . sprintf("%.1f", $val['patients'] * 100 / $patcount) . '"' . "\n";
         } else {
-        ?>
+            ?>
      <tr>
       <td>
             <?php echo text($key); ?>
   </td>
   <td align='right'>
-        <?php echo text(oeFormatMoney($val['charges'])); ?>
+            <?php echo text(oeFormatMoney($val['charges'])); ?>
   </td>
   <td align='right'>
-        <?php echo text($val['visits']); ?>
+            <?php echo text($val['visits']); ?>
   </td>
   <td align='right'>
-        <?php echo text($val['patients']); ?>
+            <?php echo text($val['patients']); ?>
   </td>
   <td align='right'>
-        <?php printf("%.1f", $val['patients'] * 100 / $patcount) ?>
+            <?php printf("%.1f", $val['patients'] * 100 / $patcount) ?>
   </td>
  </tr>
-<?php
+            <?php
         } // end not export
     } // end while
 } // end if
 
 if (! $_POST['form_csvexport']) {
-?>
+    ?>
 
 </tbody>
 </table>
@@ -260,6 +260,6 @@ if (! $_POST['form_csvexport']) {
 </body>
 
 </html>
-<?php
+    <?php
 } // end not export
 ?>

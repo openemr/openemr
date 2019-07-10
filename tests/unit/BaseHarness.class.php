@@ -32,7 +32,6 @@ class BaseHarness extends PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        // session_start();
         $_SESSION['authUser']  = 'tester';
         $_SESSION['authGroup'] = 'testgroup';
 

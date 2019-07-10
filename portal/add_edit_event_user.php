@@ -15,8 +15,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// continue session
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 require_once("./../library/pnotes.inc");
 
@@ -28,7 +29,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
@@ -756,8 +757,6 @@ while ($crow = sqlFetchArray($cres)) {
     }
 }
 ?>
-
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
  // This is for callback by the find-patient popup.
  function setpatient(pid, lname, fname, dob) {

@@ -781,7 +781,7 @@ function csv_parameters($type = 'ALL')
                         'files_csv'=>$edihist_dir.DS.'csv'.DS.'files_f837.csv', 'filedate'=>'Date', 'claimdate'=>'SvcDate', 'regex'=>'/\-batch(.*)\.txt$/');
     //
     //$p_ar['csv'] = array("type"=>'csv', "directory"=>$edihist_dir.'/csv', "claims_csv"=>'ibr_parameters.csv',
-    //					"files_csv"=>'', "column"=>'', "regex"=>'/\.csv$/');
+    //                  "files_csv"=>'', "column"=>'', "regex"=>'/\.csv$/');
     $p_ar['f997'] = array('type'=>'f997', 'directory'=>$edihist_dir.DS.'f997', 'claims_csv'=>$edihist_dir.DS.'csv'.DS.'claims_f997.csv',
                         'files_csv'=>$edihist_dir.DS.'csv'.DS.'files_f997.csv', 'filedate'=>'Date', 'claimdate'=>'RspDate', 'regex'=>'/\.(99[79]|ta1|ack)$/i');
     $p_ar['f276'] = array('type'=>'f276', 'directory'=>$edihist_dir.DS.'f276', 'claims_csv'=>$edihist_dir.DS.'csv'.DS.'claims_f276.csv',
@@ -1373,51 +1373,51 @@ function csv_table_header($file_type, $csv_type)
 
 /*
 function csv_files_header($file_type, $csv_type) {
-	//
-	$tp = csv_file_type($type);
-	if (!$tp) {
-		csv_edihist_log('csv_files_header: incorrect type '.$file_type);
-		return false;
-	}
-	if (!strpos('|file|claim', $csv_type) ) {
-		csv_edihist_log('csv_files_header error: incorrect csv type '.$csv_type);
-		return false;
-	}
-	//
-	$ft = strpos('|277', $file_type) ? 'f277' : $file_type;
-	$ft = strpos('|835', $file_type) ? 'era' : $ft;
-	$ft = strpos('|837', $file_type) ? 'batch' : $ft;
-	$ft = strpos('|999|997|ack|ta1', $file_type) ? 'f997' : $ft;
-	//
-	$csv_hd_ar = array();
-	// dataTables: | 'date' | 'file_name (link)' | 'file_text (link fmt)' | 'claim_ct' | 'reject_ct' |
-	$csv_hd_ar['ack']['file'] = array('Date', 'FileName', 'isa13', 'ta1ctrl', 'Code');
-	$csv_hd_ar['ebr']['file'] = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch');
-	$csv_hd_ar['ibr']['file'] = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch');
-	//
-	// dataTables: | 'date' | 'file_name (link)' | 'file_text (link fmt)' | 'claim_ct' | 'partner' |
-	$csv_hd_ar['batch']['file'] = array('Date', 'FileName', 'Ctn_837', 'claim_ct', 'x12_partner');
-	$csv_hd_ar['ta1']['file'] =   array('Date', 'FileName', 'Ctn_ta1', 'ta1ctrl', 'Code');
-	$csv_hd_ar['f997']['file'] =  array('Date', 'FileName', 'Ctn_999', 'ta1ctrl', 'RejCt');
-	$csv_hd_ar['f277']['file'] =  array('Date', 'FileName', 'Ctn_277', 'Accept', 'AccAmt', 'Reject', 'RejAmt');
-	$csv_hd_ar['f270']['file'] =  array('Date', 'FileName', 'Ctn_270', 'claim_ct', 'x12_partner');
-	$csv_hd_ar['f271']['file'] =  array('Date', 'FileName', 'Ctn_271', 'claim_ct', 'Denied', 'Payer');
-	$csv_hd_ar['era']['file'] =   array('Date', 'FileName', 'Trace', 'claim_ct', 'Denied', 'Payer');
-	//
-	// dataTables: | 'pt_name' | 'svc_date' | 'clm01 (link clm)' | 'status (mouseover)' | b f t (links to files) | message (mouseover) |
-	$csv_hd_ar['ebr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
-	$csv_hd_ar['ibr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
-	$csv_hd_ar['dpr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
-	//
-	// dataTables: | 'pt_name' | 'svc_date' | 'clm01 (link clm)' | 'status (mouseover)' | 'bht03_837 (link rsp)' | message (mouseover) |
-	$csv_hd_ar['batch']['claim'] = array('PtName', 'SvcDate', 'clm01', 'InsLevel', 'Ctn_837', 'File_837', 'Fee', 'PtPaid', 'Provider' );
-	$csv_hd_ar['f997']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'ak_num', 'File_997', 'Ctn_837', 'err_seg');
-	$csv_hd_ar['f277']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_277', 'File_277', 'payer_name', 'claim_id', 'bht03_837');
-	$csv_hd_ar['f270']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'InsLevel', 'st_270', 'File_270', 'payer_name', 'bht03_270');
-	$csv_hd_ar['f271']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_271', 'File_271', 'payer_name', 'bht03_270');
-	$csv_hd_ar['era']['claim'] =   array('PtName', 'SvcDate', 'clm01', 'Status', 'trace', 'File_835', 'claimID', 'Pmt', 'PtResp', 'Payer');
-	//
-	return $csv_hd_ar[$ft][$csv_type];
+    //
+    $tp = csv_file_type($type);
+    if (!$tp) {
+        csv_edihist_log('csv_files_header: incorrect type '.$file_type);
+        return false;
+    }
+    if (!strpos('|file|claim', $csv_type) ) {
+        csv_edihist_log('csv_files_header error: incorrect csv type '.$csv_type);
+        return false;
+    }
+    //
+    $ft = strpos('|277', $file_type) ? 'f277' : $file_type;
+    $ft = strpos('|835', $file_type) ? 'era' : $ft;
+    $ft = strpos('|837', $file_type) ? 'batch' : $ft;
+    $ft = strpos('|999|997|ack|ta1', $file_type) ? 'f997' : $ft;
+    //
+    $csv_hd_ar = array();
+    // dataTables: | 'date' | 'file_name (link)' | 'file_text (link fmt)' | 'claim_ct' | 'reject_ct' |
+    $csv_hd_ar['ack']['file'] = array('Date', 'FileName', 'isa13', 'ta1ctrl', 'Code');
+    $csv_hd_ar['ebr']['file'] = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch');
+    $csv_hd_ar['ibr']['file'] = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch');
+    //
+    // dataTables: | 'date' | 'file_name (link)' | 'file_text (link fmt)' | 'claim_ct' | 'partner' |
+    $csv_hd_ar['batch']['file'] = array('Date', 'FileName', 'Ctn_837', 'claim_ct', 'x12_partner');
+    $csv_hd_ar['ta1']['file'] =   array('Date', 'FileName', 'Ctn_ta1', 'ta1ctrl', 'Code');
+    $csv_hd_ar['f997']['file'] =  array('Date', 'FileName', 'Ctn_999', 'ta1ctrl', 'RejCt');
+    $csv_hd_ar['f277']['file'] =  array('Date', 'FileName', 'Ctn_277', 'Accept', 'AccAmt', 'Reject', 'RejAmt');
+    $csv_hd_ar['f270']['file'] =  array('Date', 'FileName', 'Ctn_270', 'claim_ct', 'x12_partner');
+    $csv_hd_ar['f271']['file'] =  array('Date', 'FileName', 'Ctn_271', 'claim_ct', 'Denied', 'Payer');
+    $csv_hd_ar['era']['file'] =   array('Date', 'FileName', 'Trace', 'claim_ct', 'Denied', 'Payer');
+    //
+    // dataTables: | 'pt_name' | 'svc_date' | 'clm01 (link clm)' | 'status (mouseover)' | b f t (links to files) | message (mouseover) |
+    $csv_hd_ar['ebr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
+    $csv_hd_ar['ibr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
+    $csv_hd_ar['dpr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
+    //
+    // dataTables: | 'pt_name' | 'svc_date' | 'clm01 (link clm)' | 'status (mouseover)' | 'bht03_837 (link rsp)' | message (mouseover) |
+    $csv_hd_ar['batch']['claim'] = array('PtName', 'SvcDate', 'clm01', 'InsLevel', 'Ctn_837', 'File_837', 'Fee', 'PtPaid', 'Provider' );
+    $csv_hd_ar['f997']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'ak_num', 'File_997', 'Ctn_837', 'err_seg');
+    $csv_hd_ar['f277']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_277', 'File_277', 'payer_name', 'claim_id', 'bht03_837');
+    $csv_hd_ar['f270']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'InsLevel', 'st_270', 'File_270', 'payer_name', 'bht03_270');
+    $csv_hd_ar['f271']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_271', 'File_271', 'payer_name', 'bht03_270');
+    $csv_hd_ar['era']['claim'] =   array('PtName', 'SvcDate', 'clm01', 'Status', 'trace', 'File_835', 'claimID', 'Pmt', 'PtResp', 'Payer');
+    //
+    return $csv_hd_ar[$ft][$csv_type];
 }
 */
 
@@ -1848,8 +1848,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
                 if (strpos($data[2], $e)) {
                     $te = substr($data[2], strpos($data[2], '-')+1);
                     if (strcmp($te, $e) === 0) {
-                        for ($i=0; $i<$hct;
-                        $i++) {
+                        for ($i=0; $i<$hct; $i++) {
                             $val[$h_ar[$i]] = $data[$i];
                         }
 
@@ -1862,8 +1861,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
                 if (strpos($data[2], $p) !== false) {
                     $te = (strpos($data[2], '-')) ? substr($data[2], 0, strpos($data[2], '-')) : '';
                     if (strcmp($te, $p) === 0) {
-                        for ($i=0; $i<$hct;
-                        $i++) {
+                        for ($i=0; $i<$hct; $i++) {
                             $val[$h_ar[$i]] = $data[$i];
                         }
 
@@ -1875,8 +1873,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
             while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
                 // check for a match
                 if (strcmp($data[2], $pe) === 0) {
-                    for ($i=0; $i<$hct;
-                    $i++) {
+                    for ($i=0; $i<$hct; $i++) {
                         $val[$h_ar[$i]] = $data[$i];
                     }
 

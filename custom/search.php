@@ -140,7 +140,7 @@ require_once("../interface/globals.php");
         echo "</tr>\n";
 
         echo "</table>";
-    ?>
+        ?>
 
 </form>
 </body>

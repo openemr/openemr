@@ -349,7 +349,7 @@ $(document).ready(function(){
             if ($GLOBALS['erx_import_status_message']) { ?>
             if(msg_updation)
               alert(msg_updation);
-            <?php
+                <?php
             }
 
             //}
@@ -439,13 +439,13 @@ $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
   "grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_repeats > 0 AND grp_activity = 1 " .
   "ORDER BY grp_seq, grp_title");
 while ($gfrow = sqlFetchArray($gfres)) {
-?>
+    ?>
     $(<?php echo js_escape("#".$gfrow['grp_form_id']."_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>,
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
-<?php
+    <?php
 }
 ?>
     tabbify();
@@ -568,7 +568,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
     //  3. The notification has not been turned off (or shown depending on global selection) for this year
     $birthdayAlert = new BirthdayReminder($pid, $_SESSION['authId']);
     if ($birthdayAlert->isDisplayBirthdayAlert()) {
-    ?>
+        ?>
     // show the active reminder modal
     dlgopen('', 'bdayreminder', 300, 170, '', false, {
         allowResize: false,
@@ -609,22 +609,22 @@ if (isset($_GET['set_pid'])) {
     var CalendarCategoryArray = new Array;
     var EncounterIdArray = new Array;
     var Count = 0;
-<?php
+    <?php
    //Encounter details are stored to javacript as array.
-   $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
+    $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
     " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
-if (sqlNumRows($result4)>0) {
-    while ($rowresult4 = sqlFetchArray($result4)) {?>
+    if (sqlNumRows($result4)>0) {
+        while ($rowresult4 = sqlFetchArray($result4)) {?>
             EncounterIdArray[Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
             EncounterDateArray[Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
             CalendarCategoryArray[Count] = <?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
             Count++;
-        <?php
+            <?php
+        }
     }
-}
-?>
+    ?>
     parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
-<?php
+    <?php
 } // end setting new pid ?>
  parent.left_nav.syncRadios();
 <?php if ((isset($_GET['set_pid']) ) && (isset($_GET['set_encounterid'])) && ( intval($_GET['set_encounterid']) > 0 )) {
@@ -664,7 +664,7 @@ $grparr = array();
 getLayoutProperties('DEM', $grparr, 'grp_size');
 if (!empty($grparr['']['grp_size'])) {
     $FONTSIZE = $grparr['']['grp_size'];
-?>
+    ?>
 /* Override font sizes in the theme. */
 #DEM .groupname {
   font-size: <?php echo attr($FONTSIZE); ?>pt;
@@ -725,7 +725,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
                     </div>
                 </div>
-            <?php
+                <?php
             } // $thisauth
             ?>
 
@@ -788,51 +788,51 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         );
                                         ?>
                                     <br>
-                                <?php
+                                    <?php
                                 //PATIENT BALANCE,INS BALANCE naina@capminds.com
-                                $patientbalance = get_patient_balance($pid, false);
+                                    $patientbalance = get_patient_balance($pid, false);
                                 //Debit the patient balance from insurance balance
-                                $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
-                                $totalbalance=$patientbalance + $insurancebalance;
+                                    $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
+                                    $totalbalance=$patientbalance + $insurancebalance;
 
                                 // Show current balance and billing note, if any.
-                                echo "<table border='0'><tr><td>" .
-                                "<table ><tr><td><span class='bold'><font color='red'>" .
-                                xlt('Patient Balance Due') .
-                                " : " . text(oeFormatMoney($patientbalance)) .
-                                "</font></span></td></tr>".
-                                "<tr><td><span class='bold'><font color='red'>" .
-                                xlt('Insurance Balance Due') .
-                                " : " . text(oeFormatMoney($insurancebalance)) .
-                                "</font></span></td></tr>".
-                                "<tr><td><span class='bold'><font color='red'>" .
-                                xlt('Total Balance Due').
-                                " : " . text(oeFormatMoney($totalbalance)) .
-                                "</font></span></td></td></tr>";
-                                if (!empty($result['billing_note'])) {
-                                    echo "<tr><td><span class='bold'><font color='red'>" .
-                                    xlt('Billing Note') . ":" .
-                                    text($result['billing_note']) .
-                                    "</font></span></td></tr>";
-                                }
-
-                                if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
-                                    echo "<tr><td><span class='bold'>" .
-                                    xlt('Primary Insurance') . ': ' . text($insco_name) .
-                                    "</span>&nbsp;&nbsp;&nbsp;";
-                                    if ($result3['copay'] > 0) {
-                                        echo "<span class='bold'>" .
-                                        xlt('Copay') . ': ' .  text($result3['copay']) .
-                                        "</span>&nbsp;&nbsp;&nbsp;";
+                                    echo "<table border='0'><tr><td>" .
+                                    "<table ><tr><td><span class='bold'><font color='red'>" .
+                                    xlt('Patient Balance Due') .
+                                    " : " . text(oeFormatMoney($patientbalance)) .
+                                    "</font></span></td></tr>".
+                                    "<tr><td><span class='bold'><font color='red'>" .
+                                    xlt('Insurance Balance Due') .
+                                    " : " . text(oeFormatMoney($insurancebalance)) .
+                                    "</font></span></td></tr>".
+                                    "<tr><td><span class='bold'><font color='red'>" .
+                                    xlt('Total Balance Due').
+                                    " : " . text(oeFormatMoney($totalbalance)) .
+                                    "</font></span></td></td></tr>";
+                                    if (!empty($result['billing_note'])) {
+                                        echo "<tr><td><span class='bold'><font color='red'>" .
+                                        xlt('Billing Note') . ":" .
+                                        text($result['billing_note']) .
+                                        "</font></span></td></tr>";
                                     }
-                                    echo "<span class='bold'>" .
-                                    xlt('Effective Date') . ': ' .  text(oeFormatShortDate($result3['effdate'])) .
-                                    "</span></td></tr>";
-                                }
 
-                                echo "</table></td></tr></td></tr></table><br>";
+                                    if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
+                                        echo "<tr><td><span class='bold'>" .
+                                        xlt('Primary Insurance') . ': ' . text($insco_name) .
+                                        "</span>&nbsp;&nbsp;&nbsp;";
+                                        if ($result3['copay'] > 0) {
+                                            echo "<span class='bold'>" .
+                                            xlt('Copay') . ': ' .  text($result3['copay']) .
+                                            "</span>&nbsp;&nbsp;&nbsp;";
+                                        }
+                                        echo "<span class='bold'>" .
+                                        xlt('Effective Date') . ': ' .  text(oeFormatShortDate($result3['effdate'])) .
+                                        "</span></td></tr>";
+                                    }
 
-                        ?>
+                                    echo "</table></td></tr></td></tr></table><br>";
+
+                                    ?>
                                         </div> <!-- required for expand_collapse_widget -->
                                     </td>
                                 </tr>
@@ -841,62 +841,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php if (acl_check('patients', 'demo')) { ?>
                               <tr>
                                <td>
-                        <?php
+                            <?php
                         // Demographics expand collapse widget
-                        $widgetTitle = xl("Demographics");
-                        $widgetLabel = "demographics";
-                        $widgetButtonLabel = xl("Edit");
-                        $widgetButtonLink = "demographics_full.php";
-                        $widgetButtonClass = "";
-                        $linkMethod = "html";
-                        $bodyClass = "";
-                        $widgetAuth = acl_check('patients', 'demo', '', 'write');
-                        $fixedWidth = true;
-                        expand_collapse_widget(
-                            $widgetTitle,
-                            $widgetLabel,
-                            $widgetButtonLabel,
-                            $widgetButtonLink,
-                            $widgetButtonClass,
-                            $linkMethod,
-                            $bodyClass,
-                            $widgetAuth,
-                            $fixedWidth
-                        );
-                        ?>
-                                 <div id="DEM" >
-                                  <ul class="tabNav">
-                                    <?php display_layout_tabs('DEM', $result, $result2); ?>
-                                  </ul>
-                                  <div class="tabContainer">
-                                    <?php display_layout_tabs_data('DEM', $result, $result2); ?>
-                                  </div>
-                                 </div>
-                                <!--</div>  required for expand_collapse_widget -->
-                               </td>
-                              </tr>
-
-                              <tr>
-                               <td>
-                        <?php
-                        $insurance_count = 0;
-                        foreach (array('primary','secondary','tertiary') as $instype) {
-                            $enddate = 'Present';
-                            $query = "SELECT * FROM insurance_data WHERE " .
-                            "pid = ? AND type = ? " .
-                            "ORDER BY date DESC";
-                            $res = sqlStatement($query, array($pid, $instype));
-                            while ($row = sqlFetchArray($res)) {
-                                if ($row['provider']) {
-                                    $insurance_count++;
-                                }
-                            }
-                        }
-
-                        if ($insurance_count > 0) {
-                          // Insurance expand collapse widget
-                            $widgetTitle = xl("Insurance");
-                            $widgetLabel = "insurance";
+                            $widgetTitle = xl("Demographics");
+                            $widgetLabel = "demographics";
                             $widgetButtonLabel = xl("Edit");
                             $widgetButtonLink = "demographics_full.php";
                             $widgetButtonClass = "";
@@ -915,9 +863,61 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $widgetAuth,
                                 $fixedWidth
                             );
+                            ?>
+                                 <div id="DEM" >
+                                  <ul class="tabNav">
+                                    <?php display_layout_tabs('DEM', $result, $result2); ?>
+                                  </ul>
+                                  <div class="tabContainer">
+                                    <?php display_layout_tabs_data('DEM', $result, $result2); ?>
+                                  </div>
+                                 </div>
+                                <!--</div>  required for expand_collapse_widget -->
+                               </td>
+                              </tr>
+
+                              <tr>
+                               <td>
+                            <?php
+                            $insurance_count = 0;
+                            foreach (array('primary','secondary','tertiary') as $instype) {
+                                $enddate = 'Present';
+                                $query = "SELECT * FROM insurance_data WHERE " .
+                                "pid = ? AND type = ? " .
+                                "ORDER BY date DESC";
+                                $res = sqlStatement($query, array($pid, $instype));
+                                while ($row = sqlFetchArray($res)) {
+                                    if ($row['provider']) {
+                                        $insurance_count++;
+                                    }
+                                }
+                            }
 
                             if ($insurance_count > 0) {
-                            ?>
+                              // Insurance expand collapse widget
+                                $widgetTitle = xl("Insurance");
+                                $widgetLabel = "insurance";
+                                $widgetButtonLabel = xl("Edit");
+                                $widgetButtonLink = "demographics_full.php";
+                                $widgetButtonClass = "";
+                                $linkMethod = "html";
+                                $bodyClass = "";
+                                $widgetAuth = acl_check('patients', 'demo', '', 'write');
+                                $fixedWidth = true;
+                                expand_collapse_widget(
+                                    $widgetTitle,
+                                    $widgetLabel,
+                                    $widgetButtonLabel,
+                                    $widgetButtonLink,
+                                    $widgetButtonClass,
+                                    $linkMethod,
+                                    $bodyClass,
+                                    $widgetAuth,
+                                    $fixedWidth
+                                );
+
+                                if ($insurance_count > 0) {
+                                    ?>
 
                                 <ul class="tabNav"><?php
                                             ///////////////////////////////// INSURANCE SECTION
@@ -949,8 +949,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             // Display the eligibility tab
                                             echo "<li><a id='eligibility' href='#'>" . xlt('Eligibility') . "</a></li>";
 
-                                            ?></ul><?php
-                            } ?>
+                                ?></ul><?php
+                                } ?>
 
                                         <div class="tabContainer">
                                             <?php
@@ -983,7 +983,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             <?php $tempinstype=ucfirst($instype);
                                                             echo xlt($tempinstype.' Insurance'); ?>
                                                             <?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
-                                                            <?php echo ' ' . xlt('from') . ' ' . $row['date']; ?>
+                                                                <?php echo ' ' . xlt('from') . ' ' . $row['date']; ?>
                                                             <?php } ?>
                                                                     <?php echo ' ' . xlt('until') . ' ';
                                                                     echo (strcmp($enddate, 'Present') != 0) ? text($enddate) : xlt('Present'); ?>:</span>
@@ -1136,11 +1136,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
                                             echo "</div></div>";
 
-                                    ///////////////////////////////// END INSURANCE SECTION
-                                    ?>
+                                        ///////////////////////////////// END INSURANCE SECTION
+                                            ?>
                                     </div>
 
-                        <?php } // ?>
+                            <?php } // ?>
 
                                     </td>
                                 </tr>
@@ -1149,29 +1149,29 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php if (acl_check('patients', 'notes')) { ?>
                                 <tr>
                                     <td width='650px'>
-                        <?php
+                            <?php
                         // Notes expand collapse widget
-                        $widgetTitle = xl("Messages");
-                        $widgetLabel = "pnotes";
-                        $widgetButtonLabel = xl("Edit");
-                        $widgetButtonLink = "pnotes_full.php?form_active=1";
-                        $widgetButtonClass = "";
-                        $linkMethod = "html";
-                        $bodyClass = "notab";
-                        $widgetAuth = acl_check('patients', 'notes', '', 'write');
-                        $fixedWidth = true;
-                        expand_collapse_widget(
-                            $widgetTitle,
-                            $widgetLabel,
-                            $widgetButtonLabel,
-                            $widgetButtonLink,
-                            $widgetButtonClass,
-                            $linkMethod,
-                            $bodyClass,
-                            $widgetAuth,
-                            $fixedWidth
-                        );
-                        ?>
+                            $widgetTitle = xl("Messages");
+                            $widgetLabel = "pnotes";
+                            $widgetButtonLabel = xl("Edit");
+                            $widgetButtonLink = "pnotes_full.php?form_active=1";
+                            $widgetButtonClass = "";
+                            $linkMethod = "html";
+                            $bodyClass = "notab";
+                            $widgetAuth = acl_check('patients', 'notes', '', 'write');
+                            $fixedWidth = true;
+                            expand_collapse_widget(
+                                $widgetTitle,
+                                $widgetLabel,
+                                $widgetButtonLabel,
+                                $widgetButtonLink,
+                                $widgetButtonClass,
+                                $linkMethod,
+                                $bodyClass,
+                                $widgetAuth,
+                                $fixedWidth
+                            );
+                            ?>
                                             <br/>
                                             <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                                         </div>
@@ -1202,29 +1202,29 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php if (acl_check('patients', 'disclosure')) { ?>
                                <tr>
                                <td width='650px'>
-                        <?php
+                            <?php
                         // disclosures expand collapse widget
-                        $widgetTitle = xl("Disclosures");
-                        $widgetLabel = "disclosures";
-                        $widgetButtonLabel = xl("Edit");
-                        $widgetButtonLink = "disclosure_full.php";
-                        $widgetButtonClass = "";
-                        $linkMethod = "html";
-                        $bodyClass = "notab";
-                        $widgetAuth = acl_check('patients', 'disclosure', '', 'write');
-                        $fixedWidth = true;
-                        expand_collapse_widget(
-                            $widgetTitle,
-                            $widgetLabel,
-                            $widgetButtonLabel,
-                            $widgetButtonLink,
-                            $widgetButtonClass,
-                            $linkMethod,
-                            $bodyClass,
-                            $widgetAuth,
-                            $fixedWidth
-                        );
-                        ?>
+                            $widgetTitle = xl("Disclosures");
+                            $widgetLabel = "disclosures";
+                            $widgetButtonLabel = xl("Edit");
+                            $widgetButtonLink = "disclosure_full.php";
+                            $widgetButtonClass = "";
+                            $linkMethod = "html";
+                            $bodyClass = "notab";
+                            $widgetAuth = acl_check('patients', 'disclosure', '', 'write');
+                            $fixedWidth = true;
+                            expand_collapse_widget(
+                                $widgetTitle,
+                                $widgetLabel,
+                                $widgetButtonLabel,
+                                $widgetButtonLink,
+                                $widgetButtonClass,
+                                $linkMethod,
+                                $bodyClass,
+                                $widgetAuth,
+                                $fixedWidth
+                            );
+                            ?>
                                             <br/>
                                             <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                                         </div>
@@ -1269,40 +1269,40 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php if (acl_check('patients', 'lab')) { ?>
                             <tr>
                              <td width='650px'>
-                        <?php // labdata expand collapse widget
-                          $widgetTitle = xl("Labs");
-                          $widgetLabel = "labdata";
-                          $widgetButtonLabel = xl("Trend");
-                          $widgetButtonLink = "../summary/labdata.php";#"../encounter/trend_form.php?formname=labdata";
-                          $widgetButtonClass = "";
-                          $linkMethod = "html";
-                          $bodyClass = "notab";
+                            <?php // labdata expand collapse widget
+                            $widgetTitle = xl("Labs");
+                            $widgetLabel = "labdata";
+                            $widgetButtonLabel = xl("Trend");
+                            $widgetButtonLink = "../summary/labdata.php";#"../encounter/trend_form.php?formname=labdata";
+                            $widgetButtonClass = "";
+                            $linkMethod = "html";
+                            $bodyClass = "notab";
                           // check to see if any labdata exist
-                          $spruch = "SELECT procedure_report.date_collected AS date " .
+                            $spruch = "SELECT procedure_report.date_collected AS date " .
                                     "FROM procedure_report " .
                                     "JOIN procedure_order ON  procedure_report.procedure_order_id = procedure_order.procedure_order_id " .
                                     "WHERE procedure_order.patient_id = ? " .
                                     "ORDER BY procedure_report.date_collected DESC ";
-                          $existLabdata = sqlQuery($spruch, array($pid));
-                        if ($existLabdata) {
-                            $widgetAuth = true;
-                        } else {
-                            $widgetAuth = false;
-                        }
+                            $existLabdata = sqlQuery($spruch, array($pid));
+                            if ($existLabdata) {
+                                $widgetAuth = true;
+                            } else {
+                                $widgetAuth = false;
+                            }
 
-                          $fixedWidth = true;
-                          expand_collapse_widget(
-                              $widgetTitle,
-                              $widgetLabel,
-                              $widgetButtonLabel,
-                              $widgetButtonLink,
-                              $widgetButtonClass,
-                              $linkMethod,
-                              $bodyClass,
-                              $widgetAuth,
-                              $fixedWidth
-                          );
-                        ?>
+                            $fixedWidth = true;
+                            expand_collapse_widget(
+                                $widgetTitle,
+                                $widgetLabel,
+                                $widgetButtonLabel,
+                                $widgetButtonLink,
+                                $widgetButtonClass,
+                                $linkMethod,
+                                $bodyClass,
+                                $widgetAuth,
+                                $fixedWidth
+                            );
+                            ?>
                               <br/>
                               <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                               </div>
@@ -1313,35 +1313,35 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php if ($vitals_is_registered && acl_check('patients', 'med')) { ?>
                             <tr>
                              <td width='650px'>
-                        <?php // vitals expand collapse widget
-                          $widgetTitle = xl("Vitals");
-                          $widgetLabel = "vitals";
-                          $widgetButtonLabel = xl("Trend");
-                          $widgetButtonLink = "../encounter/trend_form.php?formname=vitals";
-                          $widgetButtonClass = "";
-                          $linkMethod = "html";
-                          $bodyClass = "notab";
+                            <?php // vitals expand collapse widget
+                            $widgetTitle = xl("Vitals");
+                            $widgetLabel = "vitals";
+                            $widgetButtonLabel = xl("Trend");
+                            $widgetButtonLink = "../encounter/trend_form.php?formname=vitals";
+                            $widgetButtonClass = "";
+                            $linkMethod = "html";
+                            $bodyClass = "notab";
                           // check to see if any vitals exist
-                          $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid));
-                        if ($existVitals) {
-                            $widgetAuth = true;
-                        } else {
-                            $widgetAuth = false;
-                        }
+                            $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid));
+                            if ($existVitals) {
+                                $widgetAuth = true;
+                            } else {
+                                $widgetAuth = false;
+                            }
 
-                          $fixedWidth = true;
-                          expand_collapse_widget(
-                              $widgetTitle,
-                              $widgetLabel,
-                              $widgetButtonLabel,
-                              $widgetButtonLink,
-                              $widgetButtonClass,
-                              $linkMethod,
-                              $bodyClass,
-                              $widgetAuth,
-                              $fixedWidth
-                          );
-                        ?>
+                            $fixedWidth = true;
+                            expand_collapse_widget(
+                                $widgetTitle,
+                                $widgetLabel,
+                                $widgetButtonLabel,
+                                $widgetButtonLink,
+                                $widgetButtonClass,
+                                $linkMethod,
+                                $bodyClass,
+                                $widgetAuth,
+                                $fixedWidth
+                            );
+                            ?>
                               <br/>
                               <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                               </div>
@@ -1404,7 +1404,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                               </div> <!-- This is required by expand_collapse_widget(). -->
                              </td>
                             </tr>
-                        <?php
+                            <?php
                         } // end while
                         ?>
 
@@ -1442,18 +1442,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $widgetAuth,
                             $fixedWidth
                         );
-                ?>
+                        ?>
                 <br />
-                <?php
-                if ($idcard_doc_id) {
-                    image_widget($idcard_doc_id, $GLOBALS['patient_id_category_name']);
-                }
+                        <?php
+                        if ($idcard_doc_id) {
+                            image_widget($idcard_doc_id, $GLOBALS['patient_id_category_name']);
+                        }
 
-                foreach ($photos as $photo_doc_id) {
-                    image_widget($photo_doc_id, $GLOBALS['patient_photo_category_name']);
-                }
+                        foreach ($photos as $photo_doc_id) {
+                            image_widget($photo_doc_id, $GLOBALS['patient_photo_category_name']);
+                        }
                     }
-                ?>
+                    ?>
 
                 <br />
                 </div>
@@ -1513,7 +1513,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo "&nbsp;&nbsp;" . xlt('None');
                         } ?>
                       </div>
-                    <?php
+                        <?php
                     }  // close advanced dir block
 
                     // Show Clinical Reminders for any user that has rules that are permitted.
@@ -1871,7 +1871,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     // END of past appointments
-                ?>
+                    ?>
                         </div>
 
                         <div id='stats_div'>
@@ -1917,7 +1917,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $widgetAuth,
                                     $fixedWidth
                                 );
-                        ?>
+                                ?>
                       <br/>
                       <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                       <!--</div>-->

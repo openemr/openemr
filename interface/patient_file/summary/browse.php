@@ -81,7 +81,7 @@ if (isset($_GET{'set_pid'})) {
     $result = getPatientData($_GET{'set_pid'});
   // $result2 = getEmployerData($_GET{'set_pid'}); // not used!
     $result3 = getInsuranceData($_GET{'set_pid'}, $insurance);
-?>
+    ?>
 
 <script language=javascript>
 <!--
@@ -203,8 +203,7 @@ function auto_populate_employer_address(){
 <td><span class=text><?php echo text($result3{'policy_number'});?></span></td>
 </tr>
 
-<?php if (empty($GLOBALS['omit_employers'])) { ?>
-
+    <?php if (empty($GLOBALS['omit_employers'])) { ?>
 <tr>
 <td><span class=text><?php echo xlt('Subscriber Employer'); ?>:</span></td>
 <td><span class=text><?php echo text($result3{'subscriber_employer'});?></span></td>
@@ -224,23 +223,23 @@ function auto_populate_employer_address(){
 <tr>
 <td><span class=text><?php echo xlt('Subscriber Employer State'); ?>:</span></td>
 <td><span class=text>
-    <?php
-  //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']), $result3{'subscriber_employer_state'});
-    ?>
+        <?php
+      //Modified 7/2009 by BM to incorporate data types
+        echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']), $result3{'subscriber_employer_state'});
+        ?>
 </span></td>
 </tr>
 <tr>
 <td><span class=text><?php echo xlt('Subscriber Employer Country'); ?>:</span></td>
 <td><span class=text>
-    <?php
-   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']), $result3{'subscriber_employer_country'});
-    ?>
+        <?php
+       //Modified 7/2009 by BM to incorporate data types
+        echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']), $result3{'subscriber_employer_country'});
+        ?>
 </span></td>
 </tr>
 
-<?php } ?>
+    <?php } ?>
 
 <tr>
 <td><span class=text><?php echo xlt('Subscriber Sex'); ?>:</span></td>
@@ -251,9 +250,9 @@ function auto_populate_employer_address(){
 <br>
 <a href="javascript:auto_populate_employer_address();" class=link_submit><?php echo xlt('Copy Values'); ?></a>
 
-<?php
+    <?php
 } else {
-?>
+    ?>
 
 <table class="table">
 <tr>
@@ -266,88 +265,88 @@ function auto_populate_employer_address(){
 </th><th>
 <span class=bold><?php echo xlt('ID'); ?></span>
 </th></tr>
-<?php
+    <?php
 
-$count=0;
-$total=0;
+    $count=0;
+    $total=0;
 
-$findby = $_POST['findBy'];
-$patient = $_POST['patient'];
-if ($findby == "Last" && $result = getPatientLnames("$patient", "*")) {
-    foreach ($result as $iter) {
-        if ($total >= $M) {
-            break;
-        }
+    $findby = $_POST['findBy'];
+    $patient = $_POST['patient'];
+    if ($findby == "Last" && $result = getPatientLnames("$patient", "*")) {
+        foreach ($result as $iter) {
+            if ($total >= $M) {
+                break;
+            }
 
-        print "<tr><td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<tr><td><a class=text target=_top href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter{"pid"}) . "'>" .
                     text($iter{"lname"}.", ".$iter{"fname"}) .
                     "</td></a>\n";
-        print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<td><a class=text target=_top href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter{"pid"}) . "'>" .
                     text($iter{"ss"}) . "</a></td>";
-        if ($iter{"DOB"} != "0000-00-00 00:00:00") {
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            if ($iter{"DOB"} != "0000-00-00 00:00:00") {
+                print "<td><a class=text target=_top href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter{"pid"}) . "'>" .
                         text(oeFormatShortDate($iter{"DOB"})) . "</a></td>";
-        } else {
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            } else {
+                print "<td><a class=text target=_top href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter{"pid"}) . "'>&nbsp;</a></td>";
-        }
+            }
 
-        print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<td><a class=text target=_top href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter{"pid"}) . "'>" .
                     text($iter{"pubpid"}) . "</a></td>";
 
-        $total++;
-    }
-}
-
-if ($findby == "ID" && $result = getPatientId("$patient", "*")) {
-    foreach ($result as $iter) {
-        if ($total >= $M) {
-            break;
+            $total++;
         }
+    }
 
-        print "<tr><td><a class=text target=_top href='browse.php?browsenum=" .
+    if ($findby == "ID" && $result = getPatientId("$patient", "*")) {
+        foreach ($result as $iter) {
+            if ($total >= $M) {
+                break;
+            }
+
+            print "<tr><td><a class=text target=_top href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter{"pid"}) . "'>" .
                     text($iter{"lname"}.", ".$iter{"fname"}) .
                     "</td></a>\n";
-        print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<td><a class=text target=_top href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter{"pid"}) . "'>" .
                     text($iter{"ss"}) . "</a></td>";
-        if ($iter{"DOB"} != "0000-00-00 00:00:00") {
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            if ($iter{"DOB"} != "0000-00-00 00:00:00") {
+                print "<td><a class=text target=_top href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter{"pid"}) . "'>" .
                         text(oeFormatShortDate($iter{"DOB"})) . "</a></td>";
-        } else {
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            } else {
+                print "<td><a class=text target=_top href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter{"pid"}) . "'>&nbsp;</a></td>";
-        }
+            }
 
-        print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<td><a class=text target=_top href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter{"pid"}) . "'>" .
                     text($iter{"pubpid"}) . "</a></td>";
 
-        $total++;
-    }
-}
-
-if ($findby == "DOB" && $result = getPatientDOB(DateToYYYYMMDD($patient), "*")) {
-    foreach ($result as $iter) {
-        if ($total >= $M) {
-            break;
+            $total++;
         }
+    }
+
+    if ($findby == "DOB" && $result = getPatientDOB(DateToYYYYMMDD($patient), "*")) {
+        foreach ($result as $iter) {
+            if ($total >= $M) {
+                break;
+            }
 
                 print "<tr><td><a class=text target=_top href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
@@ -358,31 +357,31 @@ if ($findby == "DOB" && $result = getPatientDOB(DateToYYYYMMDD($patient), "*")) 
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter{"pid"}) . "'>" .
                         text($iter{"ss"}) . "</a></td>";
-        if ($iter{"DOB"} != "0000-00-00 00:00:00") {
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            if ($iter{"DOB"} != "0000-00-00 00:00:00") {
+                print "<td><a class=text target=_top href='browse.php?browsenum=" .
                 attr_url($browsenum) . "&set_pid=" .
                 attr_url($iter{"pid"}) . "'>" .
                 text(oeFormatShortDate($iter{"DOB"})) . "</a></td>";
-        } else {
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            } else {
+                print "<td><a class=text target=_top href='browse.php?browsenum=" .
                 attr_url($browsenum) . "&set_pid=" .
                 attr_url($iter{"pid"}) . "'>&nbsp;</a></td>";
-        }
+            }
 
                 print "<td><a class=text target=_top href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter{"pid"}) . "'>" .
                     text($iter{"pubpid"}) . "</a></td>";
 
-        $total++;
-    }
-}
-
-if ($findby == "SSN" && $result = getPatientSSN("$patient", "*")) {
-    foreach ($result as $iter) {
-        if ($total >= $M) {
-            break;
+            $total++;
         }
+    }
+
+    if ($findby == "SSN" && $result = getPatientSSN("$patient", "*")) {
+        foreach ($result as $iter) {
+            if ($total >= $M) {
+                break;
+            }
 
                 print "<tr><td><a class=text target=_top href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
@@ -393,28 +392,28 @@ if ($findby == "SSN" && $result = getPatientSSN("$patient", "*")) {
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter{"pid"}) . "'>" .
                         text($iter{"ss"}) . "</a></td>";
-        if ($iter{"DOB"} != "0000-00-00 00:00:00") {
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            if ($iter{"DOB"} != "0000-00-00 00:00:00") {
+                print "<td><a class=text target=_top href='browse.php?browsenum=" .
                 attr_url($browsenum) . "&set_pid=" .
                 attr_url($iter{"pid"}) . "'>" .
                 text(oeFormatShortDate($iter{"DOB"})) . "</a></td>";
-        } else {
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            } else {
+                print "<td><a class=text target=_top href='browse.php?browsenum=" .
                 attr_url($browsenum) . "&set_pid=" .
                 attr_url($iter{"pid"}) . "'>&nbsp;</a></td>";
-        }
+            }
 
                 print "<td><a class=text target=_top href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter{"pid"}) . "'>" .
                     text($iter{"pubpid"}) . "</a></td>";
 
-        $total++;
+            $total++;
+        }
     }
-}
-?>
+    ?>
 </table>
-<?php
+    <?php
 }
 ?>
 </body>

@@ -12,7 +12,9 @@
  */
 
 
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
 $landingpage = "../index.php?site=" . urlencode($_SESSION['site_id']);
@@ -23,7 +25,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $user = $_SESSION['sessionUser'];
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
@@ -187,10 +189,10 @@ input[type="checkbox"], input[type="radio"] {
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript">var $j = jQuery.noConflict();</script>
 
-<?php // if the track_anything form exists, then include the styling
-if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
+    <?php // if the track_anything form exists, then include the styling
+    if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-<?php  } ?>
+    <?php  } ?>
 
 <script type="text/javascript">
 
@@ -533,22 +535,22 @@ if ($printable) {
     }
     ?>
     <h2><?php echo text($facility['name']); ?></h2>
-<?php echo text($facility['street']); ?><br>
-<?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
-<?php echo $facility['phone'] ?><br>
+    <?php echo text($facility['street']); ?><br>
+    <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
+    <?php echo $facility['phone'] ?><br>
 
 <a href="javascript:window.close();"><span class='title'><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br>
 <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
 <br><br>
 
-<?php
+    <?php
 } else { // not printable
     ?>
 
     <!-- old href was here
     <br><br> -->
 
-    <a href="./report/portal_custom_report.php?printable=1&<?php echo postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+    <a href="./report/portal_custom_report.php?printable=1&<?php echo postToGet($ar); ?>" class='link_submit' target='new'>
 <button><?php echo xlt('Printable Version'); ?></button>
 </a><br>
 <!--<div class="report_search_bar" style="width:100%;" id="search_options">
@@ -679,10 +681,10 @@ foreach ($ar as $key => $val) {
             echo "<hr />";
             echo "<div class='text billing'>";
             print "<h1>".xlt('Billing Information').":</h1>";
-            if (count($ar['newpatient']) > 0) {
+            if ((!empty($ar['newpatient'])) && (count($ar['newpatient']) > 0)) {
                 $billings = array();
                 echo "<table>";
-                echo "<tr><td width='400' class='bold'>Code</td><td class='bold'>".xlt('Fee')."</td></tr>\n";
+                echo "<tr><td width='400' class='bold'>" . xlt('Code') . "</td><td class='bold'>".xlt('Fee')."</td></tr>\n";
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
@@ -781,7 +783,7 @@ foreach ($ar as $key => $val) {
             // echo $sql;
             $result = sqlStatement($sql, [$pid]);
             while ($row=sqlFetchArray($result)) {
-                echo text($row{'batchcom_data'}).", By: ".text($row{'user_name'})."<br>Text:<br> ".text($row{'msg_txt'})."<br>\n";
+                echo text($row{'batchcom_data'}).", " . xlt('By') . ": ".text($row{'user_name'})."<br>" . xlt('Text') . ":<br> ".text($row{'msg_txt'})."<br>\n";
             }
 
             echo "</div>\n";
@@ -902,9 +904,7 @@ foreach ($ar as $key => $val) {
                 } // end if-else
             } // end Documents loop
             echo "</div>";
-        } // Procedures is an array of checkboxes whose values are procedure order IDs.
-        //
-        else if ($key == "procedures") {
+        } else if ($key == "procedures") { // Procedures is an array of checkboxes whose values are procedure order IDs.
             if ($auth_med) {
                 echo "<hr />";
                 echo "<div class='text documents'>";
@@ -1064,7 +1064,6 @@ if ($PDF_OUTPUT) {
         $ptdata = getPatientData($pid, 'cmsportal_login');
         $contents = $pdf->Output('', true);
         echo "<html><head>\n";
-        echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
         echo "</head><body class='body_top'>\n";
         $result = cms_portal_call(array(
         'action'   => 'putmessage',
@@ -1087,7 +1086,7 @@ if ($PDF_OUTPUT) {
         unlink($tmp_file);
     }
 } else {
-?>
+    ?>
 </body>
 </html>
 <?php } ?>

@@ -267,9 +267,9 @@ if ($fres) {
     }
 
     foreach ($result as $iter) {
-    ?>
+        ?>
     <option value="<?php echo attr($iter{'id'}); ?>"><?php echo text($iter{'name'}); ?></option>
-<?php
+        <?php
     }
 }
 ?>
@@ -345,25 +345,25 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 <tr>
  <td class="text"><?php echo xlt('Default Warehouse'); ?>: </td>
  <td class='text'>
-<?php
-echo generate_select_list(
-    'default_warehouse',
-    'warehouse',
-    '',
-    ''
-);
-?>
+    <?php
+    echo generate_select_list(
+        'default_warehouse',
+        'warehouse',
+        '',
+        ''
+    );
+    ?>
  </td>
  <td class="text"><?php echo xlt('Invoice Refno Pool'); ?>: </td>
  <td class='text'>
-<?php
-echo generate_select_list(
-    'irnpool',
-    'irnpool',
-    '',
-    xl('Invoice reference number pool, if used')
-);
-?>
+    <?php
+    echo generate_select_list(
+        'irnpool',
+        'irnpool',
+        '',
+        xl('Invoice reference number pool, if used')
+    );
+    ?>
  </td>
 </tr>
 <?php } ?>
@@ -385,7 +385,7 @@ foreach ($list_acl_groups as $value) {
         echo " <option value='" . attr($value) . "'>" . text(xl_gacl_group($value)) . "</option>\n";
     }
 }
-    ?>
+?>
   </select></td>
   <td><span class="text"><?php echo xlt('Additional Info'); ?>: </span></td>
   <td><textarea name=info style="width:120px;" cols=27 rows=4 wrap=auto class="form-control"></textarea></td>

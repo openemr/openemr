@@ -45,7 +45,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
         </tr>
         <?php $index = -1; ?>
         <?php foreach ($viewBean->rules as $rule) {?>
-        <?php $index++; ?>
+            <?php $index++; ?>
         <tr height="22">
                 <td><?php echo xlt($rule->get_rule());?></td>
                 <td>&nbsp;</td>

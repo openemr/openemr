@@ -132,7 +132,7 @@ if (!empty($row)) {
     } else if ($ct_location) {
         $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $ct_location);
     }
-?>
+    ?>
 
     <div class="row">
         <div class="col-sm-6 well">
@@ -199,7 +199,7 @@ if (!empty($row)) {
     </div>
 
 
-<?php
+    <?php
 }
 ?>
     <div class="row">

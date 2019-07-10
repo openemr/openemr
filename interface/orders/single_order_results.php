@@ -124,7 +124,7 @@ body {
 if (empty($_POST['form_sign'])) {
     generate_order_report($orderid, true, true, $finals_only);
 } else {
-?>
+    ?>
 <script language='JavaScript'>
  if (opener.document.forms && opener.document.forms[0]) {
   // Opener should be list_reports.php. Make it refresh.
@@ -137,7 +137,7 @@ if (empty($_POST['form_sign'])) {
  let stayHere = './single_order_results.php?orderid=' + <?php echo js_escape($orderid); ?>;
  window.location.assign(stayHere);
 </script>
-<?php
+    <?php
 }
 ?>
 </body>

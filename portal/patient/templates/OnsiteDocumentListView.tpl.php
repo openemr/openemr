@@ -36,7 +36,7 @@ echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 <html>
 <head>
 <title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Documents'); ?></title>
-<meta	content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+<meta   content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
     <?php Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>

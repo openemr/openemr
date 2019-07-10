@@ -333,7 +333,7 @@ $(function () {
                 <input class="form-control" type='checkbox' name='form_patient' id="ck_patient" value='1'
                     <?php if ($form_patient) {
                         echo 'checked ';
-} ?>/>
+                    } ?>/>
                 <label for="ck_patient"><?php echo xlt('Current Pt Only'); ?></label>
 
                 <select class="form-control input-sm" name='form_reviewed'>

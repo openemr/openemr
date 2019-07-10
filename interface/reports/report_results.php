@@ -264,7 +264,7 @@ while ($row = sqlFetchArray($res)) {
         $type_title = xl('Unknown') . "-" . $row['type'];
         $link="";
     }
-?>
+    ?>
 <tr>
     <?php if ($row["progress"] == "complete") { ?>
       <td align='center'><a href='<?php echo $link; ?>' onclick='top.restoreSession()'><?php echo text($type_title); ?></a></td>
@@ -280,7 +280,7 @@ while ($row = sqlFetchArray($res)) {
 
 </tr>
 
-<?php
+    <?php
 } // $row = sqlFetchArray($res) while
 ?>
 </tbody>

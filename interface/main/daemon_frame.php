@@ -44,7 +44,7 @@ if ($GLOBALS['enable_hylafax']) {
   " AND deleted != 1 ". // exlude ALL deleted notes
   " AND assigned_to = ?", array($_SESSION['authUser']));
  $color_aun = $row['count'] ? $colorh : $colorn;
-?>
+    ?>
 <html>
 <body bgcolor="#000000">
 <script language='JavaScript'>

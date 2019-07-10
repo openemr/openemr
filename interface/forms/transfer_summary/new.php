@@ -68,10 +68,10 @@ echo "<form method='post' name='my_form' " .
             <label class="forms-data"> <?php if (is_numeric($pid)) {
                 $result = getPatientData($pid, "fname,lname,squad");
                 echo text($result['fname'])." ".text($result['lname']);
-}
+                                       }
 
-   $patient_name=($result['fname'])." ".($result['lname']);
-    ?>
+                                       $patient_name=($result['fname'])." ".($result['lname']);
+                                        ?>
    </label>
    <input type="hidden" name="client_name" value="<?php echo attr($patient_name);?>">
         </td>
@@ -80,10 +80,10 @@ echo "<form method='post' name='my_form' " .
         <label class="forms-data"> <?php if (is_numeric($pid)) {
             $result = getPatientData($pid, "*");
             echo text($result['DOB']);
-}
+                                   }
 
-   $dob=($result['DOB']);
-    ?>
+                                   $dob=($result['DOB']);
+                                    ?>
    </label>
      <input type="hidden" name="DOB" value="<?php echo attr($dob);?>">
         </td>

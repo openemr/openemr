@@ -68,9 +68,7 @@ if ($_POST['bn_save']) {
         sqlStatement($query, array(rbvalue('form_body_type'),  trim($_POST['form_height']), trim($_POST['form_weight']), trim($_POST['form_bmi']),
          trim($_POST['form_bmr']), trim($_POST['form_impedance']), trim($_POST['form_fat_pct']), trim($_POST['form_fat_mass']),  trim($_POST['form_ffm']),
          trim($_POST['form_tbw']), trim($_POST['form_other']), $formid ));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = 'INSERT INTO form_body_composition (
          body_type, height, weight, bmi, bmr, impedance, fat_pct, fat_mass, ffm, tbw, other
          ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';

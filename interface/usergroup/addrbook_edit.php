@@ -281,9 +281,9 @@ if ($type) { // note this only happens when its new
  <tr>
   <td width='1%' nowrap><b><?php echo xlt('Type'); ?>:</b></td>
   <td>
-<?php
- echo generate_select_list('form_abook_type', 'abook_type', $row['abook_type'], '', 'Unassigned', '', 'typeSelect(this.value)');
-?>
+    <?php
+    echo generate_select_list('form_abook_type', 'abook_type', $row['abook_type'], '', 'Unassigned', '', 'typeSelect(this.value)');
+    ?>
   </td>
  </tr>
 <?php } // end of if has admin access ?>

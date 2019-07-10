@@ -68,7 +68,7 @@ require_once("../../interface/globals.php");
                 </ul>
             </div>
             <div class= "row" id="invoice-search-div">
-                <h4 class="oe-help-heading"><?php echo xlt("Invoice Search"); ?><a name = 'invoice_search' href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Invoice Search"); ?><a name = 'invoice_search' href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("If you choose to do a manual entry click the 'Invoice Search' radio button. It displays two sections 'Post Item' and 'Invoice Search'"); ?>
                  <form>
 
@@ -119,7 +119,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("Another thing you can do in the posting window is request secondary billing. If you select this checkbox before saving, then the original claim will be re-opened and queued on the Billing page, and will be processed during the next billing run.");?>
             </div>
             <div class= "row" id="era-upload-div">
-                <h4 class="oe-help-heading"><?php echo xlt("ERA Upload"); ?><a id = 'electronic_remits' name = 'electonic_remits' href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("ERA Upload"); ?><a id = 'electronic_remits' name = 'electonic_remits' href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("Alternatively, you may choose to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by first selecting the 'ERA upload' option in the initial 'Select Method' section. This brings up the 'ERA Upload' Section.")?>
                 <form>
                     <fieldset>

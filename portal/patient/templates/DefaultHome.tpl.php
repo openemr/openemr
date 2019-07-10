@@ -14,7 +14,7 @@ $this->assign('nav', 'home');
 
 $this->display('_Header.tpl.php');
 ?>
-<div class="modal fade" id="formdialog" tabindex="-1" role="dialog"	aria-hidden="true">
+<div class="modal fade" id="formdialog" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" style="background:white">
         <div class="modal-content">
             <div class="modal-header">

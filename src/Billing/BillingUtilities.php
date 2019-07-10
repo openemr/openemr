@@ -5,8 +5,8 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2011 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (C) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2011-2019 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -1599,9 +1599,7 @@ class BillingUtilities
 
             sqlStatement($sql, $sqlBindArray);
             sqlCommitTrans();
-        } // Otherwise update the existing claim row.
-        //
-        else if ($claimset) {
+        } else if ($claimset) { // Otherwise update the existing claim row.
             $sqlBindArray = $sqlBindClaimset;
             array_push($sqlBindArray, $patient_id, $encounter_id, $row['version']);
             $claimset = substr($claimset, 2);
@@ -1667,7 +1665,7 @@ class BillingUtilities
             "WHERE pid = ? AND type = 'primary' " .
             "AND date <= ? ORDER BY date DESC LIMIT 1", array($patient_id, $encdate));
         if ($tmp['provider']) {
-            return sprintf('%01.2f', 0 + $tmp['copay']);
+            return sprintf('%01.2f', floatval($tmp['copay']));
         }
 
         return 0;

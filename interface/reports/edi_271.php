@@ -120,16 +120,16 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
     <?php if (isset($message) && !empty($message)) { ?>
                 <div style="margin-left:25%;width:50%;color:RED;text-align:center;font-family:arial;font-size:15px;background:#ECECEC;border:1px solid;" ><?php echo $message; ?></div>
-    <?php
+        <?php
                 $message = "";
-}
-if (isset($messageEDI)) { ?>
+    }
+    if (isset($messageEDI)) { ?>
     <div style="margin-left:25%;width:50%;color:RED;text-align:center;font-family:arial;font-size:15px;background:#ECECEC;border:1px solid;" >
-        <?php echo xlt('Please choose the proper formatted EDI-271 file'); ?>
+            <?php echo xlt('Please choose the proper formatted EDI-271 file'); ?>
     </div>
-    <?php
-    $messageEDI = "";
-} ?>
+        <?php
+        $messageEDI = "";
+    } ?>
 <div>
 <span class='title'><?php echo xlt('EDI-271 File Upload'); ?></span>
 <form enctype="multipart/form-data" name="theform" id="theform" action="edi_271.php" method="POST" onsubmit="return top.restoreSession()">

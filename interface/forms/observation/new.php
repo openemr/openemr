@@ -266,7 +266,7 @@ $check_res = $formid ? $check_res : array();
                                         <div class="clearfix"></div>
                                     </div>
                                 </div>
-                            <?php
+                                <?php
                             }
                         } else { ?>
                             <div class="tb_row" id="tb_row_1">
@@ -328,7 +328,7 @@ $check_res = $formid ? $check_res : array();
                                     <div class="clearfix"></div>
                                 </div>
                             </div>
-                        <?php
+                            <?php
                         }
                         ?>
                     </fieldset>

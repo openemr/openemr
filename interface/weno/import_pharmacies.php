@@ -37,10 +37,8 @@ sqlStatementNoLog("START TRANSACTION"); // Just in case someone else is adding.
 
 $tm = 1; // Let's count how many.
 foreach ($entrys as $entry) {//This loop continues till the end of the last line is reached.
-
     //check entry 7 to match state
     if (strtoupper($entry[7]) == strtoupper($state) && strtoupper($entry[6]) == strtoupper($srchCity)) { //In the next iteration this needs to be gotten from the globals
-
         /*
          *   check the name is in the table
          *   if it is skip to the next name on the list
@@ -99,6 +97,6 @@ sqlStatementNoLog("SET autocommit=1");
 
 header("Location: ". $ref."?status=finished");
 
-    ?>
+?>
  <i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>
 <span class="sr-only"><?php echo xlt("Loading... Please wait"); ?></span>

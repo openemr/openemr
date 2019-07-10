@@ -212,7 +212,7 @@ if ($_POST['formaction']=="generate") {
     </head>
         <body>
     <div class='paddingdiv'>
-    <?php echo $cpstring; ?>
+        <?php echo $cpstring; ?>
         <div class="navigate">
     <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
@@ -221,8 +221,8 @@ if ($_POST['formaction']=="generate") {
     </script>
     </body>
     </div>
-    <?php
-    exit;
+        <?php
+        exit;
     }
 } else if (isset($_GET['template']) && $_GET['template'] != "") {
     // utilized to go back to autosaved template
