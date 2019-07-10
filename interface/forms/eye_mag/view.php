@@ -46,13 +46,14 @@ while ($prefs= sqlFetchArray($result)) {
 // Could do ALL preferences this way instead of the modified extract above...
 // mdsupport - user_settings prefix
 $uspfx = "EyeFormSettings_";
-$setting_HPI = prevSetting($uspfx, 'setting_HPI', 'setting_HPI', '1');
-$setting_PMH = prevSetting($uspfx, 'setting_PMH', 'setting_PMH', '1');
-$setting_ANTSEG = prevSetting($uspfx, 'setting_ANTSEG', 'setting_ANTSEG', '1');
-$setting_POSTSEG = prevSetting($uspfx, 'setting_POSTSEG', 'setting_POSTSEG', '1');
-$setting_EXT = prevSetting($uspfx, 'setting_EXT', 'setting_EXT', '1');
-$setting_NEURO = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
-$setting_IMPPLAN = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
+$setting_tabs_left  = prevSetting($uspfx, 'setting_tabs_left', 'setting_tabs_left', '0');
+$setting_HPI        = prevSetting($uspfx, 'setting_HPI', 'setting_HPI', '1');
+$setting_PMH        = prevSetting($uspfx, 'setting_PMH', 'setting_PMH', '1');
+$setting_EXT        = prevSetting($uspfx, 'setting_EXT', 'setting_EXT', '1');
+$setting_ANTSEG     = prevSetting($uspfx, 'setting_ANTSEG', 'setting_ANTSEG', '1');
+$setting_POSTSEG    = prevSetting($uspfx, 'setting_POSTSEG', 'setting_POSTSEG', '1');
+$setting_NEURO      = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
+$setting_IMPPLAN    = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
 
 $query10 = "select  *,form_encounter.date as encounter_date
               

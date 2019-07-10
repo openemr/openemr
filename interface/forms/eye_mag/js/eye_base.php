@@ -573,7 +573,6 @@ function refresh_GFS() {
     times = time.match(/^(\d{1,2}):(\d{2})/);
     if (times[1] < 10) times[1] = "0"+''+times[1];
     time = times[1]+':'+times[2];
-        //alert("time is "+time);
     var indexToUpdate2 = '0';
     $.each(config_byhour.data.labels, function(key,value) {
            if (value == time) {
@@ -2150,7 +2149,7 @@ show_left();
     return true;
 }
 
-$(document).ready(function() {
+$(function() {
                   check_lock();
 
                   var allPanels = $('.building_blocks > dd').hide();
