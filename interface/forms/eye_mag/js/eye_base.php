@@ -41,14 +41,14 @@ var digit_5="4"; //Level 4
 var visit_code;
 var config_byday;
 var $root = $('html, body');
-var scroll;
+var scroll='';
 var visit_modifier=[];
 var visit_justifier=[];
 if (typeof Code_new_est === 'undefined') {
   var Code_new_est = 'New';
 }
 var TESTS_built='';
-
+var doc=[];
 /*
  * Functions to add a quick pick selection to the correct fields on the form.
  */
@@ -321,7 +321,15 @@ function update_PREFS() {
             'PREFS_PANEL_RIGHT'     : $('#PREFS_PANEL_RIGHT').val(),
             'PREFS_IMPPLAN_RIGHT'   : $('#PREFS_IMPPLAN_DRAW').val(),
             'PREFS_KB'              : $('#PREFS_KB').val(),
-            'PREFS_TOOLTIPS'        : $('#PREFS_TOOLTIPS').val()
+            'PREFS_TOOLTIPS'        : $('#PREFS_TOOLTIPS').val(),
+            'setting_tabs_left'     : $('#setting_tabs_left').val(),
+            'setting_HPI'           : $('#setting_HPI').val(),
+            'setting_PMH'           : $('#setting_PMH').val(),
+            'setting_EXT'           : $('#setting_EXT').val(),
+            'setting_ANTSEG'        : $('#setting_ANTSEG').val(),
+            'setting_POSTSEG'       : $('#setting_POSTSEG').val(),
+            'setting_NEURO'         : $('#setting_NEURO').val(),
+            'setting_IMPPLAN'       : $('#setting_IMPPLAN').val(),
         };
         top.restoreSession();
         $.ajax({
@@ -694,7 +702,7 @@ function show_right() {
     $("#EXT_1").removeClass("size50").addClass("size100");
     $("#ANTSEG_1").removeClass("size50").addClass("size100");
     $("#NEURO_1").removeClass("size50").addClass("size100");
-    $("#RETINA_1").removeClass("size50").addClass("size100");
+    $("#POSTSEG_1").removeClass("size50").addClass("size100");
     $("#IMPPLAN_1").removeClass("size50").addClass("size100");
     $("#HPI_right").removeClass('nodisplay');
     $("#PMH_right").removeClass('nodisplay');
@@ -705,7 +713,7 @@ function show_right() {
     $("#IMPPLAN_right").removeClass('nodisplay');
     $("#PMH_1").addClass("clear_both");
     $("#ANTSEG_1").addClass("clear_both");
-    $("#RETINA_1").addClass("clear_both");
+    $("#POSTSEG_1").addClass("clear_both");
     $("#NEURO_1").addClass("clear_both");
     $("#IMPPLAN_1").addClass("clear_both");
     hide_PRIORS();
@@ -729,7 +737,7 @@ function hide_right() {
     $("#RETINA_right").addClass('nodisplay');
     $("#PMH_1").removeClass("clear_both");
     $("#ANTSEG_1").removeClass("clear_both");
-    $("#RETINA_1").removeClass("clear_both");
+    $("#POSTSEG_1").removeClass("clear_both");
     $("#NEURO_1").removeClass("clear_both");
     update_PREFS();
 }
@@ -742,7 +750,7 @@ function show_left() {
     $("#EXT_1").removeClass("size100").addClass("size50");
     $("#ANTSEG_1").removeClass("size100").addClass("size50");
     $("#NEURO_1").removeClass("size100").addClass("size50");
-    $("#RETINA_1").removeClass("size100").addClass("size50");
+    $("#POSTSEG_1").removeClass("size100").addClass("size50");
     $("#IMPPLAN_1").removeClass("size100").addClass("size50");
     $("#HPI_left").removeClass('nodisplay');
     $("#PMH_left").removeClass('nodisplay');
@@ -762,7 +770,7 @@ function hide_left() {
     $("#EXT_1").removeClass("size100").addClass("size50");
     $("#ANTSEG_1").removeClass("size100").addClass("size50");
     $("#NEURO_1").removeClass("size100").addClass("size50");
-    $("#RETINA_1").removeClass("size100").addClass("size50");
+    $("#POSTSEG_1").removeClass("size100").addClass("size50");
     $("#IMPPLAN_1").removeClass("size100").addClass("size50");
     $("#HPI_left").addClass('nodisplay');
     $("#PMH_left").addClass('nodisplay');
@@ -803,9 +811,6 @@ function show_DRAW() {
  * Function to display only the TEXT panels in every section.
  */
 function show_TEXT() {
-    $("#PMH_1").removeClass('nodisplay');
-    $("#NEURO_1").removeClass('nodisplay');
-    $("#IMPPLAN_1").removeClass('nodisplay');
     $(".TEXT_class").removeClass('nodisplay');
     show_left();
     hide_right(); //this hides the right half
@@ -820,7 +825,6 @@ function show_TEXT() {
     $("#IMPPLAN_right").addClass('canvas').removeClass('nodisplay');
     $("#QP_IMPPLAN").removeClass('nodisplay');
     $("#DRAW_"+zone).addClass('nodisplay');
-    $("#IMPPLAN_1").removeClass('nodisplay');
     $("#IMPPLAN_left").removeClass('nodisplay');
     $("#PREFS_IMPPLAN_RIGHT").val('QP');
     update_PREFS();
@@ -879,7 +883,6 @@ function show_QP() {
  */
 function show_DRAW_section(zone) {
     $("#QP_"+zone).addClass('nodisplay');
-    $("#"+zone+"_1").removeClass('nodisplay');
     $("#"+zone+"_left").removeClass('nodisplay');
     $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
     $("#Draw_"+zone).addClass('canvas');
@@ -906,18 +909,40 @@ function show_PRIORS_section(section,newValue) {
            url       : url,
            data     : formData,
            success   : function(result) {
-           $("#PRIORS_" + section + "_left_text").html(result);
+                $("#PRIORS_" + section + "_left_text").html(result);
            }
            });
 }
-/*
+/**
+ *  Function to display a canvas/drawing from a prior visit.
+ */
+
+function show_PRIOR_CANVAS_section(section, newValue) {
+    var pid    =  $('#pid').val();
+    var zone   = section;
+    var result = base+'/controller.php?document&retrieve&patient_id='+pid+'&document_id='+newValue+'&as_file=false';
+    var cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
+    var filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
+    
+    $("#"+zone+"_canvas").addClass('nodisplay');
+    $("#"+zone+"_olddrawing").html(filler);
+    $("#"+zone+"_olddrawing").removeClass('nodisplay');
+}
+
+function replace_CANVAS(zone, url) {
+    $("#url_"+zone).val(url);
+    cReplace(zone);
+$("#SELECT_CANVAS_"+zone).val('current');
+    $("#"+zone+"_canvas").removeClass('nodisplay');
+    $("#"+zone+"_olddrawing").addClass('nodisplay');
+}
+/**
  * Function to show one of the Quick Picks section on the right side of its section.
  */
 function show_QP_section(zone,scroll) {
     $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
     $("#QP_"+zone).removeClass('nodisplay');
     $("#DRAW_"+zone).addClass('nodisplay');
-    $("#"+zone+"_1").removeClass('nodisplay');
     $("#"+zone+"_left").removeClass('nodisplay');
     $("#PREFS_"+zone+"_RIGHT").val('QP');
     if (!scroll) {
@@ -997,7 +1022,7 @@ function show_KB() {
 /*
  * Function contains menu commands specific to this form.
  */
-function menu_select(zone,che) {
+function menu_select(zone) {
     $("#menu_"+zone).addClass('active');
     if (zone =='PREFERENCES') {
         window.parent.RTop.document.location.href = base+"interface/super/edit_globals.php";
@@ -1031,6 +1056,7 @@ function menu_select(zone,che) {
     if (zone == "ANTSEG") scrollTo("ANTSEG_left");
     if (zone == "POSTSEG") scrollTo("RETINA_left");
     if (zone == "NEURO") scrollTo("NEURO_left");
+    if (zone == "IMPPLAN") scrollTo("IMPPLAN_left");
 }
 
 
@@ -1560,7 +1586,7 @@ function dragto_IMPPLAN_zone(event, ui) {
     store_IMPPLAN(obj.IMPPLAN_items); //redisplay the items
 }
 /*
- * This function allows the user to drag a DX from the IMPRESSION list directly into the New Dx field $('#IMP') <-- New Dx textarea
+ * This function allows the user to drag a DX from the IMPRESSION list directly into the New Dx field (#IMP) <-- New Dx textarea
  * The data is appended to the end of the text.
  * It doesn't know what is already there (yet) so numbering if desired must be done manually.
  */
@@ -2093,16 +2119,50 @@ function getTimeStamp() {
     return now.getHours() + ':' + ((now.getMinutes() < 10) ? ("0" + now.getMinutes()) : (now.getMinutes())) + AMPM;
 }
 
-$(function() {
+/**
+ * This function is only run onload to hide sections per user preference.
+ * Any changes during the encounter to display or hide a section are stored
+ * as a previous setting and the next eye form opened will appear the same way.
+ */
+function show_by_setting() {
+    var tabs_left = $("#setting_tabs_left").val();
+    if (typeof tabs_left ==undefined) exit;
+    var tabs_left = $("#setting_tabs_left").val();
+    var arrSet = ["HPI","PMH","EXT","ANTSEG","POSTSEG","NEURO","IMPPLAN"];
+    sLen = arrSet.length;
+    for (i = 0; i < sLen; i++) {
+        var value = $("#setting_"+arrSet[i]).val();
+        if (typeof value !== undefined && value !='1') {
+            $('#tabs-left-'+arrSet[i]).addClass('ui-state-default');
+            $("#setting_"+arrSet[i]).val('0');
+            $("#"+arrSet[i]+'_1').addClass('nodisplay');
+            $("#setting_"+arrSet[i]).val('0');
+        } else {
+            $("#setting_"+arrSet[i]).val('1');
+        }
+    }
+    if (tabs_left == '0') {
+        $("#tabs_left").addClass('nodisplay');
+    } else {
+        $("#tabs_left").removeClass('nodisplay');
+    }
+show_left();
+    return true;
+}
+
+$(document).ready(function() {
                   check_lock();
 
                   var allPanels = $('.building_blocks > dd').hide();
                   var allPanels2 = $('.building_blocks2 > dd').hide();
                   refresh_page();
+                  
+                // AUTO- CODING FEATURES
                   check_CPT_92060();
                   check_exam_detail();
                   hide_DRAW();
                   hide_right();
+                //alert('Suggest a Code');
                   Suggest_visit_code();
                   show_QP_section('IMPPLAN','1');
 
@@ -2719,17 +2779,32 @@ $(function() {
                                              var menuitem = this.id.match(/menu_(.*)/)[1];
                                              $(this).addClass('active');
                                              $("#menustate").val('1');
-                                             menu_select(menuitem);
-                                             });
+                                             if (menuitem =='left_tabs') {
+                                                var tabs_left = $("#setting_tabs_left").val();
+                                                if (tabs_left == '1') {
+                                                    $("#tabs_left").addClass('nodisplay');
+                                                    $("#setting_tabs_left").val('0');
+                                                } else {
+                                                    $("#tabs_left").removeClass('nodisplay');
+                                                    $("#setting_tabs_left").val('1');
+                                                }
+                                                update_PREFS();
+                                             } else {
+                                                 $("#BUTTON_TAB_"+menuitem).trigger('click');
+                                                 $("#tabs-left-"+menuitem).trigger('click');
+                                                 menu_select(menuitem);
+                                            }
+                    });
+
                   // set display functions for Draw panel appearance
                   // for each DRAW area, if the value AREA_DRAW = 1, show it.
-                  var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
+                  var zones = ["PMH","HPI","EXT","ANTSEG","POSTSEG","NEURO","IMPPLAN"];
                   for (index = '0'; index < zones.length; ++index) {
-                  if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
-                  show_DRAW_section(zones[index]);
-                  } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
+                    if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
+                        show_DRAW_section(zones[index]);
+                    } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
                         show_QP_section(zones[index],'1');
-                  }
+                    }
                   }
                   $("body").on("click","[name$='_text_view']" , function() {
                                var header = this.id.match(/(.*)_text_view$/)[1];
@@ -2746,47 +2821,96 @@ $(function() {
                                return false;
                                });
                   $("body").on("change", "select", function(e){
-
-                        if (this.name.match(/PRIOR_(.*)/)) {
-                            var new_section = this.name.match(/PRIOR_(.*)/);
-                            if (new_section[1] =='') return;
-                            if (new_section[1] == /\_/){
-                                return;
-                            }
-                            var newValue = this.value;
-
-                           if (newValue == $("#form_id").val()) {
-                                if (new_section[1] =="ALL") {
-                                    //click updates prefs too
-                                    $('#EXAM_QP').trigger("click");
-                                } else {
-                                    $('#BUTTON_QP_'+new_section[1]).trigger("click");
-                                }
-                                $("#LayerTechnical_sections_1").css("clear","both");
-                                return;
-                           }
-                           //now go get the prior page via ajax
-                           var newValue = this.value;
-                           $("#PRIORS_"+ new_section[1] +"_left_text").removeClass('nodisplay');
-                           $("#DRAWS_" + new_section[1] + "_right").addClass('nodisplay');
-                           $("#QP_" + new_section[1]).addClass('nodisplay');
-
-                                    if (new_section[1] =="ALL") {
-                                       show_PRIORS();
-                                       show_PRIORS_section("ALL",newValue);
-                                       show_PRIORS_section("EXT",newValue);
-                                       show_PRIORS_section("ANTSEG",newValue);
-                                       show_PRIORS_section("RETINA",newValue);
-                                       show_PRIORS_section("NEURO",newValue);
-                                       show_PRIORS_section("IMPPLAN",newValue);
-                                       scrollTo("EXT_left");
-                                    } else {
-                                        show_PRIORS_section(new_section[1],newValue);
-                                    }
+                            if (this.name.match(/PRIOR_(.*)/)) {
+                                var new_section = this.name.match(/PRIOR_(.*)/);
+                                var newValue = this.value;
+                                if (new_section[1] =='') return;
+                                if (new_section[1].match(/_canvas/)) {
+                                    goto_section = new_section[1].match(/_canvas/)[1];
+                                    show_PRIOR_CANVAS_section(goto_section,newValue);
                                     return;
                                 }
-                                submit_form("eye_mag");
-                            });
+
+                                if (new_section[1] == /\_/){
+                                    return;
+                                }
+                                var newValue = this.value;
+                                if (newValue == $("#form_id").val()) {
+                                   if (new_section[1] =="ALL") {
+                                     //click updates prefs too
+                                     $('#EXAM_QP').trigger("click");
+    
+                                   } else {
+                                      $('#BUTTON_QP_'+new_section[1]).trigger("click");
+                                   }
+                                 $("#LayerTechnical_sections_1").css("clear","both");
+                                 return;
+                                }
+                                //now go get the prior page via ajax
+                                $("#PRIORS_"+ new_section[1] +"_left_text").removeClass('nodisplay');
+                                $("#DRAWS_" + new_section[1] + "_right").addClass('nodisplay');
+                                $("#QP_" + new_section[1]).addClass('nodisplay');
+
+                                if (new_section[1] =="ALL") {
+                                    show_PRIORS();
+                                    show_PRIORS_section("ALL",newValue);
+                                    show_PRIORS_section("EXT",newValue);
+                                    show_PRIORS_section("ANTSEG",newValue);
+                                    show_PRIORS_section("RETINA",newValue);
+                                    show_PRIORS_section("NEURO",newValue);
+                                    show_PRIORS_section("IMPPLAN",newValue);
+                                    scrollTo("EXT_left");
+                                } else {
+                                    show_PRIORS_section(new_section[1],newValue);
+                                }
+                            }
+                        });
+
+
+$("body").on("click","[name^='old_canvas']", function() {
+//get zone
+//het h.step from SELECT_CANVAS_" . attr($zone) . "
+    var h = $(this).data();
+    var target = h.target;
+    var direction = h.direction;
+    var select = document.getElementById(target);
+    var len = select.getElementsByTagName('option').length-1;
+    var t = $("#"+target).data();
+    var index=t.step;
+    if (direction=="oldest") {
+        index=len;
+        next = select.getElementsByTagName('option')[index];
+        if(typeof next !== undefined) {
+            select.options[index].selected = 'selected';
+        }
+    } else if (direction=="older") {
+        index++;
+        next = select.getElementsByTagName('option')[index];
+        if(typeof next !== undefined && index <= len) {
+            select.options[index].selected = 'selected';
+        } else {
+            index=len;
+        }
+    } else if (direction=="newer") {
+        index--;
+        next = select.getElementsByTagName('option')[index];
+        if (typeof next !== undefined && index >= 0) {
+            select.options[index].selected = 'selected';
+        } else {
+            index = 0;
+            select.options[index].selected = 'selected';
+        }
+    } else if (direction=="newest") {
+        index='0';
+        next = select.getElementsByTagName('option')[index];
+        if(typeof next !== undefined) {
+            select.options[index].selected = 'selected';
+        }
+    }
+    t.step=index;
+    $("#"+target).trigger('change');
+});
+
 
                   $("body").on("click","[id^='Close_PRIORS_']", function() {
                                var new_section = this.id.match(/Close_PRIORS_(.*)$/)[1];
@@ -3802,40 +3926,40 @@ $(function() {
                                            $.each(IMP_order, function( index, value ) {
                                                   issue= value.match(/(.*)_(.*)/);
                                                   if (issue[1] == "CLINICAL") {
-                                                  if (!$('#inc_PE').is(':checked')) { return; }
-
-                                                  var the_code='';
-                                                  var the_codedesc='';
-                                                  var the_codetext='';
-                                                  var the_plan='';
-                                                  for (i=0;i < obj.Clinical[issue[2]].length; i++) {
-                                                  if (i == 0) {
-                                                  the_code = obj.Clinical[issue[2]][i]['code'];
-                                                  } else if (i < obj.Clinical[issue[2]].length) {
-                                                  the_code += ', '+ obj.Clinical[issue[2]][i]['code'];
-                                                  }
-                                                  the_codedesc += obj.Clinical[issue[2]][i]['codedesc'] + "\r";
-                                                  the_codetext += obj.Clinical[issue[2]][i]['codetext'] + "\r";
-                                                  the_plan += obj.Clinical[issue[2]][i]['codedesc'] + "\r";
-                                                  }
-                                                  obj.IMPPLAN_items.push({
-                                                                         title:obj.Clinical[issue[2]][0]['title'],
-                                                                         code: the_code,
-                                                                         codetype: obj.Clinical[issue[2]][0]['codetype'],
-                                                                         codedesc: the_codedesc,
-                                                                         codetext: the_codetext,
-                                                                         plan: the_plan,
-                                                                         PMSFH_link: obj.Clinical[issue[2]][0]['PMSFH_link']
-                                                                         });
+                                                      if (!$('#inc_PE').is(':checked')) { return; }
+    
+                                                      var the_code='';
+                                                      var the_codedesc='';
+                                                      var the_codetext='';
+                                                      var the_plan='';
+                                                      for (i=0;i < obj.Clinical[issue[2]].length; i++) {
+                                                        if (i == 0) {
+                                                            the_code = obj.Clinical[issue[2]][i]['code'];
+                                                        } else if (i < obj.Clinical[issue[2]].length) {
+                                                            the_code += ', '+ obj.Clinical[issue[2]][i]['code'];
+                                                        }
+                                                        the_codedesc += obj.Clinical[issue[2]][i]['codedesc'] + "\r";
+                                                        the_codetext += obj.Clinical[issue[2]][i]['codetext'] + "\r";
+                                                        the_plan += obj.Clinical[issue[2]][i]['codedesc'] + "\r";
+                                                      }
+                                                      obj.IMPPLAN_items.push({
+                                                                             title:obj.Clinical[issue[2]][0]['title'],
+                                                                             code: the_code,
+                                                                             codetype: obj.Clinical[issue[2]][0]['codetype'],
+                                                                             codedesc: the_codedesc,
+                                                                             codetext: the_codetext,
+                                                                             plan: the_plan,
+                                                                             PMSFH_link: obj.Clinical[issue[2]][0]['PMSFH_link']
+                                                                             });
                                                   } else {
-                                                  if (issue[1] == "PMH") {
-                                                  if (!$('#inc_PMH').is(':checked')) { return; }
-                                                  } else if (issue[1] == "POH"){
-                                                  if (!$('#inc_POH').is(':checked')) { return; }
-                                                  } else if (issue[1] == "POS"){
-                                                  if (!$('#inc_POH').is(':checked')) { return; }
-                                                  }
-                                                  obj.IMPPLAN_items.push({
+                                                      if (issue[1] == "PMH") {
+                                                        if (!$('#inc_PMH').is(':checked')) { return; }
+                                                      } else if (issue[1] == "POH"){
+                                                        if (!$('#inc_POH').is(':checked')) { return; }
+                                                      } else if (issue[1] == "POS"){
+                                                        if (!$('#inc_POH').is(':checked')) { return; }
+                                                      }
+                                                      obj.IMPPLAN_items.push({
                                                                          title:         obj.PMSFH[issue[1]][issue[2]]['title'],
                                                                          code:          obj.PMSFH[issue[1]][issue[2]]['code'],
                                                                          codetype:      obj.PMSFH[issue[1]][issue[2]]['codetype'],
@@ -3845,7 +3969,7 @@ $(function() {
                                                                          PMSFH_link:    obj.PMSFH[issue[1]][issue[2]]['PMSFH_link']
                                                                          });
                                                   }
-                                                  });
+                                            });
                                            build_IMPPLAN(obj.IMPPLAN_items);
                                            store_IMPPLAN(obj.IMPPLAN_items,'1');
                                            });
@@ -3879,6 +4003,20 @@ $(function() {
                                                                 $("#IMP_start_acc").slideDown();
                                                            }
                                                          });
+                $("[name='CANVAS_selector']").change(function(){
+                    //we are going to display an old image from a previous encounter
+                    zone = this.id.match(/CANVAS_(.*)/)[1];
+                    if (this.value != 'current') {
+                        $("#"+zone+"_canvas").addClass('nodisplay');
+                        $("#"+zone+"_olddrawing").removeClass('nodisplay');
+                        show_PRIOR_CANVAS_section(zone, this.value);
+                    } else {
+                        $("#"+zone+"_canvas").removeClass('nodisplay');
+                        
+                        $("#"+zone+"_olddrawing").addClass('nodisplay');
+                    }
+                });
+
 
                   $('#IMP').blur(function() {
                                  //add this DX to the obj.IMPPLAN_items array
@@ -3972,17 +4110,26 @@ $(function() {
 
                   $('[id^="tabs-left-"]').on('click', function () {
                         var item = this.id.match(/tabs-left-(.*)/)[1];
-                        $('#'+ item +'_1').toggleClass('nodisplay');
-                        $(this).toggleClass('ui-state-default');
-                    });
+                        var value = $("#setting_"+item).val();
+                        if (value !='1') {
+                            $("#setting_"+item).val('1');
+                            $(this).removeClass('ui-state-default');
+                            $('#'+ item +'_1').removeClass('nodisplay');
+                            menu_select(item);
+                        } else {
+                            $("#setting_"+item).val('0');
+                            $(this).addClass('ui-state-default');
+                            $('#'+ item +'_1').addClass('nodisplay');
+                        }
+                        update_PREFS();
+                  });
                   
                   $(document).on('change','[name="visit_status"]', function (event) {
-                    var item = $( "input[type=radio][name=visit_status]:checked" ).val();
-                    update_appt_status(item);
+                        var item = $( "input[type=radio][name=visit_status]:checked" ).val();
+                        update_appt_status(item);
                   });
-
-
-                   $(document).on("click", "[name='visit_justifier']", function () {
+                
+                  $(document).on("click", "[name='visit_justifier']", function () {
                                                    var d = $(this).data();
                                                    var item = d.justcode;
                                                    if ($(this).hasClass('status_on')) {
@@ -4023,11 +4170,14 @@ $(function() {
 
                     $('[id^="BUTTON_TAB_"]').on('click', function () {
                         var item = this.id.match(/BUTTON_TAB_(.*)/)[1];
-                        $("#tabs-left").removeClass('nodisplay');
-                        $("#"+item+'_1').addClass('nodisplay');
+                        
                         $('#tabs-left-'+item).addClass('ui-state-default');
+                        $("#setting_"+item).val('0');
+                        $("#"+item+'_1').addClass('nodisplay');
+                        $("#tabs_left").removeClass('nodisplay');
+                        update_PREFS();
                     });
-
+                    show_by_setting();
                   $("input,textarea,text").focus(function(){
                                                  $(this).css("background-color","#ffff99");
                                                  });

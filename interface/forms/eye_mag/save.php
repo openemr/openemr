@@ -215,6 +215,20 @@ if ($_REQUEST['AJAX_PREFS']) {
               VALUES
               ('PREFS','TOOLTIPS','Toggle Tooltips',?,'TOOLTIPS','79',?,'25')";
     sqlQuery($query, array($_SESSION['authId'], $_REQUEST['PREFS_TOOLTIPS']));
+    
+    // These settings are sticky user preferences linked to a given page.
+// Could do ALL preferences this way instead of the modified extract above...
+// mdsupport - user_settings prefix
+    $uspfx = "EyeFormSettings_";
+    $setting_tabs_left = prevSetting($uspfx, 'setting_tabs_left', 'setting_tabs_left', '0');
+    $setting_HPI = prevSetting($uspfx, 'setting_HPI', 'setting_HPI', '1');
+    $setting_PMH = prevSetting($uspfx, 'setting_PMH', 'setting_PMH', '1');
+    $setting_ANTSEG = prevSetting($uspfx, 'setting_ANTSEG', 'setting_ANTSEG', '1');
+    $setting_POSTSEG = prevSetting($uspfx, 'setting_POSTSEG', 'setting_POSTSEG', '1');
+    $setting_EXT = prevSetting($uspfx, 'setting_EXT', 'setting_EXT', '1');
+    $setting_NEURO = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
+    $setting_IMPPLAN = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
+    
 }
 
 /**
@@ -248,7 +262,7 @@ if ($providerID == '0') {
 // If the DB shows a uniqueID ie. an owner, and the save request uniqueID does not = the uniqueID in the DB,
 // ask if the new user wishes to take ownership?
 // If yes, any other's attempt to save fields/form are denied and the return code says you are not the owner...
-if ($_REQUEST['unlock'] == '1') {
+if ($_REQUEST['unlock'] === '1') {
     // we are releasing the form, by closing the page or clicking on ACTIVE FORM, so unlock it.
     // if it's locked and they own it ($REQUEST[LOCKEDBY] == LOCKEDBY), they can unlock it
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from form_eye_locking WHERE ID=?";
@@ -259,7 +273,7 @@ if ($_REQUEST['unlock'] == '1') {
     }
 
     exit;
-} elseif ($_REQUEST['acquire_lock'] == "1") {
+} elseif ($_REQUEST['acquire_lock'] === "1") {
     //we are taking over the form's active state, others will go read-only
     $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=? where id=?";//" and LOCKEDBY=?";
     $result = sqlQuery($query, array($_REQUEST['uniqueID'], $form_id ));

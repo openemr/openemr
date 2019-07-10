@@ -8,8 +8,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Ray Magauran <magauran@MedFetch.com>
- * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -42,6 +42,17 @@ while ($prefs= sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
     $$LOCATION = text($prefs['GOVALUE']);
 }
+// These settings are sticky user preferences linked to a given page.
+// Could do ALL preferences this way instead of the modified extract above...
+// mdsupport - user_settings prefix
+$uspfx = "EyeFormSettings_";
+$setting_HPI = prevSetting($uspfx, 'setting_HPI', 'setting_HPI', '1');
+$setting_PMH = prevSetting($uspfx, 'setting_PMH', 'setting_PMH', '1');
+$setting_ANTSEG = prevSetting($uspfx, 'setting_ANTSEG', 'setting_ANTSEG', '1');
+$setting_POSTSEG = prevSetting($uspfx, 'setting_POSTSEG', 'setting_POSTSEG', '1');
+$setting_EXT = prevSetting($uspfx, 'setting_EXT', 'setting_EXT', '1');
+$setting_NEURO = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
+$setting_IMPPLAN = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
 
 $query10 = "select  *,form_encounter.date as encounter_date
               
@@ -174,7 +185,7 @@ if ($refresh and $refresh != 'fullscreen') {
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
   <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
   
-  <div id="tabs-left" class="tabs ui-tabs ui-widget ui-widget-content ui-corner-all nodisplay">
+  <div id="tabs_left" class="tabs ui-tabs ui-widget ui-widget-content ui-corner-all nodisplay">
       <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-corner-all">
           
           <li id="tabs-left-HPI" class="btn-primary">
@@ -189,7 +200,7 @@ if ($refresh and $refresh != 'fullscreen') {
           <li id="tabs-left-ANTSEG" class="btn-primary">
               <span>Ant</span>
           </li>
-          <li id="tabs-left-RETINA" class="btn-primary">
+          <li id="tabs-left-POSTSEG" class="btn-primary">
               <span>Retina</span>
           </li>
           <li id="tabs-left-NEURO" class="btn-primary">
@@ -287,10 +298,16 @@ if ($refresh and $refresh != 'fullscreen') {
               <input type="hidden" name="uniqueID" id="uniqueID" value="<?php echo attr($uniqueID); ?>">
               <input type="hidden" name="chart_status" id="chart_status" value="on">
               <input type="hidden" name="finalize"  id="finalize" value="0">
+                <input type='hidden' name='setting_tabs_left' id='setting_tabs_left' value='<?php echo $setting_tabs_left; ?>'>
+                <input type='hidden' name='setting_HPI' id='setting_HPI' value='<?php echo $setting_HPI; ?>'>
+                <input type='hidden' name='setting_PMH' id='setting_PMH' value='<?php echo $setting_PMH; ?>'>
+                <input type='hidden' name='setting_EXT' id='setting_EXT' value='<?php echo $setting_EXT; ?>'>
+                <input type='hidden' name='setting_ANTSEG' id='setting_ANTSEG' value='<?php echo $setting_ANTSEG; ?>'>
+                <input type='hidden' name='setting_POSTSEG' id='setting_POSTSEG' value='<?php echo $setting_POSTSEG; ?>'>
+                <input type='hidden' name='setting_NEURO' id='setting_NEURO' value='<?php echo $setting_NEURO; ?>'>
+                <input type='hidden' name='setting_IMPPLAN' id='setting_IMPPLAN' value='<?php echo $setting_IMPPLAN; ?>'>
 
-
-
-              <!-- start first div -->
+                <!-- start first div -->
               <div id="first" name="first" class="text_clinical">
                 <!-- start    HPI spinner -->
                 <div class="loading" id="HPI_sections_loading" name="HPI_sections_loading"><i class="fa fa-spinner fa-spin"></i>
@@ -307,11 +324,12 @@ if ($refresh and $refresh != 'fullscreen') {
                     <!-- start  HPI Left -->
                     <div id="HPI_left" name="HPI_left" class="exam_section_left borderShadow">
                       <div id="HPI_left_text" class="TEXT_class">
-                        <span class="closeButton fa fa-paint-brush" title="<?php echo xla('Open/Close the HPI Canvas'); ?>" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
-                        <i class="closeButton_2 fa fa-database" title="<?php echo xla('Open/Close the detailed HPI panel'); ?>" id="BUTTON_QP_HPI" name="BUTTON_QP_HPI"></i>
-                        <i class="closeButton_3 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes next to each field").". ".xla('Document clinical findings in Shorthand Format')." <b>".xla('FIELD: Text(.a); '); ?></b>."></i>
+                        <span class="closeButton_2 fa fa-paint-brush" title="<?php echo xla('Open/Close the HPI Canvas'); ?>" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
+                        <i class="closeButton_3 fa fa-database" title="<?php echo xla('Open/Close the detailed HPI panel'); ?>" id="BUTTON_QP_HPI" name="BUTTON_QP_HPI"></i>
+                        <i class="closeButton_4 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes next to each field").". ".xla('Document clinical findings in Shorthand Format')." <b>".xla('FIELD: Text(.a); '); ?></b>."></i>
+                          <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Minimize this panel'); ?>" id="BUTTON_TAB_HPI" name="BUTTON_TAB_HPI"></i>
 
-                        <b><?php echo xlt('HPI'); ?>:</b> <i class="fa fa-help"></i><br />
+                          <b><?php echo xlt('HPI'); ?>:</b> <i class="fa fa-help"></i><br />
                           <div id="tabs_wrapper" >
                             <div id="tabs_container">
                               <ul id="tabs">
@@ -2147,7 +2165,12 @@ if ($refresh and $refresh != 'fullscreen') {
                           <tr>
                             <td colspan="3" rowspan="4" id="dil_box" nowrap="">
                               <br />
-                              <span id="dil_listbox_title"><?php echo xlt('Dilated with'); ?>:</span><br />
+                              <span id="dil_listbox_title"><?php echo xlt('Dilation'); ?>:</span>
+
+                                <input type="text" class="pull-right" title="<?php echo xla('Dilation Time'); ?>" id="DIL_MEDS" name="DIL_MEDS" value="<?php
+                                        if ($DIL_MEDS) { echo attr($DIL_MEDS); }
+                                  ?>" placeholder="Time"/>
+                                <br />
                                 <?php
                               //TODO: convert to list.  How about a jquery multiselect box, stored in DIL_MEDS field with "|" as a delimiter? OK...
                               //create a list of all our options for dilation Eye_Drug_Dilation
@@ -2234,7 +2257,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   <tr>
                                       <td><textarea name="ODIRIS" id="ODIRIS" class="right ANTSEG"><?php echo text($ODIRIS); ?></textarea></td>
                                       <td><div class="ident"><?php echo xlt('Iris'); ?></div>
-                                        <div class="kb kb_left"><?php echo xlt('RI{{right iris}}'); ?>RI</div><div class="kb kb_right"><?php echo xlt('LL{{left iris}}'); ?></div></td></td>
+                                        <div class="kb kb_left"><?php echo xlt('RI{{right iris}}'); ?></div><div class="kb kb_right"><?php echo xlt('LI{{left iris}}'); ?></div></td></td>
                                       <td><textarea name="OSIRIS" id="OSIRIS" class="ANTSEG"><?php echo text($OSIRIS); ?></textarea></td>
                                   </tr>
                               </table>
@@ -2245,8 +2268,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       </div>
                     </div>
                   </div>
-
-                  <div id="ANTSEG_right" NAME=="ANTSEG_right" class="exam_section_right borderShadow text_clinical ">
+                  <div id="ANTSEG_right" name=="ANTSEG_right" class="exam_section_right borderShadow text_clinical ">
                       <div id="PRIORS_ANTSEG_left_text" name="PRIORS_ANTSEG_left_text" class="PRIORS_class PRIORS">
                                       <i class="fa fa-spinner fa-spin"></i>
                       </div>
@@ -2291,15 +2313,15 @@ if ($refresh and $refresh != 'fullscreen') {
                 </div>
                 <!-- end Ant Seg -->
 
-                <!-- start Retina -->
-                <div id="RETINA_1" class="clear_both" >
+                <!-- start POSTSEG -->
+                <div id="POSTSEG_1" class="clear_both" >
                   <div id="RETINA_left" name="RETINA_left" class="exam_section_left borderShadow">
                     <span class="anchor" id="RETINA_anchor"></span>
                     <div class="TEXT_class" id="RETINA_left_text" name="RETINA_left_text">
                       <span class="closeButton_2 fa fa-paint-brush" title="<?php echo xla('Open/Close the Retina drawing panel'); ?>" id="BUTTON_DRAW_RETINA" name="BUTTON_DRAW_RETINA"></span>
                       <i class="closeButton_3 fa fa-database"title="<?php echo xla('Open/Close the Retinal Exam Quick Picks panel'); ?>" id="BUTTON_QP_RETINA" name="BUTTON_QP_RETINA"></i>
                       <i class="closeButton_4 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
-                        <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close Post Seg panels'); ?>" id="BUTTON_TAB_RETINA" name="BUTTON_TAB_RETINA"></i>
+                        <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close Post Seg panels'); ?>" id="BUTTON_TAB_POSTSEG" name="BUTTON_TAB_POSTSEG"></i>
                         <b><?php echo xlt('Retina'); ?>:</b><div class="kb kb_left" title="<?php echo xla("Retina Default Values"); ?>"><?php echo text('DRET'); ?></div>
                         <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" value="on" <?php if ($DIL_RISKS =='on') {
                             echo "checked='checked'";

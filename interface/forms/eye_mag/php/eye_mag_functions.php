@@ -6,8 +6,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Ray Magauran <magauran@MedFetch.com>
- * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -34,7 +34,11 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     global $priors;
     global $form_id;
     global $earlier;
-
+    
+    if ($type=="canvas") {
+        $zone=$zone."_canvas";
+    }
+    
     $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',
                 'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
                 'form_eye_external', 'form_eye_antseg','form_eye_postseg',
@@ -2849,7 +2853,7 @@ function show_PMSFH_report($PMSFH)
  *
  *  @param string $zone options EXT,ANTSEG,RETINA,NEURO
  *  @param string $provider_id
- *  @return QP text : when called directly outputs the ZONE specific HTML5 CANVAS widget
+ *  @return QP text: when called directly outputs the ZONE QP lists for this provider
  */
 function display_QP($zone, $provider_id)
 {
@@ -2880,7 +2884,7 @@ function display_QP($zone, $provider_id)
         $here[$QP['title']][$QP['subtype']]['notes']    = $QP['notes'];     //the text to fill into form
         $here[$QP['title']][$QP['subtype']]['codes']    = $QP['codes'];     //the code if attached.
         $here[$QP['title']][$QP['subtype']]['mapping']  = $QP['mapping'];   //the fieldname without laterality eg CONJ
-        $here[$QP['title']][$QP['subtype']]['activity'] = $QP['activity'];  //1 to replace, 0 to append
+        $here[$QP['title']][$QP['subtype']]['activity'] = $QP['activity'];  //1 to replace, 2 to append
     }
 
     foreach ($here as $title => $values) { //start QP section items
@@ -2888,12 +2892,7 @@ function display_QP($zone, $provider_id)
         if (preg_match('/clear field/', $title)) {
             $title_show = "<em><strong>$title</strong></em>";
         }
-/**
- * if ($zone=='RETINA') {
-    echo "SELECT * FROM list_options WHERE list_id ='Eye_QP_" . $zone . "_" . $provider_id . " ?  ORDER BY seq";
-    var_dump($here);
-}
- * */
+
         if ($values['OD']) {
             if ($values['OD']['activity'] == '0') {
                 $action = "ADD";
@@ -2959,7 +2958,110 @@ function display_QP($zone, $provider_id)
         return $QP_panel;
 }
 
+function canvas_select($zone, $encounter, $pid){
+    /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
+     * just like we do in the text fields.
+     * Will need to do a lot of thinking to create this.  Jist is ajax call to server for image retrieval.
+     * To get this to work we need a way to select an old image to work from, use current or return to baseline.
+     * This will require a global BACK button like above (BUTTON_BACK_<?php echo attr($zone); ?>).
+     * The Undo Redo buttons are currently javascript client side.
+     * The Undo Redo features will only work for changes made since form was loaded locally.
 
+     * If we want to look back at a prior VISITs saved final images,
+     * we will need to create this logic.
+     * Need to think about how to display this visually so it's intuitive, without cluttering the page...
+     * At first glance, using the text PRIORS selection method should work...  Not yet.
+     *
+     *
+     *   $documents['categories']=$categories;
+     *  $documents['my_name']=$my_name;
+     *  $documents['children_names']=$children_names;
+     *  $documents['parent_name'] = $parent_name;
+     *  $documents['zones'] = $zones;
+     *  $documents['docs_in_zone'] = $docs_in_zone;
+     *  $documents['docs_in_cat_id'] = $docs_in_cat_id;
+     *  $documents['docs_in_name'] = $docs_in_name;
+     *  $documents['docs_by_date'] = $docs_by_date;
+     *
+     * Let's try $documents['docs_in_name'] where ['name']['zone']
+     */
+    //iterate through documents?
+        // which are in this zone?
+    //are any from the same as the encounter?  If so selected=selected
+    //
+    global $documents;
+    $side="OU";
+    $type_name = $side."_".$zone."_VIEW";
+    $canvi=[];
+    if (!empty($documents['zones'][$zone])) {
+        foreach ($documents['docs_in_name']['Drawings'] as $doc) {
+            if (!preg_match("/" . $zone . "_VIEW/", $doc['url'])) {
+                continue;
+            }
+            if (!$doc['encounter_id']) {
+                continue;
+            }
+            $canvi[] = $doc;
+        }
+    }
+    usort($canvi, function($a, $b) {
+        return $b['encounter_date'] <=> $a['encounter_date'];
+    });
+    if (!empty($canvi)) {
+        if ($canvi[0]['encounter_id'] != $encounter) {
+            //put today on the front as current, item "0"
+            //echo "<pre style='text-align:left;'>".$canvi[0]['id'] ." and ". $encounter['encounter_id'];var_dump($canvi);echo "</pre>";
+            //$today_doc = ["Hi"];
+            $today_doc['encounter_date'] = 'New';
+            array_unshift($canvi, $today_doc);
+        }
+   //
+        if (count($canvi) > '1') {
+            $select = '<div class="">';
+            $select .= '<span id="old_canvas_leftest_' . attr($zone) . '"
+                        name="old_canvas_leftest"
+                        class="fa fa-fast-backward fa-sm PRIORS hand"
+                        data-target="SELECT_CANVAS_' . attr($zone) . '"
+                        data-direction="oldest"
+                        title="' . xla('Oldest drawing') . '"></span>';
+            $select .= '<span id="old_canvas_left_' . attr($zone) . '"
+                        name="old_canvas"
+                        class="fa fa-step-backward fa-sm PRIORS hand"
+                        data-target="SELECT_CANVAS_' . attr($zone) . '"
+                        data-direction="older"
+                        title="' . xla('Look back one drawing') . '"></span>';
+        
+            $select .= "<select id='SELECT_CANVAS_" . attr($zone) . "' name='CANVAS_selector' data-step='0'>";
+            $count = '0';
+            foreach ($canvi as $hit) {
+                if ($count == '0') {
+                    $select .= "<option value='current'>" . text($hit['encounter_date']) . "</option>\n";
+                
+                } else {
+                    $select .= "<option value='" . attr($hit['document_id']) . "'>" . text($hit['encounter_date']) . "</option>\n";
+                }
+                $count++;
+            }
+            $select .= "</select>";
+            $select .= '<span id="old_canvas_right_' . attr($zone) . '"
+                    name="old_canvas"
+                    class="fa  fa-step-forward PRIORS hand"
+                    data-target="SELECT_CANVAS_' . attr($zone) . '"
+                    data-direction="newer"
+                    data-step="1"
+                    title="' . xla('Forward one drawing') . '"></span>';
+            $select .= '<span id="old_canvas_rightest_' . attr($zone) . '"
+                    name="old_canvas_rightest"
+                    class="fa fa-fast-forward PRIORS hand"
+                    data-target="SELECT_CANVAS_' . attr($zone) . '"
+                    data-direction="newest"
+                    title="' . xla('Forward to current canvas') . '"></span>
+                    
+        </div>';
+        }
+    }
+    return $select;
+}
 /**
  *  This function returns display the draw/sketch diagram for a zone (4 input values)
  *
@@ -2980,6 +3082,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
     global $form_folder;
     $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid ."/";
     $base_name = $pid."_".$encounter."_".$side."_".$zone."_VIEW";
+    
     $file_history =  $filepath.$base_name;
     $file_store= $file_history.".jpg";
     ?>
@@ -2989,96 +3092,82 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
         <i class="closeButton_3 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open the Shorthand Window and display Shorthand Codes"); ?>"></i>
 
         <?php
-            /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
-             * just like we do in the text fields.
-             * Will need to do a lot of thinking to create this.  Jist is ajax call to server for image retrieval.
-             * To get this to work we need a way to select an old image to work from, use current or return to baseline.
-             * This will require a global BACK button like above (BUTTON_BACK_<?php echo attr($zone); ?>).
-             * The Undo Redo buttons are currently javascript client side.
-             * The Undo Redo features will only work for changes made since form was loaded locally.
-
-             * If we want to look back at a prior VISITs saved final images,
-             * we will need to create this logic.
-             * Need to think about how to display this visually so it's intuitive, without cluttering the page...
-             * At first glance, using the text PRIORS selection method should work...  Not yet.
-             */
-        //$output = priors_select($zone,$orig_id,$id_to_show,$pid); echo $output;
+            $output = canvas_select($zone, $encounter, $pid);
+            echo $output;
         ?>
-        <div class="tools" style="text-align:center;width:100%;text-align:left;margin-left:2em;">
-            <div id="sketch_tooled_<?php echo attr($zone); ?>_8" style="position: relative;
-                        float: left;
-                        background-image: url(../../forms/eye_mag/images/pencil_white.png);
-                        background-size: 40px 80px;
-                        margin-right:50px;">
-                <input class="jscolor {mode:'HVS',
-                                position:'right',
-                                borderColor:'#FFF #666 #666 #FFF',
-                                insetColor:'#666 #FFF #FFF #666',
-                                backgroundColor:'#CCC',
-                                hash:'true',
-                                styleElement:'sketch_tool_<?php echo attr($zone); ?>_color',
-                                valueElement: 'selColor_<?php echo attr($zone); ?>',
-                                refine:true
-                            }"
-                id="sketch_tool_<?php echo attr($zone); ?>_color"
-                type="text" style="width: 38px;
-height: 20px;
-padding: 11px 0px;
-background-color: blue;
-margin-top: 26px;
-color: white;
-background-image: none;" />
+        <div id="<?php echo attr($zone); ?>_canvas">
+            <div class="tools">
+                <div id="sketch_tooled_<?php echo attr($zone); ?>_8">
+                    <input class="jscolor {mode:'HVS',
+                                    position:'right',
+                                    borderColor:'#FFF #666 #666 #FFF',
+                                    insetColor:'#666 #FFF #FFF #666',
+                                    backgroundColor:'#CCC',
+                                    hash:'true',
+                                    styleElement:'sketch_tool_<?php echo attr($zone); ?>_color',
+                                    valueElement:'selColor_<?php echo attr($zone); ?>',
+                                    refine:true
+                                }"
+                    id="sketch_tool_<?php echo attr($zone); ?>_color"
+                    type="text" style="width: 38px;
+    height: 20px;
+    padding: 11px 0px;
+    background-color: blue;
+    margin-top: 26px;
+    color: white;
+    background-image: none;" />
+                </div>
+                <?php
+    
+                    $sql = "SELECT * from documents where url like ?";
+                    $doc = sqlQuery($sql, array("%". $base_name ."%"));
+                    $base_filetoshow = $GLOBALS['web_root']."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
+                if (file_exists($file_store) && ($doc['id'] > '0')) {
+                    $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=".attr($pid)."&document_id=".attr($doc['id'])."&as_file=false&show_original=true&blahblah=".rand();
+                } else {
+                    //base image.
+                    $filetoshow = $base_filetoshow;
+                }
+                ?>
+    
+                <input type="hidden" id="url_<?php echo attr($zone); ?>" name="url_<?php echo attr($zone); ?>" value="<?php echo $filetoshow; ?>" />
+                <input type="hidden" id="base_url_<?php echo attr($zone); ?>" name="base_url_<?php echo attr($zone); ?>" value="<?php echo $base_filetoshow; ?>" />
+                <input type="hidden" id="selWidth_<?php echo attr($zone); ?>" value="1">
+                <input type="hidden" id="selColor_<?php echo attr($zone); ?>" value="#000" />
+    
+    
+    
+                <img id="sketch_tools_<?php echo attr($zone); ?>_1" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#1AA2E1");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_blue.png" style="height:30px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_2" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ff0");'  src="../../forms/<?php echo $form_folder; ?>/images/pencil_yellow.png" style="height:30px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_3" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ffad00");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_orange.png" style="height:30px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_4" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#AC8359");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_brown.png" style="height:30px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_5" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#E10A17");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_red.png" style="height:30px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_6" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#000");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_black.png" style="height:50px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_7" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#fff");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_white.png" style="height:30px;width:15px;">
+    
+                <span style="min-width:1in;">&nbsp;</span>
+                <!-- now to pencil size -->
+                <img id="sketch_sizes_<?php echo attr($zone); ?>_1" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("1");' src="../../forms/<?php echo $form_folder; ?>/images/brush_1.png" style="height:20px;width:20px; border-bottom: 2pt solid black;">
+                <img id="sketch_sizes_<?php echo attr($zone); ?>_3" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("3");' src="../../forms/<?php echo $form_folder; ?>/images/brush_3.png" style="height:20px;width:20px;">
+                <img id="sketch_sizes_<?php echo attr($zone); ?>_5" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("5");' src="../../forms/<?php echo $form_folder; ?>/images/brush_5.png" style="height:20px;width:20px;">
+                <img id="sketch_sizes_<?php echo attr($zone); ?>_10" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("10");' src="../../forms/<?php echo $form_folder; ?>/images/brush_10.png" style="height:20px;width:20px;">
+                <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
             </div>
-            <?php
-                $sql = "SELECT * from documents where url like ?";
-                $doc = sqlQuery($sql, array("%". $base_name ."%"));
-                $base_filetoshow = $GLOBALS['web_root']."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
-
-                // random to not pull from cache.
-            if (file_exists($file_store) && ($doc['id'] > '0')) {
-                $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=".attr($pid)."&document_id=".attr($doc['id'])."&as_file=false&show_original=true&blahblah=".rand();
-            } else {
-                //base image.
-                $filetoshow = $base_filetoshow;
-            }
-            ?>
-
-            <input type="hidden" id="url_<?php echo attr($zone); ?>" name="url_<?php echo attr($zone); ?>" value="<?php echo $filetoshow; ?>" />
-            <input type="hidden" id="base_url_<?php echo attr($zone); ?>" name="base_url_<?php echo attr($zone); ?>" value="<?php echo $base_filetoshow; ?>" />
-            <input type="hidden" id="selWidth_<?php echo attr($zone); ?>" value="1">
-            <input type="hidden" id="selColor_<?php echo attr($zone); ?>" value="#000" />
-
-
-
-            <img id="sketch_tools_<?php echo attr($zone); ?>_1" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#1AA2E1");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_blue.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_2" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ff0");'  src="../../forms/<?php echo $form_folder; ?>/images/pencil_yellow.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_3" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ffad00");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_orange.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_4" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#AC8359");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_brown.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_5" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#E10A17");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_red.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_6" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#000");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_black.png" style="height:50px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_7" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#fff");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_white.png" style="height:30px;width:15px;">
-
-            <span style="min-width:1in;">&nbsp;</span>
-            <!-- now to pencil size -->
-            <img id="sketch_sizes_<?php echo attr($zone); ?>_1" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("1");' src="../../forms/<?php echo $form_folder; ?>/images/brush_1.png" style="height:20px;width:20px; border-bottom: 2pt solid black;">
-            <img id="sketch_sizes_<?php echo attr($zone); ?>_3" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("3");' src="../../forms/<?php echo $form_folder; ?>/images/brush_3.png" style="height:20px;width:20px;">
-            <img id="sketch_sizes_<?php echo attr($zone); ?>_5" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("5");' src="../../forms/<?php echo $form_folder; ?>/images/brush_5.png" style="height:20px;width:20px;">
-            <img id="sketch_sizes_<?php echo attr($zone); ?>_10" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("10");' src="../../forms/<?php echo $form_folder; ?>/images/brush_10.png" style="height:20px;width:20px;">
-            <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
+    
+                <div align="center" class="borderShadow">
+                    <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
+                </div>
+                <div style="margin-top: 7px;">
+                    <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
+                    <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
+                    <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
+                    <button onclick="javascript:cReload('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
+                    <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
+                </div>
+            </div>
+            <div id="<?php echo attr($zone); ?>_olddrawing"></div>
         </div>
-
-        <div align="center" class="borderShadow">
-            <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
-        </div>
-        <div style="margin-top: 7px;">
-            <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
-            <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
-            <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
-            <button onclick="javascript:cReload('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
-            <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
-        </div>
-        <br />
-    </div>
+        
     <?php
 }
 
@@ -3677,17 +3766,18 @@ function display($pid, $encounter, $category_value)
         $count_here = empty($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) ? 0 : count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
 
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here-1]['document_id'];
-        $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", $documents['zones'][$category_value][$j]['name']);
         $episode .= "<tr>
         <td class='right'><b>".text($documents['zones'][$category_value][$j]['name'])."</b>:&nbsp;</td>
         <td>
+        $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", $documents['zones'][$category_value][$j]['name']);
             <a href='../../../controller.php?document&upload&patient_id=".attr($pid)."&parent_id=".attr($documents['zones'][$category_value][$j]['id'])."&'>
             <img src='../../forms/".$form_folder."/images/upload_file.png' class='little_image'>
             </a>
         </td>
         <td>
-            <a onclick=\"openNewForm('".$GLOBALS['webroot']."/controller.php?document&view&patient_id=".$pid."&doc_id=".$id_to_show."','Documents');\"></a>
-                <img onclick=\"return showpnotes('". $id_to_show ."')\" src='../../forms/".$form_folder."/images/upload_multi.png' class='little_image'>
+            <a onclick=\"return showpnotes('". $id_to_show ."');\">
+                <img  src='../../forms/".$form_folder."/images/upload_multi.png' class='little_image'>
+            </a>
         </td>
         <td>";
         //open via OpenEMR Documents with treemenu
@@ -3789,8 +3879,10 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             <li id="menu_ANTSEG" name="menu_ANTSEG" ><a><?php echo xlt("Anterior Segment"); ?></a></li>
                             <li id="menu_POSTSEG" name="menu_POSTSEG" ><a><?php echo xlt("Posterior Segment"); ?></a></li>
                             <li id="menu_NEURO" name="menu_NEURO" ><a><?php echo xlt("Neuro"); ?></a></li>
+                            <li id="menu_IMPPLAN" name="menu_IMPPLAN" ><a><?php echo xlt("Imp Plan"); ?></a></li>
                             <li class="divider"></li>
                             <li id="menu_Right_Panel" name="menu_Right_Panel"><a><?php echo xlt("PMSFH Panel"); ?><span class="menu_icon"><i class="fa fa-list" ></i></span></a></li>
+                            <li id="menu_left_tabs" name="menu_left_tabs"><a><?php echo xlt("Chart View"); ?><span class="menu_icon"><i class="fa fa-user-md" ></i></span></a></li>
 
                             <?php
                             /*
@@ -3964,21 +4056,11 @@ function menu_overhaul_left($pid, $encounter)
                             $uname = text($urow['lname'] . ' ' . $urow['fname']);
                             $optionId = attr($urow['id']);
                             echo "<option value='$optionId'";
-                            //  providerID is the practice's provider
-                            //  ref_providerID is the PCP.
-                            //      Demographics call this field "Referring Provider".
-                            //      We are using it as the PCP.
-                            //  referrerID is the actual referring person, used if not the PCP, like an optom
-                            //      a hair dresser, a Spa, or anyone in the address book 
-                            //      even if they don't have an NPI.
-                            // 
-                            //  This is different behavior from 5.0.1.
-                            //  After an upgrade, when a new Eye Form encounter is opened, 
-                            //      these fields will need to be updated manually, once per patient.
-                            if ($urow['id'] == $pat_data['ref_providerID']) {
+                            if ($urow['id'] == $pat_data['providerID']) {
                                 echo " selected";
                                 $got_selected = true;
                             }
+
                             echo ">$uname</option>";
                         }
 
@@ -3992,7 +4074,7 @@ function menu_overhaul_left($pid, $encounter)
                         ?>
                     </td>
                 </tr>
-
+                
                 <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td><td style="font-size:0.8em;">&nbsp;
                     <?php
                             $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
@@ -4006,7 +4088,7 @@ function menu_overhaul_left($pid, $encounter)
                         $uname = text($urow['lname'] . ' ' . $urow['fname']);
                         $optionId = attr($urow['id']);
                         echo "<option value='$optionId'";
-                        if ($urow['id'] == $pat_data['referrerID']) {
+                        if ($urow['id'] == $pat_data['ref_providerID']) {
                             echo " selected";
                             $got_selected = true;
                         }

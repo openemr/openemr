@@ -90,8 +90,8 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
    * linked to encounter in form_encounter
    * whose encounter is linked to id in forms.
    */
-
-    $query ="  select  *,form_encounter.date as encounter_date
+  
+  $query ="  select  *,form_encounter.date as encounter_date
 
                from forms,form_encounter,form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
@@ -606,11 +606,11 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
               <td><?php echo text($GLAREOSVA); ?></td>
             </tr>
             <?php } if ($CONTRASTODVA||$CONTRASTOSVA) { ?>
-            <tr>
-              <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
-              <td><?php echo text($CONTRASTODVA); ?></td>
-              <td><?php echo text($CONTRASTOSVA); ?></td>
-            </tr>
+                <tr>
+                    <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
+                    <td><?php echo text($CONTRASTODVA); ?></td>
+                    <td><?php echo text($CONTRASTOSVA); ?></td>
+                </tr>
             <?php } if (!empty($BINOCVA)) { ?>
                 <tr>
                   <td><?php echo xlt('VABiNoc{{|Binocular Visual Acuity}}'); ?></td>
@@ -1069,8 +1069,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         </tr>
                         <?php
                     }
-
-                    if ($MRODSPH||$MROSSPH) { ?>
+    
+    
+                        if ($MRODSPH||$MROSSPH) { ?>
                     <tr>
                           <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Manifest (Dry) Refraction'); ?></td>
                           <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -1454,7 +1455,7 @@ if ($ANTSEG_COMMENTS) { ?>
                     <?php
                 }
 
-                if (isset($RMRD) || isset($LMRD)) { ?>
+                if ( isset($RMRD) || isset($LMRD) ) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RMRD); ?></td>
                     <td class="middle" title="<?php echo xla('Marginal Reflex Distance'); ?>"><?php echo xlt('MRD{{marginal reflex distance}}'); ?></td>
@@ -1463,7 +1464,7 @@ if ($ANTSEG_COMMENTS) { ?>
                     <?php
                 }
 
-                if (isset($RVFISSURE) || isset($LVFISSURE)) { ?>
+                if ( isset($RVFISSURE) || isset($LVFISSURE) ) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RVFISSURE); ?></td>
                     <td class="middle" title="<?php echo xla('Vertical Fissure: central height between lid margins'); ?>"><?php echo xlt('Vert Fissure{{vertical fissure}}'); ?></td>
@@ -1927,9 +1928,8 @@ if ($ODCMT||$OSCMT) { ?>
                   </tr>
                 </table>
                 <?php
+        }
     }
-    }
-
     //end choice !== 'TEXT' -- include this in summary mouseover report.
     ?>
     <!-- start of IMPPLAN exam -->
@@ -1966,34 +1966,31 @@ if ($ODCMT||$OSCMT) { ?>
                 }
 
                 if (!empty($IMPPLAN_items)) {
-                    foreach ($IMPPLAN_items as $item) {
-                        echo ($item['IMPPLAN_order'] + 1) . '. <b>' . text($item['title']) . '</b><br />';
-                        echo '<div style="padding-left:15px;">';
-                        $pattern = '/Code/';
-                        if (preg_match($pattern, $item['code'])) {
-                            $item['code'] = '';
-                        }
+                  //for ($i=0; $i < count($IMPPLAN_item); $i++) {
+                foreach ($IMPPLAN_items as $item) {
+                    echo ($item['IMPPLAN_order'] +1).'. <b>'.text($item['title']).'</b><br />';
+                    echo  '<div style="padding-left:15px;">';
+                    $pattern = '/Code/';
+                    if (preg_match($pattern, $item['code'])) {
+                        $item['code'] = '';
+                    }
 
-                        if ($item['codetext'] > '') {
-                            echo $item['codetext'] . "<br />";
-                        } else {
-                            if ($item['code'] > '') {
-                                if ($item['codetype'] > '') {
-                                    $item['code'] = $item['codetype'] . ": " . $item['code'];
-                                }
-
-                                echo $item['code'] . "<br />";
+                    if ($item['codetext'] > '') {
+                        echo $item['codetext']."<br />";
+                    } else {
+                        if ($item['code'] > '') {
+                            if ($item['codetype'] > '') {
+                                $item['code'] =  $item['codetype'].": ".$item['code'];
                             }
-                        }
 
                         echo $item['plan'] . "</div><br />";
                     }
                 }
                 $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
                 $PLAN_results = sqlStatement($query, array($form_id, $pid ));
-
-
-                if ($PLAN_results) { ?>
+                
+    
+                    if (!empty($PLAN_results)) { ?>
                     <b><?php echo xlt('Orders')."/".xlt('Next Visit'); ?>:</b>
                     <br />
                     <div style="padding-left:15px;padding-bottom:10px;width:400px;">
@@ -2001,6 +1998,7 @@ if ($ODCMT||$OSCMT) { ?>
                         while ($plan_row = sqlFetchArray($PLAN_results)) {
                             echo  $plan_row['ORDER_DETAILS']."<br />";
                         }
+                        echo $item['plan'] . "</div><br />";
                         ?>
                     </div>
                     <?php
