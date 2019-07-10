@@ -224,8 +224,8 @@ if ($_POST['form_save']) {
         }
     }
 
-    $form_begin = fixDate($_POST['form_begin'], '');
-    $form_end   = fixDate($_POST['form_end'], '');
+    $form_begin = oeFormatShortDate($_POST['form_begin'], '');
+    $form_end   = oeFormatShortDate($_POST['form_end'], '');
 
     $form_injury_part = $_POST['form_medical_system'];
     $form_injury_type = $_POST['form_medical_type'];
@@ -617,7 +617,7 @@ $(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
@@ -733,7 +733,7 @@ if ($issue) {
                     <label class="control-label col-xs-2" for="form_begin"><?php echo xlt('Begin Date'); ?>:</label>
                     <div class="col-xs-10">
                         <input type='text' class='datepicker form-control' style="width:50%" name='form_begin' id='form_begin'
-                        value='<?php echo attr($irow['begdate']) ?>'
+                        value='<?php echo attr(oeFormatShortDate($irow['begdate'])) ?>'
                         title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>'>
                     </div>
                 </div>
@@ -741,7 +741,7 @@ if ($issue) {
                     <label class="control-label col-xs-2" for="form_begin"><?php echo xlt('End Date'); ?>:</label>
                     <div class="col-xs-10">
                         <input type='text' class='datepicker form-control' style="width:50%" name='form_end' id='form_end'
-                        value='<?php echo attr($irow['enddate']) ?>'
+                        value='<?php echo attr(oeFormatShortDate($irow['enddate'])) ?>'
                         title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
                         &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
                     </div>
