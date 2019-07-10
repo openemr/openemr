@@ -51,7 +51,6 @@ class Module
      */
     public function init(ModuleManager $manager)
     {
-
     }
 
     /**
@@ -81,7 +80,7 @@ class Module
      *
      * Load the list of patients that this user cannot access from our blacklist file
      */
-    public function getBlacklist( $username )
+    public function getBlacklist($username)
     {
         $blacklist = include __DIR__."/config/blacklist.php";
         $pids = [];
@@ -109,7 +108,7 @@ class Module
 
         // If there are patients to hide from this user, build a filter
         if (count($patientsToHide)) {
-            $patientsToHideEscaped = array_map( function($elem) {
+            $patientsToHideEscaped = array_map(function($elem) {
                 return add_escape_custom($elem);
             }, $patientsToHide);
             $patientsToHideString = implode(",", $patientsToHideEscaped);
