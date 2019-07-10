@@ -51,6 +51,16 @@ class ViewEvent extends Event
     }
 
     /**
+     * @return int|null
+     *
+     * Get the patient identifier of the patient we're attempting to view
+     */
+    public function getPid()
+    {
+        return $this->pid;
+    }
+
+    /**
      * @return bool
      *
      * Is user authorized to view patient?
