@@ -11,6 +11,7 @@ $core_modules = [
     'Zend\Validator',  // Handles validations....
     'Zend\Mvc\I18n', // TODO: since translations seem to be using the OPENEMR translations we may not need this anymore though we load it as a factory
     'Zend\Form', // needed for the formHelper view plugin.
+    'Zend\Mvc\Console', // needed for console commands.
     'Application', // Main application module starting point.
     'Installer', // Handles the dynamic adding / removing of modules in the system.
     'Acl', // Handles all of the permission checks in the system.
