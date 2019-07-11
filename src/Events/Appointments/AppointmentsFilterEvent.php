@@ -8,6 +8,7 @@
 
 namespace OpenEMR\Events\Appointments;
 
+use OpenEMR\Events\BoundFilter;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -32,25 +33,22 @@ class AppointmentsFilterEvent extends Event
      *
      * This is the custom filter that can add to the appointment fetching query
      */
-    private $customWhereFilter= '1';
+    private $boundFilter = null;
 
     /**
-     * Get an string representing the appointment filter
-     *
-     * @return string
+     * AppointmentsFilterEvent constructor.
+     * @param string $boundFilter
      */
-    public function getCustomWhereFilter()
+    public function __construct(BoundFilter $boundFilter)
     {
-        return $this->customWhereFilter;
+        $this->boundFilter = $boundFilter;
     }
 
     /**
-     * @param $customWhereFilter
-     *
-     * Add a custom filter to the WHERE clause of appointment fetch query
+     * @return string
      */
-    public function setCustomWhereFilter($customWhereFilter)
+    public function getBoundFilter()
     {
-        $this->customWhereFilter = $customWhereFilter;
+        return $this->boundFilter;
     }
 }

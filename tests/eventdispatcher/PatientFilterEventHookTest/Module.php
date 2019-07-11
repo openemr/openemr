@@ -7,6 +7,7 @@
  */
 namespace PatientFilterEventHookTest;
 
+use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
@@ -51,6 +52,7 @@ class Module
      */
     public function init(ModuleManager $manager)
     {
+
     }
 
     /**
@@ -66,6 +68,9 @@ class Module
 
         // listen for the filter event in the patient finder (hook located in main/finder/dynamic_finder_ajax.php)
         $oemrDispatcher->addListener(PatientFinderFilterEvent::EVENT_HANDLE, [$this, 'filterPatientFinderByBlacklist']);
+
+        // listen for filter event in the appointments.inc.php library
+        $oemrDispatcher->addListener(AppointmentsFilterEvent::EVENT_HANDLE, [$this, 'filterAppointmentsByBlacklist']);
 
         // listen for view and update events on the patient demographics screen (hooks located in
         // interface/patient_file/summary/demogrphics.php and
@@ -93,6 +98,28 @@ class Module
         return $pids;
     }
 
+    public function filterAppointmentsByBlacklist(AppointmentsFilterEvent $appointmentsFilterEvent)
+    {
+        $userService = new UserService();
+        $user = $userService->getCurrentlyLoggedInUser();
+        $patientsToHide = $this->getBlacklist($user->getUsername());
+        if (count($patientsToHide)) {
+            $filterString = "(p.pid IS NULL OR p.pid NOT IN (";
+            $bindArray = [];
+            foreach ($patientsToHide as $patientToHide) {
+                $filterString .= "?,";
+                $bindArray []= $patientToHide;
+            }
+            $filterString = rtrim($filterString,",");
+            $filterString .= "))";
+            $boundFilter = $appointmentsFilterEvent->getBoundFilter();
+            $boundFilter->setFilterClause($filterString);
+            $boundFilter->setBoundVariables($bindArray);
+        }
+
+        return $appointmentsFilterEvent;
+    }
+
     /**
      * @param PatientFinderFilterEvent $event
      * @return PatientFinderFilterEvent
@@ -108,7 +135,7 @@ class Module
 
         // If there are patients to hide from this user, build a filter
         if (count($patientsToHide)) {
-            $patientsToHideEscaped = array_map(function($elem) {
+            $patientsToHideEscaped = array_map( function($elem) {
                 return add_escape_custom($elem);
             }, $patientsToHide);
             $patientsToHideString = implode(",", $patientsToHideEscaped);
