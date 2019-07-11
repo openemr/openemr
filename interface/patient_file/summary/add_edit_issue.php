@@ -224,8 +224,8 @@ if ($_POST['form_save']) {
         }
     }
 
-    $form_begin = oeFormatShortDate($_POST['form_begin'], '');
-    $form_end   = oeFormatShortDate($_POST['form_end'], '');
+    $form_begin = ($_POST['form_begin']) ? DateToYYYYMMDD($_POST['form_begin']) : '';
+    $form_end   = ($_POST['form_end']) ? DateToYYYYMMDD($_POST['form_end']) : '';
 
     $form_injury_part = $_POST['form_medical_system'];
     $form_injury_type = $_POST['form_medical_type'];
