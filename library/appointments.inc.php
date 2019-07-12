@@ -138,7 +138,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         $apptFilterEvent = new AppointmentsFilterEvent(new BoundFilter());
         $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(AppointmentsFilterEvent::EVENT_HANDLE, $apptFilterEvent, 10);
         $boundFilter = $apptFilterEvent->getBoundFilter();
-        $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundVariables());
+        $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
         $where .= " AND ".$boundFilter->getFilterClause();
 
         $order_by = "e.pc_eventDate, e.pc_startTime";

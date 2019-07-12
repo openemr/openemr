@@ -9,7 +9,7 @@
 namespace OpenEMR\Events;
 
 /**
- * Represents a where clause using(?, ?) and it's bound variables
+ * Represents a where clause using(?, ?) and it's bound values
  *
  * @package OpenEMR\Events
  * @author Ken Chapple <ken@mi-squared.com>
@@ -27,9 +27,9 @@ class BoundFilter
     /**
      * @var array
      *
-     * Represents the variables to be substituted for ?s in the filter clause
+     * Represents the values to be substituted for ?s in the filter clause
      */
-    private $boundVariables = [];
+    private $boundValues = [];
 
     /**
      * @return string
@@ -50,24 +50,24 @@ class BoundFilter
     /**
      * @return array
      */
-    public function getBoundVariables()
+    public function getBoundValues()
     {
-        return $this->boundVariables;
+        return $this->boundValues;
     }
 
     /**
-     * @param array $boundVariables
+     * @param array $boundValues
      */
-    public function setBoundVariables($boundVariables)
+    public function setBoundValues($boundValues)
     {
-        $this->boundVariables = $boundVariables;
+        $this->boundValues = $boundValues;
     }
 
     /**
-     * @param string|int $boundVarialble
+     * @param string|int $boundValue
      */
-    public function addBoundVarialble($boundVarialble)
+    public function addBoundValue($boundValue)
     {
-        $this->boundVarialbles[]= $boundVarialble;
+        $this->boundValues[]= $boundValue;
     }
 }

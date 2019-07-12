@@ -98,6 +98,15 @@ class Module
         return $pids;
     }
 
+    /**
+     * @param AppointmentsFilterEvent $appointmentsFilterEvent
+     * @return AppointmentsFilterEvent
+     *
+     * Handler for the appointment fetching filter, which is used in patient tracker and other
+     * places.
+     *
+     * This filter's query uses SQL binding.
+     */
     public function filterAppointmentsByBlacklist(AppointmentsFilterEvent $appointmentsFilterEvent)
     {
         $userService = new UserService();
@@ -114,7 +123,7 @@ class Module
             $filterString .= "))";
             $boundFilter = $appointmentsFilterEvent->getBoundFilter();
             $boundFilter->setFilterClause($filterString);
-            $boundFilter->setBoundVariables($bindArray);
+            $boundFilter->setBoundValues($bindArray);
         }
 
         return $appointmentsFilterEvent;
@@ -125,7 +134,9 @@ class Module
      * @return PatientFinderFilterEvent
      *
      * Handler for the patient finder filter. This function looks at the blacklist
-     * and hides the specified patients
+     * and hides the specified patients.
+     *
+     * This filter does not use binding
      */
     public function filterPatientFinderByBlacklist(PatientFinderFilterEvent $event)
     {
