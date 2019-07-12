@@ -83,7 +83,7 @@ if (isset($_GET['iSortCol_0'])) {
 $where = '';
 $srch_bind = array();
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-    $sSearch = add_escape_custom(trim($_GET['sSearch']));
+    $sSearch = trim($_GET['sSearch']);
     foreach ($aColumns as $colname) {
         $where .= $where ? "OR " : "WHERE ( ";
         if ($colname == 'name') {
@@ -119,7 +119,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
     $colname = $aColumns[$i];
     if (isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
         $where .= $where ? ' AND ' : 'WHERE ';
-        $sSearch = add_escape_custom($_GET["sSearch_$i"]);
+        $sSearch = $_GET["sSearch_$i"];
         if ($colname == 'name') {
             $where .=
                 "lname LIKE ? OR " .
