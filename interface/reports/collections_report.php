@@ -765,6 +765,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             for ($i = 1; $i <= 3; ++$i) {
                 $tmp = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
                 if (empty($tmp)) {
+                    if (empty($tmp)) break;
                     $payerids[] = $tmp;
                 }
 
