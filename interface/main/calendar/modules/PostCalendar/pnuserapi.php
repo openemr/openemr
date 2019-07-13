@@ -37,6 +37,8 @@ $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
 unset($pcModInfo, $pcDir);
 
+use OpenEMR\Events\Appointments\CalendarFilterEvent;
+
 /**
  *  postcalendar_userapi_buildView
  *
@@ -880,6 +882,12 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "AND ((a.pc_endDate >= '" . pnVarPrepForStore($start) . "' AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "') OR " .
     "(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
     "a.pc_eventDate <= '" . pnVarPrepForStore($end) . "')) ";
+
+    // Custom filtering
+    $calFilterEvent = new CalendarFilterEvent();
+    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(CalendarFilterEvent::EVENT_HANDLE, $calFilterEvent, 10);
+    $calFilter = $calFilterEvent->getCustomWhereFilter();
+    $sql .= " AND $calFilter ";
 
   //==================================
   //FACILITY FILTERING (lemonsoftware)(CHEMED)

@@ -77,6 +77,9 @@
 //   Urdu                           // xl('Urdu')
 //   Vietnamese                     // xl('Vietnamese')
 
+use \OpenEMR\Services\Globals\GlobalsService;
+use \OpenEMR\Events\Globals\GlobalsInitializedEvent;
+
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
     // MS Windows
@@ -3571,3 +3574,7 @@ $GLOBALS_METADATA = array(
 
     ),
 );
+
+$globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
+$globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(GlobalsInitializedEvent::EVENT_HANDLE, $globalsInitEvent, 10);
+$globalsService = $globalsInitEvent->getGlobalsService()->save();
