@@ -8,7 +8,8 @@
 
 namespace OpenEMR\Events\PatientFinder;
 
-use Symfony\Component\EventDispatcher\Event;
+use OpenEMR\Events\AbsctactBoundFilterEvent;
+use OpenEMR\Events\BoundFilter;
 
 /**
  * Event object for creating custom patient filters for patient finder
@@ -18,7 +19,7 @@ use Symfony\Component\EventDispatcher\Event;
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */
-class PatientFinderFilterEvent extends Event
+class PatientFinderFilterEvent extends AbsctactBoundFilterEvent
 {
     /**
      * The customWhereFilter event occurs in the dynamic_finder_ajax.php script that generates
@@ -42,22 +43,14 @@ class PatientFinderFilterEvent extends Event
     private $userColumnFilters = [];
 
     /**
-     * @var array
-     *
-     * Custom where filter, applied "before" the user-generated filters through the UI.
-     * This filters are hidden from the end user.
-     *
-     * This defaults to "1" so that effectively no filter is applied
-     */
-    private $customWhereFilter = "1";
-
-    /**
      * PatientFinderFilterEvent constructor.
+     * @param BoundFilter the filter object to be modified to create custom filter
      * @param $displayedColumns
      * @param array of ColumnFilter objects $userColumnFilters
      */
-    public function __construct($displayedColumns, $userColumnFilters = [])
+    public function __construct(BoundFilter $boundFilter, $displayedColumns, $userColumnFilters = [])
     {
+        parent::__construct($boundFilter);
         $this->displayedColumns = $displayedColumns;
         $this->userColumnFilters = $userColumnFilters;
     }
@@ -75,25 +68,5 @@ class PatientFinderFilterEvent extends Event
     public function getUserColumnFilters()
     {
         return $this->userColumnFilters;
-    }
-
-    /**
-     * Get an string representing a patient filter
-     *
-     * @return string
-     */
-    public function getCustomWhereFilter()
-    {
-        return $this->customWhereFilter;
-    }
-
-    /**
-     * @param $customWhereFilter
-     *
-     * Add a custom filter to the WHERE clause of patient finder query
-     */
-    public function setCustomWhereFilter($customWhereFilter)
-    {
-        $this->customWhereFilter = $customWhereFilter;
     }
 }

@@ -19,6 +19,7 @@ require_once(dirname(__FILE__) . "/../../globals.php");
 require_once($GLOBALS['srcdir']."/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 
@@ -148,9 +149,11 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 // Custom filtering, before datatables filtering created by the user
 // This allows a module to subscribe to a 'patient-finder.filter' event and
 // add filtering before data ever gets to the user
-$patientFinderFilterEvent = new PatientFinderFilterEvent($aColumns, $columnFilters);
+$patientFinderFilterEvent = new PatientFinderFilterEvent(new BoundFilter(), $aColumns, $columnFilters);
 $patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientFinderFilterEvent::EVENT_HANDLE, $patientFinderFilterEvent, 10);
-$customWhere = $patientFinderFilterEvent->getCustomWhereFilter();
+$boundFilter = $patientFinderFilterEvent->getBoundFilter();
+$customWhere = $boundFilter->getFilterClause();
+$srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);
 
 // Compute list of column names for SELECT clause.
 // Always includes pid because we need it for row identification.
@@ -173,18 +176,18 @@ foreach ($aColumns as $colname) {
 }
 
 // Get total number of rows in the table.
-//
-$row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $customWhere");
+// Include the custom filter clause and bound values, if any
+$row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $customWhere", $boundFilter->getBoundValues());
 $iTotal = $row['count'];
 
 // Get total number of rows in the table after filtering.
 //
-$whereFilter = "WHERE $customWhere";
-if ($where) {
-    $whereFilter .= " AND $where";
+if (empty($where)) {
+    $where = $customWhere;
+} else {
+    $where = "$customWhere AND $where";
 }
-
-$row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data $whereFilter", $srch_bind);
+$row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $where", $srch_bind);
 $iFilteredTotal = $row['count'];
 
 // Build the output data array.
@@ -204,7 +207,7 @@ while ($row = sqlFetchArray($res)) {
     $fieldsInfo[$row['field_id']] = $row;
 }
 
-$query = "SELECT $sellist FROM patient_data $whereFilter $orderby $limit";
+$query = "SELECT $sellist FROM patient_data WHERE $where $orderby $limit";
 $res = sqlStatement($query, $srch_bind);
 while ($row = sqlFetchArray($res)) {
     // Each <tr> will have an ID identifying the patient.

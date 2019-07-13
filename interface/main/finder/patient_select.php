@@ -17,6 +17,7 @@ require_once("$srcdir/report_database.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
+use OpenEMR\Events\BoundFilter;
 
 if (!empty($_REQUEST)) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
@@ -196,12 +197,20 @@ if ($popup) {
     }
 
     // Custom filtering which enables module developer to filter patients out of search
-    $patientSelectFilterEvent = new PatientSelectFilterEvent();
+    $patientSelectFilterEvent = new PatientSelectFilterEvent(new BoundFilter());
     $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientSelectFilterEvent::EVENT_HANDLE, $patientSelectFilterEvent, 10);
-    $customWhere = $patientSelectFilterEvent->getCustomWhereFilter();
+    $boundFilter = $patientSelectFilterEvent->getBoundFilter();
+    $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
+    $customWhere = $boundFilter->getFilterClause();
+
+    if (empty($where)) {
+        $where = $customWhere;
+    } else {
+        $where = "$customWhere AND $where";
+    }
 
     $sql = "SELECT $given FROM patient_data " .
-    "WHERE $customWhere AND $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
+    "WHERE $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
 
     $rez = sqlStatement($sql, $sqlBindArray);
     $result = array();

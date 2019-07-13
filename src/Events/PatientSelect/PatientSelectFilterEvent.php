@@ -8,7 +8,7 @@
 
 namespace OpenEMR\Events\PatientSelect;
 
-use Symfony\Component\EventDispatcher\Event;
+use OpenEMR\Events\AbsctactBoundFilterEvent;
 
 /**
  * Event object for creating custom patient filters for patient select (New/Search) results
@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\Event;
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */
-class PatientSelectFilterEvent extends Event
+class PatientSelectFilterEvent extends AbsctactBoundFilterEvent
 {
     /**
      * The customWhereFilter event occurs in the patient_select.php script that generates
@@ -26,34 +26,4 @@ class PatientSelectFilterEvent extends Event
      * alter the results of the patient finder query
      */
     const EVENT_HANDLE = 'patientSelect.customFilter';
-
-    /**
-     * @var array
-     *
-     * Custom where filter, applied "before" the user-generated filters through the UI.
-     * This filters are hidden from the end user.
-     *
-     * This defaults to "1" so that effectively no filter is applied
-     */
-    private $customWhereFilter = "1";
-
-    /**
-     * Get an string representing a patient filter
-     *
-     * @return string
-     */
-    public function getCustomWhereFilter()
-    {
-        return $this->customWhereFilter;
-    }
-
-    /**
-     * @param $customWhereFilter
-     *
-     * Add a custom filter to the WHERE clause of patient select query
-     */
-    public function setCustomWhereFilter($customWhereFilter)
-    {
-        $this->customWhereFilter = $customWhereFilter;
-    }
 }

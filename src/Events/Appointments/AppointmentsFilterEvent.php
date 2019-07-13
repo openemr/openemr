@@ -8,6 +8,7 @@
 
 namespace OpenEMR\Events\Appointments;
 
+use OpenEMR\Events\AbsctactBoundFilterEvent;
 use OpenEMR\Events\BoundFilter;
 use Symfony\Component\EventDispatcher\Event;
 
@@ -19,7 +20,7 @@ use Symfony\Component\EventDispatcher\Event;
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */
-class AppointmentsFilterEvent extends Event
+class AppointmentsFilterEvent extends AbsctactBoundFilterEvent
 {
     /**
      * The customFilter event occurs in the library/appointments.inc.php file in the fetchEvents()
@@ -27,28 +28,4 @@ class AppointmentsFilterEvent extends Event
      * can filter appointments that show up.
      */
     const EVENT_HANDLE = 'appointments.customFilter';
-
-    /**
-     * @var string
-     *
-     * This is the custom filter that can add to the appointment fetching query
-     */
-    private $boundFilter = null;
-
-    /**
-     * AppointmentsFilterEvent constructor.
-     * @param string $boundFilter
-     */
-    public function __construct(BoundFilter $boundFilter)
-    {
-        $this->boundFilter = $boundFilter;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBoundFilter()
-    {
-        return $this->boundFilter;
-    }
 }

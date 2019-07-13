@@ -114,16 +114,14 @@ class Module
         $patientsToHide = $this->getBlacklist($user->getUsername());
         if (count($patientsToHide)) {
             $filterString = "(p.pid IS NULL OR p.pid NOT IN (";
-            $bindArray = [];
             foreach ($patientsToHide as $patientToHide) {
                 $filterString .= "?,";
-                $bindArray []= $patientToHide;
             }
             $filterString = rtrim($filterString,",");
             $filterString .= "))";
             $boundFilter = $appointmentsFilterEvent->getBoundFilter();
             $boundFilter->setFilterClause($filterString);
-            $boundFilter->setBoundValues($bindArray);
+            $boundFilter->setBoundValues($patientsToHide);
         }
 
         return $appointmentsFilterEvent;
@@ -146,14 +144,18 @@ class Module
 
         // If there are patients to hide from this user, build a filter
         if (count($patientsToHide)) {
-            $patientsToHideEscaped = array_map( function($elem) {
-                return add_escape_custom($elem);
-            }, $patientsToHide);
-            $patientsToHideString = implode(",", $patientsToHideEscaped);
-            $where = " patient_data.pid NOT IN ( $patientsToHideString ) ";
+            $filterString = "(";
+            foreach ($patientsToHide as $patientToHide) {
+                $filterString .= "?,";
+            }
+            $filterString = rtrim($filterString,",");
+            $filterString .= ")";
+            $where = " patient_data.pid NOT IN $filterString ";
 
             // Set the query part we constructed as the custom where, which will be appended to patient filter query
-            $event->setCustomWhereFilter($where);
+            $boundFilter = $event->getBoundFilter();
+            $boundFilter->setFilterClause($where);
+            $boundFilter->setBoundValues($patientsToHide);
         }
 
         return $event;
