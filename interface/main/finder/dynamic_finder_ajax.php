@@ -122,7 +122,7 @@ $columnFilters = [];
 for ($i = 0; $i < count($aColumns); ++$i) {
     $colname = $aColumns[$i];
     if (isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
-        $where .= $where ? ' AND ' : 'WHERE ';
+        $where .= $where ? ' AND ' : '';
         $sSearch = $_GET["sSearch_$i"];
         $columnFilters[] = new ColumnFilter($colname, $sSearch);
         if ($colname == 'name') {
