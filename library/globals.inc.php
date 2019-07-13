@@ -3575,6 +3575,8 @@ $GLOBALS_METADATA = array(
     ),
 );
 
-$globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
-$globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(GlobalsInitializedEvent::EVENT_HANDLE, $globalsInitEvent, 10);
-$globalsService = $globalsInitEvent->getGlobalsService()->save();
+if (!$skipGlobalEvent) {
+    $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
+    $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(GlobalsInitializedEvent::EVENT_HANDLE, $globalsInitEvent, 10);
+    $globalsService = $globalsInitEvent->getGlobalsService()->save();
+}

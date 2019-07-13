@@ -495,6 +495,7 @@ if ($it_died != 0) {
         } else {
             $GLOBALS['temp_skip_translations'] = true;
         }
+        $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
         require(dirname(__FILE__) . '/../globals.inc.php');
         foreach ($GLOBALS_METADATA as $grpname => $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
