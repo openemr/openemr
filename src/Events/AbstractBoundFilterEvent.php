@@ -17,7 +17,7 @@ use Symfony\Component\EventDispatcher\Event;
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */
-abstract class AbsctactBoundFilterEvent extends Event
+abstract class AbstractBoundFilterEvent extends Event
 {
     /**
      * @var string

@@ -8,7 +8,7 @@
 
 namespace OpenEMR\Events\Appointments;
 
-use OpenEMR\Events\AbsctactBoundFilterEvent;
+use OpenEMR\Events\AbstractBoundFilterEvent;
 use OpenEMR\Events\BoundFilter;
 use Symfony\Component\EventDispatcher\Event;
 
@@ -20,7 +20,7 @@ use Symfony\Component\EventDispatcher\Event;
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */
-class AppointmentsFilterEvent extends AbsctactBoundFilterEvent
+class AppointmentsFilterEvent extends AbstractBoundFilterEvent
 {
     /**
      * The customFilter event occurs in the library/appointments.inc.php file in the fetchEvents()

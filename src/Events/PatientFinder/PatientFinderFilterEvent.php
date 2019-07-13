@@ -8,7 +8,7 @@
 
 namespace OpenEMR\Events\PatientFinder;
 
-use OpenEMR\Events\AbsctactBoundFilterEvent;
+use OpenEMR\Events\AbstractBoundFilterEvent;
 use OpenEMR\Events\BoundFilter;
 
 /**
@@ -19,7 +19,7 @@ use OpenEMR\Events\BoundFilter;
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */
-class PatientFinderFilterEvent extends AbsctactBoundFilterEvent
+class PatientFinderFilterEvent extends AbstractBoundFilterEvent
 {
     /**
      * The customWhereFilter event occurs in the dynamic_finder_ajax.php script that generates

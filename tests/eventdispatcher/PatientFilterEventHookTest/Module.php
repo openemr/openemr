@@ -52,7 +52,6 @@ class Module
      */
     public function init(ModuleManager $manager)
     {
-
     }
 
     /**
@@ -117,7 +116,7 @@ class Module
             foreach ($patientsToHide as $patientToHide) {
                 $filterString .= "?,";
             }
-            $filterString = rtrim($filterString,",");
+            $filterString = rtrim($filterString, ",");
             $filterString .= "))";
             $boundFilter = $appointmentsFilterEvent->getBoundFilter();
             $boundFilter->setFilterClause($filterString);
@@ -148,7 +147,7 @@ class Module
             foreach ($patientsToHide as $patientToHide) {
                 $filterString .= "?,";
             }
-            $filterString = rtrim($filterString,",");
+            $filterString = rtrim($filterString, ",");
             $filterString .= ")";
             $where = " patient_data.pid NOT IN $filterString ";
 

@@ -8,7 +8,7 @@
 
 namespace OpenEMR\Events\PatientSelect;
 
-use OpenEMR\Events\AbsctactBoundFilterEvent;
+use OpenEMR\Events\AbstractBoundFilterEvent;
 
 /**
  * Event object for creating custom patient filters for patient select (New/Search) results
@@ -18,7 +18,7 @@ use OpenEMR\Events\AbsctactBoundFilterEvent;
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */
-class PatientSelectFilterEvent extends AbsctactBoundFilterEvent
+class PatientSelectFilterEvent extends AbstractBoundFilterEvent
 {
     /**
      * The customWhereFilter event occurs in the patient_select.php script that generates
