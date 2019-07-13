@@ -360,7 +360,7 @@ if (isset($_SESSION['app1'])) {
             <span id="menu_logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
             <div>
             <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
-            <a href="../../logout.php" target="logoutinnerframe" rel="noopener" id="logout_link" onclick="top.restoreSession()" data-bind="css: {'oe-hidden' :responsiveDisplay.oeLogoutIcon}" title="<?php echo xla("Logout");?>"><i class="fa fa-2x fa-sign-out oe-pull-toward" aria-hidden="true" id="logout_icon"></i></a>
+            <a href="../../logout.php" target="logoutinnerframe" id="logout_link" onclick="top.restoreSession()" data-bind="css: {'oe-hidden' :responsiveDisplay.oeLogoutIcon}" title="<?php echo xla("Logout");?>"><i class="fa fa-2x fa-sign-out oe-pull-toward" aria-hidden="true" id="logout_icon"></i></a>
             </div>
         </div>
         <div class="clearfix" data-bind="css: {'clearfix' : responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}"></div>
