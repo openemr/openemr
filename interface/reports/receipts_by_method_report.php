@@ -588,7 +588,7 @@ if ($_POST['form_refresh']) {
                 if (empty($row['session_id'])) {
                     $rowmethod = trim($row['memo']);
                 } else {
-                    $rowmethod = trim($row['payment_method']);
+                    $rowmethod = trim(getListItemTitle('payment_method', $row['payment_method']));
                     $rowreference = trim($row['reference']);
                 }
             }

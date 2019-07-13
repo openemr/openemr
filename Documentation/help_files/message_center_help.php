@@ -6,7 +6,6 @@
  * @link      http://www.open-emr.org
  * @author Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
- * @version 1.0.0
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -51,7 +50,7 @@ require_once("../../interface/globals.php");
                 </ul>
             </div>
             <div class= "row" id="messages">
-                <h4 class="oe-help-heading"><?php echo xlt("Messages"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Messages"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("Lets you send messages to staff members about patient related matters");?>.
 
                 <p><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <strong><?php echo xlt("It is a part of the medical record"); ?>.</strong>
@@ -141,7 +140,7 @@ require_once("../../interface/globals.php");
                 <button type="button" class="btn btn-default btn-delete btn-sm oe-no-float"><?php echo xlt("Delete"); ?></button>
             </div>
             <div class= "row" id="reminders">
-                <h4 class="oe-help-heading"><?php echo xlt("Reminders"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Reminders"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("Otherwise known as Dated Reminders are short messages of up to 160 characters"); ?>.
 
                 <p><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <strong><?php echo xlt("Unlike a message sent in Messages the dated reminder is not a part of the medical record"); ?>.</strong>
@@ -228,7 +227,7 @@ require_once("../../interface/globals.php");
                 <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Set As Completed"); ?></button>
             </div>
             <div class= "row" id="recalls">
-                <h4 class="oe-help-heading"><?php echo xlt("Recalls"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Recalls"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("This feature is used to add patients to a recall list, i.e those that need an appointment at a future date but the appointment has not yet been scheduled"); ?>.
 
                 <p><?php echo xlt("Once an appointment is scheduled the name automatically drops off the recall board"); ?>.
@@ -319,7 +318,7 @@ require_once("../../interface/globals.php");
                 <p><i class="fa fa-exclamation-triangle oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to disable the default Recall Board"); ?>.</strong>
             </div>
             <div class= "row" id="medex_communication_service">
-                <h4 class="oe-help-heading"><?php echo xlt("MedEx Communication Service"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("MedEx Communication Service"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("It is a commercial messaging module available to openEMR practices utilizing version 5.0.1 and higher"); ?>.</strong>
 
                 <p><?php echo xlt("MedEx automates Appointment Reminders and Recalls using phone calls, text messages and e-mails"); ?>.
