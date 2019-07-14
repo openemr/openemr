@@ -31,8 +31,8 @@ if ((empty($_SESSION['token_main_php'])) ||
     authLoginScreen(false);
 }
 // this will not allow copy/paste of the link to this main.php page or a refresh of this main.php page
-//  (default behavior, however, this behavior can be bypassed by turning off the prevent_browser_refresh global)
-if ($GLOBALS['prevent_browser_refresh']) {
+//  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
+if ($GLOBALS['prevent_browser_refresh'] > 1) {
     unset($_SESSION['token_main_php']);
 }
 
@@ -48,8 +48,8 @@ $esignApi = new Api();
 <script type="text/javascript">
 
 // This is to prevent users from losing data by refreshing or backing out of OpenEMR.
-//  (default behavior, however, this behavior can be bypassed by turning off the prevent_browser_refresh global)
-<?php if ($GLOBALS['prevent_browser_refresh']) { ?>
+//  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
+<?php if ($GLOBALS['prevent_browser_refresh'] > 0) { ?>
     window.addEventListener('beforeunload', (event) => {
         if (!timed_out) {
             event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;

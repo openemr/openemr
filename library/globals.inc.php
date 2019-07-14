@@ -547,9 +547,13 @@ $GLOBALS_METADATA = array(
 
         'prevent_browser_refresh' => array(
             xl('Prevent Web Browser Refresh').'*',
-            'bool',                           // data type
-            '1',                              // default = true
-            xl('Recommended setting is on. Turn this off to allow web browser refresh. Only turn this off if needed.')
+            array(
+                '0' => xl('Do not warn or prevent web browser refresh'),
+                '1' => xl('Warn, but do not prevent web browser refresh'),
+                '2' => xl('Warn and prevent web browser refresh')
+            ),
+            '2',                              // default = true
+            xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
         ),
 
     ),
