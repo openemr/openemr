@@ -129,6 +129,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'date_display_format',
     'time_display_format',
     'enable_help',
+    'text_templates_enabled',
     'posting_adj_disable',
     'messages_due_date',
     'expand_form',
@@ -825,6 +826,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('Removes support for prescriptions')
+        ),
+
+        'text_templates_enabled' => array(
+            xl('Enable Text Templates in Encounter Forms'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Allow Double Click to select Nation Note text template from any encounter form text area')
         ),
 
         'omit_employers' => array(

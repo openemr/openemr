@@ -170,8 +170,3 @@ assets:
         script: userDebug.js
         autoload: true
         allowNoLoad: true
-    templates-loader:
-        basePath: %webroot%/library/js/
-        script: CustomTemplateLoader.js
-        autoload: true
-        allowNoLoad: true
