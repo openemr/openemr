@@ -545,6 +545,17 @@ $GLOBALS_METADATA = array(
             xl('Show Mini Logo 2')
         ),
 
+        'prevent_browser_refresh' => array(
+            xl('Prevent Web Browser Refresh').'*',
+            array(
+                '0' => xl('Do not warn or prevent web browser refresh'),
+                '1' => xl('Warn, but do not prevent web browser refresh'),
+                '2' => xl('Warn and prevent web browser refresh')
+            ),
+            '2',                              // default = true
+            xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
+        ),
+
     ),
 
     // Locale Tab
