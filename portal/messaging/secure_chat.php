@@ -39,7 +39,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     define('ADMIN_USERNAME', $admin['user_name']);
     define('IS_DASHBOARD', $_SESSION['authUser']);
     define('IS_PORTAL', false);
-    $_SERVER[REMOTE_ADDR] = 'admin::' . $_SERVER[REMOTE_ADDR];
+    $_SERVER['REMOTE_ADDR'] = 'admin::' . $_SERVER['REMOTE_ADDR'];
 }
 
 
