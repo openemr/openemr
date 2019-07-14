@@ -288,10 +288,8 @@ $query = "select  *,form_encounter.date as encounter_date
     <title><?php echo xlt('Rx Dispensed History'); ?></title>
     <head>
 
-        <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-        <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','pure', 'bootstrap' ,'jscolor' ]); ?>
+        <?php Header::setupHeader([ 'opener', 'jquery-ui', 'jquery-ui-redmond', 'pure', 'jscolor' ]); ?>
 
-        <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
         <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
         <style>
@@ -1284,7 +1282,7 @@ $query = "select  *,form_encounter.date as encounter_date
 
 </body>
 <script>
-    $(document).ready(function () {
+    $(function () {
         $('.header').click(function () {
             var $this = $(this);
             $(this).nextUntil('tr.header').slideToggle(100).promise().done(function () {

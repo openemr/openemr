@@ -2403,7 +2403,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         $i=0;
         foreach ($PMSFH[0]['POS'] as $item) {
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','POS','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'POS','$i');\">".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2413,7 +2413,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
     
 //<!-- Eye Meds -->
-    echo "<br /><span class='panel_title' title='".xlt("Eye Meds")."'>".xlt("Eye Meds").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Eye Meds")."'>".xlt("Eye Meds").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
             onclick="alter_issue2('0','Medication','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
@@ -2426,7 +2426,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
                 continue;
             }
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Medication','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Medication','$i');\" > ".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2446,7 +2446,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         foreach ($PMSFH[0]['PMH'] as $item) {
             if ($item['enddate'] !==" ") {
                 echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','PMH','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'PMH','$i');\">".text($item['title'])."</span><br />";
                 $i++;
             }
         }
@@ -2457,7 +2457,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
     //<!-- Surgeries -->
-    echo "<br /><span class='panel_title' title='".xlt("Past Surgical History")."'>".xlt("Surgery").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Past Surgical History")."'>".xlt("Surgery").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','Surgery','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
@@ -2466,7 +2466,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         $i=0;
         foreach ($PMSFH[0]['Surgery'] as $item) {
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Surgery','$i');\">".text($item['title'])."<br /></span>";
+            onclick=\"alter_issue2(".attr_js($item['rowid'])).",'Surgery','$i');\">".text($item['title'])."<br /></span>";
             $i++;
         }
     } else { ?>
@@ -2476,7 +2476,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
     //<!-- Meds -->
-    echo "<br /><span class='panel_title' title='".xlt("Medications")."'>".xlt("Medication").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Medications")."'>".xlt("Medication").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','Medication','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
@@ -2490,7 +2490,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
                 continue;
             }
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Medication','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid'])).",'Medication','$i');\">".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2501,7 +2501,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
 
 
     //<!-- Allergies -->
-    echo "<br /><span class='panel_title' title='".xlt("Allergies")."'>".xlt("Allergy").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Allergies")."'>".xlt("Allergy").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','Allergy','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
@@ -2515,8 +2515,8 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
                 $reaction ="";
             }
 
-            echo "<span ok style='color:red;' name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-      onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Allergy','$i');\">".text($item['title'])." ".$reaction."</span><br />";
+            echo "<span style='color:red;' name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
+      onclick=\"alter_issue2(".attr_js($item['rowid']).",'Allergy','$i');\">".text($item['title'])." ".$reaction."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2526,7 +2526,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
        //<!-- Social History -->
-    echo "<br /><span class='panel_title' title='".xlt("Social History")."'>".xlt('Soc Hx{{Social History}}').":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Social History")."'>".xlt('Soc Hx{{Social History}}').":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','SOCH','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?>
     </span><br />
@@ -2548,7 +2548,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
     //<!-- Family History -->
-    echo "<br /><span class='panel_title' title='".xlt("Family History")."'>".xlt("FH{{Family History}}").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Family History")."'>".xlt("FH{{Family History}}").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','FH','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span><br />
 
@@ -2570,7 +2570,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         <?php
     }
 
-    echo "<br /><span class='panel_title' title='".xlt("Review of System")."'>".xlt("ROS{{Review of Systems}}").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Review of Systems")."'>".xlt("ROS{{Review of Systems}}").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue('0','ROS','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
@@ -4739,14 +4739,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         list($documents) = document_engine($pid);
     }
 
-    $count_OCT = count((array)$documents['docs_in_name']['OCT']);
+    $count_OCT = empty($documents['docs_in_name']['OCT']) ? 0 : count($documents['docs_in_name']['OCT']);
     if ($count_OCT > 0) {
         foreach ($documents['docs_in_name']['OCT'] as $OCT) {
             $OCT_date[] = $OCT['docdate'];
         }
     }
-
-    $count_VF = count((array)$documents['docs_in_name']['VF']);
+    
+    $count_VF = empty($documents['docs_in_name']['VF']) ? 0 : count($documents['docs_in_name']['VF']);
     if ($count_VF > 0) {
         foreach ($documents['docs_in_name']['VF'] as $VF) {
             $VF_date[] = $VF['docdate'];
@@ -4897,12 +4897,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     usort($date_OU, "cmp");
     $times_OU=$time_OU;
     usort($times_OU, "cmp");
-
-    for ($a=0; $a < count((array)$date_OU); $a++) {
-        foreach ((array)$GONIO_date as $GONIO) {
-            if ($date_OU[$a] == $GONIO) {
-                $GONIO_values[$a] = "1";
-                break;
+    
+    for ($a=0; $a < count($date_OU); $a++) {
+        if (!empty($GONIO_date)) {
+            foreach ($GONIO_date as $GONIO) {
+                if ($date_OU[$a] == $GONIO) {
+                    $GONIO_values[$a] = "1";
+                    break;
+                }
             }
         }
 
@@ -5025,12 +5027,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     foreach ($PMSFH[0]['Medication'] as $drug) {
                         if ( ($drug['row_subtype'] =="eye") && (strtotime($drug['enddate']) < strtotime($visit_date) ) && ($drug['status'] != "Inactive") ) {
                             $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
-                                      onclick=\"alter_issue2('".attr(addslashes($drug['rowid']))."','Medication','$i');\">".text($drug['title'])."</span></td>
+                                      onclick=\"alter_issue2(".attr_js($drug['rowid']).",'Medication','$i');\">".text($drug['title'])."</span></td>
                                       <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td></tr>";
                         } else if (($drug['row_subtype'] =="eye")&& (!empty($drug['enddate']))) {//what meds have a subtype eye that are discontinued?
                             $hideme = "hideme_drugs nodisplay";
                             $FAILED_drugs .= "<tr class='".$hideme."'><td colspan='1' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
-                                      onclick=\"alter_issue2('".attr(addslashes($drug['rowid']))."','Medication','$i');\">".text($drug['title'])."</span></td>
+                                      onclick=\"alter_issue2(".attr_js($drug['rowid']).",'Medication','$i');\">".text($drug['title'])."</span></td>
                                       <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td><td class='GFS_td'>".text(oeFormatShortDate($drug['enddate']))."</td></tr>";
                         }
 
@@ -5153,10 +5155,9 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 $GONIO_chart .= ',';
                             }
                         }
-                    /*    if (!empty($GONIO)) {
+                        if (!empty($GONIO)) {
                             $GONIO = chop($GONIO, ",");
                         }
-                    */
                         if ($count ==0) {
                             $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('Not documented')."</td></tr>";
                         }
@@ -5946,12 +5947,6 @@ function display_refractive_data($encounter_data)
                 } else if (${"RX_TYPE_$i"} =="3") {
                     $RX_TYPE = xlt('Progressive');
                 }
-                /*
-              Note html2pdf does not like the last field of a table to be blank.
-              If it is it will squish the lines together.
-              Work around: if the field is blank, then replace it with a "-" else echo it.
-              aka echo (text($field))?:"-");
-                */
                 ?>
                 <tr>
                     <td class="bold"><?php echo xlt('Wear RX')." #".$i.": "; ?></td>
@@ -6209,7 +6204,7 @@ if (!empty($COMMENTS)) { ?>
               <td><?php echo xlt('LT{{lens thickness}}'); ?></td>
               <td><?php echo xlt('W2W{{white-to-white}}'); ?></td>
               <td><?php echo xlt('ECL{{equivalent contact lens power at the corneal level}}'); ?></td>
-              <td><?php echo xlt('VABiNoc{{Binocular visul acuity}}'); ?></td>
+              <td><?php echo xlt('VABiNoc{{Binocular visual acuity}}'); ?></td>
             </tr>
             <tr><td class="bold"><?php echo xlt('OD{{right eye}}'); ?>:</td>
               <td><?php echo text($ODAXIALLENGTH); ?></td>

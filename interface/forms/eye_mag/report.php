@@ -613,7 +613,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 </tr>
             <?php } if (!empty($BINOCVA)) { ?>
                 <tr>
-                  <td><?php echo xlt('VABiNoc{{|Binocular Visual Acuity}}'); ?></td>
+                  <td><?php echo xlt('VABiNoc{{Binocular Visual Acuity}}'); ?></td>
                   <td rowspan="2"><?php echo text($BINOCVA); ?></td>
                 </tr>
             <?php } ?>
