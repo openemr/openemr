@@ -84,7 +84,7 @@ $(function() {
    <input type='text' class='datepicker' name='form_from_date' id='form_from_date'
     size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
 
-   &nbsp;<?php echo xlt('To'); ?>:
+   &nbsp;<?php echo xlt('To{{Range}}'); ?>:
    <input type='text' class='datepicker' name='form_to_date' id='form_to_date'
     size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
 

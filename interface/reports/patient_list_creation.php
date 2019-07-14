@@ -184,7 +184,7 @@ $communication = trim($_POST["communication"]);
         <div id="report_parameters_daterange">
             <p>
             <?php echo "<span style='margin-left:5px;'><b>".xlt('Date Range').":</b>&nbsp;".text(oeFormatDateTime($sql_date_from, "global", true)) .
-              " &nbsp; " . xlt('to') . " &nbsp; ". text(oeFormatDateTime($sql_date_to, "global", true))."</span>"; ?>
+              " &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatDateTime($sql_date_to, "global", true))."</span>"; ?>
             <span style="margin-left:5px; " ><b><?php echo xlt('Option'); ?>:</b>&nbsp;<?php echo text($_POST['srch_option']);
             if ($_POST['srch_option'] == "Communication" && $_POST['communication'] != "") {
                 if (isset($comarr[$_POST['communication']])) {

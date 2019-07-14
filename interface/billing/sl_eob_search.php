@@ -484,16 +484,16 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             #guardiansname this will allow you to send statements to the parent
             #of a child or a guardian etc
             if (strlen($row['guardiansname']) == 0) {
-                $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
+                $stmt['to{{Destination}}'] = array($row['fname'] . ' ' . $row['lname']);
             } else {
-                $stmt['to'] = array($row['guardiansname']);
+                $stmt['to{{Destination}}'] = array($row['guardiansname']);
             }
 
             if ($row['street']) {
-                $stmt['to'][] = $row['street'];
+                $stmt['to{{Destination}}'][] = $row['street'];
             }
 
-            $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
+            $stmt['to{{Destination}}'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
             $stmt['lines'] = array();
             $stmt['amount'] = '0.00';
             $stmt['ins_paid'] = 0;

@@ -121,7 +121,7 @@ $(function() {
 
 <div id="report_parameters_daterange">
     <?php if (!(empty($to_date) && empty($from_date))) { ?>
-        <?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to') . " &nbsp; " . text(oeFormatShortDate($to_date)); ?>
+        <?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($to_date)); ?>
 <?php } ?>
 </div>
 
@@ -156,7 +156,7 @@ $(function() {
                <input class='datepicker form-control' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
             </td>
             <td class='control-label'>
-                <?php echo xlt('To'); ?>:
+                <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
                <input class='datepicker form-control' type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>

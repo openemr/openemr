@@ -114,7 +114,7 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                                 <?php echo attr_js($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]); ?>)" />
                     </div>
                     <div class= "col-xs-12">
-                        <label class="control-label" for="check_date"><?php echo xlt('To'); ?>:</label>
+                        <label class="control-label" for="check_date"><?php echo xlt('To{{Range}}'); ?>:</label>
                         <input type='text'
                                 name='master_to_date_<?php echo attr($DateNamePart); ?>'
                                 id='master_to_date_<?php echo attr($DateNamePart); ?>' class="text form-control datepicker"

@@ -356,7 +356,7 @@ if ($form_batch) {
     value='<?php echo attr($form_from_date); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>' />
 
-   &nbsp;<?php echo xlt('To'); ?>:
+   &nbsp;<?php echo xlt('To{{Range}}'); ?>:
    <input type='text' size='10' class='datepicker' name='form_to_date' id='form_to_date'
     value='<?php echo attr($form_to_date); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>' />

@@ -1231,7 +1231,7 @@ title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
    <td colspan='2' class='detail' nowrap>
     <?php echo xlt('From'); ?>
   <input type='text' class='datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
-    <?php echo xlt('To'); ?>
+    <?php echo xlt('To{{Range}}'); ?>
   <input type='text' class='datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
    </td>
   </tr>
@@ -1240,7 +1240,7 @@ title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
 </tr>
 <tr>
 <td valign='top' class='dehead' nowrap>
-    <?php echo xlt('To'); ?>:
+    <?php echo xlt('To{{Destination}}'); ?>:
 </td>
 <td colspan='3' valign='top' class='detail' nowrap>
     <?php

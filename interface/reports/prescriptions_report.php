@@ -101,7 +101,7 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Prescriptions and Dispensations'); ?></span>
 
 <div id="report_parameters_daterange">
-    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='prescriptions_report.php' onsubmit='return top.restoreSession()'>
@@ -130,7 +130,7 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
             </td>
             <td class='control-label'>
-                <?php echo xlt('To'); ?>:
+                <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>

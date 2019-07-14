@@ -763,7 +763,7 @@ while ($urow = sqlFetchArray($ures)) {
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap><?php echo xlt('To'); ?></td>
+   <td class='itemtitle' nowrap><?php echo xlt('To{{Destination}}'); ?></td>
    <td>
     <input type='text' size='10' name='form_to' style='width:100%'
      title='Type the recipient name here' />

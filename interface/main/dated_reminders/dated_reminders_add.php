@@ -447,7 +447,7 @@ if (isset($this_message['pid'])) {
                 <thead>
                   <tr>
                     <th>'.xlt('ID').'</th>
-                    <th>'.xlt('To').'</th>
+                    <th>'.xlt('To{{Destination}}').'</th>
                     <th>'.xlt('Patient').'</th>
                     <th>'.xlt('Message').'</th>
                     <th>'.xlt('Due Date').'</th>

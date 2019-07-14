@@ -253,7 +253,7 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
     generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'), $title);
     ?>
    &nbsp; &nbsp;
-   <b><?php echo xlt('To'); ?>:</b>
+   <b><?php echo xlt('To{{Destination}}'); ?>:</b>
    <select name='assigned_to'>
 <?php
 while ($urow = sqlFetchArray($ures)) {

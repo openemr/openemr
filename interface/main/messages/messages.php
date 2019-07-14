@@ -486,7 +486,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 </div>
                                                 <?php } ?>
                                                 <div class="col-xs-6 col-sm-4">
-                                                    <label class="control-label" for="assigned_to_text"><?php echo xlt('To'); ?>:</label>
+                                                    <label class="control-label" for="assigned_to_text"><?php echo xlt('To{{Destination}}'); ?>:</label>
                                                     <input type='text' name='assigned_to_text' class='form-control oe-cursor-stop' id='assigned_to_text' readonly='readonly'
                                                         value='' placeholder='<?php echo xla("SELECT Users FROM The Dropdown LIST"); ?>'>
                                                     <input type='hidden' name='assigned_to' id='assigned_to'>

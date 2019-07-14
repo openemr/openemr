@@ -102,7 +102,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                                    class='datepicker form-control'
                                                    size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
                                         </td>
-                                        <td class='control-label'><?php echo xlt('To'); ?>:</td>
+                                        <td class='control-label'><?php echo xlt('To{{Range}}'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_to_date' id="form_to_date"
                                                    class='datepicker form-control'
@@ -319,7 +319,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         ?>
 
         <div id="report_results" style="font-size: 12px">
-            <?php echo '<b>' . xlt('From') . '</b> ' . text(oeFormatShortDate($from_date)) . ' <b>' . xlt('To') . '</b> ' . text(oeFormatShortDate($to_date)); ?>
+            <?php echo '<b>' . xlt('From') . '</b> ' . text(oeFormatShortDate($from_date)) . ' <b>' . xlt('To{{Range}}') . '</b> ' . text(oeFormatShortDate($to_date)); ?>
 
             <table class="flowboard" cellpadding='5' cellspacing='2' id="ds_report">
                 <tr class="head">
