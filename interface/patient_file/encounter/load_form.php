@@ -28,6 +28,6 @@ if (substr($_GET["formname"], 0, 3) === 'LBF') {
     include_once("$incdir/forms/" . $_GET["formname"] . "/new.php");
 }
 
-?>
-<!-- this is loader for using NN in any textarea or text input. -->
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+if (!empty($GLOBALS['text_templates_enabled'])) { ?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+<?php } ?>
