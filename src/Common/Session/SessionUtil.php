@@ -15,7 +15,9 @@
  *        be logging into the patient portal, can set this to true, which will help to prevent XSS
  *        vulnerabilities.
  *  2. If using php version 7.3.0 or above, then will set the cookie_samesite to Strict in
- *     order to prevent csrf vulnerabilities.
+ *     order to prevent csrf vulnerabilities. Note this setting also is set in core
+ *     OpenEMR restore_session() javascript function so it is maintained when the session id
+ *     is changed in the cookie.
  *  3. Using use_strict_mode, use_cookies, and use_only_cookies to optimize security.
  *  4. Using sid_bits_per_character of 6 to optimize security. This does allow comma to
  *     be used in the session id, so need to ensure properly escape it when modify it in
