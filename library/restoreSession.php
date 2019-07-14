@@ -37,7 +37,7 @@ function restoreSession() {
                     alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
                 <?php } ?>
                 <?php if (version_compare(phpversion(), '7.3.0', '>=')) { ?>
-                    // Using the SameSite setting when using php version > 7.3
+                    // Using the SameSite setting when using php version 7.3.0 or above
                     document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/'); ?>' + '; SameSite=Strict';
                 <?php } else { ?>
                     document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/'); ?>';
