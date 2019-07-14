@@ -537,7 +537,7 @@ function insertAtCursor(myField, myValue) {
 
   <td>
    <select name="form_template" id="form_template" class='form-control'>
-   <option value="">(<?php echo xlt('none'); ?>)</option>
+   <option value="">(<?php echo xlt('none{{Template}}'); ?>)</option>
 <?php
 $tpldir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 $dh = opendir($tpldir);

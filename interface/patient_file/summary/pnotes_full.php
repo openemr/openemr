@@ -539,7 +539,7 @@ if ($result != "") {
     }
 } else {
   //no results
-    print "<tr><td colspan='3' class='text'>" . xlt('None') . ".</td></tr>\n";
+    print "<tr><td colspan='3' class='text'>" . xlt('None{{Note}}') . ".</td></tr>\n";
 }
 
 ?>

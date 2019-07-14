@@ -329,7 +329,7 @@ for ($i = 1; $i < count($ins_type_code_array); ++$i) {
   <td valign='top' nowrap><b><?php echo xlt('X12 Partner'); ?>:</b></td>
   <td>
    <select name='form_partner' title='Default X12 Partner' class="input-sm">
-    <option value=""><?php echo '-- ' . xlt('None') . ' --'; ?></option>
+    <option value=""><?php echo '-- ' . xlt('None{{Partner}}') . ' --'; ?></option>
 <?php
 while ($xrow = sqlFetchArray($xres)) {
     echo "   <option value='" . attr($xrow['id']) . "'";

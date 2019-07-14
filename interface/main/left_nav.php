@@ -869,7 +869,7 @@ function clearactive() {
   setDivContent('current_patient', str);
   setTitleContent('current_patient', str + str_dob);
   if (pid == active_pid) return;
-  setDivContent('current_encounter', '<b>' + <?php echo xlj('None'); ?> + '</b>');
+  setDivContent('current_encounter', '<b>' + <?php echo xlj('None{{Encounter}}'); ?> + '</b>');
   active_pid = pid;
   active_encounter = 0;
   encounter_locked = false;
@@ -902,7 +902,7 @@ function clearactive() {
      $(parent.Title.document.querySelector('#current_patient_block span.text')).hide();
      setTitleContent('current_patient', '<span>' + <?php echo xlj('Therapy Group');?> + ' - <a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentGroupFromTitle(' + group_id +')">' + group_name + ' (' + group_id + ')<a></span>' );
      if (group_id == active_gid) return;
-    setDivContent('current_encounter', '<b>' + <?php echo xlj('None'); ?> + '</b>');
+    setDivContent('current_encounter', '<b>' + <?php echo xlj('None{{Encounter}}'); ?> + '</b>');
      active_gid = group_id;
      active_encounter = 0;
      encounter_locked = false;
@@ -1005,7 +1005,7 @@ function isEncounterLocked( encounterId ) {
  // reload encounter-specific content from the *other* frame.
  function setEncounter(edate, eid, frname) {
   if (eid == active_encounter) return;
-  if (!eid) edate = <?php echo xlj('None'); ?>;
+  if (!eid) edate = <?php echo xlj('None{{Encounter}}'); ?>;
   var str = '<b>' + edate + '</b>';
   setDivContent('current_encounter', str);
   active_encounter = eid;
@@ -1034,7 +1034,7 @@ function isEncounterLocked( encounterId ) {
   active_pid = 0;
   active_encounter = 0;
   encounter_locked = false;
-  setDivContent('current_patient', '<b>' + <?php echo xlj('None'); ?> + '</b>');
+  setDivContent('current_patient', '<b>' + <?php echo xlj('None{{Patient}}'); ?> + '</b>');
   $(parent.Title.document.getElementById('current_patient_block')).hide();
   top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
   $(parent.Title.document.getElementById('current_encounter_block')).hide();
@@ -1051,7 +1051,7 @@ function isEncounterLocked( encounterId ) {
      active_gid = 0;
      active_encounter = 0;
      encounter_locked = false;
-     setDivContent('current_patient', '<b>' + <?php echo xlj('None'); ?> + '</b>');
+     setDivContent('current_patient', '<b>' + <?php echo xlj('None{{Patient}}'); ?> + '</b>');
      $(parent.Title.document.getElementById('current_patient_block')).hide();
      top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
      $(parent.Title.document.getElementById('current_encounter_block')).hide();
@@ -1064,7 +1064,7 @@ function isEncounterLocked( encounterId ) {
  // stale content will be reloaded.
  function clearEncounter() {
   if (active_encounter == 0) return;
-  top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b>" + <?php echo xlj('None'); ?> + "</b>";
+  top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b>" + <?php echo xlj('None{{Encounter}}'); ?> + "</b>";
   active_encounter = 0;
   encounter_locked = false;
   reloadEncounter('');
@@ -1861,11 +1861,11 @@ if ($reglastcat) {
 <br /><hr />
 
 <div id='current_patient' style = 'display:none'>
-<b><?php echo xlt('None'); ?></b>
+<b><?php echo xlt('None{{Patient}}'); ?></b>
 </div>
 
 <div id='current_encounter' style = 'display:none'>
-<b><?php echo xlt('None'); ?></b>
+<b><?php echo xlt('None{{Encounter}}'); ?></b>
 </div>
 <?php
   genPopupsList();
