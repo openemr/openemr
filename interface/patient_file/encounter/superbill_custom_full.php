@@ -775,7 +775,7 @@ if ($fend > $count) {
             echo "  <td class='text'>" . text($iter["code"]) . "</td>\n";
             echo "  <td class='text'>" . text($iter["modifier"]) . "</td>\n";
             if ($institutional) {
-                echo "  <td class='text'>" . ($iter['revenue_code'] > '' ? text($iter['revenue_code']) : 'none{{Code}}') ."</td>\n";
+                echo "  <td class='text'>" . ($iter['revenue_code'] > '' ? text($iter['revenue_code']) : 'none') ."</td>\n";
             }
             if ($iter["code_external"] > 0) {
                 // If there is no entry in codes sql table, then default to active
