@@ -389,13 +389,13 @@ if (isset($this_message['pid'])) {
             </div>
             <div class="col-xs-6">
                 <label class="radio-inline"><input <?php echo ($this_message['message_priority'] == 3 ? 'checked="checked"' : '') ?>
-                    type="radio" name="priority" id="priority_3" value='3'><strong><?php echo xlt('Low') ?></strong>
+                    type="radio" name="priority" id="priority_3" value='3'><strong><?php echo xlt('Low{{Priority}}') ?></strong>
                 </label>
                 <label class="radio-inline"><input type="radio" name="optradio"><input <?php echo ($this_message['message_priority'] == 2 ? 'checked="checked"' : '') ?>
-                    type="radio" name="priority" id="priority_2" value='2'><strong><?php echo xlt('Medium') ?></strong>
+                    type="radio" name="priority" id="priority_2" value='2'><strong><?php echo xlt('Medium{{Priority}}') ?></strong>
                 </label>
                 <label class="radio-inline"><input type="radio" name="optradio"><input <?php echo ($this_message['message_priority'] == 1 ? 'checked="checked"' : '') ?>
-                type="radio" name="priority" id="priority_1" value='1'><strong><?php echo xlt('High') ?></strong>
+                type="radio" name="priority" id="priority_1" value='1'><strong><?php echo xlt('High{{Priority}}') ?></strong>
                 </label>
             </div>
         </div>

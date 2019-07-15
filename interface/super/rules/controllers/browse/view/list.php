@@ -33,7 +33,7 @@
         <td class="title"><?php echo xlt('Rules Configuration'); ?></td>
         <td>
             <a href="index.php?action=edit!summary" class="iframe_medium css_button" onclick="top.restoreSession()">
-                <span><?php echo xlt('Add new'); ?></span>
+                <span><?php echo xlt('Add new{{Rule}}'); ?></span>
             </a>
         </td>
     </tr>

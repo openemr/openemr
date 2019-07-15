@@ -1020,7 +1020,7 @@ if (empty($collectthis)) {
 <html>
 <head>
 
-<title><?php echo $eid ? xlt('Edit') : xlt('Add New') ?> <?php echo xlt('Event');?></title>
+<title><?php echo $eid ? xlt('Edit') : xlt('Add New{{Event}}') ?> <?php echo xlt('Event');?></title>
 
 <style>
 td { font-size:0.8em; }
@@ -1050,7 +1050,7 @@ $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
 "pc_recurrtype, pc_duration, pc_end_all_day " .
 "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
 $catoptions = "";
-$prefcat_options = "    <option value='0'>-- " . xlt("None") . " --</option>\n";
+$prefcat_options = "    <option value='0'>-- " . xlt("None{{Category}}") . " --</option>\n";
 $thisduration = 0;
 if ($eid) {
     $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
@@ -1953,7 +1953,7 @@ if ($repeatexdate != "") {
 &nbsp;
 
 <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
-  <input     type='button' id='find_available' value='<?php echo xla('Find Available');?>' />
+  <input     type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}');?>' />
 <?php } ?>
 
 &nbsp;
