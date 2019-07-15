@@ -1,0 +1,7 @@
+{
+    "name": "mi-squared/open-emr-patient-filter-event-hook-test",
+    "description": "Restrict certain users access to specific patients",
+    "type": "library",
+    "license": "GPL3",
+    "require": {}
+}

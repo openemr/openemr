@@ -145,7 +145,6 @@ function authCloseSession()
   // login will default to that same site.
     global $incoming_site_id;
     $incoming_site_id = $_SESSION['site_id'];
-    ob_start();
     OpenEMR\Common\Session\SessionUtil::coreSessionDestroy();
 }
 

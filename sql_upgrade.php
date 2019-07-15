@@ -101,6 +101,7 @@ if (!empty($_POST['form_submit'])) {
     flush();
 
     echo "<font color='green'>Updating global configuration defaults...</font><br />\n";
+    $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
     require_once("library/globals.inc.php");
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         foreach ($grparr as $fldid => $fldarr) {
@@ -147,8 +148,8 @@ if (!empty($_POST['form_submit'])) {
 <?php
 foreach ($versions as $version => $filename) {
     echo " <option value='$version'";
-  // Defaulting to most recent version, which is now 5.0.1.
-    if ($version === '5.0.1') {
+    // Defaulting to most recent version, which is now 5.0.2.
+    if ($version === '5.0.2') {
         echo " selected";
     }
 

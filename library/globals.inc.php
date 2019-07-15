@@ -77,6 +77,9 @@
 //   Urdu                           // xl('Urdu')
 //   Vietnamese                     // xl('Vietnamese')
 
+use \OpenEMR\Services\Globals\GlobalsService;
+use \OpenEMR\Events\Globals\GlobalsInitializedEvent;
+
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
     // MS Windows
@@ -126,6 +129,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'date_display_format',
     'time_display_format',
     'enable_help',
+    'text_templates_enabled',
     'posting_adj_disable',
     'messages_due_date',
     'expand_form',
@@ -542,6 +546,17 @@ $GLOBALS_METADATA = array(
             xl('Show Mini Logo 2')
         ),
 
+        'prevent_browser_refresh' => array(
+            xl('Prevent Web Browser Refresh').'*',
+            array(
+                '0' => xl('Do not warn or prevent web browser refresh'),
+                '1' => xl('Warn, but do not prevent web browser refresh'),
+                '2' => xl('Warn and prevent web browser refresh')
+            ),
+            '2',                              // default = true
+            xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
+        ),
+
     ),
 
     // Locale Tab
@@ -811,6 +826,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('Removes support for prescriptions')
+        ),
+
+        'text_templates_enabled' => array(
+            xl('Enable Text Templates in Encounter Forms'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Allow Double Click to select Nation Note text template from any encounter form text area')
         ),
 
         'omit_employers' => array(
@@ -3571,3 +3593,9 @@ $GLOBALS_METADATA = array(
 
     ),
 );
+
+if (!$skipGlobalEvent) {
+    $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
+    $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(GlobalsInitializedEvent::EVENT_HANDLE, $globalsInitEvent, 10);
+    $globalsService = $globalsInitEvent->getGlobalsService()->save();
+}

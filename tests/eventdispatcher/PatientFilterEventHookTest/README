@@ -1,0 +1,29 @@
+**Summary**
+
+This is an example module that demonstrates the capability of event hooks with regards
+to the patient filter and access to patient demographics
+
+**Setup**
+
+Copy the entire UserPatientBlacklist directory into interface/modules/zend_modules/module
+
+Then you will be able to register the module.
+
+**Installation**
+
+1. Browse to Modules > Manage Modules
+2. Click "Unregistered" Tab
+3. Click "Register" button next to UserPatientBlacklist module, which will be near the bottom
+4. You'll automatically be redirected to the "Registered tab" 
+5. Click "Install" button next to UserPatientBlacklist module
+6. Click "Enable" button next to UserPatientBlacklist module
+
+**Usage**
+
+edit the file in UserPatientBlacklist/vonfig/blacklist.php to include the usernames of users 
+and PIDs to restrict access to those patients for those users.
+
+Try using the patient finder and see that when logged in as a user, the patients in your blacklist
+will not appear in the finder. You will also receive an "unauthorized" message when attempting to
+view or update the patient demographics screen.
+    

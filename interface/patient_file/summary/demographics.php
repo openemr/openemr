@@ -34,6 +34,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Events\PatientDemographics\ViewEvent;
 
 if (isset($_GET['set_pid'])) {
     include_once("$srcdir/pid.inc");
@@ -705,6 +706,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authId']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
+
         $thisauth = acl_check('patients', 'demo');
         if ($thisauth) {
             if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
@@ -712,7 +714,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
         }
 
-        if (!$thisauth) {
+        // Create and fire the patient demographics view event
+        $viewEvent = new ViewEvent($pid);
+        $viewEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(ViewEvent::EVENT_HANDLE, $viewEvent, 10);
+
+        if (!$thisauth ||
+            !$viewEvent->authorized()) {
             echo "<p>(" . xlt('Demographics not authorized') . ")</p>\n";
             echo "</body>\n</html>\n";
             exit();

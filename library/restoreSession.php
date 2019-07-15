@@ -23,24 +23,29 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 // called just prior to invoking any server script that requires correct
 // session data.  onclick="top.restoreSession()" usually does the job.
 //
-var oemr_session_name = <?php echo json_encode(session_name()); ?>;
-var oemr_session_id   = <?php echo json_encode(session_id()); ?>;
+var oemr_session_name = <?php echo json_encode(urlencode(session_name())); ?>;
+var oemr_session_id   = <?php echo json_encode(urlencode(session_id())); ?>;
 var oemr_dialog_close_msg = <?php echo (function_exists('xlj')) ? xlj("OK to close this other popup window?") : json_encode("OK to close this other popup window?"); ?>;
 //
 function restoreSession() {
-<?php if (!empty($GLOBALS['restore_sessions'])) { ?>
- var ca = document.cookie.split('; ');
- for (var i = 0; i < ca.length; ++i) {
-  var c = ca[i].split('=');
-  if (c[0] == oemr_session_name && c[1] != oemr_session_id) {
-    <?php if ($GLOBALS['restore_sessions'] == 2) { ?>
-   alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
-<?php } ?>
-   document.cookie = encodeURIComponent(oemr_session_name) + '=' + encodeURIComponent(oemr_session_id) + '; path=<?php echo($web_root ? $web_root : '/');?>';
-  }
- }
-<?php } ?>
- return true;
+    <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
+        var ca = document.cookie.split('; ');
+        for (var i = 0; i < ca.length; ++i) {
+            var c = ca[i].split('=');
+            if (c[0] == oemr_session_name && c[1] != oemr_session_id) {
+                <?php if ($GLOBALS['restore_sessions'] == 2) { ?>
+                    alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
+                <?php } ?>
+                <?php if (version_compare(phpversion(), '7.3.0', '>=')) { ?>
+                    // Using the SameSite setting when using php version 7.3.0 or above
+                    document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/'); ?>' + '; SameSite=Strict';
+                <?php } else { ?>
+                    document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/'); ?>';
+                <?php } ?>
+            }
+        }
+    <?php } ?>
+    return true;
 }
 
 // Pages that have a Print button or link should call this to initialize it for logging.

@@ -13,7 +13,7 @@
 // upgrade file is the starting point for the next upgrade.
 $v_major = '5';
 $v_minor = '0';
-$v_patch = '2';
+$v_patch = '3';
 $v_tag   = '-dev'; // minor revision number, should be empty for production releases
 
 // A real patch identifier. This is incremented when we release a patch for a
@@ -25,7 +25,7 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 291;
+$v_database = 293;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -47,7 +47,7 @@ if (getenv('OPENEMR__ENVIRONMENT') === 'dev') {
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 43;
+    $v_js_includes = 44;
 }
 
 // Do note modify below

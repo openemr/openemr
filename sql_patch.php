@@ -67,6 +67,7 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
     flush();
 
     echo '<p style="font-weight:bold; text-align:left; color:green">',xlt('Updating global configuration defaults'),'...</p>';
+    $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
     require_once("library/globals.inc.php");
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         foreach ($grparr as $fldid => $fldarr) {

@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -21,14 +21,20 @@ use Esign\Api;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-// ensure token_main matches so this script can not be run by itself
+// Ensure token_main matches so this script can not be run by itself
+//  If do not match, then destroy the session and go back to login screen
 if ((empty($_SESSION['token_main_php'])) ||
     (empty($_GET['token_main'])) ||
     ($_GET['token_main'] != $_SESSION['token_main_php'])) {
-    die(xlt('Authentication Error'));
+    // Below functions are from auth.inc, which is included in globals.php
+    authCloseSession();
+    authLoginScreen(false);
 }
 // this will not allow copy/paste of the link to this main.php page or a refresh of this main.php page
-unset($_SESSION['token_main_php']);
+//  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
+if ($GLOBALS['prevent_browser_refresh'] > 1) {
+    unset($_SESSION['token_main_php']);
+}
 
 $esignApi = new Api();
 
@@ -40,6 +46,17 @@ $esignApi = new Api();
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script type="text/javascript">
+
+// This is to prevent users from losing data by refreshing or backing out of OpenEMR.
+//  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
+<?php if ($GLOBALS['prevent_browser_refresh'] > 0) { ?>
+    window.addEventListener('beforeunload', (event) => {
+        if (!timed_out) {
+            event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;
+        }
+    });
+<?php } ?>
+
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
 var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] == 1; ?>";
@@ -288,7 +305,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
     $(function() {
         $(window).trigger('resize');// to avoid repeating code triggers above on page open
     });
-    
+
 </script>
 
 <style>
@@ -311,6 +328,8 @@ html, body{
 <body data-bind="css: responsiveDisplay.objWidth().bodyMain">
 <!-- Below iframe is to support auto logout when timeout is reached -->
 <iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
+<!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
+<iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
 <?php // mdsupport - app settings
     $disp_mainBox = '';
 if (isset($_SESSION['app1'])) {
@@ -341,7 +360,7 @@ if (isset($_SESSION['app1'])) {
             <span id="menu_logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
             <div>
             <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
-            <a href="../../logout.php" rel="noopener" id="logout_link" onclick="top.restoreSession()" data-bind="css: {'oe-hidden' :responsiveDisplay.oeLogoutIcon}" title="<?php echo xla("Logout");?>"><i class="fa fa-2x fa-sign-out oe-pull-toward" aria-hidden="true" id="logout_icon"></i></a>
+            <a href="../../logout.php" target="logoutinnerframe" id="logout_link" onclick="top.restoreSession()" data-bind="css: {'oe-hidden' :responsiveDisplay.oeLogoutIcon}" title="<?php echo xla("Logout");?>"><i class="fa fa-2x fa-sign-out oe-pull-toward" aria-hidden="true" id="logout_icon"></i></a>
             </div>
         </div>
         <div class="clearfix" data-bind="css: {'clearfix' : responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}"></div>
