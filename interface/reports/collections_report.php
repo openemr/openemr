@@ -765,19 +765,20 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             for ($i = 1; $i <= 3; ++$i) {
                 $tmp = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
                 if (empty($tmp)) {
-                    if (empty($tmp)) break;
-                    $payerids[] = $tmp;
+                    break;
                 }
+                $payerids[] = $tmp;
+            }
 
-                $duncount = $last_level_closed - count($payerids);
-                if ($duncount < 0) {
-                    if (!empty($payerids[$last_level_closed])) {
+            $duncount = $last_level_closed - count($payerids);
+            if ($duncount < 0) {
+                if (!empty($payerids[$last_level_closed])) {
                         $insname = getInsName($payerids[$last_level_closed]);
                         $insposition = $last_level_closed + 1;
-                    }
                 }
             }
         }
+
       // Skip invoices not in the desired "Due..." category.
       //
         if ($is_due_ins && $duncount >= 0) {
