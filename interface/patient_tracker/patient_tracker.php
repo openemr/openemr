@@ -384,7 +384,7 @@ if (!$_REQUEST['flb_table']) {
                                     </tr>
                                     <tr style="<?php echo $style; ?>">
                                         <td class="text-right">
-                                            <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td>
+                                            <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label></td>
                                         <td>
                                             <input type="text"
                                                    id="form_to_date" name="form_to_date"

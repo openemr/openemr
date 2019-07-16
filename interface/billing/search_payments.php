@@ -467,7 +467,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <input class="form-control datepicker" id='FromDate' name='FromDate'  type='text' value='<?php echo attr($FromDate); ?>'>
                             </div>
                             <div class="forms col-xs-2">
-                                <label class="control-label" for="ToDate"><?php echo xlt('To'); ?>:</label>
+                                <label class="control-label" for="ToDate"><?php echo xlt('To{{Range}}'); ?>:</label>
                                 <input class="form-control datepicker" id='ToDate' name='ToDate' type='text' value='<?php echo attr($ToDate); ?>'>
                             </div>
                             <div class="forms col-xs-3">

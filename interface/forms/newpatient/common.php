@@ -335,7 +335,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 echo " selected";
                                             }
 
-                                            echo ">" . xlt('None'). "</option>\n";
+                                            echo ">" . xlt('None{{Sensitivity}}'). "</option>\n";
                                             ?>
                                         </select>
                                         <?php

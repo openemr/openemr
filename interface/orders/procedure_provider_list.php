@@ -89,7 +89,7 @@ function doedclick_edit(ppid) {
                <form method='post' action='procedure_provider_list.php'>
                     <div class="btn-group">
                         <button type="button" name="form_search" class="btn btn-default btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
-                        <button type="button" class="btn btn-default btn-add" onclick="doedclick_add()"><?php echo xlt('Add New');?></button>
+                        <button type="button" class="btn btn-default btn-add" onclick="doedclick_add()"><?php echo xlt('Add New{{Provider}}');?></button>
                     </div>
                     <br>
                     <br>

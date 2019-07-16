@@ -570,7 +570,7 @@ if ($_REQUEST['form_csvexport']) {
                                                 <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
                                             </td>
                                             <td class='control-label' class='control-label'>
-                                                <?php echo xlt('To'); ?>:
+                                                <?php echo xlt('To{{Range}}'); ?>:
                                             </td>
                                             <td>
                                                 <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>

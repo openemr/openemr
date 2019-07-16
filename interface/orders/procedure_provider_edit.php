@@ -33,7 +33,7 @@ function invalue($name)
 <html>
 <head>
 <?php Header::setupHeader(['opener','jquery-ui', 'jquery-ui-base']);?>
-<title><?php echo $ppid ? xlt('Edit') : xlt('Add New') ?> <?php echo xlt('Procedure Provider'); ?></title>
+<title><?php echo $ppid ? xlt('Edit') : xlt('Add New{{Provider}}') ?> <?php echo xlt('Procedure Provider'); ?></title>
 
 
 

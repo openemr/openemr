@@ -419,7 +419,7 @@ function make_document($task)
                     </td>
                 </tr>
                 <tr>
-                <td class='col1'><?php echo xlt('To'); ?>:</td>
+                <td class='col1'><?php echo xlt('To{{Destination}}'); ?>:</td>
                 <td class='col2'><?php echo text($to_name); ?></td>
                 </tr>
                 <tr>

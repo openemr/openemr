@@ -166,7 +166,7 @@ $display_collapse_msg = "display:inline;";
             <td><input type='text' class='datepicker' name='form_from_doc_date' id="form_from_doc_date"
                 size='10' value='<?php echo attr($form_from_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>'>
             </td>
-            <td class='label_custom'><?php echo xlt('To'); ?>:</td>
+            <td class='label_custom'><?php echo xlt('To{{Range}}'); ?>:</td>
             <td><input type='text' class='datepicker' name='form_to_doc_date' id="form_to_doc_date"
                 size='10' value='<?php echo attr($form_to_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>'>
             </td>

@@ -217,7 +217,7 @@ $communication = trim($_POST["communication"]);
 Search options include diagnosis, procedure, prescription, medical history, and lab results.
 -->
 <div id="report_parameters_daterange"> <?php echo text(oeFormatDateTime($sql_date_from, "global", true)) .
-      " &nbsp; " . xlt("to") . " &nbsp; ". text(oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
+      " &nbsp; " . xlt("to{{Range}}") . " &nbsp; ". text(oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
 <form name='theform' id='theform' method='post' action='clinical_reports.php' onsubmit='return top.restoreSession()'>
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <div id="report_parameters">
@@ -235,7 +235,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                     <tr>
                         <td class='control-label'><?php echo xlt('Patient ID'); ?>:</td>
                         <td><input name='patient_id' class="numeric_only form-control" type='text' id="patient_id" title='<?php echo xla('Optional numeric patient ID'); ?>' value='<?php echo attr($patient_id); ?>' size='10' maxlength='20' /></td>
-                        <td class='control-label'><?php echo xlt('To'); ?>: </td>
+                        <td class='control-label'><?php echo xlt('To{{Range}}'); ?>: </td>
                         <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
                     </tr>
                     <tr>
@@ -246,7 +246,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                         <td>
                             <input name='age_from' class="numeric_only form-control" type='text' id="age_from" value="<?php echo attr($age_from); ?>" size='3' maxlength='3' />
                         </td>
-                        <td class='control-label'><?php echo xlt('To'); ?></td>
+                        <td class='control-label'><?php echo xlt('To{{Range}}'); ?></td>
                         <td>
                             <input name='age_to' class="numeric_only form-control" type='text' id="age_to" value="<?php echo attr($age_to); ?>" size='3' maxlength='3' />
                         </td>

@@ -114,7 +114,7 @@ function genGroupSelector($name, $layout_id, $default = '')
         array($layout_id)
     );
     $s  = "<select class='form-control' name='" . xla($name) . "'>";
-    $s .= "<option value=''>" . xlt('None') . "</option>";
+    $s .= "<option value=''>" . xlt('None{{Group}}') . "</option>";
     $arr = array();
     $arrid = '';
     while ($row = sqlFetchArray($res)) {

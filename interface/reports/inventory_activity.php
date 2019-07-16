@@ -488,7 +488,7 @@ table.mymaintable td, table.mymaintable th {
        value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
      </td>
      <td class='label_custom'>
-        <?php echo xlt('To'); ?>:
+        <?php echo xlt('To{{Range}}'); ?>:
      </td>
      <td nowrap>
       <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10'
