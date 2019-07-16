@@ -1978,31 +1978,7 @@
         "children": [],
         "requirement": 0,
         "global_req": "track_anything_state"
-      },
-      {
-        "label": "Password",
-        "menu_id": "pwd0",
-        "target": "msc",
-        "url": "/interface/usergroup/user_info.php",
-        "children": [],
-        "requirement": 0
-      },
-      {
-        "label": "MFA Management",
-        "menu_id": "mfa0",
-        "target": "msc",
-        "url": "/interface/usergroup/mfa_registrations.php",
-        "children": [],
-        "requirement": 0
-      },
-      {
-        "label": "Preferences",
-        "menu_id": "prf0",
-        "target": "msc",
-        "url": "/interface/super/edit_globals.php?mode=user",
-        "children": [],
-        "requirement": 0
-      },
+      },      
       {
         "label": "New Documents",
         "menu_id": "adm0",
