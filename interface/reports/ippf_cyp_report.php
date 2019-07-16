@@ -227,9 +227,9 @@ if ($_POST['form_csvexport']) {
 
     echo "   </select>\n";
     ?>
-   &nbsp;<?xl('From:','e')?>
+   &nbsp;<?php echo xlt('From')?>:
    <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
-   &nbsp;To:
+   &nbsp;<?php echo xlt('To{{Range}}')?>:
    <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?>><?php echo xlt('Details') ?>
