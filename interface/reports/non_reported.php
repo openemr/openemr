@@ -338,7 +338,7 @@ if ($_POST['form_get_hl7']==='true') {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Syndromic Surveillance - Non Reported Issues'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to')  . "&nbsp; ". text(oeFormatShortDate($to_date)); ?>
+<?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to{{Range}}')  . "&nbsp; ". text(oeFormatShortDate($to_date)); ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='non_reported.php' onsubmit='return top.restoreSession()'>
@@ -391,7 +391,7 @@ while ($crow = sqlFetchArray($cres)) {
             size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
           </td>
           <td class='control-label'>
-            <?php echo xlt('To'); ?>:
+            <?php echo xlt('To{{Range}}'); ?>:
           </td>
           <td>
             <input type='text' name='form_to_date' id="form_to_date"

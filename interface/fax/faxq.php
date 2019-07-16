@@ -246,7 +246,7 @@ foreach ($mlines as $matches) {
     style='display:none;'>
     <tr class='head'>
      <td title='Click to view'><?php echo xlt('Job ID'); ?></td>
-     <td><?php echo xlt('To'); ?></td>
+     <td><?php echo xlt('To{{Destination}}'); ?></td>
      <td><?php echo xlt('Pages'); ?></td>
      <td><?php echo xlt('Dials'); ?></td>
      <td><?php echo xlt('TTS'); ?></td>

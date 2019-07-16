@@ -236,20 +236,20 @@ if ($_POST['form_action']=='process') {
             <div class="col-md-3 well form-group">
                 <label for="age_from"><?php echo xlt("Age Range") . ":"; ?></label>
                 <input name="age_from" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
-                <label for="age_upto" class="text-center"><?php echo xlt('to'); ?></label>
+                <label for="age_upto" class="text-center"><?php echo xlt('to{{Range}}'); ?></label>
                 <input name="age_upto" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
             </div>
             <div class="col-md-3 well form-group">
                 <label for="app_s"><?php echo xlt('Appointment within') ?>:</label>
                     <input type="text" class="datepicker form-control" name="app_s" placeholder="<?php echo xla('any date'); ?>">
-                    <div class="text-center"><?php echo xlt('to'); ?></div>
+                    <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
                     <input type="text" class="datepicker form-control" name="app_e" placeholder="<?php echo xla('any date'); ?>">
             </div>
             <!-- later gator    <br>Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20"></SELECT> -->
             <div class="col-md-3 well form-group">
                 <label for="app_s"><?php echo xlt('Seen within')?>:</label>
                     <input type="text" class="datepicker form-control" name="seen_since" placeholder="<?php echo xla('any date'); ?>">
-                    <div class="text-center"><?php echo xlt('to'); ?></div>
+                    <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
                     <input type="text" class="datepicker form-control" name="seen_before" placeholder="<?php echo xla('any date'); ?>">
             </div>
         </div>

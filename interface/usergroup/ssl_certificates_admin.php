@@ -761,7 +761,7 @@ if ($_POST["mode"] == "create_client_certificate") {
 
             <?php echo xlt('Update the following variables in file'); ?>: globals.php</br></br>
         <?php echo xlt('To enable Client side ssl certificates'); ?></br>
-        <?php echo xlt('Set'); ?> 'is_client_ssl_enabled' <?php echo xlt('to'); ?> 'true' </br></br>
+        <?php echo xlt('Set'); ?> 'is_client_ssl_enabled' <?php echo xlt('to{{Destination}}'); ?> 'true' </br></br>
         <?php echo xlt('Provide absolute path of file'); ?> CertificateAuthority.key</br>
         <?php echo xlt('Set'); ?> 'certificate_authority_key' <?php echo xlt('to absolute path of file'); ?> 'CertificateAuthority.key'</br></br>
         <?php echo xlt('Provide absolute path of file'); ?> CertificateAuthority.crt</br>

@@ -252,7 +252,7 @@ $help_icon = '';
                                         echo " selected";
                                     }
 
-                                    echo ">" . xlt('None'). "</option>\n";
+                                    echo ">" . xlt('None{{Sensitivity}}'). "</option>\n";
                                     ?>
                                 </select>
                                 <?php

@@ -283,7 +283,7 @@ if ($form_action == 'export') {
        value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
      </td>
      <td class='label_custom'>
-        <?php xl('To', 'e'); ?>:
+        <?php xl('To{{Range}}', 'e'); ?>:
      </td>
      <td nowrap>
       <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10'

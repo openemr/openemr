@@ -324,7 +324,7 @@ $(function () {
                        value='<?php echo attr($form_from_date); ?>'
                        title='<?php echo xla('yyyy-mm-dd'); ?>'/>
 
-                <label><?php echo xlt('To'); ?>:</label>
+                <label><?php echo xlt('To{{Range}}'); ?>:</label>
                 <input type='text' size='9' name='form_to_date' id='form_to_date'
                        class='form-control datepicker'
                        value='<?php echo attr($form_to_date); ?>'

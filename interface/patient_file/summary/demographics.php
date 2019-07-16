@@ -1258,7 +1258,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                 if (sqlNumRows($result) == 0) {
                                         echo " <table><tr>\n";
-                                        echo "  <td colspan='" . attr($numcols) . "' class='text'>&nbsp;&nbsp;" . xlt('None') . "</td>\n";
+                                        echo "  <td colspan='" . attr($numcols) . "' class='text'>&nbsp;&nbsp;" . xlt('None{{Amendment}}') . "</td>\n";
                                         echo " </tr></table>\n";
                                 }
 
@@ -1778,7 +1778,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                          $recurrences = fetchRecurrences($pid);
                         if (empty($recurrences)) { //if there are no recurrent appointments:
                             echo "<div>";
-                            echo "<span>" . "&nbsp;&nbsp;" . xlt('None') . "</span>";
+                            echo "<span>" . "&nbsp;&nbsp;" . xlt('None{{Appointment}}') . "</span>";
                             echo "</div></div>";
                         } else {
                             foreach ($recurrences as $row) {
@@ -1870,7 +1870,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         if (isset($pres) && $res != null) {
                             if ($count < 1) {
-                                echo "&nbsp;&nbsp;" . xlt('None');
+                                echo "&nbsp;&nbsp;" . xlt('None{{Appointment}}');
                             }
 
                             echo "</div>";

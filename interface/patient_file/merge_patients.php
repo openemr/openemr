@@ -181,7 +181,7 @@ if (!empty($_POST['form_submit'])) {
                 continue;
             }
 
-            echo "<br />" . xlt('Moving') . " " . text($sencdir) . "/" . text($sfname) . " " . xlt('to') . " " . text($tencdir) . "/" . text($sfname);
+            echo "<br />" . xlt('Moving') . " " . text($sencdir) . "/" . text($sfname) . " " . xlt('to{{Destination}}') . " " . text($tencdir) . "/" . text($sfname);
             if ($PRODUCTION) {
                 if (!rename("$sencdir/$sfname", "$tencdir/$sfname")) {
                     die("<br />" . xlt('Move failed!'));

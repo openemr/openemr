@@ -445,7 +445,7 @@ if (!genWarehouseList(
    <select name='form_trans_type' onchange='trans_type_changed()'>
 <?php
 foreach (array(
-  '0' => xl('None'),
+  '0' => xl('None{{Transaction}}'),
   '2' => xl('Purchase'),
   '3' => xl('Return'),
   '6' => xl('Distribution'),
