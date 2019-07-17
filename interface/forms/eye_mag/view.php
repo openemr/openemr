@@ -190,25 +190,25 @@ if ($refresh and $refresh != 'fullscreen') {
       <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-corner-all">
           
           <li id="tabs-left-HPI" class="btn-primary">
-              <span>HPI</span>
+              <span><?php echo xlt('HPI'); ?></span>
           </li>
           <li id="tabs-left-PMH" class="btn-primary">
-              <span>PMH</span>
+              <span><?php echo xlt('PMH'); ?></span>
           </li>
           <li id="tabs-left-EXT" class="btn-primary">
-              <span>Ext</span>
+              <span><?php echo xlt('Ext'); ?></span>
           </li>
           <li id="tabs-left-ANTSEG" class="btn-primary">
-              <span>Ant</span>
+              <span><?php echo xlt('Ant'); ?></span>
           </li>
           <li id="tabs-left-POSTSEG" class="btn-primary">
-              <span>Retina</span>
+              <span><?php echo xlt('Retina'); ?></span>
           </li>
           <li id="tabs-left-NEURO" class="btn-primary">
-              <span>Neuro</span>
+              <span><?php echo xlt('Neuro'); ?></span>
           </li>
           <li id="tabs-left-IMPPLAN" class="btn-primary">
-              <span>Imp</span>
+              <span><?php echo xlt('Imp'); ?></span>
           </li>
 
       </ul>
@@ -233,16 +233,14 @@ if ($refresh and $refresh != 'fullscreen') {
           <script>
               var Code_new_est ='<?php
                  if  ($output_priors =='') {
-                     echo "New";
+                     echo xls("New");
                  } else {
-                     echo "Est";
+                     echo xls("Est");
                  }
              ?>';
           </script>
-            
-            
-                  <!-- start form -->
-                  
+          
+        <!-- start form -->
         <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
           <div id="Layer1" name="Layer1" class="display">
             <div id="warning" name="warning" class="alert alert-warning <?php echo $warning; ?>">
@@ -3949,6 +3947,7 @@ if ($refresh and $refresh != 'fullscreen') {
             <!-- end form_container for the main body of the form -->
           </div>
           <!-- end Layer1 -->
+        
         </form>
         <!-- end form -->
       </div>    <!-- end Layer3 -->
