@@ -2133,7 +2133,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                                     <span class="left" style="font-weight:800;font-size:0.9em;">'.xlt(ucwords($item['row_subtype'])).' Meds</span>
                                 </td>
                                 <td>
-                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',\''.attr($key).'\',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
+                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\','.attr_js($key).',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
                                 </td>
                             </tr>
                         </table>
@@ -2157,7 +2157,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 }
 
                 $table .= "<span $red name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
-                onclick=\"alter_issue2('".attr($item['rowid'])."','".attr($key)."','".attr($index)."');\">".text($item['title']).$reaction."</span><br />";
+                onclick=\"alter_issue2(".attr_js($item['rowid']).",".attr_js($key).",".attr_js($index).");\">".text($item['title'].$reaction)."</span><br />";
                 $index++;
             }
         } else {
@@ -2382,7 +2382,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         $i=0;
         foreach ($PMSFH[0]['POH'] as $item) {
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid']).",'POH','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'POH','".$i."');\">".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2403,7 +2403,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         $i=0;
         foreach ($PMSFH[0]['POS'] as $item) {
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid']).",'POS','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'POS','".$i."');\">".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2426,7 +2426,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
                 continue;
             }
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Medication','$i');\" > ".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Medication','".$i."');\" > ".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2446,7 +2446,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         foreach ($PMSFH[0]['PMH'] as $item) {
             if ($item['enddate'] !==" ") {
                 echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid']).",'PMH','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'PMH','".$i."');\">".text($item['title'])."</span><br />";
                 $i++;
             }
         }
@@ -2466,7 +2466,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         $i=0;
         foreach ($PMSFH[0]['Surgery'] as $item) {
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid'])).",'Surgery','$i');\">".text($item['title'])."<br /></span>";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Surgery','".$i."');\">".text($item['title'])."<br /></span>";
             $i++;
         }
     } else { ?>
@@ -2490,7 +2490,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
                 continue;
             }
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2(".attr_js($item['rowid'])).",'Medication','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Medication','".$i."');\">".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2516,7 +2516,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
             }
 
             echo "<span style='color:red;' name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-      onclick=\"alter_issue2(".attr_js($item['rowid']).",'Allergy','$i');\">".text($item['title'])." ".$reaction."</span><br />";
+      onclick=\"alter_issue2(".attr_js($item['rowid']).",'Allergy','".$i."');\">".text($item['title'])." ".$reaction."</span><br />";
             $i++;
         }
     } else { ?>
@@ -5027,12 +5027,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     foreach ($PMSFH[0]['Medication'] as $drug) {
                         if ( ($drug['row_subtype'] =="eye") && (strtotime($drug['enddate']) < strtotime($visit_date) ) && ($drug['status'] != "Inactive") ) {
                             $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
-                                      onclick=\"alter_issue2(".attr_js($drug['rowid']).",'Medication','$i');\">".text($drug['title'])."</span></td>
+                                      onclick=\"alter_issue2(".attr_js($drug['rowid']).",'Medication','".$i."');\">".text($drug['title'])."</span></td>
                                       <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td></tr>";
                         } else if (($drug['row_subtype'] =="eye")&& (!empty($drug['enddate']))) {//what meds have a subtype eye that are discontinued?
                             $hideme = "hideme_drugs nodisplay";
                             $FAILED_drugs .= "<tr class='".$hideme."'><td colspan='1' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
-                                      onclick=\"alter_issue2(".attr_js($drug['rowid']).",'Medication','$i');\">".text($drug['title'])."</span></td>
+                                      onclick=\"alter_issue2(".attr_js($drug['rowid']).",'Medication','".$i."');\">".text($drug['title'])."</span></td>
                                       <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td><td class='GFS_td'>".text(oeFormatShortDate($drug['enddate']))."</td></tr>";
                         }
 

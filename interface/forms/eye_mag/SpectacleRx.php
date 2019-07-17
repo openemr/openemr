@@ -279,7 +279,6 @@ $query = "select  *,form_encounter.date as encounter_date
             $insert_this_id = formSubmit($table_name, $fields, $form_id, $_SESSION['userauthorized']);
         }
     }
-   // $GLOBALS['assets_static_relative']= "/openemr/public/assets";
     
     if ($_REQUEST['dispensed']) {
         $query = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
@@ -694,9 +693,7 @@ $query = "select  *,form_encounter.date as encounter_date
 ?>
 <html>
 <head>
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-    <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','pure', 'bootstrap' ]); ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
+    <?php Header::setupHeader([ 'opener', 'jquery-ui', 'jquery-ui-redmond', 'pure', 'jscolor' ]); ?>
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
     <style>
@@ -907,7 +904,6 @@ $query = "select  *,form_encounter.date as encounter_date
         $expir = date("Y-m-d", strtotime($RX_expir, strtotime($data['date'])));
     }
     $expir_date = oeFormatShortDate($expir);
-    //  $row['REFDATE'] = oeFormatShortDate();
 ?>
 <p><b><?php echo xlt('Expiration Date'); ?>: </b>
     &nbsp;&nbsp;     <?php echo text($expir_date); ?>
@@ -939,24 +935,34 @@ $query = "select  *,form_encounter.date as encounter_date
                                     <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                                     <td rowspan="5" class="right bold" colspan="1" >
                                         <b class="bold underline"><?php echo xlt('Rx Type'); ?></b><br/><br/>
-                                        <b id="SingleVision_span" name="SingleVision_span"><?php echo xlt('Single'); ?>
+                                        <b id="SingleVision_span" name="SingleVision_span">
+                                            <label for="RXTYPE_Single"><?php echo xlt('Single'); ?></label>
                                             <input type="radio"
-                                                   onclick="pick_rxType('Single','<?php echo attr(addslashes($insert_this_id)); ?>');"
-                                                   value="Single" id="RXTYPE" name="RXTYPE"
-                                                   class="input-helper--radio input-helper--radio" <?php echo attr($Single); ?>></b><br/>
-                                        <b id="Bifocal_span" name="Bifocal_span"><?php echo xlt('Bifocal'); ?>
+                                                   onclick="pick_rxType('Single',<?php echo attr_js($insert_this_id)); ?>);"
+                                                   value="Single" id="RXTYPE_Single" name="RXTYPE"
+                                                   <?php echo attr($Single); ?>"></b><br/>
+                                        <b id="Bifocal_span" name="Bifocal_span">
+                                            <label for="RXTYPE_Bifocal">
+                                                <?php echo xlt('Bifocal'); ?>
+                                            </label>
                                             <input type="radio"
-                                                   onclick="pick_rxType('Bifocal','<?php echo attr(addslashes($insert_this_id)); ?>');"
-                                                   value="Bifocal" id="RXTYPE" name="RXTYPE" <?php echo attr($Bifocal); ?>></b><br/>
-                                        <b id="Trifocal_span" name="Trifocal_span"><?php echo xlt('Trifocal'); ?>
+                                                   onclick="pick_rxType('Bifocal',<?php echo attr_js($insert_this_id)); ?>);"
+                                                   value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal); ?>></b><br/>
+                                        <b id="Trifocal_span" name="Trifocal_span">
+                                            <label for="RXTYPE_Trifocal">
+                                                <?php echo xlt('Trifocal'); ?>
+                                            </label>
                                             <input type="radio"
-                                                   onclick="pick_rxType('Trifocal','<?php echo attr(addslashes($insert_this_id)); ?>');"
-                                                   value="Trifocal" id="RXTYPE"
+                                                   onclick="pick_rxType('Trifocal',<?php echo attr_js($insert_this_id)); ?>);"
+                                                   value="Trifocal" id="RXTYPE_Trifocal"
                                                    name="RXTYPE" <?php echo attr($Trifocal); ?>></b><br/>
-                                        <b id="Progressive_span"><?php echo xlt('Prog.{{Progressive lenses}}'); ?>
+                                        <b id="Progressive_span">
+                                            <label for="RXTYPE_Progressive">
+                                                <?php echo xlt('Prog.{{Progressive lenses}}'); ?>
+                                            </label>
                                             <input type="radio"
-                                                   onclick="pick_rxType('Progressive','<?php echo attr(addslashes($insert_this_id)); ?>');"
-                                                   value="Progressive" id="RXTYPE"
+                                                   onclick="pick_rxType('Progressive',<?php echo attr_js($insert_this_id)); ?>);"
+                                                   value="Progressive" id="RXTYPE_Progressive"
                                                    name="RXTYPE" <?php echo attr($Progressive); ?>></b><br/>
                                     </td>
                                     <td></td>

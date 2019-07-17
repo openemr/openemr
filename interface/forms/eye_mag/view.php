@@ -299,14 +299,14 @@ if ($refresh and $refresh != 'fullscreen') {
               <input type="hidden" name="uniqueID" id="uniqueID" value="<?php echo attr($uniqueID); ?>">
               <input type="hidden" name="chart_status" id="chart_status" value="on">
               <input type="hidden" name="finalize"  id="finalize" value="0">
-                <input type='hidden' name='setting_tabs_left' id='setting_tabs_left' value='<?php echo $setting_tabs_left; ?>'>
-                <input type='hidden' name='setting_HPI' id='setting_HPI' value='<?php echo $setting_HPI; ?>'>
-                <input type='hidden' name='setting_PMH' id='setting_PMH' value='<?php echo $setting_PMH; ?>'>
-                <input type='hidden' name='setting_EXT' id='setting_EXT' value='<?php echo $setting_EXT; ?>'>
-                <input type='hidden' name='setting_ANTSEG' id='setting_ANTSEG' value='<?php echo $setting_ANTSEG; ?>'>
-                <input type='hidden' name='setting_POSTSEG' id='setting_POSTSEG' value='<?php echo $setting_POSTSEG; ?>'>
-                <input type='hidden' name='setting_NEURO' id='setting_NEURO' value='<?php echo $setting_NEURO; ?>'>
-                <input type='hidden' name='setting_IMPPLAN' id='setting_IMPPLAN' value='<?php echo $setting_IMPPLAN; ?>'>
+                <input type='hidden' name='setting_tabs_left' id='setting_tabs_left' value='<?php echo attr($setting_tabs_left); ?>'>
+                <input type='hidden' name='setting_HPI' id='setting_HPI' value='<?php echo attr($setting_HPI); ?>'>
+                <input type='hidden' name='setting_PMH' id='setting_PMH' value='<?php echo attr($setting_PMH); ?>'>
+                <input type='hidden' name='setting_EXT' id='setting_EXT' value='<?php echo attr($setting_EXT); ?>'>
+                <input type='hidden' name='setting_ANTSEG' id='setting_ANTSEG' value='<?php echo attr($setting_ANTSEG); ?>'>
+                <input type='hidden' name='setting_POSTSEG' id='setting_POSTSEG' value='<?php echo attr($setting_POSTSEG); ?>'>
+                <input type='hidden' name='setting_NEURO' id='setting_NEURO' value='<?php echo attr($setting_NEURO); ?>'>
+                <input type='hidden' name='setting_IMPPLAN' id='setting_IMPPLAN' value='<?php echo attr($setting_IMPPLAN); ?>'>
 
                 <!-- start first div -->
               <div id="first" name="first" class="text_clinical">
