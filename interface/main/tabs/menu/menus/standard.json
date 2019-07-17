@@ -1914,19 +1914,7 @@
           "admin",
           "practice"
         ]
-      },
-      {
-        "label": "Order Catalog",
-        "menu_id": "ort0",
-        "target": "msc",
-        "url": "/interface/orders/types.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "practice"
-        ]
-      },
+      },      
       {
         "label": "Chart Tracker",
         "menu_id": "cht0",
