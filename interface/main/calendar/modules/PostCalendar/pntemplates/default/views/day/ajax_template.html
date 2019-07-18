@@ -99,7 +99,6 @@ $timeslotHeightUnit="px";
 
   $openhour= $GLOBALS['schedule_start'];
   $closehour= $GLOBALS['schedule_end'];
-  $globle_timeformat= $GLOBALS['time_display_format'];
 
  // build a day-of-week (DOW) list so we may properly build the calendars later in this code
  $DOWlist = array();
@@ -414,7 +413,7 @@ echo "<td class='timeslot providerXbtn' data-username='__PC_ALL__'><i class='fa 
 //============================================================================================================================
 // Check global time preference so that 24 and 12hour preference is displayed properly
 $timeformat =0;
-if( $globle_timeformat == 1){ $timeformat = 12; }
+if($GLOBALS['time_display_format'] == 1){ $timeformat = 12; }
 
 
 foreach ($times as $slottime) {
