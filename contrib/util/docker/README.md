@@ -250,4 +250,3 @@ https://github.com/openemr/openemr-devops/tree/master/docker/openemr
 
 #### Stuff that needs fixing
 1. The reverse proxy for orthanc
-2. zip packages in the php 7.3 fpm dockers are not working. Will try to bring in zip intermittently.
