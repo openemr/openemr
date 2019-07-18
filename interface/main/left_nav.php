@@ -1825,7 +1825,10 @@ if ($reglastcat) {
         } ?>
         <?php if (acl_check('admin', 'practice')) {
             genTreeLink('RTop', 'adb', xl('Addr Book'));
-        } ?>       
+        } ?>
+        <?php if (acl_check('admin', 'practice')) {
+            genTreeLink('RTop', 'ort', xl('Order Catalog'));
+        } ?>
         <?php if (!$GLOBALS['disable_chart_tracker'] && acl_check('patients', 'appt')) {
             genTreeLink('RTop', 'cht', xl('Chart Tracker'));
         } ?>
@@ -1838,7 +1841,12 @@ if ($reglastcat) {
         <?php $myrow = sqlQuery("SELECT state FROM registry WHERE directory = 'track_anything'");
         if ($myrow['state']=='1') {
             genTreeLink('RTop', 'tan', xl('Configure Tracks'));
-        } ?>       
+        } ?>
+        <?php if (!$GLOBALS['use_active_directory']) {
+            genTreeLink('RTop', 'pwd', xl('Password'));
+        } ?>
+        <?php genTreeLink('RTop', 'mfa', xl('MFA Manaagement')); ?>
+        <?php genMiscLink('RTop', 'prf', '0', xl('Preferences'), 'super/edit_globals.php?mode=user'); ?>
         <?php if (acl_check('patients', 'docs', '', 'write') || acl_check('patients', 'docs', '', 'addonly')) {
             genMiscLink('RTop', 'adm', '0', xl('New Documents'), '../controller.php?document&list&patient_id=00');
         } ?>
