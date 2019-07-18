@@ -205,7 +205,7 @@ services:
     ports:
     - 8200:80
     environment:
-      PMA_HOSTS: mariadb-dev,mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mariadb-very-very-very-old,mysql,mysql-old,mysql-very-old,mysql-very-very-old
+      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mysql-very-old
   couchdb:
     restart: always
     image: couchdb
