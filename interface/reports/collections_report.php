@@ -11,10 +11,12 @@
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -220,11 +222,11 @@ function endPatient($ptrow)
             /**************************************************************/
             if ($form_age_cols) {
                 for ($c = 0; $c < $form_age_cols; ++$c) {
-                    echo "  <td class='detotal' align='right'>&nbsp;" .
+                    echo "  <td class='detotal' align='left'>&nbsp;" .
                     text(oeFormatMoney($ptrow['agedbal'][$c])) . "&nbsp;</td>\n";
                 }
             } else {
-                echo "  <td class='detotal' align='right'>&nbsp;" .
+                echo "  <td class='detotal' align='left'>&nbsp;" .
                 text(oeFormatMoney($pt_balance)) . "&nbsp;</td>\n";
             }
 
@@ -267,19 +269,19 @@ function endInsurance($insrow)
     } else {
         echo " <tr bgcolor='" . attr($bgcolor) . "'>\n";
         echo "  <td class='detail'>" . text($insrow['insname']) . "</td>\n";
-        echo "  <td class='detotal' align='right'>&nbsp;" .
+        echo "  <td class='detotal' align='left'>&nbsp;" .
         text(oeFormatMoney($insrow['charges'])) . "&nbsp;</td>\n";
-        echo "  <td class='detotal' align='right'>&nbsp;" .
+        echo "  <td class='detotal' align='left'>&nbsp;" .
         text(oeFormatMoney($insrow['adjustments'])) . "&nbsp;</td>\n";
-        echo "  <td class='detotal' align='right'>&nbsp;" .
+        echo "  <td class='detotal' align='left'>&nbsp;" .
         text(oeFormatMoney($insrow['paid'])) . "&nbsp;</td>\n";
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols; ++$c) {
-                echo "  <td class='detotal' align='right'>&nbsp;" .
+                echo "  <td class='detotal' align='left'>&nbsp;" .
                 text(oeFormatMoney($insrow['agedbal'][$c])) . "&nbsp;</td>\n";
             }
         } else {
-            echo "  <td class='detotal' align='right'>&nbsp;" .
+            echo "  <td class='detotal' align='left'>&nbsp;" .
             text(oeFormatMoney($ins_balance)) . "&nbsp;</td>\n";
         }
 
@@ -397,7 +399,7 @@ if ($_POST['form_csvexport']) {
 
 <table>
  <tr>
-  <td width='610px'>
+  <td width=75%>
     <div style='float:left'>
 
     <table class='text'>
@@ -582,13 +584,13 @@ if ($_POST['form_csvexport']) {
                             <?php echo xlt('Aging Columns') ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_age_cols' class='form-control' size='2' value='<?php echo attr($form_age_cols); ?>' />
+                           <input type='text' name='form_age_cols' class='form-control' size='2' value='<?php echo ($form_age_cols) ? attr($form_age_cols) : "3" ; ?>' />
                         </td>
                         <td class='control-label'>
                             <?php echo xlt('Days/Col') ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_age_inc' class='form-control' size='3' value='<?php echo attr($form_age_inc); ?>' />
+                           <input type='text' name='form_age_inc' class='form-control' size='3' value='<?php echo ($form_age_inc) ? attr($form_age_inc) : "30"; ?>' />
                         </td>
                         <td>
               <div class="checkbox">
@@ -762,19 +764,17 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         if (! $duncount) {
             for ($i = 1; $i <= 3; ++$i) {
                 $tmp = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
-
                 if (empty($tmp)) {
                     break;
                 }
-
                 $payerids[] = $tmp;
             }
 
             $duncount = $last_level_closed - count($payerids);
             if ($duncount < 0) {
                 if (!empty($payerids[$last_level_closed])) {
-                    $insname = getInsName($payerids[$last_level_closed]);
-                    $insposition = $last_level_closed + 1;
+                        $insname = getInsName($payerids[$last_level_closed]);
+                        $insposition = $last_level_closed + 1;
                 }
             }
         }
@@ -784,10 +784,10 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         if ($is_due_ins && $duncount >= 0) {
             continue;
         }
-
         if ($is_due_pt  && $duncount <  0) {
             continue;
         }
+
 
       // echo "<!-- " . $erow['encounter'] . ': ' . $erow['charges'] . ' + ' . $erow['sales'] . ' + ' . $erow['copays'] . ' - ' . $erow['payments'] . ' - ' . $erow['adjustments'] . "  -->\n"; // debugging
 
@@ -942,8 +942,8 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
                 echo '"' . xl('DOB') . '",';
             }
 
-            if ($form_cb_pubid) {
-                echo '"' . xl('Pubid') . '",';
+            if ($form_cb_pubpid) {
+                echo '"' . xl('Pubpid') . '",';
             }
 
             if ($form_cb_policy) {
@@ -1028,7 +1028,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     // Generate aging headers if appropriate, else balance header.
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols;) {
-                  echo "  <th class='dehead' align='right'>";
+                echo "  <th class='dehead' align='left'>";
                       echo $form_age_inc * $c;
                 if (++$c < $form_age_cols) {
                     echo "-" . text(($form_age_inc * $c - 1));
@@ -1179,19 +1179,19 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
    &nbsp;<?php echo text(oeFormatShortDate($row['ladate'])); ?>
   </td>
 <?php } ?>
-  <td class="detail" align="right">
+  <td class="detail" align="left">
             <?php echo text(bucks($row['charges'])) ?>&nbsp;
   </td>
-  <td class="detail" align="right">
+  <td class="detail" align="left">
             <?php echo text(bucks($row['adjustments'])) ?>&nbsp;
   </td>
-  <td class="detail" align="right">
+  <td class="detail" align="left">
             <?php echo text(bucks($row['paid'])) ?>&nbsp;
   </td>
             <?php
             if ($form_age_cols) {
                 for ($c = 0; $c < $form_age_cols; ++$c) {
-                    echo "  <td class='detail' align='right'>";
+                    echo "  <td class='detail' align='left'>";
                     if ($c == $agecolno) {
                         echo text(bucks($balance));
                     }
@@ -1200,7 +1200,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
                 }
             } else {
                 ?>
-<td class="detail" align="right"><?php echo text(bucks($balance)); ?>&nbsp;</td>
+<td class="detail" align="left"><?php echo text(bucks($balance)); ?>&nbsp;</td>
                 <?php
             } // end else
             ?>
@@ -1245,7 +1245,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
                     echo '"' . oeFormatShortDate($row['DOB'])       . '",';
                 }
 
-                if ($form_cb_pubid) {
+                if ($form_cb_pubpid) {
                     echo '"' . $row['pubpid']                       . '",';
                 }
 
@@ -1310,19 +1310,19 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             "'>&nbsp;" . xlt('Report Totals') . ":</td>\n";
         }
 
-        echo "  <td class='dehead' align='right'>&nbsp;" .
+        echo "  <td class='dehead' align='left'>&nbsp;" .
         text(oeFormatMoney($grand_total_charges)) . "&nbsp;</td>\n";
-        echo "  <td class='dehead' align='right'>&nbsp;" .
+        echo "  <td class='dehead' align='left'>&nbsp;" .
         text(oeFormatMoney($grand_total_adjustments)) . "&nbsp;</td>\n";
-        echo "  <td class='dehead' align='right'>&nbsp;" .
+        echo "  <td class='dehead' align='left'>&nbsp;" .
         text(oeFormatMoney($grand_total_paid)) . "&nbsp;</td>\n";
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols; ++$c) {
-                echo "  <td class='dehead' align='right'>" .
+                echo "  <td class='dehead' align='left'>" .
                 text(oeFormatMoney($grand_total_agedbal[$c])) . "&nbsp;</td>\n";
             }
         } else {
-            echo "  <td class='dehead' align='right'>" .
+            echo "  <td class='dehead' align='left'>" .
             text(oeFormatMoney($grand_total_charges +
             $grand_total_adjustments - $grand_total_paid)) . "&nbsp;</td>\n";
         }
