@@ -2620,6 +2620,13 @@ $GLOBALS_METADATA = array(
             '/mnt/scan_docs',                 // default
             xl('Location where scans are stored.')
         ),
+
+        'unique_installation_id' => array(
+            xl('Unique Installation ID'),
+            'if_empty_create_random_uuid',    // data type
+            '',                 // default
+            xl('Unique installation ID. Creates a random UUID if empty.')
+        ),
     ),
 
     // Portal Tab
