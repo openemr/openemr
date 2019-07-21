@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2016-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -26,6 +26,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use Ramsey\Uuid\Uuid;
 
 // Set up crypto object
 $cryptoGen = new CryptoGen();
@@ -564,6 +565,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                                         echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                             "maxlength='255' value='" . attr($fldvalue) . "' />\n";
+                                            } elseif ($fldtype == 'if_empty_create_random_uuid') {
+                                                if ($userMode) {
+                                                    $globalTitle = $globalValue;
+                                                }
+                                                if (empty($fldvalue)) {
+                                                    // if empty, then create a random uuid
+                                                    $uuid4 = Uuid::uuid4();
+                                                    $fldvalue = $uuid4->toString();
+                                                }
+                                                echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                                    "maxlength='255' value='" . attr($fldvalue) . "' />\n";
                                             } elseif ($fldtype == 'encrypted') {
                                                 if (empty($fldvalue)) {
                                                     // empty value
