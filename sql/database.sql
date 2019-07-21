@@ -5376,6 +5376,7 @@ CREATE TABLE `patient_data` (
   `financial_review` datetime default NULL,
   `pubpid` varchar(255) NOT NULL default '',
   `pid` bigint(20) NOT NULL default '0',
+  `uuid` char(36) NOT NULL default '',
   `genericname1` varchar(255) NOT NULL default '',
   `genericval1` varchar(255) NOT NULL default '',
   `genericname2` varchar(255) NOT NULL default '',
@@ -5440,6 +5441,7 @@ CREATE TABLE `patient_data` (
   `guardianworkphone` TEXT,
   `guardianemail` TEXT,
   UNIQUE KEY `pid` (`pid`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 -----------------------------------------------------------

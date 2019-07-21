@@ -11,6 +11,7 @@
 
 
 use OpenEMR\Services\FacilityService;
+use Ramsey\Uuid\Uuid; 
 
 $facilityService = new FacilityService();
 
@@ -1002,6 +1003,7 @@ function newPatientData(
     $lrow = sqlQuery("SELECT option_id FROM list_options WHERE " .
       "list_id = 'pricelevel' AND activity = 1 ORDER BY is_default DESC, seq ASC LIMIT 1");
     $pricelevel = empty($lrow['option_id']) ? '' : $lrow['option_id'];
+	$uuid=Uuid::uuid4();
 
     $query = ("replace into patient_data set
         id='" . add_escape_custom($db_id) . "',
@@ -1054,8 +1056,8 @@ function newPatientData(
         referral_source='" . add_escape_custom($referral_source) . "',
         regdate='" . add_escape_custom($regdate) . "',
         pricelevel='" . add_escape_custom($pricelevel) . "',
-        date=NOW()");
-
+        date=NOW()".",
+		uuid='".$uuid."'");
     $id = sqlInsert($query);
 
     if (!$db_id) {
@@ -1138,7 +1140,8 @@ function updatePatientData($pid, $new, $create = false)
   // the code below does not yet attempt it.
 
     if ($create) {
-        $sql = "INSERT INTO patient_data SET pid = '" . add_escape_custom($pid) . "', date = NOW()";
+	$uuid4 =Uuid::uuid4();
+        $sql = "INSERT INTO patient_data SET pid = '" . add_escape_custom($pid) . "', date = NOW(),uuid='".$uuid4."'";
         foreach ($new as $key => $value) {
             if ($key == 'id') {
                 continue;

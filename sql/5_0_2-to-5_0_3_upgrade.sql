@@ -85,3 +85,12 @@
 --    arguments: none
 --    behavior: can take a long time.
 
+
+#IfMissingColumn patient_data uuid
+ALTER TABLE `patient_data` ADD `uuid` CHAR(36) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotIndex patient_data uuid
+update patient_data set uuid=concat(uuid()) where uuid='';
+create unique index uuid on `patient_data` (`uuid`);
+#EndIf
