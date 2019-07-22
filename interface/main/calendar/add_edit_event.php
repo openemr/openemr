@@ -64,6 +64,9 @@ use OpenEMR\Core\Header;
 
  $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date']);
  $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate']);
+// Check preferences for time format
+$timeformat = 0;
+if ($GLOBALS['time_display_format'] == 1) $timeformat = 12;
  //
 if ($date) {
     $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
@@ -81,7 +84,7 @@ if (isset($_GET['starttimem'])) {
 if (isset($_GET['starttimeh'])) {
     $starttimeh = $_GET['starttimeh'];
     if (isset($_GET['startampm'])) {
-        if ($_GET['startampm'] == '2' && $starttimeh < 12) {
+        if ($_GET['startampm'] == '2' && $starttimeh < 12 && $globle_timeformat == 1) {
             $starttimeh += 12;
         }
     }
@@ -1010,7 +1013,7 @@ if (empty($collectthis)) {
     $startampm = '1';
     if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
         $startampm = '2';
-        if ($starttimeh > 12) {
+        if ($starttimeh > 12 && $globle_timeformat == 1) {
             $starttimeh -= 12;
         }
     }

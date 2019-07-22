@@ -1673,7 +1673,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $dispmin  = substr($row['pc_startTime'], 3, 2);
                             if ($disphour >= 12) {
                                 $dispampm = "pm";
-                                if ($disphour > 12) {
+                                if ($disphour > 12 && $GLOBALS['time_display_format'] == 1) {
                                     $disphour -= 12;
                                 }
                             }
@@ -1851,7 +1851,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $dispmin  = substr($row['pc_startTime'], 3, 2);
                             if ($disphour >= 12) {
                                 $dispampm = "pm";
-                                if ($disphour > 12) {
+                                if ($disphour > 12 && $GLOBALS['time_display_format'] == 1) {
                                     $disphour -= 12;
                                 }
                             }
