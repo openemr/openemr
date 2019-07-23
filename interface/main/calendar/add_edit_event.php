@@ -66,7 +66,7 @@ use OpenEMR\Core\Header;
  $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate']);
 // Check preferences for time format
 $timeformat = 0;
-if ($GLOBALS['time_display_format'] == 1){
+if ($GLOBALS['time_display_format'] == 1) {
     $timeformat = 12;
 }
 
