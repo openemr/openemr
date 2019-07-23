@@ -782,7 +782,21 @@
             ]
           }
         ],
-        "requirement": 0
+        "requirement": 0,
+        "acl_req": [
+          [
+            "admin",
+            "users"
+          ],
+          [
+            "admin",
+            "calendar"
+          ],
+          [
+            "admin",
+            "super"
+          ]
+        ]
       },
       {
         "label": "Patients",
@@ -813,6 +827,13 @@
               "super"
             ]
           }          
+        ],
+        "requirement": 0,
+        "acl_req": [          
+          [
+            "admin",
+            "super"
+          ]
         ]
       },
       {
@@ -858,7 +879,17 @@
             "global_req": "enable_cdr"
           }
         ],
-        "requirement": 0
+        "requirement": 0,
+        "acl_req": [
+          [
+            "admin",
+            "practice"
+          ],          
+          [
+            "admin",
+            "super"
+          ]
+        ]
       },
       {
         "label": "Coding",
@@ -901,8 +932,18 @@
             ]
           }
         ],
-        "requirement": 0
-      },      
+        "requirement": 0,
+        "acl_req": [
+          [
+            "admin",
+            "practice"
+          ],
+          [
+            "admin",
+            "super"
+          ]
+        ]
+      },
       {
         "label": "Forms",
         "icon": "fa-caret-right",
@@ -931,6 +972,17 @@
               "super"
             ]
           }          
+        ],
+        "requirement": 0,
+        "acl_req": [
+          [
+            "admin",
+            "forms"
+          ],
+          [
+            "admin",
+            "super"
+          ]
         ]
       },
       {
@@ -949,6 +1001,13 @@
               "practice"
             ]
           }          
+        ],
+        "requirement": 0,
+        "acl_req": [
+          [
+            "admin",
+            "practice"
+          ]
         ]
       },      
       {
@@ -1016,7 +1075,21 @@
             ]
           }
         ],
-        "requirement": 0
+        "requirement": 0,
+        "acl_req": [
+          [
+            "admin",
+            "super"
+          ],
+          [
+            "admin",
+            "language"
+          ],
+          [
+            "admin",
+            "users"
+          ]
+        ]
       },      
       {
         "label": "Users",
@@ -1151,7 +1224,11 @@
             "global_req": "enable_auditlog_encryption"
           }
         ],
-        "requirement": 0
+        "requirement": 0,
+        "acl_req": [
+          "admin",
+          "super"
+        ]
       }
     ],
     "requirement": 0,
