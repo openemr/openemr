@@ -69,6 +69,7 @@ $timeformat = 0;
 if ($GLOBALS['time_display_format'] == 1){
     $timeformat = 12;
 }
+
  //
 if ($date) {
     $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
