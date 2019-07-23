@@ -1109,6 +1109,17 @@ textarea.EXTTEXT {
         float:right;
         position:absolute;
         top:8px;
+        right:52px;
+        padding: 0px 5px;
+        font-size:12px;
+      }
+    .closeButton_3:hover {
+        cursor:pointer;
+        border: 0 solid grey;
+        text-decoration: none;
+        background-color: yellow;
+
+    }
 .closeButton_4 {
     display:inline-block;
     float:right;
