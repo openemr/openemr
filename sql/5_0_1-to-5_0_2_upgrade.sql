@@ -946,7 +946,7 @@ DROP TABLE `geo_zone_reference`;
 #EndIf
 
 #IfMissingColumn form_eye_acuity BINOCVA
-ALTER TABLE `form_eye_acuity`  ADD `BINOCVA` varchar(25) DEFAULT NULL,
+ALTER TABLE `form_eye_acuity`  ADD `BINOCVA` varchar(25) DEFAULT NULL;
 #EndIf
 
 #IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id ODVITREOUS_0
