@@ -220,7 +220,7 @@ function process_kb_1(field,text,appendix) {
         if (field == 'LTA')     field2 = "LTEMPART";
         if (field == 'RCN5')    field2 = "RCNV";
         if (field == 'LCN5')    field2 = "LCNVI";
-        if (field == 'RCN7')    field2 = "RCMVII";
+        if (field == 'RCN7')    field2 = "RCNVII";
         if (field == 'LCN7')    field2 = "LCNVII";
         if (field == 'RH')      field2 = "ODHERTEL";
         if (field == 'LH')      field2 = "OLHERTEL";

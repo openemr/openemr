@@ -214,7 +214,6 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 {
     global $form_folder;
     global $PDF_OUTPUT;
-    global $tmp_files_remove;
     global $facilityService;
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
@@ -606,11 +605,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
               <td><?php echo text($GLAREOSVA); ?></td>
             </tr>
             <?php } if ($CONTRASTODVA||$CONTRASTOSVA) { ?>
-            <tr>
-              <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
-              <td><?php echo text($CONTRASTODVA); ?></td>
-              <td><?php echo text($CONTRASTOSVA); ?></td>
-            </tr>
+                <tr>
+                    <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
+                    <td><?php echo text($CONTRASTODVA); ?></td>
+                    <td><?php echo text($CONTRASTOSVA); ?></td>
+                </tr>
+            <?php } if (!empty($BINOCVA)) { ?>
+                <tr>
+                  <td><?php echo xlt('VABiNoc{{Binocular Visual Acuity}}'); ?></td>
+                  <td rowspan="2"><?php echo text($BINOCVA); ?></td>
+                </tr>
             <?php } ?>
           </table>
         </td>
@@ -988,14 +992,6 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                             } else if (${"RX_TYPE_$i"} =="3") {
                                 $RX_TYPE = xlt('Progressive');
                             }
-
-                            /*
-                              Note html2pdf does not like the last field of a table to be blank.
-                              If it is it will squish the lines together.
-                              Work around: if the field is blank, then replace it with a "-" else echo it.
-                              aka echo (text($field))?:"-");
-                            */
-                            // TODO - now use mPDF, so should test if still need this fix
                             ?>
                   <tr>
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Current RX')." #".$i.": "; ?></td>
@@ -1059,18 +1055,21 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($ARNEAROSVA)?:"-"); ?></td>
                   </tr>
                             <?php
-                            if (${"COMMENTS_$i"}) {
-                                ?>
-                        <tr>
-                      <td></td><td></td>
-                      <td>Comments:</td>
-                          <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
-                        </tr>
-                                <?php
-                            }
                         }
 
-                        if ($MRODSPH||$MROSSPH) { ?>
+                        if (${"CRCOMMENTS"}) {
+                            ?>
+                        <tr>
+                            <td></td><td></td>
+                            <td>Comments:</td>
+                            <td colspan="7"><?php echo text(${"CRCOMMENTS"}); ?></td>
+                        </tr>
+                                <?php
+                        }
+            }
+
+
+            if ($MRODSPH||$MROSSPH) { ?>
                     <tr>
                           <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Manifest (Dry) Refraction'); ?></td>
                           <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -1097,9 +1096,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                           <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($MRNEAROSVA)?:"-"); ?></td>
                     </tr>
                             <?php
-                        }
+            }
 
-                        if ($CRODSPH||$CROSSPH) { ?>
+            if ($CRODSPH||$CROSSPH) { ?>
                   <tr>
                         <td style="font-weight:600;font-size:0.8em;text-align:right;"><?php echo xlt('Cycloplegic (Wet) Refraction'); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -1125,9 +1124,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRNEAROSVA)?:"-"); ?></td>
                   </tr>
                             <?php
-                        }
+            }
 
-                        if ($CTLODSPH||$CTLOSSPH) { ?>
+            if ($CTLODSPH||$CTLOSSPH) { ?>
                   <tr style="text-align:center;padding:5px;text-decoration:underline;">
                     <td></td>
                         <td><?php echo xlt('Eye'); ?></td>
@@ -1178,11 +1177,11 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                   </tr>
 
                             <?php
-                        }
-                        ?>
+            }
+            ?>
           </table>
                     <?php
-            } ?>
+        } ?>
     <br />
 
             <?php
@@ -1256,8 +1255,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
       </table>
                 <?php
             }
-        }
-        ?>
+    }
+    ?>
 
     <!-- end of the refraction boxes -->
 
@@ -1656,6 +1655,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             <td  style="text-align:left;padding:1px;vertical-align:top;">
                   <b><u><?php echo xlt('Retina'); ?>:</u></b>
                   <table class="report_section">
+                      <?php
+                        if ($DIL_MEDS) { ?>
+                      <tr>
+                          <td colspan="3" class="report_text left">
+                              <b><?php echo xlt('Dilation Time'); ?>:</b> <?php echo text($DIL_MEDS); ?>
+                          </td>
+
+                      </tr>
+                            <?php
+                        } ?>
                     <tr>
                       <td class="bold" style="text-align:right;text-decoration:underline;max-width:150px;"><?php echo xlt('Right'); ?></td>
                       <td style="width:100px;"></td>
@@ -1701,14 +1710,15 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                       <td class="middle"><?php echo xlt('Central Macular Thickness'); ?> </td>
                       <td class="report_text left" >&nbsp;<?php echo text($OSCMT); ?></td>
                     </tr>
-                                            <?php } ?>
-                    <?php if ($RETINA_COMMENTS) { ?>
+                                            <?php }
+
+                        if ($RETINA_COMMENTS) { ?>
                     <tr>
                       <td colspan="2" class="report_text left">
                         <b><?php echo xlt('Comments'); ?>:</b> <?php echo text($RETINA_COMMENTS); ?>
                       </td>
                     </tr>
-                    <?php } ?>
+                        <?php } ?>
                   </table>
             </td>
             <td style="text-align:center;padding:1px;vertical-align:middle;">
@@ -1916,10 +1926,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 </table>
                     <?php
         }
-    }
-
+}
     //end choice !== 'TEXT' -- include this in summary mouseover report.
-    ?>
+?>
     <!-- start of IMPPLAN exam -->
     <table class="report_exam_group">
       <tr>
@@ -1954,153 +1963,153 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 }
 
                 if (!empty($IMPPLAN_items)) {
+                    //for ($i=0; $i < count($IMPPLAN_item); $i++) {
                     foreach ($IMPPLAN_items as $item) {
-                        echo ($item['IMPPLAN_order'] + 1) . '. <b>' . text($item['title']) . '</b><br />';
-                        echo '<div style="padding-left:15px;">';
+                        echo ($item['IMPPLAN_order'] +1).'. <b>'.text($item['title']).'</b><br />';
+                        echo  '<div style="padding-left:15px;">';
                         $pattern = '/Code/';
                         if (preg_match($pattern, $item['code'])) {
                             $item['code'] = '';
                         }
 
                         if ($item['codetext'] > '') {
-                            echo $item['codetext'] . "<br />";
+                            echo $item['codetext']."<br />";
                         } else {
                             if ($item['code'] > '') {
                                 if ($item['codetype'] > '') {
-                                    $item['code'] = $item['codetype'] . ": " . $item['code'];
+                                    $item['code'] =  $item['codetype'].": ".$item['code'];
                                 }
 
-                                echo $item['code'] . "<br />";
+                                echo $item['plan'] . "</div><br />";
                             }
                         }
-
-                        echo $item['plan'] . "</div><br />";
-                    }
-                }
-                $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
-                $PLAN_results = sqlStatement($query, array($form_id, $pid ));
+                        $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
+                        $PLAN_results = sqlStatement($query, array($form_id, $pid ));
 
 
-                if ($PLAN_results) { ?>
-                    <b><?php echo xlt('Orders')."/".xlt('Next Visit'); ?>:</b>
-                    <br />
-                    <div style="padding-left:15px;padding-bottom:10px;width:400px;">
-                        <?php
-                        while ($plan_row = sqlFetchArray($PLAN_results)) {
-                            echo  $plan_row['ORDER_DETAILS']."<br />";
+                        if (!empty($PLAN_results)) { ?>
+                        <b><?php echo xlt('Orders')."/".xlt('Next Visit'); ?>:</b>
+                        <br />
+                        <div style="padding-left:15px;padding-bottom:10px;width:400px;">
+                            <?php
+                            while ($plan_row = sqlFetchArray($PLAN_results)) {
+                                echo  $plan_row['ORDER_DETAILS']."<br />";
+                            }
+                            echo $item['plan'] . "</div><br />";
+                            ?>
+                        </div>
+                            <?php
                         }
                         ?>
-                    </div>
-                    <?php
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td style="text-align:center;vertical-align:bottom;padding:1px;">
+                        <?php
+                        display_draw_image("IMPPLAN", $encounter, $pid);
+
+                        if ($PDF_OUTPUT) {
+                            //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
+                            //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
+                            $from_file = $GLOBALS["webserver_root"] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+                            if (file_exists($from_file)) {
+                                echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />";
+                            }
+                        } else {
+                            $signature = $GLOBALS["webserver_root"]."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+                            if (file_exists($signature)) {
+                                    echo "<img style='width:50mm;' src='".$GLOBALS['web_root']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg'><hr style='width:40mm;' />";
+                            }
+                        }
+                        echo "<br /><i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";
+
+                        ?>
+                  <br />
+                  <span style="padding-left:30px;"><?php echo text($providerNAME); ?></span>
+                        <?php
+
+                        ?>
+
+
+            </td>
+          </tr>
+        </table>
+      </div>
+                        <?php
+                        return;
+                    }
+                }
+
+                function display_draw_image($zone, $encounter, $pid)
+                {
+                    global $form_folder;
+                    global $web_root;
+                    global $PDF_OUTPUT;
+                    global $tmp_files_remove;
+                    $side = "OU";
+                    $base_name = $pid."_".$encounter."_".$side."_".$zone."_VIEW";
+                    $filename = $base_name.".jpg";
+                    $sql = "SELECT * from documents where documents.url like '%".$filename."'";
+                    $doc = sqlQuery($sql);
+                    $document_id =$doc['id'];
+
+                    if (($document_id > '1')&&(is_numeric($document_id))) {
+                        $d = new Document($document_id);
+                        $fname = basename($d->get_url());
+
+                        $extension = substr($fname, strrpos($fname, "."));
+                        $notes = $d->get_notes();
+                        if (!empty($notes)) {
+                            echo "<table>";
+                        }
+
+                        foreach ($notes as $note) {
+                            echo '<tr>';
+                            echo '<td>' . xlt('Note') . ' #' . $note->get_id() . '</td>';
+                            echo '</tr>';
+                            echo '<tr>';
+                            echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
+                            echo '</tr>';
+                            echo '<tr>';
+                            echo '<td>'.$note->get_note().'<br /><br /></td>';
+                            echo '</tr>';
+                        }
+
+                        if (!empty($notes)) {
+                            echo "</table>";
+                        }
+
+                        //               if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
+                        if ($PDF_OUTPUT) {
+                            $tempDocC = new C_Document;
+                            $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
+                            // tmp file in ../documents/temp since need to be available via webroot
+                            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
+                            file_put_contents($from_file_tmp_web_name, $fileTemp);
+                            echo "<img src='".$from_file_tmp_web_name."' style='width:220px;height:120px;'>";
+                            $tmp_files_remove[] = $from_file_tmp_web_name;
+                        } else {
+                            $filetoshow = $GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr_url($pid)."&document_id=".attr_url($doc['id'])."&as_file=false&blahblah=".attr_url(rand());
+                            echo "<img src='".$filetoshow."' style='width:220px;height:120px;'>";
+                        }
+                    } else {
+                        //else show base_image
+                        $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
+                        if ($PDF_OUTPUT) {
+                            $filetoshow = $GLOBALS["webroot"] ."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
+                        }
+
+                      // uncomment to show base image, no touch up by user.
+                      // echo "<img src='". $filetoshow."' style='width:220px;height:120px;'>";
+                    }
+
+                    return;
+                }
+
+                function report_ACT($term)
+                {
+                    $term = nl2br(htmlspecialchars($term, ENT_NOQUOTES));
+                    return $term."&nbsp;";
                 }
                 ?>
-              </td>
-            </tr>
-          </table>
-        </td>
-        <td style="text-align:center;vertical-align:bottom;padding:1px;">
-            <?php
-            display_draw_image("IMPPLAN", $encounter, $pid);
-
-            if ($PDF_OUTPUT) {
-                //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
-                //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
-                $from_file = $GLOBALS['fileroot'] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
-                if (file_exists($from_file)) {
-                    echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />";
-                }
-            } else {
-                $signature = $GLOBALS['fileroot']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
-                if (file_exists($signature)) {
-                        echo "<img style='width:50mm;' src='".$GLOBALS['web_root']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg'><hr style='width:40mm;' />";
-                }
-            }
-            echo "<br /><i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";
-
-            ?>
-              <br />
-              <span style="padding-left:30px;"><?php echo text($providerNAME); ?></span>
-                <?php
-
-                ?>
-
-
-        </td>
-      </tr>
-    </table>
-  </div>
-    <?php
-    return;
-}
-
-function display_draw_image($zone, $encounter, $pid)
-{
-    global $form_folder;
-    global $web_root;
-    global $PDF_OUTPUT;
-    global $tmp_files_remove;
-    $side = "OU";
-    $base_name = $pid."_".$encounter."_".$side."_".$zone."_VIEW";
-    $filename = $base_name.".jpg";
-    $sql = "SELECT * from documents where documents.url like '%".$filename."'";
-    $doc = sqlQuery($sql);
-    $document_id =$doc['id'];
-
-    if (($document_id > '1')&&(is_numeric($document_id))) {
-        $d = new Document($document_id);
-        $fname = basename($d->get_url());
-
-        $extension = substr($fname, strrpos($fname, "."));
-        $notes = $d->get_notes();
-        if (!empty($notes)) {
-            echo "<table>";
-        }
-
-        foreach ($notes as $note) {
-            echo '<tr>';
-            echo '<td>' . xlt('Note') . ' #' . $note->get_id() . '</td>';
-            echo '</tr>';
-            echo '<tr>';
-            echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
-            echo '</tr>';
-            echo '<tr>';
-            echo '<td>'.$note->get_note().'<br /><br /></td>';
-            echo '</tr>';
-        }
-
-        if (!empty($notes)) {
-            echo "</table>";
-        }
-
-        //               if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
-        if ($PDF_OUTPUT) {
-            $tempDocC = new C_Document;
-            $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
-            // tmp file in ../documents/temp since need to be available via webroot
-            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
-            file_put_contents($from_file_tmp_web_name, $fileTemp);
-            echo "<img src='".$from_file_tmp_web_name."' style='width:220px;height:120px;'>";
-            $tmp_files_remove[] = $from_file_tmp_web_name;
-        } else {
-            $filetoshow = $GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr_url($pid)."&document_id=".attr_url($doc['id'])."&as_file=false&blahblah=".attr_url(rand());
-            echo "<img src='".$filetoshow."' style='width:220px;height:120px;'>";
-        }
-    } else { //else show base_image
-        $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
-        if ($PDF_OUTPUT) {
-            $filetoshow = $GLOBALS["webroot"] ."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
-        }
-
-      // uncomment to show base image, no touch up by user.
-      // echo "<img src='". $filetoshow."' style='width:220px;height:120px;'>";
-    }
-
-    return;
-}
-
-function report_ACT($term)
-{
-    $term = nl2br(htmlspecialchars($term, ENT_NOQUOTES));
-    return $term."&nbsp;";
-}
-?>
