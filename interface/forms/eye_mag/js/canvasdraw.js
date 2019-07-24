@@ -122,19 +122,9 @@ function cReload(zone) {
     $('#url_'+zone).val($('#base_url_'+zone).val());
     drawImage(zone);
 }
-function cReplace(zone) {
-    $("#"+zone+"_olddrawing").addClass('nodisplay');
-    $("#"+zone+"_canvas").show();
-    canvasPic = new Image();
-    canvasPic.src = $('#url_'+zone).val();
-    ctx[zone].drawImage(canvasPic, 0, 0);
-    cPush(zone);
-    drawImage(zone);
-}
 function cBlank(zone) {
     $('#url_'+zone).val('../images/BLANK_BASE.png');
     drawImage(zone);
-    cPush(zone);
 }
     //each canvas on your page must be initialized
     // add this to your own forms/js files where HPI is replaced with your canvas Identifier
