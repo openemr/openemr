@@ -1014,7 +1014,7 @@ if (empty($collectthis)) {
 
  // Fix up the time format for AM/PM.
     $startampm = '1';
-    if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
+    if ($starttimeh >= 12 && $globle_timeformat == 1) { // p.m. starts at noon and not 12:01
         $startampm = '2';
         if ($starttimeh > 12 && $globle_timeformat == 1) {
             $starttimeh -= 12;
@@ -1480,10 +1480,12 @@ if ($_GET['prov']==true) {
                 <input class='input-sm'    type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>'
                  title='<?php echo xla('Event start time'); ?>' />&nbsp;
             </span>
-            <select class='input-sm'    name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
-                <option value='1'><?php echo xlt('AM'); ?></option>
-                <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
-            </select>
+            <?php if ($globle_timeformat == 1): ?>
+                <select class='input-sm' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
+                    <option value='1'><?php echo xlt('AM'); ?></option>
+                    <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
+                </select>
+            <?php endif ?>
         </td>
     </tr>
  <tr>
@@ -2161,7 +2163,7 @@ function SubmitForm() {
     if (f.form_action.value != 'delete') {
         // Check slot availability.
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
-        if (f.form_ampm.value == '2' && mins < 720) mins += 720;
+        <?php if($globle_timeformat == 1):?>if (f.form_ampm.value == '2' && mins < 720) mins += 720;<?php endif ?>
         find_available('&cktime=' + mins);
     }
     else {
