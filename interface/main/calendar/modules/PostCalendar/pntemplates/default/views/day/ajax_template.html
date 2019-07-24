@@ -413,8 +413,10 @@ echo "<td id='times'><div><table>\n";
 echo "<td class='timeslot providerXbtn' data-username='__PC_ALL__'><i class='fa fa-lg fa-user-md'></i></td>";
 //============================================================================================================================
 // Check global time preference so that 24 and 12hour preference is displayed properly
-$timeformat =0;
-if( $globle_timeformat == 1){ $timeformat = 12; }
+
+if( $globle_timeformat == 1){
+   $timeformat = 12;
+   } else { $timeformat =0; }
 
 
 foreach ($times as $slottime) {

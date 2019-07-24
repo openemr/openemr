@@ -86,8 +86,8 @@ if (isset($_GET['starttimem'])) {
  //
 if (isset($_GET['starttimeh'])) {
     $starttimeh = $_GET['starttimeh'];
-    if (isset($_GET['startampm'])) {
-        if ($_GET['startampm'] == '2' && $starttimeh < 12 && $globle_timeformat == 1) {
+    if ($globle_timeformat == 1 && isset($_GET['startampm'])) {
+        if ($_GET['startampm'] == '2' && $starttimeh < 12) {
             $starttimeh += 12;
         }
     }
@@ -1014,7 +1014,7 @@ if (empty($collectthis)) {
 
  // Fix up the time format for AM/PM.
     $startampm = '1';
-    if ($starttimeh >= 12 && $globle_timeformat == 1) { // p.m. starts at noon and not 12:01
+    if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
         $startampm = '2';
         if ($starttimeh > 12 && $globle_timeformat == 1) {
             $starttimeh -= 12;
@@ -2164,6 +2164,7 @@ function SubmitForm() {
         // Check slot availability.
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
         <?php if($globle_timeformat == 1):?>if (f.form_ampm.value == '2' && mins < 720) mins += 720;<?php endif ?>
+
         find_available('&cktime=' + mins);
     }
     else {
