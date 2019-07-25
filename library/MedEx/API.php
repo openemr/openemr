@@ -1458,7 +1458,7 @@ class Events extends Base
                             VALUES (?,?,?,?,?)
                             ON DUPLICATE KEY
                             UPDATE r_reason=?, r_eventDate=?, r_provider=?,r_facility=?";
-        $result = sqlStatement($queryINS, array($_REQUEST['new_pid'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility']));
+        sqlStatement($queryINS, array($_REQUEST['new_pid'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility']));
         $query = "UPDATE patient_data
                         SET phone_home=?,phone_cell=?,email=?,
                             hipaa_allowemail=?,hipaa_voice=?,hipaa_allowsms=?,
@@ -1468,7 +1468,7 @@ class Events extends Base
                             $_REQUEST['new_email_allow'],$_REQUEST['new_voice'],$_REQUEST['new_allowsms'],
                             $_REQUEST['new_address'],$_REQUEST['new_postal_code'],$_REQUEST['new_city'],$_REQUEST['new_state'],
                             $_REQUEST['new_pid']);
-        $result = sqlStatement($query, $sqlValues);
+        sqlStatement($query, $sqlValues);
         return;
     }
 
@@ -1569,7 +1569,6 @@ class Callback extends Base
                                 "VALUES (?,?,?,?,?)",
                         array($tracker['id'],$datetime,'MedEx',$data['msg_type'],($tracker['lastseq']+1))
                     );
-                } else {
                 }
             } elseif ($data['msg_reply']=="CALL") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'CALL' WHERE pc_eid=?";
@@ -1614,15 +1613,15 @@ class Logging extends base
         $log = "/tmp/medex.log" ;
         $std_log = fopen($log, 'a');// or die(print_r(error_get_last(), true));
         $timed = date(DATE_RFC2822);
-        fputs($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
+        fwrite($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
         if (is_array($data)) {
             $dumper = print_r($data, true);
-            fputs($std_log, $dumper);
+            fwrite($std_log, $dumper);
             foreach ($data as $key => $value) {
                 fputs($stdlog, $key.": ".$value."\n");
             }
         } else {
-            fputs($std_log, "\nDATA= ".$data. "\n");
+            fwrite($std_log, "\nDATA= ".$data. "\n");
         }
         fclose($std_log);
         return true;
@@ -3558,13 +3557,10 @@ class MedEx
         }
         $sql = "UPDATE medex_prefs set status = ?";
         sqlQuery($sql, array(json_encode($response)));
-        $this->logging->log_this("response: ");
-            $response['campaigns']  = $this->campaign->events($response['token']);
-        $this->logging->log_this($response);
         return $response;
     }
     
-    public function login($force = '1')
+    public function login($force = '')
     {
         $info= array();
         $query = "SELECT * FROM medex_prefs";
