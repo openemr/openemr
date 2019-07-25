@@ -79,7 +79,7 @@ class procedure extends code_info
 
         $currentPrice = sqlQuery("SELECT codes.id, prices.pr_price FROM `codes` LEFT JOIN prices ON prices.pr_id = codes.id WHERE codes.code = ?", array($c));
 
-        if($currentPrice['pr_price'] != $fee){
+        if ($currentPrice['pr_price'] != $fee) {
             $this->fee=$currentPrice['pri_price'];
         } else {
             $this->fee=$fee;
