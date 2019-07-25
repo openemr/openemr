@@ -6,6 +6,8 @@
  * @link      http://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com> and OEMR <www.oemr.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -74,7 +76,16 @@ class procedure extends code_info
     function __construct($c, $ct, $desc, $fee, $justify, $modifiers, $units, $mod_size, $selected = true)
     {
         parent::__construct($c, $ct, $desc, $selected);
-        $this->fee=$fee;
+
+        $currentPrice = sqlQuery("SELECT codes.id, prices.pr_price FROM `codes` LEFT JOIN prices ON prices.pr_id = codes.id WHERE codes.code = ?", array($c));
+
+        if($currentPrice['pr_price'] != $fee){
+            $this->fee=$currentPrice['pri_price'];
+        } else {
+            $this->fee=$fee;
+        }
+
+        //$this->fee=$fee;
         $this->justify=$justify;
         $this->modifiers=$modifiers;
         $this->units=$units;
