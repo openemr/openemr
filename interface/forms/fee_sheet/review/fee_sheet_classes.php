@@ -76,16 +76,21 @@ class procedure extends code_info
     function __construct($c, $ct, $desc, $fee, $justify, $modifiers, $units, $mod_size, $selected = true)
     {
         parent::__construct($c, $ct, $desc, $selected);
-
+        /**
+         *  This call to the database is to get the current price to see if any changes have been made
+         */
         $currentPrice = sqlQuery("SELECT codes.id, prices.pr_price FROM `codes` LEFT JOIN prices ON prices.pr_id = codes.id WHERE codes.code = ?", array($c));
 
+        /**
+         * Compare the two prices if there are any changes up or down, replace the price if none keep price
+         * from the billing table. Sherwin 07/25/2019
+         */
         if ($currentPrice['pr_price'] != $fee) {
             $this->fee=$currentPrice['pri_price'];
         } else {
             $this->fee=$fee;
         }
 
-        //$this->fee=$fee;
         $this->justify=$justify;
         $this->modifiers=$modifiers;
         $this->units=$units;
