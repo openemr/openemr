@@ -85,8 +85,8 @@ class procedure extends code_info
          * Compare the two prices if there are any changes up or down, replace the price if none keep price
          * from the billing table. Sherwin 07/25/2019
          */
-        if ($currentPrice['pr_price'] != $fee) {
-            $this->fee=$currentPrice['pri_price'];
+        if ((0.00 + $currentPrice['pr_price']) !== (0.00 + $fee)) {
+            $this->fee=$currentPrice['pr_price'];
         } else {
             $this->fee=$fee;
         }
