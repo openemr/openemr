@@ -79,7 +79,7 @@ class procedure extends code_info
         /**
          *  This call to the database is to get the current price to see if any changes have been made
          */
-        $currentPrice = sqlQuery("SELECT codes.id, prices.pr_price FROM `codes` LEFT JOIN prices ON prices.pr_id = codes.id WHERE codes.code = ?", array($c));
+        $currentPrice = sqlQuery("SELECT prices.pr_price FROM `codes` LEFT JOIN prices ON prices.pr_id = codes.id WHERE codes.code = ?", array($c));
 
         /**
          * Compare the two prices if there are any changes up or down, replace the price if none keep price
