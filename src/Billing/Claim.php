@@ -1377,7 +1377,7 @@ class Claim
     {
         //If no box qualifier specified use "DK" for ordering provider
         //someday might make mbo form the place to set referring instead of demographics under choices
-        return empty($this->billing_options['provider_qualifier_code']) ? 'DK' :
+        return empty($this->billing_options['provider_qualifier_code']) ? '' :
             $this->billing_options['provider_qualifier_code'];
     }
 
