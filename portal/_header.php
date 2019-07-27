@@ -139,7 +139,7 @@ use OpenEMR\Core\Header;
                             data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>
                     </a></li>
                     <?php } ?>
-                    <?php if ($GLOBALS['portal_two_ledger'] && $GLOBALS['portal_two_payments']) { ?>
+                    <?php if ($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments']) { ?>
                         <li class="dropdown accounting-menu"><a href="#"
                             class="dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-book"></i> <span><?php echo xlt('Accountings'); ?></span></a>
                             <ul class="dropdown-menu">
