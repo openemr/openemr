@@ -2367,6 +2367,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
  */
 function show_PMSFH_panel($PMSFH, $columns = '1')
 {
+    global $pcp_data;
+    global $ref_data;
     ob_start();
     echo '<div>
     <div>';
@@ -3924,6 +3926,8 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
+                    <li><span style="margin-right:15px;color:black;"  onclick="editScripts('/openemr/controller.php?prescription&list&id=<?php echo $pid; ?>');">eRx</button>
+                        </span></li>
                     <li ><span id="active_flag" name="active_flag" style="margin-right:15px;color:red;"> <?php echo xlt('Active Chart'); ?> </span>
                         <span name="active_icon" id="active_icon" style="color:black;"><i class='fa fa-toggle-on'></i></span></li>
 
@@ -3950,12 +3954,14 @@ function menu_overhaul_left($pid, $encounter)
     global $pat_data;
     global $visit_date;
     global $documents;
-    global $dated;
     global $display;
-    global $providerNAME;
     global $reason;
     global $priors;
-
+    global $pcp_data;
+    global $ref_data;
+    global $ins_coA;
+    global $ins_coB;
+   
     /*
      * find out if the patient has a photo
      */
@@ -3967,7 +3973,6 @@ function menu_overhaul_left($pid, $encounter)
         <div id="left_menu" name="left_menu" class="col-md-4">
             <div style="padding-left: 18px;">
                 <table style="text-align:left;">
-                    <?php if ($display == 'fullscreen') { ?>
                     <tr><td class="right" >
                             <?php
                             $age = getPatientAgeDisplay($pat_data['DOB'], $encounter_date);
@@ -3979,12 +3984,11 @@ function menu_overhaul_left($pid, $encounter)
                             ?>
                         </td>
                     </tr>
-                    <?php  }
-
+                    <?php
                         echo "<tr><td class='right' nowrap><b>".xlt('Visit Date').":</b></td><td>&nbsp;".$visit_date."</td></tr>";
                     ?>
                     <tr><td class="right" style="vertical-align:top;" nowrap><b><?php echo xlt("Provider"); ?>:</b>&nbsp;</td>
-                        <td><?php echo text($providerNAME); ?></td>
+                        <td><?php echo text(getProviderName(getProviderIdOfEncounter($encounter))); ?></td>
                     </tr>
 
                     <tr>
@@ -4026,88 +4030,41 @@ function menu_overhaul_left($pid, $encounter)
         </div>
 
         <div id="left_menu2" name="left_menu2" class="col-md-4" style="font-size:1.0em;">
-            <?php
-            $query = "Select * from users where id =?";
-            $prov = sqlQuery($query, array($pat_data['ref_providerID']));
-            $Ref_provider = $prov['fname']." ".$prov['lname'];
-            $prov = sqlQuery($query, array($pat_data['providerID']));
-
-            $query = "Select * from insurance_companies where id in (select provider from insurance_data where pid =? and type='primary')";
-            $ins = sqlQuery($query, array($pid));
-            $ins_co1 = $ins['name'];
-            $query = "Select * from insurance_companies where id in (select provider from insurance_data where pid =? and type='secondary')";
-            $ins = sqlQuery($query, array($pid));
-            $ins_co2 = $ins['name'];
-            ?>
-
+            
             <div style="position:relative;float:left;padding-left:18px;top:0px;">
-            <table style="border:1pt;font-size:1.0em;">
-                <tr>
-                    <td class="right"><b><?php echo xlt("PCP"); ?>:</b>&nbsp;</td><td style="font-size:0.8em;">&nbsp;
-                        <?php
-                            $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
-                              "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-                              "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
-                              "ORDER BY lname, fname");
-                            echo "<select name='form_PCP' id='form_PCP' title='".xla('Primary Care Provider')."'>";
-                            echo "<option value=''>" . xlt($empty_title) . "</option>";
-                            $got_selected = false;
-                        while ($urow = sqlFetchArray($ures)) {
-                            $uname = text($urow['lname'] . ' ' . $urow['fname']);
-                            $optionId = attr($urow['id']);
-                            echo "<option value='$optionId'";
-                            if ($urow['id'] == $pat_data['providerID']) {
-                                echo " selected";
-                                $got_selected = true;
+                <table style="border:1pt;font-size:1.0em;">
+                    <tr>
+                        <td class="right"><b><?php echo xlt("PCP"); ?>:</b>&nbsp;</td>
+                        <td class="left"><span id="pcp_name"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
+                                    echo ", ".text($pcp_data['suffix']);} ?></span></td>
+                        </td>
+                    </tr>
+                    
+                    <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td>
+                        <td class="left">&nbsp;
+    
+                        <span id="ref_name"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
+                                    echo ", ".text($ref_data['suffix']);} ?></span></td>
+                        </tr>
+                    <tr><td class="right"><b><?php echo xlt("Insurance"); ?>:</b>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coA); ?></td></tr>
+                    <tr><td class="right"><b><?php echo xlt("Secondary"); ?>:</b>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coB); ?></td></tr>
+                    <tr><td class="right"><b><?php echo xlt("Pharmacy"); ?>:</b>&nbsp;</td>
+                        <td class="left">&nbsp;
+                            <?php
+                            if (!empty($pat_data['pharmacy_id'])) {
+                                $sql = "SELECT d.id, d.name, a.line1, a.city, " .
+                                    "a.state, p.area_code, p.prefix, p.number FROM pharmacies AS d " .
+                                    "LEFT OUTER JOIN addresses AS a ON a.foreign_id = d.id " .
+                                    "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id " .
+                                    "AND p.type = 2 where d.id=?" .
+                                    "ORDER BY state, city, name, area_code, prefix, number";
+                                $pharm = sqlQuery($sql, array($pat_data['pharmacy_id']));
+                                echo text($pharm['name'].", ".$pharm['city']." ".$pharm['state']);
                             }
+                            ?>
+                        </td></tr>
 
-                            echo ">$uname</option>";
-                        }
-
-                        if (!$got_selected && $currvalue) {
-                            echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
-                            echo "</select>";
-                            echo "<span class='danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
-                        } else {
-                            echo "</select>";
-                        }
-                        ?>
-                    </td>
-                </tr>
-
-                <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td><td style="font-size:0.8em;">&nbsp;
-                    <?php
-                            $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
-                              "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-                              "AND ( authorized = 1 OR ( username = '') ) " .
-                              "ORDER BY lname, fname");
-                            echo "<select name='form_rDOC' id='form_rDOC' title='".xla('Every name in the address book appears here, not only physicians.')."'>";
-                            echo "<option value=''>" . xlt($empty_title) . "</option>";
-                            $got_selected = false;
-                    while ($urow = sqlFetchArray($ures)) {
-                        $uname = text($urow['lname'] . ' ' . $urow['fname']);
-                        $optionId = attr($urow['id']);
-                        echo "<option value='$optionId'";
-                        if ($urow['id'] == $pat_data['ref_providerID']) {
-                            echo " selected";
-                            $got_selected = true;
-                        }
-
-                        echo ">$uname</option>";
-                    }
-
-                    if (!$got_selected && $currvalue) {
-                        echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
-                        echo "</select>";
-                        echo " <span class='danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
-                    } else {
-                        echo "</select>";
-                    }
-                    ?>
-                    </td></tr>
-                <tr><td class="right"><b><?php echo xlt("Insurance"); ?>:</b>&nbsp;</td><td>&nbsp;<?php echo text($ins_co1); ?></td></tr>
-                <tr><td class="right"><b><?php echo xlt("Secondary"); ?>:</b>&nbsp;</td><td>&nbsp;<?php echo text($ins_co2); ?></td></tr>
-            </table>
+                </table>
             </div>
         </div>
 
@@ -4841,7 +4798,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         $OSIOP[$i]['time'] = $time;
         //$IOPTARGET['visit_date'] = $encounter_data['exam_date'];
         if ($encounter_data['ODIOPAP']>'') {
-            $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP'];
+            if (!is_int($encounter_data['ODIOPAP'])) {
+                $ODIOP[$k]['IOP']='';
+            } else {
+                $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP']; }
             $ODIOP[$i]['method'] = "AP";
         } else if ($encounter_data['ODIOPTPN']>'') {
             $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
@@ -4849,7 +4809,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         }
 
         if ($encounter_data['OSIOPAP']>'') {
-            $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP'];
+            if (!is_int($encounter_data['OSIOPAP'])) {
+                $OSIOP[$k]['IOP']='';
+            } else {
+                $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP']; }
             $OSIOP[$i]['method'] = "AP";
         } else if ($encounter_data['OSIOPTPN']>'') {
             $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
@@ -4940,6 +4903,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
         for ($k=0; $k < count($VISITS_date); $k++) {
             if ($date_OU[$a] == $VISITS_date[$k]) {
+                if (preg_match('/[a-z]/i', $ODIOP[$k]['IOP'])) {
+                    $ODIOP[$k]['IOP']='';}
+                if (preg_match('/[a-z]/i', $OSIOP[$k]['IOP'])) {
+                    $OSIOP[$k]['IOP']='';}
                 $OD_values[$a] = "'".$ODIOP[$k]['IOP']."'";
                 $OD_methods[$a] = $ODIOP[$k]['method'];
                 $OS_values[$a] = $OSIOP[$k]['IOP'];
@@ -4984,7 +4951,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             }
         }
 
-        if (!$OD_time_values[$a]) {
+        if (( !$OD_time_values[$a]) || (!is_int($OD_time_values[$a]))) {
             $OD_time_values[$a] = "";
         }
 
