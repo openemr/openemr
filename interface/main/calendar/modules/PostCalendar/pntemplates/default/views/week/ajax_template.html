@@ -456,7 +456,11 @@ foreach ($providers as $provider) {
 //==================================================================================================================
 if( $globle_timeformat == 1){
    $timeformat = 12;
-} else { $timeformat =0; }
+     if ($GLOBALS['time_display_format'] == 1) {
+         $timeformat = 12;
+     } else {
+         $timeformat = 0;
+     }
 
 
     foreach ($times as $slottime) {

@@ -288,9 +288,11 @@ echo "<tr>";
 echo "<td id='times' style='width:2em;'><div><table>\n";
 echo "<td class='timeslot' style='text-align: center; background-color:#ddd;'>&nbsp;</td>";
 
-if( $globle_timeformat == 1){
-  $timeformat = 12;
-} else { $timeformat =0; }
+if ($GLOBALS['time_display_format'] == 1) {
+    timeformat = 12;
+} else {
+    timeformat = 0;
+}
 
 
 foreach ($times as $slottime) {
