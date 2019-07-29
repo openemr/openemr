@@ -104,6 +104,16 @@ $pat_data       =  sqlQuery($query, array($pid));
 $query          = "SELECT * FROM users where id = ?";
 $prov_data      = sqlQuery($query, array($provider_id));
 
+
+$query ="SELECT * FROM users WHERE id=?";
+$pcp_data =  sqlQuery($query, array($pat_data['providerID']));
+$ref_data =  sqlQuery($query, array($pat_data['ref_providerID']));
+$insurance_info[1] = getInsuranceData($pid, "primary");
+$insurance_info[2] = getInsuranceData($pid, "secondary");
+$insurance_info[3] = getInsuranceData($pid, "tertiary");
+$ins_coA = $insurance_info[1]['provider_name'];
+$ins_coB = $insurance_info[2]['provider_name'];
+$ins_coC = $insurance_info[3]['provider_name'];
 // build $PMSFH array
 global $priors;
 global $earlier;
@@ -185,10 +195,10 @@ if ($refresh and $refresh != 'fullscreen') {
   </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
   <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
-  
+
   <div id="tabs_left" class="tabs ui-tabs ui-widget ui-widget-content ui-corner-all nodisplay">
       <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-corner-all">
-          
+
           <li id="tabs-left-HPI" class="btn-primary">
               <span><?php echo xlt('HPI'); ?></span>
           </li>
@@ -239,7 +249,7 @@ if ($refresh and $refresh != 'fullscreen') {
                 }
                 ?>';
           </script>
-          
+
         <!-- start form -->
         <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
           <div id="Layer1" name="Layer1" class="display">
@@ -840,7 +850,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         if ($ADDITIONAL == '1') {
                             $button_ADDITIONAL = "buttonRefraction_selected";
                         }
-    
+
                         if ($VAX == '1') {
                             $button_VAX = "buttonRefraction_selected";
                         }
@@ -1896,13 +1906,13 @@ if ($refresh and $refresh != 'fullscreen') {
 
               <!-- end reporting div -->
               <span class="anchor" id="SELECTION_ROW_anchor"></span>
-              
+
               <!-- Start of the exam sections -->
               <div class="loading" id="EXAM_sections_loading" name="EXAM_sections_loading">
                   <hr></hr>
                   <i class="fa fa-spinner fa-spin"></i>
               </div>
-              
+
                   <div class="nodisplay" id="DA_EXAM_sections" name="DA_EXAM_sections">
                   <!-- start External Exam -->
                   <div id="EXT_1" name="EXT_1" class="clear_both">
@@ -1914,7 +1924,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <i class="closeButton_4 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and Codes"); ?>"></i>
                             <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close External Exam panels'); ?>" id="BUTTON_TAB_EXT" name="BUTTON_TAB_EXT"></i>
                             <b><?php echo xlt('External Exam'); ?>:</b><div class="kb kb_left" title="<?php echo xla("External Exam Default Values"); ?>"><?php echo text('DEXT'); ?>
-                          
+
                             </div><br />
                           <div id="EXT_left_1">
                             <table>
@@ -1970,7 +1980,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       <td><input type="text" size="1" name="RCNVII" class="EXT" id="RCNVII" value="<?php echo attr($RCNVII); ?>"></td>
                                       <td><input type="text" size="1" name="LCNVII" class="EXT" id="LCNVII" value="<?php echo attr($LCNVII); ?>"></td>
                                   </tr>
-    
+
                                   <tr><td colspan=3 class="underline"><?php echo xlt('Hertel Exophthalmometry'); ?></td></tr>
                                   <tr class="center">
                                       <td>
@@ -1992,7 +2002,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   </tr>
                             </table>
                           </div>
-    
+
                             <?php ($EXT_VIEW ==1) ? ($display_EXT_view = "wide_textarea") : ($display_EXT_view= "narrow_textarea");?>
                             <?php ($display_EXT_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
                           <div id="EXT_text_list" name="EXT_text_list" class="borderShadow  <?php echo attr($display_EXT_view); ?>">
@@ -2054,7 +2064,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         </div>
                           <div id="QP_EXT" name="QP_EXT" class="QP_class">
                               <input type="hidden" id="EXT_prefix" name="EXT_prefix" value="<?php echo attr($EXT_prefix); ?>">
-    
+
                               <span class="closeButton fa fa-close pull-right z100" id="BUTTON_TEXTD_EXT" name="BUTTON_TEXTD_EXT" value="1"></span>
                               <div class="qp10">
                                   <span class="eye_button eye_button_selected" id="EXT_prefix_off" name="EXT_prefix_off" onclick="$('#EXT_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?></span>
@@ -2086,9 +2096,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                   title="<?php echo xla('This will clear the data from all External Exam fields'); ?>"
                                   onclick="$('#EXT_prefix').val('clear').trigger('change');"><?php echo xlt('clear'); ?></span>
                               </div>
-    
+
                               <div id="EXT_QP_block1" name="EXT_QP_block1" class="QP_block borderShadow text_clinical" >
-    
+
                                 <?php
                                 echo $QP_ANTSEG = display_QP("EXT", $provider_id); ?>
                               </div>
@@ -3318,7 +3328,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <input type="hidden" name="IMPPLAN_count" id="IMPPLAN_count" value="<?php echo $IMPPLAN_count; ?>">
                       </div>
                   </div>
-                
+
                     <?php
                       /* There are at least 4 ways to build IMP/PLAN
                        *  1. Freehand - textarea
@@ -3390,32 +3400,32 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 if ($v['diagnosis'] >'') {
                                                     $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
                                                 }
-                                        
+
                                                 $k = xla($k);
                                                 $v['title'] = xlt($v['title']);
                                                 $insert_code = text($insert_code);
                                                 echo "<li class='ui-widget-content'> <span id='DX_POH_".$k."' name='DX_POH_".$k."'>".$v['title']."</span> ".$insert_code."</li>";
                                             }
-                                    
+
                                             foreach ($PMSFH[0]['POS'] as $k => $v) {
                                                 $insert_code='';
                                                 if ($v['diagnosis'] >'') {
                                                     $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
                                                 }
-                                        
+
                                                 $k = xla($k);
                                                 $v['title'] = xlt($v['title']);
                                                 $insert_code = text($insert_code);
                                                 echo "<li class='ui-widget-content'> <span id='DX_POS_".$k."' name='DX_POS_".$k."'>".$v['title']."</span> ".$insert_code."</li>";
                                             }
-                                            
+
                                             if (!empty($PMSFH[0]['medical_problem'])) {
                                                 foreach ($PMSFH[0]['medical_problem'] as $k => $v) {
                                                     $insert_code = '';
                                                     if ($v['diagnosis'] > '') {
                                                         $insert_code = "<code class='pull-right diagnosis'>" . $v['diagnosis'] . "</code>";
                                                     }
-        
+
                                                     $k = xla($k);
                                                     $v['title'] = xlt($v['title']);
                                                     $insert_code = text($insert_code);
@@ -3432,7 +3442,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                         ?>
                                   </ol>
                               </dd>
-                    
+
                                 <?php
                                   /*
                                    *  The goal here is to auto-code the encounter and link it directly to the billing module.
@@ -3767,11 +3777,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <dt class="borderShadow"><span><?php echo xlt('Communication Engine'); ?></span></dt>
                               <dd>
                                   <div style="padding:5px 20px 5px 20px;">
-                                        <?php
-                                          $query ="SELECT * FROM users WHERE id=?";
-                                          $pcp_data =  sqlQuery($query, array($pat_data['referrerID']));
-                                          $ref_data =  sqlQuery($query, array($pat_data['ref_providerID']));
-                                        ?>
+
                                       <table style="width:100%;">
                                           <tr>
                                               <td class="bold underline" style="min-width:50px;"></td>
@@ -3780,10 +3786,66 @@ if ($refresh and $refresh != 'fullscreen') {
                                           </tr>
                                           <tr>
                                               <td></td>
-                                              <td class="bold"><span id="pcp_name"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
-                                                          echo ", ".text($pcp_data['suffix']);} ?></span></td>
-                                              <td class="bold"><span id="ref_name"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
-                                                          echo ", ".text($ref_data['suffix']);} ?></span></td>
+                                              <td>
+                                                    <?php
+                                                      $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
+                                                          "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+                                                          "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
+                                                          "ORDER BY lname, fname");
+                                                      echo "<select name='form_PCP' id='form_PCP' title='".xla('Primary Care Provider')."'>";
+                                                      echo "<option value=''>" . xlt($empty_title) . "</option>";
+                                                      $got_selected = false;
+                                                      while ($urow = sqlFetchArray($ures)) {
+                                                          $uname = text($urow['lname'] . ' ' . $urow['fname']);
+                                                          $optionId = attr($urow['id']);
+                                                          echo "<option value='$optionId'";
+                                                          if ($urow['id'] == $pat_data['providerID']) {
+                                                              echo " selected";
+                                                              $got_selected = true;
+                                                          }
+
+                                                          echo ">$uname</option>";
+                                                      }
+
+                                                      if (!$got_selected && $currvalue) {
+                                                          echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+                                                          echo "</select>";
+                                                          echo "<span class='danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
+                                                      } else {
+                                                          echo "</select>";
+                                                      }
+                                                        ?>
+                                              </td>
+                                              <td>
+                                                <?php
+                                                  $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
+                                                      "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+                                                      "AND ( authorized = 1 OR ( username = '') ) " .
+                                                      "ORDER BY lname, fname");
+                                                  echo "<select name='form_rDOC' id='form_rDOC' title='".xla('Every name in the address book appears here, not only physicians.')."'>";
+                                                  echo "<option value=''>" . xlt($empty_title) . "</option>";
+                                                  $got_selected = false;
+                                                  while ($urow = sqlFetchArray($ures)) {
+                                                      $uname = text($urow['lname'] . ' ' . $urow['fname']);
+                                                      $optionId = attr($urow['id']);
+                                                      echo "<option value='$optionId'";
+                                                      if ($urow['id'] == $pat_data['ref_providerID']) {
+                                                          echo " selected";
+                                                          $got_selected = true;
+                                                      }
+
+                                                      echo ">$uname</option>";
+                                                  }
+
+                                                  if (!$got_selected && $currvalue) {
+                                                      echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+                                                      echo "</select>";
+                                                      echo " <span class='danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
+                                                  } else {
+                                                      echo "</select>";
+                                                  }
+                                                    ?>
+                                              </td>
                                           </tr>
                                           <tr>
                                               <td class="bold top"><?php echo xlt('Phone'); ?>:</td>
@@ -3934,6 +3996,27 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 </span>
                                               </td>
                                           </tr>
+                                          <tr><td>&nbsp;</td></tr>
+                                          <tr><td class="top bold"><?php echo xlt('Insurance'); ?>:</td><td><?php echo text($ins_coA); ?></td></tr>
+                                            <?php if (!empty($ins_coB)) { ?>
+                                          <tr><td class="top bold"><?php echo xlt('Secondary'); ?>:</td><td><?php echo text($ins_coB); ?></td></tr>
+                                            <?php } ?>
+                                          <tr><td class="top bold"><?php echo xlt('Pharmacy'); ?>:</td>
+                                                <?php
+                                                  $frow['data_type']    = "12";
+                                                  $frow['form_id']      = 'EYE';
+                                                  $frow['field_id']     = 'pharmacy_id';
+                                                  $frow['list_id']      = 'pharmacy_id';
+                                                  $frow['description']  = "Pharmacy";
+                                                  echo "<td  colspan='2'>";
+                                                  ob_start();
+                                                  generate_form_field($frow, $pat_data['pharmacy_id']);
+                                                  $select_pharm = ob_get_clean();
+                                                  echo str_replace("form-control", "", $select_pharm);
+                                                ?>
+                                              </td><td class="top">
+                                                  <button onclick="editScripts('/openemr/controller.php?prescription&list&id=<?php echo attr($pat_data['pid']); ?>');"><?php echo xlt('eRx'); ?></button>
+                                              </td></tr>
 
                                       </table>
                                   </div>
@@ -3948,7 +4031,7 @@ if ($refresh and $refresh != 'fullscreen') {
             <!-- end form_container for the main body of the form -->
           </div>
           <!-- end Layer1 -->
-        
+
         </form>
         <!-- end form -->
       </div>    <!-- end Layer3 -->

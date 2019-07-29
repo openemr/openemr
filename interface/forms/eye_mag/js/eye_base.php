@@ -1016,6 +1016,36 @@ function show_KB() {
     }
     update_PREFS();
 }
+
+function editScripts(url) {
+    var pid = $('#pid').val();
+        var AddScript = function () {
+            var iam = top.tab_mode ? top.frames.editScripts : window[0];
+            iam.location.href = "/openemr/controller.php?prescription&edit&id=&pid="+pid
+        };
+        var ListScripts = function () {
+            var iam = top.tab_mode ? top.frames.editScripts : window[0];
+            iam.location.href = "/openemr/controller.php?prescription&list&id="+pid
+        };
+        
+        let title = 'Prescriptions';
+        let w = 810;
+        w = 910;
+        
+        dlgopen(url, 'editScripts', w, 300, '', '', {
+            buttons: [
+                {text: 'Add', close: false, style: 'primary  btn-sm', click: AddScript},
+                {text: 'List', close: false, style: 'primary  btn-sm', click: ListScripts},
+                {text: 'Done', close: true, style: 'default btn-sm'}
+            ],
+            onClosed: 'refreshme',
+            allowResize: true,
+            allowDrag: true,
+            dialogId: 'editscripts',
+            type: 'iframe'
+        });
+    }
+
 /* END Functions related to form VIEW */
 
 /*
@@ -1980,6 +2010,38 @@ function build_DOCS(DOCS) {
         $("#ref_fax").html(DOCS['ref']['fax_info']);
     }
 }
+
+/**
+ *      Function to update the patient's current pharmacy
+ */
+
+function  update_Pharma() {
+    //$(#form_pharmacy_id) has changed value, update the patient_data field pharmacy_id
+    var pharm = $("#form_pharmacy_id").val();
+    var url = "../../forms/eye_mag/save.php?mode=update";
+    top.restoreSession();
+    $.ajax({
+        type         : 'POST',
+        url          :  url,
+        data         : {
+            action       : 'new_pharmacy',
+            pid          : $('#pid').val(),
+            form_id      : $('#form_id').val(),
+            encounter    : $('#encounter').val(),
+            uniqueID     : $('#uniqueID').val(),
+            pc_eid       : $("#pc_eid").val(),
+            visit_date   : $("#visit_date").val(),
+            new_pharmacy : pharm
+        }
+    }).done(function(result) {
+        if (result == "Code 400") {
+            code_400(); //the user does not have write privileges!
+            return;
+        }
+    });
+}
+    
+
 /**
  *  Function to convert ophthalmic prescriptions between plus cylinder and minus cylinder
  *
@@ -2126,7 +2188,6 @@ function getTimeStamp() {
 function show_by_setting() {
     var tabs_left = $("#setting_tabs_left").val();
     if (typeof tabs_left ==undefined) exit;
-    var tabs_left = $("#setting_tabs_left").val();
     var arrSet = ["HPI","PMH","EXT","ANTSEG","POSTSEG","NEURO","IMPPLAN"];
     sLen = arrSet.length;
     for (i = 0; i < sLen; i++) {

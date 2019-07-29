@@ -1146,16 +1146,6 @@ textarea.EXTTEXT {
 }
 .closeButton_5:hover {
     cursor:pointer;
-    right:52px;
-    padding: 0px 5px;
-    font-size:12px;
-}
-.closeButton_3:hover {
-    cursor:pointer;
-    border: 0 solid grey;
-    text-decoration: none;
-    background-color: yellow;
-}
     border: 0 solid grey;
     text-decoration: none;
     background-color: yellow;
@@ -1655,7 +1645,6 @@ a:hover, a:focus {
 .building_blocks dd:last-of-type {
     border-top: 1px solid black;
     position: relative;
-    top: 10px;
 }
 .IMPPLAN_class { margin:1em;}
 .ICD_CODE{

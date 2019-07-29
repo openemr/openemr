@@ -399,7 +399,6 @@ if ($_REQUEST["mode"] == "new") {
         global $web_root, $webserver_root;
         $content = ob_get_clean();
         // Fix a nasty html2pdf bug - it ignores document root!
-        // TODO - now use mPDF, so should test if still need this fix
         $i = 0;
         $wrlen = strlen($web_root);
         $wsrlen = strlen($webserver_root);
@@ -801,6 +800,13 @@ if ($_REQUEST["mode"] == "new") {
         exit;
     }
 
+    
+    if ($_REQUEST['action'] == 'new_pharmacy') {
+        $query = "UPDATE patient_data set pharmacy_id=? where pid=?";
+        sqlStatement($query, array($_POST['new_pharmacy'], $pid));
+        echo "Pharmacy updated";
+        exit;
+    }
     /*** END CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
     //Update the visit status for this appointment (from inside the Coding Engine)
     //we also have to update the flow board...  They are not linked automatically.
