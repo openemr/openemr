@@ -178,9 +178,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         } else if (mType == '3') {
             Message = <?php echo xlj('After saving the TEXT file'); ?> + "(s), " + addOn;
         }
-        Message += "<br/><br/>" + <?php echo xlj('Validate and Clear validates then resets claims status to billed and clears process time'); ?>;
-        Message += "<br/>" + <?php echo xlj('Validate Only does a claim validation dry run for errors leaving claim status unaltered.'); ?>;
-        Message += "<br/>" + <?php echo xlj('Continue completes selected billing option normally.'); ?>;
+        Message += "<br/><br/>" + <?php echo xlj('Validate and Clear validates then sets claims status only, to billed, leaving billing process unaltered and claim submission resets to unsubmitted.'); ?>;
+        Message += "<br/><br/>" + <?php echo xlj('Validate Only does a claim validation dry run for errors leaving claim status unaltered.'); ?>;
+        Message += "<br/><br/>" + <?php echo xlj('Continue completes selected billing option normally.'); ?>;
         Message += "<br/><br/>" + <?php echo xlj('Total of'); ?> + ' ' + ClaimCount + ' ' + <?php echo xlj('claims selected.'); ?> + "\n";
         let sName = e.currentTarget.name;
         // wait for confirm result
