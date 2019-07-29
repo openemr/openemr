@@ -4897,8 +4897,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
         for ($k=0; $k < count($VISITS_date); $k++) {
             if ($date_OU[$a] == $VISITS_date[$k]) {
-                if (!is_int($ODIOP[$k]['IOP'])) { $ODIOP[$k]['IOP']='';}
-                if (!is_int($OSIOP[$k]['IOP'])) { $OSIOP[$k]['IOP']='';}
+                if (preg_match('/[a-z]/i', $ODIOP[$k]['IOP'])) { $ODIOP[$k]['IOP']='';}
+                if (preg_match('/[a-z]/i', $OSIOP[$k]['IOP'])) { $OSIOP[$k]['IOP']='';}
                 $OD_values[$a] = "'".$ODIOP[$k]['IOP']."'";
                 $OD_methods[$a] = $ODIOP[$k]['method'];
                 $OS_values[$a] = $OSIOP[$k]['IOP'];
