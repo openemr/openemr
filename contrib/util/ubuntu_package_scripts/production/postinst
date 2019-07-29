@@ -354,7 +354,6 @@ case "$1" in
          MAXINPUTVARS_TEXT="max_input_vars"
          MAXINPUTVARS=$(collect_php "$MAXINPUTVARS_TEXT")
          MAXINPUTVARS_IF_COMMENTED=$(collect_php_commented_out "$MAXINPUTVARS_TEXT")
-
          ALLOWLOCALINFILE_TEXT="mysqli.allow_local_infile"
          ALLOWLOCALINFILE=$(collect_php "$ALLOWLOCALINFILE_TEXT")
          ALLOWLOCALINFILE_IF_COMMENTED=$(collect_php_commented_out "$ALLOWLOCALINFILE_TEXT")
