@@ -59,7 +59,7 @@ function get_pharmacies()
     "LEFT OUTER JOIN addresses AS a ON a.foreign_id = d.id " .
     "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id " .
     "AND p.type = 2 " .
-    "ORDER BY name, area_code, prefix, number");
+    "ORDER BY state, city, name, area_code, prefix, number");
 }
 
 function optionalAge($frow, $date, &$asof, $description = '')
@@ -541,7 +541,15 @@ function generate_form_field($frow, $currvalue)
         echo "<option value='0'></option>";
         $pres = get_pharmacies();
         $got_selected = false;
+        $zone ='';
         while ($prow = sqlFetchArray($pres)) {
+            if ($zone != strtolower(trim($prow['city']))) {
+                if ($zone !='') {
+                    echo "</optgroup>";
+                }
+                $zone = strtolower(trim($prow['city']));
+                echo "<optgroup label='".attr($prow['city'])."'>";
+            }
             $key = $prow['id'];
             $optionValue = htmlspecialchars($key, ENT_QUOTES);
             $optionLabel = htmlspecialchars($prow['name'] . ' ' . $prow['area_code'] . '-' .
