@@ -104,6 +104,16 @@ $pat_data       =  sqlQuery($query, array($pid));
 $query          = "SELECT * FROM users where id = ?";
 $prov_data      = sqlQuery($query, array($provider_id));
 
+
+$query ="SELECT * FROM users WHERE id=?";
+$pcp_data =  sqlQuery($query, array($pat_data['providerID']));
+$ref_data =  sqlQuery($query, array($pat_data['ref_providerID']));
+$insurance_info[1] = getInsuranceData($pid, "primary");
+$insurance_info[2] = getInsuranceData($pid, "secondary");
+$insurance_info[3] = getInsuranceData($pid, "tertiary");
+$ins_coA = $insurance_info[1]['provider_name'];
+$ins_coB = $insurance_info[2]['provider_name'];
+$ins_coC = $insurance_info[3]['provider_name'];
 // build $PMSFH array
 global $priors;
 global $earlier;
@@ -3767,11 +3777,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <dt class="borderShadow"><span><?php echo xlt('Communication Engine'); ?></span></dt>
                               <dd>
                                   <div style="padding:5px 20px 5px 20px;">
-                                        <?php
-                                          $query ="SELECT * FROM users WHERE id=?";
-                                          $pcp_data =  sqlQuery($query, array($pat_data['referrerID']));
-                                          $ref_data =  sqlQuery($query, array($pat_data['ref_providerID']));
-                                        ?>
+                                      
                                       <table style="width:100%;">
                                           <tr>
                                               <td class="bold underline" style="min-width:50px;"></td>
@@ -3780,10 +3786,66 @@ if ($refresh and $refresh != 'fullscreen') {
                                           </tr>
                                           <tr>
                                               <td></td>
-                                              <td class="bold"><span id="pcp_name"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
-                                                          echo ", ".text($pcp_data['suffix']);} ?></span></td>
-                                              <td class="bold"><span id="ref_name"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
-                                                          echo ", ".text($ref_data['suffix']);} ?></span></td>
+                                              <td>
+                                                  <?php
+                                                      $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
+                                                          "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+                                                          "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
+                                                          "ORDER BY lname, fname");
+                                                      echo "<select name='form_PCP' id='form_PCP' title='".xla('Primary Care Provider')."'>";
+                                                      echo "<option value=''>" . xlt($empty_title) . "</option>";
+                                                      $got_selected = false;
+                                                      while ($urow = sqlFetchArray($ures)) {
+                                                          $uname = text($urow['lname'] . ' ' . $urow['fname']);
+                                                          $optionId = attr($urow['id']);
+                                                          echo "<option value='$optionId'";
+                                                          if ($urow['id'] == $pat_data['providerID']) {
+                                                              echo " selected";
+                                                              $got_selected = true;
+                                                          }
+            
+                                                          echo ">$uname</option>";
+                                                      }
+        
+                                                      if (!$got_selected && $currvalue) {
+                                                          echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+                                                          echo "</select>";
+                                                          echo "<span class='danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
+                                                      } else {
+                                                          echo "</select>";
+                                                      }
+                                                  ?>
+                                              </td>
+                                              <td>
+                                              <?php
+                                                  $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
+                                                      "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+                                                      "AND ( authorized = 1 OR ( username = '') ) " .
+                                                      "ORDER BY lname, fname");
+                                                  echo "<select name='form_rDOC' id='form_rDOC' title='".xla('Every name in the address book appears here, not only physicians.')."'>";
+                                                  echo "<option value=''>" . xlt($empty_title) . "</option>";
+                                                  $got_selected = false;
+                                                  while ($urow = sqlFetchArray($ures)) {
+                                                      $uname = text($urow['lname'] . ' ' . $urow['fname']);
+                                                      $optionId = attr($urow['id']);
+                                                      echo "<option value='$optionId'";
+                                                      if ($urow['id'] == $pat_data['ref_providerID']) {
+                                                          echo " selected";
+                                                          $got_selected = true;
+                                                      }
+            
+                                                      echo ">$uname</option>";
+                                                  }
+        
+                                                  if (!$got_selected && $currvalue) {
+                                                      echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+                                                      echo "</select>";
+                                                      echo " <span class='danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
+                                                  } else {
+                                                      echo "</select>";
+                                                  }
+                                              ?>
+                                              </td>
                                           </tr>
                                           <tr>
                                               <td class="bold top"><?php echo xlt('Phone'); ?>:</td>
@@ -3934,6 +3996,27 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 </span>
                                               </td>
                                           </tr>
+                                          <tr><td>&nbsp;</td></tr>
+                                          <tr><td class="top bold"><?php echo xlt('Insurance'); ?>:</td><td><?php echo text($ins_coA); ?></td></tr>
+                                          <?php if (!empty($ins_coB)) { ?>
+                                          <tr><td class="top bold"><?php echo xlt('Secondary'); ?>:</td><td><?php echo text($ins_coB); ?></td></tr>
+                                          <?php } ?>
+                                          <tr><td class="top bold"><?php echo xlt('Pharmacy'); ?>:</td>
+                                              <?php
+                                                  $frow['data_type']    = "12";
+                                                  $frow['form_id']      = 'EYE';
+                                                  $frow['field_id']     = 'pharmacy_id';
+                                                  $frow['list_id']      = 'pharmacy_id';
+                                                  $frow['description']  = "Pharmacy";
+                                                  echo "<td  colspan='2'>";
+                                                  ob_start();
+                                                  generate_form_field($frow, $pat_data['pharmacy_id']);
+                                                  $select_pharm = ob_get_clean();
+                                                  echo str_replace("form-control", "", $select_pharm);                                               
+                                              ?>
+                                              </td><td class="top">
+                                                  <button onclick="editScripts('/openemr/controller.php?prescription&list&id=<?php echo $pat_data['pid']; ?>');"><?php echo xlt('eRx'); ?></button>
+                                              </td></tr>
 
                                       </table>
                                   </div>
