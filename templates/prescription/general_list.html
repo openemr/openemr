@@ -225,7 +225,7 @@ $(document).ready(function(){
     {foreach from=$prescriptions item=prescription}
   <!-- TajEmo Changes 2012/06/14 02:03:17 PM by CB added cursor:pointer for easier user understanding -->
   <tr id="{$prescription->id|attr}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}">
-     <td align="center">
+     <td>
       <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id|attr}" {if $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xla t='Select for printing'}">
     </td>
     {if $prescription->erx_source==0}
@@ -310,7 +310,7 @@ $(document).ready(function(){
 {/if}
 
 {else}
-<div class="text" style="margin-top:10px">{xlt t='There are currently no prescriptions'}.</div>
+<div class="text" style="margin-top: 5em;text-align: center"><h3>{xlt t='No prescriptions listed'}.</h3></div>
 {/if}
 
 </body>

@@ -99,11 +99,201 @@ select{
 {/literal}
 </head>
 <body id="prescription_edit" class="body_top">
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+        <h3>{xlt t="Add"} / {xl t="Edit"} {xl t="Prescription"}</h3>
+        <hr>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+      <form name="prescribe" id="prescribe" class="form-horizontal" method="post" action="{$FORM_ACTION}">
+        <div class="form-group">
+          <div class="col-sm-8 col-sm-offset-4">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" name="active" value="1" {if $prescription->get_active() > 0}checked{/if}>
+                {xlt t="Currently Active"}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="start_date" class="control-label col-sm-2">{xlt t="Starting Date"}</label>
+          <div class="col-sm-2">
+            <input type="text" class="form-control datepicker" name="start_date" id="start_date" value="{$prescription->start_date|oeFormatShortDate|attr}">
+          </div>
+          <label for="provider_id" class="control-label col-sm-2">{xlt t="Provider"}</label>
+          <div class="col-sm-3">
+              {html_options class="form-control" name="provider_id" options=$prescription->provider->utility_provider_array() selected=$prescription->provider->get_id()}
+              <input type="hidden" name="patient_id" value="{$prescription->patient->id|attr}" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="drug" class="control-label col-sm-2">{xlt t="Drug"}</label>
+          <div class="col-sm-7">
+            <div class="input-group">
+              <input type="text" class="form-control" id="drug" name="drug" value="{$prescription->drug|attr}">
+              <span class="input-group-btn">
+                <button class="btn btn-default btn-search" onclick="$('#hiddendiv').show();document.getElementById('hidden_content').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">Search</button>
+              </span>
+            </div>
+          </div>
+          <label for="quantity" class="control-label col-sm-1">{xlt t="Quantity"}</label>
+          <div class="col-sm-2">
+            <input type="text" name="quantity" id="quantity" class="form-control" maxlength="31" value="{$prescription->quantity|attr}" onchange="quantityChanged()">
+          </div>
+        </div>
+        <div class="form-group" style="display: none" id="hiddendiv">
+          <div class="col-sm-offset-6 col-sm-8">
+              <div class="well well-sm" id="hidden_content"></div>
+          </div>
+        </div>
+        {if $DRUG_ARRAY_VALUES}
+        <div class="form_group">
+          <label for="drug_id" class="control-label col-sm-4">{xlt t="In House"}</label>
+          <div class="col-sm-8">
+              <select class="form-control" name="drug_id" onchange="drugselected(this)">
+                {html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT selected=$prescription->get_drug_id()}
+              </select>
+              <input type="hidden" name="rxnorm_drugcode" value="{$prescription->rxnorm_drugcode|attr}">
+          </div>
+        </div>
+        {/if}
+        {if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->size}
+        <div class="form-group hidden">
+        {else}
+        <div class="form-group">
+        {/if}
+          <label for="size" class="control-label col-sm-2">{xlt t="Dosage"}</label>
+          <div class="col-sm-1">
+            <input type="text" class="form-control" name="size" id="size" maxlength="10" value="{$prescription->size|attr}">
+          </div>
+          <div class="col-sm-2">
+              <select class="form-control" name="unit" id="unit">{html_options options=$prescription->unit_array selected=$prescription->unit}</select>
+          </div>
+          <div class="col-sm-1">
+              {if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->form && !$prescription->route && !$prescription->interval}
+                <input class="form-control" TYPE="text" NAME="dosage" id="dosage" SIZE="30" MAXLENGTH="100" VALUE="{$prescription->dosage|attr}">
+                <input type="hidden" name="form" id="form" value="0">
+                <input type="hidden" name="route" id="route" value="0">
+                <input type="hidden" name="interval" id="interval" value="0">
+              {else}
+                <input class="form-control" TYPE="TEXT" NAME="dosage" id="dosage" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->dosage|attr}">
+              {/if}
+          </div>
+          <div class="col-sm-2">
+            <select class="form-control" name="form" id="form">{html_options options=$prescription->form_array selected=$prescription->form}</select>
+          </div>
+          <div class="col-sm-2">
+            <select class="form-control" name="route" id="route">{html_options options=$prescription->route_array selected=$prescription->route}</select>
+          </div>
+          <div class="col-sm-2">
+            <select class="form-control" name="interval" id="interval">{html_options options=$prescription->interval_array selected=$prescription->interval}</select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label for="per_refill" class="control-label col-sm-4">{xlt t="Refills"}</label>
+              <div class="col-sm-6">
+                  {html_options name="refills" class="form-control" options=$prescription->refills_array selected=$prescription->refills}
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-6">
+                {if $SIMPLIFIED_PRESCRIPTIONS}
+                <input TYPE="hidden" ID="per_refill" NAME="per_refill" VALUE="{$prescription->per_refill|attr}" />
+                {else}
+                <label for="per_refill" class="control-label col-sm-4"># {xlt t="of tablets"}</label>
+                <div class="col-sm-6">
+                  <input class="form-control" TYPE="TEXT" ID="per_refill" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill|attr}" />
+                </div>
+                {/if}
+              </div>
+              <label for="note" class="control-label col-sm-12">{xlt t="Notes"}</label>
+              <div class="col-sm-12">
+                  <textarea class="form-control" name="note" rows="3">{$prescription->note|text}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        {if $WEIGHT_LOSS_CLINIC}
+        <div class="form-group">
+          <label for="substitute" class="control-label col-sm-4">{xlt t="Substitution"}</label>
+          <div class="col-sm-8">
+              {html_options name="substitute" class="form-control" options=$prescription->substitute_array selected=$prescription->substitute}
+          </div>
+        </div>
+        {else}
+        <div class="form-group">
+          <label for="medication" class="control-label col-sm-4">{xlt t="Add to Medication List"}</label>
+          <div class="col-sm-8">
+              {html_options name="medication" class="form-control" options=$prescription->medication_array selected=$prescription->medication}
+          </div>
+        </div>
+        <div class="form-group">
+            <label for="substitute" class="control-label col-sm-4">{xlt t="Substitution"}</label>
+            <div class="col-sm-8">
+                {html_options class="form-control" name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
+            </div>
+          </div>
+        {/if}
+        <div class="form-group">
+          <div class="col-sm-offset-4 col-sm-8">
+            <a href="#" onclick="submitfun();" class="btn btn-primary btn-save">{xlt t="Save Prescription"}</a>
+            <a href="controller.php?prescription&list&id={$prescription->patient->id|attr_url}" class="btn btn-secondary btn-cancel">{xlt t="Cancel"}</a>
+          </div>
+        </div>
+        <input type="hidden" name="id" value="{$prescription->id|attr}" />
+        <input type="hidden" name="process" value="{$PROCESS|attr}" />
+        <script>
+          {$ENDING_JAVASCRIPT}
+        </script>
+      </form>
+    </div>
+
+    <div class="col-sm-4">
+        {if $GLOBALS.enable_amc_prompting}
+            {amcCollect amc_id='e_prescribe_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
+            {if not $amcCollectReturn}
+              <input type="checkbox" id="escribe_flag" name="escribe_flag">
+            {else}
+              <input type="checkbox" id="escribe_flag" name="escribe_flag" checked>
+            {/if}
+            <span class="text">{xlt t='E-Prescription?'}</span><br>
+      
+            {amcCollect amc_id='e_prescribe_chk_formulary_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
+            {if not $amcCollectReturn}
+              <input type="checkbox" id="checked_formulary_flag" name="checked_formulary_flag">
+            {else}
+              <input type="checkbox" id="checked_formulary_flag" name="checked_formulary_flag" checked>
+            {/if}
+            <span class="text">{xlt t='Checked Drug Formulary?'}</span><br>
+      
+            {amcCollect amc_id='e_prescribe_cont_subst_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
+            {if not $amcCollectReturn}
+              <input type="checkbox" id="controlled_substance_flag" name="controlled_substance_flag">
+            {else}
+              <input type="checkbox" id="controlled_substance_flag" name="controlled_substance_flag" checked>
+            {/if}
+            <span class="text">{xlt t='Controlled Substance?'}</span><br>
+      
+          </div>
+        </div>
+      {/if}
+    </div>
+  </div>
+</div>
+
 
 <form name="prescribe" id="prescribe"  method="post" action="{$FORM_ACTION}" >
 <table>
-    <tr><td class="title"><font><b>{xlt t='Add'}/{xl t='Edit'}</b></font>&nbsp;</td>
-    <td><a id="save" href=# onclick="submitfun();" class="css_button_small"><span>{xlt t='Save'}</span></a>
+    <tr>
+    <td>
     {if $DRUG_ARRAY_VALUES}
     &nbsp; &nbsp; &nbsp; &nbsp;
         {if $prescription->get_refills() >= $prescription->get_dispensation_count()}
@@ -115,156 +305,9 @@ select{
             {xlt t='prescription has reached its limit of'} {$prescription->get_refills()|text} {xlt t='refills'}.
         {/if}
     {/if}
-         <a id="back" class='css_button_small' href="controller.php?prescription&list&id={$prescription->patient->id|attr_url}"><span>{xlt t='Back'}</span></a>
+         
 </td></tr>
 </table>
-
-{if $GLOBALS.enable_amc_prompting}
-  <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
-    <div style='float:left;margin:5px 5px 5px 5px;'>
-      {amcCollect amc_id='e_prescribe_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
-      {if not $amcCollectReturn}
-        <input type="checkbox" id="escribe_flag" name="escribe_flag">
-      {else}
-        <input type="checkbox" id="escribe_flag" name="escribe_flag" checked>
-      {/if}
-      <span class="text">{xlt t='E-Prescription?'}</span><br>
-
-      {amcCollect amc_id='e_prescribe_chk_formulary_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
-      {if not $amcCollectReturn}
-        <input type="checkbox" id="checked_formulary_flag" name="checked_formulary_flag">
-      {else}
-        <input type="checkbox" id="checked_formulary_flag" name="checked_formulary_flag" checked>
-      {/if}
-      <span class="text">{xlt t='Checked Drug Formulary?'}</span><br>
-
-      {amcCollect amc_id='e_prescribe_cont_subst_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
-      {if not $amcCollectReturn}
-        <input type="checkbox" id="controlled_substance_flag" name="controlled_substance_flag">
-      {else}
-        <input type="checkbox" id="controlled_substance_flag" name="controlled_substance_flag" checked>
-      {/if}
-      <span class="text">{xlt t='Controlled Substance?'}</span><br>
-
-    </div>
-  </div>
-{/if}
-
-<table CELLSPACING="0" CELLPADDING="3" BORDER="0">
-<tr>
-  <td COLSPAN="1" class="text input-sm" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Currently Active'}</td>
-  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    <input class="input-sm"type="checkbox" name="active" value="1"{if $prescription->get_active() > 0} checked{/if} />
-  </td>
-</tr>
-<tr>
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Starting Date'}</td>
-  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-      <input   type="text" size="10" class="datepicker" name="start_date" id="start_date" value="{$prescription->start_date|oeFormatShortDate|attr}" />
-  </td>
-</tr>
-<tr>
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Provider'}</td>
-  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    {html_options class="input-sm" name="provider_id" options=$prescription->provider->utility_provider_array() selected=$prescription->provider->get_id()}
-    <input type="hidden" name="patient_id" value="{$prescription->patient->id|attr}" />
-  </td>
-</tr>
-
-<tr>
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Drug'}</td>
-  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-            <input class="input-sm" type="input" size="35" name="drug" id="drug" value="{$prescription->drug|attr}"/>
-            <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
-            ({xlt t='click here to search'})</a>
-            <div class="well well-sm" id="hiddendiv" style="display:none">&nbsp;</div>
-  </td>
-</tr>
-{if $DRUG_ARRAY_VALUES}
-<tr>
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >&nbsp; {xlt t='in-house'}</td>
-  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    <select class="input-sm" name="drug_id" onchange="drugselected(this)">
-    {html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT selected=$prescription->get_drug_id()}
-    </select>
-        <input type="hidden" name="rxnorm_drugcode" value="{$prescription->rxnorm_drugcode|attr}">
-  </td>
-</tr>
-{/if}
-<tr>
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Quantity'}</td>
-  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    <input class="input-sm" TYPE="TEXT" NAME="quantity" id="quantity" SIZE="10" MAXLENGTH="31"
-     VALUE="{$prescription->quantity|attr}"
-     onchange="quantityChanged()" />
-  </td>
-</tr>
-{if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->size}
-<tr style='display:none;'>
-{else}
-<tr>
-{/if}
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Medicine Units'}</td>
-  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    <input class="input-sm" TYPE="TEXT" NAME="size" id="size" SIZE="11" MAXLENGTH="10" VALUE="{$prescription->size|attr}"/>
-    <select class="input-sm" name="unit" id="unit">{html_options options=$prescription->unit_array selected=$prescription->unit}</select>
-  </td>
-</tr>
-<tr>
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Directions'}</td>
-  <td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
-{if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->form && !$prescription->route && !$prescription->interval}
-    <input class="input-sm" TYPE="text" NAME="dosage" id="dosage" SIZE="30" MAXLENGTH="100" VALUE="{$prescription->dosage|attr}" />
-    <input type="hidden" name="form" id="form" value="0" />
-    <input type="hidden" name="route" id="route" value="0" />
-    <input type="hidden" name="interval" id="interval" value="0" />
-{else}
-    <input class="input-sm" TYPE="TEXT" NAME="dosage" id="dosage" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->dosage|attr}"/> {xlt t='in'}
-    <select class="input-sm" name="form" id="form">{html_options options=$prescription->form_array selected=$prescription->form}</select>
-    <select class="input-sm" name="route" id="route">{html_options options=$prescription->route_array selected=$prescription->route}</select>
-    <select class="input-sm" name="interval" id="interval">{html_options options=$prescription->interval_array selected=$prescription->interval}</select>
-{/if}
-  </td>
-</tr>
-<tr>
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Refills'}</td>
-  <td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
-    {html_options name="refills" options=$prescription->refills_array selected=$prescription->refills}
-{if $SIMPLIFIED_PRESCRIPTIONS}
-    <input TYPE="hidden" ID="per_refill" NAME="per_refill" VALUE="{$prescription->per_refill|attr}" />
-{else}
-    &nbsp; &nbsp; # {xlt t='of tablets'}:
-    <input class="input-sm" TYPE="TEXT" ID="per_refill" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill|attr}" />
-{/if}
-  </td>
-</tr>
-<tr>
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Notes'}</td>
-  <td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
-  <textarea class="form-control" name="note" cols="30" rows="1" wrap="virtual">{$prescription->note|text}</textarea>
-  </td>
-</tr>
-<tr>
-{if $WEIGHT_LOSS_CLINIC}
-  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Substitution'}</td>
-  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    {html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
-  </td>
-{else}
-  <td COLSPAN="1" class="text input-sm" ALIGN="right" VALIGN="MIDDLE" >{xlt t='Add to Medication List'}</td>
-  <td COLSPAN="2" class="text input-sm" ALIGN="LEFT" VALIGN="MIDDLE" >
-    {html_radios class="input-sm" name="medication" options=$prescription->medication_array selected=$prescription->medication}
-    &nbsp; &nbsp;
-    {html_options class="input-sm" name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
-  </td>
-{/if}
-</tr>
-</table>
-<input type="hidden" name="id" value="{$prescription->id|attr}" />
-<input type="hidden" name="process" value="{$PROCESS|attr}" />
-<script language='JavaScript'>
-{$ENDING_JAVASCRIPT}
-</script>
 </form>
 
 {literal}
