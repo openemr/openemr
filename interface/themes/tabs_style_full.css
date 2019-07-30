@@ -361,7 +361,6 @@ z-index:10000;
     padding: 15px 10px;
     font-weight: 700;
     transition: background-color 0.5s ease;
-    float: left;
     width: 100%;
 }
 .menuLabel:hover {
