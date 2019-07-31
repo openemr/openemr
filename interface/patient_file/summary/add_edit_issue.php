@@ -20,12 +20,14 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
 
+
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
+<script><?php require($GLOBALS['srcdir'] . '/formatting_DateToYYYYMMDD_js.js.php'); ?></script>
 <?php
 
 if ($_POST['form_save']) {
@@ -590,7 +592,14 @@ dlgopen(<?php echo js_escape($url); ?>, '_blank', 985, 800, '', <?php echo xlj("
 // Check for errors when the form is submitted.
 function validate() {
  var f = document.forms[0];
- if(f.form_begin.value > f.form_end.value && (f.form_end.value)) {
+ var begin_date_val=f.form_begin.value;
+     begin_date_val= begin_date_val ? DateToYYYYMMDD_js(begin_date_val):begin_date_val;
+ var end_date_val=f.form_end.value;
+     end_date_val = end_date_val ? DateToYYYYMMDD_js(end_date_val):end_date_val;
+ var begin_date=new Date(begin_date_val);
+ var end_date=new Date(end_date_val);
+
+ if( (end_date_val) && (begin_date > end_date) ) {
   alert(<?php echo xlj('Please Enter End Date greater than Begin Date!'); ?>);
   return false;
  }
