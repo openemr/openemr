@@ -20,16 +20,25 @@
 <?php
 
    $search_any_type = $GLOBALS['search_any_patient'];
-   //$search_any_type = 'comprehensive';
-   //$search_any_type = 'dual';
-   
-if ($search_any_type == 'dual') {
-    $any_search_class = "any-search-legacy";
-    $search_globals_class = "btn-globals-legacy";
-} elseif ($search_any_type == 'comprehensive') {
-    $any_search_class = "any-search-modern";
-    $search_globals_class = "btn-globals-modern";
-}
+
+    //Modes for search box :comprehensive, dual, fixed and the default is none
+    switch ($search_any_type) {
+        case 'dual':
+            $any_search_class = "any-search-legacy";
+            $search_globals_class = "btn-globals-legacy";
+            break;
+        case 'comprehensive':
+            $any_search_class = "any-search-modern";
+            $search_globals_class = "btn-globals-modern";
+            break;
+        case 'fixed':
+            $any_search_class = "any-search-fixed";
+            $search_globals_class = "btn-globals-fixed";
+            break;
+        default:
+            $any_search_class = "any-search-none";
+            $search_globals_class = "btn-globals-none";
+    }
 
 ?>
 <script type="text/html" id="patient-data-template">
