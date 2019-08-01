@@ -1752,35 +1752,7 @@
         ],
         "requirement": 0,
         "global_req": "ippf_specific"
-      },
-      {
-        "label": "Blank Forms",
-        "icon": "fa-caret-right",
-        "children": [
-          {
-            "label": "Demographics",
-            "url": "/interface/patient_file/summary/demographics_print.php",
-            "target": "rep",
-            "children": [],
-            "requirement": 0
-          },
-          {
-            "label": "Superbill/Fee Sheet",
-            "url": "/interface/patient_file/printed_fee_sheet.php",
-            "target": "rep",
-            "children": [],
-            "requirement": 0
-          },
-          {
-            "label": "Referral",
-            "url": "/interface/patient_file/transaction/print_referral.php",
-            "target": "rep",
-            "children": [],
-            "requirement": 0
-          }
-        ],
-        "requirement": 0
-      },
+      },      
       {
         "label": "Services",
         "icon": "fa-caret-right",
@@ -1980,6 +1952,34 @@
           "admin",
           "practice"
         ]
+      },
+      {
+        "label": "Blank Forms",
+        "icon": "fa-caret-right",
+        "children": [
+          {
+            "label": "Demographics",
+            "url": "/interface/patient_file/summary/demographics_print.php",
+            "target": "rep",
+            "children": [],
+            "requirement": 0
+          },
+          {
+            "label": "Superbill/Fee Sheet",
+            "url": "/interface/patient_file/printed_fee_sheet.php",
+            "target": "rep",
+            "children": [],
+            "requirement": 0
+          },
+          {
+            "label": "Referral",
+            "url": "/interface/patient_file/transaction/print_referral.php",
+            "target": "rep",
+            "children": [],
+            "requirement": 0
+          }
+        ],
+        "requirement": 0
       }
     ],
     "requirement": 0,
