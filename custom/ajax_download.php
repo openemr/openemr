@@ -55,6 +55,7 @@ if ($fileName) {
             unlink($qrda_file_path.$eachFile);
         }
     } else {
+        check_file_dir_name($fileList[0]);
         $finalZip = $qrda_file_path.$fileList[0];
     }
 
