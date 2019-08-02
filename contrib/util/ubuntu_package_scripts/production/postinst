@@ -354,6 +354,9 @@ case "$1" in
          MAXINPUTVARS_TEXT="max_input_vars"
          MAXINPUTVARS=$(collect_php "$MAXINPUTVARS_TEXT")
          MAXINPUTVARS_IF_COMMENTED=$(collect_php_commented_out "$MAXINPUTVARS_TEXT")
+         ALLOWLOCALINFILE_TEXT="mysqli.allow_local_infile"
+         ALLOWLOCALINFILE=$(collect_php "$ALLOWLOCALINFILE_TEXT")
+         ALLOWLOCALINFILE_IF_COMMENTED=$(collect_php_commented_out "$ALLOWLOCALINFILE_TEXT")
 
          # Second, backup the php.ini file before modifying
          cp $PHP $PHP.BAK
@@ -423,6 +426,12 @@ case "$1" in
             if [ ! -z "$MAXINPUTVARS_IF_COMMENTED" ] && [ "$MAXINPUTVARS_IF_COMMENTED" -lt "3000" ]; then
                process_php_commented_out "$MAXINPUTVARS_TEXT" "3000" $i
             fi
+            if [ ! -z "$ALLOWLOCALINFILE" ] && [ "$ALLOWLOCALINFILE" != "On" ]; then
+               process_php "$ALLOWLOCALINFILE_TEXT" "On" $i
+            fi
+            if [ ! -z "$ALLOWLOCALINFILE_IF_COMMENTED" ] && [ "$ALLOWLOCALINFILE_IF_COMMENTED" != "On" ]; then
+               process_php_commented_out "$ALLOWLOCALINFILE_TEXT" "On" $i
+            fi
             if [ "$FLAG_ON" -eq "0" ]; then
               log_only "Your PHP configuration is perfect for OpenEMR."
               break
@@ -448,6 +457,7 @@ case "$1" in
          log_only "file_uploads = On"
          log_only "upload_max_filesize = 30M"
          log_only "max_input_vars = 3000"
+         log_only "mysqli.allow_local_infile = On"
       fi
 
       log_only "Done configuring PHP"
