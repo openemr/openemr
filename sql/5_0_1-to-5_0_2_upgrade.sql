@@ -745,7 +745,7 @@ ALTER TABLE `issue_encounter`
     MODIFY `pid` bigint(20) NOT NULL;
 #EndIf
 
-#IfNotColumnType onsite_documents pid bigint(20)
+#IfNotColumnType onsite_documents pid bigint(20) unsigned
 ALTER TABLE `onsite_documents`
     MODIFY `pid` bigint(20) UNSIGNED default NULL;
 #EndIf
@@ -814,7 +814,7 @@ ALTER TABLE `ar_session`
 ALTER TABLE `documents` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes';
 #EndIf
 
-#IfNotRow4D supported_external_dataloads load_type CQM_VALUESET load_source NIH_VASC load_release_date 2017-09-29 load_filename ep_ec_only_cms_20170929.xml.zip
+#IfNotRow4D supported_external_dataloads load_type CQM_VALUESET load_source NIH_VSAC load_release_date 2017-09-29 load_filename ep_ec_only_cms_20170929.xml.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('CQM_VALUESET', 'NIH_VSAC', '2017-09-29','ep_ec_only_cms_20170929.xml.zip','38d2e1a27646f2f09fcc389fd2335c50');
 #EndIf
 
@@ -850,7 +850,7 @@ DROP TABLE `eligibility_response`;
 #EndIf
 
 #IfTable x12_partners
-ALTER TABLE `x12_partners` CHANGE `processing_format` `processing_format` ENUM('standard','medi-cal','cms','proxymed','oa-eligibility','avality-eligibility') DEFAULT NULL;
+ALTER TABLE `x12_partners` CHANGE `processing_format` `processing_format` ENUM('standard','medi-cal','cms','proxymed','oa_eligibility','availity_eligibility') DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn insurance_companies eligibility_id
