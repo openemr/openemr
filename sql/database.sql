@@ -1603,6 +1603,7 @@ CREATE TABLE `facility` (
   `mail_street2` varchar(30) default NULL,
   `mail_city` varchar(50) default NULL,
   `mail_state` varchar(3) default NULL,
+  `iban` varchar(50) default NULL,
   `mail_zip` varchar(10) default NULL,
   `oid` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted',
   PRIMARY KEY  (`id`)
