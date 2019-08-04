@@ -226,9 +226,14 @@ function displayAlert()
         </tr>
         <tr>
         <td><span class="text"><?php echo xlt('Website'); ?>: </span></td><td><input type=entry size=20 name=website value=""></td>
-        <td>&nbsp;</td>
+        <td> </td>
         <td><span class="text"><?php echo xlt('Email'); ?>: </span></td><td><input type=entry size=20 name=email value=""></td>
         </tr>
+        <tr>
+            <td><span class="text"><?php echo xlt('IBAN'); ?>: </span></td><td><input type=entry size=20 name=iban value=""></td>
+            <td> </td>
+        </tr>
+
 
         <tr>
           <td><span class='text'><?php echo xlt('Billing Location'); ?>: </span></td><td><input type='checkbox' name='billing_location' value = '1'></td>
