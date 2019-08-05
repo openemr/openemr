@@ -360,7 +360,7 @@ z-index:10000;
     color: #333;
     padding: 15px 10px;
     font-weight: 700;
-    transition: background-color 0.5s ease;
+    transition: background-color 0.1s ease;
     width: 100%;
 }
 .menuLabel:hover {
