@@ -1752,7 +1752,7 @@
         ],
         "requirement": 0,
         "global_req": "ippf_specific"
-      },      
+      },
       {
         "label": "Services",
         "icon": "fa-caret-right",
@@ -1926,7 +1926,7 @@
         "children": [],
         "requirement": 0,
         "global_req": "track_anything_state"
-      },      
+      },
       {
         "label": "New Documents",
         "menu_id": "adm0",
@@ -1982,11 +1982,7 @@
         "requirement": 0
       }
     ],
-    "requirement": 0,
-    "acl_req": [
-      "patients",
-      "docs"
-    ]
+    "requirement": 0
   },
   {
     "label": "Popups",
