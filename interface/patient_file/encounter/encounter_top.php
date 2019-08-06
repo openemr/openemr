@@ -64,6 +64,8 @@ $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
     <?php Header::setupHeader(); ?>
 <?php echo $tabset->genCss(); ?>
 <?php echo $tabset->genJavaScript(); ?>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['rootdir']; ?>/main/tabs/js/pin_tab.js"></script>
 <script>
 
 $(function() {

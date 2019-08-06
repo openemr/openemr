@@ -63,6 +63,8 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt/css/colReorder.dataTables.css" type="text/css">
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net/js/jquery.dataTables.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder/js/dataTables.colReorder.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['rootdir']; ?>/main/tabs/js/pin_tab.js"></script>
+
 <style>
     /* Finder Processing style */
     div.dataTables_wrapper div.dataTables_processing {
@@ -78,9 +80,16 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
             text-align: justify;
         }
     }
-    
+
 </style>
 <script language="JavaScript">
+
+
+    function switchPatient(){
+        cleanPatientSwitchBlock();
+        var event = new Event('switchPatient');
+        window.dispatchEvent(event);
+    }
 
     var uspfx = '<?php echo attr($uspfx); ?>';
 
@@ -141,12 +150,33 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
             if (newpid.length === 0) {
                 return;
             }
-            if (document.myform.form_new_window.checked) {
-                openNewTopWindow(newpid);
-            }
-            else {
-                top.restoreSession();
-                top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+
+            var event = new Event('switchPatient');
+            window.addEventListener('switchPatient', function (e) {
+
+                if (document.myform.form_new_window.checked) {
+                    openNewTopWindow(newpid);
+                }
+                else {
+                    top.restoreSession();
+                    top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+                }
+
+            }, false);
+
+            var switchBlock=checkPatientSwitchBlock();
+
+            if(switchBlock){
+                var confirmFn= function() {switchPatient(); };
+                var okCancelLabels={
+                    continue:'<?php echo xlt('Continue')?>',
+                    cancel: '<?php echo xlt('Cancel')?>'
+                };
+                var msg="<?php echo xlt('Please save all your work before switching patient')?>";
+
+                openConfirm(msg,confirmFn,okCancelLabels)
+            }else{
+                switchPatient();
             }
         });
     });
@@ -256,8 +286,8 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
                 $("#pt_table_length").addClass ("hidden");
                 $("#show_hide").addClass ("hidden");
                 $("#search_hide").addClass ("hidden");
-                
-                
+
+
             } else {
                 $("#pt_table_filter").removeClass ("hidden");
                 $("#pt_table_length").removeClass ("hidden");
@@ -266,7 +296,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
             }
         });
     </script>
-    
+
     <script>
         document.addEventListener('touchstart', {});
     </script>

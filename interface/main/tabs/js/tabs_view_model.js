@@ -88,14 +88,40 @@ function tabRefresh(data,evt)
         // Do nothing, but avoid exceptions caused by iFrames from different domain (ie NewCrop)
     }
 }
+//
+
+function closeTabEvent(tabName){
+    var event = new Event('closeTab');
+    window.dispatchEvent(event);
+    if(tabName){
+        unpinTab(tabName);
+    }
+}
 
 function tabClose(data,evt)
 {
-    //remove the tab
-    app_view_model.application_data.tabs.tabsList.remove(data);
-    //activate the next tab
-    if(data.visible()) {
-        activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length-1]);
+    var event = new Event('closeTab');
+    window.addEventListener('closeTab', function (e) {
+
+        //remove the tab
+        app_view_model.application_data.tabs.tabsList.remove(data);
+        //activate the next tab
+        if(data.visible()) {
+            activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length-1]);
+        }
+
+    }, false);
+    var tabName=data.name();
+    var msg=checkIfTabPinnedByName(tabName);
+    if(msg){
+        var confirmFn= function() {closeTabEvent(tabName); };
+        var okCancelLabels={
+                            continue:xl_strings_tabs_view_model['continue'],
+                            cancel:xl_strings_tabs_view_model['cancel']
+                           };
+        openConfirm(msg,confirmFn,okCancelLabels)
+    }else{
+        closeTabEvent();
     }
 }
 

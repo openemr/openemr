@@ -98,6 +98,9 @@ EOD;
     public static function genJavaScript()
     {
         global $web_root;
+        $continue =xlt('Continue');
+        $cancel=xlt('Cancel');
+
         $s = '';
         if (!defined('INCLUDED_JQUERY_UI')) {
             define('INCLUDED_JQUERY_UI', '1-12-1');
@@ -163,12 +166,36 @@ function twAddFrameTab(tabsid, label, url) {
   return panelId;
 }
 
+
+function twClose(tabsid){
+    var event = new Event('twClose');
+    window.dispatchEvent(event);
+    if(tabsid){
+        unpinTab(tabsid);
+     }
+}    
+    
 // Remove the specified tab from the specified tab set.
 function twCloseTab(tabsid, panelId) {
-  twObject[tabsid].tabs.find("[href='#" + panelId + "']").closest("li").remove();
-  twObject[tabsid].tabs.find("#" + panelId).remove();
-  top.restoreSession();
-  twObject[tabsid].tabs.tabs("refresh");
+    var event = new Event('twClose');
+    window.addEventListener('twClose', function (e) {
+          twObject[tabsid].tabs.find("[href='#" + panelId + "']").closest("li").remove();
+          twObject[tabsid].tabs.find("#" + panelId).remove();
+          top.restoreSession();
+          twObject[tabsid].tabs.tabs("refresh");
+    }, false);
+
+    var msg=checkIfTabPinnedByName(panelId);
+    if(msg){
+        var confirmFn= function() {twClose(panelId); };
+        var okCancelLabels={
+            continue:'{$continue}',
+            cancel: '{$cancel}'
+        };
+        openConfirm(msg,confirmFn,okCancelLabels)
+    }else{
+        twClose(panelId);
+    }
 }
 
 </script>
