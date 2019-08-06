@@ -1,3 +1,4 @@
+
 {**
  * Prescription list
  *
@@ -15,308 +16,285 @@
 {headerTemplate assets='no_textformat|no_dialog'}
 
 {literal}
-<script language="javascript">
-
-function changeLinkHref(id,addValue,value) {
-    var myRegExp = new RegExp(":" + value + ":");
-    if (addValue){ //add value to href
-        if(document.getElementById(id) !== null)document.getElementById(id).href += ':' + value + ':';
-    }
-    else { //remove value from href
-        if(document.getElementById(id) !== null)document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
-    }
-}
-
-function changeLinkHrefAll(addValue, value) {
-    changeLinkHref('multiprint', addValue, value);
-    changeLinkHref('multiprintcss', addValue, value);
-    changeLinkHref('multiprintToFax', addValue, value);
-}
-
-//uses jquery to update database table
-function markTx(oThis,id){{/literal}
-    var isChecked = oThis.checked ? 1 : 0; // @TODO this is better served if checkboxs are all checked on submit with one call to markTx
-    $.get('./interface/weno/markTx.php?rx=' + encodeURIComponent(id) + '&state=' + encodeURIComponent(isChecked) + '&csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url});
-    return false;
-{literal}}
-
-function changeLinkHref_All(id,addValue,value) {
-    var myRegExp = new RegExp(":" + value + ":");
-    if (addValue){ //add value to href
-        if(document.getElementById(id) !== null)document.getElementById(id).href += ':' + value + ':';
-    }
-    else { //remove value from href
-        if(document.getElementById(id) !== null)document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
-        // TajEmo Work By CB 2012/06/14 02:17:16 PM remove the target change
-    //document.getElementById(id).target = '';
-    }
-}
-
-function Check(chk) {
-    var len=chk.length;
-    if (len==undefined) {chk.checked=true;}
-    else {
-        //clean the checked id's before check all the list again
-        var multiprint=document.getElementById('multiprint');
-        if(multiprint!==null) {
-            multiprint.href = document.getElementById('multiprint').href.substring(0, document.getElementById('multiprint').href.indexOf('=') + 1);
+<script>
+    function changeLinkHref(id,addValue,value) {
+        var myRegExp = new RegExp(":" + value + ":");
+        if (addValue){ //add value to href
+            if(document.getElementById(id) !== null)document.getElementById(id).href += ':' + value + ':';
         }
-
-        var multiprintcss=document.getElementById('multiprintcss');
-        if(multiprintcss!==null) {
-            multiprintcss.href =  document.getElementById('multiprintcss').href.substring(0, document.getElementById('multiprintcss').href.indexOf('=') + 1);
+        else { //remove value from href
+            if(document.getElementById(id) !== null)document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
         }
+    }
 
-        var multiprintToFax=document.getElementById('multiprintToFax');
-        if(multiprintToFax!==null) {
-            multiprintToFax.href = document.getElementById('multiprintToFax').href.substring(0, document.getElementById('multiprintToFax').href.indexOf('=') +1);
+    function changeLinkHrefAll(addValue, value) {
+        changeLinkHref('multiprint', addValue, value);
+        changeLinkHref('multiprintcss', addValue, value);
+        changeLinkHref('multiprintToFax', addValue, value);
+    }
+
+    //uses jquery to update database table
+    function markTx(oThis,id){
+        {/literal}
+        var isChecked = oThis.checked ? 1 : 0; // @TODO this is better served if checkboxs are all checked on submit with one call to markTx
+        $.get('./interface/weno/markTx.php?rx=' + encodeURIComponent(id) + '&state=' + encodeURIComponent(isChecked) + '&csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url});
+        return false;
+        {literal}
+    }
+
+    function changeLinkHref_All(id,addValue,value) {
+        var myRegExp = new RegExp(":" + value + ":");
+        if (addValue){ //add value to href
+            if(document.getElementById(id) !== null)document.getElementById(id).href += ':' + value + ':';
         }
-        for (pr = 0; pr < chk.length; pr++){
-            if($(chk[pr]).parents("tr.inactive").length==0)
-                {
-                    chk[pr].checked=true;
-                    changeLinkHref_All('multiprint',true,chk[pr].value);
-                    changeLinkHref_All('multiprintcss',true, chk[pr].value);
-                    changeLinkHref_All('multiprintToFax',true, chk[pr].value);
+        else { //remove value from href
+            if(document.getElementById(id) !== null)document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
+            // TajEmo Work By CB 2012/06/14 02:17:16 PM remove the target change
+        //document.getElementById(id).target = '';
+        }
+    }
+
+    function toggleAll(elm) {
+        let check_list = document.presc.check_list;
+        if (elm.checked) {
+            Check(check_list);
+        } else {
+            Uncheck(check_list);
+        }
+    }
+
+    function Check(chk) {
+        var len=chk.length;
+        if (len==undefined) {chk.checked=true;}
+        else {
+            //clean the checked id's before check all the list again
+            var multiprint=document.getElementById('multiprint');
+            if(multiprint!==null) {
+                multiprint.href = document.getElementById('multiprint').href.substring(0, document.getElementById('multiprint').href.indexOf('=') + 1);
+            }
+
+            var multiprintcss=document.getElementById('multiprintcss');
+            if(multiprintcss!==null) {
+                multiprintcss.href =  document.getElementById('multiprintcss').href.substring(0, document.getElementById('multiprintcss').href.indexOf('=') + 1);
+            }
+
+            var multiprintToFax=document.getElementById('multiprintToFax');
+            if(multiprintToFax!==null) {
+                multiprintToFax.href = document.getElementById('multiprintToFax').href.substring(0, document.getElementById('multiprintToFax').href.indexOf('=') +1);
+            }
+            for (pr = 0; pr < chk.length; pr++){
+                if($(chk[pr]).parents("tr.inactive").length==0) {
+                        chk[pr].checked=true;
+                        changeLinkHref_All('multiprint',true,chk[pr].value);
+                        changeLinkHref_All('multiprintcss',true, chk[pr].value);
+                        changeLinkHref_All('multiprintToFax',true, chk[pr].value);
                 }
+            }
         }
     }
-}
 
-function Uncheck(chk) {
-    var len=chk.length;
-    if (len==undefined) {chk.checked=false;}
-    else {
-        for (pr = 0; pr < chk.length; pr++){
-            chk[pr].checked=false;
-            changeLinkHref_All('multiprint',false,chk[pr].value);
-            changeLinkHref_All('multiprintcss',false, chk[pr].value);
-            changeLinkHref_All('multiprintToFax',false, chk[pr].value);
+    function Uncheck(chk) {
+        var len=chk.length;
+        if (len==undefined) {
+            chk.checked=false;
+        } else {
+            for (pr = 0; pr < chk.length; pr++) {
+                chk[pr].checked=false;
+                changeLinkHref_All('multiprint',false,chk[pr].value);
+                changeLinkHref_All('multiprintcss',false, chk[pr].value);
+                changeLinkHref_All('multiprintToFax',false, chk[pr].value);
+            }
         }
     }
-}
 
-var CheckForChecks = function(chk) {
-    // Checks for any checked boxes, if none are found than an alert is raised and the link is killed
-    if (Checking(chk) == false) { return false; }
-    return top.restoreSession();
-};
+    var CheckForChecks = function(chk) {
+        // Checks for any checked boxes, if none are found than an alert is raised and the link is killed
+        if (Checking(chk) == false) { return false; }
+        return top.restoreSession();
+    };
 
-function Checking(chk) {
-    var len=chk.length;
-    var foundone=false;
+    function Checking(chk) {
+        var len=chk.length;
+        var foundone=false;
 
-    if (len==undefined) {
+        if (len==undefined) {
             if (chk.checked == true){
                 foundone=true;
             }
-    }
-    else {
-        for (pr = 0; pr < chk.length; pr++){
-            if (chk[pr].checked == true) {
-                foundone=true;
+        }
+        else {
+            for (pr = 0; pr < chk.length; pr++){
+                if (chk[pr].checked == true) {
+                    foundone=true;
+                }
             }
         }
+        if (foundone) {
+            return true;
+        } else {
+            alert({/literal}{xlj t='Please select at least one prescription!'}{literal});
+            return false;
+        }
     }
-    if (foundone) {
-        return true;
-    } else {
-        alert({/literal}{xlj t='Please select at least one prescription!'}{literal});
-        return false;
-    }
-}
 
-$(document).ready(function(){
-  $(":checkbox:checked").each(function () {
-      changeLinkHref('multiprint',this.checked, this.value);
-      changeLinkHref('multiprintcss',this.checked, this.value);
-      changeLinkHref('multiprintToFax',this.checked, this.value);
-  });
-})
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip()
+        $(":checkbox:checked").each(function () {
+            changeLinkHref('multiprint',this.checked, this.value);
+            changeLinkHref('multiprintcss',this.checked, this.value);
+            changeLinkHref('multiprintToFax',this.checked, this.value);
+        });
+    })
 
 </script>
-
+<style>
+/* Override for adding strikethrough to inactive medications in table */
+table .text-muted {
+    text-decoration: line-through;
+}
+table {
+    font-size: 0.95em;
+}
+</style>
 {/literal}
 </head>
 <body id="prescription_list" class="body_top">
 
 {if $prescriptions}
-<h3>{xlt t='List'}</h3>
-<div id="prescription_list">
-
-<form name="presc">
-
-<div id="print_links">
-    <table width="100%">
-        <tr>
-            <td align="left">
-                <table>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="btn-group pull-right" role="group">
+                {if $GLOBALS.rx_zend_pdf_template}
+                    <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-default btn-sm btn-download">{xlt t='PDF'}</a>
+                {else}
+                    <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-default btn-sm btn-download">{xl t='PDF'|text}</a>
+                {/if}
+                {if $GLOBALS.rx_use_fax_template}
+                    <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-default btn-sm btn-download">{xlt t='Fax'}</a>
+                {/if}
+                {if $GLOBALS.weno_rx_enable}
+                    <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="btn btn-default btn-sm btn-transmit"><span>{xlt t='Transmit'} {xlt t='Rx'}</a>
+                {/if}
+                {if $GLOBALS.rx_zend_html_template}
+                    <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-default btn-sm"><span>{xl t='Printable Version'|text}</a>
+                {else}
+                    <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-default btn-sm"><span>{xlt t='Printable Version'}</a>
+                {/if}
+                {if $CAMOS_FORM == true}
+                    <a id="four_panel_rx" href="{$GLOBALS.webroot}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="btn btn-default btn-sm"><span>{xlt t='View Four Panel'}</a>
+                {/if}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12" id="prescription_list">
+            <form action="" name="presc">
+            <table class="table table-condensed table-striped">
+                <thead>
                     <tr>
-                        <td>
-                        {if $GLOBALS.rx_zend_pdf_template}
-                            <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Download'} ({xlt t='PDF'})</span></a>
-                        {else}
-                            <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|text} ({xl t='PDF'|text})</span></a>
-                        {/if}
-                        </td>
-                        <td>
-                        {if $GLOBALS.rx_zend_html_template}
-                            <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|text} ({xlt t='HTML'})</span></a>
-                        {else}
-                          <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
-                            <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='View Printable Version'} ({xlt t='HTML'})</span></a>
-                        {/if}
-                        </td>
-                        {if $GLOBALS.rx_use_fax_template}
-                        <td style="border-style:none;">
-                            <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Download'} ({xlt t='Fax'})</span></a>
-                        </td>
-                        {/if}
+                        <th><input type="checkbox" name="check_all" id="check_all" onchange="toggleAll(this)"></th>
+                        <th>{xlt t='Drug'}</th>
+                        <th>{xlt t='RxNorm'}</th>
+                        <th>{xlt t='Created'}</th>
+                        <th>{xlt t='Dosage'}</th>
+                        <th>{xlt t='Qty'}.</th>
+                        <th>{xlt t='Unit'}</th>
+                        <th>{xlt t='Refills'}</th>
+                        <th>{xlt t='Provider'}</th>
                         {if $GLOBALS.weno_rx_enable}
-                            <td style="border-style:none;">
-                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Transmit'} {xlt t='Rx'}</span></a>
+                            <th>{xlt t='Send NewRx'}</th>
+                            <th>{xlt t='Refill Rx'}</th>
+                            <th>{xlt t='Last Tx Date'}</th>
+                        {/if}
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach from=$prescriptions item=prescription}
+                    <tr id="{$prescription->id|attr}" class="onescript {if $prescription->active <= 0}text-muted{/if}">
+                        <td>
+                            <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id|attr}" {if $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xla t='Select for printing'}">
+                        </td>
+                        {if $prescription->erx_source==0}
+                            <td class="editscript"  id="{$prescription->id|attr}">
+                                {$prescription->drug|text}
+                                <br />{$prescription->note|text}
+                            </td>
+                        {else}
+                            <td id="{$prescription->id|attr}">
+                                {if $prescription->active > 0}<b>{/if}{$prescription->drug|text}{if $prescription->active > 0}</b>{/if}&nbsp;
+                                <br />{$prescription->note|text}
                             </td>
                         {/if}
-                        {if $CAMOS_FORM == true}
+                        <td id="{$prescription->id|attr}">{$prescription->rxnorm_drugcode|text}&nbsp;</td>
+                        <td id="{$prescription->id|attr}"><p data-toggle="tooltip" title="{xlt t='Updated on'} {$prescription->date_modified|oeFormatShortDate|text}">{$prescription->date_added|oeFormatShortDate|text}</p></td>
+                        <td id="{$prescription->id|attr}">{$prescription->get_dosage_display()|text}</td>
+                        {if $prescription->erx_source==0}
+                            <td class="editscript" id="{$prescription->id|attr}">{$prescription->quantity|text} &nbsp;</td>
+                        {else}
+                            <td id="{$prescription->id|attr}">{$prescription->quantity|text} &nbsp;</td>
+                        {/if}
+                        <td id="{$prescription->id|attr}">{$prescription->get_size()|text} {$prescription->get_unit_display()|text}&nbsp;</td>
+                        <td id="{$prescription->id|attr}">{$prescription->refills|escape:'html'} &nbsp;</td>
+                        <td id="{$prescription->id|attr}">{$prescription->provider->get_name_display()|text}&nbsp;</td>
+                        {if $GLOBALS.weno_rx_enable}
                             <td>
-                                <a id="four_panel_rx" href="{$GLOBALS.webroot}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xlt t='View Four Panel'}</span></a>
+                            {if $prescription->ntx == 0}
+                                <input class="check_list" id="NewRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'NewRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xla t="Select to transmit"}">
+                            {/if}
+                            </td>
+                            <td>
+                            {if $prescription->ntx == 1}
+                                <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'RefillRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xla t="Select to transmit"}">
+                            {/if}
+                            </td>
+                            <td id="{$prescription->id|attr}">
+                                {$prescription->txDate|text}
                             </td>
                         {/if}
                     </tr>
-                </table>
-            </td>
-            <td align="right">
-                <table>
-                <tr>
-                    <td>
-                        <a href="#" class="small" onClick="Check(document.presc.check_list);"><span>{xlt t='Check All'}</span></a> |
-                        <a href="#" class="small" onClick="Uncheck(document.presc.check_list);"><span>{xlt t='Clear All'}</span></a>
-                    </td>
-                </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</div>
-
-
-<table class="table">
-    <thead>
-    <tr>
-       <!-- TajEmo Changes 2012/06/14 02:01:43 PM by CB added Heading for checkbox column -->
-        <th>&nbsp;</th>
-        <th>&nbsp;</th>
-        <th>{xlt t='Drug'}</th>
-        <th>{xlt t='RxNorm'}</th>
-        <th>{xlt t='Created'}<br />{xlt t='Changed'}</th>
-        <th>{xlt t='Dosage'}</th>
-        <th>{xlt t='Qty'}.</th>
-        <th>{xlt t='Unit'}</th>
-        <th>{xlt t='Refills'}</th>
-        <th>{xlt t='Provider'}</th>
-        {if $GLOBALS.weno_rx_enable}
-            <th>{xlt t='Send NewRx'}</th>
-            <th>{xlt t='Refill Rx'}</th>
-            <th>{xlt t='Last Tx Date'}</th>
-        {/if}
-    </tr>
-    </thead>
-    <tbody>
-    {foreach from=$prescriptions item=prescription}
-  <!-- TajEmo Changes 2012/06/14 02:03:17 PM by CB added cursor:pointer for easier user understanding -->
-  <tr id="{$prescription->id|attr}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}">
-     <td>
-      <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id|attr}" {if $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xla t='Select for printing'}">
-    </td>
-    {if $prescription->erx_source==0}
-    <td class="editscript"  id="{$prescription->id|attr}">
-        <a class='editscript css_button_small' id='{$prescription->id|attr}' href="controller.php?prescription&edit&id={$prescription->id|attr_url}"><span>{xlt t='Edit'}</span></a>
-      <!-- TajEmo Changes 2012/06/14 02:02:22 PM by CB commented out, to avoid duplicate display of drug name
-        {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
-      -->
-    </td>
-    <td class="editscript"  id="{$prescription->id|attr}">
-    {if $prescription->active > 0}<b>{/if}{$prescription->drug|text}{if $prescription->active > 0}</b>{/if}&nbsp;
-  <br />{$prescription->note|text}
-    </td>
-    {else}
-  <td>&nbsp;</td>
-    <td id="{$prescription->id|attr}">
-    {if $prescription->active > 0}<b>{/if}{$prescription->drug|text}{if $prescription->active > 0}</b>{/if}&nbsp;
-  <br />{$prescription->note|text}
-    </td>
-    {/if}
-    <td id="{$prescription->id|attr}">
-      {$prescription->rxnorm_drugcode|text}&nbsp;
-    </td>
-    <td id="{$prescription->id|attr}">
-      {$prescription->date_added|oeFormatShortDate|text}<br />
-      {$prescription->date_modified|oeFormatShortDate|text}&nbsp;
-    </td>
-    <td id="{$prescription->id|attr}">
-      {$prescription->get_dosage_display()|text} &nbsp;
-    </td>
-    {if $prescription->erx_source==0}
-    <td class="editscript" id="{$prescription->id|attr}">
-      {$prescription->quantity|text} &nbsp;
-    </td>
-    {else}
-    <td id="{$prescription->id|attr}">
-      {$prescription->quantity|text} &nbsp;
-    </td>
-    {/if}
-    <td id="{$prescription->id|attr}">
-       {$prescription->get_size()|text} {$prescription->get_unit_display()|text}&nbsp;
-    </td>
-    <td id="{$prescription->id|attr}">
-      {$prescription->refills|escape:'html'} &nbsp;
-    </td>
-    <td id="{$prescription->id|attr}">
-      {$prescription->provider->get_name_display()|text}&nbsp;
-    </td>
-    {if $GLOBALS.weno_rx_enable}
-        <td align="center">
-        {if $prescription->ntx == 0}
-            <input class="check_list" id="NewRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'NewRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xla t="Select to transmit"}">
-        {/if}
-        </td>
-        <td align="center">
-        {if $prescription->ntx == 1}
-            <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'RefillRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xla t="Select to transmit"}">
-        {/if}
-        </td>
-        <td id="{$prescription->id|attr}" align="center">
-        {$prescription->txDate|text}
-        </td>
-    {/if}
-  </tr>
-    {/foreach}
-    </tbody>
-</table>
-
-</form>
-</div>
-
-{if $GLOBALS.rx_show_drug_drug}
-    <div id="drug-drug">
-        <hr>
-        <h3>{xlt t='Drug-Drug Interaction'}</h3>
-        <p title="{xla t='Severity information will be missing if interaction is found'}"><a href="#">*{xlt t='Notice'}</a></p>
-        <div id="return_info">
-            {$INTERACTION}
+                    {/foreach}
+                    {* Cannot figure out to how to trigger the AddScript function from the parent window - RD 2019-07-31 *}
+                    {* <tr>
+                        {if $GLOBALS.weno_rx_enable}
+                            <td colspan="12" class="text-center">
+                        {else}
+                            <td colspan="9" class="text-center">
+                        {/if}
+                        <a href="#" onclick="window.parent.editScripts.AddScript" class="btn btn-block btn-secondary btn-add">{xlt t="Add New Prescription"}</a>
+                        </td>
+                    </tr> *}
+                </tbody>
+            </table>
+            </form>
         </div>
-        <hr>
     </div>
-{/if}
-
-{else}
-<div class="text" style="margin-top: 5em;text-align: center"><h3>{xlt t='No prescriptions listed'}.</h3></div>
+    {if $GLOBALS.rx_show_drug_drug}
+    <div class="row">
+        <div class="col-sm-12" id="drug-drug">
+            <h4>{xlt t="Drug-Drug Interaction"}</h4>
+            <p><small class="text-muted"><em>{xla t='Severity information will be missing if interaction is found'}</em></small></p>
+            <div id="return_info">
+                {$INTERACTION}
+            </div>
+        </div>
+    </div>
+    {/if}
+</div>
+{else} {* No Prescriptions *}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-4 text-center" style="margin-top: 5em;">
+            <h3>{xlt t="No prescriptions found"}.</h3>
+            <a href="{$GLOBALS.webroot}/controller.php?prescription&edit&id=0&pid={$pid|attr_url}" class="btn btn-block btn-lg btn-default btn-add">{xlt t="Add New"}</a>
+        </div>
+    </div>
+</div>
 {/if}
 
 </body>
 {literal}
-<script language='JavaScript'>
-
+<script>
 $(document).ready(function(){
 $("#multiprint").on("click", function() { return CheckForChecks(document.presc.check_list); });
 $("#multiprintcss").on("click", function() { return CheckForChecks(document.presc.check_list); });
