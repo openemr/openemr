@@ -1960,21 +1960,21 @@
           {
             "label": "Demographics",
             "url": "/interface/patient_file/summary/demographics_print.php",
-            "target": "rep",
+            "target": "msc",
             "children": [],
             "requirement": 0
           },
           {
             "label": "Superbill/Fee Sheet",
             "url": "/interface/patient_file/printed_fee_sheet.php",
-            "target": "rep",
+            "target": "msc",
             "children": [],
             "requirement": 0
           },
           {
             "label": "Referral",
             "url": "/interface/patient_file/transaction/print_referral.php",
-            "target": "rep",
+            "target": "msc",
             "children": [],
             "requirement": 0
           }
