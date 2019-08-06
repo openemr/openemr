@@ -186,7 +186,7 @@ textarea.ACT {
     position: relative;
     display: inline-block;
     cursor: pointer;
-    padding-left: 3px;
+    padding-left: 0px;
 }
 .input-helper:before {
     content: '';
