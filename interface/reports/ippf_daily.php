@@ -16,11 +16,12 @@ require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -130,10 +131,9 @@ if ($form_output == 3) {
     header("Content-Disposition: attachment; filename=service_statistics_report.csv");
     header("Content-Description: File Transfer");
 } else { // not export
-?>
+    ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <title><?php echo text($report_title); ?></title>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
@@ -150,7 +150,7 @@ if ($form_output == 3) {
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
-    $(document).ready(function() {
+    $(function() {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -169,7 +169,7 @@ if ($form_output == 3) {
 <h2><?php echo text($report_title); ?></h2>
 
 <form name='theform' method='post' action='ippf_daily.php?t=<?php echo attr_url($report_type); ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellspacing='5' cellpadding='1'>
  <tr>
@@ -177,24 +177,24 @@ if ($form_output == 3) {
     <?php echo xlt('Facility'); ?>:
   </td>
   <td valign='top' class='detail'>
-<?php
+    <?php
  // Build a drop-down list of facilities.
  //
- $fres = $facilityService->getAll();
- echo "   <select name='form_facility'>\n";
- echo "    <option value=''>-- All Facilities --\n";
-foreach ($fres as $frow) {
-    $facid = $frow['id'];
-    echo "    <option value='" . attr($facid) . "'";
-    if ($facid == $_POST['form_facility']) {
-        echo " selected";
+    $fres = $facilityService->getAll();
+    echo "   <select name='form_facility'>\n";
+    echo "    <option value=''>-- All Facilities --\n";
+    foreach ($fres as $frow) {
+        $facid = $frow['id'];
+        echo "    <option value='" . attr($facid) . "'";
+        if ($facid == $_POST['form_facility']) {
+            echo " selected";
+        }
+
+        echo ">" . text($frow['name']) . "\n";
     }
 
-    echo ">" . text($frow['name']) . "\n";
-}
-
- echo "   </select>\n";
-?>
+    echo "   </select>\n";
+    ?>
   </td>
   <td colspan='2' class='detail' nowrap>
     <?php echo xlt('Date'); ?>
@@ -204,16 +204,16 @@ foreach ($fres as $frow) {
     <?php echo xlt('To'); ?>:
   </td>
   <td colspan='3' valign='top' class='detail' nowrap>
-<?php
-foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
-    echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
-    if ($key == $form_output) {
-        echo ' checked';
-    }
+    <?php
+    foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
+        echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
+        if ($key == $form_output) {
+            echo ' checked';
+        }
 
-    echo " />" . text($value) . " &nbsp;";
-}
-?>
+        echo " />" . text($value) . " &nbsp;";
+    }
+    ?>
   </td>
   <td align='right' valign='top' class='detail' nowrap>
    <input type='submit' name='form_submit' value='<?php echo xla('Submit'); ?>'
@@ -225,7 +225,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
   </td>
  </tr>
 </table>
-<?php
+    <?php
 } // end not export
 
 if ($_POST['form_submit']) {
@@ -415,12 +415,12 @@ if ($_POST['form_submit']) {
 } // end if submit
 
 if ($form_output != 3) {
-?>
+    ?>
 </form>
 </center>
 
 <script language='JavaScript'>
-<?php if ($form_output == 2) { ?>
+    <?php if ($form_output == 2) { ?>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);
 <?php } ?>
@@ -428,6 +428,6 @@ if ($form_output != 3) {
 
 </body>
 </html>
-<?php
+    <?php
 } // end not export
 ?>

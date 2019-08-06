@@ -16,6 +16,7 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 $drug_id = $_REQUEST['drug'];
 $lot_id  = $_REQUEST['lot'];
@@ -35,7 +36,6 @@ if (!$lot_id) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title><?php echo xlt('Destroy Lot') ?></title>
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
@@ -50,7 +50,7 @@ td { font-size:10pt; }
 
 
 <script language="JavaScript">
-    $(document).ready(function(){
+    $(function(){
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -68,8 +68,8 @@ td { font-size:10pt; }
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     sqlStatement(
@@ -104,10 +104,10 @@ if ($_POST['form_save']) {
 
  $row = sqlQuery("SELECT * FROM drug_inventory WHERE drug_id = ? " .
   "AND inventory_id = ?", array($drug_id,$lot_id));
-?>
+    ?>
 
 <form method='post' name='theform' action='destroy_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

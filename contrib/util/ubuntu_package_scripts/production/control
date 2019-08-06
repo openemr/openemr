@@ -1,0 +1,21 @@
+Package: openemr
+Version: 5.0.2-1
+Maintainer: Brady Miller <brady.g.miller@gmail.com>
+Installed-Size: 220000
+Priority: optional
+Section: web
+Architecture: all
+Source: openemr
+Homepage: https://www.open-emr.org/
+Pre-Depends: debconf
+Depends: mysql-server | mariadb-server, apache2, makepasswd, libapache2-mod-php, libtiff-tools, php, php-mysql, php-cli, php-gd, php-xsl, php-curl, php-soap, php-json, imagemagick, php-gettext, php-mbstring, php-zip, php-ldap
+Description: Comprehensive Medical Practice Management Application
+ OpenEMR provides office scheduling, electronic medical records,
+ prescriptions, insurance billing, accounting and access controls.
+ .
+ To use OpenEMR after installation, go to http://localhost/openemr ,
+ the user is 'admin' and password is 'pass' (recommend changing password
+ after login).
+ .
+ The OpenEMR project home page and wiki (documentation) and forums
+ can be found at http://www.open-emr.org .

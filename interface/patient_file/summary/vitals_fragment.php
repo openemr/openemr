@@ -12,8 +12,10 @@
 
 require_once("../../globals.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 ?>
@@ -26,11 +28,11 @@ $result=sqlQuery("SELECT FORM_VITALS.date, FORM_VITALS.id FROM form_vitals AS FO
 if (!$result) { //If there are no disclosures recorded
     ?>
   <span class='text'> <?php echo xlt("No vitals have been documented.");
-?>
+    ?>
   </span>
-<?php
+    <?php
 } else {
-?>
+    ?>
   <span class='text'><b>
     <?php echo xlt('Most recent vitals from:') . " " . text($result['date']); ?>
   </b></span>

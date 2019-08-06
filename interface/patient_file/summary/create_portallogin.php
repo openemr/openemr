@@ -16,6 +16,7 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Collect portalsite parameter (either off for offsite or on for onsite); only allow off or on
@@ -61,19 +62,13 @@ function messageCreate($uname, $pass, $site)
 {
     $message = xlt("Patient Portal Web Address") . ":<br>";
     if ($site == "on") {
-        if ($GLOBALS['portal_onsite_enable']) {
-            $message .= "<a href='" . attr($GLOBALS['portal_onsite_address']) . "'>" .
-                text($GLOBALS['portal_onsite_address']) . "</a><br>";
-        }
-
         if ($GLOBALS['portal_onsite_two_enable']) {
             $message .= "<a href='" . attr($GLOBALS['portal_onsite_two_address']) . "'>" .
                 text($GLOBALS['portal_onsite_two_address']) . "</a><br>";
         }
 
         $message .= "<br>";
-    } // $site == "off"
-    else {
+    } else { // $site == "off"
         $offsite_portal_patient_link = $GLOBALS['portal_offsite_address_patient_link'] ?  $GLOBALS['portal_offsite_address_patient_link'] : "https://mydocsportal.com";
         $message .= "<a href='" . attr($offsite_portal_patient_link) . "'>" .
             text($offsite_portal_patient_link) . "</a><br><br>";
@@ -120,7 +115,7 @@ function emailLogin($patient_id, $message)
         return true;
     } else {
         $email_status = $mail->ErrorInfo;
-        error_log("EMAIL ERROR: ".$email_status, 0);
+        error_log("EMAIL ERROR: " . errorLogEscape($email_status), 0);
         return false;
     }
 }
@@ -139,8 +134,8 @@ function displayLogin($patient_id, $message, $emailFlag)
 }
 
 if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     require_once("$srcdir/authentication/common_operations.php");
@@ -196,7 +191,7 @@ function transmit(){
 </head>
 <body class="body_top">
     <form name="portallogin" action="" method="POST">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
     <table align="center" style="margin-top:10px">
         <tr class="text">
@@ -204,12 +199,12 @@ function transmit(){
         </tr>
     <?php
     if ($portalsite == 'off') {
-    ?>
+        ?>
     <tr class="text">
     <td><?php echo text(xl('Provider Id').':');?></td>
     <td><span><?php echo text($GLOBALS['portal_offsite_providerid']);?></span></td>
     </tr>
-    <?php
+        <?php
     }
     ?>
         <tr class="text">

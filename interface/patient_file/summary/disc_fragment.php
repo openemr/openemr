@@ -14,8 +14,10 @@
 
 require_once("../../globals.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 /**
@@ -86,20 +88,20 @@ if ($result != null) {
 if ($has_disclosure == 0) { //If there are no disclosures recorded
     ?>
     <span class='text'>
-<?php
-  echo xlt("There are no disclosures recorded for this patient.");
-if (acl_check('patients', 'disclosure', '', array('write', 'addonly'))) {
-    echo " ";
-    echo xlt("To record disclosures, please click");
-    echo " <a href='disclosure_full.php'>";
-    echo xlt("here");
-    echo "</a>.";
-}
-?>
+    <?php
+    echo xlt("There are no disclosures recorded for this patient.");
+    if (acl_check('patients', 'disclosure', '', array('write', 'addonly'))) {
+        echo " ";
+        echo xlt("To record disclosures, please click");
+        echo " <a href='disclosure_full.php'>";
+        echo xlt("here");
+        echo "</a>.";
+    }
+    ?>
     </span>
-<?php
+    <?php
 } else {
-?>
+    ?>
     <br />
     <span class='text'> <?php
     echo xlt('Displaying the following number of most recent disclosures:');?><b><?php echo " " . text($N); ?></b><br>

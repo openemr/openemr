@@ -21,6 +21,7 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
 
 use ESign\Api;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $reviewMode = false;
@@ -55,7 +56,7 @@ $esignApi = new Api();
 <?php // if the track_anything form exists, then include the styling and js functions (and js variable) for graphing
 if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
  <script type="text/javascript">
- var csrf_token_js = <?php echo js_escape(collectCsrfToken()); ?>;
+ var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
  </script>
  <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/report.js"></script>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css">
@@ -148,7 +149,7 @@ jQuery(document).ready( function($) {
               patient_id: <?php echo js_escape($pid); ?>,
               object_category: "form_encounter",
               object_id: <?php echo js_escape($encounter); ?>,
-              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         );
     });
@@ -168,7 +169,7 @@ jQuery(document).ready( function($) {
               patient_id: <?php echo js_escape($pid); ?>,
               object_category: "form_encounter",
               object_id: <?php echo js_escape($encounter); ?>,
-              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         );
     });
@@ -196,7 +197,7 @@ jQuery(document).ready( function($) {
               patient_id: <?php echo js_escape($pid); ?>,
               object_category: "form_encounter",
               object_id: <?php echo js_escape($encounter); ?>,
-              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         );
     });
@@ -216,7 +217,7 @@ jQuery(document).ready( function($) {
               patient_id: <?php echo js_escape($pid); ?>,
               object_category: "form_encounter",
               object_id: <?php echo js_escape($encounter); ?>,
-              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         );
     });
@@ -235,7 +236,7 @@ jQuery(document).ready( function($) {
                 patient_id: <?php echo js_escape($pid); ?>,
                 object_category: "form_encounter",
                 object_id: <?php echo js_escape($encounter); ?>,
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }
         );
     });
@@ -278,7 +279,7 @@ if (!isset($_GET['attachid'])) {
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?encounterid=' + <?php echo js_url($encounter); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 200, '', '', {
+  dlgopen('../deleter.php?encounterid=' + <?php echo js_url($encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 200, '', '', {
       buttons: [
           {text: <?php echo xlj('Done'); ?>, close: true, style: 'primary btn-sm'}
       ],
@@ -689,7 +690,7 @@ if ($StringEcho) {
 $dateres = getEncounterDateByEncounter($encounter);
 $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 $providerIDres = getProviderIdOfEncounter($encounter);
-$providerNameRes = getProviderName($providerIDres);
+$providerNameRes = getProviderName($providerIDres, false);
 ?>
 
 <div class='encounter-summary-container'>
@@ -885,31 +886,31 @@ if ($attendant_type == 'pid') {
     $docs_list = array();
 }
 if (!empty($docs_list) && count($docs_list) > 0) {
-?>
+    ?>
 <div class='enc_docs'>
 <span class="bold"><?php echo xlt("Document(s)"); ?>:</span>
-<?php
-$doc = new C_Document();
-foreach ($docs_list as $doc_iter) {
-    $doc_url = $doc->_tpl_vars[CURRENT_ACTION]. "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter[id]) . "&";
-    // Get notes for this document.
-    $queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
+    <?php
+    $doc = new C_Document();
+    foreach ($docs_list as $doc_iter) {
+        $doc_url = $doc->_tpl_vars['CURRENT_ACTION']. "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter['id']) . "&";
+        // Get notes for this document.
+        $queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
 			FROM notes WHERE foreign_id = ? GROUP BY foreign_id";
-    $noteData = sqlQuery($queryString, array($doc_iter['id']));
-    $note = '';
-    if ($noteData) {
-        $notes = array();
-        $notes = explode("|", $noteData['docNotes']);
-        $dates = explode("|", $noteData['docDates']);
-        for ($i = 0; $i < count($notes); $i++) {
-            $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";
+        $noteData = sqlQuery($queryString, array($doc_iter['id']));
+        $note = '';
+        if ($noteData) {
+            $notes = array();
+            $notes = explode("|", $noteData['docNotes']);
+            $dates = explode("|", $noteData['docDates']);
+            for ($i = 0; $i < count($notes); $i++) {
+                $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";
+            }
         }
-    }
-?>
+        ?>
 <br>
 <a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter['docdate'])) . ": " . text(basename($doc_iter['url']));?></a>
-<?php if ($note != '') {?>
-            <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="../../../images/info.png"/></a>
+        <?php if ($note != '') {?>
+            <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png"/></a>
     <?php }?>
 <?php } ?>
 </div>
@@ -1000,7 +1001,7 @@ if ($pass_sens_squad &&
             $form_author = $user['fname'] . "  " . $user['lname'];
         }
         echo "<div class='form_header'>";
-        echo "<a href='javascript:void();' onclick='divtoggle(" . attr_js('spanid_'.$divnos) . "," . attr_js('divid_'.$divnos) . ");' class='small' id='aid_" . attr($divnos) . "'>" .
+        echo "<a href='javascript:void(0);' onclick='divtoggle(" . attr_js('spanid_'.$divnos) . "," . attr_js('divid_'.$divnos) . ");' class='small' id='aid_" . attr($divnos) . "'>" .
           "<div class='formname'>" . text($form_name) . "</div> " .
           xlt('by') . " " . text($form_author) . " " .
           "(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . ($divnos == 1 ? xlt('Collapse') : xlt('Expand')) . "</span>)</a>";
@@ -1053,7 +1054,7 @@ if ($pass_sens_squad &&
                     "&pid=" . attr_url($pid) .
                     "' class='css_button_small' title='" . xla('Delete this form') . "' onclick='top.restoreSession()'><span>" . xlt('Delete') . "</span></a>";
             } else {
-                ?><a href='javascript:;' class='css_button_small' style='color:gray'><span><?php echo xlt('Delete'); ?></span></a><?php
+                // do not show delete button for main encounter here since it is displayed at top
             }
         }
         echo "</div>\n"; // Added as bug fix.

@@ -31,29 +31,13 @@
 //=========================================================================
 require_once($GLOBALS['fileroot']."/library/patient.inc");
 require_once($GLOBALS['fileroot']."/library/group.inc");
-include_once($GLOBALS['fileroot']."/library/encounter_events.inc.php");
+require_once($GLOBALS['fileroot']."/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
 unset($pcModInfo, $pcDir);
 
-function postcalendar_userapi_getLongDayName($args)
-{
-    extract($args);
-    unset($args);
-    if (!isset($Date)) {
-        return false;
-    }
-
-    $pc_long_day = array(_CALLONGFIRSTDAY,
-                         _CALLONGSECONDDAY,
-                         _CALLONGTHIRDDAY,
-                         _CALLONGFOURTHDAY,
-                         _CALLONGFIFTHDAY,
-                         _CALLONGSIXTHDAY,
-                         _CALLONGSEVENTHDAY);
-    return $pc_long_day[Date("w", $Date)];
-}
+use OpenEMR\Events\Appointments\CalendarFilterEvent;
 
 /**
  *  postcalendar_userapi_buildView
@@ -69,8 +53,8 @@ function postcalendar_userapi_buildView($args)
     $show_days = pnVarCleanFromInput('show_days');
     extract($args);
     unset($args);
-    $schedule_start = $GLOBALS[schedule_start];
-    $schedule_end = $GLOBALS[schedule_end];
+    $schedule_start = $GLOBALS['schedule_start'];
+    $schedule_end = $GLOBALS['schedule_end'];
 
     // $times is an array of associative arrays, where each sub-array
     // has keys 'hour', 'minute' and 'mer'.
@@ -156,7 +140,6 @@ function postcalendar_userapi_buildView($args)
     //=================================================================
     //  Grab the current theme information
     //=================================================================
-    pnThemeLoad(pnUserGetTheme());
     global $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $bgcolor5, $bgcolor6, $textcolor1, $textcolor2;
 
     //=================================================================
@@ -509,12 +492,14 @@ function postcalendar_userapi_buildView($args)
         if ($viewtype == "week") {
             $last_blocks = array();
             foreach ($eventsByDate as $cdate => $day) {
-                $tblock = array_reverse($day['blocks']);
-                $last_blocks[$cdate] = count($tblock) -1;
-                for ($i=0; $i<count($tblock); $i++) {
-                    if (!empty($tblock[$i])) {
-                        $last_blocks[$cdate] = count($tblock) - $i;
-                        break;
+                if (!empty($day['blocks'])) {
+                    $tblock = array_reverse($day['blocks']);
+                    $last_blocks[$cdate] = count($tblock) - 1;
+                    for ($i = 0; $i < count($tblock); $i++) {
+                        if (!empty($tblock[$i])) {
+                            $last_blocks[$cdate] = count($tblock) - $i;
+                            break;
+                        }
                     }
                 }
             }
@@ -568,12 +553,7 @@ function postcalendar_userapi_buildView($args)
             $output .= $tpl->fetch($template, $cacheid);    // cache id
             $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
     } else {
-            $theme = pnUserGetTheme();
             echo "<html><head>";
-            echo "<LINK REL=\"StyleSheet\" HREF=\"themes/$theme/style/styleNN.css\" TYPE=\"text/css\">\n\n\n";
-            echo "<style type=\"text/css\">\n";
-            echo "@import url(\"themes/$theme/style/style.css\"); ";
-            echo "</style>\n";
             echo "</head><body>\n";
             echo $output;
             $tpl->display($template, $cacheid);
@@ -587,202 +567,6 @@ function postcalendar_userapi_buildView($args)
     //  Return the output
     //=================================================================
     return $output;
-}
-
-/**
- *  postcalendar_userapi_eventPreview
- *  Creates the detailed event display and outputs html.
- *  Accepts an array of key/value pairs
- *  @param array $event array of event details from the form
- *  @return string html output
- *  @access public
- */
-function postcalendar_userapi_eventPreview($args)
-{
-    // get the theme globals :: is there a better way to do this?
-    pnThemeLoad(pnUserGetTheme());
-    global $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $bgcolor5;
-    global $textcolor1, $textcolor2;
-
-    extract($args);
-    unset($args);
-    $uid = pnUserGetVar('uid');
-    //=================================================================
-    //  Setup Smarty Template Engine
-    //=================================================================
-    $tpl = new pcSmarty();
-    $tpl->caching = false;
-    // add preceding zeros
-    $event_starttimeh   = sprintf('%02d', $event_starttimeh);
-    $event_starttimem   = sprintf('%02d', $event_starttimem);
-    $event_startday     = sprintf('%02d', $event_startday);
-    $event_startmonth   = sprintf('%02d', $event_startmonth);
-    $event_endday       = sprintf('%02d', $event_endday);
-    $event_endmonth     = sprintf('%02d', $event_endmonth);
-
-    if (!(bool)_SETTING_TIME_24HOUR) {
-        if ($event_startampm == _PM_VAL) {
-            if ($event_starttimeh != 12) {
-                $event_starttimeh+=12;
-            }
-        } elseif ($event_startampm == _AM_VAL) {
-            if ($event_starttimeh == 12) {
-                $event_starttimeh = 00;
-            }
-        }
-    }
-
-    $event_startampm." - ";
-    $startTime = $event_starttimeh.':'.$event_starttimem.' ';
-
-    $event = array();
-    $event['eid'] = '';
-    $event['uname'] = $uname;
-    $event['catid'] = $event_category;
-    if ($pc_html_or_text == 'html') {
-        $prepFunction = 'pcVarPrepHTMLDisplay';
-    } else {
-        $prepFunction = 'pcVarPrepForDisplay';
-    }
-
-    $event['title'] = $prepFunction($event_subject);
-    $event['hometext'] = $prepFunction($event_desc);
-    $event['desc'] = $event['hometext'];
-    $event['date'] = $event_startyear.$event_startmonth.$event_startday;
-    $event['duration'] = $event_duration;
-    $event['duration_hours'] = $event_dur_hours;
-    $event['duration_minutes'] = $event_dur_minutes;
-    $event['endDate'] = $event_endyear.'-'.$event_endmonth.'-'.$event_endday;
-    $event['startTime'] = $startTime;
-    $event['recurrtype'] = '';
-    $event['recurrfreq'] = '';
-    $event['recurrspec'] = $event_recurrspec;
-    $event['topic'] = $event_topic;
-    $event['alldayevent'] = $event_allday;
-    $event['conttel'] = $prepFunction($event_conttel);
-    $event['contname'] = $prepFunction($event_contname);
-    $event['contemail'] = $prepFunction($event_contemail);
-    $event['website'] = $prepFunction(postcalendar_makeValidURL($event_website));
-    $event['fee'] = $prepFunction($event_fee);
-    $event['location'] = $prepFunction($event_location);
-    $event['street1'] = $prepFunction($event_street1);
-    $event['street2'] = $prepFunction($event_street2);
-    $event['city'] = $prepFunction($event_city);
-    $event['state'] = $prepFunction($event_state);
-    $event['postal'] = $prepFunction($event_postal);
-
-    //=================================================================
-    //  get event's topic information
-    //=================================================================
-    if (_SETTING_DISPLAY_TOPICS) {
-        list($dbconn) = pnDBGetConn();
-        $pntable = pnDBGetTables();
-        $topics_table = $pntable['topics'];
-        $topics_column = $pntable['topics_column'];
-        $topicsql = "SELECT $topics_column[topictext],$topics_column[topicimage]
-            	 	 FROM $topics_table
-            	 	 WHERE $topics_column[topicid] = $event[topic]
-            	 	 LIMIT 1";
-        $topic_result = $dbconn->Execute($topicsql);
-        list($event['topictext'],$event['topicimg']) = $topic_result->fields;
-        $topic_result->Close();
-    } else {
-        $event['topictext'] = $event['topicimg'] = '';
-    }
-
-    //=================================================================
-    //  Find out what Template we're using
-    //=================================================================
-    $template_name = _SETTING_TEMPLATE;
-    if (!isset($template_name)) {
-        $template_name = 'default';
-    }
-
-    //=================================================================
-    //  populate the template
-    //=================================================================
-    if (!empty($event['location']) || !empty($event['street1']) ||
-       !empty($event['street2']) || !empty($event['city']) ||
-       !empty($event['state']) || !empty($event['postal'])) {
-        $tpl->assign('LOCATION_INFO', true);
-    } else {
-        $tpl->assign('LOCATION_INFO', false);
-    }
-
-    if (!empty($event['contname']) || !empty($event['contemail']) ||
-       !empty($event['conttel']) || !empty($event['website'])) {
-        $tpl->assign('CONTACT_INFO', true);
-    } else {
-        $tpl->assign('CONTACT_INFO', false);
-    }
-
-    $tpl->assign_by_ref('A_EVENT', $event);
-    $tpl->assign('STYLE', $GLOBALS['style']);
-    //=================================================================
-    //  Parse the template
-    //=================================================================
-    $output  = "\n\n<!-- POSTCALENDAR HTTP://WWW.BAHRAINI.TV -->\n\n";
-    $output .= "\n\n<!-- POSTCALENDAR TEMPLATE START -->\n\n";
-    $output .= $tpl->fetch($template_name.'/user/preview.html');
-    $output .= "\n\n<!-- POSTCALENDAR TEMPLATE END -->\n\n";
-
-    return $output;
-}
-
-/**
- *  checkEventCollision
- *  Returns an array containing any events that collide with the specified event
- *  @params array(key=>value)
- *  @return array $events[][]
- */
-function checkEventCollision($edata)
-{
-
-    extract($edata);
-    $sdate = ($event_startmonth.'/'.$event_startday.'/'.$event_startyear);
-    $edate = $sdate;
-    //hour from forms is 12 not 24 format, convert here
-    if ($event_startampm == 2 && $event_starttimeh != 12) {
-        $event_starttimeh += 12;
-    } elseif ($event_startampm == 1 && $event_starttimeh == 12) {
-        $event_starttimeh -= 12;
-    }
-
-    $stime = date("H:i:00", strtotime($event_starttimeh.':'.$event_starttimem.':00'));
-    $etime = date("H:i:00", $event_duration + strtotime($stime));
-    //echo "stime is: $stime, etime is: $etime sdate is: $sdate edate is: $edate<br />";
-    $a = array('collideFlag' => true,'start'=>$edate,'end'=>$sdate, 'provider_id' => $event_userid, 'stime' => $stime, 'etime' => $etime);
-    $eventsByDate =& postcalendar_userapi_pcGetEvents($a);
-    //print_r($eventsByDate);
-    $collisions = array();
-    foreach ($eventsByDate as $day) {
-        foreach ($day as $event) {
-            if ($event['duration'] == 0 && $event['alldayevent'] == 0) {
-                continue;
-            } elseif ($event['alldayevent'] == 1) {
-                $collisions[] = $event;
-            }
-
-            $festart = strtotime($event['startTime']);
-            $feend   = strtotime($event['startTime'] + $event['duration']);
-            $estart  = strtotime($stime);
-            $eend    = strtotime($etime);
-
-            //echo "festart = $festart feend = $feend estart = $estart eend = $eend<br />";
-            if ($festart < $eend && $feend > $estart) {
-                $collisions[] = $event;
-            } elseif ($festart <= $estart && $feend <= $eend && $feend >= $estart) {
-                $collisions[] = $event;
-            } elseif ($festart >= $estart && $festart < $eend) {
-                $collisions[] = $event;
-            }
-        }
-    }
-
-    //foreach ($collisions as $collide) {
-    //	echo "collided: " . $collide['title'] . "<br />";
-    //}
-    return $collisions;
 }
 
 /**
@@ -912,15 +696,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         // check the current event's permissions
         // the user does not have permission to view this event
         // if any of the following evaluate as false
-        if (!pnSecAuthAction(0, 'PostCalendar::Event', "$tmp[title]::$tmp[eid]", ACCESS_OVERVIEW)) {
-              continue;
-        } elseif (!pnSecAuthAction(0, 'PostCalendar::Category', "$tmp[catname]::$tmp[catid]", ACCESS_OVERVIEW)) {
-              continue;
-        } elseif (!pnSecAuthAction(0, 'PostCalendar::User', "$tmp[uname]::$cuserid", ACCESS_OVERVIEW)) {
-              continue;
-        } elseif (!pnSecAuthAction(0, 'PostCalendar::Topic', "$topicname::$tmp[topic]", ACCESS_OVERVIEW)) {
-              continue;
-        } elseif ($tmp['sharing'] == SHARING_PRIVATE && $cuserid != $userid) {
+        if ($tmp['sharing'] == SHARING_PRIVATE && $cuserid != $userid) {
               continue;
         }
 
@@ -943,7 +719,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['recurrfreq']  = $tmp['recurrfreq'];
         $events[$i]['recurrspec']  = $tmp['recurrspec'];
 
-        $rspecs = unserialize($tmp['recurrspec']);
+        $rspecs = unserialize($tmp['recurrspec'], ['allowed_classes' => false]);
         $events[$i]['event_repeat_freq'] = $rspecs['event_repeat_freq'];
         $events[$i]['event_repeat_freq_type'] = $rspecs['event_repeat_freq_type'];
         $events[$i]['event_repeat_on_num'] = $rspecs['event_repeat_on_num'];
@@ -1008,7 +784,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
                 $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
                 $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
                 $events[$i]['fee']         = $prepFunction($tmp['fee']);
-                $loc = unserialize($tmp['location']);
+                $loc = unserialize($tmp['location'], ['allowed_classes' => false]);
                 $events[$i]['location']   = $prepFunction($loc['event_location']);
                 $events[$i]['street1']    = $prepFunction($loc['event_street1']);
                 $events[$i]['street2']    = $prepFunction($loc['event_street2']);
@@ -1083,7 +859,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
     $cattable   =  $pntable['postcalendar_categories'];
-    $topictable =  $pntable['postcalendar_topics'];
 
     $sql = "SELECT DISTINCT a.pc_eid,  a.pc_informant, a.pc_catid, " .
     "a.pc_title, a.pc_time, a.pc_hometext, a.pc_eventDate, a.pc_duration, " .
@@ -1107,6 +882,12 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "AND ((a.pc_endDate >= '" . pnVarPrepForStore($start) . "' AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "') OR " .
     "(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
     "a.pc_eventDate <= '" . pnVarPrepForStore($end) . "')) ";
+
+    // Custom filtering
+    $calFilterEvent = new CalendarFilterEvent();
+    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(CalendarFilterEvent::EVENT_HANDLE, $calFilterEvent, 10);
+    $calFilter = $calFilterEvent->getCustomWhereFilter();
+    $sql .= " AND $calFilter ";
 
   //==================================
   //FACILITY FILTERING (lemonsoftware)(CHEMED)
@@ -1147,9 +928,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
         } else {
             $sql .= "AND a.pc_aid IN (0, " . pnVarPrepForStore($ruserid) . ") ";
         }
-    } elseif (!pnUserLoggedIn()) {
-        // get all events for anonymous users
-        $sql .= "AND a.pc_sharing = '" . pnVarPrepForStore(SHARING_GLOBAL) . "' ";
     } elseif (!empty($provider_id)) {
         // get all events for a variety of provider IDs -- JRM
         if ($provider_id[0] != "_ALL_") {
@@ -1240,22 +1018,12 @@ function &postcalendar_userapi_pcQueryEvents($args)
         // check the current event's permissions
         // the user does not have permission to view this event
         // if any of the following evaluate as false
-        if (!pnSecAuthAction(0, 'PostCalendar::Event', "$tmp[title]::$tmp[eid]", ACCESS_OVERVIEW)) {
-              continue;
-        } elseif (!pnSecAuthAction(0, 'PostCalendar::Category', "$tmp[catname]::$tmp[catid]", ACCESS_OVERVIEW)) {
-              continue;
-        } elseif (!pnSecAuthAction(0, 'PostCalendar::User', "$tmp[uname]::$cuserid", ACCESS_OVERVIEW)) {
-              continue;
-        } elseif (!pnSecAuthAction(0, 'PostCalendar::Topic', "$topicname::$tmp[topic]", ACCESS_OVERVIEW)) {
-              continue;
-        } elseif ($tmp['sharing'] == SHARING_PRIVATE && $cuserid != $userid) {
+        if ($tmp['sharing'] == SHARING_PRIVATE && $cuserid != $userid) {
               continue;
         }
 
         // add event to the array if we passed the permissions check
         // this is the common information
-
-        $events[$i]['intervals']  =($tmp['duration']/60)/ $GLOBALS['day_calandar_interval'];//sets the number of rows this event should span
 
         $events[$i]['eid']         = $tmp['eid'];
         $events[$i]['uname']       = $tmp['uname'];
@@ -1335,7 +1103,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
                 $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
                 $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
                 $events[$i]['fee']         = $prepFunction($tmp['fee']);
-                $loc = unserialize($tmp['location']);
+                $loc = unserialize($tmp['location'], ['allowed_classes' => false]);
                 $events[$i]['location']   = $prepFunction($loc['event_location']);
                 $events[$i]['street1']    = $prepFunction($loc['event_street1']);
                 $events[$i]['street2']    = $prepFunction($loc['event_street2']);
@@ -1543,10 +1311,11 @@ function calculateEvents($days, $events, $viewtype)
                 }
 
                 list($esY,$esM,$esD) = explode('-', $event['eventDate']);
-                $event_recurrspec = @unserialize($event['recurrspec']);
+                $event_recurrspec = @unserialize($event['recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['recurrtype'], $event_recurrspec)) {
-                    break; }
+                    break;
+                }
 
                 $rfreq = $event_recurrspec['event_repeat_freq'];
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
@@ -1613,10 +1382,11 @@ function calculateEvents($days, $events, $viewtype)
                 }
 
                 list($esY,$esM,$esD) = explode('-', $event['eventDate']);
-                $event_recurrspec = @unserialize($event['recurrspec']);
+                $event_recurrspec = @unserialize($event['recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['recurrtype'], $event_recurrspec)) {
-                    break; }
+                    break;
+                }
 
                 $rfreq = $event_recurrspec['event_repeat_on_freq'];
                 $rnum  = $event_recurrspec['event_repeat_on_num'];

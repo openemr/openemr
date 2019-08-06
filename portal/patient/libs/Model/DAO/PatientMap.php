@@ -1,26 +1,12 @@
 <?php
-/** @package    Openemr::Model::DAO */
-
 /**
+ * PatientMap.php
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /** import supporting libraries */
@@ -117,9 +103,9 @@ class PatientMap implements IDaoMap, IDaoMap2
             self::$FM["Pubpid"] = new FieldMap("Pubpid", "patient_data", "pubpid", false, FM_TYPE_VARCHAR, 255, null, false);
             self::$FM["Pid"] = new FieldMap("Pid", "patient_data", "pid", false, FM_TYPE_BIGINT, 20, null, false);
             /* self::$FM["Genericname1"] = new FieldMap("Genericname1","patient_data","genericname1",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Genericval1"] = new FieldMap("Genericval1","patient_data","genericval1",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Genericname2"] = new FieldMap("Genericname2","patient_data","genericname2",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Genericval2"] = new FieldMap("Genericval2","patient_data","genericval2",false,FM_TYPE_VARCHAR,255,null,false); */
+            self::$FM["Genericval1"] = new FieldMap("Genericval1","patient_data","genericval1",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Genericname2"] = new FieldMap("Genericname2","patient_data","genericname2",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Genericval2"] = new FieldMap("Genericval2","patient_data","genericval2",false,FM_TYPE_VARCHAR,255,null,false); */
             self::$FM["HipaaMail"] = new FieldMap("HipaaMail", "patient_data", "hipaa_mail", false, FM_TYPE_VARCHAR, 3, null, false);
             self::$FM["HipaaVoice"] = new FieldMap("HipaaVoice", "patient_data", "hipaa_voice", false, FM_TYPE_VARCHAR, 3, null, false);
             self::$FM["HipaaNotice"] = new FieldMap("HipaaNotice", "patient_data", "hipaa_notice", false, FM_TYPE_VARCHAR, 3, null, false);
@@ -130,21 +116,21 @@ class PatientMap implements IDaoMap, IDaoMap2
             //self::$FM["Fitness"] = new FieldMap("Fitness","patient_data","fitness",false,FM_TYPE_INT,11,null,false);
             self::$FM["ReferralSource"] = new FieldMap("ReferralSource", "patient_data", "referral_source", false, FM_TYPE_VARCHAR, 30, null, false);
             /*self::$FM["Usertext1"] = new FieldMap("Usertext1","patient_data","usertext1",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Usertext2"] = new FieldMap("Usertext2","patient_data","usertext2",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Usertext3"] = new FieldMap("Usertext3","patient_data","usertext3",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Usertext4"] = new FieldMap("Usertext4","patient_data","usertext4",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Usertext5"] = new FieldMap("Usertext5","patient_data","usertext5",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Usertext6"] = new FieldMap("Usertext6","patient_data","usertext6",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Usertext7"] = new FieldMap("Usertext7","patient_data","usertext7",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Usertext8"] = new FieldMap("Usertext8","patient_data","usertext8",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Userlist1"] = new FieldMap("Userlist1","patient_data","userlist1",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Userlist2"] = new FieldMap("Userlist2","patient_data","userlist2",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Userlist3"] = new FieldMap("Userlist3","patient_data","userlist3",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Userlist4"] = new FieldMap("Userlist4","patient_data","userlist4",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Userlist5"] = new FieldMap("Userlist5","patient_data","userlist5",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Userlist6"] = new FieldMap("Userlist6","patient_data","userlist6",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Userlist7"] = new FieldMap("Userlist7","patient_data","userlist7",false,FM_TYPE_VARCHAR,255,null,false);
-			self::$FM["Pricelevel"] = new FieldMap("Pricelevel","patient_data","pricelevel",false,FM_TYPE_VARCHAR,255,"standard",false); */
+            self::$FM["Usertext2"] = new FieldMap("Usertext2","patient_data","usertext2",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Usertext3"] = new FieldMap("Usertext3","patient_data","usertext3",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Usertext4"] = new FieldMap("Usertext4","patient_data","usertext4",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Usertext5"] = new FieldMap("Usertext5","patient_data","usertext5",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Usertext6"] = new FieldMap("Usertext6","patient_data","usertext6",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Usertext7"] = new FieldMap("Usertext7","patient_data","usertext7",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Usertext8"] = new FieldMap("Usertext8","patient_data","usertext8",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Userlist1"] = new FieldMap("Userlist1","patient_data","userlist1",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Userlist2"] = new FieldMap("Userlist2","patient_data","userlist2",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Userlist3"] = new FieldMap("Userlist3","patient_data","userlist3",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Userlist4"] = new FieldMap("Userlist4","patient_data","userlist4",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Userlist5"] = new FieldMap("Userlist5","patient_data","userlist5",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Userlist6"] = new FieldMap("Userlist6","patient_data","userlist6",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Userlist7"] = new FieldMap("Userlist7","patient_data","userlist7",false,FM_TYPE_VARCHAR,255,null,false);
+            self::$FM["Pricelevel"] = new FieldMap("Pricelevel","patient_data","pricelevel",false,FM_TYPE_VARCHAR,255,"standard",false); */
             self::$FM["Regdate"] = new FieldMap("Regdate", "patient_data", "regdate", false, FM_TYPE_DATE, null, null, false);
             self::$FM["Contrastart"] = new FieldMap("Contrastart", "patient_data", "contrastart", false, FM_TYPE_DATE, null, null, false);
             self::$FM["CompletedAd"] = new FieldMap("CompletedAd", "patient_data", "completed_ad", false, FM_TYPE_VARCHAR, 3, "NO", false);

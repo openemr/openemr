@@ -15,6 +15,7 @@ require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormEvaluation.class.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 class C_FormEvaluation extends Controller
 {
@@ -29,7 +30,7 @@ class C_FormEvaluation extends Controller
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
     }
 
     function default_action()

@@ -17,6 +17,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 function thisLineItem($row)
@@ -38,7 +39,7 @@ function thisLineItem($row)
         echo '"' . addslashes($row['priority_name' ]) . '",';
         echo '"' . addslashes($row['status_name'   ]) . '"' . "\n";
     } else {
-    ?>
+        ?>
    <tr>
     <td class="detail"><?php echo text($row['patient_name'  ]); ?></td>
     <td class="detail"><?php echo text($row['pubpid'        ]); ?></td>
@@ -48,7 +49,7 @@ function thisLineItem($row)
     <td class="detail"><?php echo text($row['priority_name' ]); ?></td>
     <td class="detail"><?php echo text($row['status_name'   ]); ?></td>
  </tr>
-<?php
+        <?php
     } // End not csv export
 }
 
@@ -61,8 +62,8 @@ $form_to_date   = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     header("Pragma: public");
@@ -81,7 +82,7 @@ if ($_POST['form_csvexport']) {
     echo '"' . xl('Priority') . '",';
     echo '"' . xl('Status') . '"' . "\n";
 } else { // not export
-?>
+    ?>
 <html>
 <head>
     <title><?php echo xlt('Pending Orders') ?></title>
@@ -90,7 +91,7 @@ if ($_POST['form_csvexport']) {
 
     <script language="JavaScript">
 
-        $(document).ready(function() {
+        $(function() {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 
@@ -111,7 +112,7 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('Pending Orders')?></h2>
 
 <form method='post' action='pending_orders.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -126,7 +127,7 @@ if ($_POST['form_csvexport']) {
    <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
   </td>
   <td class='control-label'>
-   &nbsp;<?php echo xlt('To')?>:
+   &nbsp;<?php echo xlt('To{{Range}}')?>:
   </td>
   <td>
    <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
@@ -159,14 +160,14 @@ if ($_POST['form_csvexport']) {
   <td class="dehead"><?php echo xlt('Priority'); ?></td>
   <td class="dehead"><?php echo xlt('Status'); ?></td>
  </tr>
-<?php
+    <?php
 } // end not export
 
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $sqlBindArray = array();
@@ -208,7 +209,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 } // end report generation
 
 if (! $_POST['form_csvexport']) {
-?>
+    ?>
 
 </table>
 </form>
@@ -216,6 +217,6 @@ if (! $_POST['form_csvexport']) {
 </body>
 
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

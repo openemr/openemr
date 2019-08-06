@@ -630,7 +630,7 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
     }
     //========================================================================================
 
-    $(document).ready(function() {
+    $(function() {
        $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -719,7 +719,7 @@ fieldset {
     <div class="container">
     <?php
     if ($_REQUEST['ParentPage']=='new_payment') {
-    ?>
+        ?>
     <div class="row">
         <div class="page-header">
             <h2><?php echo xlt('Payments'); ?></h2>
@@ -748,7 +748,7 @@ fieldset {
             </div>
         </nav>
     </div>
-    <?php
+        <?php
     }
     ?>
     <div class="row">
@@ -764,15 +764,15 @@ fieldset {
             <?php
             if ($payment_id*1>0) { ?>
             <fieldset>
-            <?php
+                <?php
                 require_once("payment_master.inc.php");  //Check/cash details are entered here.
-            ?>
-            <?php
+                ?>
+                <?php
             }//End of if($payment_id*1>0)
             ?>
             <?php
             if ($payment_id*1>0) {//Distribution rows already in the database are displayed.
-            ?>
+                ?>
                 <?php //
                     $resCount = sqlStatement("SELECT distinct encounter,code_type,code,modifier from ar_activity where  session_id =?", [$payment_id]);
                     $TotalRows=sqlNumRows($resCount);
@@ -819,7 +819,7 @@ fieldset {
                         if (sqlNumRows($ResultSearch)>0) {
                             if ($CountPatient==1) {
                                 $Table='yes';
-                    ?>
+                                ?>
                     <input id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr(round($RemainderJS, 2)); ?>">
                 <div class = "table-responsive">
                 <table class="table-condensed" id="TableDistributePortion" >
@@ -842,7 +842,7 @@ fieldset {
                     <td class="left top" ><?php echo xlt('Resn'); ?></td>
                     <td class="left top right" ><?php echo xlt('Follow Up Reason'); ?></td>
                 </thead>
-                <?php
+                                <?php
                             }
                             while ($RowSearch = sqlFetchArray($ResultSearch)) {
                                 $CountIndex++;
@@ -1023,7 +1023,7 @@ fieldset {
                                 $deductibletot=$deductibletot+$DeductibleDB;
                                 $takebacktot=$takebacktot+$TakebackDB;
                                 $allowedtot=$allowedtot+$AllowedDB;
-                            ?>
+                                ?>
                             <tr bgcolor='<?php echo attr($bgcolor); ?>' class="text" id="trCharges<?php echo attr($CountIndex); ?>">
                                 <td align="left" class="<?php echo attr($StringClass); ?>">
                                     <a href="#" onclick="javascript:return DeletePaymentDistribution(<?php echo attr_js($payment_id.'_'.$PId.'_'.$Encounter.'_'.$Code.'_'.$Modifier.'_'.$Codetype); ?>);"><img border="0" src="../pic/Delete.gif"></a>
@@ -1046,8 +1046,8 @@ fieldset {
                                 <td class="<?php echo attr($StringClass); ?> right"><input id="FollowUpReason<?php echo attr($CountIndex); ?>" name="FollowUpReason<?php echo attr($CountIndex); ?>" onkeydown="PreventIt(event)" style="width:110px;font-size:12px" type="text" value="<?php echo attr($FollowUpReasonDB); ?>"></td>
                             </tr><?php
                             }//End of while ($RowSearch = sqlFetchArray($ResultSearch))
-                        ?>
-                        <?php
+                            ?>
+                            <?php
                         }//End of if(sqlNumRows($ResultSearch)>0)
                     } while ($RowSearchSub = sqlFetchArray($ResultSearchSub));
                     if ($Table=='yes') {
@@ -1069,12 +1069,12 @@ fieldset {
                     <?php
                     echo '<br/>';
                 }//End of if($RowSearchSub = sqlFetchArray($ResultSearchSub))
-                    ?>
+                ?>
                 </div>
                     <?php
                         require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
                     ?>
-            <?php
+                <?php
             }//End of if($payment_id*1>0)
             ?>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>

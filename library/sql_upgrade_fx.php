@@ -295,6 +295,32 @@ function CreateImmunizationManufacturerList()
     }
 }
 
+/*
+ *  This function is to populate the weno drug table if the feature is enabled before upgrade.
+ */
+function ImportDrugInformation()
+{
+    if ($GLOBALS['weno_rx_enable']) {
+        $drugs = file_get_contents('contrib/weno/erx_weno_drugs.sql');
+        $drugsArray = preg_split('/;\R/', $drugs);
+
+        // Settings to drastically speed up import with InnoDB
+        sqlStatementNoLog("SET autocommit=0");
+        sqlStatementNoLog("START TRANSACTION");
+
+        foreach ($drugsArray as $drug) {
+            if (empty($drug)) {
+                continue;
+            }
+            sqlStatementNoLog($drug);
+        }
+
+        // Settings to drastically speed up import with InnoDB
+        sqlStatementNoLog("COMMIT");
+        sqlStatementNoLog("SET autocommit=1");
+    }
+}
+
 /**
  * Request to information_schema
  *
@@ -305,12 +331,12 @@ function getTablesList($arg = array())
 {
     $binds = array();
     $sql = 'SELECT table_name FROM information_schema.tables WHERE table_schema=database() AND table_type="BASE TABLE"';
-    
+
     if (!empty($arg['engine'])) {
         $binds[] = $arg['engine'];
         $sql .= ' AND engine=?';
     }
-    
+
     if (!empty($arg['table_name'])) {
         $binds[] = $arg['table_name'];
         $sql .= ' AND table_name=?';
@@ -549,6 +575,9 @@ function convertLayoutProperties()
 * #IfNotListReaction
 * Custom function for creating Reaction List
 *
+* #IfNotWenoRx
+* Custom function for importing new drug data
+*
 * #IfTextNullFixNeeded
 *   desc: convert all text fields without default null to have default null.
 *   arguments: none
@@ -632,7 +661,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } else if (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
+        } else if (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = columnHasType($matches[1], $matches[2], $matches[3]);
             } else {
@@ -801,8 +830,20 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } // convert all *text types to use default null setting
-        else if (preg_match('/^#IfTextNullFixNeeded/', $line)) {
+        } else if (preg_match('/^#IfNotWenoRx/', $line)) {
+            if (tableHasRow('erx_weno_drugs', "drug_id", '1008') == true) {
+                $skipping = true;
+            } else {
+                //import drug data
+                ImportDrugInformation();
+                $skipping = false;
+                echo "<font color='green'>Imported eRx Weno Drug Data</font><br />\n";
+            }
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+            // convert all *text types to use default null setting
+        } else if (preg_match('/^#IfTextNullFixNeeded/', $line)) {
             $items_to_convert = sqlStatement(
                 "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment` 
           FROM `information_schema`.`columns` col INNER JOIN `information_schema`.`tables` tab 
@@ -830,14 +871,14 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } // perform special actions if table has specific engine
-        else if (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
+        } else if (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
+            // perform special actions if table has specific engine
             $skipping = !tableHasEngine($matches[1], $matches[2]);
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } // find MyISAM tables and attempt to convert them
-        else if (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
+        } else if (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
+            // find MyISAM tables and attempt to convert them
             //tables that need to skip InnoDB migration (stay at MyISAM for now)
             $tables_skip_migration = array('form_eye_mag');
 
@@ -858,7 +899,7 @@ function upgradeFromSqlFile($filename)
                         printf('<font color="green">Table %s migrated to InnoDB.</font><br />', $t);
                     } else {
                         printf('<font color="red">Error migrating table %s to InnoDB</font><br />', $t);
-                        error_log(sprintf('Error migrating table %s to InnoDB', $t));
+                        error_log(sprintf('Error migrating table %s to InnoDB', errorLogEscape($t)));
                     }
                 }
             }

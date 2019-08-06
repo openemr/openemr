@@ -15,9 +15,11 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -63,7 +65,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
                     echo '"' . formatcyp($producttotal) . '"' . "\n";
                 }
             } else {
-        ?>
+                ?>
 
        <tr bgcolor="#ddddff">
         <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
@@ -103,7 +105,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
             echo '"' . formatcyp($rowcyp) . '",';
             echo '"' . formatcyp($rowresult) . '"' . "\n";
         } else {
-        ?>
+            ?>
 
      <tr>
       <td class="detail">
@@ -111,22 +113,22 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
             $productleft = "&nbsp;"; ?>
   </td>
   <td class="dehead">
-        <?php echo text(oeFormatShortDate($transdate)); ?>
+            <?php echo text(oeFormatShortDate($transdate)); ?>
   </td>
   <td class="detail">
-        <?php echo text($invnumber); ?>
+            <?php echo text($invnumber); ?>
   </td>
   <td class="dehead" align="right">
-        <?php echo text($qty); ?>
+            <?php echo text($qty); ?>
   </td>
   <td class="dehead" align="right">
-        <?php echo text(formatcyp($rowcyp)); ?>
+            <?php echo text(formatcyp($rowcyp)); ?>
   </td>
   <td class="dehead" align="right">
-        <?php echo text(formatcyp($rowresult)); ?>
+            <?php echo text(formatcyp($rowresult)); ?>
   </td>
  </tr>
-<?php
+            <?php
         } // End not csv export
     } // end details
     $producttotal += $rowresult;
@@ -165,10 +167,9 @@ if ($_POST['form_csvexport']) {
         echo '"Result"' . "\n";
     }
 } else { // not export
-?>
+    ?>
 <html>
 <head>
-<?php html_header_show();?>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
@@ -179,7 +180,7 @@ if ($_POST['form_csvexport']) {
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
-    $(document).ready(function() {
+    $(function() {
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));
 
@@ -201,34 +202,34 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('CYP Report')?></h2>
 
 <form method='post' action='ippf_cyp_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
 
  <tr>
   <td>
-<?php
+    <?php
   // Build a drop-down list of facilities.
   //
-  $query = "SELECT id, name FROM facility ORDER BY name";
-  $fres = sqlStatement($query);
-  echo "   <select name='form_facility'>\n";
-  echo "    <option value=''>-- All Facilities --\n";
-while ($frow = sqlFetchArray($fres)) {
-    $facid = $frow['id'];
-    echo "    <option value='" . attr($facid) . "'";
-    if ($facid == $form_facility) {
-        echo " selected";
+    $query = "SELECT id, name FROM facility ORDER BY name";
+    $fres = sqlStatement($query);
+    echo "   <select name='form_facility'>\n";
+    echo "    <option value=''>-- All Facilities --\n";
+    while ($frow = sqlFetchArray($fres)) {
+        $facid = $frow['id'];
+        echo "    <option value='" . attr($facid) . "'";
+        if ($facid == $form_facility) {
+            echo " selected";
+        }
+
+        echo ">" . text($frow['name']) . "\n";
     }
 
-    echo ">" . text($frow['name']) . "\n";
-}
-
-  echo "   </select>\n";
-?>
-   &nbsp;<?xl('From:','e')?>
+    echo "   </select>\n";
+    ?>
+   &nbsp;<?php echo xlt('From')?>:
    <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
-   &nbsp;To:
+   &nbsp;<?php echo xlt('To{{Range}}')?>:
    <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?>><?php echo xlt('Details') ?>
@@ -254,12 +255,12 @@ while ($frow = sqlFetchArray($fres)) {
   <td class="dehead">
     <?php echo xlt('Item') ?>
   </td>
-<?php if ($_POST['form_details']) { ?>
+    <?php if ($_POST['form_details']) { ?>
   <td class="dehead">
-    <?php echo xlt('Date') ?>
+        <?php echo xlt('Date') ?>
   </td>
   <td class="dehead">
-    <?php echo xlt('Invoice') ?>
+        <?php echo xlt('Invoice') ?>
   </td>
 <?php } ?>
   <td class="dehead" align="right">
@@ -272,7 +273,7 @@ while ($frow = sqlFetchArray($fres)) {
     <?php echo xlt('Result') ?>
   </td>
  </tr>
-<?php
+    <?php
 } // end not export
 
 // If generating a report.
@@ -362,7 +363,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . formatcyp($producttotal) . '"' . "\n";
         }
     } else {
-    ?>
+        ?>
 
    <tr bgcolor="#ddddff">
     <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
@@ -403,13 +404,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 } // end report generation
 
 if (! $_POST['form_csvexport']) {
-?>
+    ?>
 
 </table>
 </form>
 </center>
 </body>
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

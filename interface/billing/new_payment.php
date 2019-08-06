@@ -47,9 +47,9 @@ $hidden_type_code        = isset($_REQUEST['hidden_type_code']) ? $_REQUEST['hid
 
 if ($mode == "new_payment" || $mode == "distribute") {
     if (trim($_POST['type_name'])=='insurance') {
-        $QueryPart="payer_id = '" . add_escape_custom($hidden_type_code) . "', patient_id = '0" ; // Closing Quote in idSqlStatement below
+        $QueryPart="payer_id = '" . add_escape_custom($hidden_type_code) . "', patient_id = '0" ;
     } elseif (trim($_POST['type_name'])=='patient') {
-        $QueryPart="payer_id = '0', patient_id = '" .add_escape_custom($hidden_type_code); // Closing Quote in idSqlStatement below
+        $QueryPart="payer_id = '0', patient_id = '" .add_escape_custom($hidden_type_code);
     }
       $user_id=$_SESSION['authUserID'];
       $closed=0;
@@ -63,7 +63,7 @@ if ($mode == "new_payment" || $mode == "distribute") {
     if ($_POST['deposit_date']=='') {
         $deposit_date=$post_to_date;
     }
-      $payment_id = idSqlStatement("insert into ar_session set "    .
+      $payment_id = sqlInsert("insert into ar_session set "    .
         $QueryPart .
         "', user_id = '"     . trim(add_escape_custom($user_id))  .
         "', closed = '"      . trim(add_escape_custom($closed))  .
@@ -268,7 +268,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
      document.getElementById('TdUnappliedAmount').innerHTML=document.getElementById('payment_amount').value;
     }
 
-    $(document).ready(function() {
+    $(function() {
        $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -460,7 +460,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                         <br>
                         <?php
                         if ($payment_id*1>0) {
-                        ?>
+                            ?>
                             <?php
                             if ($PaymentType=='patient' && $default_search_patient != "default_search_patient") {
                                 $default_search_patient = "default_search_patient";
@@ -473,8 +473,8 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                             ?>
                             <?php
                             if ($CountIndexBelow>0) {
-                            ?>
-                            <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
+                                ?>
+                                <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                             <div class="form-group clearfix">
                             <div class="col-sm-12 text-left position-override">
                                 <div class="btn-group btn-group-pinch" role="group">
@@ -484,10 +484,10 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                                 </div>
                             </div>
                             </div>
-                            <?php
+                                <?php
                             }//if($CountIndexBelow>0)
                             ?>
-                        <?php
+                            <?php
                         }
                         ?>
                     </fieldset>
@@ -505,7 +505,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     <?php $oemr_ui->oeBelowContainerDiv();?>
 <script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
 <script>
-$(document).ready(function() {
+$(function() {
     $('select').removeClass('class1 text')
 });
 </script>

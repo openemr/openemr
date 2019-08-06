@@ -18,6 +18,8 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
@@ -242,7 +244,7 @@ function download_file()
  document.de_identification.submit();
 }
 
-$(document).ready(function(){
+$(function(){
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -256,7 +258,7 @@ $(document).ready(function(){
 </head>
 <body class="body_top">
 <form name="de_identification" id="de_identification" action="de_identification_screen2.php" method="post" onsubmit="return form_validate();">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <strong><?php echo xlt('De Identification'); ?></strong>
 <?php
  $row = sqlQuery("SHOW TABLES LIKE 'de_identification_status'");
@@ -340,7 +342,7 @@ if (empty($row)) {
        //start new search - no patient record fount
             $query = "update de_identification_status set status = 0";
             $res = sqlStatement($query);
-        ?>
+            ?>
        <table>  <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
           <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
    </table>
@@ -350,10 +352,10 @@ if (empty($row)) {
         <td>&nbsp;</td>
         <td rowspan="3">
         <br>
-        <?php echo xlt('No Patient record found for given Selection criteria');
-        echo "</br></br>";
-        echo xlt('Please start new De Identification process');
-        echo "</br>"; ?> </br>
+            <?php echo xlt('No Patient record found for given Selection criteria');
+            echo "</br></br>";
+            echo xlt('Please start new De Identification process');
+            echo "</br>"; ?> </br>
           </td>
           <td>&nbsp;</td>
       </tr>
@@ -365,9 +367,9 @@ if (empty($row)) {
       <table align="center">
       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
         </table>
-        <?php
+            <?php
         } else {
-    ?>
+            ?>
     <table>  <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
           <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
     </table>
@@ -376,10 +378,10 @@ if (empty($row)) {
         <td>&nbsp;</td>
         <td rowspan="3">
         <br>
-        <?php echo xlt('De Identification Process is completed');
-        echo "</br></br>";
-        echo xlt('Please Click download button to download the De Identified data');
-        echo "</br>";    ?>      <br>
+            <?php echo xlt('De Identification Process is completed');
+            echo "</br></br>";
+            echo xlt('Please Click download button to download the De Identified data');
+            echo "</br>";    ?>      <br>
            </td>
            <td>&nbsp;</td>
        </tr>
@@ -393,7 +395,7 @@ if (empty($row)) {
            <input type="button" name="Download" value=<?php echo xla("Download");?> onclick="download_file()" ></td>
       </tr>
       </table>
-    <?php
+            <?php
         }
     } else if ($deIdentificationStatus == 3) {
         //3 - The De Identification process completed with error
@@ -410,7 +412,7 @@ if (empty($row)) {
           echo "</br></br>";
           echo xlt('De Identified data may not be complete');
           echo "</br></br>";
-            ?><span class="text"><?php echo xlt('Please view De Identification error log table for more details');
+        ?><span class="text"><?php echo xlt('Please view De Identification error log table for more details');
     echo "</br>";   ?></span>   <br>
            </td>
            <td>&nbsp;</td>
@@ -545,11 +547,11 @@ if (empty($row)) {
         <input type="hidden" name="drug_text" id="drug_text"><br>
         <input type="hidden" name="immunization_text" id="immunization_text">
   </table>
-    <?php
+        <?php
     }
 }
 
-    ?>
+?>
 </form>
 </body>
 </html>

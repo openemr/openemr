@@ -15,6 +15,7 @@
 require_once("../../globals.php");
 require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
@@ -34,14 +35,14 @@ if (file_exists($deleteform)) {
 $returnurl = 'forms.php';
 
 if ($_POST['confirm']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
       // set the deleted flag of the indicated form
         $sql = "update forms set deleted=1 where id=?";
-        sqlInsert($sql, array($_POST['id']));
+        sqlStatement($sql, array($_POST['id']));
       // Delete the visit's "source=visit" attributes that are not used by any other form.
         sqlStatement(
             "DELETE FROM shared_attributes WHERE " .
@@ -73,7 +74,7 @@ if ($_POST['confirm']) {
 <span class="title"><?php echo xlt('Delete Encounter Form'); ?></span>
 
 <form method="post" action="<?php echo $rootdir;?>/patient_file/encounter/delete_form.php" name="my_form" id="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <?php
 // output each GET variable as a hidden form input
@@ -100,7 +101,7 @@ echo xlt('You are about to delete the following form from this encounter') . ': 
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function (){
     $("#confirmbtn").on("click", function() { return ConfirmDelete(); });
     $("#cancel").on("click", function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
 });

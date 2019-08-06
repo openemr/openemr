@@ -17,6 +17,7 @@ require_once("$srcdir/registry.inc");
 require_once("../../library/acl.inc");
 require_once("batchcom.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!acl_check('admin', 'batchcom')) {
@@ -34,8 +35,8 @@ $sort_by_choices = array(xl('Zip Code')=>'patient_data.postal_code', xl('Last Na
 
 // process form
 if ($_POST['form_action']=='process') {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     //validation uses the functions in batchcom.inc.php
@@ -188,7 +189,7 @@ if ($_POST['form_action']=='process') {
     }
     ?>
     <form name="select_form" method="post" action="">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <div class="row">
             <div class="col-md-3 well form-group">
                 <label for="process_type"><?php echo xlt("Process") . ":"; ?></label>
@@ -235,20 +236,20 @@ if ($_POST['form_action']=='process') {
             <div class="col-md-3 well form-group">
                 <label for="age_from"><?php echo xlt("Age Range") . ":"; ?></label>
                 <input name="age_from" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
-                <label for="age_upto" class="text-center"><?php echo xlt('to'); ?></label>
+                <label for="age_upto" class="text-center"><?php echo xlt('to{{Range}}'); ?></label>
                 <input name="age_upto" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
             </div>
             <div class="col-md-3 well form-group">
                 <label for="app_s"><?php echo xlt('Appointment within') ?>:</label>
                     <input type="text" class="datepicker form-control" name="app_s" placeholder="<?php echo xla('any date'); ?>">
-                    <div class="text-center"><?php echo xlt('to'); ?></div>
+                    <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
                     <input type="text" class="datepicker form-control" name="app_e" placeholder="<?php echo xla('any date'); ?>">
             </div>
             <!-- later gator    <br>Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20"></SELECT> -->
             <div class="col-md-3 well form-group">
                 <label for="app_s"><?php echo xlt('Seen within')?>:</label>
                     <input type="text" class="datepicker form-control" name="seen_since" placeholder="<?php echo xla('any date'); ?>">
-                    <div class="text-center"><?php echo xlt('to'); ?></div>
+                    <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
                     <input type="text" class="datepicker form-control" name="seen_before" placeholder="<?php echo xla('any date'); ?>">
             </div>
         </div>

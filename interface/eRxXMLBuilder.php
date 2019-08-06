@@ -226,7 +226,7 @@ class eRxXMLBuilder
         if (is_a($element, 'DOMNode') && is_array($children) && count($children)) {
             foreach ($children as $child) {
                 // if(is_array($child)) {
-                // 	$this->appendChildren($element, $child);
+                //  $this->appendChildren($element, $child);
                 // }
                 $element->appendChild($child);
             }
@@ -532,6 +532,7 @@ class eRxXMLBuilder
         }
 
         $element->appendChild($this->createElementText('licenseNumber', $userDetails['state_license_number']));
+        $element->appendChild($this->createElementTextFieldEmpty('npi', $userDetails['npi'], xl('Midlevel Prescriber NPI')));
 
         return $element;
     }

@@ -229,7 +229,7 @@ if ($form_step == 1) {
                               // The following should always be true, otherwise duplicate input row.
                         if (empty($trow['procedure_type_id']) || $trow['activity'] == 0) {
                             if (empty($trow['procedure_type_id'])) {
-                                sqlInsert(
+                                sqlStatement(
                                     "INSERT INTO procedure_type SET " .
                                     "parent = ?, name = ?, lab_id = ?, procedure_code = ?, procedure_type = ?",
                                     array($ptid, $acsv[3], $lab_id, $acsv[2], 'res')
@@ -245,9 +245,8 @@ if ($form_step == 1) {
                             }
                         } // end if
                     } // end while
-                } // end load compendium
-
-                else if ($form_action == 2) { // load questions
+                    // end SFTP
+                } else if ($form_action == 2) { // load questions
                     // Delete the vendor's current questions.
                     sqlStatement(
                         "DELETE FROM procedure_questions WHERE lab_id = ?",
@@ -329,9 +328,8 @@ if ($form_step == 1) {
                                       );
                         }
                     } // end while
-                } // end load questions
-
-                else if ($form_action == 3) { // load question options
+                    // end load questions
+                } else if ($form_action == 3) { // load question options
                     // What should be uploaded is the "AOE Options" spreadsheet provided
                     // by YPMG, saved in "Text CSV" format from OpenOffice, using its
                     // default settings.  Values for each row are:

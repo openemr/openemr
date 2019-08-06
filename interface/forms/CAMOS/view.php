@@ -25,6 +25,8 @@
 require_once("../../globals.php");
 require_once("../../../library/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form: CAMOS");
 $textarea_rows = 22;
 $textarea_cols = 90;
@@ -67,12 +69,11 @@ function show_edit(t) {
   }
 }
 </script>
-<?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_top">
 <form method=post action="<?php echo $rootdir?>/forms/CAMOS/save.php?mode=delete&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <h1> <?php echo xlt('CAMOS'); ?> </h1>
 <input type="submit" name="delete" value="<?php echo xla('Delete Selected Items'); ?>" />
 <input type="submit" name="update" value="<?php echo xla('Update Selected Items'); ?>" />

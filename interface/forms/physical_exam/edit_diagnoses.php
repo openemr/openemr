@@ -15,6 +15,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $line_id = $_REQUEST['lineid'];
 $info_msg = "";
 
@@ -24,7 +26,6 @@ if ($issue && !acl_check('patients', 'med', '', 'write')) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <title><?php echo xlt('Edit Diagnoses for');?><?php echo text($line_id); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
@@ -37,8 +38,8 @@ if ($issue && !acl_check('patients', 'med', '', 'write')) {
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = ?";
@@ -54,7 +55,7 @@ if ($_POST['form_save']) {
             ) VALUES (
             ?, ?, ?
             )";
-            sqlInsert($query, array($line_id, $ordering, $diagnosis));
+            sqlStatement($query, array($line_id, $ordering, $diagnosis));
         }
     }
 
@@ -77,10 +78,10 @@ if ($_POST['form_save']) {
      "line_id = ? ORDER BY ordering, diagnosis",
      array($line_id)
  );
-?>
+    ?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php echo attr_url($line_id); ?>'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

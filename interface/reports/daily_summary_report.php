@@ -19,12 +19,13 @@ require_once("../globals.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -85,7 +86,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         <span class='title'><?php echo xlt('Daily Summary Report'); ?></span>
         <!-- start of search parameters -->
         <form method='post' name='report_form' id='report_form' action='' onsubmit='return top.restoreSession()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <div id="report_parameters">
                 <table class="tableonly">
                     <tr>
@@ -101,7 +102,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                                    class='datepicker form-control'
                                                    size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
                                         </td>
-                                        <td class='control-label'><?php echo xlt('To'); ?>:</td>
+                                        <td class='control-label'><?php echo xlt('To{{Range}}'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_to_date' id="form_to_date"
                                                    class='datepicker form-control'
@@ -318,7 +319,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         ?>
 
         <div id="report_results" style="font-size: 12px">
-            <?php echo '<b>' . xlt('From') . '</b> ' . text(oeFormatShortDate($from_date)) . ' <b>' . xlt('To') . '</b> ' . text(oeFormatShortDate($to_date)); ?>
+            <?php echo '<b>' . xlt('From') . '</b> ' . text(oeFormatShortDate($from_date)) . ' <b>' . xlt('To{{Range}}') . '</b> ' . text(oeFormatShortDate($to_date)); ?>
 
             <table class="flowboard" cellpadding='5' cellspacing='2' id="ds_report">
                 <tr class="head">

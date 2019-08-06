@@ -16,6 +16,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form: note");
 $returnurl = 'encounter_top.php';
 $provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION{"authUser"}));
@@ -35,7 +37,6 @@ if ($obj['date_of_signature'] != "") {
 }
 ?>
 <html><head>
-<?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
@@ -59,7 +60,7 @@ function PrintForm() {
 <body class="body_top">
 
 <form method=post action="<?php echo $rootdir."/forms/".$form_name."/save.php?mode=update&id=".attr_url($_GET["id"]);?>" name="my_form" id="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <span class="title"><?php echo xlt('Work/School Note'); ?></span><br></br>
 
@@ -72,10 +73,10 @@ function PrintForm() {
 <select name="note_type">
 <option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") {
     echo " SELECTED";
-} ?>><?php echo xlt('WORK NOTE'); ?></option>
+                          } ?>><?php echo xlt('WORK NOTE'); ?></option>
 <option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") {
     echo " SELECTED";
-} ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
+                            } ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
 <br>
 <b><?php echo xlt('MESSAGE:'); ?></b>
@@ -108,7 +109,7 @@ function PrintForm() {
 
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function(){
     $(".save").click(function() { top.restoreSession(); $("#my_form").submit(); });
     $(".dontsave").click(function() { parent.closeTab(window.name, false); });
     $(".printform").click(function() { PrintForm(); });

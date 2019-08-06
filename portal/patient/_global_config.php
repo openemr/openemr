@@ -54,7 +54,7 @@ class GlobalConfig
     /** @var root url of the application */
     public static $ROOT_URL;
 
-    /** @var ConnectionSetting object containign settings for the DB connection **/
+    /** @var ConnectionSetting object containing settings for the DB connection **/
     public static $CONNECTION_SETTING;
 
     /** @var Setting to true will convert all NULL values to an empty string (set to false with caution!)  **/
@@ -168,7 +168,7 @@ class GlobalConfig
     }
 
     /**
-     * Returns the Phreezer persistance layer
+     * Returns the Phreezer persistence layer
      * @return Phreezer
      */
     function GetPhreezer()

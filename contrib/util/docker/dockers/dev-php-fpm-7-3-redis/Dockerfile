@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018 Brady Miller <brady.g.miller@gmail.com>
+# Copyright (C) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,22 +22,20 @@ RUN apt-get install -y mysql-client \
                        imagemagick
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
-#
-# TODO - try the zip package intermittently
-#
 ADD https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions pdo_mysql \
                            ldap \
                            xsl \
                            gd \
-                           # zip \
+                           zip \
                            soap \
                            gettext \
                            mysqli \
                            sockets \
                            tokenizer \
                            xmlreader \
+                           calendar \
                            redis
 
 # Copy over the php.ini conf

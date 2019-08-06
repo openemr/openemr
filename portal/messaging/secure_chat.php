@@ -1,29 +1,22 @@
 <?php
 /**
+ * secure_chat.php
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace SMA_Common;
 
- session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+\OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
@@ -31,7 +24,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['pid']);
 } else {
-    session_destroy();
+    \OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
     if (! isset($_SESSION['authUserID'])) {
@@ -46,7 +39,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     define('ADMIN_USERNAME', $admin['user_name']);
     define('IS_DASHBOARD', $_SESSION['authUser']);
     define('IS_PORTAL', false);
-    $_SERVER[REMOTE_ADDR] = 'admin::' . $_SERVER[REMOTE_ADDR];
+    $_SERVER['REMOTE_ADDR'] = 'admin::' . $_SERVER['REMOTE_ADDR'];
 }
 
 
@@ -303,7 +296,7 @@ class Model extends SMA_Common\Model
     public function getMessages($limit = CHAT_HISTORY, $reverse = true)
     {
         $response = sqlStatementNoLog("(SELECT * FROM onsite_messages
-            ORDER BY `date` DESC LIMIT {$limit}) ORDER BY `date` ASC");
+            ORDER BY `date` DESC LIMIT " . escape_limit($limit) . ") ORDER BY `date` ASC");
 
         $result = array();
         while ($row = sqlFetchArray($response)) {
@@ -367,7 +360,7 @@ class Model extends SMA_Common\Model
     public function clearOffline($timeRange = CHAT_ONLINE_RANGE)
     {
         return sqlStatementNoLog("DELETE FROM onsite_online
-            WHERE last_update <= (NOW() - INTERVAL {$timeRange} MINUTE)");
+            WHERE last_update <= (NOW() - INTERVAL " . escape_limit($timeRange) . " MINUTE)");
     }
 
     public function __destruct()
@@ -507,7 +500,7 @@ $msgApp = new Controller();
     <title><?php echo xlt('Secure Patient Chat'); ?></title>
     <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com">
 
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/dist/jquery.js"></script>
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
@@ -586,13 +579,13 @@ $msgApp = new Controller();
         $scope.lastMessageId = null;
         $scope.historyFromId = null;
         $scope.onlines = []; // all online users id and ip's
-        $scope.user = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : ADMIN_USERNAME;?>";// current user - dashboard user is from session authUserID
-        $scope.userid = "<?php echo IS_PORTAL ? $_SESSION['pid'] : $_SESSION['authUser'];?>";
+        $scope.user = <?php echo $_SESSION['ptName'] ? js_escape($_SESSION['ptName']) : js_escape(ADMIN_USERNAME); ?>;// current user - dashboard user is from session authUserID
+        $scope.userid = <?php echo IS_PORTAL ? js_escape($_SESSION['pid']) : js_escape($_SESSION['authUser']); ?>;
         $scope.isPortal = "<?php echo IS_PORTAL;?>";
         $scope.isFullScreen = "<?php echo IS_FULLSCREEN; ?>";
         $scope.pusers = []; // selected recipients for chat
         $scope.chatusers = []; // authorize chat recipients for dashboard user
-        $scope.noRecipError = '<?php echo xla("Please Select a Recipient for Message.") ?>';
+        $scope.noRecipError = <?php echo xlj("Please Select a Recipient for Message.") ?>;
         $scope.me = {
             username: $scope.user,
             message: null,

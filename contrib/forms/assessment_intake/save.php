@@ -14,9 +14,11 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -29,7 +31,7 @@ if ($_GET["mode"] == "new") {
     print 'formSubmitt';  /*debugging */
     addForm($encounter, "Assessment and Intake", $newid, "assessment_intake", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert(
+    sqlStatement(
         "update form_assessment_intake set pid = ?,
         groupname=?,
         user=?,

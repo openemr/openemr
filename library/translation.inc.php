@@ -12,6 +12,10 @@
 if (!(function_exists('xl'))) {
     function xl($constant, $mode = 'r', $prepend = '', $append = '')
     {
+        if (!empty($GLOBALS['temp_skip_translations'])) {
+            return $constant;
+        }
+
         // set language id
         if (!empty($_SESSION['language_choice'])) {
              $lang_id = $_SESSION['language_choice'];
@@ -247,26 +251,4 @@ function getLanguageDir($lang_id)
     $row = sqlQuery('SELECT * FROM lang_languages WHERE lang_id = ?', array($lang_id));
 
     return !empty($row['lang_is_rtl']) ? 'rtl' : 'ltr';
-}
-
-//----------------------------------
-
-// ----------------------------------------------------------------------------
-/**
-HEADER HTML
-
-shows some informations for pages html header
-
-@param none
-@return void
-*/
-function html_header_show()
-{
-
-    // Below line was commented by the UTF-8 project on 05-2009 by BM.
-    //  We commented this out since we are now standardizing encoding
-    //  in the globals.php file.
-    // echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> '."\n";
-    //
-    // Keeping this function, since it may prove useful for user interface improvements
 }

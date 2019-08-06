@@ -17,11 +17,12 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -83,7 +84,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 <span class='title'><?php echo xlt('Report History/Results'); ?></span>
 
 <form method='post' name='theform' id='theform' action='report_results.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -263,7 +264,7 @@ while ($row = sqlFetchArray($res)) {
         $type_title = xl('Unknown') . "-" . $row['type'];
         $link="";
     }
-?>
+    ?>
 <tr>
     <?php if ($row["progress"] == "complete") { ?>
       <td align='center'><a href='<?php echo $link; ?>' onclick='top.restoreSession()'><?php echo text($type_title); ?></a></td>
@@ -279,7 +280,7 @@ while ($row = sqlFetchArray($res)) {
 
 </tr>
 
-<?php
+    <?php
 } // $row = sqlFetchArray($res) while
 ?>
 </tbody>

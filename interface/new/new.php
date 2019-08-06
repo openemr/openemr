@@ -12,6 +12,8 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if ($GLOBALS['full_new_patient_form']) {
     require("new_comprehensive.php");
     exit;
@@ -42,7 +44,6 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
 <html>
 
 <head>
-<?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
@@ -78,7 +79,7 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
   return true;
  }
 
-$(document).ready(function(){
+$(function (){
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -103,7 +104,7 @@ $(document).ready(function(){
 
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <span class='title'><?php echo xlt('Add Patient Record'); ?></span>
 
@@ -124,18 +125,18 @@ $(document).ready(function(){
   </td>
   <td>
    <select name='title'>
-<?php
-$ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'titles' AND activity = 1 ORDER BY seq");
-while ($orow = sqlFetchArray($ores)) {
-    echo "    <option value='" . attr($orow['option_id']) . "'";
-    if ($orow['option_id'] == $form_title) {
-        echo " selected";
-    }
+    <?php
+    $ores = sqlStatement("SELECT option_id, title FROM list_options " .
+    "WHERE list_id = 'titles' AND activity = 1 ORDER BY seq");
+    while ($orow = sqlFetchArray($ores)) {
+        echo "    <option value='" . attr($orow['option_id']) . "'";
+        if ($orow['option_id'] == $form_title) {
+            echo " selected";
+        }
 
-    echo ">" . text($orow['title']) . "</option>\n";
-}
-?>
+        echo ">" . text($orow['title']) . "</option>\n";
+    }
+    ?>
    </select>
   </td>
  </tr>
@@ -199,18 +200,18 @@ while ($orow = sqlFetchArray($ores)) {
   <td>
    <select name='refsource'>
     <option value=''>Unassigned</option>
-<?php
-$ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'refsource' AND activity = 1 ORDER BY seq");
-while ($orow = sqlFetchArray($ores)) {
-    echo "    <option value='" . attr($orow['option_id']) . "'";
-    if ($orow['option_id'] == $form_refsource) {
-        echo " selected";
-    }
+    <?php
+    $ores = sqlStatement("SELECT option_id, title FROM list_options " .
+    "WHERE list_id = 'refsource' AND activity = 1 ORDER BY seq");
+    while ($orow = sqlFetchArray($ores)) {
+        echo "    <option value='" . attr($orow['option_id']) . "'";
+        if ($orow['option_id'] == $form_refsource) {
+            echo " selected";
+        }
 
-    echo ">" . text($orow['title']) . "</option>\n";
-}
-?>
+        echo ">" . text($orow['title']) . "</option>\n";
+    }
+    ?>
    </select>
   </td>
  </tr>

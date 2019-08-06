@@ -15,9 +15,11 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../drugs/drugs.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -26,7 +28,6 @@ $form_to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_d
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title><?php echo xlt('Destroyed Drugs'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
@@ -49,7 +50,7 @@ table.mymaintable td, table.mymaintable th {
 
 <script language="JavaScript">
 
-$(document).ready(function() {
+$(function() {
     oeFixedHeaderSetup(document.getElementById('mymaintable'));
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
@@ -73,7 +74,7 @@ $(document).ready(function() {
 <h2><?php echo xlt('Destroyed Drugs'); ?></h2>
 
 <form name='theform' method='post' action='destroyed_drugs_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -83,7 +84,7 @@ $(document).ready(function() {
    <input type='text' class='datepicker' name='form_from_date' id='form_from_date'
     size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
 
-   &nbsp;<?php echo xlt('To'); ?>:
+   &nbsp;<?php echo xlt('To{{Range}}'); ?>:
    <input type='text' class='datepicker' name='form_to_date' id='form_to_date'
     size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
 
@@ -155,7 +156,7 @@ if ($_POST['form_refresh']) {
             $drug_name  = '&nbsp;';
             $ndc_number = '&nbsp;';
         }
-    ?>
+        ?>
    <tr>
     <td class='detail'>
         <?php echo text($drug_name); ?>
@@ -185,8 +186,8 @@ if ($_POST['form_refresh']) {
         <?php echo text($row['destroy_notes']); ?>
   </td>
  </tr>
-<?php
-     $last_drug_id = $row['drug_id'];
+        <?php
+        $last_drug_id = $row['drug_id'];
     } // end while
 } // end if
 ?>

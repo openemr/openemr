@@ -14,6 +14,8 @@ require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 <html>
 <head>
@@ -88,8 +90,8 @@ if (!acl_check('patients', 'med')) {
 }
 
 if ($_POST['form_complete']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Save that form as a row in rule_patient_data table
@@ -108,7 +110,7 @@ if ($_POST['form_complete']) {
 
     if (!isset($form_entryID)) {
         // Insert new row of data into rule_patient_data table
-        sqlInsert("INSERT INTO `rule_patient_data` (`date`, `pid`, `category`, `item`, `complete`, `result`) " .
+        sqlStatement("INSERT INTO `rule_patient_data` (`date`, `pid`, `category`, `item`, `complete`, `result`) " .
         "VALUES (?,?,?,?,?,?)", array($form_date, $pid, $form_category, $form_item, $form_complete, $form_result));
     } else { // $form_mode == "edit"
         // Modify selected row in rule_patient_data table
@@ -156,7 +158,7 @@ if (isset($entryID)) {
 
 <br>
 <form action='patient_data.php' name='patient_data' method='post' onsubmit='return top.restoreSession()'>
-  <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
   <table border=0 cellpadding=1 cellspacing=1>
     <?php
@@ -190,7 +192,7 @@ if (isset($entryID)) {
         echo "<input type='hidden' name='form_entryID' value='" .
         attr($entryID)  . "' />";
     }
-?>
+    ?>
 </form>
 <?php
 
@@ -240,8 +242,7 @@ if (sqlNumRows($res) >= 1) { //display table ?>
         echo "</tr>";
     } ?>
   </table>
-<?php } //display table if statement
-else { //no entries
+<?php } else { //no entries
     echo "<p>" . xlt('No previous entries.') . "</p>";
 } ?>
 </div>

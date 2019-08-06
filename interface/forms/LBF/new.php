@@ -23,6 +23,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once("$srcdir/FeeSheetHtml.class.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $CPR = 4; // cells per row
@@ -380,7 +381,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             parent.closeTab(window.name, false);
         }
 
-        $(document).ready(function () {
+        $(function () {
 
             if (window.tabbify) {
                 tabbify();
@@ -460,7 +461,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         '&code=' + encodeURIComponent(code) +
                         '&selector=' + encodeURIComponent(selector) +
                         '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                        '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
+                        '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
                 }
                 return '';
             }
@@ -541,7 +542,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         if (isset($fs)) {
         // jsLineItemValidation() function for the fee sheet stuff.
             echo $fs->jsLineItemValidation('form_fs_bill', 'form_fs_prod');
-        ?>
+            ?>
 
         // Add a service line item.
         function fs_append_service(code_type, code, desc, price) {
@@ -631,7 +632,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
+                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -658,7 +659,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 '&code=' + encodeURIComponent(a[1]) +
                 '&selector=' + encodeURIComponent(a[2]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
+                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -684,7 +685,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>));
+                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
         }
 
         // Respond to selecting a package of codes.
@@ -695,7 +696,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
                     '?list=' + encodeURIComponent(sel.value) +
                     '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                    '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
+                    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
             }
             sel.selectedIndex = 0;
         }
@@ -734,7 +735,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
 <body class="body_top"<?php if ($from_issue_form) {
     echo " style='background-color:#ffffff'";
-} ?>>
+                      } ?>>
 <div class='container'>
     <?php
     echo "<form method='post' " .
@@ -812,7 +813,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             die(text($portalres['errmsg']));
         }
     }
-            ?>
+    ?>
 
             <!-- This is where a chart might display. -->
             <div id="chart"></div>

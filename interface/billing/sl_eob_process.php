@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,6 +22,8 @@ require_once("$srcdir/invoice_summary.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\InsuranceService;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 $paydate = parse_date($_GET['paydate']);
@@ -29,7 +33,7 @@ $last_ptname = '';
 $last_invnumber = '';
 $last_code = '';
 $invoice_total = 0.00;
-$InsertionId;//last inserted ID of
+$InsertionId; // last inserted ID of
 
 ///////////////////////// Assorted Functions /////////////////////////
 
@@ -376,8 +380,7 @@ function era_callback(&$out)
                 ****/
 
                 unset($codes[$codekey]);
-            } // If the service item is not in our database...
-            else {
+            } else { // If the service item is not in our database...
                 // This is not an error. If we are not in error mode and not debugging,
                 // insert the service item into SL.  Then display it (in green if it
                 // was inserted, or in red if we are in error mode).
@@ -509,10 +512,9 @@ function era_callback(&$out)
                         } else if ($adj['reason_code'] == '3') {
                             $reason = "$inslabel copay: ";
                         }
-                    } // Non-primary insurance adjustments are garbage, either repeating
-                    // the primary or are not adjustments at all.  Report them as notes
-                    // but do not post any amounts.
-                    else {
+                    } else { // Non-primary insurance adjustments are garbage, either repeating
+                        // the primary or are not adjustments at all.  Report them as notes
+                        // but do not post any amounts.
                         $reason = "$inslabel note " . $adj['reason_code'] . ': ';
                 /****
                     $reason .= sprintf("%.2f", $adj['amount']);
@@ -538,8 +540,7 @@ function era_callback(&$out)
 
                     writeMessageLine($bgcolor, $class, $description . ' ' .
                     sprintf("%.2f", $adj['amount']));
-                } // Other group codes for primary insurance are real adjustments.
-                else {
+                } else { // Other group codes for primary insurance are real adjustments.
                     if (!$error && !$debug) {
                         SLEOB::arPostAdjustment(
                             $pid,
@@ -621,6 +622,32 @@ function era_callback(&$out)
                     );
                 }
             }
+
+            if ($out['corrected'] == '1') {
+                if ($GLOBALS['update_mbi']) {
+                    if ($primary && (substr($inslabel, 3) == 1)) {
+                        $updated_ins = InsuranceService::getOne($pid, "primary");
+                        $updated_ins['provider'] = $insurance_id;
+                        $updated_ins['policy_number'] = $out['corrected_mbi'];
+                        InsuranceService::update($pid, "primary", $updated_ins);
+                    } else { // tbd secondary medicare
+                        // InsuranceService::update($pid, "secondary", array($insurance_id, '', $out['corrected_mbi']));
+                        // will need to add method to insurance service to return policy type
+                    }
+
+                    writeMessageLine(
+                        $bgcolor,
+                        'infdetail',
+                        "The policy number has been updated to " . $out['corrected_mbi']
+                    );
+                } else {
+                    writeMessageLine(
+                        $bgcolor,
+                        'infdetail',
+                        "The policy number could be updated to " . $out['corrected_mbi'] . " if you enable it in globals"
+                    );
+                }
+            }
         }
     }
 }
@@ -629,8 +656,8 @@ function era_callback(&$out)
 
 $info_msg = "";
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $eraname = $_GET['eraname'];
@@ -644,7 +671,7 @@ if (! $eraname) {
     // report files.  Do not save the report if this is a no-update situation.
     //
 if (!$debug) {
-    $nameprefix = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname";
+    $nameprefix = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname";
     $namesuffix = '';
     for ($i = 1; is_file("$nameprefix$namesuffix.html"); ++$i) {
         $namesuffix = "_$i";
@@ -660,7 +687,6 @@ if (!$debug) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">
  body       { font-family:sans-serif; font-size:8pt; font-weight:normal }
@@ -674,12 +700,12 @@ if (!$debug) {
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <form action="sl_eob_process.php" method="get" >
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 <?php
 if ($_GET['original']=='original') {
-    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
     echo $StringToEcho;
 } else {
     ?>
@@ -713,8 +739,8 @@ if ($_GET['original']=='original') {
     global $InsertionId;
 
     $eraname=$_REQUEST['eraname'];
-    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi");
-    $alertmsg = ParseERA::parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi");
+    $alertmsg = ParseERA::parse_era($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
     if (!$debug) {
           $StringIssue=xl("Total Distribution for following check number is not full").': ';
           $StringPrint='No';
@@ -740,7 +766,7 @@ if ($_GET['original']=='original') {
 
     ?>
     </table>
-<?php
+    <?php
 }
 ?>
 </center>

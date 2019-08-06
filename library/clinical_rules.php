@@ -417,7 +417,7 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
             $new_targets_json = json_encode($new_targets);
         }
 
-        sqlInsert("INSERT INTO `clinical_rules_log` " .
+        sqlStatement("INSERT INTO `clinical_rules_log` " .
               "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
               "VALUES (NOW(),?,?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json,$new_targets_json));
     }
@@ -2368,6 +2368,16 @@ function collect_database_label($label, $table)
             // unknown label, so return the original label
             $returnedLabel = $label;
         }
+    } else if ($table == 'openemr_postcalendar_events') {
+      // return requested label for prescriptions table
+        if ($label == "pid") {
+            $returnedLabel = "pc_pid";
+        } else if ($label == "date") {
+            $returnedLabel = "pc_eventdate";
+        } else {
+          // unknown label, so return the original label
+            $returnedLabel = $label;
+        }
     } else {
         // return requested label for default tables
         if ($label == "pid") {
@@ -2375,7 +2385,7 @@ function collect_database_label($label, $table)
         } else if ($label == "date") {
             $returnedLabel = "`date`";
         } else {
-            // unknown label, so return the original label
+          // unknown label, so return the original label
             $returnedLabel = $label;
         }
     }

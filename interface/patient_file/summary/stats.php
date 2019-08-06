@@ -15,8 +15,10 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 ?>
 
@@ -47,7 +49,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         continue;
     }
 
-  
+
     $query = "SELECT * FROM lists WHERE pid = ? AND type = ? AND ";
     $query .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
     if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $key=='medication') {
@@ -62,54 +64,54 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     $pres = sqlStatement($query, array($pid, $key));
     if ($old_key=="medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
         $display_current_medications_below=0;
-    ?>
+        ?>
     <div>
         <table id="patient_stats_prescriptions">
-    <?php
-    if ($GLOBALS['erx_enable']) {
-?>
+        <?php
+        if ($GLOBALS['erx_enable']) {
+            ?>
         <tr><td>
-<?php
-if ($_POST['embeddedScreen']) {
-    $widgetTitle = xl('Current Medications');
-    $widgetLabel = "current_prescriptions";
-    $widgetButtonLabel = '';
-    $widgetButtonLink = '';
-    $widgetAuth = false;
-    $widgetButtonClass = '';
-    $bodyClass = "summary_item small";
-    $fixedWidth = false;
-    expand_collapse_widget(
-        $widgetTitle,
-        $widgetLabel,
-        $widgetButtonLabel,
-        $widgetButtonLink,
-        $widgetButtonClass,
-        $linkMethod,
-        $bodyClass,
-        $widgetAuth,
-        $fixedWidth
-    );
-}
+            <?php
+            if ($_POST['embeddedScreen']) {
+                $widgetTitle = xl('Current Medications');
+                $widgetLabel = "current_prescriptions";
+                $widgetButtonLabel = '';
+                $widgetButtonLink = '';
+                $widgetAuth = false;
+                $widgetButtonClass = '';
+                $bodyClass = "summary_item small";
+                $fixedWidth = false;
+                expand_collapse_widget(
+                    $widgetTitle,
+                    $widgetLabel,
+                    $widgetButtonLabel,
+                    $widgetButtonLink,
+                    $widgetButtonClass,
+                    $linkMethod,
+                    $bodyClass,
+                    $widgetAuth,
+                    $fixedWidth
+                );
+            }
 
-      $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
-?>
+            $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
+            ?>
         <table>
-<?php
-if (sqlNumRows($res) == 0) {
-?>
+            <?php
+            if (sqlNumRows($res) == 0) {
+                ?>
   <tr class=text>
 <td><?php echo xlt('None'); ?></td>
   </tr>
-<?php
-}
+                <?php
+            }
 
-while ($row_currentMed=sqlFetchArray($res)) {
-    $runit = generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row_currentMed['unit']);
-    $rin = generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row_currentMed['form']);
-    $rroute = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
-    $rint = generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
-?>
+            while ($row_currentMed=sqlFetchArray($res)) {
+                $runit = generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row_currentMed['unit']);
+                $rin = generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row_currentMed['form']);
+                $rroute = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
+                $rint = generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
+                ?>
   <tr class=text >
 <td><?php echo text($row_currentMed['drug']);?></td>
 <td><?php
@@ -121,14 +123,14 @@ if ($row_currentMed['size'] > 0) {
         echo $unit . " " . text($row_currentMed['dosage']) . " " . $rin . " " . $rroute . " " . $rint;
 ?></td>
   </tr>
-<?php
-} // end while
-?>
+                <?php
+            } // end while
+            ?>
         </table>
         </td></tr>
-<?php
-    } // end erx_enable
-    $old_key='';
+            <?php
+        } // end erx_enable
+        $old_key='';
     }
 
     if (sqlNumRows($pres) > 0 || $arr[4] == 1) {
@@ -164,9 +166,8 @@ if ($row_currentMed['size'] > 0) {
             $widgetAuth = acl_check_issue($key, '', array('write', 'addonly'));
             $fixedWidth = false;
             expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-        } // end embeddedScreen
-        else {
-        ?>
+        } else { // end embeddedScreen
+            ?>
             <tr class='issuetitle'>
             <td colspan='$numcols'>
             <span class="text"><b><?php echo text($arr[0]); ?></b></span>
@@ -175,7 +176,7 @@ if ($row_currentMed['size'] > 0) {
             </a>
             </td>
             </tr>
-<?php
+            <?php
         }
 
         echo "<table>";
@@ -268,20 +269,20 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 <div>
 <table id="patient_stats_imm">
 <tr>
-<?php if ($_POST['embeddedScreen']) {
-    echo "<td>";
-    // Issues expand collapse widget
-    $widgetTitle = xl('Immunizations');
-    $widgetLabel = "immunizations";
-    $widgetButtonLabel = xl("Edit");
-    $widgetButtonLink = "javascript:load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/immunizations.php\")";
-    $widgetButtonClass = "";
-    $linkMethod = "javascript";
-    $bodyClass = "summary_item small";
-    $widgetAuth = true;
-    $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-} else { ?>
+    <?php if ($_POST['embeddedScreen']) {
+        echo "<td>";
+        // Issues expand collapse widget
+        $widgetTitle = xl('Immunizations');
+        $widgetLabel = "immunizations";
+        $widgetButtonLabel = xl("Edit");
+        $widgetButtonLink = "javascript:load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/immunizations.php\")";
+        $widgetButtonClass = "";
+        $linkMethod = "javascript";
+        $bodyClass = "summary_item small";
+        $widgetAuth = true;
+        $fixedWidth = false;
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    } else { ?>
 <td colspan='<?php echo $numcols ?>' valign='top'>
 <span class="text"><b><?php echo xlt('Immunizations'); ?></b></span>
 <a href="javascript:;" class="small" onclick="javascript:load_location('immunizations.php')">
@@ -289,10 +290,10 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 </a>
 </td></tr>
 <tr><td>
-<?php } ?>
+    <?php } ?>
 
-<?php
-  $sql = "select i1.id as id, i1.immunization_id as immunization_id, i1.cvx_code as cvx_code, c.code_text_short as cvx_text, ".
+    <?php
+    $sql = "select i1.id as id, i1.immunization_id as immunization_id, i1.cvx_code as cvx_code, c.code_text_short as cvx_text, ".
          " if (i1.administered_date, concat(i1.administered_date,' - ',c.code_text_short), IF(i1.note,substring(i1.note,1,20),c.code_text_short)) as immunization_data ".
          " from immunizations i1 ".
          " left join code_types ct on ct.ct_key = 'CVX' ".
@@ -301,38 +302,38 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
          " and i1.added_erroneously = 0".
          " order by i1.administered_date desc";
 
-  $result = sqlStatement($sql, array($pid));
+    $result = sqlStatement($sql, array($pid));
 
-if (sqlNumRows($result) == 0) {
-    echo " <table><tr>\n";
-    echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('None') . "</td>\n";
-    echo " </tr></table>\n";
-}
-
-while ($row=sqlFetchArray($result)) {
-    echo "&nbsp;&nbsp;";
-    echo "<a class='link'";
-    echo "' href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=".urlencode($row['id'])."&csrf_token_form=".urlencode(collectCsrfToken())) . ")'>" .
-    text($row{'immunization_data'});
-
-    // Figure out which name to use (ie. from cvx list or from the custom list)
-    if ($GLOBALS['use_custom_immun_list']) {
-        echo generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
-    } else {
-        if (!(empty($row['cvx_text']))) {
-            echo htmlspecialchars(xl($row['cvx_text']), ENT_NOQUOTES);
-        } else {
-            echo generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
-        }
+    if (sqlNumRows($result) == 0) {
+        echo " <table><tr>\n";
+        echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('None') . "</td>\n";
+        echo " </tr></table>\n";
     }
 
-    echo "</a><br>\n";
-}
-?>
+    while ($row=sqlFetchArray($result)) {
+        echo "&nbsp;&nbsp;";
+        echo "<a class='link'";
+        echo "' href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=".urlencode($row['id'])."&csrf_token_form=".urlencode(CsrfUtils::collectCsrfToken())) . ")'>" .
+        text($row{'immunization_data'});
 
-<?php if ($_POST['embeddedScreen']) {
-    echo "</td></tr></div>";
-} ?>
+        // Figure out which name to use (ie. from cvx list or from the custom list)
+        if ($GLOBALS['use_custom_immun_list']) {
+            echo generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+        } else {
+            if (!(empty($row['cvx_text']))) {
+                echo htmlspecialchars(xl($row['cvx_text']), ENT_NOQUOTES);
+            } else {
+                echo generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+            }
+        }
+
+        echo "</a><br>\n";
+    }
+    ?>
+
+    <?php if ($_POST['embeddedScreen']) {
+        echo "</td></tr></div>";
+    } ?>
 
 </td>
 </tr>
@@ -343,41 +344,41 @@ while ($row=sqlFetchArray($result)) {
 <?php if (!$GLOBALS['disable_prescriptions'] && acl_check('patients', 'rx')) { ?>
 <div>
 <table id="patient_stats_prescriptions">
-<?php if ($GLOBALS['erx_enable'] && $display_current_medications_below==1) { ?>
+    <?php if ($GLOBALS['erx_enable'] && $display_current_medications_below==1) { ?>
 <tr><td>
-<?php if ($_POST['embeddedScreen']) {
-    $widgetTitle = '';
-    $widgetTitle = xl('Current Medications');
-    $widgetLabel = "current_prescriptions";
-    $widgetButtonLabel = '';
-    $widgetButtonLink = '';
-    $widgetAuth = false;
-    $widgetButtonClass = '';
-    $bodyClass = "summary_item small";
-    $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-}
-?>
+        <?php if ($_POST['embeddedScreen']) {
+            $widgetTitle = '';
+            $widgetTitle = xl('Current Medications');
+            $widgetLabel = "current_prescriptions";
+            $widgetButtonLabel = '';
+            $widgetButtonLink = '';
+            $widgetAuth = false;
+            $widgetButtonClass = '';
+            $bodyClass = "summary_item small";
+            $fixedWidth = false;
+            expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+        }
+        ?>
 
-<?php
-$res=sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
-?>
+        <?php
+        $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
+        ?>
 <table>
-<?php
-if (sqlNumRows($res)==0) {
-    ?>
+        <?php
+        if (sqlNumRows($res)==0) {
+            ?>
     <tr class=text>
         <td><?php echo xlt('None');?></td>
     </tr>
-    <?php
-}
+            <?php
+        }
 
-while ($row_currentMed=sqlFetchArray($res)) {
-    $runit = generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row_currentMed['unit']);
-    $rin = generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row_currentMed['form']);
-    $rroute = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
-    $rint = generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
-    ?>
+        while ($row_currentMed=sqlFetchArray($res)) {
+            $runit = generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row_currentMed['unit']);
+            $rin = generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row_currentMed['form']);
+            $rroute = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
+            $rint = generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
+            ?>
     <tr class=text >
         <td><?php echo text($row_currentMed['drug']); ?></td>
         <td><?php $unit='';
@@ -387,53 +388,53 @@ while ($row_currentMed=sqlFetchArray($res)) {
 
         echo $unit . " " . text($row_currentMed['dosage']) . " " . $rin . " " . $rroute . " " . $rint; ?></td>
     </tr>
-<?php
-}
-?>
+            <?php
+        }
+        ?>
 </table>
 </td></tr>
-<?php } ?>
+    <?php } ?>
 <tr><td colspan='<?php echo $numcols ?>' class='issuetitle'>
 
-<?php if ($_POST['embeddedScreen']) {
-    // Issues expand collapse widget
-    $widgetLabel = "prescriptions";
-    $linkMethod = "html";
-    if ($GLOBALS['erx_enable']) {
-        $widgetTitle = xl('Prescription History');
-        $widgetButtonLabel = xl("Add/Edit eRx");
-        $widgetButtonLink = $GLOBALS['webroot'] . "/interface/eRx.php?page=compose";
-        $widgetButtonClass = "";
-    } else {
-        $linkMethod = "javascript";
-        $widgetTitle = xl('Prescription');
-        $widgetButtonLabel = xl("Edit");
-        $oeLink = $GLOBALS['webroot'] . "/controller.php?prescription&list&id=" . attr_url($pid);
-        $widgetButtonLink = 'editScripts("' . $oeLink . '")';
+    <?php if ($_POST['embeddedScreen']) {
+        // Issues expand collapse widget
+        $widgetLabel = "prescriptions";
+        $linkMethod = "html";
+        if ($GLOBALS['erx_enable']) {
+            $widgetTitle = xl('Prescription History');
+            $widgetButtonLabel = xl("Add/Edit eRx");
+            $widgetButtonLink = $GLOBALS['webroot'] . "/interface/eRx.php?page=compose";
+            $widgetButtonClass = "";
+        } else {
+            $linkMethod = "javascript";
+            $widgetTitle = xl('Prescription');
+            $widgetButtonLabel = xl("Edit");
+            $oeLink = $GLOBALS['webroot'] . "/controller.php?prescription&list&id=" . attr_url($pid);
+            $widgetButtonLink = 'editScripts("' . $oeLink . '")';
 
-        $widgetButtonClass = "iframe rx_modal";
-    }
+            $widgetButtonClass = "iframe rx_modal";
+        }
 
-    $bodyClass = "summary_item small";
-    $widgetAuth=acl_check('patients', 'rx', '', array('write','addonly'));
-    $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-} else { ?>
+        $bodyClass = "summary_item small";
+        $widgetAuth=acl_check('patients', 'rx', '', array('write','addonly'));
+        $fixedWidth = false;
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    } else { ?>
     <span class='text'><b><?php echo xlt('Prescriptions'); ?></b></span>
     </td></tr>
     </tr><td>
-<?php } ?>
+    <?php } ?>
 
-<?php
-$cwd= getcwd();
-chdir("../../../");
-$c = new Controller();
-echo $c->act(array("prescription" => "", "fragment" => "", "patient_id" => $pid));
-?>
+    <?php
+    $cwd= getcwd();
+    chdir("../../../");
+    $c = new Controller();
+    echo $c->act(array("prescription" => "", "fragment" => "", "patient_id" => $pid));
+    ?>
 
-<?php if ($_POST['embeddedScreen']) {
-    echo "</div>";
-} ?>
+    <?php if ($_POST['embeddedScreen']) {
+        echo "</div>";
+    } ?>
 
 </td></tr>
 

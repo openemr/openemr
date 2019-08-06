@@ -11,24 +11,25 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// continue session
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 require_once("./../library/pnotes.inc");
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=".$_SESSION['site_id'];
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 //
 
 // kick out if patient not authenticated
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
@@ -293,7 +294,7 @@ if ($_POST['form_action'] == "save") {
             $r2 = array_diff($providers_new, $providers_current);
             if (count($r2)) {
                 foreach ($r2 as $to_be_inserted) {
-                    sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility)
+                    sqlStatement("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility)
                 VALUES ( " .
                     "'" . add_escape_custom($_POST['form_category'])         . "', " .
                     "'" . add_escape_custom($row['pc_multiple'])             . "', " .
@@ -400,7 +401,7 @@ if ($_POST['form_action'] == "save") {
             $new_multiple_value = $max['max'] + 1;
 
             foreach ($_POST['form_provider_ae'] as $provider) {
-                sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+                sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
                 "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
                 "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
                 "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
@@ -431,7 +432,7 @@ if ($_POST['form_action'] == "save") {
         } else {
             $_POST['form_apptstatus'] = '^';
             $insert = true;
-            sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+            sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
                 "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
                 "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
                 "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
@@ -602,7 +603,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
 
 <body class="skin-blue" >
 <div class="well">
-<form class="form-inline" method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr($eid); ?>'>
+<form class="form-inline" method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
 <input type="hidden" name="form_action" id="form_action" value="">
    <input type='hidden' name='form_category' id='form_category' value='<?php echo $row['pc_catid'] ? attr($row['pc_catid']) : '5'; ?>' />
    <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo $row['pc_apptstatus'] ? attr($row['pc_apptstatus']) : "^" ?>' />
@@ -757,8 +758,6 @@ while ($crow = sqlFetchArray($cres)) {
 }
 ?>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
-
  // This is for callback by the find-patient popup.
  function setpatient(pid, lname, fname, dob) {
   var f = document.forms.namedItem("theaddform");
@@ -896,10 +895,10 @@ while ($crow = sqlFetchArray($cres)) {
      s = se.options[se.selectedIndex].value;
         <?php }?>
      var formDate = document.getElementById('form_date');
-     var url = 'find_appt_popup_user.php?bypatient&providerid=' + s + '&catid=5' + '&startdate=' + formDate.value;
+     var url = 'find_appt_popup_user.php?bypatient&providerid=' + encodeURIComponent(s) + '&catid=5' + '&startdate=' + encodeURIComponent(formDate.value);
      var params = {
          buttons: [
-             {text: '<?php echo xla('Cancel'); ?>', close: true, style: 'danger btn-sm'}
+             {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'danger btn-sm'}
 
          ],
          allowResize: true,
@@ -948,7 +947,7 @@ while ($crow = sqlFetchArray($cres)) {
  set_display();
 <?php } ?>
 
-    $(document).ready(function() {
+    $(function() {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

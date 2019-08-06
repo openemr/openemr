@@ -3,10 +3,6 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
-foreach ($_POST as $k => $var) {
-    $_POST[$k] = add_escape_custom($var);
-    echo "$var\n";
-}
 
 if ($encounter == "") {
     $encounter = date("Ymd");
@@ -16,7 +12,7 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_obstetrical", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Obstetrical Form", $newid, "obstetrical", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert("update form_obstetrical set pid = ?,groupname= ?, user= ?,authorized= ?, activity= 1, date = NOW(), name= ?, birthdate= ?, feeding= ?,
+    sqlStatement("update form_obstetrical set pid = ?,groupname= ?, user= ?,authorized= ?, activity= 1, date = NOW(), name= ?, birthdate= ?, feeding= ?,
     birth_status= ?, gender= ?, circumcised= ?, delivery_method= ?, labor_hours= ?, birth_weight= ?, pregnancy_weeks= ?, 
     anesthesia= ?, pediatrician= ?, length_inches= ?, head_circumference_inches= ?, reactions_to_medications_and_immunizations= ?, birth_complications= ?, 
     developmental_problems= ?, chronic_illness= ?, chronic_medication= ?, hospitalization= ?, surgery= ?, 

@@ -121,7 +121,7 @@ class BrowserDevice
     {
         if (! isset(self::$instance)) {
             $c = __CLASS__;
-            self::$instance = new $c ();
+            self::$instance = new $c();
             self::$instance->Detect();
         }
         

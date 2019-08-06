@@ -8,19 +8,33 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Robert Down <robertdown@live.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+?>
+<?php
+
+   $search_any_type = $GLOBALS['search_any_patient'];
+   //$search_any_type = 'comprehensive';
+   //$search_any_type = 'dual';
+   
+if ($search_any_type == 'dual') {
+    $any_search_class = "any-search-legacy";
+    $search_globals_class = "btn-globals-legacy";
+} elseif ($search_any_type == 'comprehensive') {
+    $any_search_class = "any-search-modern";
+    $search_globals_class = "btn-globals-modern";
+}
+
 ?>
 <script type="text/html" id="patient-data-template">
     <div>
         <span class="patientDataColumn">
-            <span class="float-element"><a data-bind="click: viewPtFinder" href="#" class="btn btn-default btn-sm">
-                <i class="fa fa-search" aria-hidden="true"></i>
-            </a></span>
             <div class="patientInfo float-element">
               <!-- ko if: patient -->
                   <div data-bind="with: patient" class="patientPicture">
@@ -50,7 +64,15 @@
             <div class="patientInfo">
             <!-- ko if: patient -->
                 <span data-bind="text:patient().str_dob()"></span>
-            <!-- /ko -->
+                <!-- /ko -->
+                <div class="oe-expandable-search" id="div-search-globals">
+                <?php //adapted from https://codepen.io/brandonkennedy/pen/yGjsi ?>
+                    <form name="frm_search_globals">
+                        <input type="text" id="anySearchBox"  class="<?php echo $any_search_class ?>" name="anySearchBox"  placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
+                        <button type="button" id="search_globals" class="btn btn-default btn-search btn-search1 <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}">
+                        </button>
+                    </form>
+                </div>
             </div>
         </span>
         <span class="patientDataColumn">

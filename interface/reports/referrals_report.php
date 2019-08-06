@@ -18,11 +18,12 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -39,7 +40,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
     <script language="JavaScript">
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        $(document).ready(function() {
+        $(function() {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
@@ -93,11 +94,11 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Referrals'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+<?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='referrals_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -122,7 +123,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
          class='datepicker form-control'>
             </td>
             <td class='control-label'>
-                <?php echo xlt('To'); ?>:
+                <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
                <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'
@@ -160,7 +161,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 
 <?php
 if ($_POST['form_refresh']) {
-?>
+    ?>
 <div id="report_results">
 <table width='98%' id='mymaintable'>
 <thead>
@@ -172,77 +173,77 @@ if ($_POST['form_refresh']) {
 <th> <?php echo xlt('Reason'); ?> </th>
 </thead>
 <tbody>
-<?php
-if ($_POST['form_refresh']) {
-    $query = "SELECT t.id, t.pid, " .
-    "d1.field_value AS refer_date, " .
-    "d3.field_value AS reply_date, " .
-    "d4.field_value AS body, " .
-    "ut.organization, uf.facility_id, p.pubpid, " .
-    "CONCAT(uf.fname,' ', uf.lname) AS referer_name, " .
-    "CONCAT(ut.fname,' ', ut.lname) AS referer_to, " .
-    "CONCAT(p.fname,' ', p.lname) AS patient_name " .
-    "FROM transactions AS t " .
-    "LEFT JOIN patient_data AS p ON p.pid = t.pid " .
-    "JOIN      lbt_data AS d1 ON d1.form_id = t.id AND d1.field_id = 'refer_date' " .
-    "LEFT JOIN lbt_data AS d3 ON d3.form_id = t.id AND d3.field_id = 'reply_date' " .
-    "LEFT JOIN lbt_data AS d4 ON d4.form_id = t.id AND d4.field_id = 'body' " .
-    "LEFT JOIN lbt_data AS d7 ON d7.form_id = t.id AND d7.field_id = 'refer_to' " .
-    "LEFT JOIN lbt_data AS d8 ON d8.form_id = t.id AND d8.field_id = 'refer_from' " .
-    "LEFT JOIN users AS ut ON ut.id = d7.field_value " .
-    "LEFT JOIN users AS uf ON uf.id = d8.field_value " .
-    "WHERE t.title = 'LBTref' AND " .
-    "d1.field_value >= ? AND d1.field_value <= ? " .
-    "ORDER BY ut.organization, d1.field_value, t.id";
-    $res = sqlStatement($query, array($form_from_date, $form_to_date));
+    <?php
+    if ($_POST['form_refresh']) {
+        $query = "SELECT t.id, t.pid, " .
+        "d1.field_value AS refer_date, " .
+        "d3.field_value AS reply_date, " .
+        "d4.field_value AS body, " .
+        "ut.organization, uf.facility_id, p.pubpid, " .
+        "CONCAT(uf.fname,' ', uf.lname) AS referer_name, " .
+        "CONCAT(ut.fname,' ', ut.lname) AS referer_to, " .
+        "CONCAT(p.fname,' ', p.lname) AS patient_name " .
+        "FROM transactions AS t " .
+        "LEFT JOIN patient_data AS p ON p.pid = t.pid " .
+        "JOIN      lbt_data AS d1 ON d1.form_id = t.id AND d1.field_id = 'refer_date' " .
+        "LEFT JOIN lbt_data AS d3 ON d3.form_id = t.id AND d3.field_id = 'reply_date' " .
+        "LEFT JOIN lbt_data AS d4 ON d4.form_id = t.id AND d4.field_id = 'body' " .
+        "LEFT JOIN lbt_data AS d7 ON d7.form_id = t.id AND d7.field_id = 'refer_to' " .
+        "LEFT JOIN lbt_data AS d8 ON d8.form_id = t.id AND d8.field_id = 'refer_from' " .
+        "LEFT JOIN users AS ut ON ut.id = d7.field_value " .
+        "LEFT JOIN users AS uf ON uf.id = d8.field_value " .
+        "WHERE t.title = 'LBTref' AND " .
+        "d1.field_value >= ? AND d1.field_value <= ? " .
+        "ORDER BY ut.organization, d1.field_value, t.id";
+        $res = sqlStatement($query, array($form_from_date, $form_to_date));
 
-    while ($row = sqlFetchArray($res)) {
-        // If a facility is specified, ignore rows that do not match.
-        if ($form_facility !== '') {
-            if ($form_facility) {
-                if ($row['facility_id'] != $form_facility) {
-                    continue;
-                }
-            } else {
-                if (!empty($row['facility_id'])) {
-                    continue;
+        while ($row = sqlFetchArray($res)) {
+            // If a facility is specified, ignore rows that do not match.
+            if ($form_facility !== '') {
+                if ($form_facility) {
+                    if ($row['facility_id'] != $form_facility) {
+                        continue;
+                    }
+                } else {
+                    if (!empty($row['facility_id'])) {
+                        continue;
+                    }
                 }
             }
-        }
 
-    ?>
+            ?>
    <tr>
     <td>
-        <?php
-        if ($row['organization']!=null || $row['organization']!='') {
-            echo text($row['organization']);
-        } else {
-            echo text($row['referer_to']);
-        }
-        ?>
+            <?php
+            if ($row['organization']!=null || $row['organization']!='') {
+                echo text($row['organization']);
+            } else {
+                echo text($row['referer_to']);
+            }
+            ?>
     </td>
     <td>
      <a href='#' onclick="return show_referral(<?php echo js_escape($row['id']); ?>)">
-        <?php echo text(oeFormatShortDate($row['refer_date'])); ?>&nbsp;
+            <?php echo text(oeFormatShortDate($row['refer_date'])); ?>&nbsp;
      </a>
     </td>
     <td>
-        <?php echo text(oeFormatShortDate($row['reply_date'])) ?>
+            <?php echo text(oeFormatShortDate($row['reply_date'])) ?>
     </td>
     <td>
-        <?php echo text($row['patient_name']) ?>
+            <?php echo text($row['patient_name']) ?>
     </td>
     <td>
-        <?php echo text($row['pubpid']) ?>
+            <?php echo text($row['pubpid']) ?>
     </td>
     <td>
-        <?php echo text($row['body']) ?>
+            <?php echo text($row['body']) ?>
     </td>
    </tr>
-    <?php
+            <?php
+        }
     }
-}
-?>
+    ?>
 </tbody>
 </table>
 </div> <!-- end of results -->

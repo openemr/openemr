@@ -16,13 +16,14 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];
 $form_code_type = $_POST['form_code_type'];
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <title><?php echo xlt('Immunization'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <style>
@@ -111,7 +112,7 @@ function check_search_str()
 </head>
 <body class="body_top">
 <form method='post' name='theform'  action='find_immunization_popup.php' onsubmit="return check_search_str();">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 <table border='0' cellpadding='5' cellspacing='0'>
@@ -140,48 +141,48 @@ function check_search_str()
 <form method='post' name='select_immunization'>
 <?php if ($_REQUEST['bn_search']) { ?>
     <?php
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
     ?>
 
 <table border='0'>
  <tr>
   <td colspan="4">
-<?php
-  $search_term = $_REQUEST['search_term'];
-  {
+    <?php
+    $search_term = $_REQUEST['search_term'];
+    {
     $query = "SELECT count(*) as count FROM list_options " .
       "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " ;
     $res = sqlStatement($query, array('%'.$search_term.'%'));
-if ($row = sqlFetchArray($res)) {
-    $no_of_items = $row['count'];
-    if ($no_of_items < 1) {
-        ?>
+    if ($row = sqlFetchArray($res)) {
+        $no_of_items = $row['count'];
+        if ($no_of_items < 1) {
+            ?>
      <script language='JavaScript'>
         alert(<?php echo xlj('Search string does not match with list in database'); ?> + '\n' + <?php echo xlj('Please enter new search string'); ?>);
      document.theform.search_term.value=" ";
      document.theform.search_term.focus();
      </script>
-        <?php
-    }
+            <?php
+        }
 
-    $query = "SELECT option_id,title FROM list_options " .
-    "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " .
-    "ORDER BY title";
-    $res = sqlStatement($query, array('%'.$search_term.'%'));
-    $row_count = 0;
-    while ($row = sqlFetchArray($res)) {
-        $row_count = $row_count + 1;
-        $itercode = $row['option_id'];
-        $itertext = ucfirst(strtolower(trim($row['title'])));
-        ?>
+        $query = "SELECT option_id,title FROM list_options " .
+        "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " .
+        "ORDER BY title";
+        $res = sqlStatement($query, array('%'.$search_term.'%'));
+        $row_count = 0;
+        while ($row = sqlFetchArray($res)) {
+            $row_count = $row_count + 1;
+            $itercode = $row['option_id'];
+            $itertext = ucfirst(strtolower(trim($row['title'])));
+            ?>
        <input type="checkbox" id="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
+        }
     }
-}
 
-  }
-?>
+    }
+    ?>
 </td>
 </tr>
  </table>

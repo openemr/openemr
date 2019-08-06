@@ -63,7 +63,6 @@ if (!isset($_GET["mode"])) {
 
 <html>
 <head>
-<?php html_header_show();?>
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
@@ -545,7 +544,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
 
 if ($anypats == 0) {
-?><font size = 5 ><?php echo xlt('No Data to Process')?></font><?php
+    ?><font size = 5 ><?php echo xlt('No Data to Process')?></font><?php
 }
 
 // TEST TO SEE IF THERE IS INFORMATION IN THE VARAIBLES THEN ADD TO AN ARRAY FOR PRINTING
@@ -767,7 +766,7 @@ if ($totals_only == 1) {
     $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
     print "<br><br>";
 
-?><font size = 5 ><?php echo xlt('Totals for '). text($from_date) . ' ' . xlt('To') . ' ' . text($to_date) ?></font><?php
+    ?><font size = 5 ><?php echo xlt('Totals for '). text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></font><?php
 }
 
 for ($i=1; $i<$k;) {

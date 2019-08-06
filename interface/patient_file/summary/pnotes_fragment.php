@@ -16,8 +16,10 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 // form parameter docid can be passed to restrict the display to a document.
@@ -130,7 +132,7 @@ if (isset($_GET['docUpdateId'])) {
         } else { ?>
             <br/>
             <span class='text'>
-            <?php echo xlt('Displaying the following number of most recent messages:'); ?>
+            <?php echo xlt('Displaying the following number of most recent messages'); ?>:
             <b><?php echo text($N);?></b><br>
             <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
             <?php echo xlt('Click here to view them all.'); ?></a>
@@ -219,7 +221,7 @@ if (isset($_GET['docUpdateId'])) {
                 } else { ?>
                     <br/>
                     <span class='text'>
-        <?php echo text('Displaying the following number of most recent notes') . ":"; ?>
+                    <?php echo text('Displaying the following number of most recent notes') . ":"; ?>
                         <b><?php echo text($M);?></b><br>
         <a href='pnotes_full.php?s=1' onclick='top.restoreSession()'><?php echo xlt('Click here to view them all.'); ?></a>
         </span>
@@ -249,7 +251,7 @@ $(document).ready(function(){
             method: "POST",
             url: "pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')),
             data: {
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }
         })
         .done(function() {

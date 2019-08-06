@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,7 +19,7 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
 //
@@ -38,14 +38,14 @@ $content = $_REQUEST['content'];
 
 if ($Source=="add_template") {
     $arr = explode("|", $multi);
-    
+
     for ($i=0; $i<sizeof($arr)-1; $i++) {
         $sql = sqlStatement("SELECT * FROM customlists AS cl LEFT OUTER JOIN template_users AS tu ON cl.cl_list_slno=tu.tu_template_id
                         WHERE cl_list_item_long=? AND cl_list_type=3 AND cl_deleted=0 AND cl_list_id=? AND tu.tu_user_id=?", array($templateid,$arr[$i],$_SESSION['authId']));
         $cnt = sqlNumRows($sql);
         if ($cnt==0) {
             $newid=sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_creator) VALUES (?,?,?,?)", array($arr[$i],3,$templateid,$_SESSION['authId']));
-            sqlInsert("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", array($_SESSION['authId'],$newid));
+            sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", array($_SESSION['authId'],$newid));
         }
         echo "<select name='template' id='template' onchange='TemplateSentence(this.value)' style='width:180px'>";
         echo "<option value=''>".htmlspecialchars(xl('Select category'), ENT_QUOTES)."</option>";
@@ -62,14 +62,14 @@ if ($Source=="add_template") {
     for ($i=0; $i<sizeof($arr)-1; $i++) {
         $cnt = sqlNumRows(sqlStatement("SELECT * FROM template_users WHERE tu_user_id=? AND tu_template_id=?", array($arr[$i],$list_id)));
         if (!$cnt) {
-            sqlInsert("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", array($arr[$i],$list_id));
+            sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", array($arr[$i],$list_id));
         }
     }
 } else if ($Source=="add_item") {
     $row = sqlQuery("SELECT max(cl_order)+1 as order1 FROM customlists WHERE cl_list_id=?", array($templateid));
     $order = $row['order1'];
     $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?)", array($templateid,4,$item,$order,$_SESSION['authId']));
-    sqlInsert("INSERT INTO template_users (tu_user_id,tu_template_id,tu_template_order) VALUES (?,?,?)", array($_SESSION['authId'],$newid,$order));
+    sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id,tu_template_order) VALUES (?,?,?)", array($_SESSION['authId'],$newid,$order));
 } else if ($Source=="delete_item") {
     sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($item,$_SESSION['authId']));
 } else if ($Source=="update_item") {
@@ -158,11 +158,11 @@ if ($Source!="add_template") {
         $i++;
         echo "<li id='clorder_".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' style='cursor:pointer'><span>";
         if (acl_check('nationnotes', 'nn_configure')) {
-            echo "<img src='../../images/b_edit.png' onclick=update_item_div('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')>";
+            echo "<img src='" . $GLOBALS['images_static_relative'] . "/b_edit.png' onclick=update_item_div('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')>";
         }
         echo "<div style='display:inline' id='".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' onclick=\"moveOptions_11('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."', 'textarea1');\">".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</div>";
         if (acl_check('nationnotes', 'nn_configure')) {
-            echo "<img src='../../images/deleteBtn.png' onclick=\"delete_item('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')\">";
+            echo "<img src='" . $GLOBALS['images_static_relative'] . "/deleteBtn.png' onclick=\"delete_item('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')\">";
             echo "<div id='update_item".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' style='display:none'><textarea name='update_item_txt".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' id='update_item_txt".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</textarea></br>";
             echo "<input type='button' name='update' onclick=update_item('".$row['cl_list_slno']."') value='".htmlspecialchars(xl('Update'), ENT_QUOTES)."'><input type='button' name='cancel' value='". htmlspecialchars(xl('Cancel'), ENT_QUOTES)."' onclick=cancel_item('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')></div>";
         }

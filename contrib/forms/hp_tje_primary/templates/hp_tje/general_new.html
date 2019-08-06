@@ -1,7 +1,6 @@
 <html>
 
 <head>
-{headerShow}
 
 {literal}
 
@@ -73,7 +72,7 @@ a {
 
 </head>
 
-<body bgcolor="{$STYLE.BGCOLOR2}">
+<body bgcolor="{$STYLE.BGCOLOR2|attr}">
 
 <p><span class="title">Head Pain and Temporomandibular Jaw Examination</span></p>
 
@@ -85,7 +84,7 @@ a {
 
 <tr>
 
-	<td>REFERRED BY &nbsp&nbsp;<input type="text" name="referred_by" size="39"value="{$hptje_primary->get_referred_by()}"></td>
+	<td>REFERRED BY &nbsp&nbsp;<input type="text" name="referred_by" size="39" value="{$hptje_primary->get_referred_by()|attr}"></td>
 
 </tr>
 
@@ -99,7 +98,7 @@ a {
 
 <tr>
 
-	<td><p><textarea name="complaints" cols="75" rows="3" wrap="virtual" >{$hptje_primary->get_complaints()}</textarea></p><br /></td>
+	<td><p><textarea name="complaints" cols="75" rows="3" wrap="virtual" >{$hptje_primary->get_complaints()|text}</textarea></p><br /></td>
 
 </tr>
 
@@ -117,7 +116,7 @@ a {
 
 <tr>
 
-<td><p>Other Explain:&nbsp;<input type="text" name="event_description" value="{$hptje_primary->get_event_description()}" maxlength="255" size="39"></p><br /></td>
+<td><p>Other Explain:&nbsp;<input type="text" name="event_description" value="{$hptje_primary->get_event_description()|attr}" maxlength="255" size="39"></p><br /></td>
 
 </tr>
 
@@ -173,17 +172,17 @@ a {
 
 					{if $title eq "Teeth"}
 
-						&nbsp;&nbsp;Sore#&nbsp;<input type="text" name="teeth_sore_number" size="1" value="{$hptje_primary->get_teeth_sore_number()}">
+						&nbsp;&nbsp;Sore#&nbsp;<input type="text" name="teeth_sore_number" size="1" value="{$hptje_primary->get_teeth_sore_number()|attr}">
 
-						&nbsp;&nbsp;Mobile#&nbsp;<input type="text" name="teeth_mobile_number" size="1" value="{$hptje_primary->get_teeth_mobile_number()}">
+						&nbsp;&nbsp;Mobile#&nbsp;<input type="text" name="teeth_mobile_number" size="1" value="{$hptje_primary->get_teeth_mobile_number()|attr}">
 
-						&nbsp;&nbsp;Fractured#&nbsp;<input type="text" name="teeth_fractured_number" size="1" value="{$hptje_primary->get_teeth_fractured_number()}">
+						&nbsp;&nbsp;Fractured#&nbsp;<input type="text" name="teeth_fractured_number" size="1" value="{$hptje_primary->get_teeth_fractured_number()|attr}">
 
-						&nbsp;&nbsp;Avulsed#&nbsp;<input type="text" name="teeth_avulsed_number" size="1" value="{$hptje_primary->get_teeth_avulsed_number()}">
+						&nbsp;&nbsp;Avulsed#&nbsp;<input type="text" name="teeth_avulsed_number" size="1" value="{$hptje_primary->get_teeth_avulsed_number()|attr}">
 
 					{elseif $title eq "Precipitating Factors" and $row_title eq 2}
 
-						&nbsp;<input type="text" name="precipitating_factors_other_text" size="15" value="{$hptje_primary->get_precipitating_factors_other_text()}">
+						&nbsp;<input type="text" name="precipitating_factors_other_text" size="15" value="{$hptje_primary->get_precipitating_factors_other_text()|attr}">
 
 					{/if}
 
@@ -253,15 +252,15 @@ a {
 
 <tr>
 
-	<td><input type="text" name="history[{$smarty.section.history.index}][doctor]" size="25" value="{$hptje_primary->history[$smarty.section.history.index].doctor}"></td>
+	<td><input type="text" name="history[{$smarty.section.history.index|attr}][doctor]" size="25" value="{$hptje_primary->history[$smarty.section.history.index].doctor|attr}"></td>
 
-	<td><input type="text" name="history[{$smarty.section.history.index}][specialty]" size="25" value="{$hptje_primary->history[$smarty.section.history.index].specialty}"></td>
+	<td><input type="text" name="history[{$smarty.section.history.index|attr}][specialty]" size="25" value="{$hptje_primary->history[$smarty.section.history.index].specialty|attr}"></td>
 
-	<td><input type="text" name="history[{$smarty.section.history.index}][tx_rendered]" size="25" value="{$hptje_primary->history[$smarty.section.history.index].tx_rendered}"></td>
+	<td><input type="text" name="history[{$smarty.section.history.index|attr}][tx_rendered]" size="25" value="{$hptje_primary->history[$smarty.section.history.index].tx_rendered|attr}"></td>
 
-	<td><input type="text" name="history[{$smarty.section.history.index}][effectiveness]" size="15" value="{$hptje_primary->history[$smarty.section.history.index].effectiveness}"></td>
+	<td><input type="text" name="history[{$smarty.section.history.index|attr}][effectiveness]" size="15" value="{$hptje_primary->history[$smarty.section.history.index].effectiveness|attr}"></td>
 
-	<td><input type="text" name="history[{$smarty.section.history.index}][date]" size="10" value="{$hptje_primary->history[$smarty.section.history.index].date}"></td>
+	<td><input type="text" name="history[{$smarty.section.history.index|attr}][date]" size="10" value="{$hptje_primary->history[$smarty.section.history.index].date|attr}"></td>
 
 </tr>
 
@@ -289,11 +288,11 @@ a {
 
 
 
-	<td><input type="text" name="previous_accidents[{$smarty.section.previous_accidents.index}][nature_of_accident]" size="35" value="{$hptje_primary->previous_accidents[$smarty.section.previous_accidents.index].nature_of_accident}"></td>
+	<td><input type="text" name="previous_accidents[{$smarty.section.previous_accidents.index|attr}][nature_of_accident]" size="35" value="{$hptje_primary->previous_accidents[$smarty.section.previous_accidents.index].nature_of_accident|attr}"></td>
 
-	<td><input type="text" name="previous_accidents[{$smarty.section.previous_accidents.index}][injuries]" size="25" 	value="{$hptje_primary->previous_accidents[$smarty.section.previous_accidents.index].injuries}"></td>
+	<td><input type="text" name="previous_accidents[{$smarty.section.previous_accidents.index|attr}][injuries]" size="25" 	value="{$hptje_primary->previous_accidents[$smarty.section.previous_accidents.index].injuries|attr}"></td>
 
-	<td><input type="text" name="previous_accidents[{$smarty.section.previous_accidents.index}][date]" size="10" 		value="{$hptje_primary->previous_accidents[$smarty.section.previous_accidents.index].date}"></td>
+	<td><input type="text" name="previous_accidents[{$smarty.section.previous_accidents.index|attr}][date]" size="10" 		value="{$hptje_primary->previous_accidents[$smarty.section.previous_accidents.index].date|attr}"></td>
 
 </tr>
 
@@ -311,7 +310,7 @@ a {
 
 <tr>
 
-	<td><textarea name="comments" value="{$hptje_primary->get_comments()}" wrap="virtual" cols="75" rows="8">{$hptje_primary->get_comments()}</textarea></td>
+	<td><textarea name="comments" value="{$hptje_primary->get_comments()|attr}" wrap="virtual" cols="75" rows="8">{$hptje_primary->get_comments()|text}</textarea></td>
 
 </tr>
 
@@ -329,11 +328,11 @@ a {
 
 </table>
 
-<input type="hidden" name="id" value="{$hptje_primary->get_id()}" />
+<input type="hidden" name="id" value="{$hptje_primary->get_id()|attr}" />
 
-<input type="hidden" name="activity" value="{$hptje_primary->get_activity()}">
+<input type="hidden" name="activity" value="{$hptje_primary->get_activity()|attr}">
 
-<input type="hidden" name="pid" value="{$hptje_primary->get_pid()}">
+<input type="hidden" name="pid" value="{$hptje_primary->get_pid()|attr}">
 
 <input type="hidden" name="process" value="true">
 

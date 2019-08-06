@@ -2,13 +2,13 @@
 /**
  * List procedure orders and reports, and fetch new reports and their results.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -120,8 +120,7 @@ a, a:visited, a:hover {
 
 </style>
 <script language="JavaScript">
-var dlgtitle = '<?php echo xlt("Match Patient") ?>';
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+var dlgtitle = <?php echo xlj("Match Patient") ?>;
 
 function openResults(orderid) {
     top.restoreSession();
@@ -130,7 +129,7 @@ function openResults(orderid) {
 // see the results concurrently with other stuff like related patient notes.
 // Opening in the other frame is not good enough because if they then do related
 // patients notes it will wipe out this script's list. We need 3 viewports.
-    window.open('single_order_results.php?orderid=' + orderid, '_blank', 'toolbar=0,location=0,menubar=0,scrollbars=yes');
+    window.open('single_order_results.php?orderid=' + encodeURIComponent(orderid), '_blank', 'toolbar=0,location=0,menubar=0,scrollbars=yes');
 //
 // To open results in the same frame:
 // document.location.href = 'single_order_results.php?orderid=' + orderid;
@@ -154,10 +153,10 @@ function openPtMatch(args) {
 
 function openPatient(pid) {
     top.restoreSession();
-    document.location.href = "../patient_file/summary/demographics.php?set_pid=" + pid;
+    document.location.href = "../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid);
 }
 
-$(document).ready(function () {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -206,8 +205,9 @@ $(document).ready(function () {
         $info['orphaned_order'] = "R";
     }
     // Attempt to post any incoming results.
-    $errmsg = poll_hl7_results($info);
-
+    if (empty($_POST['form_external_refresh'])) {
+        $errmsg = poll_hl7_results($info);
+    }
     // echo "<!--\n";  // debugging
     // print_r($info); // debugging
     // echo "-->\n";   // debugging
@@ -225,8 +225,8 @@ $(document).ready(function () {
             $s .= " <tr class='detail'>\n";
             $s .= "  <td>&nbsp;</td>\n";
             $s .= "  <td>&nbsp;</td>\n";
-            $s .= "  <td><a href='javascript:openPtMatch(\"" . addslashes($matchkey) . "\")'>";
-            $tmp = unserialize($matchkey);
+            $s .= "  <td><a href='javascript:openPtMatch(" . attr_js($matchkey) . ")'>";
+            $tmp = unserialize($matchkey, ['allowed_classes' => false]);
             $s .= xlt('Click to match patient') . ' "' . text($tmp['lname']) . ', ' . text($tmp['fname']) . '"';
             $s .= "</a>";
             $s .= "</td>\n";
@@ -324,7 +324,7 @@ $(document).ready(function () {
                        value='<?php echo attr($form_from_date); ?>'
                        title='<?php echo xla('yyyy-mm-dd'); ?>'/>
 
-                <label><?php echo xlt('To'); ?>:</label>
+                <label><?php echo xlt('To{{Range}}'); ?>:</label>
                 <input type='text' size='9' name='form_to_date' id='form_to_date'
                        class='form-control datepicker'
                        value='<?php echo attr($form_to_date); ?>'
@@ -333,7 +333,7 @@ $(document).ready(function () {
                 <input class="form-control" type='checkbox' name='form_patient' id="ck_patient" value='1'
                     <?php if ($form_patient) {
                         echo 'checked ';
-} ?>/>
+                    } ?>/>
                 <label for="ck_patient"><?php echo xlt('Current Pt Only'); ?></label>
 
                 <select class="form-control input-sm" name='form_reviewed'>
@@ -345,7 +345,7 @@ $(document).ready(function () {
                                  '4' => xl('Sent, not received'),
                                  '5' => xl('Not sent'),
                              ) as $key => $value) {
-                        echo "<option value='$key'";
+                        echo "<option value='" . attr($key) . "'";
                         if ($key == $form_reviewed) {
                             echo " selected";
                         }
@@ -485,7 +485,7 @@ $(document).ready(function () {
 // Generate patient columns.
             if ($lastptid != $patient_id) {
                 $lastpoid = -1;
-                echo "  <td onclick='openPatient($patient_id)' style='cursor:pointer;color:blue'>";
+                echo "  <td onclick='openPatient(" . attr_js($patient_id) . ")' style='cursor:pointer;color:blue'>";
                 echo text($ptname);
                 echo "</td>\n";
                 echo "  <td>" . text($row['pubpid']) . "</td>\n";
@@ -498,7 +498,7 @@ $(document).ready(function () {
                 $lastpcid = -1;
                 echo "  <td>";
                 // Checkbox to support sending unsent orders, disabled if sent.
-                echo "<input type='checkbox' name='form_cb[$order_id]' value='$order_id' ";
+                echo "<input type='checkbox' name='form_cb[" . attr($order_id) . "]' value='" . attr($order_id) . "' ";
                 if ($date_transmitted || !$sendable) {
                     echo "disabled";
                 } else {
@@ -508,7 +508,7 @@ $(document).ready(function () {
 
                 echo " />&nbsp";
                 // Order date comes with a link to open results in the same frame.
-                echo "<a href='javascript:openResults($order_id)' ";
+                echo "<a href='javascript:openResults(" . attr_js($order_id) . ")' ";
                 echo "title='" . xla('Click for results') . "'>";
                 echo text($date_ordered);
                 echo "</a></td>\n";
@@ -516,7 +516,7 @@ $(document).ready(function () {
                 // Order ID comes with a link to open the manifest in a new window/tab.
                 echo "<a href='" . $GLOBALS['webroot'];
                 echo "/interface/orders/order_manifest.php?orderid=";
-                echo attr($order_id);
+                echo attr_url($order_id);
                 echo "' target='_blank' onclick='top.restoreSession()' ";
                 echo "title='" . xla('Click for order summary') . "'>";
                 echo text($order_id);

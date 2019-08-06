@@ -210,7 +210,7 @@ case "$1" in
 
          done
 
-         # if site-specific directories are in the old locations, move them.
+         # if site-specific directories are in the really old locations, move them.
          if [ -d $OPENEMR/documents ]; then
            if [ "$(ls $OPENEMR/documents)" ]; then
              mv -f  $OPENEMR/documents/* $SITEDIR/default/documents/
@@ -236,6 +236,35 @@ case "$1" in
            rm -rf $OPENEMR/custom/letter_templates
          fi
 
+         # if site-specific directories are in the old locations, move them.
+         if [ -d $SITEDIR/$SITENAME/era ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/era)" ]; then
+             mv -f  $SITEDIR/$SITENAME/era/* $SITEDIR/$SITENAME/documents/era/
+           fi
+           rm -rf $SITEDIR/$SITENAME/era
+         fi
+         if [ -d $SITEDIR/$SITENAME/edi ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/edi)" ]; then
+             mv -f  $SITEDIR/$SITENAME/edi/* $SITEDIR/$SITENAME/documents/edi/
+           fi
+           rm -rf $SITEDIR/$SITENAME/edi
+         fi
+         if [ -d $SITEDIR/$SITENAME/letter_templates ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/letter_templates)" ]; then
+             if [ -f $SITEDIR/$SITENAME/letter_templates/custom_pdf.php ]; then
+               mv -f $SITEDIR/$SITENAME/letter_templates/custom_pdf.php $SITEDIR/$SITENAME/
+             fi
+             mv -f  $SITEDIR/$SITENAME/letter_templates/* $SITEDIR/$SITENAME/documents/letter_templates/
+           fi
+           rm -rf $SITEDIR/$SITENAME/letter_templates
+         fi
+         if [ -d $SITEDIR/$SITENAME/procedure_results ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/procedure_results)" ]; then
+             mv -f  $SITEDIR/$SITENAME/procedure_results/* $SITEDIR/$SITENAME/documents/procedure_results/
+           fi
+           rm -rf $SITEDIR/$SITENAME/procedure_results
+         fi
+
          #secure openemr
          chown -Rf root:root $OPENEMR
          chmod 600 $OPENEMR/acl_setup.php
@@ -245,19 +274,13 @@ case "$1" in
          chmod 600 $OPENEMR/ippf_upgrade.php
          chmod 600 $OPENEMR/gacl/setup.php
 
-         #set writable files and directories (that are not within sites directory)
-         chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
-
          #set writable directories (that are within sites directory)
          # (go through each site)
          for dir in $(find $SITEDIR/* -maxdepth 0 -type d ); do
             #collect sitename
             SITENAME=$(basename "$dir")
-            #set the writable directories
+            #set the writable directory
             chown -R $WEB_GROUP.$WEB_USER $SITEDIR/$SITENAME/documents
-            chown -R $WEB_GROUP.$WEB_USER $SITEDIR/$SITENAME/edi
-            chown -R $WEB_GROUP.$WEB_USER $SITEDIR/$SITENAME/era
-            chown -R $WEB_GROUP.$WEB_USER $SITEDIR/$SITENAME/letter_templates
          done
 
          #update config file, change process to complete and remove others
@@ -331,6 +354,9 @@ case "$1" in
          MAXINPUTVARS_TEXT="max_input_vars"
          MAXINPUTVARS=$(collect_php "$MAXINPUTVARS_TEXT")
          MAXINPUTVARS_IF_COMMENTED=$(collect_php_commented_out "$MAXINPUTVARS_TEXT")
+         ALLOWLOCALINFILE_TEXT="mysqli.allow_local_infile"
+         ALLOWLOCALINFILE=$(collect_php "$ALLOWLOCALINFILE_TEXT")
+         ALLOWLOCALINFILE_IF_COMMENTED=$(collect_php_commented_out "$ALLOWLOCALINFILE_TEXT")
 
          # Second, backup the php.ini file before modifying
          cp $PHP $PHP.BAK
@@ -400,6 +426,12 @@ case "$1" in
             if [ ! -z "$MAXINPUTVARS_IF_COMMENTED" ] && [ "$MAXINPUTVARS_IF_COMMENTED" -lt "3000" ]; then
                process_php_commented_out "$MAXINPUTVARS_TEXT" "3000" $i
             fi
+            if [ ! -z "$ALLOWLOCALINFILE" ] && [ "$ALLOWLOCALINFILE" != "On" ]; then
+               process_php "$ALLOWLOCALINFILE_TEXT" "On" $i
+            fi
+            if [ ! -z "$ALLOWLOCALINFILE_IF_COMMENTED" ] && [ "$ALLOWLOCALINFILE_IF_COMMENTED" != "On" ]; then
+               process_php_commented_out "$ALLOWLOCALINFILE_TEXT" "On" $i
+            fi
             if [ "$FLAG_ON" -eq "0" ]; then
               log_only "Your PHP configuration is perfect for OpenEMR."
               break
@@ -425,6 +457,7 @@ case "$1" in
          log_only "file_uploads = On"
          log_only "upload_max_filesize = 30M"
          log_only "max_input_vars = 3000"
+         log_only "mysqli.allow_local_infile = On"
       fi
 
       log_only "Done configuring PHP"
@@ -505,11 +538,7 @@ case "$1" in
 
       # Set file and directory permissions (note use default site directory for new install)
       chmod 666 $SITEDIR/default/sqlconf.php
-      chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/documents
-      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/edi
-      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/era
-      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/letter_templates
 
       if $configure_flag; then
          # Create a random password for the openemr mysql user

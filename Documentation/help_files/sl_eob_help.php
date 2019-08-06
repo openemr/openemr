@@ -26,7 +26,7 @@ require_once("../../interface/globals.php");
             }
         }
     </style>
-   
+
     </head>
     <body>
         <div class="container oe-help-container" id="home-div">
@@ -35,9 +35,9 @@ require_once("../../interface/globals.php");
             </div>
             <div class= "row">
                 <p><?php echo xlt("This module promotes efficient entry of EOB data.");?>
-                
+
                 <p><?php echo xlt("There are two ways this can be accomplished, either by the manual method, by searching and entering data for individual invoices or by uploading an entire electronic remittance advice ERA file.");?>
-                 
+
                 <p><?php echo xlt("The initial screen lets you select a method by offering you these two options.");?>
             </div>
             <div class= "row">
@@ -47,31 +47,31 @@ require_once("../../interface/globals.php");
                         &nbsp;<span><?php echo xlt("Select Method");?></span>
                          <div class="pull-right oe-legend-radio">
                             <label class="radio-inline">
-                                <input type="radio" id="invoice_search_help" name="radio-search" onclick="" value="inv-search-help"><?php echo xlt("Invoice Search"); ?> 
+                                <input type="radio" id="invoice_search_help" name="radio-search" onclick="" value="inv-search-help"><?php echo xlt("Invoice Search"); ?>
                             </label>
                             <label class="radio-inline">
                                 <input type="radio" id="era_upload" name="radio-search" onclick=""  value="era-upld-help"><?php echo xlt("ERA Upload"); ?>
                             </label>
                         </div>
-                        
+
                     </legend>
                 </fieldset >
                 </form>
             </div>
             <div class= "row">
             <br>
-                <?php echo xlt("To get started you choose one of the two radio buttons. 'Invoice Search' or 'ERA Upload' "); ?> 
-                
+                <?php echo xlt("To get started you choose one of the two radio buttons. 'Invoice Search' or 'ERA Upload' "); ?>
+
                 <ul>
                     <li><a href="#invoice-search-div"><?php echo xlt("Invoice Search");?></a></li>
                     <li><a href="#era-upload-div"><?php echo xlt("ERA Upload");?></a></li>
                 </ul>
             </div>
             <div class= "row" id="invoice-search-div">
-                <h4 class="oe-help-heading"><?php echo xlt("Invoice Search"); ?><a name = 'invoice_search' href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
-                <p><?php echo xlt("If you choose to do a manual entry click the 'Invoice Search' radio button. It displays two sections 'Post Item' and 'Invoice Search'"); ?> 
+                <h4 class="oe-help-heading"><?php echo xlt("Invoice Search"); ?><a name = 'invoice_search' href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <p><?php echo xlt("If you choose to do a manual entry click the 'Invoice Search' radio button. It displays two sections 'Post Item' and 'Invoice Search'"); ?>
                  <form>
-                        
+
                         <fieldset>
                             <legend>
                                 &nbsp;<span><?php echo xlt("Post Item");?></span>
@@ -82,7 +82,7 @@ require_once("../../interface/globals.php");
                                 &nbsp;<span><?php echo xlt("Invoice Search");?></span>
                                 <div class="pull-right oe-legend-radio">
                                         <label class="radio-inline">
-                                          <input type="radio" id="invoice_search_help" name="radio-search" onclick="" value="inv-search-help"><?php echo xlt("Invoice Search"); ?> 
+                                          <input type="radio" id="invoice_search_help" name="radio-search" onclick="" value="inv-search-help"><?php echo xlt("Invoice Search"); ?>
                                         </label>
                                         <label class="radio-inline">
                                           <input type="radio" id="era_upload_help" name="radio-search" onclick=""  value="era-upld-help"><?php echo xlt("ERA Upload"); ?>
@@ -90,7 +90,7 @@ require_once("../../interface/globals.php");
                                 </div>
                             </legend>
                         </fieldset>
-                        
+
                 </form>
                 <br>
                 <p><?php echo xlt("In the 'Post Item' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.")?>
@@ -119,7 +119,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("Another thing you can do in the posting window is request secondary billing. If you select this checkbox before saving, then the original claim will be re-opened and queued on the Billing page, and will be processed during the next billing run.");?>
             </div>
             <div class= "row" id="era-upload-div">
-                <h4 class="oe-help-heading"><?php echo xlt("ERA Upload"); ?><a id = 'electronic_remits' name = 'electonic_remits' href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("ERA Upload"); ?><a id = 'electronic_remits' name = 'electonic_remits' href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("Alternatively, you may choose to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by first selecting the 'ERA upload' option in the initial 'Select Method' section. This brings up the 'ERA Upload' Section.")?>
                 <form>
                     <fieldset>
@@ -127,7 +127,7 @@ require_once("../../interface/globals.php");
                             &nbsp;<span><?php echo xlt("Select Method");?></span>
                             <div class="pull-right oe-legend-radio">
                                 <label class="radio-inline">
-                                    <input type="radio" id="invoice_search_help" name="radio-search" onclick="" value="inv-search-help"><?php echo xlt("Invoice Search"); ?> 
+                                    <input type="radio" id="invoice_search_help" name="radio-search" onclick="" value="inv-search-help"><?php echo xlt("Invoice Search"); ?>
                                 </label>
                                 <label class="radio-inline">
                                     <input type="radio" id="era_upload_help" name="radio-search" onclick=""  value="era-upld-help"><?php echo xlt("ERA Upload"); ?>
@@ -157,7 +157,7 @@ require_once("../../interface/globals.php");
                 <span><strong>
                 <?php
                 $url = ($_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
-                $url .= "://" . $_SERVER['HTTP_HOST'] . "$web_root/sites/" . $_SESSION['site_id'] . "/era/";
+                $url .= "://" . $_SERVER['HTTP_HOST'] . "$web_root/sites/" . $_SESSION['site_id'] . "/documents/era/";
                 echo "$url";
                 ?>
                 </strong></span>

@@ -1,9 +1,8 @@
-openemr/Documentation
+openemr/Documentation/IPPF_Guides
 openemr/contrib/forms
 openemr/.git
 openemr/contrib/icd10
 openemr/contrib/icd9
-openemr/library/html2pdf/vendor
 openemr/vendor
 openemr/public
 openemr/images

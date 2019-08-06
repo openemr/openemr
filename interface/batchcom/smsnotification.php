@@ -16,6 +16,7 @@ require_once("$srcdir/registry.inc");
 require_once("../../library/acl.inc");
 require_once("batchcom.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -35,8 +36,8 @@ $message="Welcome to EMR Group";
 
 // process form
 if ($_POST['form_action']=='save') {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     //validation uses the functions in notification.inc.php
@@ -119,7 +120,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
         }
         ?>
         <form name="select_form" method="post" action="">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" name="type" value="SMS">
             <input type="hidden" name="notification_id" value="<?php echo attr($notification_id); ?>">
             <div class="row">

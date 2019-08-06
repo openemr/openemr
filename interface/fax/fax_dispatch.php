@@ -19,11 +19,12 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if ($_GET['file']) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $mode = 'fax';
@@ -34,8 +35,8 @@ if ($_GET['file']) {
 
     $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
 } else if ($_GET['scan']) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $mode = 'scan';
@@ -105,8 +106,8 @@ function mergeTiffs()
 // If we are submitting...
 //
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $action_taken = false;
@@ -207,11 +208,8 @@ if ($_POST['form_save']) {
                 // Link the new patient note to the document.
                 setGpRelation(1, $newid, 6, $noteid);
             } // end post patient note
-        } // end copy to documents
-
-        // Otherwise creating a scanned encounter note...
-        //
-        else {
+        } else { // end copy to documents
+            // Otherwise creating a scanned encounter note...
             // Get desired $encounter_id.
             $encounter_id = 0;
             if (empty($_POST['form_copy_sn_visit'])) {
@@ -517,7 +515,7 @@ div.section {
   // This loads the patient's list of recent encounters:
   f.form_copy_sn_visit.options.length = 0;
   f.form_copy_sn_visit.options[0] = new Option('Loading...', '0');
-  $.getScript("fax_dispatch_newpid.php?p=" + encodeURIComponent(pid) + "&csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>);
+  $.getScript("fax_dispatch_newpid.php?p=" + encodeURIComponent(pid) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
 <?php } ?>
  }
 
@@ -602,7 +600,7 @@ div.section {
   }
  }
 
-    $(document).ready(function(){
+    $(function(){
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -620,8 +618,8 @@ div.section {
 <center><h2><?php echo xlt('Dispatch Received Document'); ?></h2></center>
 
 <form method='post' name='theform'
- action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr_url($filename); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>' onsubmit='return validate()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+ action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr_url($filename); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit='return validate()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <p><input type='checkbox' name='form_cb_copy' value='1'
  onclick='return divclick(this,"div_copy");' />
@@ -765,7 +763,7 @@ while ($urow = sqlFetchArray($ures)) {
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap><?php echo xlt('To'); ?></td>
+   <td class='itemtitle' nowrap><?php echo xlt('To{{Destination}}'); ?></td>
    <td>
     <input type='text' size='10' name='form_to' style='width:100%'
      title='Type the recipient name here' />

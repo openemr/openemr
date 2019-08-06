@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018 Brady Miller <brady.g.miller@gmail.com>
+# Copyright (C) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,8 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
                            mysqli \
                            sockets \
                            tokenizer \
-                           xmlreader
+                           xmlreader \
+                           calendar
 
 # Copy over the php.ini conf
 COPY php.ini /usr/local/etc/php/php.ini

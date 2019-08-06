@@ -12,16 +12,15 @@
 
 
 
-include_once("../../globals.php");
+require_once("../../globals.php");
 
-include_once("../../../library/api.inc");
+require_once("../../../library/api.inc");
 
 formHeader("Pediatric Fever Evaluation");
 
 ?>
 
 <html><head>
-<?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
@@ -47,7 +46,7 @@ formHeader("Pediatric Fever Evaluation");
 
     $obj=array(); // just to avoid undeclared var warning
 
-    include('form.php'); // to use a single file for both, empty and editing
+    require('form.php'); // to use a single file for both, empty and editing
 
 ?>
 

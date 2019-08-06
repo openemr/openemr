@@ -1,27 +1,21 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Form:	Intakeverslag - Autosave
-// Package:	Report of First visit - Dutch specific form
-// Created by:	Larry Lart
-// Version:	1.0 - 28-03-2008
+// Form:    Intakeverslag - Autosave
+// Package: Report of First visit - Dutch specific form
+// Created by:  Larry Lart
+// Version: 1.0 - 28-03-2008
 ////////////////////////////////////////////////////////////////////
 
 //local includes
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
 //echo "intakedatum=".$_POST["intakedatum"];
 //var_dump($_POST);
 
-// escape the strings
-foreach ($_POST as $k => $var) {
-    $_POST[$k] = add_escape_custom($var);
-  // echo "$var\n";
-}
-
 /////////////////
-// here we check to se if there was an autosave version prior to the real save 
+// here we check to se if there was an autosave version prior to the real save
 $vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_intakeverslag 
                             WHERE pid = ?
                             AND groupname= ?
@@ -37,7 +31,7 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
     } else {
         $newid = $vectAutosave['id'];
     }
-  
+
     sqlQuery("UPDATE form_intakeverslag 
                 SET pid = ?, groupname= ?, user= ?, 
                 authorized=, activity=1, date = NOW(), 
@@ -69,7 +63,7 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
 } else {
     $newid = formSubmit("form_intakeverslag", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Psychiatric Intake", $newid, "intakeverslag", $pid, $userauthorized);
-    
+
     //echo "debug :: insert<br>";
 }
 
@@ -85,4 +79,4 @@ $result = sqlQuery("SELECT autosave_datetime FROM form_intakeverslag
 //$timestamp = mysql_result($result, 0);
 
 //output timestamp
-echo xl('Last Saved') . ': '.$result['autosave_datetime'];
+echo txl('Last Saved') . ': ' . text($result['autosave_datetime']);

@@ -70,15 +70,15 @@ class NumberToText
         $capatalize = $this->capatalize;
         $and = $this->and;
 
-        $big = unserialize(N2T_BIG);
-        $small = unserialize(N2T_SMALL);
+        $big = unserialize(N2T_BIG, ['allowed_classes' => false]);
+        $small = unserialize(N2T_SMALL, ['allowed_classes' => false]);
 
         // get rid of leading 0's
         /*
-	    while ($number{0} == 0) {
-	        $number = substr($number,1);
-	    }
-	    */
+        while ($number{0} == 0) {
+            $number = substr($number,1);
+        }
+        */
 
         if ($number === 0) {
             return "zero";
@@ -203,8 +203,8 @@ class NumberToText
     */
     function n2t_convertthree($number, $and, $preceding)
     {
-        $small = unserialize(N2T_SMALL);
-        $medium = unserialize(N2T_MEDIUM);
+        $small = unserialize(N2T_SMALL, ['allowed_classes' => false]);
+        $medium = unserialize(N2T_MEDIUM, ['allowed_classes' => false]);
 
         $text = "";
 

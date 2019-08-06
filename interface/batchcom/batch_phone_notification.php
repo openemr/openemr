@@ -18,18 +18,17 @@
 // Allow phone notification as a cronjob
 require_once(dirname(__FILE__, 3)."/library/allow_cronjobs.php");
 
-use OpenEMR\Services\FacilityService;
-
 $backpic = "";
 
 //Set the working directory to the path of the file
 $current_dir = dirname($_SERVER['SCRIPT_FILENAME']);
 chdir($current_dir);
 
-
-
 require_once("../../interface/globals.php");
 require_once("$srcdir/maviq_phone_api.php");
+
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
 
@@ -40,7 +39,8 @@ $before_trigger_hours = $GLOBALS['phone_notification_hour'];
 //set up the phone notification settings for external phone service
 $phone_url = $GLOBALS['phone_gateway_url'] ;
 $phone_id = $GLOBALS['phone_gateway_username'];
-$phone_token = decryptStandard($GLOBALS['phone_gateway_password']);
+$cryptoGen = new CryptoGen();
+$phone_token = $cryptoGen->decryptStandard($GLOBALS['phone_gateway_password']);
 $phone_time_range = $GLOBALS['phone_time_range'];
 
 //get the facility_id-message map
@@ -110,8 +110,8 @@ for ($p=0; $p<count($db_patient); $p++) {
 sqlClose();
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_updateentry
-// Purpose:	update status yes if alert send to patient
+// Function:    cron_updateentry
+// Purpose: update status yes if alert send to patient
 ////////////////////////////////////////////////////////////////////
 function cron_updateentry($type, $pid, $pc_eid)
 {
@@ -133,8 +133,8 @@ function cron_updateentry($type, $pid, $pc_eid)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getPhoneAlertpatientData
-// Purpose:	get patient data for send to alert
+// Function:    cron_getPhoneAlertpatientData
+// Purpose: get patient data for send to alert
 ////////////////////////////////////////////////////////////////////
 function cron_getPhoneAlertpatientData($type, $trigger_hours)
 {
@@ -171,8 +171,8 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_InsertNotificationLogEntry
-// Purpose:	insert log entry in table
+// Function:    cron_InsertNotificationLogEntry
+// Purpose: insert log entry in table
 ////////////////////////////////////////////////////////////////////
 function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway)
 {
@@ -186,8 +186,8 @@ function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	WriteLog
-// Purpose:	written log into file
+// Function:    WriteLog
+// Purpose: written log into file
 ////////////////////////////////////////////////////////////////////
 function WriteLog($data)
 {
@@ -208,8 +208,8 @@ function WriteLog($data)
     }
 }
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getFacilities
-// Purpose:	get facilities data once and store in map
+// Function:    cron_getFacilities
+// Purpose: get facilities data once and store in map
 ////////////////////////////////////////////////////////////////////
 function cron_getFacilitiesMap()
 {

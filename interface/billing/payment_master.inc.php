@@ -55,6 +55,16 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
     return $s;
 }
 // ================================================================================================
+$CheckNumber = '';
+$CheckDate = '';
+$PaymentMethod = '';
+$PaymentType = '';
+$AdjustmentCode = '';
+$div_after_save = '';
+$DepositDate = '';
+$Description = '';
+$TypeCode = '';
+$UndistributedAmount = 0;
 if ($payment_id > 0) {
     $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", array($payment_id));
     $row = sqlFetchArray($rs);
@@ -109,29 +119,29 @@ if ($payment_id > 0) {
 <?php
 //================================================================================================
 if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $payment_id*1>0)) {//New entry or edit in edit screen comes here.
-?>
+    ?>
         <?php
-        if ($_REQUEST['ParentPage']=='new_payment') {//This case comes when the Finish Payments is pressed from the New Payment screen.
+        if (isset($_REQUEST['ParentPage']) && $_REQUEST['ParentPage']=='new_payment') {//This case comes when the Finish Payments is pressed from the New Payment screen.
             ?>
             <div class="col-xs-12 h3">
             <?php echo xlt('Confirm Payment'); ?>
             </div>
 
-        <?php
+            <?php
         } elseif ($screen=='new_payment') {
             ?>
             <div class="col-xs-12 h3">
                 <?php echo xlt('Batch Payment Entry'); ?>
             </div>
-        <?php
+            <?php
         } else {
             ?>
             <div class="col-xs-12 h3">
                 <?php echo xlt('Edit Payment'); ?>
             </div>
-        <?php
+            <?php
         }
-            ?>
+        ?>
                     <div class="col-xs-12 oe-custom-line">
                         <div class="forms col-xs-3">
                             <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
@@ -255,13 +265,13 @@ if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && 
                         </div>
                     </div>
                 </div>
-<?php
+    <?php
 }//if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $payment_id*1>0))
 //================================================================================================
 ?>
 <?php
 if ($screen=='new_payment' && $payment_id*1>0) {//After saving from the New Payment screen,all values are  showed as labels.The date picker images are also removed.
-?>
+    ?>
                     <div class="col-xs-12 h3">
                         <?php echo xlt('Batch Payment Entry'); ?>
                     </div>
@@ -335,7 +345,7 @@ if ($screen=='new_payment' && $payment_id*1>0) {//After saving from the New Paym
                         </div>
                     </div>
                 </fieldset><!--end of fieldset in new_payment.php -->
-<?php
+    <?php
 }//if($screen=='new_payment' && $payment_id*1>0)
 //================================================================================================
 ?>

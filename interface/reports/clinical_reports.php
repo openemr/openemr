@@ -16,11 +16,12 @@ require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -55,7 +56,7 @@ $communication = trim($_POST["communication"]);
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
     <script language="JavaScript">
-        $(document).ready(function() {
+        $(function() {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
         });
@@ -135,9 +136,9 @@ $communication = trim($_POST["communication"]);
         .optional_area_service_codes {
             <?php
             if ($type != 'Service Codes' || $type == '') {
-            ?>
+                ?>
             display: none;
-            <?php
+                <?php
             }
             ?>
         }
@@ -181,7 +182,7 @@ $communication = trim($_POST["communication"]);
             }
         }
 
-        $(document).ready(function() {
+        $(function() {
             $(".numeric_only").keydown(function(event) {
                 //alert(event.keyCode);
                 // Allow only backspace and delete
@@ -216,9 +217,9 @@ $communication = trim($_POST["communication"]);
 Search options include diagnosis, procedure, prescription, medical history, and lab results.
 -->
 <div id="report_parameters_daterange"> <?php echo text(oeFormatDateTime($sql_date_from, "global", true)) .
-      " &nbsp; " . xlt("to") . " &nbsp; ". text(oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
+      " &nbsp; " . xlt("to{{Range}}") . " &nbsp; ". text(oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
 <form name='theform' id='theform' method='post' action='clinical_reports.php' onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <div id="report_parameters">
         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
         <table>
@@ -234,7 +235,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                     <tr>
                         <td class='control-label'><?php echo xlt('Patient ID'); ?>:</td>
                         <td><input name='patient_id' class="numeric_only form-control" type='text' id="patient_id" title='<?php echo xla('Optional numeric patient ID'); ?>' value='<?php echo attr($patient_id); ?>' size='10' maxlength='20' /></td>
-                        <td class='control-label'><?php echo xlt('To'); ?>: </td>
+                        <td class='control-label'><?php echo xlt('To{{Range}}'); ?>: </td>
                         <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
                     </tr>
                     <tr>
@@ -245,7 +246,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                         <td>
                             <input name='age_from' class="numeric_only form-control" type='text' id="age_from" value="<?php echo attr($age_from); ?>" size='3' maxlength='3' />
                         </td>
-                        <td class='control-label'><?php echo xlt('To'); ?></td>
+                        <td class='control-label'><?php echo xlt('To{{Range}}'); ?></td>
                         <td>
                             <input name='age_to' class="numeric_only form-control" type='text' id="age_to" value="<?php echo attr($age_to); ?>" size='3' maxlength='3' />
                         </td>
@@ -769,7 +770,7 @@ if ($_POST['form_refresh']) {
 <!-- Diagnosis Report Start-->
                 <?php
                 if (strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_allergy'] == true || $_POST['form_diagnosis_medprb'] == true) {
-                ?>
+                    ?>
                         <tr bgcolor="#C3FDB8" align= "left">
                 <td colspan=12><b><?php echo "#";
                 echo xlt('Diagnosis Report');?></b></td>
@@ -784,7 +785,7 @@ if ($_POST['form_refresh']) {
                 <td><?php echo text($row['lists_diagnosis']); ?>&nbsp;</td>
                                 <td colspan=10><?php echo text($row['lists_title']); ?>&nbsp;</td>
                 </tr>
-                <?php
+                    <?php
                 } ?>
 <!-- Diagnosis Report End-->
 
@@ -827,14 +828,14 @@ if ($_POST['form_refresh']) {
                 <td><?php echo text($row['quantity']); ?></td>
                 <td colspan="2"><?php echo text($row['ndc_number']); ?></td>
                             </tr>
-            <?php
+                <?php
             } ?>
 <!-- Prescription Report End-->
 
 <!-- Lab Results Report Start-->
                 <?php
                 if (strlen($form_lab_results) > 0 || $_POST['lab_results'] == true) {
-                ?>
+                    ?>
                             <tr bgcolor="#C3FDB8" align= "left">
                 <td colspan=12><b><?php echo "#";
                 echo xlt('Lab Results Report');?><b></td></tr>
@@ -858,14 +859,14 @@ if ($_POST['form_refresh']) {
                                  <td> <?php echo text($row['procedure_result_comments']); ?>&nbsp;</td>
                                  <td colspan=5> <?php echo text($row['procedure_result_document_id']); ?>&nbsp;</td>
                         </tr>
-                <?php
+                    <?php
                 } ?>
 <!-- Lab Results End-->
 
 <!-- Procedures Report Start-->
                 <?php
                 if ($type == 'Procedure') {
-                ?>
+                    ?>
                             <tr bgcolor="#C3FDB8" align= "left">
                 <td colspan=12><b><?php echo "#";
                 echo xlt('Procedure Report');?><b></td></tr>
@@ -881,10 +882,10 @@ if ($_POST['form_refresh']) {
                 <td colspan=3><b><?php echo xlt('Control ID');?></b></td>
                 </tr>
                             <tr bgcolor="#FFFFFF">
-                <?php
+                    <?php
                                     $procedure_type_standard_code_arr = explode(':', $row['procedure_type_standard_code']);
                                     $procedure_type_standard_code = $procedure_type_standard_code_arr[1];
-                                    ?>
+                    ?>
                                   <!-- Procedure -->
                                   <td> <?php echo text(oeFormatShortDate($row['procedure_order_date_ordered'])); ?>&nbsp;</td>
                                   <td> <?php echo text($procedure_type_standard_code); ?>&nbsp;</td>
@@ -897,14 +898,14 @@ if ($_POST['form_refresh']) {
                                   <td colspan=3> <?php echo text($row['procedure_order_control_id']); ?>&nbsp;</td>
 
                               </tr>
-                <?php
+                    <?php
                 } ?>
 <!-- Procedure Report End-->
 
 <!-- Medical History Report Start-->
                 <?php
                 if ($type == 'Medical History') {
-                ?>
+                    ?>
                             <tr bgcolor="#C3FDB8" align= "left">
                 <td colspan=12><b><?php echo "#";
                 echo xlt('Medical History');?><b></td></tr>
@@ -915,12 +916,12 @@ if ($_POST['form_refresh']) {
                 <td colspan=8><b><?php echo xlt('Recreational Drugs');?></b></td>
                 </tr>
                             <tr bgcolor="#FFFFFF">
-                <?php
+                    <?php
                     $tmp_t = explode('|', $row['history_data_tobacco']);
                     $tmp_a = explode('|', $row['history_data_alcohol']);
                     $tmp_d = explode('|', $row['history_data_recreational_drugs']);
                                         $his_tobac =  generate_display_field(array('data_type'=>'1','list_id'=>'smoking_status'), $tmp_t[3]) ;
-                ?>
+                    ?>
                 <td> <?php echo text(oeFormatShortDate($row['history_data_date'])); ?>&nbsp;</td>
                                 <td> <?php
                                 //Added on 6-jun-2k14(regarding displaying smoking code descriptions)
@@ -929,23 +930,23 @@ if ($_POST['form_refresh']) {
                                 }
 
                                 echo $his_tobac; ?>&nbsp;</td>
-                <?php
-                if ($tmp_a[1] == "currentalcohol") {
-                    $res = xl('Current Alcohol');
-                }
+                    <?php
+                    if ($tmp_a[1] == "currentalcohol") {
+                        $res = xl('Current Alcohol');
+                    }
 
-                if ($tmp_a[1] == "quitalcohol") {
-                    $res = xl('Quit Alcohol');
-                }
+                    if ($tmp_a[1] == "quitalcohol") {
+                        $res = xl('Quit Alcohol');
+                    }
 
-                if ($tmp_a[1] == "neveralcohol") {
-                    $res = xl('Never Alcohol');
-                }
+                    if ($tmp_a[1] == "neveralcohol") {
+                        $res = xl('Never Alcohol');
+                    }
 
-                if ($tmp_a[1] == "not_applicablealcohol") {
-                    $res = xl('N/A');
-                }
-                ?>
+                    if ($tmp_a[1] == "not_applicablealcohol") {
+                        $res = xl('N/A');
+                    }
+                    ?>
                                  <td> <?php echo text($res); ?>&nbsp;</td>
                     <?php
                     if ($tmp_d[1] == "currentrecreational_drugs") {
@@ -963,17 +964,17 @@ if ($_POST['form_refresh']) {
                     if ($tmp_d[1] == "not_applicablerecreational_drugs") {
                         $resd = xl('N/A');
                     }
-                                    ?>
+                    ?>
                                   <td colspan=8> <?php echo text($resd); ?>&nbsp;</td>
                           </tr>
-                <?php
+                    <?php
                 } ?>
 <!-- Medical History Report End-->
 
 <!-- Service Codes Report Start-->
                 <?php
                 if ($type == 'Service Codes') {
-                ?>
+                    ?>
                             <tr bgcolor="#C3FDB8" align= "left">
                 <td colspan=11><b><?php echo "#";
                 echo xlt('Service Codes');?><b></td></tr>
@@ -988,7 +989,7 @@ if ($_POST['form_refresh']) {
                         <td><?php echo text($row['encounter']); ?>&nbsp;</td>
                 <td colspan=8><?php echo text($row['code_text']); ?>&nbsp;</td>
                             </tr>
-                <?php
+                    <?php
                 } ?>
 <!-- Service Codes Report End-->
 
@@ -1030,18 +1031,17 @@ if ($_POST['form_refresh']) {
                         <?php echo text($row['notes']); ?>
                       </td>
                     </tr>
-                <?php
+                    <?php
                 } ?>
 <!-- Immunization Report End-->
                      </table>
-        <?php
+            <?php
         }  //while loop end ?>
             </table> <!-- Main table ends -->
         <?php
     } //End if $result
-} //End if form_refresh
-else {
-        ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
+} else { //End if form_refresh
+    ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
 }
 ?>
 </form>

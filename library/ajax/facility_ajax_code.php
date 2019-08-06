@@ -17,8 +17,10 @@
 require_once("../../interface/globals.php");
 require_once("$srcdir/options.inc.php");
 
-if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 if ($_GET['mode'] == 'get_pos') {

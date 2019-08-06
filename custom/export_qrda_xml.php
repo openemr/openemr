@@ -31,10 +31,11 @@ require_once("../library/clinical_rules.php");
 require_once "$srcdir/report_database.inc";
 require_once "qrda_functions.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $facilityService = new FacilityService();
@@ -779,7 +780,7 @@ if (count($dataSheet) > 0) {
         //if($row['cqm_nqf_code'] == "0028a") continue;
 
         //if($row['cqm_nqf_code'] == "0038"){
-        //	if(in_array($row['numerator_label'], $NQF38NumArr)) continue;
+        //  if(in_array($row['numerator_label'], $NQF38NumArr)) continue;
         //}
 
         if (in_array($row['cqm_nqf_code'], $multNumNQFArr)) {
@@ -1343,14 +1344,14 @@ if (count($dataSheet) > 0) {
                 $xml->add_entryEffectTime($timeArr);
 
                 /*
-				//Value Tag Open
-				$xml->open_customTag('value', array('xsi:type'=>'CD', 'nullFlavor'=>'OTH'));
+                //Value Tag Open
+                $xml->open_customTag('value', array('xsi:type'=>'CD', 'nullFlavor'=>'OTH'));
 
-				$xml->self_customTag('translation', array('code'=>$PKey, 'displayName'=>$PVal, 'codeSystem'=>'2.16.840.1.113883.3.249.12', 'codeSystemName'=>'CMS Clinical Codes'));
+                $xml->self_customTag('translation', array('code'=>$PKey, 'displayName'=>$PVal, 'codeSystem'=>'2.16.840.1.113883.3.249.12', 'codeSystemName'=>'CMS Clinical Codes'));
 
-				//Value Tag Close
-				$xml->close_customTag();
-				*/
+                //Value Tag Close
+                $xml->close_customTag();
+                */
 
                 //Value Tag
                 $xml->self_customTag('value', array('xsi:type'=>'CD', 'code'=>$mainQrdaPayerCodeSendArr[$PKey], 'codeSystem'=>'2.16.840.1.113883.3.221.5' , 'codeSystemName'=>'SOP', 'displayName'=>$PVal));
@@ -1497,7 +1498,6 @@ fclose($fileQRDAOPen);
 
 <html>
 <head>
-<?php html_header_show();?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php echo xlt('Export QRDA Report'); ?></title>
@@ -1516,7 +1516,7 @@ fclose($fileQRDAOPen);
 <center>
 <form>
 <p class="text">
-    <a href="qrda_download.php?qrda_fname=<?php echo attr_url($qrda_fname); ?>&csrf_token_form=<?php echo attr_url($_SESSION['csrf_token']); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
+    <a href="qrda_download.php?qrda_fname=<?php echo attr_url($qrda_fname); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
 </p>
 <textarea rows='50' cols='500' style='width:95%' readonly>
 <?php echo trim($xml->getXml()); ?>

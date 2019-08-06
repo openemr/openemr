@@ -1,26 +1,12 @@
 <?php
-/** @package    Openemr::Model */
-
 /**
+ * PatientCriteria.php
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /** import supporting libraries */
@@ -48,19 +34,19 @@ class PatientCriteria extends PatientCriteriaDAO
      * @see Criteria::GetFieldFromProp()
      */
     /*
-	public function GetFieldFromProp($propname)
-	{
-		switch($propname)
-		{
-			 case 'CustomProp1':
-			 	return 'my_db_column_1';
-			 case 'CustomProp2':
-			 	return 'my_db_column_2';
-			default:
-				return parent::GetFieldFromProp($propname);
-		}
-	}
-	*/
+    public function GetFieldFromProp($propname)
+    {
+        switch($propname)
+        {
+             case 'CustomProp1':
+                return 'my_db_column_1';
+             case 'CustomProp2':
+                return 'my_db_column_2';
+            default:
+                return parent::GetFieldFromProp($propname);
+        }
+    }
+    */
 
     /**
      * For custom query logic, you may override OnPrepare and set the $this->_where to whatever
@@ -70,13 +56,13 @@ class PatientCriteria extends PatientCriteriaDAO
      * @see Criteria::OnPrepare()
      */
     /*
-	function OnPrepare()
-	{
-		if ($this->MyCustomField == "special value")
-		{
-			// _where must begin with "where"
-			$this->_where = "where db_field ....";
-		}
-	}
-	*/
+    function OnPrepare()
+    {
+        if ($this->MyCustomField == "special value")
+        {
+            // _where must begin with "where"
+            $this->_where = "where db_field ....";
+        }
+    }
+    */
 }

@@ -12,6 +12,9 @@
   */
 
 require_once("$srcdir/display_help_icon_inc.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $url_webroot = $GLOBALS['webroot'];
 $portal_login_href = $url_webroot ."/interface/patient_file/summary/create_portallogin.php";
 ?>
@@ -48,7 +51,7 @@ if ($days_deceased) { ?>
         echo  xlt("Deceased") . " - " . text($deceased_date) . " (" . text($num_of_days) . ")" ;
         ?>
     </p>
-<?php
+    <?php
 } ?>
     <div class="form-group">
 
@@ -56,13 +59,12 @@ if ($days_deceased) { ?>
 
             <?php
             if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) { ?>
-
                 <a class='btn btn-default btn-sm btn-delete deleter delete'
-                   href='<?php echo attr($url_webroot)?>/interface/patient_file/deleter.php?patient=<?php echo attr_url($pid);?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>'
+                   href='<?php echo attr($url_webroot)?>/interface/patient_file/deleter.php?patient=<?php echo attr_url($pid);?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>'
                    onclick='return top.restoreSession()'>
                     <span><?php echo xlt('Delete');?></span>
                 </a>
-            <?php
+                <?php
             } // Allow PT delete
             if ($GLOBALS['erx_enable']) { ?>
                 <a class="btn btn-default btn-sm btn-add erx" href="<?php echo attr($url_webroot)?>/interface/eRx.php?page=medentry" onclick="top.restoreSession()">
@@ -74,11 +76,11 @@ if ($days_deceased) { ?>
                     <span><?php echo xlt('NewCrop Account Status');?></span>
                 </a>
             <!--<div id='accountstatus'></div>RP_MOVED-->
-            <?php
+                <?php
             } // eRX Enabled
             //Patient Portal
             $portalUserSetting = true; //flag to see if patient has authorized access to portal
-            if (($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) || ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address'])) {
+            if ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address']) {
                 $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?", array($pid));
                 if ($portalStatus['allow_patient_portal']=='YES') {
                     $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
@@ -90,7 +92,7 @@ if ($days_deceased) { ?>
                         <span><?php echo text($display); ?></span>
                     </a>
 
-                <?php
+                    <?php
                 } else {
                     $portalUserSetting = false;
                 } // allow patient portal
@@ -109,7 +111,7 @@ if ($days_deceased) { ?>
                             <?php echo text($text); ?>
                         </span>
                     </a>
-                <?php
+                    <?php
                 } else {
                     $portalUserSetting = false;
                 } // allow_patient_portal
@@ -118,12 +120,12 @@ if ($days_deceased) { ?>
                 <p>
                     <i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo xlt('Patient has not authorized the Patient Portal.');?>
                 </p>
-            <?php
+                <?php
             }
             //Patient Portal
             if ($GLOBALS['erx_enable']) { ?>
                 <div id='accountstatus'></div>
-            <?php
+                <?php
             } ?>
             </div>
 

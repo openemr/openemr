@@ -18,13 +18,15 @@ require_once(dirname(__FILE__) . "/../../library/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/patient.inc");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
-if ($_GET['approve'] == 1) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (isset($_GET['approve']) && $_GET['approve'] == 1) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     insert_patient($_GET['am_id']);
-?>
+    ?>
   <html>
         <head>
             <title><?php echo xlt('CCR Approve');?></title>
@@ -151,7 +153,7 @@ tbody tr.odd {
 			JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value) WHERE am.id = ?",
                 array($res['amid'])
             );
-    ?>
+            ?>
     <tr>
         <td class="bold" >
             <?php echo text($res['pat_name']); ?>
@@ -159,38 +161,38 @@ tbody tr.odd {
             <?php
             if (sqlNumRows($dup_query)>0) {
                 $dup_res = sqlFetchArray($dup_query);
-            ?>
+                ?>
         <td align="center" class="bold" >
-            <?php echo xlt('Yes'); ?>
+                <?php echo xlt('Yes'); ?>
         </td>
         <td align="center" >
-            <a href="ccr_review_approve.php?revandapprove=1&amid=<?php echo attr_url($res['amid']); ?>&pid=<?php echo attr_url($dup_res['pid']); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Review & Approve'); ?></a>
+            <a href="ccr_review_approve.php?revandapprove=1&amid=<?php echo attr_url($res['amid']); ?>&pid=<?php echo attr_url($dup_res['pid']); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Review & Approve'); ?></a>
         </td>
-        <?php
+                <?php
             } else {
-        ?>
+                ?>
         <td align="center" class="bold" >
-            <?php echo xlt('No'); ?>
+                <?php echo xlt('No'); ?>
         </td>
         <td align="center" >
-            <a href="ccr_pending_approval.php?approve=1&am_id=<?php echo attr_url($res['amid']); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Approve'); ?></a>
+            <a href="ccr_pending_approval.php?approve=1&am_id=<?php echo attr_url($res['amid']); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Approve'); ?></a>
         </td>
-        <?php
+                <?php
             }
-        ?>
+            ?>
     </tr>
-    <?php
+            <?php
         }
     } else {
-    ?>
+        ?>
         <tr>
             <td colspan="3" >
                 <?php echo xlt('Nothing Pending for Approval')."."; ?>
             </td>
         </tr>
-    <?php
+        <?php
     }
-?>
+    ?>
 </table>
 </center>
 </form>

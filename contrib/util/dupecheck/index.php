@@ -13,11 +13,12 @@
 require_once("../../../interface/globals.php");
 require_once("./Utils.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
     foreach ($_POST as $key => $value) {
         $parameters[$key] = $value;
@@ -89,7 +90,7 @@ body {
 </head>
 <body>
 <form name="search_form" id="search_form" method="post" action="index.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type="hidden" name="go" value="Go">
 Matching criteria:
 <input type="checkbox" name="match_name" id="match_name" <?php echo ($parameters['match_name']) ? "CHECKED" : ""; ?>>
@@ -241,7 +242,7 @@ if ($parameters['go'] == "Go") {
 
 <script language="javascript">
 
-$(document).ready(function(){
+$(function(){
 
     // capture RETURN keypress
     $("#limit").on("keypress", function(evt) { if (evt.keyCode == 13) $("#do_search").click(); });
@@ -271,7 +272,7 @@ $(document).ready(function(){
     $(".onerow").on("click", function() {
         var dupecount = $(this).attr("dupecount");
         var masterid = $(this).attr("oemrid");
-        var newurl = "mergerecords.php?dupecount=" + encodeURIComponent(dupecount) + "&masterid=" + encodeURIComponent(masterid) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>;
+        var newurl = "mergerecords.php?dupecount=" + encodeURIComponent(dupecount) + "&masterid=" + encodeURIComponent(masterid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
         $("[dupecount="+dupecount+"]").each(function (i) {
             if (this.id != masterid) { newurl += "&otherid[]=" + encodeURIComponent(this.id); }
         });

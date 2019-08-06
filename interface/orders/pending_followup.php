@@ -7,7 +7,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,6 +17,7 @@ require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -47,7 +48,7 @@ function thisLineItem($row, $codetype, $code)
         echo '"' . addslashes($code) . '",';
         echo '"' . addslashes($code_text) . '"' . "\n";
     } else {
-    ?>
+        ?>
    <tr>
     <td class="detail"><?php echo text($row['patient_name'  ]); ?></td>
     <td class="detail"><?php echo text($row['pubpid'        ]); ?></td>
@@ -57,12 +58,12 @@ function thisLineItem($row, $codetype, $code)
     <td class="detail"><?php echo text($code);                  ?></td>
     <td class="detail"><?php echo text($code_text);             ?></td>
  </tr>
-<?php
+        <?php
     } // End not csv export
 }
 
 if (! acl_check('acct', 'rep')) {
-    die(xl("Unauthorized access."));
+    die(xlt("Unauthorized access."));
 }
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
@@ -70,8 +71,8 @@ $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     header("Pragma: public");
@@ -89,10 +90,9 @@ if ($_POST['form_csvexport']) {
     echo '"' . xl('Code') . '",';
     echo '"' . xl('Service') . '"' . "\n";
 } else { // not export
-?>
+    ?>
 <html>
 <head>
-<?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
@@ -104,7 +104,7 @@ if ($_POST['form_csvexport']) {
 
 
 <script language="JavaScript">
-    $(document).ready(function() {
+    $(function() {
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));
 
@@ -126,35 +126,35 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('Pending Followup from Results')?></h2>
 
 <form method='post' action='pending_followup.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
 
  <tr>
   <td>
-<?php
+    <?php
   // Build a drop-down list of facilities.
   //
-  $fres = $facilityService->getAll();
-  echo "   <select name='form_facility'>\n";
-  echo "    <option value=''>-- All Facilities --\n";
-foreach ($fres as $frow) {
-    $facid = $frow['id'];
-    echo "    <option value='" . attr($facid) . "'";
-    if ($facid == $form_facility) {
-        echo " selected";
+    $fres = $facilityService->getAll();
+    echo "   <select name='form_facility'>\n";
+    echo "    <option value=''>-- All Facilities --\n";
+    foreach ($fres as $frow) {
+        $facid = $frow['id'];
+        echo "    <option value='" . attr($facid) . "'";
+        if ($facid == $form_facility) {
+            echo " selected";
+        }
+
+        echo ">" . text($frow['name']) . "\n";
     }
 
-    echo ">" . text($frow['name']) . "\n";
-}
-
-  echo "   </select>\n";
-?>
+    echo "   </select>\n";
+    ?>
    &nbsp;<?php echo xlt('From:'); ?>
    <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date); ?>'
     title='yyyy-mm-dd'>
 
-   &nbsp;<?php echo xlt('To'); ?>:
+   &nbsp;<?php echo xlt('To{{Range}}'); ?>:
    <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date); ?>'
     title='yyyy-mm-dd'>
    &nbsp;
@@ -183,14 +183,14 @@ foreach ($fres as $frow) {
   <td class="dehead"><?php echo xlt('Code') ?></td>
   <td class="dehead"><?php echo xlt('Service') ?></td>
  </tr>
-<?php
+    <?php
 } // end not export
 
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $sqlBindArray = array();
@@ -261,13 +261,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 } // end report generation
 
 if (! $_POST['form_csvexport']) {
-?>
+    ?>
 
 </table>
 </form>
 </center>
 </body>
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

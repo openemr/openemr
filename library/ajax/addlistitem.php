@@ -4,7 +4,7 @@
  *
  * OUTPUT
  *   on error = NULL
- *   on succcess = JSON data, array of "value":"title" for new list of options
+ *   on success = JSON data, array of "value":"title" for new list of options
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -20,10 +20,12 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 //verify csrf
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     echo json_encode(array("error"=> xl('Authentication Error') ));
-    csrfNotVerified(false);
+    CsrfUtils::csrfNotVerified(false);
 }
 
 // check for required values

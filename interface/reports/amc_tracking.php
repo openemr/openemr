@@ -15,11 +15,12 @@ require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/amc.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -41,7 +42,7 @@ $provider  = trim($_POST['form_provider']);
 
 <script LANGUAGE="JavaScript">
 
- $(document).ready(function() {
+ $(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
 
@@ -69,7 +70,7 @@ $provider  = trim($_POST['form_provider']);
        patient_id: patient_id,
        object_category: "transactions",
        object_id: transaction_id,
-       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
      }
    );
  }
@@ -94,7 +95,7 @@ $provider  = trim($_POST['form_provider']);
        patient_id: patient_id,
        object_category: "transactions",
        object_id: transaction_id,
-       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
      }
    );
  }
@@ -113,7 +114,7 @@ $provider  = trim($_POST['form_provider']);
        mode: mode,
        date_created: date_created,
        patient_id: patient_id,
-       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
      }
    );
  }
@@ -133,7 +134,7 @@ $provider  = trim($_POST['form_provider']);
        patient_id: patient_id,
        object_category: "form_encounter",
        object_id: encounter_id,
-       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
      }
    );
  }
@@ -178,7 +179,7 @@ $provider  = trim($_POST['form_provider']);
 <?php echo xlt('Automated Measure Calculations (AMC) Tracking'); ?></span>
 
 <form method='post' name='theform' id='theform' action='amc_tracking.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -292,7 +293,7 @@ $provider  = trim($_POST['form_provider']);
 
 <?php
 if ($_POST['form_refresh']) {
-?>
+    ?>
 
 
 <div id="report_results">
@@ -352,36 +353,36 @@ if ($_POST['form_refresh']) {
 
  </thead>
  <tbody>  <!-- added for better print-ability -->
-<?php
+    <?php
 
 // Send the request for information
-$resultsArray = amcTrackingRequest($rule, $begin_date, $end_date, $provider);
+    $resultsArray = amcTrackingRequest($rule, $begin_date, $end_date, $provider);
 
-?>
+    ?>
 
-<?php
-foreach ($resultsArray as $result) {
-    echo "<tr bgcolor='" . $bgcolor ."'>";
-    echo "<td>" . text($result['lname'].",".$result['fname']) . "</td>";
-    echo "<td>" . text($result['pid']) . "</td>";
-    echo "<td>" . text(oeFormatDateTime($result['date'], "global", true)) . "</td>";
-    if ($rule == "send_sum_amc" || $rule == "provide_sum_pat_amc") {
-        echo "<td>" . text($result['id']) . "</td>";
-    } else { //$rule == "provide_rec_pat_amc"
-        echo "<td>&nbsp</td>";
-    }
+    <?php
+    foreach ($resultsArray as $result) {
+        echo "<tr bgcolor='" . $bgcolor ."'>";
+        echo "<td>" . text($result['lname'].",".$result['fname']) . "</td>";
+        echo "<td>" . text($result['pid']) . "</td>";
+        echo "<td>" . text(oeFormatDateTime($result['date'], "global", true)) . "</td>";
+        if ($rule == "send_sum_amc" || $rule == "provide_sum_pat_amc") {
+            echo "<td>" . text($result['id']) . "</td>";
+        } else { //$rule == "provide_rec_pat_amc"
+            echo "<td>&nbsp</td>";
+        }
 
-    if ($rule == "send_sum_amc") {
-        echo "<td><input type='checkbox' id='send_sum_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum(".attr_js($result['pid']).",".attr_js($result['id']).")'>" . xlt('Yes') . "</td>";
-        echo "<td><input type='checkbox' id='send_sum_elec_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum_elec(".attr_js($result['pid']).",".attr_js($result['id']).")'>" . xlt('Yes') . "</td>";
-    } else if ($rule == "provide_rec_pat_amc") {
-        echo "<td><input type='checkbox' id='provide_rec_pat_flag_".attr($result['pid'])."' onclick='provide_rec_pat(".attr_js($result['pid']).",".attr_js($result['date']).")'>" . xlt('Yes') . "</td>";
-    } else { //$rule == "provide_sum_pat_amc"
-        echo "<td><input type='checkbox' id='provide_sum_pat_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='provide_sum_pat(".attr_js($result['pid']).",".attr_js($result['id']).")'>" . xlt('Yes') . "</td>";
-    }
+        if ($rule == "send_sum_amc") {
+            echo "<td><input type='checkbox' id='send_sum_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum(".attr_js($result['pid']).",".attr_js($result['id']).")'>" . xlt('Yes') . "</td>";
+            echo "<td><input type='checkbox' id='send_sum_elec_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum_elec(".attr_js($result['pid']).",".attr_js($result['id']).")'>" . xlt('Yes') . "</td>";
+        } else if ($rule == "provide_rec_pat_amc") {
+            echo "<td><input type='checkbox' id='provide_rec_pat_flag_".attr($result['pid'])."' onclick='provide_rec_pat(".attr_js($result['pid']).",".attr_js($result['date']).")'>" . xlt('Yes') . "</td>";
+        } else { //$rule == "provide_sum_pat_amc"
+            echo "<td><input type='checkbox' id='provide_sum_pat_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='provide_sum_pat(".attr_js($result['pid']).",".attr_js($result['id']).")'>" . xlt('Yes') . "</td>";
+        }
 
         echo "</tr>";
-}
+    }
     ?>
 
 </tbody>

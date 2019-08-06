@@ -346,12 +346,12 @@ echo "<input type='submit' name='create_track' value='" . xla('Create new Track'
 echo "<input type='button' name='stop' value='" . xla('Back') . "' ";
 // if in an encounter, go back to "select track"
 if ($encounter) {
-?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/forms/track_anything/new.php'"<?php
+    ?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/forms/track_anything/new.php'"<?php
 // if not in an encounter, go back to "demographics"
 } elseif (!$encounter and $pid) {
-?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/patient_file/summary/demographics.php'"<?php
+    ?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/patient_file/summary/demographics.php'"<?php
 } elseif (!$encounter and !$pid) {
-?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/new/new.php'"<?php
+    ?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/new/new.php'"<?php
 }
 
 echo " />\n";

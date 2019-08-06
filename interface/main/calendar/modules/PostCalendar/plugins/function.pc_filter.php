@@ -69,7 +69,7 @@ function smarty_function_pc_filter($args, &$smarty)
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
     //================================================================
-    //	build the username filter pulldown
+    //  build the username filter pulldown
     //================================================================
     if (in_array('user', $types)) {
         @define('_PC_FORM_USERNAME', true);
@@ -94,7 +94,7 @@ function smarty_function_pc_filter($args, &$smarty)
     }
 
     //================================================================
-    //	build the category filter pulldown
+    //  build the category filter pulldown
     //================================================================
     if (in_array('category', $types)) {
         @define('_PC_FORM_CATEGORY', true);
@@ -111,7 +111,7 @@ function smarty_function_pc_filter($args, &$smarty)
     }
 
     //================================================================
-    //	build the topic filter pulldown
+    //  build the topic filter pulldown
     //================================================================
     if (in_array('topic', $types) && _SETTING_DISPLAY_TOPICS) {
         @define('_PC_FORM_TOPIC', true);
@@ -130,7 +130,7 @@ function smarty_function_pc_filter($args, &$smarty)
     }
     
     //================================================================
-    //	build it in the correct order
+    //  build it in the correct order
     //================================================================
     if (!isset($label)) {
         $label = _PC_TPL_VIEW_SUBMIT;

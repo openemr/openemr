@@ -5,33 +5,33 @@
 <link rel="stylesheet" href="[-$TPL_STYLE_PATH-]/ajax_search.css" type="text/css">
 <link rel="stylesheet" href="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css">
 
-<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery/dist/jquery.min.js"></script>
+<!--<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery/dist/jquery.min.js"></script>-->
 <script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <!-- js for the popup window -->
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dialog.js?v=[-php-] echo $v_js_includes; [-/php-]"></script>
+<!--<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dialog.js?v=[-php-] echo $v_js_includes; [-/php-]"></script>-->
 
 <!-- main navigation -->
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
 
 <!-- search parameters -->
-<h2>[-php-] xl('Searching for appointments','e'); [-/php-]</h2>
+<h2>[-xlt t='Searching for appointments'-]</h2>
 &nbsp;
 [-php-]
     echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='menu' onclick='top.restoreSession()'>";
 [-/php-]
-[-php-] xl('Return to calendar','e'); [-/php-]</a>
+[-xlt t='Return to calendar'-]</a>
 <div id="calsearch_params">
 <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="POST"> <!-- onsubmit="return top.restoreSession()"> -->
-[-php-] xl('Keywords','e'); [-/php-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo htmlspecialchars($_POST['pc_keywords'],ENT_QUOTES);[-/php-]" />
+[-xlt t='Keywords'-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo attr($_POST['pc_keywords']);[-/php-]" />
 <select name="pc_keywords_andor">
-    <option value="AND">[-php-] xl('AND','e'); [-/php-]</option>
-    <option value="OR">[-php-] xl('OR','e'); [-/php-]</option>
+    <option value="AND">[-xlt t='AND'-]</option>
+    <option value="OR">[-xlt t='OR'-]</option>
 </select>
-[-php-] xl('IN','e'); [-/php-]:
+[-xlt t='IN'-]:
 <select name="pc_category">
-    <option value="">[-php-] xl('Any Category','e'); [-/php-]</option>
+    <option value="">[-xlt t='Any Category'-]</option>
     [-$CATEGORY_OPTIONS-]
 </select>
 [-if $USE_TOPICS-]
@@ -41,20 +41,20 @@
 </select>
 [-/if-]
 <br>
-[-php-] xl('between','e'); [-/php-]
-<input type="text" class='datepicker' name="start" id="start" value="[-$DATE_START|escape:'html'-]" size="10"/>
-<input type="text" class='datepicker' name="end" id="end" value="[-$DATE_END|escape:'html'-]" size="10"/>
+[-xlt t='between'-]
+<input type="text" class='datepicker' name="start" id="start" value="[-$DATE_START|attr-]" size="10"/>
+<input type="text" class='datepicker' name="end" id="end" value="[-$DATE_END|attr-]" size="10"/>
 <br>
-[-php-] xl('for','e'); [-/php-]
+[-xlt t='for'-]
 <select name="provider_id" id="provider_id">
 [-$PROVIDER_OPTIONS-]
 </select>
-[-php-] xl('at','e'); [-/php-]
+[-xlt t='at'-]
 <select name="pc_facility" id="pc_facility">
 [-$FACILITY_OPTIONS-]
 </select>
-<input type="submit" name="submit" id="submit" value="[-php-] xl('Submit','e'); [-/php-]" />
-<div id="calsearch_status"><img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-php-] xl('Searching...','e'); [-/php-]</div>
+<input type="submit" name="submit" id="submit" value="[-xla t='Submit'-]" />
+<div id="calsearch_status"><img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-xlt t='Searching...'-]</div>
 </form>
 </div>
 <!-- end of search parameters -->
@@ -65,10 +65,10 @@
 <div id="calsearch_results_header" class="head">
 <table>
 <tr>
-<th class="calsearch_datetime">[-php-] echo xl('Date') . "-" . xl('Time'); [-/php-]</th>
-<th class="calsearch_provider">[-php-] xl('Provider','e'); [-/php-]</th>
-<th class="calsearch_category">[-php-] xl('Category','e'); [-/php-]</th>
-<th class="calsearch_patient">[-php-] xl('Patient','e'); [-/php-]</th>
+<th class="calsearch_datetime">[-xlt t='Date'-]-[-xlt t='Time'-]</th>
+<th class="calsearch_provider">[-xlt t='Provider'-]</th>
+<th class="calsearch_category">[-xlt t='Category'-]</th>
+<th class="calsearch_patient">[-xlt t='Patient'-]</th>
 </tr>
 </table>
 </div>
@@ -87,30 +87,30 @@ foreach ($this->get_template_vars('A_EVENTS') as $eDate => $date_events) {
 
     foreach ($date_events as $event) {
         // pick up some demographic info about the provider
-        $provquery = "SELECT * FROM users WHERE id='".$event['aid']."'";
-        $res = sqlStatement($provquery);
+        $provquery = "SELECT * FROM users WHERE id=?";
+        $res = sqlStatement($provquery, [$event['aid']]);
         $provinfo = sqlFetchArray($res);
 
         $eData = $event['eid']."~".$eventdate;
         $trTitle = xl('Click to edit this event');
-        echo "<tr class='calsearch_event' id='".$eData."' title='".$trTitle."'>";
+        echo "<tr class='calsearch_event' id='" . attr($eData) . "' title='" . attr($trTitle) . "'>";
 
         // date and time
         $eDatetime = strtotime($eDate." ".$event['startTime']);
         echo "<td class='calsearch_datetime'>";
-        echo date("Y-m-d h:i a", $eDatetime);
+        echo text(date("Y-m-d h:i a", $eDatetime));
         echo "</td>";
 
         // provider
-        echo "<td class='calsearch_provider'>".$event['provider_name'];
+        echo "<td class='calsearch_provider'>" . text($event['provider_name']);
         $imgtitle = $provinfo['fname'] . " " . xl('contact info') . ":\n";
         $imgtitle .= $provinfo['phonew1']."\n".$provinfo['street']."\n".$provinfo['city']." ".$provinfo['state'];
-        echo " <img class'provinfo' src='".$GLOBALS['webroot']."/images/info.png' title=\"".$imgtitle."\" />";
+        echo " <img class'provinfo' src='". $GLOBALS['images_static_relative'] . "/info.png' title=\"" . attr($imgtitle) . "\" />";
         echo "</td>";
 
         // category
         echo "<td class='calsearch_category'>";
-        echo $event['catname'];
+        echo text($event['catname']);
         echo " </td>";
 
         // patient
@@ -119,7 +119,7 @@ foreach ($this->get_template_vars('A_EVENTS') as $eDate => $date_events) {
         echo "</td>";
 /*
         echo "<td>";
-        print_r($event);
+        echo text(print_r($event, true));
         echo "</td>";
 */
         echo "</tr>\n";
@@ -134,7 +134,7 @@ foreach ($this->get_template_vars('A_EVENTS') as $eDate => $date_events) {
  * displayed and if the count is zero, then we have no search results
  */
 if ($eventCount == 0) {
-    echo "<tr><td colspan='4' style='text-align: center'>" . xl('No Results') . "</td></tr>";
+    echo "<tr><td colspan='4' style='text-align: center'>" . xlt('No Results') . "</td></tr>";
 }
 
 [-/php-]
@@ -170,7 +170,7 @@ $(document).ready(function(){
 var EditEvent = function (eObj) {
     objID = eObj.id;
     var parts = objID.split("~");
-    dlgopen('add_edit_event.php?date='+ parts[1] +'&eid=' + parts[0], '_blank', 775, 500);
+    dlgopen('add_edit_event.php?date=' + encodeURIComponent(parts[1]) + '&eid=' + encodeURIComponent(parts[0]), '_blank', 775, 500);
 }
 
 // show the 'searching...' status and submit the form
@@ -184,10 +184,9 @@ function goPid(pid) {
     top.restoreSession();
     [-php-]
            echo "top.RTop.location = '../../patient_file/summary/demographics.php' " .
-           			 "+ '?set_pid=' + pid;\n";
+           			 "+ '?set_pid=' + encodeURIComponent(pid);\n";
     [-/php-]
  }
 </script>
 
 [-*include file="$TPL_NAME/views/footer.html"*-]
-

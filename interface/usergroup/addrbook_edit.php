@@ -15,9 +15,11 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -260,7 +262,7 @@ if ($type) { // note this only happens when its new
 ?>
 
 <script language="JavaScript">
- $(document).ready(function() {
+ $(function() {
   // customize the form via the type options
   typeSelect(<?php echo js_escape($row['abook_type']); ?>);
   if(typeof abook_type != 'undefined' && abook_type == 'ord_lab') {
@@ -270,7 +272,7 @@ if ($type) { // note this only happens when its new
 </script>
 
 <form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr_url($userid) ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
 
 <table border='0' width='100%'>
@@ -279,9 +281,9 @@ if ($type) { // note this only happens when its new
  <tr>
   <td width='1%' nowrap><b><?php echo xlt('Type'); ?>:</b></td>
   <td>
-<?php
- echo generate_select_list('form_abook_type', 'abook_type', $row['abook_type'], '', 'Unassigned', '', 'typeSelect(this.value)');
-?>
+    <?php
+    echo generate_select_list('form_abook_type', 'abook_type', $row['abook_type'], '', 'Unassigned', '', 'typeSelect(this.value)');
+    ?>
   </td>
  </tr>
 <?php } // end of if has admin access ?>

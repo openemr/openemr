@@ -434,7 +434,7 @@ function FormValidations()
         document.getElementById('payment_method').focus();
         return false;
         }
-    <?php
+        <?php
     }
     ?>
    if(document.getElementById('payment_amount').value=='')
@@ -458,7 +458,7 @@ function FormValidations()
         document.getElementById('adjustment_code').focus();
         return false;
        }
-    <?php
+        <?php
     }
     ?>
   if(document.getElementById('type_code').value=='')

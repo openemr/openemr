@@ -17,6 +17,8 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form:AfterCare Planning");
 $returnurl = 'encounter_top.php';
 $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
@@ -25,7 +27,6 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
@@ -36,7 +37,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
- $(document).ready(function() {
+ $(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
 
@@ -58,7 +59,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 echo "<form method='post' name='my_form' " .
   "action='$rootdir/forms/aftercare_plan/save.php?id=" . attr_url($formid) ."'>\n";
 ?>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table  border="0">
 <tr>
@@ -67,10 +68,10 @@ echo "<form method='post' name='my_form' " .
             <label class="forms-data"> <?php if (is_numeric($pid)) {
                 $result = getPatientData($pid, "fname,lname,squad");
                 echo text($result['fname'])." ".text($result['lname']);
-}
+                                       }
 
-   $patient_name=($result['fname'])." ".($result['lname']);
-    ?>
+                                       $patient_name=($result['fname'])." ".($result['lname']);
+                                        ?>
    </label>
    <input type="hidden" name="client_name" value="<?php echo attr($patient_name);?>">
         </td>
@@ -79,10 +80,10 @@ echo "<form method='post' name='my_form' " .
         <label class="forms-data"> <?php if (is_numeric($pid)) {
             $result = getPatientData($pid, "*");
             echo text($result['DOB']);
-}
+                                   }
 
-   $dob=($result['DOB']);
-    ?>
+                                   $dob=($result['DOB']);
+                                    ?>
    </label>
      <input type="hidden" name="DOB" value="<?php echo attr($dob);?>">
         </td>

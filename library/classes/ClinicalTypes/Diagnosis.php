@@ -58,11 +58,11 @@ class Diagnosis extends ClinicalType
     
     /*
      * Check if the patient has this diagnosis
-     * 
+     *
      * @param (CqmPatient) $patient
      * @param (date) $beginMeasurement
      * @param (date) $endMeasurement
-     * 
+     *
      * @return true if patient meets criteria, false ow
      */
     public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)

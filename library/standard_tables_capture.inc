@@ -3,26 +3,16 @@
  * This library contains functions that implement the database load processing
  * of external database files into openEMR
  *
- * Copyright (C) 2011 Phyaura, LLC <info@phyaura.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rohit Kumar <pandit.rohit@netsity.com>
- * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rohit Kumar <pandit.rohit@netsity.com>
+ * @author    (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
@@ -54,11 +44,11 @@ function temp_unarchive($filename, $type)
     if (!file_exists($filename)) {
         return false;
     } else {
-    // let's uzip the file
+    // let's unzip the file
     // use checksums to determine the "version"
     //
         $zip = new ZipArchive;
-        if ($zip->open($filename) === true) {
+        if ($zip->open($filename, ZipArchive::CREATE) === true) {
             if (!($zip->extractTo($GLOBALS['temporary_files_dir']."/".$type))) {
                 return false;
             }
@@ -245,6 +235,191 @@ function snomed_import($us_extension = false)
         closedir($handle);
     }
 
+    return true;
+}
+
+function drop_old_sct()
+{
+    $array_to_truncate=array(
+        "sct_concepts_drop"=>"DROP TABLE IF EXISTS `sct_concepts`",
+        "sct_descriptions_drop"=>"DROP TABLE IF EXISTS `sct_descriptions`",
+        "sct_relationships_drop"=>"DROP TABLE IF EXISTS `sct_relationships`"
+    );
+    foreach ($array_to_truncate as $val) {
+        if (trim($val)!='') {
+            sqlStatement($val);
+        }
+    }
+}
+
+function drop_old_sct2()
+{
+    $array_to_truncate=array(
+        "sct2_concept_drop"=>"DROP TABLE IF EXISTS `sct2_concept`",
+        "sct2_description_drop"=>"DROP TABLE IF EXISTS `sct2_description`",
+        "sct2_identifier_drop"=>"DROP TABLE IF EXISTS `sct2_identifier`",
+        "sct2_relationship_drop"=>"DROP TABLE IF EXISTS `sct2_relationship`",
+        "sct2_statedrelationship_drop"=>"DROP TABLE IF EXISTS `sct2_statedrelationship`",
+        "sct2_textdefinition_drop"=>"DROP TABLE IF EXISTS `sct2_textdefinition`"
+    );
+    foreach ($array_to_truncate as $val) {
+        if (trim($val)!='') {
+            sqlStatement($val);
+        }
+    }
+}
+
+function chg_ct_external_torf1()
+{
+    sqlStatement("UPDATE code_types SET ct_external = 2 WHERE ct_key = 'SNOMED'");
+    sqlStatement("UPDATE code_types SET ct_external = 7 WHERE ct_key = 'SNOMED-CT'");
+    sqlStatement("UPDATE code_types SET ct_external = 9 WHERE ct_key = 'SNOMED-PR'");
+}
+
+function chg_ct_external_torf2()
+{
+    sqlStatement("UPDATE code_types SET ct_external = 10 WHERE ct_key = 'SNOMED'");
+    sqlStatement("UPDATE code_types SET ct_external = 11 WHERE ct_key = 'SNOMED-CT'");
+    sqlStatement("UPDATE code_types SET ct_external = 12 WHERE ct_key = 'SNOMED-PR'");
+}
+
+function snomedRF2_import()
+{
+
+    // set up array
+    $table_array_for_snomed=array(
+        "sct2_concept_drop"=>"DROP TABLE IF EXISTS `sct2_concept`",
+        "sct2_concept_structure"=>"CREATE TABLE IF NOT EXISTS `sct2_concept` (
+            `id` bigint(20) NOT NULL,
+            `effectiveTime` date NOT NULL,
+            `active` int(11) NOT NULL,
+            `moduleId` bigint(20) NOT NULL,
+            `definitionStatusId` bigint(25) NOT NULL,
+             PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB",
+        "sct2_description_drop"=>"DROP TABLE IF EXISTS `sct2_description`",
+        "sct2_description_structure"=>"CREATE TABLE IF NOT EXISTS `sct2_description` (
+            `id` bigint(20) NOT NULL,
+            `effectiveTime` date NOT NULL,
+            `active` bigint(11) NOT NULL,
+            `moduleId` bigint(25) NOT NULL,
+            `conceptId` bigint(20) NOT NULL,
+            `languageCode` varchar(8) NOT NULL,
+            `typeId` bigint(25) NOT NULL,
+            `term` varchar(255) NOT NULL,
+            `caseSignificanceId` bigint(25) NOT NULL,
+             PRIMARY KEY (`id`, `active`, `conceptId`)
+            ) ENGINE=InnoDB",
+        "sct2_identifier_drop"=>"DROP TABLE IF EXISTS `sct2_identifier`",
+        "sct2_identifier_structure"=>"CREATE TABLE IF NOT EXISTS `sct2_identifier` (
+            `identifierSchemeId` bigint(25) NOT NULL,
+            `alternateIdentifier` bigint(25) NOT NULL,
+            `effectiveTime` date NOT NULL,
+            `active` int(11) NOT NULL,
+            `moduleId` bigint(25) NOT NULL,
+            `referencedComponentId` bigint(25) NOT NULL,
+             PRIMARY KEY (`identifierSchemeId`)
+            ) ENGINE=InnoDB",
+        "sct2_relationship_drop"=>"DROP TABLE IF EXISTS `sct2_relationship`",
+        "sct2_relationship_structure"=>"CREATE TABLE IF NOT EXISTS `sct2_relationship` (
+            `id` bigint(20) NOT NULL,
+            `effectiveTime` date NOT NULL,
+            `active` int(11) NOT NULL,
+            `moduleId` bigint(25) NOT NULL,
+            `sourceId` bigint(20) NOT NULL,
+            `destinationId` bigint(20) NOT NULL,
+            `typeId` bigint(25) NOT NULL,
+            `characteristicTypeId` bigint(25) NOT NULL,
+            `modifierId` bigint(25) NOT NULL,
+             PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB",
+        "sct2_statedrelationship_drop"=>"DROP TABLE IF EXISTS `sct2_statedrelationship`",
+        "sct2_statedrelationship_structure"=>"CREATE TABLE IF NOT EXISTS `sct2_statedrelationship` (
+            `id` bigint(20) NOT NULL,
+            `effectiveTime` date NOT NULL,
+            `active` int(11) NOT NULL,
+            `moduleId` bigint(25) NOT NULL,
+            `sourceId` bigint(20) NOT NULL,
+            `destinationId` bigint(20) NOT NULL,
+            `relationshipGroup` int(11) NOT NULL,
+            `typeId` bigint(25) NOT NULL,
+             PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB",
+        "sct2_textdefinition_drop"=>"DROP TABLE IF EXISTS `sct2_textdefinition`",
+        "sct2_textdefinition_structure"=>"CREATE TABLE IF NOT EXISTS `sct2_textdefinition` (
+            `id` bigint(20) NOT NULL,
+            `effectiveTime` date NOT NULL,
+            `active` int(11) NOT NULL,
+            `moduleId` bigint(25) NOT NULL,
+            `conceptId` bigint(20) NOT NULL,
+            `languageCode` varchar(8) NOT NULL,
+            `typeId` bigint(25) NOT NULL,
+            `term` varchar(655) NOT NULL,
+             PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB"
+    );
+
+    // set up paths
+    $dir_snomed = $GLOBALS['temporary_files_dir']."/SNOMED/";
+    // $sub_path="Terminology/Content/";
+    $sub_path="Full/Terminology/";
+    $dir=$dir_snomed;
+    $dir=str_replace('\\', '/', $dir);
+
+    // executing the create statement for tables, these are defined in snomed_capture.inc file
+    // this is skipped if the US extension is being added
+    //if (!$us_extension) {
+        //var_dump($us_extension);
+    foreach ($table_array_for_snomed as $val) {
+        if (trim($val)!='') {
+            sqlStatement($val);
+        }
+    }
+    //}
+
+    // reading the SNOMED directory and identifying the files to import and replacing the variables by originals values.
+    if (is_dir($dir) && $handle = opendir($dir)) {
+        while (false !== ($filename = readdir($handle))) {
+            if ($filename != "." && $filename != ".." && !strpos($filename, "zip")) {
+                $path=$dir."".$filename."/".$sub_path;
+                if (!(is_dir($path))) {
+                    $path=$dir."".$filename."/RF2Release/".$sub_path;
+                }
+                if (is_dir($path) && $handle1 = opendir($path)) {
+                    while (false !== ($filename1 = readdir($handle1))) {
+                        $load_script="Load data local infile '#FILENAME#' into table #TABLE# fields terminated by '\\t' ESCAPED BY '' lines terminated by '\\n' ignore 1 lines   ";
+                        $array_replace=array("#FILENAME#","#TABLE#");
+                        if ($filename1 != "." && $filename1 != "..") {
+                            $file_replace=$path.$filename1;
+                            if (strpos($filename1, "Concept") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_concept"), $load_script);
+                            }
+                            if (strpos($filename1, "Description") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_description"), $load_script);
+                            }
+                            if (strpos($filename1, "Identifier") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_identifier"), $load_script);
+                            }
+                            if (strpos($filename1, "Relationship") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_relationship"), $load_script);
+                            }
+                            if (strpos($filename1, "StatedRelationship") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_statedrelationship"), $load_script);
+                            }
+                            if (strpos($filename1, "TextDefinition") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_textdefinition"), $load_script);
+                            }
+                            if ($new_str!='') {
+                                sqlStatement($new_str);
+                            }
+                        }
+                    }
+                }
+                closedir($handle1);
+            }
+        }
+        closedir($handle);
+    }
     return true;
 }
 

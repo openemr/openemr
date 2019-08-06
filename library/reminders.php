@@ -33,6 +33,9 @@
 require_once(dirname(__FILE__) . "/clinical_rules.php");
 require_once(dirname(__FILE__) . "/maviq_phone_api.php");
 
+//only used in commented out code
+use OpenEMR\Common\Crypto\CryptoGen;
+
 /**
  * Display the patient reminder widget.
  *
@@ -391,7 +394,8 @@ function send_reminders()
     *     //  feature has been commented out for now.
     *     // Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.
     *      $siteId = $GLOBALS['phone_gateway_username'];
-    *      $token = decryptStandard($GLOBALS['phone_gateway_password']);
+    *      $cryptoGen = new CryptoGen();
+    *      $token = $cryptoGen->decryptStandard($GLOBALS['phone_gateway_password']);
     *      $endpoint = $GLOBALS['phone_gateway_url'];
     *      $client = new MaviqClient($siteId, $token, $endpoint);
     *      //Set up params.

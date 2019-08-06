@@ -37,6 +37,7 @@ require_once("../../globals.php");
 require_once("../../../library/options.inc.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Set the path to this script
@@ -296,7 +297,7 @@ if ($value_select) {
                                 track:  thetitle,
                                 items:  theitem,
                                 thecheckboxes: checkboxfake,
-                                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                             },
                         dataType: "json",
                         success: function(returnData){
@@ -342,7 +343,7 @@ if ($value_select) {
                 $value_matrix[$i][result_code]          = $myrow['result_code'];
                 $value_matrix[$i][result_text]          = $myrow['result_text'];
                 $value_matrix[$i][result]               = $myrow['result'];
-                // $value_matrix[$i][units] 				= generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) ;
+                // $value_matrix[$i][units]                 = generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) ;
                 $value_matrix[$i][units]                = $myrow['units'];
                 $value_matrix[$i][range]                = $myrow['range'];
                 $value_matrix[$i][abnormal]             = $myrow['abnormal'];

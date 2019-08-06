@@ -17,10 +17,11 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $facilityService = new FacilityService();
@@ -160,12 +161,12 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
         <?php
         if (sqlNumRows($result4)>0) {
             while ($rowresult4 = sqlFetchArray($result4)) {
-        ?>
+                ?>
         EncounterIdArray[Count]=<?php echo js_escape($rowresult4['encounter']); ?>;
     EncounterDateArray[Count]=<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
     CalendarCategoryArray[Count]=<?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
             Count++;
-    <?php
+                <?php
             }
         }
         ?>

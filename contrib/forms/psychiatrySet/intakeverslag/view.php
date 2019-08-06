@@ -20,9 +20,9 @@
  * @link      http://www.open-emr.org
  */
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/patient.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/patient.inc");
 
 $returnurl = 'encounter_top.php';
 
@@ -31,7 +31,7 @@ $provider_results = sqlQuery("select * from users where username= ?", array($_SE
 $age = getPatientAge($result["DOB_YMD"]);
 
 ////////////////////////////////////////////////////////////////////
-// Function:	getPatientDateOfLastEncounter
+// Function:    getPatientDateOfLastEncounter
 function getPatientDateOfLastEncounter($nPid)
 {
     $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
@@ -110,7 +110,7 @@ if ($_GET["id"]) {
 
 ?>
 <script type="text/javascript">
-$(document).ready(function(){
+$(function(){
         autosave();
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
@@ -123,13 +123,13 @@ $(document).ready(function(){
 
 function delete_autosave( )
 {
-  if( confirm("<?php xl('Are you sure you want to completely remove this form?', 'e'); ?>") )
+  if( confirm(<?php echo xlj('Are you sure you want to completely remove this form?'); ?>") )
   {
     $.ajax(
             {
               type: "POST",
               url: "../../forms/intakeverslag/delete_autosave.php",
-              data: "id=" + <?php echo $intakeverslag_id ?>
+              data: "id=" + <?php echo js_url($intakeverslag_id); ?>
                         ,
                                 cache: false,
                                 success: function( message )
@@ -174,24 +174,24 @@ function autosave( )
             {
               type: "POST",
               url: "../../forms/intakeverslag/autosave.php",
-              data: "id=" + <?php echo $intakeverslag_id ?> +
-                        "&intakedatum=" + $("#intakedatum").val() +
-                        "&reden_van_aanmelding=" + a_reden_van_aanmelding +
-                        "&klachten_probleemgebieden=" + a_klachten_probleemgebieden +
-                        "&hulpverlening_onderzoek=" + a_hulpverlening_onderzoek +
-                        "&hulpvraag_en_doelen=" + a_hulpvraag_en_doelen +
-                        "&bijzonderheden_systeem=" + a_bijzonderheden_systeem +
-                        "&werk_opleiding_vrije_tijdsbesteding=" + a_werk_opleiding_vrije_tijdsbesteding +
-                        "&relatie_kinderen=" + a_relatie_kinderen +
-                        "&somatische_context=" + a_somatische_context +
-                        "&alcohol=" + a_alcohol +
-                        "&drugs=" + a_drugs +
-                        "&roken=" + a_roken +
-                        "&medicatie=" + a_medicatie +
-                        "&familieanamnese=" + a_familieanamnese +
-                        "&indruk_observaties=" + a_indruk_observaties +
-                        "&beschrijvende_conclusie=" + a_beschrijvende_conclusie +
-                        "&behandelvoorstel=" + a_behandelvoorstel +
+              data: "id=" + <?php echo js_url($intakeverslag_id); ?> +
+                        "&intakedatum=" + encodeURIComponent($("#intakedatum").val()) +
+                        "&reden_van_aanmelding=" + encodeURIComponent(a_reden_van_aanmelding) +
+                        "&klachten_probleemgebieden=" + encodeURIComponent(a_klachten_probleemgebieden) +
+                        "&hulpverlening_onderzoek=" + encodeURIComponent(a_hulpverlening_onderzoek) +
+                        "&hulpvraag_en_doelen=" + encodeURIComponent(a_hulpvraag_en_doelen) +
+                        "&bijzonderheden_systeem=" + encodeURIComponent(a_bijzonderheden_systeem) +
+                        "&werk_opleiding_vrije_tijdsbesteding=" + encodeURIComponent(a_werk_opleiding_vrije_tijdsbesteding) +
+                        "&relatie_kinderen=" + encodeURIComponent(a_relatie_kinderen) +
+                        "&somatische_context=" + encodeURIComponent(a_somatische_context) +
+                        "&alcohol=" + encodeURIComponent(a_alcohol) +
+                        "&drugs=" + encodeURIComponent(a_drugs) +
+                        "&roken=" + encodeURIComponent(a_roken) +
+                        "&medicatie=" + encodeURIComponent(a_medicatie) +
+                        "&familieanamnese=" + encodeURIComponent(a_familieanamnese) +
+                        "&indruk_observaties=" + encodeURIComponent(a_indruk_observaties) +
+                        "&beschrijvende_conclusie=" + encodeURIComponent(a_beschrijvende_conclusie) +
+                        "&behandelvoorstel=" + encodeURIComponent(a_behandelvoorstel) +
                         "&mode=update"
                         ,
                                 cache: false,
@@ -207,14 +207,14 @@ function autosave( )
 </script>
 
 
-<form method=post action="<?php echo $rootdir?>/forms/intakeverslag/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
-<span class="title"><?php xl('Psychiatric Intake', 'e'); ?></span><Br><br>
+<form method=post action="<?php echo $rootdir?>/forms/intakeverslag/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
+<span class="title"><?php echo xlt('Psychiatric Intake'); ?></span><Br><br>
 
 <table>
 <tr>
-<td><?php xl('Intake Date', 'e'); ?>:</td><td>
-<input type='text' class='datepicker' name='intakedatum' id='intakedatum' size='10' value='<?php echo $m_strEventDate ?>'
-          title='<?php xl('Intake Date', 'e'); ?>: yyyy-mm-dd'></input>
+<td><?php echo xlt('Intake Date'); ?>:</td><td>
+<input type='text' class='datepicker' name='intakedatum' id='intakedatum' size='10' value='<?php echo attr($m_strEventDate); ?>'
+          title='<?php echo xla('Intake Date'); ?>: yyyy-mm-dd'></input>
 
 
 <?php
@@ -223,50 +223,50 @@ function autosave( )
 </tr>
 </table>
 
-<br><span class=text><?php xl('Reason for Visit', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo stripslashes($obj{"reden_van_aanmelding"});?></textarea><br>
-<br><span class=text><?php xl('Problem List', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="klachten_probleemgebieden" id="klachten_probleemgebieden"><?php echo stripslashes($obj{"klachten_probleemgebieden"});?></textarea><br>
+<br><span class=text><?php echo xlt('Reason for Visit'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj{"reden_van_aanmelding"});?></textarea><br>
+<br><span class=text><?php echo xlt('Problem List'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="klachten_probleemgebieden" id="klachten_probleemgebieden"><?php echo text($obj{"klachten_probleemgebieden"});?></textarea><br>
 
-<br><span class=text><?php xl('Psychiatric History', 'e'); ?></span><br>
-<textarea cols=80 rows=10 wrap=virtual name="hulpverlening_onderzoek" id="hulpverlening_onderzoek"><?php echo stripslashes($obj{"hulpverlening_onderzoek"});?></textarea><br>
+<br><span class=text><?php echo xlt('Psychiatric History'); ?></span><br>
+<textarea cols=80 rows=10 wrap=virtual name="hulpverlening_onderzoek" id="hulpverlening_onderzoek"><?php echo text($obj{"hulpverlening_onderzoek"});?></textarea><br>
 
-<br><span class=text><?php xl('Treatment Goals', 'e'); ?></span><br>
-<textarea cols=80 rows=10 wrap=virtual name="hulpvraag_en_doelen" id="hulpvraag_en_doelen"><?php echo stripslashes($obj{"hulpvraag_en_doelen"});?></textarea><br>
+<br><span class=text><?php echo xlt('Treatment Goals'); ?></span><br>
+<textarea cols=80 rows=10 wrap=virtual name="hulpvraag_en_doelen" id="hulpvraag_en_doelen"><?php echo text($obj{"hulpvraag_en_doelen"});?></textarea><br>
 
-<br><span class=text><?php xl('Specialty Systems', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="bijzonderheden_systeem" id="bijzonderheden_systeem"><?php echo stripslashes($obj{"bijzonderheden_systeem"});?></textarea><br>
-<br><span class=text><?php xl('Work/ Education/ Hobbies', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="werk_opleiding_vrije_tijdsbesteding" id="werk_opleiding_vrije_tijdsbesteding"><?php echo stripslashes($obj{"werk_opleiding_vrije_tijdsbesteding"});?></textarea><br>
-<br><span class=text><?php xl('Relation(s) / Children', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="relatie_kinderen" id="relatie_kinderen"><?php echo stripslashes($obj{"relatie_kinderen"});?></textarea><br>
-<br><span class=text><?php xl('Somatic Context', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="somatische_context" id="somatische_context"><?php echo stripslashes($obj{"somatische_context"});?></textarea><br>
+<br><span class=text><?php echo xlt('Specialty Systems'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="bijzonderheden_systeem" id="bijzonderheden_systeem"><?php echo text($obj{"bijzonderheden_systeem"});?></textarea><br>
+<br><span class=text><?php echo xlt('Work/ Education/ Hobbies'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="werk_opleiding_vrije_tijdsbesteding" id="werk_opleiding_vrije_tijdsbesteding"><?php echo text($obj{"werk_opleiding_vrije_tijdsbesteding"});?></textarea><br>
+<br><span class=text><?php echo xlt('Relation(s) / Children'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="relatie_kinderen" id="relatie_kinderen"><?php echo text($obj{"relatie_kinderen"});?></textarea><br>
+<br><span class=text><?php echo xlt('Somatic Context'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="somatische_context" id="somatische_context"><?php echo text($obj{"somatische_context"});?></textarea><br>
 
 <br>
 <table>
 <tr>
-<td align="right"  class=text><?php xl('Alcohol', 'e'); ?></td>
-<td><input type="text" name="alcohol" size="60" value="<?php echo stripslashes($obj{"alcohol"});?>" id="alcohol"></input></td>
+<td align="right"  class=text><?php echo xlt('Alcohol'); ?></td>
+<td><input type="text" name="alcohol" size="60" value="<?php echo attr($obj{"alcohol"});?>" id="alcohol"></input></td>
 </tr><tr>
-<td align="right" class=text><?php xl('Drugs', 'e'); ?></td>
-<td><input type="text" name="drugs" size="60" value="<?php echo stripslashes($obj{"drugs"});?>" id="drugs"></input></td>
+<td align="right" class=text><?php echo xlt('Drugs'); ?></td>
+<td><input type="text" name="drugs" size="60" value="<?php echo attr($obj{"drugs"});?>" id="drugs"></input></td>
 </tr><tr>
-<td align="right" class=text><?php xl('Tobacco', 'e'); ?></td>
-<td><input type="text" name="roken" size="60" value="<?php echo stripslashes($obj{"roken"});?>" id="roken"></input></td>
+<td align="right" class=text><?php echo xlt('Tobacco'); ?></td>
+<td><input type="text" name="roken" size="60" value="<?php echo attr($obj{"roken"});?>" id="roken"></input></td>
 </tr>
 </table>
 
-<br><span class=text><?php xl('Medications', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo stripslashes($obj{"medicatie"});?></textarea><br>
-<br><span class=text><?php xl('Family History', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="familieanamnese" id="familieanamnese"><?php echo stripslashes($obj{"familieanamnese"});?></textarea><br>
-<br><span class=text><?php xl('Assessment', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="indruk_observaties" id="indruk_observaties"><?php echo stripslashes($obj{"indruk_observaties"});?></textarea><br>
-<br><span class=text><?php xl('Conclusions', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo stripslashes($obj{"beschrijvende_conclusie"});?></textarea><br>
-<br><span class=text><?php xl('Treatment Plan', 'e'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo stripslashes($obj{"behandelvoorstel"});?></textarea><br>
+<br><span class=text><?php echo xlt('Medications'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj{"medicatie"});?></textarea><br>
+<br><span class=text><?php echo xlt('Family History'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="familieanamnese" id="familieanamnese"><?php echo text($obj{"familieanamnese"});?></textarea><br>
+<br><span class=text><?php echo xlt('Assessment'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="indruk_observaties" id="indruk_observaties"><?php echo text($obj{"indruk_observaties"});?></textarea><br>
+<br><span class=text><?php echo xlt('Conclusions'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj{"beschrijvende_conclusie"});?></textarea><br>
+<br><span class=text><?php echo xlt('Treatment Plan'); ?></span><br>
+<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj{"behandelvoorstel"});?></textarea><br>
 
 <table><tr>
 <?php
@@ -275,10 +275,10 @@ function autosave( )
 </tr></table>
 
 <br><br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?>]</a>
+<a href="javascript:document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br>
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit"
- onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes', 'e'); ?>]</a>
+ onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 </form>
 
 <div id="timestamp"></div>

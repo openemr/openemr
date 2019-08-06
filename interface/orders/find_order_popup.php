@@ -2,22 +2,14 @@
 /**
  * Script to pick a procedure order type from the compendium.
  *
- * Copyright (C) 2013 Rod Roark <rod@sunsetsystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
- *
  * @package   OpenEMR
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -36,8 +28,8 @@ if (isset($_GET['typeid'])) {
     $name = '';
     if ($typeid) {
         $ptrow = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = ?", array($typeid));
-        $name = addslashes($ptrow['name']);
-        $codes = addslashes($ptrow['related_code']);
+        $name = $ptrow['name'];
+        $codes = $ptrow['related_code'];
         if ($ptrow['procedure_type'] == 'fgp') {
             $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? && procedure_type = 'for' ORDER BY seq, name, procedure_type_id", array($typeid));
             while ($row = sqlFetchArray($res)) {
@@ -49,7 +41,7 @@ if (isset($_GET['typeid'])) {
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
     <script language="JavaScript">
         if (opener.closed) {
-            alert('<?php xl('The destination form was closed; I cannot act on your selection.', 'e'); ?>');
+            alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
         }
         else {
             <?php
@@ -61,13 +53,13 @@ if (isset($_GET['typeid'])) {
             $t = 0;
             do {
                 if (!isset($grporders[$i]['procedure_type_id'])) {
-                    echo "opener.set_proc_type($typeid, '$name', '$codes');\n";
+                    echo "opener.set_proc_type(" . js_escape($typeid) .", " . js_escape($name) . ", " . js_escape($codes) . ");\n";
                 } else {
                     $t = count($grporders) - $i;
                     $typeid = $grporders[$i]['procedure_type_id'] + 0;
-                    $name = addslashes($grporders[$i]['name']);
-                    $codes = addslashes($grporders[$i]['related_code']);
-                    echo "opener.set_proc_type($typeid, '$name', '$codes', $t);\n";
+                    $name = $grporders[$i]['name'];
+                    $codes = $grporders[$i]['related_code'];
+                    echo "opener.set_proc_type(" . js_escape($typeid) . ", " . js_escape($name) . ", " . js_escape($codes) . ", " . js_escape($t) . ");\n";
                 }
                 // This is to generate the "Questions at Order Entry" for the Procedure Order form.
                 // GET parms needed for this are: formid, formseq.
@@ -105,33 +97,33 @@ if (isset($_GET['typeid'])) {
     <script language="JavaScript">
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
-            location.href = 'find_order_popup.php<?php echo "?order=$order&labid=$labid";
+            location.href = 'find_order_popup.php?order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid);
             if (isset($_GET['addfav'])) {
-                echo '&addfav=' . $_GET['addfav'];
+                echo " + '&addfav=' + " . js_url($_GET['addfav']);
             }
             if (isset($_GET['formid'])) {
-                echo '&formid=' . $_GET['formid'];
+                echo " + '&formid=' + " . js_url($_GET['formid']);
             }
             if (isset($_GET['formseq'])) {
-                echo '&formseq=' . $_GET['formseq'];
+                echo " + '&formseq=' + " . js_url($_GET['formseq']);
             }
-                ?>&typeid=' + typeid;
+            ?> + '&typeid=' + encodeURIComponent(typeid);
             return false;
         }
     </script>
 </head>
 <body>
 <div class="container">
-    <form class="form-inline" method='post' name='theform' action='find_order_popup.php<?php echo "?order=$order&labid=$labid";
+    <form class="form-inline" method='post' name='theform' action='find_order_popup.php<?php echo "?order=" . attr_url($order) . "&labid=" . attr_url($labid);
     if (isset($_GET['formid'])) {
-        echo '&formid=' . $_GET['formid'];
+        echo '&formid=' . attr_url($_GET['formid']);
     }
 
     if (isset($_GET['formseq'])) {
-        echo '&formseq=' . $_GET['formseq'];
+        echo '&formseq=' . attr_url($_GET['formseq']);
     }
     if (isset($_GET['addfav'])) {
-        echo '&addfav=' . $_GET['addfav'];
+        echo '&addfav=' . attr_url($_GET['addfav']);
     }
     ?>'>
         <div class="row">
@@ -141,11 +133,11 @@ if (isset($_GET['typeid'])) {
                     <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>'
                         title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
                     <span class="input-group-btn">
-                        <button type="submit" class="btn btn-default btn-search" name='bn_search' value="true"><?php echo xla('Search'); ?></button>
+                        <button type="submit" class="btn btn-default btn-search" name='bn_search' value="true"><?php echo xlt('Search'); ?></button>
                         <?php if (!isset($_REQUEST['addfav'])) { ?>
-                            <button type="submit" class="btn btn-default btn-search" name='bn_grpsearch' value="true"><?php echo xla('Favorites'); ?></button>
+                            <button type="submit" class="btn btn-default btn-search" name='bn_grpsearch' value="true"><?php echo xlt('Favorites'); ?></button>
                         <?php } ?>
-                        <button type="button" class="btn btn-default btn-delete" onclick="selcode(0)"><?php echo xla('Erase'); ?></button>
+                        <button type="button" class="btn btn-default btn-delete" onclick="selcode(0)"><?php echo xlt('Erase'); ?></button>
                     </span>
                 </div>
             </div>
@@ -173,8 +165,7 @@ if (isset($_GET['typeid'])) {
                         $itertypeid = $row['procedure_type_id'];
                         $itercode = $row['procedure_code'];
                         $itertext = trim($row['name']);
-                        $anchor = "<a href='' onclick='return selcode(" .
-                            "\"" . $itertypeid . "\")'>";
+                        $anchor = "<a href='' onclick='return selcode(" . attr_js($itertypeid) . ")'>";
                         echo " <tr>";
                         echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
                         echo "  <td>$anchor" . text($itertext) . "</a></td>\n";

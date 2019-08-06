@@ -15,46 +15,47 @@
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
-/* for formData() */
+
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
-
-// Prepare array of names of editable files, relative to the site directory.
-$my_files = array(
-  'config.php',
-  'faxcover.txt',
-  'faxtitle.eps',
-  'referral_template.html',
-  'statement.inc.php',
-  'letter_templates/custom_pdf.php',
-);
-// Append LBF plugin filenames to the array.
-$lres = sqlStatement('SELECT grp_form_id FROM layout_group_properties ' .
-    "WHERE grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 ORDER BY grp_seq, grp_title");
-while ($lrow = sqlFetchArray($lres)) {
-    $option_id = $lrow['grp_form_id']; // should start with LBF
-    $my_files[] = "LBF/$option_id.plugin.php";
-}
-
-$form_filename = $_REQUEST['form_filename'];
-// Sanity check to prevent evildoing.
-if (!in_array($form_filename, $my_files)) {
-    $form_filename = '';
-}
-
-$filepath = "$OE_SITE_DIR/$form_filename";
 
 $imagedir     = "$OE_SITE_DIR/images";
 $educationdir = "$OE_SITE_DIR/documents/education";
 
 if (!empty($_POST['bn_save'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
+    /** This is a feature that allows editing of configuration files. Uncomment this
+        at your own risk, since it is considered a critical security vulnerability if
+        OpenEMR is not configured correctly.
+    // Prepare array of names of editable files, relative to the site directory.
+    $my_files = array(
+    'config.php',
+    'faxcover.txt',
+    'faxtitle.eps',
+    'referral_template.html',
+    'statement.inc.php',
+    'letter_templates/custom_pdf.php',
+    );
+    // Append LBF plugin filenames to the array.
+    $lres = sqlStatement('SELECT grp_form_id FROM layout_group_properties ' .
+    "WHERE grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 ORDER BY grp_seq, grp_title");
+    while ($lrow = sqlFetchArray($lres)) {
+    $option_id = $lrow['grp_form_id']; // should start with LBF
+    $my_files[] = "LBF/$option_id.plugin.php";
+    }
+    $form_filename = $_REQUEST['form_filename'];
+    // Sanity check to prevent evildoing.
+    if (!in_array($form_filename, $my_files)) {
+    $form_filename = '';
+    }
+    $filepath = "$OE_SITE_DIR/$form_filename";
     if ($form_filename) {
         // Textareas, at least in Firefox, return a \r\n at the end of each line
         // even though only \n was originally there.  For consistency with
@@ -66,8 +67,9 @@ if (!empty($_POST['bn_save'])) {
         ));
         $form_filename = '';
     }
+    */
 
-  // Handle image uploads.
+    // Handle image uploads.
     if (is_uploaded_file($_FILES['form_image']['tmp_name']) && $_FILES['form_image']['size']) {
         $form_dest_filename = $_POST['form_dest_filename'];
         if ($form_dest_filename == '') {
@@ -100,7 +102,7 @@ if (!empty($_POST['bn_save'])) {
         }
     }
 
-  // Handle PDF uploads for patient education.
+    // Handle PDF uploads for patient education.
     if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
         $form_dest_filename = $_FILES['form_education']['name'];
         $form_dest_filename = strtolower(basename($form_dest_filename));
@@ -132,8 +134,8 @@ if (!empty($_POST['bn_save'])) {
 
 if (isset($_POST['generate_thumbnails'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $thumb_generator = new ThumbnailGenerator();
@@ -180,7 +182,7 @@ if ($GLOBALS['secure_upload']) {
             $mime_types[] = $name;
         }
     } else {
-        error_log('Get list of mime-type error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+        error_log('Get list of mime-type error: "' . errorLogEscape(curl_error($curl)) . '" - Code: ' . errorLogEscape(curl_errno($curl)));
         $mime_types_list = array(
             'application/pdf',
             'image/jpeg',
@@ -197,8 +199,8 @@ if ($GLOBALS['secure_upload']) {
 
     if (isset($_POST['submit_form'])) {
         //verify csrf
-        if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-            csrfNotVerified();
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            CsrfUtils::csrfNotVerified();
         }
 
         $new_white_list = empty($_POST['white_list']) ? array() : $_POST['white_list'];
@@ -261,17 +263,19 @@ function msfFileChanged() {
 <body class="body_top">
 <form method='post' action='manage_site_files.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 
 <p>
 <table border='1' width='95%'>
 
+<?php /** This is a feature that allows editing of configuration files. Uncomment this
+at your own risk, since it is considered a critical security vulnerability if
+OpenEMR is not configured correctly. ?>
  <tr bgcolor='#dddddd' class='dehead'>
   <td colspan='2' align='center'><?php echo xlt('Edit File in') . " " . text($OE_SITE_DIR); ?></td>
  </tr>
-
  <tr>
   <td valign='top' class='detail' nowrap>
    <select name='form_filename' onchange='msfFileChanged()'>
@@ -282,7 +286,6 @@ foreach ($my_files as $filename) {
     if ($filename == $form_filename) {
         echo " selected";
     }
-
     echo ">" . text($filename) . "</option>\n";
 }
 ?>
@@ -295,6 +298,7 @@ foreach ($my_files as $filename) {
 ?></textarea>
   </td>
  </tr>
+<?php */ ?>
 
  <tr bgcolor='#dddddd' class='dehead'>
   <td colspan='2' align='center'><?php echo text(xl('Upload Image to') . " $imagedir"); ?></td>
@@ -371,7 +375,7 @@ foreach ($imageslist as $sfname) {
             </td>
             <td  class="thumb_form" style="width:17%;border-right:none">
                 <form method='post' action='manage_site_files.php#generate_thumb'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <input style="margin-top: 10px" type="submit" name="generate_thumbnails" value="<?php echo xla('Generate') ?>">
                 </form>
             </td>
@@ -380,7 +384,6 @@ foreach ($imageslist as $sfname) {
 </div>
 
 <?php if ($GLOBALS['secure_upload']) { ?>
-
 <div id="file_type_whitelist">
     <h2><?php echo xlt('Create custom white list of MIME content type of a files to secure your documents system');?></h2>
     <form id="whitelist_form" method="post">
@@ -423,7 +426,7 @@ foreach ($imageslist as $sfname) {
         <div class="subject-info-save">
             <input type="button" id="submit-whitelist" value="<?php echo xla('Save'); ?>" />
             <input type="hidden" name="submit_form" value="1" />
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         </div>
     </form>
 

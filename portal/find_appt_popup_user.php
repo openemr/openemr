@@ -3,24 +3,15 @@
  *
  * Modified from main codebase for the patient portal.
  *
- * Copyright (C) 2005-2006, 2013 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // Note from Rod 2013-01-22:
@@ -29,18 +20,20 @@
 // of that logic and does not support exception dates for repeating events.
 
 //continue session
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 //
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=".$_SESSION['site_id'];
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 //
 
 // kick out if patient not authenticated
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit();
 }
@@ -49,10 +42,10 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 
 $ignoreAuth = 1;
 
- require_once("../interface/globals.php");
- require_once("$srcdir/patient.inc");
+require_once("../interface/globals.php");
+require_once("$srcdir/patient.inc");
 
- $input_catid = $_REQUEST['catid'];
+$input_catid = $_REQUEST['catid'];
 
  // Record an event into the slots array for a specified day.
 function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
@@ -244,10 +237,7 @@ if ($_REQUEST['startdate'] && preg_match(
 
                             $adate['mday'] += $my_repeat_on_day - $dow;
                         }
-                    } // end recurrtype 2
-
-                    else { // recurrtype 1
-
+                    } else { // end recurrtype 2
                         if ($repeattype == 0) { // daily
                             $adate['mday'] += 1;
                         } else if ($repeattype == 1) { // weekly
@@ -313,7 +303,7 @@ if ($_REQUEST['startdate'] && preg_match(
             }
         }
     }
-?>
+    ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -403,7 +393,7 @@ function setappt(year,mon,mday,hours,minutes) {
 <body class="body_top">
 
 <div id="searchCriteria">
-<form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo attr($providerid); ?>&catid=<?php echo attr($input_catid); ?>'>
+<form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo attr_url($providerid); ?>&catid=<?php echo attr_url($input_catid); ?>'>
    <input type="hidden" name='bypatient' />
 
     <?php echo xlt('Start date:'); ?>
@@ -419,7 +409,6 @@ function setappt(year,mon,mday,hours,minutes) {
 </div>
 
 <?php if (!empty($slots)) : ?>
-
 <div id="searchResultsHeader">
 <table class='table table-bordered'>
 
@@ -434,71 +423,71 @@ function setappt(year,mon,mday,hours,minutes) {
         <th class="srTimes"><?php echo xlt('Available Times'); ?></th>
     </tr>
     </thead>
-<?php
+    <?php
     $lastdate = "";
     $ampmFlag = "am"; // establish an AM-PM line break flag
-for ($i = 0; $i < $slotcount; ++$i) {
-    $available = true;
-    for ($j = $i; $j < $i + $catslots; ++$j) {
-        if ($slots[$j] >= 4) {
-            $available = false;
-        }
-    }
-
-    if (!$available) {
-        continue; // skip reserved slots
-    }
-
-    $utime = ($slotbase + $i) * $slotsecs;
-    $thisdate = date("Y-m-d", $utime);
-    if ($thisdate != $lastdate) {
-        // if a new day, start a new row
-        if ($lastdate) {
-            echo "</div>";
-            echo "</td>\n";
-            echo " </tr>\n";
+    for ($i = 0; $i < $slotcount; ++$i) {
+        $available = true;
+        for ($j = $i; $j < $i + $catslots; ++$j) {
+            if ($slots[$j] >= 4) {
+                $available = false;
+            }
         }
 
-        $lastdate = $thisdate;
-        echo " <tr class='oneresult'>\n";
-        echo "  <td class='srDate'>" . date("l", $utime)."<br>".date("Y-m-d", $utime) . "</td>\n";
-        echo "  <td class='srTimes'>";
-        echo "<div id='am'>AM ";
-        $ampmFlag = "am";  // reset the AMPM flag
+        if (!$available) {
+            continue; // skip reserved slots
+        }
+
+        $utime = ($slotbase + $i) * $slotsecs;
+        $thisdate = date("Y-m-d", $utime);
+        if ($thisdate != $lastdate) {
+            // if a new day, start a new row
+            if ($lastdate) {
+                echo "</div>";
+                echo "</td>\n";
+                echo " </tr>\n";
+            }
+
+            $lastdate = $thisdate;
+            echo " <tr class='oneresult'>\n";
+            echo "  <td class='srDate'>" . date("l", $utime)."<br>".date("Y-m-d", $utime) . "</td>\n";
+            echo "  <td class='srTimes'>";
+            echo "<div id='am'>AM ";
+            $ampmFlag = "am";  // reset the AMPM flag
+        }
+
+        $ampm = date('a', $utime);
+        if ($ampmFlag != $ampm) {
+            echo "</div><div id='pm'>PM ";
+        }
+
+        $ampmFlag = $ampm;
+
+        $atitle = "Choose ".date("h:i a", $utime);
+        $adate = getdate($utime);
+        $anchor = "<a href='' onclick='return setappt(" .
+        attr_js($adate['year']) . "," .
+        attr_js($adate['mon']) . "," .
+        attr_js($adate['mday']) . "," .
+        attr_js($adate['hours']) . "," .
+        attr_js($adate['minutes']) . ")'".
+        " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'".
+        ">";
+        echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
+        $anchor . date("g:i", $utime) . "</a> ";
+
+        // If category duration is more than 1 slot, increment $i appropriately.
+        // This is to avoid reporting available times on undesirable boundaries.
+        $i += $catslots - 1;
     }
 
-    $ampm = date('a', $utime);
-    if ($ampmFlag != $ampm) {
-        echo "</div><div id='pm'>PM ";
+    if ($lastdate) {
+        echo "</td>\n";
+        echo " </tr>\n";
+    } else {
+        echo " <tr><td colspan='2'> " . xlt('No openings were found for this period.') . "</td></tr>\n";
     }
-
-    $ampmFlag = $ampm;
-
-    $atitle = "Choose ".date("h:i a", $utime);
-    $adate = getdate($utime);
-    $anchor = "<a href='' onclick='return setappt(" .
-    $adate['year'] . "," .
-    $adate['mon'] . "," .
-    $adate['mday'] . "," .
-    $adate['hours'] . "," .
-    $adate['minutes'] . ")'".
-    " title='$atitle' alt='$atitle'".
-    ">";
-    echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
-    $anchor . date("g:i", $utime) . "</a> ";
-
-    // If category duration is more than 1 slot, increment $i appropriately.
-    // This is to avoid reporting available times on undesirable boundaries.
-    $i += $catslots - 1;
-}
-
-if ($lastdate) {
-    echo "</td>\n";
-    echo " </tr>\n";
-} else {
-    echo " <tr><td colspan='2'> " . xlt('No openings were found for this period.') . "</td></tr>\n";
-}
-?>
+    ?>
 </table>
 </div>
 </div>
@@ -510,7 +499,7 @@ if ($lastdate) {
 <script language='JavaScript'>
 
 // jQuery stuff to make the page a little easier to use
-$(document).ready(function(){
+$(function(){
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult a").mouseover(function () { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });

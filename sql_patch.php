@@ -11,13 +11,10 @@
 // for the new release.
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
-
-use OpenEMR\Common\Checker;
-
-$response = Checker::checkPhpVersion();
+require_once(dirname(__FILE__) . "/src/Common/Compatibility/Checker.php");
+$response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
-    die($response);
+    die(htmlspecialchars($response));
 }
 
 // Disable PHP timeout.  This will not work in safe mode.
@@ -70,6 +67,7 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
     flush();
 
     echo '<p style="font-weight:bold; text-align:left; color:green">',xlt('Updating global configuration defaults'),'...</p>';
+    $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
     require_once("library/globals.inc.php");
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         foreach ($grparr as $fldid => $fldarr) {

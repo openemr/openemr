@@ -1,14 +1,9 @@
 <?php
 //
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
-
-foreach ($_POST as $k => $var) {
-    $_POST[$k] = add_escape_custom($var);
-    echo "$var\n";
-}
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
 if ($encounter == "") {
     $encounter = date("Ymd");
@@ -18,22 +13,18 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_ped_pain", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Pediatric Pain Evaluation", $newid, "ped_pain", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-        sqlInsert("update form_ped_fever set pid = ?,
+    sqlStatement("update form_ped_fever set pid = ?,
 	groupname = ?,
 	user = ?
 	authorized =,
 	activity =1, 
-	date = NOW(), 
-
+	date = NOW(),
 	location = ?,
 	duration = ?,
 	severity = ?,
-	fever = ?,
-
-	
+	fever = ?,	
 	lethargy = ?,
-	vomiting = ?,
-	
+	vomiting = ?,	
 	oral_hydration_capable = ?,
 	urine_output_last_6_hours = ?,
 	pain_with_urination = ?,

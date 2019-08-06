@@ -13,8 +13,10 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require("C_FormEvaluation.class.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $c = new C_FormEvaluation();

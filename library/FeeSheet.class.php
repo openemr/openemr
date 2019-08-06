@@ -29,7 +29,6 @@ require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../interface/drugs/drugs.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/appointment_status.inc.php");
-require_once(dirname(__FILE__) . "/classes/Prescription.class.php");
 require_once(dirname(__FILE__) . "/forms.inc");
 
 use OpenEMR\Billing\BillingUtilities;
@@ -283,7 +282,7 @@ class FeeSheet
     public function insert_lbf_item($form_id, $field_id, $field_value)
     {
         if ($form_id) {
-            sqlInsert("INSERT INTO lbf_data (form_id, field_id, field_value) " .
+            sqlStatement("INSERT INTO lbf_data (form_id, field_id, field_value) " .
             "VALUES (?, ?, ?)", array($form_id, $field_id, $field_value));
         } else {
             $form_id = sqlInsert("INSERT INTO lbf_data (field_id, field_value) " .
@@ -686,8 +685,7 @@ class FeeSheet
                             }
                         }
                     }
-                } // Otherwise it's a new item...
-                else {
+                } else { // Otherwise it's a new item...
                     // This only checks for sufficient inventory, nothing is updated.
                     if (!sellDrug(
                         $drug_id,
@@ -777,7 +775,7 @@ class FeeSheet
 
                     if (!$id) {
                         // adding new copay from fee sheet into ar_session and ar_activity tables
-                        $session_id = idSqlStatement(
+                        $session_id = sqlInsert(
                             "INSERT INTO ar_session " .
                             "(payer_id, user_id, pay_total, payment_type, description, patient_id, payment_method, " .
                             "adjustment_code, post_to_date) " .
@@ -915,8 +913,7 @@ class FeeSheet
                             }
                         }
                     }
-                } // Otherwise it's a new item...
-                else if (!$del) {
+                } else if (!$del) { // Otherwise it's a new item...
                     $this->logFSMessage(xl('Service added'));
                     $code_text = lookup_code_descriptions($code_type.":".$code);
                     BillingUtilities::addBilling(
@@ -1070,8 +1067,7 @@ class FeeSheet
                             sqlStatement("DELETE FROM prescriptions WHERE id = ?", array($rxid));
                         }
                     }
-                } // Otherwise it's a new item...
-                else if (! $del) {
+                } else if (! $del) { // Otherwise it's a new item...
                     $somechange = true;
                     $this->logFSMessage(xl('Product added'));
                     $tmpnull = null;

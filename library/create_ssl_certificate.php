@@ -88,24 +88,27 @@ function create_csr(
         return false;
     }
 
-    return array($csr, $privkey);
+    return array($csr, $privkey, $config);
 }
 
 
 /**
  * Create a certificate, signed by the given Certificate Authority.
- * @param $privkey - The certificate private key
  * @param $csr     - The certificate signing request
  * @param $cacert  - The Certificate Authority to sign with, or NULL if not used.
  * @param $cakey   - The Certificate Authority private key data to sign with.
  * @return data    - A signed certificate, or false on error.
  */
-function create_crt($privkey, $csr, $cacert, $cakey)
+function create_crt($csr, $cacert, $cakey)
 {
 
     $opensslConf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
     $config = array('config' => $opensslConf);
 
+    // Fix server certificate is a CA certificate (BasicConstraints: CA == TRUE !?)
+    if ($cacert) {
+        $config["x509_extensions"] = "v3_req";
+    }
     $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, $config, rand(1000, 9999));
     return $cert;
 }

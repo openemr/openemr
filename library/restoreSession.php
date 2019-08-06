@@ -14,6 +14,8 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Csrf\CsrfUtils;
 ?>
 // login.php makes sure the session ID captured here is different for each
 // new login.  We maintain it here because most browsers do not have separate
@@ -21,24 +23,29 @@
 // called just prior to invoking any server script that requires correct
 // session data.  onclick="top.restoreSession()" usually does the job.
 //
-var oemr_session_name = <?php echo json_encode(session_name()); ?>;
-var oemr_session_id   = <?php echo json_encode(session_id()); ?>;
+var oemr_session_name = <?php echo json_encode(urlencode(session_name())); ?>;
+var oemr_session_id   = <?php echo json_encode(urlencode(session_id())); ?>;
 var oemr_dialog_close_msg = <?php echo (function_exists('xlj')) ? xlj("OK to close this other popup window?") : json_encode("OK to close this other popup window?"); ?>;
 //
 function restoreSession() {
-<?php if (!empty($GLOBALS['restore_sessions'])) { ?>
- var ca = document.cookie.split('; ');
- for (var i = 0; i < ca.length; ++i) {
-  var c = ca[i].split('=');
-  if (c[0] == oemr_session_name && c[1] != oemr_session_id) {
-<?php if ($GLOBALS['restore_sessions'] == 2) { ?>
-   alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
-<?php } ?>
-   document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/');?>';
-  }
- }
-<?php } ?>
- return true;
+    <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
+        var ca = document.cookie.split('; ');
+        for (var i = 0; i < ca.length; ++i) {
+            var c = ca[i].split('=');
+            if (c[0] == oemr_session_name && c[1] != oemr_session_id) {
+                <?php if ($GLOBALS['restore_sessions'] == 2) { ?>
+                    alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
+                <?php } ?>
+                <?php if (version_compare(phpversion(), '7.3.0', '>=')) { ?>
+                    // Using the SameSite setting when using php version 7.3.0 or above
+                    document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/'); ?>' + '; SameSite=Strict';
+                <?php } else { ?>
+                    document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/'); ?>';
+                <?php } ?>
+            }
+        }
+    <?php } ?>
+    return true;
 }
 
 // Pages that have a Print button or link should call this to initialize it for logging.
@@ -88,7 +95,7 @@ function printLogPrint(elem) {
  $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/log_print_action_ajax.php",
   {
     comments: comments,
-    csrf_token_form: <?php echo json_encode(collectCsrfToken()); ?>
+    csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>
   }
  );
 <?php } ?>

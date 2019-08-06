@@ -5,18 +5,21 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once("verify_session.php");
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/options.inc.php");
- require_once("lib/portal_mail.inc");
+require_once("verify_session.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/options.inc.php");
+require_once("lib/portal_mail.inc");
 
 
 if ($_SESSION['register'] === true) {
-    session_destroy();
+    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: '.$landingpage.'&w');
     exit();
 }
@@ -45,12 +48,12 @@ foreach ($msgs as $i) {
 
 require_once '_header.php';
 
-echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($user) . "';var webRoot='" . $GLOBALS['web_root'] . "';var ptName='" . attr($_SESSION['ptName']) . "';</script>";
+echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($user) . ";var webRoot=" . js_escape($GLOBALS['web_root']) . ";var ptName=" . js_escape($_SESSION['ptName']) . ";</script>";
 ?>
 <script type="text/javascript">
 var webroot_url = webRoot;
 
-$(document).ready(function () {
+$(function () {
 
     $("#profilereport").load("./get_profile.php", {}, function () {
         $("table").addClass("table  table-responsive");
@@ -67,30 +70,29 @@ $(document).ready(function () {
     $("#amendmentslist").load("./get_amendments.php", {}, function () {});
     $("#problemslist").load("./get_problems.php", {}, function () {});
     $("#allergylist").load("./get_allergies.php", {}, function () {});
-    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", {}, function () {});
+    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr_url($pid) ?>'", {}, function () {});
 
     <?php if ($GLOBALS['portal_two_payments']) { ?>
     $("#payment").load("./portal_payment.php", {}, function () {});
     <?php } ?>
 
-    $('.sigPad').signaturePad({drawOnly: true});
     $(".generateDoc_download").click(function () {
         $("#doc_form").submit();
     });
 
     function showProfileModal() {
-        var title = '<?php echo xla('Demographics Legend Red: Charted Values. Blue: Patient Edits'); ?> ';
+        var title = <?php echo xlj('Demographics Legend Red: Charted Values. Blue: Patient Edits'); ?> + ' ';
 
         var params = {
             buttons: [
-                {text: '<?php echo xla('Help'); ?>', close: false, style: 'info', id: 'formHelp'},
-                {text: '<?php echo xla('Cancel'); ?>', close: true, style: 'default'},
-                {text: '<?php echo xla('Revert Edits'); ?>', close: false, style: 'danger', id: 'replaceAllButton'},
-                {text: '<?php echo xla('Send for Review'); ?>', close: false, style: 'success', id: 'donePatientButton'}
+                {text: <?php echo xlj('Help'); ?>, close: false, style: 'info', id: 'formHelp'},
+                {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'default'},
+                {text: <?php echo xlj('Revert Edits'); ?>, close: false, style: 'danger', id: 'replaceAllButton'},
+                {text: <?php echo xlj('Send for Review'); ?>, close: false, style: 'success', id: 'donePatientButton'}
                 ],
             onClosed: 'reload',
             type: 'GET',
-            url: webRoot + '/portal/patient/patientdata?pid=' + cpid + '&user=' + cuser
+            url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
         };
         dlgopen('','','modal-xl', 500, '', title, params);
     }
@@ -99,7 +101,7 @@ $(document).ready(function () {
         page.updateModel();
     }
 
-    var gowhere = '#<?php echo $whereto?>';
+    var gowhere = '#' + <?php echo js_escape($whereto); ?>;
     $(gowhere).collapse('show');
 
     var $doHides = $('#panelgroup');
@@ -131,17 +133,17 @@ $(document).ready(function () {
 
 function editAppointment(mode,deid){
     if(mode == 'add'){
-        var title = '<?php echo xla('Request New Appointment'); ?>';
+        var title = <?php echo xlj('Request New Appointment'); ?>;
         var mdata = {pid:deid};
     }
     else{
-        var title = '<?php echo xla('Edit Appointment'); ?>';
+        var title = <?php echo xlj('Edit Appointment'); ?>;
         var mdata = {eid:deid};
     }
     var params = {
         dialogId: 'editpop',
         buttons: [
-            { text: '<?php echo xla('Cancel'); ?>', close: true, style: 'default' }
+            { text: <?php echo xlj('Cancel'); ?>, close: true, style: 'default' }
             //{ text: 'Print', close: false, style: 'success', click: showCustom }
         ],
         type:'GET',
@@ -167,7 +169,6 @@ function editAppointment(mode,deid){
 
                         <div class="panel-footer"></div>
                     </div>
-
                     <div class="panel panel-primary">
                         <header class="panel-heading"><?php echo xlt('Medications Allergy List'); ?>  </header>
                         <div id="allergylist" class="panel-body"></div>
@@ -239,13 +240,13 @@ function editAppointment(mode,deid){
                                 }
 
                                 echo "<tr><td><p>";
-                                echo "<a href='#' onclick='editAppointment(0," . htmlspecialchars($row ['pc_eid'], ENT_QUOTES) . ')' .
-                                    "' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
-                                echo "<b>" . htmlspecialchars($dayname . ", " . $row ['pc_eventDate'], ENT_NOQUOTES) . "&nbsp;";
-                                echo htmlspecialchars("$disphour:$dispmin " . $dispampm, ENT_NOQUOTES) . "</b><br>";
-                                echo htmlspecialchars($row ['pc_catname'], ENT_NOQUOTES) . "<br><b>";
-                                echo xlt("Provider") . ":</b> " . htmlspecialchars($row ['fname'] . " " . $row ['lname'], ENT_NOQUOTES) . "<br><b>";
-                                echo xlt("Status") . ":</b> " . htmlspecialchars($status_title, ENT_NOQUOTES);
+                                echo "<a href='#' onclick='editAppointment(0," . attr_js($row ['pc_eid']) . ")" .
+                                    "' title='" . attr($etitle) . "'>";
+                                echo "<b>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
+                                echo text($disphour . ":" . $dispmin . " " . $dispampm) . "</b><br>";
+                                echo text($row ['pc_catname']) . "<br><b>";
+                                echo xlt("Provider") . ":</b> " . text($row ['fname'] . " " . $row ['lname']) . "<br><b>";
+                                echo xlt("Status") . ":</b> " . text($status_title);
                                 echo "</a></p></td></tr>";
                             }
 
@@ -261,7 +262,7 @@ function editAppointment(mode,deid){
                             echo '</tbody></table>';
                         ?>
                             <div style='margin: 5px 0 5px'>
-                                <a href='#' onclick="editAppointment('add',<?php echo attr($pid); ?>)">
+                                <a href='#' onclick="editAppointment('add',<?php echo attr_js($pid); ?>)">
                                     <button class='btn btn-primary pull-right'><?php echo xlt('Schedule New Appointment'); ?></button>
                                 </a>
                             </div>
@@ -328,7 +329,7 @@ function editAppointment(mode,deid){
                         <header class="panel-heading"><?php echo xlt('Ledger');?> </header>
                         <div id="patledger" class="panel-body"></div>
                         <div class="panel-footer">
-                          <iframe src="./report/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" width="100%" height="475" scrolling="yes"></iframe>
+                          <iframe src="./report/pat_ledger.php" width="100%" height="475" scrolling="yes"></iframe>
                         </div>
                     </div>
                 </div><!-- /.col -->
@@ -349,53 +350,5 @@ function editAppointment(mode,deid){
         <!--<div class="footer-main">Onsite Patient Portal Beta v3.0 Copyright &copy By sjpadgett@gmail.com, 2016 All Rights Reserved and Recorded</div>-->
     </aside><!-- /.right-side -->
     </div><!-- ./wrapper -->
-<div id="openSignModal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <div class="input-group">
-                    <span class="input-group-addon"
-                          onclick="getSignature(document.getElementById('patientSignaturem'))"><em> <?php echo xlt('Show Current Signature On File'); ?>
-                            <br>
-                            <?php echo xlt('As appears on documents'); ?>.</em></span> <img
-                        class="signature form-control" type="patient-signature"
-                        id="patientSignaturem" onclick="getSignature(this)"
-                        alt="Signature On File" src="">
-                </div>
-            </div>
-            <div class="modal-body">
-                <form name="signit" id="signit" class="sigPad">
-                    <input type="hidden" name="name" id="name" class="name">
-                    <ul class="sigNav">
-                        <label style='display: none;'><input style='display: none;'
-                            type="checkbox" class="" id="isAdmin" name="isAdmin" /><?php echo xlt('Is Authorizing Signature');?></label>
-                        <li class="clearButton"><a href="#clear"><button><?php echo xlt('Clear Signature');?></button></a></li>
-                    </ul>
-                    <div class="sig sigWrapper">
-                        <div class="typed"></div>
-                        <canvas class="spad" id="drawpad" width="765" height="325"
-                            style="border: 1px solid #000000; left: 0px;"></canvas>
-                        <img id="loading"
-                            style="display: none; position: absolute; TOP: 150px; LEFT: 315px; WIDTH: 100px; HEIGHT: 100px"
-                            src="sign/assets/loading.gif" /> <input type="hidden" id="output"
-                            name="output" class="output">
-                    </div>
-                    <input type="hidden" name="type" id="type"
-                        value="patient-signature">
-                    <button type="button" onclick="signDoc(this)"><?php echo xlt('Acknowledge as my Electronic Signature');?>.</button>
-                </form>
-            </div>
-        </div>
-        <!-- <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div> -->
-    </div>
-</div><!-- Modal -->
-<img id="waitend"
-    style="display: none; position: absolute; top: 100px; left: 260px; width: 100px; height: 100px"
-    src="sign/assets/loading.gif" />
-
-
 </body>
 </html>

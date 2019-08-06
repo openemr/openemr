@@ -1,11 +1,15 @@
 <?php
- // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
-
+/**
+ * interface/super/rules/include/common.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Aron Racho <aron@mi-squared.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 /**
  * This is a wrapper for implode function, which calls each function in the
@@ -20,7 +24,7 @@ function implode_funcs($glue, array $pieces, array $funcs)
     foreach ($pieces as $piece) {
         $new_piece = $piece;
         foreach ($funcs as $func) {
-            $new_piece = $func( $new_piece );
+            $new_piece = $func($new_piece);
         }
 
         $new_pieces []= $new_piece;

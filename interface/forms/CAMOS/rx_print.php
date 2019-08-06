@@ -13,7 +13,8 @@
 
 
 require_once('../../globals.php');
-require_once('../../../library/classes/Prescription.class.php');
+
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 //practice data
 $physician_name = '';
@@ -64,8 +65,8 @@ if ($result = sqlFetchArray($query)) {
 
 //update user information if selected from form
 if ($_POST['update']) { // OPTION update practice inf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $query = "update users set " .
@@ -80,7 +81,7 @@ if ($_POST['update']) { // OPTION update practice inf
     "fax = '" . add_escape_custom($_POST['practice_fax']) . "', " .
     "federaldrugid = '" . add_escape_custom($_POST['practice_dea']) . "' " .
     "where id ='" . add_escape_custom($_SESSION['authUserID']) ."'";
-    sqlInsert($query);
+    sqlStatement($query);
 }
 
 //get user information
@@ -100,8 +101,8 @@ if ($result = sqlFetchArray($query)) {
 }
 
 if ($_POST['print_pdf'] || $_POST['print_html']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $camos_content = array();
@@ -142,179 +143,173 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
     }
 
     if (!$_GET['letterhead']) { //OPTION print a prescription with css formatting
-    ?>
+        ?>
   <html>
   <head>
-    <?php html_header_show();?>
 <title>
-    <?php echo xlt('CAMOS'); ?>
+        <?php echo xlt('CAMOS'); ?>
 </title>
 <link rel="stylesheet" type="text/css" href="./rx.css" />
 </head>
 <body onload='init()'>
 <img src='./hline.jpg' id='hline'>
 <img src='./vline.jpg' id='vline'>
-<?php
-if ($camos_content[0]) { //decide if we are printing this rx
-?>
-<?php
-function topHeaderRx()
-{
-    global $physician_name,$practice_address,$practice_city,$practice_state,$practice_zip,$practice_phone,$practice_fax,$practice_dea;
-    print text($physician_name) . "<br/>\n";
-    print text($practice_address) . "<br/>\n";
-    print text($practice_city) . ", ";
-    print text($practice_state) . " ";
-    print text($practice_zip) . "<br/>\n";
-    print xlt('Voice') . ': ' . text($practice_phone) . ' / ' . xlt('Fax') . ': ' . text($practice_fax) . "<br/>\n";
-    print xlt('DEA') . ': ' . text($practice_dea);
-}
-function bottomHeaderRx()
-{
-    global $patient_name,$patient_address,$patient_city,$patient_state,$patient_zip,$patient_phone,$patient_dob;
-    print "<span class='mytagname'> " . xlt('Name') . ":</span>\n";
-    print "<span class='mydata'> " . text($patient_name) . " </span>\n";
-    print "<span class='mytagname'> " . xlt('Address') . ": </span>\n";
-    print "<span class='mydata'> " . text($patient_address) . ", " . text($patient_city) . ", " .
-        text($patient_state) . " " . text($patient_zip) . " </span><br/>\n";
-    print "<span class='mytagname'>" . xlt('Phone') . ":</span>\n";
-    print "<span class='mydata'>" . text($patient_phone) . "</span>\n";
-    print "<span class='mytagname'>" . xlt('DOB') . ":</span>\n";
-    print "<span class='mydata'> " . text($patient_dob) . " </span>\n";
-    print "<span class='mytagname'>" . xlt('Date') . ":</span>\n";
-    print "<span class='mydata'>" . date("F d, Y") . "</span><br/><br/>\n";
-    print "<div class='symbol'>" . xlt('Rx') . "</div><br/>\n";
-}
-?>
+        <?php
+        if ($camos_content[0]) { //decide if we are printing this rx
+            ?>
+            <?php
+            function topHeaderRx()
+            {
+                global $physician_name,$practice_address,$practice_city,$practice_state,$practice_zip,$practice_phone,$practice_fax,$practice_dea;
+                print text($physician_name) . "<br/>\n";
+                print text($practice_address) . "<br/>\n";
+                print text($practice_city) . ", ";
+                print text($practice_state) . " ";
+                print text($practice_zip) . "<br/>\n";
+                print xlt('Voice') . ': ' . text($practice_phone) . ' / ' . xlt('Fax') . ': ' . text($practice_fax) . "<br/>\n";
+                print xlt('DEA') . ': ' . text($practice_dea);
+            }
+            function bottomHeaderRx()
+            {
+                global $patient_name,$patient_address,$patient_city,$patient_state,$patient_zip,$patient_phone,$patient_dob;
+                print "<span class='mytagname'> " . xlt('Name') . ":</span>\n";
+                print "<span class='mydata'> " . text($patient_name) . " </span>\n";
+                print "<span class='mytagname'> " . xlt('Address') . ": </span>\n";
+                print "<span class='mydata'> " . text($patient_address) . ", " . text($patient_city) . ", " .
+                text($patient_state) . " " . text($patient_zip) . " </span><br/>\n";
+                print "<span class='mytagname'>" . xlt('Phone') . ":</span>\n";
+                print "<span class='mydata'>" . text($patient_phone) . "</span>\n";
+                print "<span class='mytagname'>" . xlt('DOB') . ":</span>\n";
+                print "<span class='mydata'> " . text($patient_dob) . " </span>\n";
+                print "<span class='mytagname'>" . xlt('Date') . ":</span>\n";
+                print "<span class='mydata'>" . date("F d, Y") . "</span><br/><br/>\n";
+                print "<div class='symbol'>" . xlt('Rx') . "</div><br/>\n";
+            }
+            ?>
 <div id='rx1'  class='rx' >
 <div class='topheader'>
-    <?php
-    topHeaderRx();
-    ?>
+            <?php
+            topHeaderRx();
+            ?>
     </div>
     <hr/>
   <div class='bottomheader'>
-    <?php
-    bottomHeaderRx();
-    ?>
+            <?php
+            bottomHeaderRx();
+            ?>
   </div>
   <div class='content'>
-    <?php
-      print $camos_content[0];
-    ?>
+            <?php
+              print $camos_content[0];
+            ?>
   </div>
-    <?php print $sigline[$_GET[sigline]] ?>
+            <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
-<?php
-} // end of deciding if we are printing the above rx block
-else {
-    print "<img src='./xout.jpg' id='rx1'>\n";
-}
-?>
-<?php
+            <?php
+        } else { // end of deciding if we are printing the above rx block
+            print "<img src='./xout.jpg' id='rx1'>\n";
+        }
+        ?>
+        <?php
 
-if ($camos_content[1]) { //decide if we are printing this rx
-?>
+        if ($camos_content[1]) { //decide if we are printing this rx
+            ?>
 <div id='rx2'  class='rx' >
 <div class='topheader'>
-    <?php
+            <?php
 
-    topHeaderRx();
-    ?>
+            topHeaderRx();
+            ?>
   </div>
     <hr/>
   <div class='bottomheader'>
-    <?php
+            <?php
 
-    bottomHeaderRx();
-    ?>
+            bottomHeaderRx();
+            ?>
   </div>
   <div class='content'>
-    <?php
+            <?php
 
-        print $camos_content[1];
-    ?>
+                print $camos_content[1];
+            ?>
   </div>
-    <?php print $sigline[$_GET[sigline]] ?>
+            <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
-<?php
-} // end of deciding if we are printing the above rx block
-else {
-    print "<img src='./xout.jpg' id='rx2'>\n";
-}
-?>
-<?php
+            <?php
+        } else { // end of deciding if we are printing the above rx block
+            print "<img src='./xout.jpg' id='rx2'>\n";
+        }
+        ?>
+        <?php
 
-if ($camos_content[2]) { //decide if we are printing this rx
-?>
+        if ($camos_content[2]) { //decide if we are printing this rx
+            ?>
 <div id='rx3'  class='rx' >
 <div class='topheader'>
-    <?php
+            <?php
 
-    topHeaderRx();
-    ?>
+            topHeaderRx();
+            ?>
   </div>
     <hr/>
   <div class='bottomheader'>
-    <?php
+            <?php
 
-    bottomHeaderRx();
-    ?>
+            bottomHeaderRx();
+            ?>
   </div>
   <div class='content'>
-    <?php
+            <?php
 
-      print $camos_content[2];
-    ?>
+              print $camos_content[2];
+            ?>
   </div>
-    <?php print $sigline[$_GET[sigline]] ?>
+            <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
-<?php
-} // end of deciding if we are printing the above rx block
-else {
-    print "<img src='./xout.jpg' id='rx3'>\n";
-}
-?>
-<?php
+            <?php
+        } else { // end of deciding if we are printing the above rx block
+            print "<img src='./xout.jpg' id='rx3'>\n";
+        }
+        ?>
+        <?php
 
-if ($camos_content[3]) { //decide if we are printing this rx
-?>
+        if ($camos_content[3]) { //decide if we are printing this rx
+            ?>
 <div id='rx4'  class='rx' >
 <div class='topheader'>
-    <?php
+            <?php
 
-    topHeaderRx();
-    ?>
+            topHeaderRx();
+            ?>
   </div>
     <hr/>
   <div class='bottomheader'>
-    <?php
+            <?php
 
-    bottomHeaderRx();
-    ?>
+            bottomHeaderRx();
+            ?>
   </div>
   <div class='content'>
-    <?php
+            <?php
 
-      print $camos_content[3];
-    ?>
+              print $camos_content[3];
+            ?>
   </div>
-    <?php print $sigline[$_GET[sigline]] ?>
+            <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
-<?php
-} // end of deciding if we are printing the above rx block
-else {
-    print "<img src='./xout.jpg' id='rx4'>\n";
-}
-?>
+            <?php
+        } else { // end of deciding if we are printing the above rx block
+            print "<img src='./xout.jpg' id='rx4'>\n";
+        }
+        ?>
 </body>
 </html>
-<?php
-    } //end of printing to rx not letterhead
-    elseif ($_GET['letterhead']) { //OPTION print to letterhead
+        <?php
+    } elseif ($_GET['letterhead']) { // end of printing to rx not letterhead. OPTION print to letterhead
         $content = preg_replace('/PATIENTNAME/i', $patient_name, $camos_content[0]);
-        if ($_POST['print_html']) { //print letterhead to html
-        ?>
+        if ($_POST['print_html']) { // print letterhead to html
+            ?>
         <html>
         <head>
         <style>
@@ -343,38 +338,38 @@ else {
     </head>
         <body>
     <div class='paddingdiv'>
-<?php
+            <?php
     //bold
-        print "<div style='font-weight:bold;'>";
-        print text($physician_name) . "<br/>\n";
-        print text($practice_address) . "<br/>\n";
-        print text($practice_city).', '.text($practice_state).' '.text($practice_zip) . "<br/>\n";
-        print text($practice_phone) . ' (' . xlt('Voice') . ')' . "<br/>\n";
-        print text($practice_phone) . ' ('. xlt('Fax') . ')' . "<br/>\n";
-        print "<br/>\n";
-        print date("l, F jS, Y") . "<br/>\n";
-        print "<br/>\n";
-    print "</div>";
+            print "<div style='font-weight:bold;'>";
+            print text($physician_name) . "<br/>\n";
+            print text($practice_address) . "<br/>\n";
+            print text($practice_city).', '.text($practice_state).' '.text($practice_zip) . "<br/>\n";
+            print text($practice_phone) . ' (' . xlt('Voice') . ')' . "<br/>\n";
+            print text($practice_phone) . ' ('. xlt('Fax') . ')' . "<br/>\n";
+            print "<br/>\n";
+            print date("l, F jS, Y") . "<br/>\n";
+            print "<br/>\n";
+            print "</div>";
         //not bold
-    print "<div style='font-size:90%;'>";
-        print $content;
-    print "</div>";
+            print "<div style='font-size:90%;'>";
+            print $content;
+            print "</div>";
         //bold
-    print "<div style='font-weight:bold;'>";
-        print "<br/>\n";
-        print "<br/>\n";
-if ($_GET['signer'] == 'patient') {
-    print "__________________________________________________________________________________" . "<br/>\n";
-    print xlt("Print name, sign and date.") . "<br/>\n";
-} elseif ($_GET['signer'] == 'doctor') {
-    print xlt('Sincerely,') . "<br/>\n";
-    print "<br/>\n";
-    print "<br/>\n";
-    print text($physician_name) . "<br/>\n";
-}
+            print "<div style='font-weight:bold;'>";
+            print "<br/>\n";
+            print "<br/>\n";
+            if ($_GET['signer'] == 'patient') {
+                print "__________________________________________________________________________________" . "<br/>\n";
+                print xlt("Print name, sign and date.") . "<br/>\n";
+            } elseif ($_GET['signer'] == 'doctor') {
+                print xlt('Sincerely,') . "<br/>\n";
+                print "<br/>\n";
+                print "<br/>\n";
+                print text($physician_name) . "<br/>\n";
+            }
 
-    print "</div>";
-?>
+            print "</div>";
+            ?>
         <script language='JavaScript'>
         var win = top.printLogPrint ? top : opener.top;
         win.printLogPrint(window);
@@ -382,8 +377,8 @@ if ($_GET['signer'] == 'patient') {
     </div>
         </body>
         </html>
-<?php
-        exit;
+            <?php
+            exit;
         } else { //print letterhead to pdf
             $pdf = new Cezpdf();
             $pdf->selectFont('Times-Bold');
@@ -412,16 +407,14 @@ if ($_GET['signer'] == 'patient') {
             }
 
             $pdf->ezStream();
-        } //end of html vs pdf print
+        } // end of html vs pdf print
     }
-} //end of if print
-else { //OPTION selection of what to print
-?>
+} else { // end of if print. OPTION selection of what to print
+    ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title>
-<?php echo xlt('CAMOS'); ?>
+    <?php echo xlt('CAMOS'); ?>
 </title>
 <script type="text/javascript">
 //below init function just to demonstrate how to do it.
@@ -481,64 +474,64 @@ return count_turnoff;
 </head>
 <h1><?php echo xlt('Select CAMOS Entries for Printing'); ?></h1>
 <form method=POST name='pick_items' target=_new>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type=button name=cyclerx value='<?php echo xla('Cycle'); ?>' onClick='cycle()'><br/>
 <input type='button' value='<?php echo xla('Select All'); ?>' onClick='checkall()'>
 <input type='button' value='<?php echo xla('Unselect All'); ?>' onClick='uncheckall()'>
 
-<?php if ($_GET['letterhead']) { ?>
+    <?php if ($_GET['letterhead']) { ?>
 <input type=submit name='print_pdf' value='<?php echo xla('Print (PDF)'); ?>'>
 <?php } ?>
 
 <input type=submit name='print_html' value='<?php echo xla('Print (HTML)'); ?>'>
-<?php
+    <?php
 
 //check if an encounter is set
-if ($_SESSION['encounter'] == null) {
-    $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
-    mitigateSqlTableUpperCase("form_CAMOS")." as x join forms as y on (x.id = y.form_id) " .
-    "where y.pid = ?" .
-    " and y.form_name like 'CAMOS%'" .
-    " and x.activity = 1", array($_SESSION['pid']));
-} else {
-    $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
-    mitigateSqlTableUpperCase("form_CAMOS")."  as x join forms as y on (x.id = y.form_id) " .
-    "where y.encounter = ?" .
-    " and y.pid = ?" .
-    " and y.form_name like 'CAMOS%'" .
-    " and x.activity = 1", array($_SESSION['encounter'], $_SESSION['pid']));
-}
-
-$results = array();
-echo "<div id='checkboxes'>\n";
-$count = 0;
-while ($result = sqlFetchArray($query)) {
-    $checked = '';
-    if ($result['category'] == 'prescriptions' && $count < 4) {
-        $count++;
-        $checked = 'checked';
+    if ($_SESSION['encounter'] == null) {
+        $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
+        mitigateSqlTableUpperCase("form_CAMOS")." as x join forms as y on (x.id = y.form_id) " .
+        "where y.pid = ?" .
+        " and y.form_name like 'CAMOS%'" .
+        " and x.activity = 1", array($_SESSION['pid']));
+    } else {
+        $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
+        mitigateSqlTableUpperCase("form_CAMOS")."  as x join forms as y on (x.id = y.form_id) " .
+        "where y.encounter = ?" .
+        " and y.pid = ?" .
+        " and y.form_name like 'CAMOS%'" .
+        " and x.activity = 1", array($_SESSION['encounter'], $_SESSION['pid']));
     }
 
-    echo "<div>\n";
-    echo "<input type=checkbox name='ch_" . attr($result['id']) . "' $checked><span>" .
-    text($result['category']) . '</span>:' . text($result['subcategory']) . ':' . text($result['item']) . "<br/>\n";
-    echo "</div>\n";
-}
+    $results = array();
+    echo "<div id='checkboxes'>\n";
+    $count = 0;
+    while ($result = sqlFetchArray($query)) {
+        $checked = '';
+        if ($result['category'] == 'prescriptions' && $count < 4) {
+            $count++;
+            $checked = 'checked';
+        }
 
-echo "</div>\n";
-echo "<div id='log'>\n";//temp for debugging
-echo "</div>\n";
+        echo "<div>\n";
+        echo "<input type=checkbox name='ch_" . attr($result['id']) . "' $checked><span>" .
+        text($result['category']) . '</span>:' . text($result['subcategory']) . ':' . text($result['item']) . "<br/>\n";
+        echo "</div>\n";
+    }
+
+    echo "</div>\n";
+    echo "<div id='log'>\n";//temp for debugging
+    echo "</div>\n";
 //create Prescription object for the purpose of drawing data from the Prescription
 //table for those who wish to do so
-$rxarray = Prescription::prescriptions_factory($_SESSION['pid']);
+    $rxarray = Prescription::prescriptions_factory($_SESSION['pid']);
 //now give a choice of drugs from the Prescription table
-foreach ($rxarray as $val) {
-    echo "<input type=checkbox name='chrx_" . attr($val->id) . "'>" .
+    foreach ($rxarray as $val) {
+        echo "<input type=checkbox name='chrx_" . attr($val->id) . "'>" .
         text($val->drug) . ':' . text($val->start_date) . "<br/>\n";
-}
-?>
+    }
+    ?>
 
-<?php if ($_GET['letterhead']) { ?>
+    <?php if ($_GET['letterhead']) { ?>
 <input type=submit name='print_pdf' value='<?php echo xla('Print (PDF)'); ?>'>
 <?php } ?>
 
@@ -546,7 +539,7 @@ foreach ($rxarray as $val) {
 </form>
 <h1><?php echo xlt('Update User Information'); ?></h1>
 <form method=POST name='pick_items'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <table>
 <tr>
 <td> <?php echo xlt('First Name'); ?>: </td>
@@ -591,7 +584,7 @@ foreach ($rxarray as $val) {
 </table>
 <input type=submit name=update value='<?php echo xla('Update'); ?>'>
 </form>
-<?php
+    <?php
 } //end of else statement
 ?>
 </body>

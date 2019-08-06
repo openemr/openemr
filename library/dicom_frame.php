@@ -8,7 +8,7 @@
  * @author  Victor Kofia <https://kofiav.com> 'Viewer'
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017-2018 Victor Kofia <https://kofiav.com>
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /* Warning: This script wraps the Dicom viewer which is HTML5 compatible only and bootstrap styling
@@ -26,7 +26,7 @@ if ($d->get_mimetype() == 'application/dicom+zip') {
     $type = '.zip';
 }
 
-$web_path .= '&retrieve&patient_id=' . attr($patid) . '&document_id=' . attr($docid) . '&as_file=false&type=' . attr($type);
+$web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
 
 ?>
 <!DOCTYPE html>
@@ -130,7 +130,7 @@ $web_path .= '&retrieve&patient_id=' . attr($patid) . '&document_id=' . attr($do
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_gui.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/dicom_launcher.js"></script>
     <script>
-        var msg = '<?php echo xlt("Still Loading...") ?>';
+        var msg = <?php echo xlj("Still Loading...") ?>;
         var canvas = document.getElementById("dwvimg");
         var ctx = canvas.getContext("2d");
         ctx.font = "22px Arial";

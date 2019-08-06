@@ -14,12 +14,19 @@
 
 require_once("../globals.php");
 
-$filename = $GLOBALS['OE_SITE_DIR'] . '/edi/process_bills.log';
+use OpenEMR\Common\Crypto\CryptoGen;
+
+$filename = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/process_bills.log';
 
 $fh = file_get_contents($filename);
 
-if (cryptCheckStandard($fh)) {
-    $fh = decryptStandard($fh, null, 'database');
+$cryptoGen = new CryptoGen();
+if ($cryptoGen->cryptCheckStandard($fh)) {
+    $fh = $cryptoGen->decryptStandard($fh, null, 'database');
 }
 
-echo nl2br(text($fh));
+if (!empty($fh)) {
+    echo nl2br(text($fh));
+} else {
+    echo xlt("Billing log is empty");
+}

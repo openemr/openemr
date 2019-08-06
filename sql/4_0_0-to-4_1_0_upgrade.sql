@@ -3,7 +3,7 @@
 --
 --  Each section within an upgrade sql file is enveloped with an #If*/#EndIf block.  At first glance, these appear to be standard mysql
 --  comments meant to be cryptic hints to -other developers about the sql goodness contained therein.  However, were you to rely on such basic premises,
---  you would find yourself grossly decieved.  Indeed, without the knowledge that these comments are, in fact a sneakily embedded meta langauge derived
+--  you would find yourself grossly deceived.  Indeed, without the knowledge that these comments are, in fact a sneakily embedded meta language derived
 --  for a purpose none-other than to aid in the protection of the database during upgrades,  you would no doubt be subject to much ridicule and public
 --  beratement at the hands of the very developers who envisioned such a crafty use of comments. -jwallace
 --
@@ -12,7 +12,7 @@
 --  The #If* sections have the behavior of functions and come complete with arguments supplied command-line style
 --
 --  Your Comment meta language lines cannot contain any other comment styles such as the nefarious double dashes "--" lest your lines be skipped and
---  the blocks automatcially executed with out regard to the existing database state.
+--  the blocks automatically executed without regard to the existing database state.
 --
 --  Comment Meta Language Constructs:
 --

@@ -16,6 +16,7 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
@@ -113,7 +114,7 @@ function genGroupSelector($name, $layout_id, $default = '')
         array($layout_id)
     );
     $s  = "<select class='form-control' name='" . xla($name) . "'>";
-    $s .= "<option value=''>" . xlt('None') . "</option>";
+    $s .= "<option value=''>" . xlt('None{{Group}}') . "</option>";
     $arr = array();
     $arrid = '';
     while ($row = sqlFetchArray($res)) {
@@ -339,8 +340,8 @@ $lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
 // Handle the Form actions
 
 if ($_POST['formaction'] == "save" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // If we are saving, then save.
@@ -402,8 +403,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         }
     }
 } else if ($_POST['formaction'] == "addfield" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Add a new field to a specific group
@@ -436,8 +437,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       " )");
     addOrDeleteColumn($layout_id, trim($_POST['newid']), true);
 } else if ($_POST['formaction'] == "movefields" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Move field(s) to a new group in the layout
@@ -456,8 +457,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     //echo $sqlstmt;
     sqlStatement($sqlstmt);
 } else if ($_POST['formaction'] == "deletefields" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Delete a field from a specific group
@@ -476,8 +477,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         addOrDeleteColumn($layout_id, $onefield, false);
     }
 } else if ($_POST['formaction'] == "addgroup" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Generate new value for layout_items.group_id.
@@ -520,31 +521,31 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . add_escape_custom(trim($_POST['gnewbackuplistid'])) . "'" .
       " )");
     addOrDeleteColumn($layout_id, trim($_POST['gnewid']), true);
-} /**********************************************************************
-else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+
+    /**********************************************************************
+    else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
     }
 
     // drop the fields from the related table (this is critical)
     $res = sqlStatement("SELECT field_id FROM layout_options WHERE " .
-      "form_id = '" . $_POST['layout_id'] . "' ".
-      "AND group_name = '" . $_POST['deletegroupname'] . "'");
+    "form_id = '" . $_POST['layout_id'] . "' ".
+    "AND group_name = '" . $_POST['deletegroupname'] . "'");
     while ($row = sqlFetchArray($res)) {
-        addOrDeleteColumn($layout_id, $row['field_id'], false);
+    addOrDeleteColumn($layout_id, $row['field_id'], false);
     }
 
     // Delete an entire group from the form
     sqlStatement("DELETE FROM layout_options WHERE ".
-                " form_id = '".$_POST['layout_id']."' ".
-                " AND group_name = '".$_POST['deletegroupname']."'"
-                );
-}
-**********************************************************************/
-
-else if ($_POST['formaction'] == "movegroup" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    " form_id = '".$_POST['layout_id']."' ".
+    " AND group_name = '".$_POST['deletegroupname']."'"
+    );
+    }
+     **********************************************************************/
+} else if ($_POST['formaction'] == "movegroup" && $layout_id) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Note that in some cases below the swapGroups() call will do nothing.
@@ -570,10 +571,10 @@ else if ($_POST['formaction'] == "movegroup" && $layout_id) {
         }
         $id1 = $id2;
     }
-} // Renaming a group. This might include moving to a different parent group.
-else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+} else if ($_POST['formaction'] == "renamegroup" && $layout_id) { // Renaming a group. This might include moving to a
+    // different parent group.
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $newparent = $_POST['renamegroupparent'];  // this is an ID
@@ -863,7 +864,7 @@ function writeFieldLine($linedata)
     // Create a floating div for the additional attributes of this field.
     $conditions = empty($linedata['conditions']) ?
       array(0 => array('id' => '', 'itemid' => '', 'operator' => '', 'value' => '')) :
-      unserialize($linedata['conditions']);
+        unserialize($linedata['conditions'], ['allowed_classes' => false]);
     $action = empty($conditions['action']) ? 'skip' : $conditions['action'];
     $action_value = $action == 'skip' ? '' : substr($action, 6);
     //
@@ -1213,7 +1214,7 @@ function setListItemOptions(lino, seq, init) {
     '?listid='  + encodeURIComponent(list_id) +
     '&target='  + encodeURIComponent(target)  +
     '&current=' + encodeURIComponent(current) +
-    '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
+    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
 }
 
 // This is called whenever a condition's field ID selection is changed.
@@ -1277,7 +1278,7 @@ function myChangeCheck() {
 <body class="body_top admin-layout">
 <div class="container-responsive">
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="">
 <!-- elements used to identify a field to delete -->
 <input type="hidden" name="deletefieldid" id="deletefieldid" value="">
@@ -1325,7 +1326,7 @@ if ($lastgroup) {
 <input type='button' class='addgroup'  id='addgroup'  value='<?php echo xla('Add Group'); ?>' />
 <span style="font-size:90%"> &nbsp;
 <input type='button' class="btn btn-danger" name='save' id='save' value='<?php echo xla('Save Changes'); ?>' /></span> &nbsp;&nbsp;
-<?php echo xlt('With selected:');?>
+    <?php echo xlt('With selected:');?>
 <input type='button' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' style="font-size:90%" disabled="disabled" />
 <input type='button' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' style="font-size:90%" disabled="disabled" />
 <input type='button' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
@@ -1415,7 +1416,7 @@ while ($row = sqlFetchArray($res)) {
         echo "<input type='button' value='" . xla('Group Properties') . "' onclick='edit_layout_props(" . attr_js($group_id) . ")' />";
         echo "</div>";
         $firstgroup = false;
-    ?>
+        ?>
   <table class='table table-condensed table-striped'>
   <thead>
    <tr class='head'>
@@ -1423,10 +1424,10 @@ while ($row = sqlFetchArray($res)) {
     <th <?php echo " $lbfonly"; ?>style='width:5%'><?php echo xlt('Source'); ?></th>
     <th style='width:5%'><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
     <th style='width:10%'><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
-    <?php // if not english and showing layout label translations, then show translation header for title
-    if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-        echo "<th>" . xlt('Translation')."<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
-    } ?>
+        <?php // if not english and showing layout label translations, then show translation header for title
+        if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+            echo "<th>" . xlt('Translation')."<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
+        } ?>
       <th style='width:6%'><?php echo xlt('UOR'); ?></th>
       <th style='width:10%'><?php echo xlt('Data Type'); ?></th>
       <th style='width:1%'><?php echo xlt('Size'); ?></th>
@@ -1446,7 +1447,7 @@ while ($row = sqlFetchArray($res)) {
   </thead>
   <tbody>
 
-    <?php
+        <?php
     } // end if-group_name
 
     writeFieldLine($row);
@@ -1775,7 +1776,7 @@ function validateNewField(idpfx) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function(){
 
     $(function () {
         $('.typeAddons').select2({

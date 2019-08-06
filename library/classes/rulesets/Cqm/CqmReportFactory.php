@@ -23,9 +23,9 @@ class CqmReportFactory extends RsReportFactoryAbstract
     {
         $reportObject = null;
         if (class_exists($className)) {
-            $reportObject = new $className( $rowRule, $patientData, $dateTarget, $options );
+            $reportObject = new $className($rowRule, $patientData, $dateTarget, $options);
         } else {
-            $reportObject = new NFQ_Unimplemented();
+            $reportObject = new NQF_Unimplemented();
         }
         
         return $reportObject;

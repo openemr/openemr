@@ -17,10 +17,6 @@ fi
 
 #takes list of files/folders to sniff as its only argument(s)
 function sniff {
-    INI=$HOME/.phpenv/versions/$(phpenv version-name 2> /dev/null)/etc/php.ini
-    if [ -f $INI ]; then
-        grep -q "extension = ldap.so" $INI || echo "extension = ldap.so" >> $INI
-    fi
     BIN_DIR=$HOME/.composer/vendor/bin
     if [ -d $HOME/$XDG_CONFIG_HOME/composer ]; then
         BIN_DIR="$HOME/$XDG_CONFIG_HOME/composer/vendor/bin"
@@ -28,7 +24,7 @@ function sniff {
     if [ -d $HOME/.config/composer ]; then
         BIN_DIR="$HOME/.config/composer/vendor/bin"
     fi
-    composer global require "squizlabs/php_codesniffer=3.0.*" 
+    composer global require "squizlabs/php_codesniffer=3.*"
     cd $DIR
     $BIN_DIR/phpcs -p -n --extensions=php,inc --report-width=120 $@
 }
@@ -40,17 +36,14 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
     case "$CI_JOB" in
 
         "lint_syntax")
+            echo "Checking for PHP syntax errors"
             cd $2
-            find . -type d \( -path ./vendor \
-                            -o -path ./interface/main/calendar/modules \
-                            -o -path ./interface/reports \
-                            -o -path ./contrib/util \
-                            -o -path ./library/html2pdf/vendor/tecnickcom \
-                            -o -path ./library/classes/fpdf \
-                            -o -path ./library/html2pdf \
-                            -o -path ./gacl \
-                            -o -path ./library/edihistory \) -prune -o \
-                -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
+            failSyntax=false;
+            if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
+            if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
+            if $failSyntax; then
+                exit 1;
+            fi
             ;;
         "lint_style")
             sniff . --standard=ci/phpcs.xml --report=full

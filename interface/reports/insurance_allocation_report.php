@@ -15,11 +15,12 @@ require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -46,16 +47,16 @@ if ($_POST['form_csvexport']) {
         echo '"Pt Pct"' . "\n";
     }
 } else {
-?>
+    ?>
 <html>
 <head>
 
 <title><?php echo xlt('Patient Insurance Distribution'); ?></title>
 
-<?php Header::setupHeader('datetime-picker'); ?>
+    <?php Header::setupHeader('datetime-picker'); ?>
 
 <script language="JavaScript">
-    $(document).ready(function() {
+    $(function() {
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
 
@@ -105,11 +106,11 @@ if ($_POST['form_csvexport']) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Patient Insurance Distribution'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt("to") . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt("to{{Range}}") . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' method='post' action='insurance_allocation_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -129,7 +130,7 @@ if ($_POST['form_csvexport']) {
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
             </td>
             <td class='control-label'>
-                <?php echo xlt('To'); ?>:
+                <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
@@ -180,7 +181,7 @@ if ($_POST['form_csvexport']) {
   <th align='right'> <?php echo xlt('Pt %'); ?> </th>
  </thead>
  <tbody>
-<?php
+    <?php
 } // end not export
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $query = "SELECT b.pid, b.encounter, SUM(b.fee) AS charges, " .
@@ -218,7 +219,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     ksort($insarr);
 
-    while (list($key, $val) = each($insarr)) {
+    foreach ($insarr as $key => $val) {
         if ($_POST['form_csvexport']) {
             echo '"' . $key                                                . '",';
             echo '"' . oeFormatMoney($val['charges'])                      . '",';
@@ -226,31 +227,31 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . $val['patients']                                    . '",';
             echo '"' . sprintf("%.1f", $val['patients'] * 100 / $patcount) . '"' . "\n";
         } else {
-        ?>
+            ?>
      <tr>
       <td>
             <?php echo text($key); ?>
   </td>
   <td align='right'>
-        <?php echo text(oeFormatMoney($val['charges'])); ?>
+            <?php echo text(oeFormatMoney($val['charges'])); ?>
   </td>
   <td align='right'>
-        <?php echo text($val['visits']); ?>
+            <?php echo text($val['visits']); ?>
   </td>
   <td align='right'>
-        <?php echo text($val['patients']); ?>
+            <?php echo text($val['patients']); ?>
   </td>
   <td align='right'>
-        <?php printf("%.1f", $val['patients'] * 100 / $patcount) ?>
+            <?php printf("%.1f", $val['patients'] * 100 / $patcount) ?>
   </td>
  </tr>
-<?php
+            <?php
         } // end not export
     } // end while
 } // end if
 
 if (! $_POST['form_csvexport']) {
-?>
+    ?>
 
 </tbody>
 </table>
@@ -259,6 +260,6 @@ if (! $_POST['form_csvexport']) {
 </body>
 
 </html>
-<?php
+    <?php
 } // end not export
 ?>

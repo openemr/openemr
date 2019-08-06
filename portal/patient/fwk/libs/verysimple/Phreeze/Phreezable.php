@@ -176,8 +176,8 @@ abstract class Phreezable implements Serializable
      * Return an object with a limited number of properties from this Phreezable object.
      * This can be used if not all properties are necessary, for example rendering as JSON
      *
-     * This can be overriden per class for custom JSON output. the overridden method may accept
-     * additional option parameters that are not supported by the base Phreezable calss
+     * This can be overridden per class for custom JSON output. The overridden method may accept
+     * additional option parameters that are not supported by the base Phreezable class
      *
      * @param
      *          array assoc array of options. This is passed through from Controller->RenderJSON
@@ -409,7 +409,7 @@ abstract class Phreezable implements Serializable
                     if ($left > $limitLeft || $right > $limitRight) {
                         $this->AddValidationError($prop, "$prop exceeds the maximum length of " . $fm->FieldSize . "");
                     }
-                } elseif (is_numeric($fm->FieldSize) && ($lenfunction ( $this->$prop )-1 > $fm->FieldSize)) {
+                } elseif (is_numeric($fm->FieldSize) && ($lenfunction($this->$prop)-1 > $fm->FieldSize)) {
                     $this->AddValidationError($prop, "$prop exceeds the maximum length of " . $fm->FieldSize . "");
                 }
                 
@@ -516,15 +516,15 @@ abstract class Phreezable implements Serializable
         }
         
         /*
-		 * print "<pre>";
-		 * $this->Data = "";
-		 * $this->_phreezer = null;
-		 * $this->_cache = null;
-		 * print_r($this);
-		 *
-		 * print_r($fms);
-		 * die();
-		 */
+         * print "<pre>";
+         * $this->Data = "";
+         * $this->_phreezer = null;
+         * $this->_cache = null;
+         * print_r($this);
+         *
+         * print_r($fms);
+         * die();
+         */
         
         throw new Exception("No Primary Key found for " . get_class($this));
     }
@@ -642,7 +642,7 @@ abstract class Phreezable implements Serializable
                 // won't ever grab the same object twice in one page load
                 $this->_phreezer->IncludeModel($km->ForeignObject);
                 $foclass = $km->ForeignObject;
-                $fo = new $foclass ( $this->_phreezer, $row );
+                $fo = new $foclass($this->_phreezer, $row);
                 
                 $this->_phreezer->SetCache($foclass, $fo->GetPrimaryKeyValue(), $fo, $this->_phreezer->CacheQueryObjectLevel2);
             }

@@ -18,9 +18,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
 $row = array();
 
@@ -42,13 +42,11 @@ if ($_POST['bn_save']) {
          plan = ?,
          WHERE id = ?";
         sqlStatement($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], $formid ));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_hist_exam_plan (
          history, examination, plan
          ) VALUES ( ?, ?, ? )";
-         
+
         $newid = sqlInsert($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'] ));
         addForm($encounter, "Hist/Exam/Plan", $newid, "hist_exam_plan", $pid, $userauthorized);
     }
@@ -66,13 +64,12 @@ if ($formid) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
 
 <body <?php echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
  bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<?php echo $rootdir ?>/forms/hist_exam_plan/new.php?id=<?php echo $formid ?>"
+<form method="post" action="<?php echo $rootdir ?>/forms/hist_exam_plan/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
 
 <center>
@@ -87,21 +84,21 @@ if ($formid) {
  <tr>
   <td width='5%'  nowrap> History </td>
   <td width='95%' nowrap>
-   <textarea name='form_history' rows='8' style='width:100%'><?php echo $row['history'] ?></textarea>
+   <textarea name='form_history' rows='8' style='width:100%'><?php echo text($row['history']); ?></textarea>
   </td>
  </tr>
 
  <tr>
   <td nowrap> Examination </td>
   <td nowrap>
-   <textarea name='form_examination' rows='8' style='width:100%'><?php echo $row['examination'] ?></textarea>
+   <textarea name='form_examination' rows='8' style='width:100%'><?php echo text($row['examination']); ?></textarea>
   </td>
  </tr>
 
  <tr>
   <td nowrap> Plan </td>
   <td nowrap>
-   <textarea name='form_plan' rows='8' style='width:100%'><?php echo $row['plan'] ?></textarea>
+   <textarea name='form_plan' rows='8' style='width:100%'><?php echo text($row['plan']); ?></textarea>
   </td>
  </tr>
 

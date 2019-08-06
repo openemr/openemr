@@ -14,10 +14,10 @@ This form works as new and editing,
         <SELECT NAME="diarrhea">
         <option <?php if ($obj["diarrhea"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["diarrhea"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
     <TD>Every bowel movement:</TD>
@@ -25,13 +25,13 @@ This form works as new and editing,
         <SELECT NAME="with_every_bowel_movement">
         <option <?php if ($obj["with_every_bowel_movement"]=='n/a') {
             print 'selected';
-} ?>>n/a
+                } ?>>n/a
         <option <?php if ($obj["with_every_bowel_movement"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["with_every_bowel_movement"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
     <TD>After Every meal:</TD>
@@ -39,13 +39,13 @@ This form works as new and editing,
         <SELECT NAME="after_every_meal">
         <option <?php if ($obj["after_every_meal"]=='n/a') {
             print 'selected';
-} ?>>n/a
+                } ?>>n/a
         <option <?php if ($obj["after_every_meal"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["after_every_meal"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
 </TD>
@@ -55,16 +55,16 @@ This form works as new and editing,
         <SELECT NAME="blood_or_mucus_in_stool">
         <option <?php if ($obj["blood_or_mucus_in_stool"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["blood_or_mucus_in_stool"]=='blood') {
             print 'selected';
-} ?>>blood
+                } ?>>blood
         <option <?php if ($obj["blood_or_mucus_in_stool"]=='mucus') {
             print 'selected';
-} ?>>mucus
+                } ?>>mucus
         <option <?php if ($obj["blood_or_mucus_in_stool"]=='both') {
             print 'selected';
-} ?>>both
+                } ?>>both
         </SELECT>
     </TD>
     <TD>Onset:</TD>
@@ -72,22 +72,22 @@ This form works as new and editing,
         <SELECT NAME="diarrhea_onset">
         <option <?php if ($obj["diarrhea_onset"]=='one hour') {
             print 'selected';
-} ?>>one hour
+                } ?>>one hour
         <option <?php if ($obj["diarrhea_onset"]=='twelve hours') {
             print 'selected';
-} ?>>twelve hours
+                } ?>>twelve hours
         <option <?php if ($obj["diarrhea_onset"]=='one day') {
             print 'selected';
-} ?>>one day
+                } ?>>one day
         <option <?php if ($obj["diarrhea_onset"]=='two days') {
             print 'selected';
-} ?>>two days
+                } ?>>two days
         <option <?php if ($obj["diarrhea_onset"]=='three days') {
             print 'selected';
-} ?>>three days
+                } ?>>three days
         <option <?php if ($obj["diarrhea_onset"]=='more than 3 days') {
             print 'selected';
-} ?>>more than 3 days
+                } ?>>more than 3 days
         </SELECT>
     </TD>
     <TD>Worms:</TD>
@@ -95,10 +95,10 @@ This form works as new and editing,
         <SELECT NAME="worms">
         <option <?php if ($obj["worms"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["worms"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
 </TR>
@@ -109,10 +109,10 @@ This form works as new and editing,
         <SELECT NAME="vomits">
         <option <?php if ($obj["vomits"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["vomits"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
     <TD>Duration:</TD>
@@ -120,22 +120,22 @@ This form works as new and editing,
         <SELECT NAME="duration">
         <option <?php if ($obj["duration"]=='one hour') {
             print 'selected';
-} ?>>one hour
+                } ?>>one hour
         <option <?php if ($obj["duration"]=='twelve hours') {
             print 'selected';
-} ?>>twelve hours
+                } ?>>twelve hours
         <option <?php if ($obj["duration"]=='one day') {
             print 'selected';
-} ?>>one day
+                } ?>>one day
         <option <?php if ($obj["duration"]=='two days') {
             print 'selected';
-} ?>>two days
+                } ?>>two days
         <option <?php if ($obj["duration"]=='three days') {
             print 'selected';
-} ?>>three days
+                } ?>>three days
         <option <?php if ($obj["duration"]=='more than 3 days') {
             print 'selected';
-} ?>>more than 3 days
+                } ?>>more than 3 days
         </SELECT>
     </TD>
     <TD >Proyectile:</TD>
@@ -143,13 +143,13 @@ This form works as new and editing,
         <SELECT NAME="projectile">
         <option <?php if ($obj["projectile"]=='n/a') {
             print 'selected';
-} ?>>n/a
+                } ?>>n/a
         <option <?php if ($obj["projectile"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["projectile"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
 </TR>
@@ -159,13 +159,13 @@ This form works as new and editing,
         <SELECT NAME="more_often_than_2_hours">
         <option <?php if ($obj["more_often_than_2_hours"]=='n/a') {
             print 'selected' ;
-}?> >n/a
+                }?> >n/a
         <option <?php if ($obj["more_often_than_2_hours"]=='no') {
             print 'selected' ;
-}?> >no
+                }?> >no
         <option <?php if ($obj["more_often_than_2_hours"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
     <TD >After every meal:</TD>
@@ -173,13 +173,13 @@ This form works as new and editing,
         <SELECT NAME="vomit_after_every_meal">
         <option <?php if ($obj["vomit_after_every_meal"]=='n/a') {
             print 'selected' ;
-}?> >n/a
+                }?> >n/a
         <option <?php if ($obj["vomit_after_every_meal"]=='no') {
             print 'selected' ;
-}?> >no
+                }?> >no
         <option <?php if ($obj["vomit_after_every_meal"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
     <TD >Blood in vomitus:</TD>
@@ -187,13 +187,13 @@ This form works as new and editing,
         <SELECT NAME="blood_in_vomitus">
         <option <?php if ($obj["blood_in_vomitus"]=='n/a') {
             print 'selected' ;
-}?> >n/a
+                }?> >n/a
         <option <?php if ($obj["blood_in_vomitus"]=='no') {
             print 'selected' ;
-}?> >no
+                }?> >no
         <option <?php if ($obj["blood_in_vomitus"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
 </TR>
@@ -204,30 +204,30 @@ This form works as new and editing,
         <SELECT NAME="taking_medication">
         <option <?php if ($obj["taking_medication"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["taking_medication"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
     </TD>
     <TD>Oral Rehidration solution:</TD>
     <TD>
         <SELECT NAME="oral_rehydration">
         <option <?php if ($obj["taking_oral_rehydration_solution"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         <option <?php if ($obj["taking_oral_rehydration_solution"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
     </TD>
     <TD>Eating Solid Food</TD>
     <TD>
         <SELECT NAME="eating_solid_food">
         <option <?php if ($obj["eating_solid_food"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         <option <?php if ($obj["eating_solid_food"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
     </TD>
 </TR>
 <TR>
@@ -236,10 +236,10 @@ This form works as new and editing,
         <SELECT NAME="fever">
         <option <?php if ($obj["fever"]=='no') {
             print 'selected' ;
-}?> >no
+                }?> >no
         <option <?php if ($obj["fever"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
     <TD >Pain:</TD>
@@ -247,16 +247,16 @@ This form works as new and editing,
         <SELECT NAME="pain">
         <option <?php if ($obj["pain"]=='no pain') {
             print 'selected' ;
-}?> >no pain
+                }?> >no pain
         <option <?php if ($obj["pain"]=='moderate') {
             print 'selected';
-} ?>>moderate
+                } ?>>moderate
         <option <?php if ($obj["pain"]=='intense') {
             print 'selected';
-} ?>>intense
+                } ?>>intense
         <option <?php if ($obj["pain"]=='severe') {
             print 'selected';
-} ?>>severe
+                } ?>>severe
         </SELECT>
     </TD>
     <TD >Lethargy:</TD>
@@ -264,10 +264,10 @@ This form works as new and editing,
         <SELECT NAME="lethargy">
         <option <?php if ($obj["lethargy"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["lethargy"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
 </TR>
@@ -278,10 +278,10 @@ This form works as new and editing,
         <SELECT NAME="oral_hydration_capable">
         <option <?php if ($obj["oral_hydration_capable"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         <option <?php if ($obj["oral_hydration_capable"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         </SELECT>
     </TD>
     <TD>Urine output at least every 6 hrs.</TD>
@@ -289,20 +289,20 @@ This form works as new and editing,
         <SELECT NAME="urine_output_last_6_hours">
         <option <?php if ($obj["urine_output_last_6_hours"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         <option <?php if ($obj["urine_output_last_6_hours"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         </SELECT>
     <TD>With Pain?:</TD>
     <TD>
         <SELECT NAME="pain_with_urination">
         <option <?php if ($obj["pain_with_urination"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["pain_with_urination"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
 </TR>
@@ -312,10 +312,10 @@ This form works as new and editing,
         <SELECT NAME="cough_or_breathing_difficulty">
         <option <?php if ($obj["cough_or_breathing_difficulty"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["cough_or_breathing_difficulty"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
     <TD>Sleeps confortably?:</TD>
@@ -323,10 +323,10 @@ This form works as new and editing,
         <SELECT NAME="able_to_sleep">
         <option <?php if ($obj["able_to_sleep"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         <option <?php if ($obj["able_to_sleep"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         </SELECT>
     </TD>
 </TR>
@@ -336,10 +336,10 @@ This form works as new and editing,
         <SELECT NAME="nasal_discharge">
         <option <?php if ($obj["nasal_discharge"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["nasal_discharge"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
     <TD>Prior Hospitalization</TD>
@@ -347,10 +347,10 @@ This form works as new and editing,
         <SELECT NAME="previous_hospitalization">
         <option <?php if ($obj["previous_hospitalization"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["previous_hospitalization"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
     <TD>Siblings affected?:</TD>
@@ -358,10 +358,10 @@ This form works as new and editing,
         <SELECT NAME="siblings_affected">
         <option <?php if ($obj["siblings_affected"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         <option <?php if ($obj["siblings_affected"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         </SELECT>
     </TD>
 </TR>
@@ -371,16 +371,16 @@ This form works as new and editing,
         <SELECT NAME="immunization_up_to_date">
         <option <?php if ($obj["immunization_up_to_date"]=='yes') {
             print 'selected';
-} ?>>yes
+                } ?>>yes
         <option <?php if ($obj["immunization_up_to_date"]=='no') {
             print 'selected';
-} ?>>no
+                } ?>>no
         </SELECT>
     </TD>
-    <TD colspan=4 align=left valign=top>Notes: 
+    <TD colspan=4 align=left valign=top>Notes:
     <TEXTAREA NAME="notes" ROWS="3" COLS="40"><?php if ($obj["notes"]!='') {
-        print $obj["notes"];
-} ?></TEXTAREA></TD>
+        print text($obj["notes"]);
+                                              } ?></TEXTAREA></TD>
 </TR>
 </TABLE>
 

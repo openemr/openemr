@@ -136,12 +136,12 @@
     }
     #dateNav>a:nth-child(2){
 
-        background-image: url(../main/calendar/modules/PostCalendar/pntemplates/default/images/rightbtn.gif);
+        background-image: url(../../public/images/rightbtn.gif);
         margin-right: 10px;
     }
     #dateNav>a:nth-child(3){
 
-        background-image: url(../main/calendar/modules/PostCalendar/pntemplates/default/images/leftbtn.gif);
+        background-image: url(../../public/images/leftbtn.gif);
 
     }
 
@@ -311,4 +311,31 @@
     [name="userlist"] .checkbox input[type=checkbox] {
         margin-left: 0px !important;
     }
+
+    #create_patient_btn {
+        float: left;
+    }
 }
+/*expandable search rtl in main.php*/
+.oe-expandable-search button.btn-search1 {
+    right: 0;
+    padding: 4px 6px 4px 0 !important;
+}
+
+.oe-expandable-search input:focus~button.btn-search1 {
+    right: 245px;
+    outline: 0;
+}
+.oe-expandable-search button.btn-globals-legacy {
+    right: 110px;
+}
+.oe-expandable-search button.btn-globals-modern {
+    right: 0;
+}
+/*expandable search rtl in main.php*/
+/*vertical main menu */
+
+.appMenu_small .menuSection > .menuEntries {
+    right:40px ! important; 
+}
+/*vertical main menu */

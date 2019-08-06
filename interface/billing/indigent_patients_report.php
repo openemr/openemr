@@ -17,6 +17,7 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $alertmsg = '';
@@ -70,7 +71,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 
 <script language="JavaScript">
 
-    $(document).ready(function() {
+    $(function() {
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));
 
@@ -92,7 +93,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Indigent Patients'); ?></span>
 
 <form method='post' action='indigent_patients_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -112,7 +113,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
                <input type='text' class='datepicker form-control' name='form_start_date' id="form_start_date" size='10' value='<?php echo attr(oeFormatShortDate($form_start_date)); ?>'>
             </td>
             <td class='control-label'>
-                <?php xl('To', 'e'); ?>:
+                <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_end_date' id="form_end_date" size='10' value='<?php echo attr(oeFormatShortDate($form_end_date)); ?>'>
@@ -179,8 +180,8 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 
 <?php
 if ($_POST['form_refresh']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $where = "";
@@ -231,7 +232,7 @@ if ($_POST['form_refresh']) {
         $total_paid   += $inv_paid;
 
         $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
-    ?>
+        ?>
   <tr bgcolor='<?php  echo $bgcolor ?>'>
 <td class="detail">
  &nbsp;<?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>
@@ -249,18 +250,18 @@ if ($_POST['form_refresh']) {
  &nbsp;<?php echo text(oeFormatShortDate($inv_duedate)); ?>
 </td>
 <td class="detail" align="right">
-    <?php echo bucks($inv_amount); ?>&nbsp;
+        <?php echo bucks($inv_amount); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-    <?php echo bucks($inv_paid); ?>&nbsp;
+        <?php echo bucks($inv_paid); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-    <?php echo bucks($inv_amount - $inv_paid); ?>&nbsp;
+        <?php echo bucks($inv_amount - $inv_paid); ?>&nbsp;
 </td>
 </tr>
-<?php
+        <?php
     }
-?>
+    ?>
 <tr bgcolor='#dddddd'>
 <td class="detail">
 &nbsp;<?php echo xlt('Totals'); ?>
@@ -278,16 +279,16 @@ if ($_POST['form_refresh']) {
  &nbsp;
 </td>
 <td class="detail" align="right">
-<?php echo bucks($total_amount); ?>&nbsp;
+    <?php echo bucks($total_amount); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-<?php echo bucks($total_paid); ?>&nbsp;
+    <?php echo bucks($total_paid); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-<?php echo bucks($total_amount - $total_paid); ?>&nbsp;
+    <?php echo bucks($total_amount - $total_paid); ?>&nbsp;
 </td>
 </tr>
-<?php
+    <?php
 }
 ?>
 

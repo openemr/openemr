@@ -26,11 +26,14 @@ if (!$GLOBALS['gbl_portal_cms_enable']) {
     die(xlt('CMS Portal not enabled!'));
 }
 
+use OpenEMR\Common\Crypto\CryptoGen;
+
 function cms_portal_call($args)
 {
     $portal_url = $GLOBALS['gbl_portal_cms_address'] . "/wp-content/plugins/sunset-patient-portal/webserve.php";
     $args['login'   ] = $GLOBALS['gbl_portal_cms_username'];
-    $args['password'] = decryptStandard($GLOBALS['gbl_portal_cms_password']);
+    $cryptoGen = new CryptoGen();
+    $args['password'] = $cryptoGen->decryptStandard($GLOBALS['gbl_portal_cms_password']);
 
     if (($phandle = curl_init($portal_url)) === false) {
         die(text(xl('Unable to access URL') . " '$portal_url'"));
@@ -45,7 +48,7 @@ function cms_portal_call($args)
 
     curl_close($phandle);
   // With JSON-over-HTTP we would use json_decode($presult,TRUE) here.
-    return unserialize($presult);
+    return unserialize($presult, ['allowed_classes' => false]);
 }
 
 // Look up the OpenEMR patient matching this request. More or less than 1 is an error.
@@ -95,14 +98,12 @@ function cms_field_to_lbf($data_type, $field_id, &$fldarr)
             // Lifestyle Status.
             if ($data_type == '28') {
                 $newvalue = "|$newvalue$field_id|";
-            } // Smoking Status.
-            else if ($data_type == '32') {
+            } else if ($data_type == '32') { // Smoking Status.
                 // See the smoking_status list for these array values:
                 $ssarr = array('current' => 1, 'quit' => 3, 'never' => 4, 'not_applicable' => 9);
                 $ssindex = isset($ssarr[$newvalue]) ? $ssarr[$newvalue] : 0;
                 $newvalue = "|$newvalue$field_id||$ssindex";
-            } // Checkbox list.
-            else if (is_array($newvalue)) {
+            } else if (is_array($newvalue)) { // Checkbox list.
                 $tmp = '';
                 foreach ($newvalue as $value) {
                     if ($tmp !== '') {

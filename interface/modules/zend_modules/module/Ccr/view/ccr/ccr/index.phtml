@@ -1,28 +1,19 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Vinish K  <vinish@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Ccr/view/ccr/ccr/index.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 echo $this->headLink()->prependStylesheet($this->basePath() . '/css/autosuggest/autosuggest.css');
 echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js');
 ?>
-<style type="text/css">  
+<style type="text/css">
   #patient_select{
     width     : 410px;
     height    : 110px;
@@ -34,17 +25,17 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     -moz-box-shadow: 1px 4px 4px 1px #8B8B8B;
     -webkit-box-shadow: 1px 4px 4px 1px #8B8B8B;
     box-shadow: 1px 4px 4px 1px #8B8B8B;
-  }  
+  }
 </style>
 <script type="text/javascript">
-  $(document).ready(function()
+  $(function ()
   {
     height_value = parent.window.innerHeight-100;
     if(height_value < 600){ height_value = 600 };
     if (parent.document.getElementById('ccr_iframe')) {
         parent.iframeLoaded(height_value, 'ccr_iframe');
     }
-    
+
     $('.import_ccr').click(function(){
       clicked_id = this.id;
       var import_id = (clicked_id).split('|');
@@ -67,61 +58,61 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
         }
       });
     });
-    
+
     $('.add_new_patient').click(function(){
       arr = (this.id).split('|');
       document.getElementById('action').value = arr[0];
       document.getElementById('am_id').value = arr[1];
       document.getElementById('form_ccr_import').submit();
     });
-    
+
     $('.add_to_existing_patient').click(function(){
       arr = (this.id).split('|');
       $('#amid').val(arr[1]);
       $('#patient_select').show('scale','',500,'');
     });
-    
+
     $('#go').click(function(){
       $('#pid').val($('#string_id1').val());
       $('#form_ccr_import').attr('action','<?php echo $this->basePath();?>/ccr/revandapprove');
       document.getElementById('form_ccr_import').submit();
     });
   });
-  
-  $(document).ready(function()
+
+  $(function ()
   {
     var obj = $("#dragandrophandler");
-    obj.on('dragenter', function (e) 
+    obj.on('dragenter', function (e)
     {
       e.stopPropagation();
       e.preventDefault();
       $(this).css('background', 'url("<?php echo $this->basePath();?>/css/icons/ark.png") no-repeat center');
     });
-    obj.on('dragover', function (e) 
+    obj.on('dragover', function (e)
     {
       e.stopPropagation();
       e.preventDefault();
     });
-    obj.on('drop', function (e) 
+    obj.on('drop', function (e)
     {
       $(this).css('background', 'url("")');
       e.preventDefault();
       var files = e.originalEvent.dataTransfer.files;
-    
+
       //We need to send dropped files to Server
       handleFileUpload(files,obj);
     });
-    
+
     $('#file_uploader').change(function(e){
       var files = e.target.files;
       handleFileUpload(files,$('#file_uploader'));
     });
-    
+
     $('#close_patient_select').click(function(){
       $('#patient_select').hide('scale','',500,'');
     });
   });
-  
+
   function sendFileToServer(formData,status)
   {
     var uploadURL = "<?php echo $this->basePath();?>/ccr/index"; //Upload URL
@@ -160,7 +151,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     });
     status.setAbort(jqXHR);
   }
-  
+
   var rowCount=0;
   var uploadedSuccessfullCount = 0;
   function createStatusbar(obj)
@@ -173,8 +164,8 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
     this.progressBar = $("<div class='progressBar'><div></div></div>").appendTo(this.statusbar);
     this.abort = $("<div class='abort'><?php echo $this->listenerObject->z_xlt('Abort');?></div>").appendTo(this.statusbar);
-    $('#status1').append(this.statusbar);    
-     
+    $('#status1').append(this.statusbar);
+
     this.setFileNameSize = function(name,size)
     {
       var sizeStr="";
@@ -188,13 +179,13 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
       {
         sizeStr = sizeKB.toFixed(2)+" KB";
       }
-    
+
       this.filename.html(name);
       this.size.html(sizeStr);
     }
     this.setProgress = function(progress)
-    {		
-      var progressBarWidth =progress*this.progressBar.width()/ 100;  
+    {
+      var progressBarWidth =progress*this.progressBar.width()/ 100;
       this.progressBar.find('div').animate({ width: progressBarWidth }, 10).html(progress + "%&nbsp;");
       if(parseInt(progress) >= 100)
       {
@@ -211,20 +202,20 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
       });
     }
   }
-  
+
   function handleFileUpload(files,obj)
   {
-    for (var i = 0; i < files.length; i++) 
+    for (var i = 0; i < files.length; i++)
     {
       var fd = new FormData();
       fd.append('file', files[i]);
       fd.append('document_category', '<?php echo $this->escapeHtml($this->category_id);?>');
       fd.append('file_location', '<?php echo $this->escapeHtml($this->file_location);?>');
       fd.append('patient_id', '<?php echo $this->escapeHtml($this->patient_id);?>');
-     
+
       var status = new createStatusbar(obj); //Using this we can set progress.
       status.setFileNameSize(files[i].name,files[i].size);
-      sendFileToServer(fd,status);    
+      sendFileToServer(fd,status);
     }
     $('#status1').show('clip','',500,'');
   }
@@ -243,8 +234,8 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     <!-- Auto suggest -->
     <div id="autosuggest1" style="float: left; clear: right; margin-left: 10px; font-size: 12px;">
         <?php echo $this->listenerObject->z_xlt('Patient');?>
-        <input type="text" class="lookup" id="inputString1" 
-          onKeyDown="PreventIt(event)" onkeyup="lookup(this.value.trim(), 'patient', '1', 'single');" 
+        <input type="text" class="lookup" id="inputString1"
+          onKeyDown="PreventIt(event)" onkeyup="lookup(this.value.trim(), 'patient', '1', 'single');"
           value=""
           autocomplete="off" />
         <input type="hidden" id="string_value1" name="string_value" value="" />
@@ -258,7 +249,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     <a style="text-decoration: none; float:right; margin-left: 10px;" href="#" id="go">
       <img title='<?php echo $this->listenerObject->z_xlt("GO");?>' style="height: 30px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/go.png">
     </a>
-    <!-- End Auto suggest -->    
+    <!-- End Auto suggest -->
   </div>
   <!---->
   <div class="body_inner_wrapper">
@@ -268,11 +259,11 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
       </div>
       <div id="refresh" onclick="javascript:document.getElementById('form_ccr_import').submit();">&nbsp;</div>
     </div>
-    <div class="clear"></div>    
+    <div class="clear"></div>
     <!--Display upload status-->
     <div style="display: none" id="status1">
     </div>
-    <!---->    
+    <!---->
     <div class="clear"></div>
     <div class="se_in_8">
       <?php
@@ -284,7 +275,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
             <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
             <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
-            <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>            
+            <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
             <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
             <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
             <th>&nbsp;</th>
@@ -357,7 +348,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
       }
       else{
         ?>
-        <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->details) > 0){ ?>display: none; <?php } ?>">
+        <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->records) > 0){ ?>display: none; <?php } ?>">
             <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
         </div>
         <?php

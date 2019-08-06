@@ -434,7 +434,7 @@
         ]
       },
       {
-        "label": "Billing",
+        "label": "Billing Manager",
         "menu_id": "bil0",
         "target": "bil",
         "url": "/interface/billing/billing_report.php",
@@ -476,7 +476,7 @@
         "global_req": "enable_batch_payment"
       },
       {
-        "label": "Posting",
+        "label": "Posting Payments",
         "menu_id": "eob",
         "target": "bil",
         "url": "/interface/billing/sl_eob_search.php",
@@ -492,7 +492,7 @@
       {
         "label": "EDI History",
         "menu_id": "edi0",
-        "target": "pat",
+        "target": "edi",
         "url": "/interface/billing/edih_view.php",
         "children": [],
         "requirement": 0,
@@ -1521,7 +1521,7 @@
             ]
           },
           {
-            "label": "Collections",
+            "label": "Collections and Aging",
             "menu_id": "rep0",
             "target": "rep",
             "url": "/interface/reports/collections_report.php",
@@ -1754,34 +1754,6 @@
         "global_req": "ippf_specific"
       },
       {
-        "label": "Blank Forms",
-        "icon": "fa-caret-right",
-        "children": [
-          {
-            "label": "Demographics",
-            "url": "/interface/patient_file/summary/demographics_print.php",
-            "target": "rep",
-            "children": [],
-            "requirement": 0
-          },
-          {
-            "label": "Superbill/Fee Sheet",
-            "url": "/interface/patient_file/printed_fee_sheet.php",
-            "target": "rep",
-            "children": [],
-            "requirement": 0
-          },
-          {
-            "label": "Referral",
-            "url": "/interface/patient_file/transaction/print_referral.php",
-            "target": "rep",
-            "children": [],
-            "requirement": 0
-          }
-        ],
-        "requirement": 0
-      },
-      {
         "label": "Services",
         "icon": "fa-caret-right",
         "children": [
@@ -1904,30 +1876,6 @@
         ]
       },
       {
-        "label": "Addr Book",
-        "menu_id": "adb0",
-        "target": "msc",
-        "url": "/interface/usergroup/addrbook_list.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "practice"
-        ]
-      },
-      {
-        "label": "Order Catalog",
-        "menu_id": "ort0",
-        "target": "msc",
-        "url": "/interface/orders/types.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "practice"
-        ]
-      },
-      {
         "label": "Chart Tracker",
         "menu_id": "cht0",
         "target": "msc",
@@ -1980,30 +1928,6 @@
         "global_req": "track_anything_state"
       },
       {
-        "label": "Password",
-        "menu_id": "pwd0",
-        "target": "msc",
-        "url": "/interface/usergroup/user_info.php",
-        "children": [],
-        "requirement": 0
-      },
-      {
-        "label": "MFA Management",
-        "menu_id": "mfa0",
-        "target": "msc",
-        "url": "/interface/usergroup/mfa_registrations.php",
-        "children": [],
-        "requirement": 0
-      },
-      {
-        "label": "Preferences",
-        "menu_id": "prf0",
-        "target": "msc",
-        "url": "/interface/super/edit_globals.php?mode=user",
-        "children": [],
-        "requirement": 0
-      },
-      {
         "label": "New Documents",
         "menu_id": "adm0",
         "target": "msc",
@@ -2028,13 +1952,37 @@
           "admin",
           "practice"
         ]
+      },
+      {
+        "label": "Blank Forms",
+        "icon": "fa-caret-right",
+        "children": [
+          {
+            "label": "Demographics",
+            "url": "/interface/patient_file/summary/demographics_print.php",
+            "target": "msc",
+            "children": [],
+            "requirement": 0
+          },
+          {
+            "label": "Superbill/Fee Sheet",
+            "url": "/interface/patient_file/printed_fee_sheet.php",
+            "target": "msc",
+            "children": [],
+            "requirement": 0
+          },
+          {
+            "label": "Referral",
+            "url": "/interface/patient_file/transaction/print_referral.php",
+            "target": "msc",
+            "children": [],
+            "requirement": 0
+          }
+        ],
+        "requirement": 0
       }
     ],
-    "requirement": 0,
-    "acl_req": [
-      "patients",
-      "docs"
-    ]
+    "requirement": 0
   },
   {
     "label": "Popups",

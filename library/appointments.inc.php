@@ -14,6 +14,8 @@
 require_once(dirname(__FILE__)."/encounter_events.inc.php");
 require_once(dirname(__FILE__)."/../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php");
 
+use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
+use OpenEMR\Events\BoundFilter;
 
 $COMPARE_FUNCTION_HASH = array(
     'doctor' => 'compareAppointmentsByDoctorName',
@@ -60,10 +62,10 @@ $REPEAT_FREQ_TYPE = array(
 );
 
 $REPEAT_ON_NUM = array(
-    '1' => xl('1st'),
-    '2' => xl('2nd'),
-    '3' => xl('3rd'),
-    '4' => xl('4th'),
+    '1' => xl('1st{{nth}}'),
+    '2' => xl('2nd{{nth}}'),
+    '3' => xl('3rd{{nth}}'),
+    '4' => xl('4th{{nth}}'),
     '5' => xl('Last')
 );
 
@@ -131,6 +133,13 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         if ($where_param) {
             $where .= $where_param;
         }
+
+        // Filter out appointments based on a custom module filter
+        $apptFilterEvent = new AppointmentsFilterEvent(new BoundFilter());
+        $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(AppointmentsFilterEvent::EVENT_HANDLE, $apptFilterEvent, 10);
+        $boundFilter = $apptFilterEvent->getBoundFilter();
+        $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
+        $where .= " AND ".$boundFilter->getFilterClause();
 
         $order_by = "e.pc_eventDate, e.pc_startTime";
         if ($orderby_param) {
@@ -206,7 +215,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
       //////
             case '1':
             case '3':
-                $event_recurrspec = @unserialize($event['pc_recurrspec']);
+                $event_recurrspec = @unserialize($event['pc_recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
                     break; }
@@ -258,7 +267,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
       //////
             case '2':
-                $event_recurrspec = @unserialize($event['pc_recurrspec']);
+                $event_recurrspec = @unserialize($event['pc_recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
                     break; }
@@ -663,7 +672,7 @@ function interpretRecurrence($recurr_freq, $recurr_type)
 {
     global $REPEAT_FREQ, $REPEAT_FREQ_TYPE, $REPEAT_ON_NUM, $REPEAT_ON_DAY;
     $interpreted = "";
-    $recurr_freq = unserialize($recurr_freq);
+    $recurr_freq = unserialize($recurr_freq, ['allowed_classes' => false]);
     if ($recurr_type == 1) {
         $interpreted = $REPEAT_FREQ[$recurr_freq['event_repeat_freq']];
         $interpreted .= " " . $REPEAT_FREQ_TYPE[$recurr_freq['event_repeat_freq_type']];
@@ -694,7 +703,7 @@ function fetchRecurrences($pid)
     $res = sqlStatement($query, $sqlBindArray);
     $result_data = array();
     while ($row = sqlFetchArray($res)) {
-        $u_recurrspec = unserialize($row['pc_recurrspec']);
+        $u_recurrspec = unserialize($row['pc_recurrspec'], ['allowed_classes' => false]);
         if (checkEvent($row['pc_recurrtype'], $u_recurrspec)) {
             continue; }
         $row['pc_recurrspec'] = interpretRecurrence($row['pc_recurrspec'], $row['pc_recurrtype']);

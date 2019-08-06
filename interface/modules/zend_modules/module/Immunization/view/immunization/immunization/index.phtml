@@ -1,30 +1,20 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Bindia Nandakumar  <bindia@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Immunization/view/immunization/immunization/index.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Bindia Nandakumar  <bindia@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 $listener	    = $this->listenerObject;
 $res            = $this->view;
 $title1 	    = $listener->z_xlt('Report');
 $title2 	    = $listener->z_xlt('Immunization Registry');
-$codes          = $listener->z_xlt('Codes'); 
-$from           = $listener->z_xlt('From'); 
+$codes          = $listener->z_xlt('Codes');
+$from           = $listener->z_xlt('From');
 $to             = $listener->z_xlt('To');
 $isFormRefresh  = $this->isFormRefresh;
 $form           = $this->form;
@@ -33,7 +23,7 @@ $form->prepare();
 
 ?>
     <script type="text/javascript">
-        $(document).ready(function(){
+        $(function (){
             height_value = $('.responsive tr').length * 25 + 220;
             if(height_value < 245){ height_value = 245 };
             parent.iframeLoaded(height_value, 'immunization_iframe');
@@ -53,7 +43,7 @@ $form->prepare();
                             <?php echo  $this->formRow($form->get('from_date'));?>
                             <?php echo  $this->formRow($form->get('to_date'));?>
                             <script type="text/javascript">
-                                $(document).ready(function(){
+                                $(function (){
                                         $( "#from_date" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>' );
                                         $( "#to_date" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
                                 });
@@ -87,12 +77,8 @@ $form->prepare();
                     <?php if(count($res) > 0){?>
                     <?php echo $this->formRow($form->get('hl7button')); ?>&nbsp;&nbsp;
                     <?php
-                        $arr = $this->getVariables('Application\Controller\SendtoController','sendAction');
-                        $arr['required_butons'] = array('download');
-                        $arr['send_via']        = 'download';
-                        $arr['download_format'] = array('hl7_format');
-                        $this->layout('immunization/layout/layout');
-                        echo $this->partial("application/sendto/send",$arr);
+                     // @see Application view_helpers for this functionality.
+                     $this->sendToHie('immunization/layout/layout', ['download'], 'hie', ['hl7_format']);
                     ?>
                     <div class="se_in_3" title="<?php echo $listener->z_xla('Reload');?>" onclick="reloadPage();"></div>
                     <?php }?>
@@ -121,17 +107,17 @@ $form->prepare();
         <div class="clear"></div>
         <div class="se_in_8">
            <?php if(count($res) > 0){ ?>
-           <table class="responsive"> 
+           <table class="responsive">
                 <tr class="se_in_9">
                         <th width="2%">#</th>
                         <th width="10%" ><?php echo $listener->z_xlt('Patient Id'); ?></th>
                         <th width="15%"><?php echo $listener->z_xlt('Patient Name'); ?></th>
                         <th width="18%"><?php echo $listener->z_xlt('Immunization Code'); ?></th>
                         <th><?php echo $listener->z_xlt('Immunization Title'); ?></th>
-                        <th><?php echo $listener->z_xlt('Immunization Date'); ?></th>	
+                        <th><?php echo $listener->z_xlt('Immunization Date'); ?></th>
                 </tr>
-                <?php 
-                $slno       = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']); 
+                <?php
+                $slno       = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);
                 foreach ($res as $value):
                   $slno++;
                 ?>
@@ -141,7 +127,7 @@ $form->prepare();
                         <td><?php echo $this->escapeHtml($value['patientname']); ?></td>
                         <td><?php echo $this->escapeHtml($value['cvx_code']); ?></td>
                         <td><?php echo $this->escapeHtml($listener->z_xlt($value['immunizationtitle'])); ?></td>
-                        <td><?php echo $this->commonplugin->date_format($value['immunizationdate'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></td>	
+                        <td><?php echo $this->commonplugin->date_format($value['immunizationdate'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></td>
                 </tr>
                  <?php endforeach; ?>
                 <tr>
@@ -150,9 +136,9 @@ $form->prepare();
                     <?php echo $this->escapeHtml(sizeof($res));?>
                     </th>
                 </tr>
-           </table> 
+           </table>
            <?php } else {?>
-                <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->details) > 0){ ?>display: none; <?php } ?>">
+                <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($res) > 0){ ?>display: none; <?php } ?>">
                     <?php echo $listener->z_xlt('Nothing to display');?>
                 </div>
            <?php }?>

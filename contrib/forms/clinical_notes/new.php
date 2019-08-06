@@ -18,6 +18,8 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $row = array();
 
 if (! $encounter) { // comes from globals.php
@@ -79,8 +81,8 @@ $formid = $_GET['id'];
 //
 if ($_POST['bn_save']) {
     $fu_timing = $_POST['fu_timing'];
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
  // If updating an existing form...
@@ -95,9 +97,7 @@ if ($_POST['bn_save']) {
          WHERE id = ?";
 
         sqlStatement($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing, $formid));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_clinical_notes ( " .
          "history, examination, plan, followup_required, followup_timing 
          ) VALUES ( ?, ?, ?, ?, ? )";
@@ -119,7 +119,6 @@ if ($formid) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 </head>
@@ -128,7 +127,7 @@ if ($formid) {
  bottommargin="0" marginwidth="2" marginheight="0">
 <form method="post" action="<?php echo $rootdir ?>/forms/clinical_notes/new.php?id=<?php echo attr_url($formid) ?>"
  onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

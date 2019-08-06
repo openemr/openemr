@@ -24,6 +24,7 @@ if ($GLOBALS['enable_group_therapy']) {
 }
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $is_group = ($attendant_type == 'gid') ? true : false;
@@ -161,6 +162,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 
     echo "<A HREF='".$url."' onclick='top.restoreSession()'>" . $text . "</A>";
 }
+
 ?>
 <html>
 <head>
@@ -236,7 +238,7 @@ window.onload=function()
 // to display the form's contents.
 function efmouseover(elem, ptid, encid, formname, formid) {
  ttMouseOver(elem, "encounters_ajax.php?ptid=" + encodeURIComponent(ptid) + "&encid=" + encodeURIComponent(encid) +
-  "&formname=" + encodeURIComponent(formname) + "&formid=" + encodeURIComponent(formid) + "&csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>);
+  "&formname=" + encodeURIComponent(formname) + "&formid=" + encodeURIComponent(formid) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
 }
 
 </script>
@@ -326,7 +328,7 @@ for ($idx=0; $idx<count($pagesizes); $idx++) {
 <?php if ($billing_view) { ?>
   <th class='billing_note'><?php echo xlt('Billing Note'); ?></th>
 <?php } else { ?>
-<?php if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues?>
+    <?php if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues?>
   <th><?php echo xlt('Issue'); ?></th>
 <?php } ?>
   <th><?php echo xlt('Reason/Form'); ?></th>
@@ -583,12 +585,18 @@ while ($result4 = sqlFetchArray($res4)) {
                 }
                 echo "</div>";
             } else {
-                echo "<div " .
-                "onmouseover='efmouseover(this," . attr_js($pid) . "," . attr_js($result4['encounter']) .
-                "," . attr_js($formdir) . "," . attr_js($enc['form_id']) . ")' " .
-                "onmouseout='ttMouseOut()'>";
-                echo text(xl_form_title($enc['form_name']));
-                echo "</div>";
+                $formDiv = "<div ";
+                if (hasFormPermission($enc['formdir'])) {
+                    $formDiv .= "onmouseover='efmouseover(this," . attr_js($pid) . ","
+                    . attr_js($result4['encounter']) .
+                    "," . attr_js($formdir) . "," . attr_js($enc['form_id'])
+                    . ")' " .
+                    "onmouseout='ttMouseOut()'";
+                }
+                $formDiv .= ">";
+                $formDiv .= text(xl_form_title($enc['form_name']));
+                $formDiv .= "</div>";
+                echo $formDiv;
             }
         } // end encounter Forms loop
 
@@ -691,8 +699,7 @@ while ($result4 = sqlFetchArray($res4)) {
                 }
                 if ($billing_view) {
                     if ($binfo[1]) {
-                        for ($i = 1; $i < 5;
-                        ++$i) {
+                        for ($i = 1; $i < 5; ++$i) {
                             $binfo[$i] .= '<br>';
                         }
                     }
@@ -704,8 +711,7 @@ while ($result4 = sqlFetchArray($res4)) {
                             $binfo[1] .= text(oeFormatMoney($iter2['fee']));
                         }
 
-                        for ($i = 2; $i < 5;
-                        ++$i) {
+                        for ($i = 2; $i < 5; ++$i) {
                             $binfo[$i] .= '&nbsp;';
                         }
                     } else {
@@ -723,13 +729,11 @@ while ($result4 = sqlFetchArray($res4)) {
             if (!empty($arinvoice)) {
                 foreach ($arinvoice as $codekey => $val) {
                     if ($binfo[0]) {
-                        for ($i = 0; $i < 5;
-                        ++$i) {
+                        for ($i = 0; $i < 5; ++$i) {
                             $binfo[$i] .= '<br>';
                         }
                     }
-                    for ($i = 0; $i < 5;
-                    ++$i) {
+                    for ($i = 0; $i < 5; ++$i) {
                         $binfo[$i] .= "<font color='red'>";
                     }
                     $binfo[0] .= text($codekey);
@@ -737,8 +741,7 @@ while ($result4 = sqlFetchArray($res4)) {
                     $binfo[2] .= text(oeFormatMoney($val['chg'] - $val['bal']));
                     $binfo[3] .= text(oeFormatMoney($val['adj']));
                     $binfo[4] .= text(oeFormatMoney($val['bal']));
-                    for ($i = 0; $i < 5;
-                    ++$i) {
+                    for ($i = 0; $i < 5; ++$i) {
                         $binfo[$i] .= "</font>";
                     }
                 }
@@ -749,9 +752,7 @@ while ($result4 = sqlFetchArray($res4)) {
         for ($i = 1; $i < 5; ++$i) {
             echo "<td class='text right'>". $binfo[$i] . "</td>\n";
         }
-    } // end if authorized
-
-    else {
+    } /* end if authorized */ else {
         echo "<td class='text' valign='top' colspan='5' rowspan='" . attr($encounter_rows) . "'>(" . xlt("No access") . ")</td>\n";
     }
 

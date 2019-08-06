@@ -18,9 +18,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
 $row = array();
 
@@ -46,12 +46,12 @@ function cbvalue($cbname)
 function rbinput($name, $value, $desc, $colname)
 {
     global $row;
-    $ret  = "<input type='radio' name='$name' value='$value'";
+    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
     if ($row[$colname] == $value) {
         $ret .= " checked";
     }
 
-    $ret .= " />$desc";
+    $ret .= " />" . text($desc);
     return $ret;
 }
 
@@ -63,7 +63,7 @@ function rbcell($name, $value, $desc, $colname)
 function cbinput($name, $colname)
 {
     global $row;
-    $ret  = "<input type='checkbox' name='$name' value='1'";
+    $ret  = "<input type='checkbox' name='" .attr($name) . "' value='1'";
     if ($row[$colname]) {
         $ret .= " checked";
     }
@@ -137,9 +137,7 @@ if ($_POST['bn_save']) {
         cbvalue('equip_2'), cbvalue('equip_3'), cbvalue('equip_4'), cbvalue('equip_5'), cbvalue('equip_6'), rbvalue('side'), rbvalue('removed'), cbvalue('treat_1'), cbvalue('treat_2'),
         cbvalue('treat_3'), cbvalue('treat_4'), cbvalue('treat_5'), cbvalue('treat_6'), cbvalue('treat_7'), cbvalue('treat_8'), cbvalue('treat_9'), cbvalue('treat_10'), $sistreat_other, cbvalue('noreturn'),
         $formid));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_soccer_injury ( " .
          "siinjtime, sigametime, simechanism, simech_other, sisurface, " .
          "siposition, sifootwear, " .
@@ -181,7 +179,6 @@ if ($formid) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
@@ -192,7 +189,7 @@ if ($formid) {
 </head>
 
 <body class="body_top">
-<form method="post" action="<?php echo $rootdir ?>/forms/soccer_injury/new.php?id=<?php echo $formid ?>" onsubmit="return top.restoreSession()">
+<form method="post" action="<?php echo $rootdir ?>/forms/soccer_injury/new.php?id=<?php echo attr_url($formid); ?>" onsubmit="return top.restoreSession()">
 
 <center>
 
@@ -207,13 +204,13 @@ if ($formid) {
  <tr>
   <td nowrap>Time</td>
   <td nowrap>
-   <input type='text' name='time' size='5' title='Hour or hh:mm' value='<?php echo $siinjtime ?>' />&nbsp;
+   <input type='text' name='time' size='5' title='Hour or hh:mm' value='<?php echo attr($siinjtime); ?>' />&nbsp;
    <input type='radio' name='timeampm' value='am'<?php if ($siampm == 'am') {
         echo ' checked';
-} ?> />am&nbsp;
+                                                 } ?> />am&nbsp;
    <input type='radio' name='timeampm' value='pm'<?php if ($siampm == 'pm') {
         echo ' checked';
-} ?> />pm&nbsp;
+                                                 } ?> />pm&nbsp;
   </td>
  </tr>
 
@@ -271,8 +268,8 @@ if ($formid) {
      <td colspan='2' nowrap>
         <?php echo rbinput('activity', '7', 'Other:', 'simechanism') ?>
       <input type='text' name='activity_other' size='10'
-       title='Describe other'
-       value='<?php echo addslashes($row['simech_other']) ?>' />
+             title='Describe other'
+             value='<?php echo attr($row['simech_other']); ?>' />
      </td>
     </tr>
    </table>
@@ -306,7 +303,7 @@ if ($formid) {
         <?php echo rbinput('activity', '23', 'Other:', 'simechanism') ?>
       <input type='text' name='activity_nc_other' size='10'
        title='Describe other'
-       value='<?php echo addslashes($row['simech_other']) ?>' />
+       value='<?php echo attr($row['simech_other']) ?>' />
      </td>
     </tr>
    </table>
@@ -451,7 +448,7 @@ if ($formid) {
         <?php echo cbinput('treat_10', 'sitreat_10') ?>Other:
       <input type='text' name='treat_other' size='10'
        title='Describe other'
-       value='<?php echo addslashes($row['sitreat_other']) ?>' />
+       value='<?php echo attr($row['sitreat_other']) ?>' />
      </td>
     </tr>
    </table>

@@ -18,9 +18,10 @@ require_once("$srcdir/report.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $N = 6;
@@ -28,7 +29,6 @@ $first_issue = 1;
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
 
@@ -95,12 +95,12 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     $copay = 0.0;
 
 //test
-//	foreach ($result as $key => $val) {
-//		print "<h2>$key</h2>";
-//		foreach($val as $key2 => $val2) {
-//			print "<p> $key2 = $val2 </p>\n";
-//		}
-//	}
+//  foreach ($result as $key => $val) {
+//      print "<h2>$key</h2>";
+//      foreach($val as $key2 => $val2) {
+//          print "<p> $key2 = $val2 </p>\n";
+//      }
+//  }
 //end test
 
     foreach ($result as $iter) {
@@ -146,28 +146,28 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     }
 
     $billing_html["CPT4"] .= "<tr><td>" . xlt('total') . "</td><td></td><td></td><td>" . text(oeFormatMoney($total)) . "</td></tr>\n";
-?>
+    ?>
 <tr><td><?php echo xlt('code type'); ?></td><td><?php echo xlt('code'); ?></td><td><?php echo xlt('description'); ?></td><td><?php echo xlt('fee'); ?></td></tr>
-<?php
+    <?php
     $key = "ICD9";
-$val = $billing_html[$key];
+    $val = $billing_html[$key];
         print $val;
     $key = "CPT4";
-$val = $billing_html[$key];
+    $val = $billing_html[$key];
         print $val;
     $key = "COPAY";
-$val = $billing_html[$key];
+    $val = $billing_html[$key];
         print $val;
-$balance = $total-$copay;
-if ($balance != 0.00) {
-    print "<tr><td>" . xlt('balance') . "</td><td></td><td>" . xlt('Please pay this amount') . ":</td><td>" . text(oeFormatMoney($balance)) . "</td></tr>\n";
-}
+    $balance = $total-$copay;
+    if ($balance != 0.00) {
+        print "<tr><td>" . xlt('balance') . "</td><td></td><td>" . xlt('Please pay this amount') . ":</td><td>" . text(oeFormatMoney($balance)) . "</td></tr>\n";
+    }
 }
 ?>
 </tr></table>
 <?php
 //if ($balance != 0.00) {
-//	print "<p>Note: The balance recorded above only reflects the encounter described by this statement.  It does not reflect the balance of the entire account.  A negative number in the balance field indicates a credit due to overpayment</p>";
+//  print "<p>Note: The balance recorded above only reflects the encounter described by this statement.  It does not reflect the balance of the entire account.  A negative number in the balance field indicates a credit due to overpayment</p>";
 //}
 ?>
 

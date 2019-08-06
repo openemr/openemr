@@ -15,6 +15,7 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
@@ -208,7 +209,7 @@ function authorized_clicked() {
 
 <tr><td valign=top>
 <form name='new_user' id="new_user" method='post' action="usergroup_admin.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type='hidden' name='mode' value='new_user'>
 <input type='hidden' name='secure_pwd' value="<?php echo attr($GLOBALS['secure_password']); ?>">
@@ -266,9 +267,9 @@ if ($fres) {
     }
 
     foreach ($result as $iter) {
-    ?>
+        ?>
     <option value="<?php echo attr($iter{'id'}); ?>"><?php echo text($iter{'name'}); ?></option>
-<?php
+        <?php
     }
 }
 ?>
@@ -283,7 +284,7 @@ if ($fres) {
 <td class='text'><?php echo xlt('See Authorizations'); ?>: </td>
 <td><select name="see_auth" style="width:120px;" class="form-control">
 <?php
-foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
+foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
     echo " <option value='" . attr($key) . "'";
     echo ">" . text($value) . "</option>\n";
 }
@@ -309,7 +310,7 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
   </td>
   <td>
     <?php
-    $menuMain = new MainMenuRole();
+    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
     echo $menuMain->displayMenuRoleSelector();
     ?>
   </td>
@@ -344,25 +345,25 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 <tr>
  <td class="text"><?php echo xlt('Default Warehouse'); ?>: </td>
  <td class='text'>
-<?php
-echo generate_select_list(
-    'default_warehouse',
-    'warehouse',
-    '',
-    ''
-);
-?>
+    <?php
+    echo generate_select_list(
+        'default_warehouse',
+        'warehouse',
+        '',
+        ''
+    );
+    ?>
  </td>
  <td class="text"><?php echo xlt('Invoice Refno Pool'); ?>: </td>
  <td class='text'>
-<?php
-echo generate_select_list(
-    'irnpool',
-    'irnpool',
-    '',
-    xl('Invoice reference number pool, if used')
-);
-?>
+    <?php
+    echo generate_select_list(
+        'irnpool',
+        'irnpool',
+        '',
+        xl('Invoice reference number pool, if used')
+    );
+    ?>
  </td>
 </tr>
 <?php } ?>
@@ -372,10 +373,11 @@ echo generate_select_list(
  <td><select name="access_group[]" multiple style="width:120px;" class="form-control">
 <?php
 // List the access control groups
-$list_acl_groups = acl_get_group_title_list();
+$is_super_user = acl_check('admin', 'super');
+$list_acl_groups = acl_get_group_title_list($is_super_user ? true : false);
 $default_acl_group = 'Administrators';
 foreach ($list_acl_groups as $value) {
-    if ($default_acl_group == $value) {
+    if ($is_super_user && $default_acl_group == $value) {
         // Modified 6-2009 by BM - Translate group name if applicable
         echo " <option value='" . attr($value) . "' selected>" . text(xl_gacl_group($value)) . "</option>\n";
     } else {
@@ -383,7 +385,7 @@ foreach ($list_acl_groups as $value) {
         echo " <option value='" . attr($value) . "'>" . text(xl_gacl_group($value)) . "</option>\n";
     }
 }
-    ?>
+?>
   </select></td>
   <td><span class="text"><?php echo xlt('Additional Info'); ?>: </span></td>
   <td><textarea name=info style="width:120px;" cols=27 rows=4 wrap=auto class="form-control"></textarea></td>
@@ -405,7 +407,7 @@ foreach ($list_acl_groups as $value) {
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <br>
 <input type=hidden name=mode value=new_group>
 <span class="bold"><?php echo xlt('New Group'); ?>:</span>
@@ -437,7 +439,7 @@ foreach ($result as $iter) {
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type=hidden name=mode value=new_group>
 <span class="bold"><?php echo xlt('Add User To Group'); ?>:</span>
 </td><td>
@@ -489,7 +491,7 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
     foreach ($result5 as $iter) {
         $grouplist{$iter{"name"}} .= $iter{"user"} .
         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-        attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
+        attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
     }
 
     foreach ($grouplist as $groupname => $list) {
@@ -505,7 +507,7 @@ if ($alertmsg = trim($alertmsg)) {
     echo "alert('" . js_escape($alertmsg) . "');\n";
 }
 ?>
-$(document).ready(function(){
+$(function(){
     $("#cancel").click(function() {
           dlgclose();
      });

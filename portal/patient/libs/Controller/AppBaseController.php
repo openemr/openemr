@@ -31,11 +31,11 @@ class AppBaseController extends Controller
     protected function Init()
     {
 
-    /*	if ( !in_array($this->GetRouter()->GetUri(),array('login','loginform','logout')) )
-		{
-			require_once("App/SecureApp.php");
-			$this->RequirePermission(SecureApp::$PERMISSION_ADMIN,'SecureApp.LoginForm');
-		}*/
+    /*  if ( !in_array($this->GetRouter()->GetUri(),array('login','loginform','logout')) )
+        {
+            require_once("App/SecureApp.php");
+            $this->RequirePermission(SecureApp::$PERMISSION_ADMIN,'SecureApp.LoginForm');
+        }*/
     }
 
     /**

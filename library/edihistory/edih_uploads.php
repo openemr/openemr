@@ -1,27 +1,13 @@
 <?PHP
 /**
  * edih_uploads.php
- * Copyright 2012 Kevin McCormick
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 3 or later.  You should have
- * received a copy of the GNU General Public License along with this program;
- * if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *  <http://opensource.org/licenses/gpl-license.php>
- *
- *
- *
- * @author Kevin McCormick
- * @link: https://www.open-emr.org
- * @package OpenEMR
+ * @package    OpenEMR
  * @subpackage ediHistory
+ * @link       https://www.open-emr.org
+ * @author     Kevin McCormick
+ * @copyright  Copyright (c) 2017 Kevin McCormick
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -216,8 +202,8 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false)
     $edih_upldir = csv_edih_tmpdir();
     //
     $zip_obj = new ZipArchive();
-    // open archive (ZIPARCHIVE::CHECKCONS the ZIPARCHIVE::CREATE is supposedly necessary for microsoft)
-    if ($zip_obj->open($zipfilename, ZIPARCHIVE::CHECKCONS) !== true) {
+    // open archive (ZipArchive::CHECKCONS the ZipArchive::CREATE is supposedly necessary for microsoft)
+    if ($zip_obj->open($zipfilename, ZipArchive::CHECKCONS) !== true) {
         //$html_str .= "Error: Could not open archive $zipfilename <br />" . PHP_EOL;
         csv_edihist_log('edih_ziptoarray: Error: Could not open archive '.$zipfilename);
         $f_zr['reject'][] = array('name'=>$zipfilename, 'comment'=>'Error: Could not open archive '.$zipfilename);

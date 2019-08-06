@@ -15,6 +15,7 @@
 require_once("../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
@@ -101,7 +102,7 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
                      items:  theitems,
                      track:  thetrack,
                      thecheckboxes: checkedBoxes,
-                     csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                    },
              dataType: "json",
              success: function(returnData){
@@ -220,7 +221,7 @@ while ($myrow = sqlFetchArray($query)) {
     $date_local     = array();  # (collects items' datetime for local row)
     $value_local    = array();  # (collects item's values [local array])
     $localplot_c    = array(); // counter to decide if graph-button is shown
-    $shownameflag   = 0; // show table-head	?
+    $shownameflag   = 0; // show table-head ?
     $localplot      = 0; // show graph-button?
     $col            = 0; // how many Items per row
     $row_lc         = 0; // local row counter
@@ -349,7 +350,7 @@ while ($myrow = sqlFetchArray($query)) {
 // onClick create graph javascript method
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-?>
+    ?>
 <script type="text/javascript">
 function get_my_graph<?php echo attr($track_count); ?>(where){
     top.restoreSession();
@@ -370,7 +371,7 @@ function get_my_graph<?php echo attr($track_count); ?>(where){
     plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, <?php echo attr($track_count); ?>);
 }
 </script>
-<?php
+    <?php
 // ~~~~~~~~~~~~~~~~~ / end javascript method ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 } // end while get all trackdata

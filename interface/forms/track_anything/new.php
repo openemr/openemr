@@ -46,7 +46,7 @@ echo "<html><head>";
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
-$(document).ready(function(){
+$(function(){
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = true; ?>
@@ -81,7 +81,7 @@ if (!$formid) {
             addForm($encounter, $register_as, $formid, "track_anything", $pid, $userauthorized);
         } else {
                 echo xlt('No track selected'). ".<br>";
-?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+            ?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
         }
     } else {
     // procedure is not yet selected
@@ -106,13 +106,13 @@ if (!$formid) {
         echo "</select>";
         echo "</td></tr><tr><td align='center'>";
         echo "<input type='submit' name='bn_select' value='" . xla('Select') . "' />";
-?><input type='button' value='<?php echo  xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+        ?><input type='button' value='<?php echo  xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
         echo "</form>";
         echo "<br>&nbsp;</td></tr>";
 
         echo "<tr><td align='center'>";
         echo "<input type='submit' name='create_track' value='" . xla('Configure tracks') . "' ";
-        ?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/forms/track_anything/create.php'"<?php
+?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/forms/track_anything/create.php'"<?php
         echo " />";
         echo "</td></tr>";
         echo "</table>";
@@ -150,7 +150,7 @@ if ($formid) {
 
             // store data to track_anything_db
             $query = "INSERT INTO form_track_anything_results (track_anything_id, track_timestamp, itemid, result) VALUES (?, ?, ?, ?)";
-            sqlInsert($query, array($formid,$thedate,$thisid,$thisvalue));
+            sqlStatement($query, array($formid,$thedate,$thisid,$thisvalue));
         }
     }
 
@@ -201,7 +201,7 @@ if ($formid) {
     echo "<td><input type='text' size='16' name='datetime' id='datetime'" .
              "value='" . attr(date('Y-m-d H:i:s', time())) . "'" .
              "class='datetimepicker' /></td></tr>";
-        ?>
+    ?>
 
     <?php
     // get items to track
@@ -217,7 +217,7 @@ if ($formid) {
     echo "</table>";
     echo "<input type='hidden' name='formid' value='". attr($formid) . "'>";
     echo "<input type='submit' name='bn_save' value='" . xla('Save') . "' />";
-?><input type='button' value='<?php echo  xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+    ?><input type='button' value='<?php echo  xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
 
 
     // show old entries of track

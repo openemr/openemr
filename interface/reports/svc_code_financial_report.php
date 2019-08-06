@@ -9,7 +9,7 @@
  * 'Service Reporting'.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Visolve
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -25,11 +25,12 @@ require_once("$srcdir/acl.inc");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -57,9 +58,8 @@ if ($_POST['form_csvexport']) {
     header("Content-Disposition: attachment; filename=svc_financial_report_".attr($form_from_date)."--".attr($form_to_date).".csv");
     header("Content-Description: File Transfer");
     // CSV headers:
-} // end export
-else {
-?>
+} else { // end export
+    ?>
 <html>
 <head>
     <title><?php echo xlt('Financial Summary by Service Code') ?></title>
@@ -92,7 +92,7 @@ else {
     </style>
 
     <script language="JavaScript">
-        $(document).ready(function() {
+        $(function() {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
@@ -111,7 +111,7 @@ else {
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class="body_top">
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Financial Summary by Service Code'); ?></span>
 <form method='post' action='svc_code_financial_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
@@ -147,7 +147,7 @@ else {
             }
 
                             echo "   </select>\n";
-                            ?>
+            ?>
                 </td>
         </tr><tr>
                  <td class='control-label'>
@@ -157,7 +157,7 @@ else {
                            <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
                         </td>
                         <td class='control-label'>
-                            <?php echo xlt('To'); ?>:
+                            <?php echo xlt('To{{Range}}'); ?>:
                         </td>
                         <td>
                            <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
@@ -202,7 +202,7 @@ else {
 </table>
 </div> <!-- end of parameters -->
 
-<?php
+    <?php
 }
 
    // end not export
@@ -274,29 +274,29 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"Balance Amt",' . "\n";
         }
     } else {
-?> <div id="report_results">
+        ?> <div id="report_results">
 <table id='mymaintable'>
 <thead>
 <th>
-<?php echo xlt('Procedure Codes'); ?>
+        <?php echo xlt('Procedure Codes'); ?>
 </th>
 <th >
-<?php echo xlt('Units'); ?>
+        <?php echo xlt('Units'); ?>
 </th>
 <th>
-<?php echo xlt('Amt Billed'); ?>
+        <?php echo xlt('Amt Billed'); ?>
 </th>
 <th>
-<?php echo xlt('Paid Amt'); ?>
+        <?php echo xlt('Paid Amt'); ?>
 </th>
 <th >
-<?php echo xlt('Adjustment Amt'); ?>
+        <?php echo xlt('Adjustment Amt'); ?>
 </th>
 <th >
-<?php echo xlt('Balance Amt'); ?>
+        <?php echo xlt('Balance Amt'); ?>
 </th>
 </thead>
-<?php
+        <?php
     }
 
             $orow = -1;
@@ -365,6 +365,6 @@ if (! $_POST['form_csvexport']) {
 </body>
 
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

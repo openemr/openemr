@@ -461,6 +461,90 @@ body dl {
 .chevron_color {
     color: #063f80;
 }
+
+/* main.php*/
+.body_main{
+  background-color:#F4F4F4;
+}
+/*~~openemr5 tabs menu , user and logout icon~~*/
+#menu_icon, #logout_icon, #user_icon {
+    color:#9c9c9c !important;
+}
+/*~~openemr5 tabs menu , user and logout icon~~*/
+/*openrmr5.0.2 edit_globals vertical menu*/
+#oe-nav-ul.tabNav li {
+    border: none;
+    border-radius:0;
+}
+#oe-nav-ul.tabNav li.current {
+	color: #676666;
+}
+#oe-nav-ul.tabNav a {
+	background: #f4f4f4;
+	border-left: 2px solid #9c9c9c;
+	border-bottom: 1px solid #ccc;
+}
+#oe-nav-ul.tabNav a:hover {
+	background-color: #fff !important;
+	color:  #9c9c9c;
+}
+#oe-nav-ul.tabNav {
+	background: rgba(0, 0, 0, .05)!important;
+}
+#oe-nav-ul.tabNav .current a {
+	border-color: #9c9c9c;
+	background: #fff;
+	color: #676666;
+}
+#globals-div .tabContainer {
+	border-color: #9c9c9c;
+}
+.oe-global-tab-heading {
+	color: #676666;
+    margin-top: -20px;
+}
+.tabSpan {
+    border-top: 3pt solid #9c9c9c !important;
+    border-left: 1px solid #9c9c9c !important;
+    border-right: 1px solid #9c9c9c !important;
+}
+.tabNotchosen {
+    border-bottom: 1pt solid #9c9c9c !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+ }
+/*openrmr5.0.2 edit_globals vertical menu*/
+/*bootstrap navbar */
+.navbar-collapse.collapse.in {
+    background-color: #F5F5F5!important;
+    color: #000!important;
+}
+.navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
+    color: #333;
+    background-color: #eee;
+}
+/*bootstrap navbar */
+/*openemr 5 patient-finder*/
+@media screen and (max-width: 750px) {
+    #pt_table {
+        font-size: 1.2rem;
+    }
+}
+/*openemr 5 patient-finder*/
+
+/*vertical main menu */
+
+.appMenu_small .menuSection > .menuEntries {
+    left:40px;
+    box-shadow:3px 5px 8px #adadad;
+}
+/*vertical main menu */
+/*search any*/
+*.oe-expandable-search .any-search-legacy {
+    background: #FFFFE0;
+}
+/*search any*/
 @import "oe-bootstrap";
 @import "oe-common/all-common-import";
 

@@ -25,6 +25,8 @@ class Installer
         $this->iuname                   = isset($cgi_variables['iuname']) ? ($cgi_variables['iuname']) : '';
         $this->iufname                  = isset($cgi_variables['iufname']) ? ($cgi_variables['iufname']) : '';
         $this->igroup                   = isset($cgi_variables['igroup']) ? ($cgi_variables['igroup']) : '';
+        $this->i2faEnable               = isset($cgi_variables['i2faenable']) ? ($cgi_variables['i2faenable']) : '';
+        $this->i2faSecret               = isset($cgi_variables['i2fasecret']) ? ($cgi_variables['i2fasecret']) : '';
         $this->server                   = isset($cgi_variables['server']) ? ($cgi_variables['server']) : ''; // mysql server (usually localhost)
         $this->loginhost                = isset($cgi_variables['loginhost']) ? ($cgi_variables['loginhost']) : ''; // php/apache server (usually localhost)
         $this->port                     = isset($cgi_variables['port']) ? ($cgi_variables['port']): '';
@@ -370,12 +372,38 @@ class Installer
             return false;
         }
 
+        // Create new 2fa if enabled
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp')) && (class_exists('OpenEMR\Common\Crypto\CryptoGen'))) {
+            // Encrypt the new secret with the hashed password
+            $cryptoGen = new OpenEMR\Common\Crypto\CryptoGen();
+            $secret = $cryptoGen->encryptStandard($this->i2faSecret, $hash);
+            if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '".$this->escapeSql($secret)."', '')") == false) {
+                $this->error_message = "ERROR. Unable to add initial user's 2FA credentials\n".
+                    "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
+                return false;
+            }
+        }
+
         // Add the official openemr users (services)
         if ($this->load_file($this->additional_users, "Additional Official Users") == false) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Generates the initial user's 2FA QR Code
+     * @return bool|string|void
+     */
+    public function get_initial_user_2fa_qr()
+    {
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp'))) {
+            $adminTotp = new Totp($this->i2faSecret, $this->iuser);
+            $qr = $adminTotp->generateQrCode();
+            return $qr;
+        }
+        return false;
     }
 
   /**
@@ -443,7 +471,7 @@ $config = 1; /////////////
 //////////////////////////
 ?>
 ';
-    ?><?php // done just for coloring
+        ?><?php // done just for coloring
 
     fwrite($fd, $string) or $it_died++;
     fclose($fd) or $it_died++;
@@ -459,10 +487,15 @@ if ($it_died != 0) {
 
     public function insert_globals()
     {
-        function xl($s)
-        {
-            return $s;
+        if (!(function_exists('xl'))) {
+            function xl($s)
+            {
+                return $s;
+            }
+        } else {
+            $GLOBALS['temp_skip_translations'] = true;
         }
+        $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
         require(dirname(__FILE__) . '/../globals.inc.php');
         foreach ($GLOBALS_METADATA as $grpname => $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
@@ -646,7 +679,7 @@ if ($it_died != 0) {
             if ($showError) {
                 $error_mes = mysqli_error($this->dbh);
                 $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
-                error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . $sql . " due to: " . $error_mes);
+                error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($error_mes, ENT_QUOTES));
             }
             return false;
         }
@@ -964,12 +997,12 @@ DSTD;
             </div>
         </div>
         <script>
-            $(document).ready(function() {
+            $(function() {
                 $('#help-href').click (function(){
                     document.getElementById('targetiframe').src = "Documentation/help_files/openemr_installation_help.php";
                 })
             });
-            $(document).ready(function() {
+            $(function() {
                 $('#print-help-href').click (function(){
                     $("#targetiframe").get(0).contentWindow.print();
                 })

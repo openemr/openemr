@@ -44,6 +44,14 @@ function js_url($text)
 }
 
 /**
+ * Escape variables that are outputted into the php error log.
+ */
+function errorLogEscape($text)
+{
+    return attr($text);
+}
+
+/**
  * Escape a PHP string for use as (part of) an HTML / XML text node.
  *
  * It only escapes a few special chars: the ampersand (&) and both the left-
@@ -90,19 +98,6 @@ function text($text)
 function attr($text)
 {
     return htmlspecialchars($text, ENT_QUOTES);
-}
-
-/**
- * This function is a compatibility replacement for the out function removed
- *  from the CDR Admin framework.
- *
- * @param string $text The string to escape, possibly including (&), (<),
- *                     (>), ('), and (").
- * @return string The string, with (&), (<), (>), ("), and (') escaped.
- */
-function out($text)
-{
-    return attr($text);
 }
 
 /**

@@ -15,9 +15,15 @@
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
+
+// Set up crypto object
+$cryptoGen = new CryptoGen();
 
 $form_filename = convert_safe_file_dir_name($_REQUEST['form_filename']);
 
@@ -28,31 +34,38 @@ $templatedir = "$OE_SITE_DIR/documents/doctemplates";
 //
 if (!empty($_POST['bn_download'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $templatepath = "$templatedir/$form_filename";
+
+    // Place file in variable
+    $fileData = file_get_contents($templatepath);
+
+    // Decrypt file, if applicable
+    if ($cryptoGen->cryptCheckStandard($fileData)) {
+        $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
+    }
+
     header('Content-Description: File Transfer');
     header('Content-Transfer-Encoding: binary');
     header('Expires: 0');
     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
     header('Pragma: public');
-  // attachment, not inline
+    // attachment, not inline
     header("Content-Disposition: attachment; filename=\"$form_filename\"");
-  // Note we avoid providing a mime type that suggests opening the file.
+    // Note we avoid providing a mime type that suggests opening the file.
     header("Content-Type: application/octet-stream");
-    header("Content-Length: " . filesize($templatepath));
-    ob_clean();
-    flush();
-    readfile($templatepath);
+    header("Content-Length: " . strlen($fileData));
+    echo $fileData;
     exit;
 }
 
 if (!empty($_POST['bn_delete'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $templatepath = "$templatedir/$form_filename";
@@ -63,11 +76,11 @@ if (!empty($_POST['bn_delete'])) {
 
 if (!empty($_POST['bn_upload'])) {
     //verify csrf
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
-  // Handle uploads.
+    // Handle uploads.
     $tmp_name = $_FILES['form_file']['tmp_name'];
     if (is_uploaded_file($tmp_name) && $_FILES['form_file']['size']) {
         // Choose the destination path/filename.
@@ -81,7 +94,7 @@ if (!empty($_POST['bn_upload'])) {
             die(xlt('Cannot determine a destination filename'));
         }
         $path_parts = pathinfo($form_dest_filename);
-        if (!in_array(strtolower($path_parts['extension']), array('odt', 'txt', 'docx'))) {
+        if (!in_array(strtolower($path_parts['extension']), array('odt', 'txt', 'docx', 'zip'))) {
             die(text(strtolower($path_parts['extension'])) . ' ' . xlt('filetype is not accepted'));
         }
 
@@ -96,8 +109,18 @@ if (!empty($_POST['bn_upload'])) {
             unlink($templatepath);
         }
 
-        // Put the new file in its desired location.
-        if (!move_uploaded_file($tmp_name, $templatepath)) {
+        // Place uploaded file in variable.
+        $fileData = file_get_contents($tmp_name);
+
+        // Encrypt uploaded file, if applicable.
+        if ($GLOBALS['drive_encryption']) {
+            $storedData = $cryptoGen->encryptStandard($fileData, null, 'database');
+        } else {
+            $storedData = $fileData;
+        }
+
+        // Store the uploaded file.
+        if (file_put_contents($templatepath, $storedData) === false) {
             die(xlt('Unable to create') . " '" . text($templatepath) . "'");
         }
     }
@@ -120,7 +143,7 @@ if (!empty($_POST['bn_upload'])) {
 <body class="body_top">
 <form method='post' action='manage_document_templates.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

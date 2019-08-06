@@ -33,8 +33,10 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once "$srcdir/user.inc";
 
+use Mpdf\Mpdf;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -139,9 +141,9 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
 function era_callback(&$out)
 {
     global $where, $eracount, $eraname;
-// print_r($out); // debugging
+    // print_r($out); // debugging
     ++$eracount;
-// $eraname = $out['isa_control_number'];
+    // $eraname = $out['isa_control_number'];
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
         '_' . ltrim($out['payer_id'], '0');
     list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
@@ -211,7 +213,7 @@ function emailLogin($patient_id, $message)
         return true;
     } else {
         $email_status = $mail->ErrorInfo;
-        error_log("EMAIL ERROR: " . $email_status, 0);
+        error_log("EMAIL ERROR: " . errorLogEscape($email_status), 0);
         return false;
     }
 }
@@ -228,11 +230,11 @@ function upload_file_to_client($file_to_send)
     header("Content-Disposition: attachment; filename=" . basename($file_to_send));
     header("Content-Description: File Transfer");
     readfile($file_to_send);
-// flush the content to the browser. If you don't do this, the text from the subsequent
-// output from this script will be in the file instead of sent to the browser.
+    // flush the content to the browser. If you don't do this, the text from the subsequent
+    // output from this script will be in the file instead of sent to the browser.
     flush();
     exit(); //added to exit from process properly in order to stop bad html code -ehrlive
-// sleep one second to ensure there's no follow-on.
+    // sleep one second to ensure there's no follow-on.
     sleep(1);
 }
 
@@ -254,8 +256,8 @@ function upload_file_to_client_email($ppid, $file_to_send)
 
 function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID = null, $flagCFN = false)
 {
-//modified for statement title name
-//Function reads a HTML file and converts to pdf.
+    //modified for statement title name
+    //Function reads a HTML file and converts to pdf.
 
     $aPatFName = convert_safe_file_dir_name($aPatFirstName); //modified for statement title name
     if ($flagCFN) {
@@ -267,22 +269,35 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     global $srcdir;
 
     if ($GLOBALS['statement_appearance'] == '1') {
-        require_once("$srcdir/html2pdf/vendor/autoload.php");
-        $pdf2 = new HTML2PDF(
-            $GLOBALS['pdf_layout'],
-            $GLOBALS['pdf_size'],
-            $GLOBALS['pdf_language'],
-            true, // default unicode setting is true
-            'UTF-8', // default encoding setting is UTF-8
-            array($GLOBALS['pdf_left_margin'], $GLOBALS['pdf_top_margin'], $GLOBALS['pdf_right_margin'], $GLOBALS['pdf_bottom_margin']),
-            $_SESSION['language_direction'] == 'rtl' ? true : false
+        $config_mpdf = array(
+            'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+            'mode' => $GLOBALS['pdf_language'],
+            'format' => $GLOBALS['pdf_size'],
+            'default_font_size' => '9',
+            'default_font' => 'dejavusans',
+            'margin_left' => $GLOBALS['pdf_left_margin'],
+            'margin_right' => $GLOBALS['pdf_right_margin'],
+            'margin_top' => $GLOBALS['pdf_top_margin'],
+            'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
+            'margin_header' => '',
+            'margin_footer' => '',
+            'orientation' => $GLOBALS['pdf_layout'],
+            'shrink_tables_to_fit' => 1,
+            'use_kwt' => true,
+            'autoScriptToLang' => true,
+            'keep_table_proportions' => true
         );
+        $pdf2 = new mPDF($config_mpdf);
+        if ($_SESSION['language_direction'] == 'rtl') {
+            $pdf2->SetDirectionality('rtl');
+        }
         ob_start();
         readfile($file_to_send, "r");//this file contains the HTML to be converted to pdf.
-//echo $file;
+        //echo $file;
         $content = ob_get_clean();
 
-// Fix a nasty html2pdf bug - it ignores document root!
+        // Fix a nasty html2pdf bug - it ignores document root!
+        // TODO - now use mPDF, so should test if still need this fix
         global $web_root, $webserver_root;
         $i = 0;
         $wrlen = strlen($web_root);
@@ -341,11 +356,11 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     header("Content-Disposition: attachment; filename=" . basename($STMT_TEMP_FILE_PDF));
     header("Content-Description: File Transfer");
     readfile($STMT_TEMP_FILE_PDF);
-// flush the content to the browser. If you don't do this, the text from the subsequent
-// output from this script will be in the file instead of sent to the browser.
+    // flush the content to the browser. If you don't do this, the text from the subsequent
+    // output from this script will be in the file instead of sent to the browser.
     flush();
     exit(); //added to exit from process properly in order to stop bad html code -ehrlive
-// sleep one second to ensure there's no follow-on.
+    // sleep one second to ensure there's no follow-on.
     sleep(1);
 }
 
@@ -354,8 +369,8 @@ $today = date("Y-m-d");
 // Print or download statements if requested.
 //
 if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_email'] || $_REQUEST['form_pdf']) || $_REQUEST['form_portalnotify'] && $_REQUEST['form_cb']) {
-    if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
@@ -389,8 +404,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     $multiplePatients = false;
     $usePatientNamePdf = false;
 
-// get pids for delimits
-// need to only use summary invoice for multi visits
+    // get pids for delimits
+    // need to only use summary invoice for multi visits
     $inv_pid = array();
     $inv_count = -1;
     if ($_REQUEST['form_portalnotify']) {
@@ -408,8 +423,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         }
         $rcnt++;
     }
-// This loops once for each invoice/encounter.
-//
+    // This loops once for each invoice/encounter.
+    //
     $rcnt = 0;
     while ($row = $rows[$rcnt++]) {
         $svcdate = substr($row['date'], 0, 10);
@@ -431,25 +446,25 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             }
         }
 
-// If this is a new patient then print the pending statement
-// and start a new one.  This is an associative array:
-//
-//  cid     = same as pid
-//  pid     = OpenEMR patient ID
-//  patient = patient name
-//  amount  = total amount due
-//  adjust  = adjustments (already applied to amount)
-//  duedate = due date of the oldest included invoice
-//  age     = number of days from duedate to today
-//  to      = array of addressee name/address lines
-//  lines   = array of:
-//    dos     = date of service "yyyy-mm-dd"
-//    desc    = description
-//    amount  = charge less adjustments
-//    paid    = amount paid
-//    notice  = 1 for first notice, 2 for second, etc.
-//    detail  = array of details, see invoice_summary.inc.php
-//
+        // If this is a new patient then print the pending statement
+        // and start a new one.  This is an associative array:
+        //
+        //  cid     = same as pid
+        //  pid     = OpenEMR patient ID
+        //  patient = patient name
+        //  amount  = total amount due
+        //  adjust  = adjustments (already applied to amount)
+        //  duedate = due date of the oldest included invoice
+        //  age     = number of days from duedate to today
+        //  to      = array of addressee name/address lines
+        //  lines   = array of:
+        //    dos     = date of service "yyyy-mm-dd"
+        //    desc    = description
+        //    amount  = charge less adjustments
+        //    paid    = amount paid
+        //    notice  = 1 for first notice, 2 for second, etc.
+        //    detail  = array of details, see invoice_summary.inc.php
+        //
         if ($stmt['cid'] != $row['pid']) {
             if (!empty($stmt)) {
                 ++$stmt_count;
@@ -465,9 +480,9 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
             $stmt['encounter'] = $row['encounter'];
             $stmt['provider_id'] = $row['provider_id'];
-#If you use the field in demographics layout called
-#guardiansname this will allow you to send statements to the parent
-#of a child or a guardian etc
+            #If you use the field in demographics layout called
+            #guardiansname this will allow you to send statements to the parent
+            #of a child or a guardian etc
             if (strlen($row['guardiansname']) == 0) {
                 $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
             } else {
@@ -485,13 +500,13 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             $stmt['today'] = $today;
             $stmt['duedate'] = $duedate;
         } else {
-// Report the oldest due date.
+            // Report the oldest due date.
             if ($duedate < $stmt['duedate']) {
                 $stmt['duedate'] = $duedate;
             }
         }
 
-// Recompute age at each invoice.
+        // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
 
         $invlines = ar_get_invoice_summary($row['pid'], $row['encounter'], true);
@@ -514,7 +529,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             $stmt['ins_paid'] = $stmt['ins_paid'] + $value['ins'];
         }
 
-// Record that this statement was run.
+        // Record that this statement was run.
         if (!$DEBUG && !$_REQUEST['form_without']) {
             sqlStatement("UPDATE form_encounter SET " .
                 "last_stmt_date = ?, stmt_count = stmt_count + 1 " .
@@ -527,7 +542,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 break;
             }
             $pvoice[] = $stmt;
-// we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
+            // we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
             if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
                 fwrite($fhprint, make_statement($stmt));
                 if (!notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])) {
@@ -559,7 +574,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
     fclose($fhprint);
     sleep(1);
-// Download or print the file, as selected
+    // Download or print the file, as selected
     if ($_REQUEST['form_download']) {
         upload_file_to_client($STMT_TEMP_FILE);
     } elseif ($_REQUEST['form_pdf']) {
@@ -617,7 +632,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 {
                     target: target,
                     setting: val,
-                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }
             );
         }
@@ -637,7 +652,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             setTimeout(function(){parent.left_nav.loadFrame('enc2', 'enc', encurl);}, 3000);
         }
 
-        $(document).ready(function () {
+        $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
@@ -713,7 +728,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     <div class="row">
         <div class="col-sm-12">
             <form id="formSearch" action="" enctype='multipart/form-data' method='post'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>"/>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
                 <fieldset id="payment-allocate" class="oe-show-hide">
                     <legend>
                         &nbsp;<?php echo xlt('Post Item'); ?><i id="payment-info-do-not-remove"> </i>
@@ -779,10 +794,10 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </fieldset>
                 <fieldset id="search-upload">
                     <legend>
-                        &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip'
-                                                                                       class="fa fa-info-circle oe-superscript"
-                                                                                       aria-hidden="true"></i>
-                        <div id="radio-div" class="pull-right oe-legend-radio">
+                        &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip' 
+                        class="fa fa-info-circle oe-superscript" aria-hidden="true"></i>
+                                      
+                        <div id="radio-div" class="oe-pull-away oe-legend-radio">
                             <label class="radio-inline">
                                 <input type="radio" id="invoice_search" name="radio-search" onclick=""
                                        value="inv-search"><?php echo xlt('Invoice Search'); ?>
@@ -878,7 +893,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </div>
                 <fieldset id="search-results" class="oe-show-hide">
                     <legend><span><?php echo xlt('Search Results'); ?></span>
-                        <div class="pull-right oe-legend-radio">
+                        <div class="oe-pull-away oe-legend-radio">
                             <label class="checkbox-inline">
                                 <input type="checkbox" id="posting_adj_disable" name="posting_adj_disable"
                                        onchange='persistCriteria(this, event)'
@@ -891,8 +906,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                     <div class="table-responsive">
                         <?php
                         if ($_REQUEST['form_search'] || $_REQUEST['form_print']) {
-                            if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-                                csrfNotVerified();
+                            if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+                                CsrfUtils::csrfNotVerified();
                             }
 
                             $form_name = trim($_REQUEST['form_name']);
@@ -903,8 +918,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
                             $where = "";
 
-                        // Handle X12 835 file upload.
-                        //
+                            // Handle X12 835 file upload.
+                            //
                             if ($_FILES['form_erafile']['size']) {
                                 $tmp_name = $_FILES['form_erafile']['tmp_name'];
 
@@ -918,11 +933,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 echo "<!-- Notes from ERA upload processing:\n";
                                 $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
                                 echo "-->\n";
-                                $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
+                                $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
 
                                 if (is_file($erafullname)) {
                                     $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html")) {
+                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.html")) {
                                         $alertmsg .= "and processed. ";
                                     } else {
                                         $alertmsg .= "but not yet processed. ";
@@ -987,8 +1002,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 }
                             }
 
-                        // Notes that as of release 4.1.1 the copays are stored
-                        // in the ar_activity table marked with a PCP in the account_code column.
+                            // Notes that as of release 4.1.1 the copays are stored
+                            // in the ar_activity table marked with a PCP in the account_code column.
                             $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
                             "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
                             "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " .
@@ -1006,11 +1021,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             "WHERE $where " .
                             "ORDER BY p.lname, p.fname, p.mname, f.pid, f.encounter";
 
-                        // Note that unlike the SQL-Ledger case, this query does not weed
-                        // out encounters that are paid up.  Also the use of sub-selects
-                        // will require MySQL 4.1 or greater.
+                            // Note that unlike the SQL-Ledger case, this query does not weed
+                            // out encounters that are paid up.  Also the use of sub-selects
+                            // will require MySQL 4.1 or greater.
 
-                        // echo "<!-- $query -->\n"; // debugging
+                            // echo "<!-- $query -->\n"; // debugging
                                 $num_invoices = 0;
                             if (!$alertmsg) {
                                 $t_res = sqlStatement($query);
@@ -1021,7 +1036,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
                                     "matching encounters in OpenEMR. ";
                             }
-                        ?>
+                            ?>
                         <table class="table table-striped table-condensed">
                             <thead>
                             <tr>
@@ -1058,6 +1073,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                     continue;
                                 }
 
+                                // Determine if customer is in collections.
+                                //
+                                $billnote = $row['billing_note'];
+                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
+
                                 // $duncount was originally supposed to be the number of times that
                                 // the patient was sent a statement for this invoice.
                                 //
@@ -1068,8 +1088,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 // yet closed out insurance.
                                 //
                                 if (!$duncount) {
-                                    for ($i = 1; $i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i);
-                                         ++$i) {
+                                    for ($i = 1; $i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i); ++$i) {
                                     }
                                     $duncount = $row['last_level_closed'] + 1 - $i;
                                 }
@@ -1079,7 +1098,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 // An invoice is now due from the patient if money is owed and we are
                                 // not waiting for insurance to pay.
                                 //
-                                $isduept = ($duncount >= 0 && $isdueany) ? " checked" : "";
+                                $isduept = ($duncount >= 0 && $isdueany && !$in_collections) ? " checked" : "";
 
                                 // Skip invoices not in the desired "Due..." category.
                                 //
@@ -1098,10 +1117,6 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 $svcdate = substr($row['date'], 0, 10);
                                 $last_stmt_date = empty($row['last_stmt_date']) ? '' : $row['last_stmt_date'];
 
-                                // Determine if customer is in collections.
-                                //
-                                $billnote = $row['billing_note'];
-                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
                                 ?>
                                 <tr>
                                     <td class="detail">
@@ -1160,7 +1175,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 <?php
                             } // end while
                         } // end search/print logic
-                            ?>
+                        ?>
                         </table>
                     </div><!--End of table-responsive div-->
                 </fieldset>
@@ -1219,7 +1234,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         var f = document.forms[0];
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
-        window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&original=original' + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank');
+        window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&original=original' + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank');
         return false;
     }
 
@@ -1234,7 +1249,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         });
 
 // We can watch for our custom `fileselect` event like this
-        $(document).ready(function () {
+        $(function () {
             $(':file').on('fileselect', function (event, numFiles, label) {
                 var input = $(this).parents('.input-group').find(':text'),
                     log = numFiles > 1 ? numFiles + ' files selected' : label;
@@ -1250,7 +1265,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
     });
     //to dynamically show /hide relevant divs and change Fieldset legends
-    $(document).ready(function () {
+    $(function () {
         $("input[name=radio-search]").on("change", function () {
 
             let flip = $(this).val();
@@ -1289,7 +1304,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     }
 
     ?>
-    $(document).ready(function () {
+    $(function () {
 //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
         $('#select-method-tooltip').attr("title", <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>).tooltip();
     });

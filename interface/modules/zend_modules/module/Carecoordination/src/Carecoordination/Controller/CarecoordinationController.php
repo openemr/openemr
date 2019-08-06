@@ -1,25 +1,14 @@
 <?php
-/* +-----------------------------------------------------------------------------+
- *    OpenEMR - Open Source Electronic Medical Record
- *    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+/**
+ * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php
  *
- *    This program is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU Affero General Public License as
- *    published by the Free Software Foundation, either version 3 of the
- *    License, or (at your option) any later version.
- *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU Affero General Public License for more details.
- *
- *    You should have received a copy of the GNU Affero General Public License
- *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *    @author  Vinish K <vinish@zhservices.com>
- *    @author  Chandni Babu <chandnib@zhservices.com>
- *    @author  Riju KP <rijukp@zhservices.com>
- * +------------------------------------------------------------------------------+
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Chandni Babu <chandnib@zhservices.com>
+ * @author    Riju KP <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 namespace Carecoordination\Controller;
 
@@ -28,6 +17,7 @@ use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
+use Carecoordination\Model\CarecoordinationTable;
 
 use C_Document;
 use Document;
@@ -36,11 +26,22 @@ use xmltoarray_parser_htmlfix;
 
 class CarecoordinationController extends AbstractActionController
 {
+    /**
+     * @var Carecoordination\Model\CarecoordinationTable
+     */
+    private $carecoordinationTable;
 
-    public function __construct($sm = null)
+    /**
+     * @var Documents\Controller\DocumentsController
+     */
+    private $documentsController;
+
+    public function __construct(CarecoordinationTable $table, DocumentsController $documentsController)
     {
+        $this->carecoordinationTable = $table;
         $this->listenerObject = new Listener;
         $this->date_format = \Application\Model\ApplicationTable::dateFormat($GLOBALS['date_display_format']);
+        $this->documentsController = $documentsController;
     }
 
     /**
@@ -74,7 +75,7 @@ class CarecoordinationController extends AbstractActionController
 
         if ($upload == 1) {
             $time_start = date('Y-m-d H:i:s');
-            $obj_doc    = new DocumentsController();
+            $obj_doc    = $this->documentsController;
             $cdoc = $obj_doc->uploadAction($request);
             $uploaded_documents = array();
             $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
@@ -84,12 +85,12 @@ class CarecoordinationController extends AbstractActionController
                 $this->importAction();
             }
         } else {
-            $result = \Documents\Plugin\Documents::fetchXmlDocuments();
+            $result = $this->Documents()->fetchXmlDocuments();
             foreach ($result as $row) {
                 if ($row['doc_type'] == 'CCDA') {
                     $_REQUEST["document_id"] = $row['doc_id'];
                     $this->importAction();
-                    \Documents\Model\DocumentsTable::updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
+                    $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
             }
         }
@@ -109,7 +110,7 @@ class CarecoordinationController extends AbstractActionController
      * Function to import the data CCDA file to audit tables.
      *
      * @param    document_id     integer value
-     * @return   none
+     * @return \Zend\View\Model\JsonModel
      */
     public function importAction()
     {
@@ -117,7 +118,7 @@ class CarecoordinationController extends AbstractActionController
         if ($request->getQuery('document_id')) {
             $_REQUEST["document_id"] = $request->getQuery('document_id');
             $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
-            \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
+            $this->documentsController->getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
         }
 
         $document_id = $_REQUEST["document_id"];
@@ -125,6 +126,9 @@ class CarecoordinationController extends AbstractActionController
         $xml_content_new = preg_replace('#<br />#', '', $xml_content);
         $xml_content_new = preg_replace('#<br/>#', '', $xml_content_new);
 
+        // Note the behavior of this relies on PHP's XMLReader
+        // @see https://docs.zendframework.com/zend-config/reader/
+        // @see https://php.net/xmlreader
         $xmltoarray = new \Zend\Config\Reader\Xml();
         $array = $xmltoarray->fromString((string) $xml_content_new);
 
@@ -235,9 +239,12 @@ class CarecoordinationController extends AbstractActionController
 
         $this->getCarecoordinationTable()->import($array, $document_id);
 
-        $view = new ViewModel();
+        $view = new \Zend\View\Model\JsonModel();
         $view->setTerminal(true);
         return $view;
+        // $view = new ViewModel(array());
+        // $view->setTerminal(true);
+        // return $view;
     }
 
     public function revandapproveAction()
@@ -252,7 +259,7 @@ class CarecoordinationController extends AbstractActionController
             return $this->redirect()->toRoute('carecoordination', array(
                         'controller' => 'Carecoordination',
                         'action' => 'upload'));
-        } else if ($request->getPost('setval') == 'discard') {
+        } elseif ($request->getPost('setval') == 'discard') {
             $this->getCarecoordinationTable()->discardCCDAData(array('audit_master_id' => $audit_master_id));
             return $this->redirect()->toRoute('carecoordination', array(
                         'controller' => 'Carecoordination',
@@ -264,45 +271,45 @@ class CarecoordinationController extends AbstractActionController
         $demographics_old = $this->getCarecoordinationTable()->getDemographicsOld(array('pid' => $pid));
 
         $problems = $this->getCarecoordinationTable()->getProblems(array('pid' => $pid));
-        $problems_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'lists1');
+        $problems_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists1');
 
         $allergies = $this->getCarecoordinationTable()->getAllergies(array('pid' => $pid));
-        $allergies_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'lists2');
+        $allergies_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists2');
 
         $medications = $this->getCarecoordinationTable()->getMedications(array('pid' => $pid));
-        $medications_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'lists3');
+        $medications_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists3');
 
         $immunizations = $this->getCarecoordinationTable()->getImmunizations(array('pid' => $pid));
-        $immunizations_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'immunization');
+        $immunizations_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'immunization');
 
         $lab_results = $this->getCarecoordinationTable()->getLabResults(array('pid' => $pid));
-        $lab_results_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'procedure_result');
+        $lab_results_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'procedure_result');
 
         $vitals = $this->getCarecoordinationTable()->getVitals(array('pid' => $pid));
-        $vitals_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'vital_sign');
+        $vitals_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'vital_sign');
 
         $social_history = $this->getCarecoordinationTable()->getSocialHistory(array('pid' => $pid));
-        $social_history_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'social_history');
+        $social_history_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'social_history');
 
         $encounter = $this->getCarecoordinationTable()->getEncounterData(array('pid' => $pid));
-        $encounter_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'encounter');
+        $encounter_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'encounter');
 
         $procedure = $this->getCarecoordinationTable()->getProcedure(array('pid' => $pid));
-        $procedure_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'procedure');
+        $procedure_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'procedure');
 
         $care_plan = $this->getCarecoordinationTable()->getCarePlan(array('pid' => $pid));
-        $care_plan_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'care_plan');
+        $care_plan_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'care_plan');
 
         $functional_cognitive_status = $this->getCarecoordinationTable()->getFunctionalCognitiveStatus(array('pid' => $pid));
-        $functional_cognitive_status_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'functional_cognitive_status');
+        $functional_cognitive_status_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'functional_cognitive_status');
 
         $referral = $this->getCarecoordinationTable()->getReferralReason(array('pid' => $pid));
-        $referral_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'referral');
+        $referral_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'referral');
 
-        $discharge_medication_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'discharge_medication');
+        $discharge_medication_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'discharge_medication');
 
-        $discharge_summary = array();
-        $discharge_summary_audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, 'discharge_summary');
+        $discharge_summary = array(); // TODO: stephen what happened here?? no discharge summary review?
+        $discharge_summary_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'discharge_summary');
 
         $gender_list = $this->getCarecoordinationTable()->getList('sex');
         $country_list = $this->getCarecoordinationTable()->getList('country');
@@ -322,6 +329,9 @@ class CarecoordinationController extends AbstractActionController
         $demographics_old[0]['state'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['state'], 'state', '');
 
         $view = new ViewModel(array(
+            'carecoordinationTable' => $this->getCarecoordinationTable(),
+            'ApplicationTable' => $this->getApplicationTable(),
+            'commonplugin' => $this->CommonPlugin(), // this comes from the Application Module
             'demographics' => $demographics,
             'demographics_old' => $demographics_old,
             'problems' => $problems,
@@ -834,15 +844,34 @@ class CarecoordinationController extends AbstractActionController
     }
     /**
      * Table gateway
-     * @return object
+     * @return \Carecoordination\Model\CarecoordinationTable
      */
     public function getCarecoordinationTable()
     {
-        if (!$this->carecoordinationTable) {
-            $sm = $this->getServiceLocator();
-            $this->carecoordinationTable = $sm->get('Carecoordination\Model\CarecoordinationTable');
-        }
-
         return $this->carecoordinationTable;
+    }
+
+    /**
+     * Returns the application table.
+     */
+    public function getApplicationTable()
+    {
+        return $this->applicationTable;
+    }
+
+    /**
+     * PHP 7 requires foreach iterables to not be null / undefined.  There's a ton of code in the revandapprove.phtml file that assumes
+     * the arrays are not empty... so to skip over the foreach's we are giving them empty values.
+     * @param $audit_master_id
+     * @param $table_name
+     * @return array
+     */
+    private function getRevAndApproveAuditArray($audit_master_id, $table_name)
+    {
+        $audit = $this->getCarecoordinationTable()->createAuditArray($audit_master_id, $table_name);
+        if (empty($audit[$table_name])) {
+            $audit[$table_name] = []; // leave it empty so we don't fail in the template
+        }
+        return $audit;
     }
 }

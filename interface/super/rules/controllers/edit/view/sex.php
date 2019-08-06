@@ -1,13 +1,18 @@
 <?php
- // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * interface/super/rules/controllers/edit/view/sex.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Aron Racho <aron@mi-squared.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 ?>
 <p class="row">
-    <span class="left_col colhead req" data-fld="fld_sex"><?php echo xl('Sex');?></span>
+    <span class="left_col colhead req" data-fld="fld_sex"><?php echo xlt('Sex');?></span>
     <span class="end_col">
     <?php echo render_select(array( "target"   =>  "fld_sex",
                                      "name"     =>  "fld_sex",

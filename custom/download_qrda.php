@@ -17,10 +17,11 @@ require_once "$srcdir/report_database.inc";
 require_once("$srcdir/options.inc.php");
 require_once("qrda_category1.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
@@ -43,7 +44,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
     var provider_id = <?php echo js_escape($provider_id);?>;
     var zipFileArray = new Array();
     var failureMessage = "";
-    $(document).ready(function(){
+    $(function(){
         $("#checkAll").on("change", function() {
             var checked =  ( $("#checkAll").prop("checked") ) ? true : false;
             $("#thisForm input:checkbox").each(function() {
@@ -84,7 +85,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 counter: counter,
                 ruleID: $("#text" + counter).val(),
                 provider_id: provider_id,
-                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             },
             context: document.body,
             success :
@@ -105,7 +106,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 if ( zipFileArray.length ) {
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
-                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + <?php echo js_url($_SESSION['csrf_token']); ?>;
+                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
                     zipFileArray.length = 0;
                 }
                 if ( failureMessage ) {
@@ -150,10 +151,10 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
         <th scope="col" class="multiDownload">
             <input type="checkbox" name="checkAll" id="checkAll"/>
             <div style="display:none" id=downloadAll>
-                <img class='downloadIcon' src='<?php echo $GLOBALS['webroot'];?>/images/downbtn.gif' onclick=downloadAllXML(); />
+                <img class="downloadIcon" src="<?php echo $GLOBALS['images_static_relative'];?>/downbtn.gif" onclick=downloadAllXML(); />
             </div>
-            <div style='display:none' id=spinAll>;
-                <img src='<?php echo $GLOBALS['webroot'];?>/interface/pic/ajax-loader.gif'/>
+            <div style="display:none" id=spinAll>;
+                <img src="<?php echo $GLOBALS['webroot'];?>/interface/pic/ajax-loader.gif"/>
             </div>
         </th>
         <th scope="col">
@@ -205,7 +206,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 echo "</td>";
                 echo "<td align=center>";
                 echo "<div id=download" . attr($counter) . ">";
-                echo "<img class='downloadIcon' src='" . $GLOBALS['webroot'] . "/images/downbtn.gif' onclick=downloadXML(" . attr_js($counter) . ",1); />";
+                echo "<img class='downloadIcon' src='" . $GLOBALS['images_static_relative'] . "/downbtn.gif' onclick=downloadXML(" . attr_js($counter) . ",1); />";
                 echo "</div>";
                 echo "<div style='display:none' id=spin" . attr($counter) . ">";
                 echo "<img src='" . $GLOBALS['webroot'] . "/interface/pic/ajax-loader.gif'/>";
@@ -213,7 +214,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 echo "</td>";
                 echo "<td>";
                 echo "<div style='display:none' id=checkmark" . attr($counter) . ">";
-                echo "<img src='" . $GLOBALS['webroot'] . "/images/checkmark.png' />";
+                echo "<img src='" . $GLOBALS['images_static_relative'] . "/checkmark.png' />";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";

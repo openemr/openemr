@@ -18,11 +18,13 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form: bronchitis");
 $returnurl = 'encounter_top.php';
 ?>
 <html><head>
-<?php html_header_show();?>
 <SCRIPT LANGUAGE="JavaScript">
 <!--
 
@@ -55,7 +57,7 @@ $returnurl = 'encounter_top.php';
 <body class="body_top">
 
 <form method=post action="<?php echo $rootdir;?>/forms/bronchitis/save.php?mode=new" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <br></br>
 <span class="title" ><?php echo xlt('Bronchitis Form'); ?></span>

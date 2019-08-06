@@ -15,33 +15,33 @@ class Tree
 {
 
     /*
-	*	This is the name of the table this tree is stored in
-	*	@var string
-	*/
+    *   This is the name of the table this tree is stored in
+    *   @var string
+    */
     var $_table;
 
     /*
-	*	This is a lookup table so that you can get a node name or parent id from its id
-	*	@var array
-	*/
+    *   This is a lookup table so that you can get a node name or parent id from its id
+    *   @var array
+    */
     var $_id_name;
 
     /*
-	*	This is a db abstraction object compatible with ADODB
-	*	@var object the constructor expects it to be available as $GLOBALS['adodb']['db']
-	*/
+    *   This is a db abstraction object compatible with ADODB
+    *   @var object the constructor expects it to be available as $GLOBALS['adodb']['db']
+    */
     var $_db;
 
     /*
-	*	The constructor takes a value and a flag determining if the value is the id of a the desired root node or the name
-	*	@param mixed $root name or id of desired root node
-	*	@param int $root_type optional flag indicating if $root is a name or id, defaults to id
-	*/
+    *   The constructor takes a value and a flag determining if the value is the id of a the desired root node or the name
+    *   @param mixed $root name or id of desired root node
+    *   @param int $root_type optional flag indicating if $root is a name or id, defaults to id
+    */
     function __construct($root, $root_type = ROOT_TYPE_ID)
     {
         $this->_db = $GLOBALS['adodb']['db'];
-        $this->_root = add_escape_custom($root);
-        $this->_root_type = add_escape_custom($root_type);
+        $this->_root = $root;
+        $this->_root_type = $root_type;
         $this->load_tree();
     }
 
@@ -51,14 +51,14 @@ class Tree
         $tree = array();
         $tree_tmp = array();
 
-      //get the left and right value of the root node
-        $sql = "SELECT * FROM " . $this->_table . " WHERE id='".$root."'";
+        //get the left and right value of the root node
+        $sql = "SELECT * FROM " . $this->_table . " WHERE id=?";
 
         if ($this->root_type == ROOT_TYPE_NAME) {
-            $sql = "SELECT * FROM " . $this->_table . " WHERE name='".$root."'";
+            $sql = "SELECT * FROM " . $this->_table . " WHERE name=?";
         }
 
-        $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+        $result = $this->_db->Execute($sql, [$root]) or die("Error: " . text($this->_db->ErrorMsg()));
         $row = array();
 
         if ($result && !$result->EOF) {
@@ -67,12 +67,12 @@ class Tree
             $this->tree = array();
         }
 
-      // start with an empty right stack
+        // start with an empty right stack
         $right = array();
 
-      // now, retrieve all descendants of the root node
-        $sql = "SELECT * FROM " . $this->_table . " WHERE lft BETWEEN " . $row['lft'] . " AND " . $row['rght'] . " ORDER BY parent,name ASC;";
-        $result = $this->_db->Execute($sql);
+        // now, retrieve all descendants of the root node
+        $sql = "SELECT * FROM " . $this->_table . " WHERE lft BETWEEN ? AND ? ORDER BY parent,name ASC;";
+        $result = $this->_db->Execute($sql, [$row['lft'], $row['rght']]);
         $this->_id_name = array();
 
 
@@ -136,24 +136,24 @@ class Tree
     }
 
     /*
-	*	This function completely rebuilds a tree starting from parent to ensure that all of its preorder values
-	*	are integrous.
-	*	Upside is that it fixes any kind of goofiness, downside is that it is recursive and consequently
-	*	exponentially expensive with the size of the tree.
-	*	On adds and deletes the tree does dynamic updates as appropriate to maintain integrity of the algorithm,
-	*	however you can still force it to do goofy things and afterwards you will need this function to fix it.
-	*	If you need to do a huge number of adds or deletes it will be much faster to act directly on the db and then
-	*	call this to fix the mess than to use the add and delete functions.
-	*	@param int $parent id of the node you would like to rebuild all nodes below
-	*	@param int $left optional proper left value of the node you are rebuilding below, then used recursively
-	*/
+    *   This function completely rebuilds a tree starting from parent to ensure that all of its preorder values
+    *   are integrous.
+    *   Upside is that it fixes any kind of goofiness, downside is that it is recursive and consequently
+    *   exponentially expensive with the size of the tree.
+    *   On adds and deletes the tree does dynamic updates as appropriate to maintain integrity of the algorithm,
+    *   however you can still force it to do goofy things and afterwards you will need this function to fix it.
+    *   If you need to do a huge number of adds or deletes it will be much faster to act directly on the db and then
+    *   call this to fix the mess than to use the add and delete functions.
+    *   @param int $parent id of the node you would like to rebuild all nodes below
+    *   @param int $left optional proper left value of the node you are rebuilding below, then used recursively
+    */
     function rebuild_tree($parent, $left = null)
     {
 
-      //if no left is supplied assume the existing left is proper
+        //if no left is supplied assume the existing left is proper
         if ($left == null) {
-            $sql = "SELECT lft FROM " . $this->_table . " WHERE id='" . $parent . "';";
-            $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+            $sql = "SELECT lft FROM " . $this->_table . " WHERE id=?;";
+            $result = $this->_db->Execute($sql, [$parent]) or die("Error: " . text($this->_db->ErrorMsg()));
 
             if ($result && !$result->EOF) {
                 $left = $result->fields['lft'];
@@ -164,11 +164,11 @@ class Tree
             }
         }
 
-      // get all children of this node
-        $sql = "SELECT id FROM " . $this->_table . " WHERE parent='" . $parent . "' ORDER BY id;";
-        $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+        // get all children of this node
+        $sql = "SELECT id FROM " . $this->_table . " WHERE parent=? ORDER BY id;";
+        $result = $this->_db->Execute($sql, [$parent]) or die("Error: " . text($this->_db->ErrorMsg()));
 
-      // the right value of this node is the left value + 1
+        // the right value of this node is the left value + 1
         $right = $left+1;
 
         while ($result && !$result->EOF) {
@@ -181,37 +181,37 @@ class Tree
             $result->MoveNext();
         }
 
-      // we've got the left value, and now that we've processed
-      // the children of this node we also know the right value
-        $sql = "UPDATE " . $this->_table . " SET lft=".$left.", rght=".$right." WHERE id='".$parent."';";
-      //echo $sql . "<br>";
-        $this->_db->Execute($sql) or die("Error: $sql" . $this->_db->ErrorMsg());
+        // we've got the left value, and now that we've processed
+        // the children of this node we also know the right value
+        $sql = "UPDATE " . $this->_table . " SET lft=?, rght=? WHERE id=?;";
+        //echo $sql . "<br>";
+        $this->_db->Execute($sql, [$left, $right, $parent]) or die("Error: " . text($sql) . " " . text($this->_db->ErrorMsg()));
 
-      // return the right value of this node + 1
+        // return the right value of this node + 1
         return $right+1;
     }
 
 
     /*
-	*	Call this to add a new node to the tree
-	*	@param int $parent id of the node you would like the new node to have as its parent
-	*	@param string $name the name of the new node, it will be used to reference its value in the tree array
-	*	@param string $value optional value this node is to contain
-	*	@param string $aco_spec optional ACO value in section|value format
-	*	@return int id of newly added node
-	*/
+    *   Call this to add a new node to the tree
+    *   @param int $parent id of the node you would like the new node to have as its parent
+    *   @param string $name the name of the new node, it will be used to reference its value in the tree array
+    *   @param string $value optional value this node is to contain
+    *   @param string $aco_spec optional ACO value in section|value format
+    *   @return int id of newly added node
+    */
     function add_node($parent_id, $name, $value = "", $aco_spec = "patients|docs")
     {
 
-        $sql = "SELECT * from " . $this->_table . " where parent = '" . $parent_id . "' and name='" . $name . "'";
-        $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+        $sql = "SELECT * from " . $this->_table . " where parent = ? and name=?";
+        $result = $this->_db->Execute($sql, [$parent_id, $name]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         if ($result && !$result->EOF) {
-            die("You cannot add a node with the name '" . $name ."' because one already exists under parent " . $parent_id . "<br>");
+            die("You cannot add a node with the name '" . text($name) ."' because one already exists under parent " . text($parent_id) . "<br>");
         }
 
-        $sql = "SELECT * from " . $this->_table . " where id = '" . $parent_id . "'";
-        $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+        $sql = "SELECT * from " . $this->_table . " where id = ?";
+        $result = $this->_db->Execute($sql, [$parent_id]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         $next_right = 0;
 
@@ -219,59 +219,53 @@ class Tree
             $next_right = $result->fields['rght'];
         }
 
-        $sql = "UPDATE " . $this->_table . " SET rght=rght+2 WHERE rght>=" . $next_right;
-        $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
-        $sql = "UPDATE " . $this->_table . " SET lft=lft+2 WHERE lft>=" . $next_right;
-        $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+        $sql = "UPDATE " . $this->_table . " SET rght=rght+2 WHERE rght>=?";
+        $this->_db->Execute($sql, [$next_right]) or die("Error: " . text($this->_db->ErrorMsg()));
+        $sql = "UPDATE " . $this->_table . " SET lft=lft+2 WHERE lft>=?";
+        $this->_db->Execute($sql, [$next_right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         $id = $this->_db->GenID($this->_table . "_seq");
-        $sql = "INSERT INTO " . $this->_table . " SET name='" . add_escape_custom($name) .
-        "', value='" . add_escape_custom($value) . "', aco_spec='" . add_escape_custom($aco_spec) .
-        "', lft='" . $next_right . "', rght='" . ($next_right + 1) .
-        "', parent='" . $parent_id . "', id='" . $id . "'";
-        $this->_db->Execute($sql) or die("Error: $sql :: " . $this->_db->ErrorMsg());
+        $sql = "INSERT INTO " . $this->_table . " SET name=?, value=?, aco_spec=?, lft=?, rght=?, parent=?, id=?";
+        $this->_db->Execute($sql, [$name, $value, $aco_spec, $next_right, ($next_right + 1), $parent_id, $id]) or die("Error: " . text($sql) . " :: " . text($this->_db->ErrorMsg()));
       //$this->rebuild_tree(1,1);
         $this->load_tree();
         return $id;
     }
 
     /*
-	*	Call this to modify a node's attributes.
-	*	@param int $id id of the node to change
-	*	@param string $name the new name of the new node
-	*	@param string $value optional value this node is to contain
-	*	@param string $aco_spec optional ACO value in section|value format
-	*	@return int same as input id
-	*/
+    *   Call this to modify a node's attributes.
+    *   @param int $id id of the node to change
+    *   @param string $name the new name of the new node
+    *   @param string $value optional value this node is to contain
+    *   @param string $aco_spec optional ACO value in section|value format
+    *   @return int same as input id
+    */
     function edit_node($id, $name, $value = "", $aco_spec = "patients|docs")
     {
         $sql = "SELECT c2.id FROM " . $this->_table . " AS c1, " . $this->_table . " AS c2 WHERE " .
-        "c1.id = $id AND c2.id != c1.id AND c2.parent = c1.parent AND c2.name = '" .
-        add_escape_custom($name) . "'";
-        $result = $this->_db->Execute($sql) or die(xlt('Error') . ": " . $this->_db->ErrorMsg());
+        "c1.id = ? AND c2.id != c1.id AND c2.parent = c1.parent AND c2.name = ?";
+        $result = $this->_db->Execute($sql, [$id, $name]) or die(xlt('Error') . ": " . text($this->_db->ErrorMsg()));
         if ($result && !$result->EOF) {
               die(xlt('This name already exists under this parent.') . "<br>");
         }
 
-        $sql = "UPDATE " . $this->_table . " SET name = '" . add_escape_custom($name) .
-        "', value = '" . add_escape_custom($value) .
-        "', aco_spec = '" . add_escape_custom($aco_spec) . "' WHERE id = $id";
-        $this->_db->Execute($sql) or die(xlt('Error') . ": " . $this->_db->ErrorMsg());
+        $sql = "UPDATE " . $this->_table . " SET name = ?, value = ?, aco_spec = ? WHERE id = ?";
+        $this->_db->Execute($sql, [$name, $value, $aco_spec, $id]) or die(xlt('Error') . ": " . text($this->_db->ErrorMsg()));
         $this->load_tree();
         return $id;
     }
 
     /*
-	*	Call this to delete a node from the tree, the nodes children (and their children, etc) will become children
-	*	of the deleted nodes parent
-	*	@param int $id id of the node you want to delete
-	*/
+    *   Call this to delete a node from the tree, the nodes children (and their children, etc) will become children
+    *   of the deleted nodes parent
+    *   @param int $id id of the node you want to delete
+    */
     function delete_node($id)
     {
 
-        $sql = "SELECT * from " . $this->_table . " where id = '" . $id . "'";
-      //echo $sql . "<br>";
-        $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+        $sql = "SELECT * from " . $this->_table . " where id = ?";
+        //echo $sql . "<br>";
+        $result = $this->_db->Execute($sql, [$id]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         $left = 0;
         $right = 1;
@@ -283,28 +277,28 @@ class Tree
             $new_parent = $result->fields['parent'];
         }
 
-        $sql = "UPDATE " . $this->_table . " SET rght=rght-2 WHERE rght>" . $right;
-      //echo $sql . "<br>";
-        $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+        $sql = "UPDATE " . $this->_table . " SET rght=rght-2 WHERE rght>?";
+        //echo $sql . "<br>";
+        $this->_db->Execute($sql, [$right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
-        $sql = "UPDATE " . $this->_table . " SET lft=lft-2 WHERE lft>" . $right;
-      //echo $sql . "<br>";
-        $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+        $sql = "UPDATE " . $this->_table . " SET lft=lft-2 WHERE lft>?";
+        //echo $sql . "<br>";
+        $this->_db->Execute($sql, [$right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
-        $sql = "UPDATE " . $this->_table . " SET lft=lft-1, rght=rght-1 WHERE lft>" . $left . " and rght < " . $right;
-      //echo $sql . "<br>";
-        $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+        $sql = "UPDATE " . $this->_table . " SET lft=lft-1, rght=rght-1 WHERE lft>? and rght < ?";
+        //echo $sql . "<br>";
+        $this->_db->Execute($sql, [$left, $right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
-      //only update the childrens parent setting if the node has children
+        //only update the childrens parent setting if the node has children
         if ($right > ($left +1)) {
-            $sql = "UPDATE " . $this->_table . " SET parent='" . $new_parent . "' WHERE parent='" . $id . "'";
+            $sql = "UPDATE " . $this->_table . " SET parent=? WHERE parent=?";
             //echo $sql . "<br>";
-            $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+            $this->_db->Execute($sql, [$new_parent, $id]) or die("Error: " . text($this->_db->ErrorMsg()));
         }
 
-        $sql = "DELETE FROM " . $this->_table . " where id='" . $id . "'";
-      //echo $sql . "<br>";
-        $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
+        $sql = "DELETE FROM " . $this->_table . " where id=?";
+        //echo $sql . "<br>";
+        $this->_db->Execute($sql, [$id]) or die("Error: " . text($this->_db->ErrorMsg()));
         $this->load_tree();
 
         return true;
@@ -376,18 +370,3 @@ function array_merge_n()
 
     return $array;
 }
-
-
-/*
-$db = $GLOBALS['adodb']['db'];
-$sql = "USE document;";
-$db->Execute($sql);
-$t = new Tree(1);
-echo "<pre>";
-print_r($t->tree);
-//$nid = $t->add_node(0,"test node2","test value");
-//$t->add_node($nid,"test child","another value");
-//$t->add_node($nid,"test child");
-print_r($t->tree);
-echo "</pre>";
-*/

@@ -14,8 +14,10 @@
 
 require_once("../../globals.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 ?>
@@ -34,9 +36,9 @@ $result = sqlQuery($spell, array($pid, 'track_anything'));
 if (!$result) { //If there are no disclosures recorded
     ?>
   <span class='text'> <?php echo xlt("No tracks have been documented.");
-?>
+    ?>
   </span>
-<?php
+    <?php
 } else {  // We have some tracks here...
     echo "<span class='text'>";
     echo xlt('Available Tracks') . ":";

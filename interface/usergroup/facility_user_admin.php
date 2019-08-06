@@ -16,6 +16,7 @@ require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Ensure authorized
@@ -38,7 +39,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
     <?php Header::setupHeader(['common','jquery-ui','datetime-picker','opener']); ?>
 
     <script language="JavaScript">
-        $(document).ready(function(){
+        $(function(){
             $("#form_facility_user").submit(function (event) {
                 top.restoreSession();
                 event.preventDefault();
@@ -104,7 +105,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
         </div>
         <div class="row">
             <form name='form_facility_user' id='form_facility_user' method='post' action="facility_user.php">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <input type=hidden name=mode value="facility_user_id">
                 <input type=hidden name=user_id value="<?php echo attr($_GET["user_id"]);?>">
                 <input type=hidden name=fac_id value="<?php echo attr($_GET["fac_id"]);?>">

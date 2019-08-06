@@ -7,7 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
- * @license   https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../interface/globals.php");
@@ -25,10 +25,6 @@ echo "<script>var pid='" . attr($pid) . "'</script>";
 <head>
     <?php Header::setupHeader(['opener']); ?>
     <script>
-        $(document).ready(function () {
-
-        });
-
         function doPublish(e, req) {
             top.restoreSession();
             e.preventDefault();

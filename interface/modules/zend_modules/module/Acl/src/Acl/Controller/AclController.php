@@ -1,25 +1,14 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Jacob T.Paul <jacob@zhservices.com>
-*    @author  Basil PT <basil@zhservices.com>  
-*
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jacob T.Paul <jacob@zhservices.com>
+ * @author    Basil PT <basil@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace Acl\Controller;
 
@@ -29,33 +18,41 @@ use Application\Listener\Listener;
 
 class AclController extends AbstractActionController
 {
+    /**
+     * @var \Acl\Model\AclTable
+     */
     protected $aclTable;
+
     protected $listenerObject;
-    
-    public function __construct()
+    private $htmlEscaper;
+
+    public function __construct(\Zend\View\Helper\HelperInterface $htmlEscaper, \Acl\Model\AclTable $aclTable)
     {
+        $this->htmlEscaper = $htmlEscaper;
+        // TODO: we should probably inject the Listener object as well so we can mock it in unit tests or at least make the dependency explicit.
         $this->listenerObject = new Listener;
+        $this->aclTable = $aclTable;
     }
-        
+
     public function indexAction()
     {
         $module_id = $this->params()->fromQuery('module_id');
                 $result = $this->getAclTable()->aclSections($module_id);
-                
+
         $arrayCategories = array();
         foreach ($result as $row) {
             $arrayCategories[$row['section_id']] = array("parent_id" => $row['parent_section'], "name" =>
             $row['section_name'],"id" => $row['section_id']);
         }
-    
+
         ob_start();
         $this->createTreeView($arrayCategories, 0);
         $sections = ob_get_clean();
-    
+
         $user_group_main     = $this->createUserGroups("user_group_", "", "draggable2");
         $user_group_allowed  = $this->createUserGroups("user_group_allowed_", "display:none;", "draggable3", "class='class_li'");
         $user_group_denied   = $this->createUserGroups("user_group_denied_", "display:none;", "draggable4", "class='class_li'");
-        
+
         $result = $this->getAclTable()->getActiveModules();
         foreach ($result as $row) {
             $array_active_modules[$row['mod_id']] = $row['mod_name'];
@@ -73,7 +70,7 @@ class AclController extends AbstractActionController
                 ));
                 return $index;
     }
-    
+
     public function acltabAction()
     {
         $module_id = $this->params()->fromQuery('module_id');
@@ -83,17 +80,17 @@ class AclController extends AbstractActionController
                 ));
                 return $index;
     }
-    
+
     public function aclAction()
     {
         $module_id = $this->params()->fromQuery('module_id');
         $data = $this->getAclTable()->getGroups();
-                
+
         $user_groups = array();
         foreach ($data as $row) {
             $user_groups[$row['id']] = $row['name'];
         }
-                
+
         $data = $this->getAclTable()->aclSections($module_id);
         $module_data = array();
         $module_data['module_components'] = array();
@@ -107,7 +104,7 @@ class AclController extends AbstractActionController
                 $module_data['module_components'][$row['section_id']] = $row['section_name'];
             }
         }
-        
+
                 $data           = $this->getAclTable()->getGroupAcl($module_id);
                 $saved_ACL  = array();
         foreach ($data as $row) {
@@ -129,7 +126,7 @@ class AclController extends AbstractActionController
         );
         return $acl_view;
     }
-    
+
     public function ajaxAction()
     {
         $ajax_mode  = $this->getRequest()->getPost('ajax_mode', null);
@@ -139,34 +136,34 @@ class AclController extends AbstractActionController
             if ($selected_componet_arr[0] == 0) {
                 $selected_componet_arr[0] = $selected_componet_arr[1];
             }
-            
+
             $allowed_users = json_decode($this->getRequest()->getPost('allowed_users', null));
             $denied_users = json_decode($this->getRequest()->getPost('denied_users', null));
-            
+
             $allowed_users = array_unique($allowed_users);
             $denied_users = array_unique($denied_users);
-            
+
                         // Delete Saved ACL Data
                         $data   = $this->getAclTable()->deleteGroupACL($selected_componet_arr[0], $selected_componet_arr[1]);
                         $data   = $this->getAclTable()->deleteUserACL($selected_componet_arr[0], $selected_componet_arr[1]);
-                        
+
                         // Allowed
             foreach ($allowed_users as $allowed_user) {
                 $id = str_replace("li_user_group_allowed_", "", $allowed_user);
                 $arr_id = explode("-", $id);
-                             
+
                 if ($arr_id[1] == 0) {
                     $data   = $this->getAclTable()->insertGroupACL($selected_componet_arr[0], $arr_id[0], $selected_componet_arr[1], 1);
                 } else {
                                         $data   = $this->getAclTable()->insertUserACL($selected_componet_arr[0], $arr_id[1], $selected_componet_arr[1], 1);
                 }
             }
-            
+
             // Denied
             foreach ($denied_users as $denied_user) {
                 $id = str_replace("li_user_group_denied_", "", $denied_user);
                 $arr_id = explode("-", $id);
-               
+
                 if ($arr_id[1] == 0) {
                                         $data   = $this->getAclTable()->insertGroupACL($selected_componet_arr[0], $arr_id[0], $selected_componet_arr[1], 0);
                 } else {
@@ -179,12 +176,12 @@ class AclController extends AbstractActionController
             if ($selected_componet_arr[0] == 0) {
                 $selected_componet_arr[0] = $selected_componet_arr[1];
             }
-            
+
             $array_users_allowed = array();
             $array_users_denied = array();
             $array_groups_allowed = array();
             $array_groups_denied = array();
-                        
+
                       $res_users   = $this->getAclTable()->getAclDataUsers($selected_componet_arr[1]);
             foreach ($res_users as $row) {
                 if ($row['allowed'] == 1) {
@@ -210,7 +207,7 @@ class AclController extends AbstractActionController
                     array_push($array_groups_denied, $row['group_id']);
                 }
             }
-            
+
                         $arr_return = array();
                         $arr_return['group_allowed'] = $array_groups_allowed;
                         $arr_return['group_denied'] = $array_groups_denied;
@@ -221,14 +218,14 @@ class AclController extends AbstractActionController
             $ACL_DATA  = json_decode($this->getRequest()->getPost('acl_data', null), true);
             $module_id = $this->getRequest()->getPost('module_id', null);
                         $this->getAclTable()->deleteModuleGroupACL($module_id);
-                        
+
             foreach ($ACL_DATA['allowed'] as $section_id => $sections) {
                 foreach ($sections as $group_id) {
                                         $this->getAclTable()->deleteUserACL($module_id, $section_id);
                                         $this->getAclTable()->insertGroupACL($module_id, $group_id, $section_id, 1);
                 }
             }
-            
+
             foreach ($ACL_DATA['denied'] as $section_id => $sections) {
                 foreach ($sections as $group_id) {
                                         $this->getAclTable()->deleteUserACL($module_id, $section_id);
@@ -238,7 +235,7 @@ class AclController extends AbstractActionController
         } elseif ($ajax_mode == "get_sections_by_module") {
             $module_id = $this->getRequest()->getPost('module_id', null);
                         $result = $this->getAclTable()->getModuleSections($module_id);
-                        
+
             $array_sections = array();
             foreach ($result as $row) {
                 $array_sections[$row['section_id']] = $row['section_name'];
@@ -250,7 +247,7 @@ class AclController extends AbstractActionController
             $parent_id          = $this->getRequest()->getPost('parent_id', null);
             $section_identifier = $this->getRequest()->getPost('section_identifier', null);
             $section_name       = $this->getRequest()->getPost('section_name', null);
-            
+
             if (!$parent_id) {
                 $parent_id = $module_id;
             }
@@ -261,8 +258,8 @@ class AclController extends AbstractActionController
 
         exit();
     }
-    
-    
+
+
     /**
      *
      * Function to Print Componets Tree Structure
@@ -274,9 +271,8 @@ class AclController extends AbstractActionController
     private function createTreeView($array, $currentParent, $currLevel = 0, $prevLevel = -1)
     {
       /** Html Escape Function */
-        $viewHelperManager  = $this->getServiceLocator()->get('ViewHelperManager');
-        $escapeHtml         = $viewHelperManager->get('escapeHtml');
-        
+        $escapeHtml         = $this->htmlEscaper;
+
         foreach ($array as $categoryId => $category) {
             if ($category['name']=='') {
                 continue;
@@ -307,7 +303,7 @@ class AclController extends AbstractActionController
             echo "</li></ul> ";
         }
     }
-    
+
     /**
      *
      * Function to Print User group Tree Structure
@@ -320,12 +316,11 @@ class AclController extends AbstractActionController
     private function createUserGroups($id = "user_group_", $visibility = "", $dragabble = "draggable", $li_class = "")
     {
         /** Html Escape Function */
-        $viewHelperManager  = $this->getServiceLocator()->get('ViewHelperManager');
-        $escapeHtml         = $viewHelperManager->get('escapeHtml');
-        
+        $escapeHtml         = $this->htmlEscaper;
+
         $output_string = "";
         $res_users = $this->getAclTable()->aclUserGroupMapping();
-                
+
         $tempList  = array();
         foreach ($res_users as $row) {
             $tempList[$row['group_id']]['group_name'] = $row['group_name'];
@@ -351,19 +346,14 @@ class AclController extends AbstractActionController
         $output_string .='</ul>';
         return $output_string;
     }
-    
+
     /**
      * Table Gateway
      *
-     * @return type
+     * @return \Acl\Model\AclTable
      */
     public function getAclTable()
     {
-        if (!$this->aclTable) {
-            $sm = $this->getServiceLocator();
-            $this->aclTable = $sm->get('Acl\Model\AclTable');
-        }
-
         return $this->aclTable;
     }
 }

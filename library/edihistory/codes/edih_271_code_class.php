@@ -1,25 +1,25 @@
 <?php
 /*
  * test_271_codes.php
- * 
+ *
  * Copyright 2016 Kevin McCormick <kevin@kt61p>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
- * 
- * 
+ *
+ *
  */
 
 class edih_271_codes
@@ -29,9 +29,9 @@ class edih_271_codes
     private $code271 = array();
     private $ds = '';
     private $dr = '';
-// the key_match array is a concept of matching code lists to 
-// segment elements when diferent segments are looking for the same 
-// code or reference lists  
+// the key_match array is a concept of matching code lists to
+// segment elements when diferent segments are looking for the same
+// code or reference lists
 //  -- a very tedious project and immediately put on hold
 //public $key_match = array('HCR04'=>array('CRC02');
 //
@@ -548,10 +548,10 @@ class edih_271_codes
         $this->code271['EB01'] = array(
         '1'=>'Active Coverage',
         '2'=>'Active-Full Risk Capitation',
-        '3'=>'Active-Services Capitated',           //	'4'=>'Active - Services Capitated to Primary Care Physician',
+        '3'=>'Active-Services Capitated',           //  '4'=>'Active - Services Capitated to Primary Care Physician',
         '4'=>'Active-Capitated to PCP',
         '5'=>'Active-Pending Investigation',
-        '6'=>'Inactive',                            //	'7'=>'Inactive - Pending Eligibility Update',
+        '6'=>'Inactive',                            //  '7'=>'Inactive - Pending Eligibility Update',
         '7'=>'Inactive-Pending Elig Update',
         '8'=>'Inactive-Pending Investigation',
         'A'=>'Co-Insurance',
@@ -573,7 +573,7 @@ class edih_271_codes
         'Q'=>'Second Surgical Opinion Required',
         'R'=>'Other or Additional Payer',
         'S'=>'Prior Year(s) History',
-        'T'=>'Card(s) Reported Lost/Stolen',        //	'U'=>'Contact Following Entity for Eligibility or Benefit Information',
+        'T'=>'Card(s) Reported Lost/Stolen',        //  'U'=>'Contact Following Entity for Eligibility or Benefit Information',
         'U'=>'Contact Entity for Information',
         'V'=>'Cannot Process',
         'W'=>'Other Source of Data',

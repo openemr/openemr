@@ -16,6 +16,8 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$phpgacl_location/gacl_api.class.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $alertmsg = "";
 
 // Check authorization.
@@ -29,7 +31,6 @@ $group_id  = empty($_GET['group_id' ]) ? '' : $_GET['group_id' ];
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title><?php echo xlt("Edit Layout Properties"); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
@@ -101,8 +102,8 @@ function get_related() {
 
 <?php
 if ($_POST['form_submit'] && !$alertmsg) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($group_id) {
@@ -221,7 +222,7 @@ if ($layout_id) {
 ?>
 
 <form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr_url($layout_id) . "&group_id=" . attr_url($group_id); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
 
 <table border='0' width='100%'>
@@ -261,7 +262,6 @@ if ($layout_id) {
  </tr>
 
 <?php if (empty($group_id)) { ?>
-
  <tr>
   <td valign='top' width='1%' nowrap>
     <?php echo xlt('Category'); ?>
@@ -324,23 +324,22 @@ for ($cols = 2; $cols <= 10; ++$cols) {
  </tr>
 
 <?php if (empty($group_id)) { ?>
-
  <tr>
   <td valign='top' nowrap>
     <?php echo xlt('Font Size'); ?>
   </td>
   <td>
    <select name='form_size'>
-<?php
-  echo "<option value='0'>" . xlt('Default') . "</option>\n";
-for ($size = 5; $size <= 15; ++$size) {
-    echo "<option value='" . attr($size) . "'";
-    if ($size == $row['grp_size']) {
-        echo " selected";
+    <?php
+    echo "<option value='0'>" . xlt('Default') . "</option>\n";
+    for ($size = 5; $size <= 15; ++$size) {
+        echo "<option value='" . attr($size) . "'";
+        if ($size == $row['grp_size']) {
+            echo " selected";
+        }
+        echo ">" . text($size) . "</option>\n";
     }
-    echo ">" . text($size) . "</option>\n";
-}
-?>
+    ?>
    </select>
   </td>
  </tr>
@@ -352,20 +351,20 @@ for ($size = 5; $size <= 15; ++$size) {
   <td>
    <select name='form_issue'>
     <option value=''></option>
-<?php
-  $itres = sqlStatement(
-      "SELECT type, singular FROM issue_types " .
-      "WHERE category = ? AND active = 1 ORDER BY singular",
-      array($GLOBALS['ippf_specific'] ? 'ippf_specific' : 'default')
-  );
-while ($itrow = sqlFetchArray($itres)) {
-    echo "<option value='" . attr($itrow['type']) . "'";
-    if ($itrow['type'] == $row['grp_issue_type']) {
-        echo " selected";
+    <?php
+    $itres = sqlStatement(
+        "SELECT type, singular FROM issue_types " .
+        "WHERE category = ? AND active = 1 ORDER BY singular",
+        array($GLOBALS['ippf_specific'] ? 'ippf_specific' : 'default')
+    );
+    while ($itrow = sqlFetchArray($itres)) {
+        echo "<option value='" . attr($itrow['type']) . "'";
+        if ($itrow['type'] == $row['grp_issue_type']) {
+            echo " selected";
+        }
+        echo ">" . xlt($itrow['singular']) . "</option>\n";
     }
-    echo ">" . xlt($itrow['singular']) . "</option>\n";
-}
-?>
+    ?>
    </select>
   </td>
  </tr>
@@ -377,32 +376,32 @@ while ($itrow = sqlFetchArray($itres)) {
   <td>
    <select name='form_aco' style='width:100%'>
     <option value=''></option>
-<?php
-  $gacl = new gacl_api();
+    <?php
+    $gacl = new gacl_api();
   // collect and sort all aco objects
-  $list_aco_objects = $gacl->get_objects(null, 0, 'ACO');
-  ksort($list_aco_objects);
-foreach ($list_aco_objects as $seckey => $dummy) {
-    if (empty($dummy)) {
-        continue;
-    }
-    asort($list_aco_objects[$seckey]);
-    $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
-    $aco_section_title = $aco_section_data[3];
-    echo " <optgroup label='" . xla($aco_section_title) . "'>\n";
-    foreach ($list_aco_objects[$seckey] as $acokey) {
-        $aco_id = $gacl->get_object_id($seckey, $acokey, 'ACO');
-        $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-        $aco_title = $aco_data[0][3];
-        echo "  <option value='" . attr("$seckey|$acokey") . "'";
-        if ("$seckey|$acokey" == $row['grp_aco_spec']) {
-            echo " selected";
+    $list_aco_objects = $gacl->get_objects(null, 0, 'ACO');
+    ksort($list_aco_objects);
+    foreach ($list_aco_objects as $seckey => $dummy) {
+        if (empty($dummy)) {
+            continue;
         }
-        echo ">" . xlt($aco_title) . "</option>\n";
+        asort($list_aco_objects[$seckey]);
+        $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
+        $aco_section_title = $aco_section_data[3];
+        echo " <optgroup label='" . xla($aco_section_title) . "'>\n";
+        foreach ($list_aco_objects[$seckey] as $acokey) {
+            $aco_id = $gacl->get_object_id($seckey, $acokey, 'ACO');
+            $aco_data = $gacl->get_object_data($aco_id, 'ACO');
+            $aco_title = $aco_data[0][3];
+            echo "  <option value='" . attr("$seckey|$acokey") . "'";
+            if ("$seckey|$acokey" == $row['grp_aco_spec']) {
+                echo " selected";
+            }
+            echo ">" . xlt($aco_title) . "</option>\n";
+        }
+        echo " </optgroup>\n";
     }
-    echo " </optgroup>\n";
-}
-?>
+    ?>
    </select>
   </td>
  </tr>

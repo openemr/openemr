@@ -15,20 +15,21 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
-$fstart = $_REQUEST['fstart'] + 0;
+$fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] + 0 : 0;
 
 $searchcolor = empty($GLOBALS['layout_search_color']) ?
   '#ffff55' : $GLOBALS['layout_search_color'];
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
@@ -117,7 +118,7 @@ function submitList(offset) {
 <body class="body_top">
 
 <form method='post' action='new_search_popup.php' name='theform'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type='hidden' name='fstart'  value='<?php echo attr($fstart); ?>' />
 
@@ -282,7 +283,7 @@ if ($result) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function() {
+$(function() {
   $(".oneresult").mouseover(function() { $(this).addClass("highlight"); });
   $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });
   $(".oneresult").click(function() { SelectPatient(this); });

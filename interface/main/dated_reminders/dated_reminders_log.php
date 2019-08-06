@@ -15,6 +15,7 @@
     require_once("$srcdir/acl.inc");
     require_once("$srcdir/dated_reminder_functions.php");
 
+    use OpenEMR\Common\Csrf\CsrfUtils;
     use OpenEMR\Core\Header;
 
     $isAdmin =acl_check('admin', 'users');
@@ -24,8 +25,8 @@
     -------------------  HANDLE POST ---------------------
   */
 if ($_GET) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if (!$isAdmin) {
@@ -68,13 +69,13 @@ if ($_GET) {
     foreach ($remindersArray as $RA) {
         echo '<tr class="heading">
               <td>'.text($RA['messageID']).'</td>
-              <td>'.text($RA['sDate']).'</td>
+              <td>'.text(oeFormatDateTime($RA['sDate'])).'</td>
               <td>'.text($RA['fromName']).'</td>
               <td>'.text($RA['ToName']).'</td>
               <td>'.text($RA['PatientName']).'</td>
               <td>'.text($RA['message']).'</td>
-              <td>'.text($RA['dDate']).'</td>
-              <td>'.text($RA['pDate']).'</td>
+              <td>'.text(oeFormatShortDate($RA['dDate'])).'</td>
+              <td>'.text(oeFormatDateTime($RA['pDate'])).'</td>
               <td>'.text($RA['processedByName']).'</td>
             </tr>';
     }
@@ -96,7 +97,7 @@ if ($_GET) {
         }
     </style>
     <script language="JavaScript">
-      $(document).ready(function (){
+      $(function (){
         $("#submitForm").click(function(){
           // top.restoreSession(); --> can't use this as it negates this ajax refresh
           $.get("dated_reminders_log.php?"+$("#logForm").serialize(),
@@ -111,12 +112,12 @@ if ($_GET) {
                }
              )
           return false;
-        })
+        });
 
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -130,8 +131,7 @@ if ($_GET) {
     <?php
       $allUsers = array();
       $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
-    for ($i=0; $uRow=sqlFetchArray($uSQL);
-    $i++) {
+    for ($i=0; $uRow=sqlFetchArray($uSQL); $i++) {
         $allUsers[] = $uRow;
     }
     ?>
@@ -145,7 +145,7 @@ if ($_GET) {
         <div class="row hideaway">
             <div class="col-xs-12">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                     <fieldset>
                         <legend><?php echo xlt('Filters') ?></legend>
@@ -153,11 +153,11 @@ if ($_GET) {
                             <h5><?php echo xlt('Date The Message Was Sent');?></h5>
                             <div class="col-xs-6">
                                 <label class="control-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
-                                <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo xla('yyyy-mm-dd'); ?>'>
+                                <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
                             <div class="col-xs-6">
                                 <label class="control-label" for="ed"><?php echo xlt('End Date') ?>:</label>
-                                <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo xla('yyyy-mm-dd'); ?>'>
+                                <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
                         </div>
                         <div class="col-xs-12">

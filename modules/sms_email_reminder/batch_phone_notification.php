@@ -1,19 +1,18 @@
 <?php
-// Copyright (C) 2010 Maviq <info@maviq.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-////////////////////////////////////////////////////////////////////
-// Package:	cron_phone_notification
-// Purpose:	to be run by cron every hour, look for appointments
-//		in the pre-notification period and send an phone reminder
-//		Based on cron_email_notification by Larry Lart
-// Created by:
-// Updated by:	Maviq on 01/12/2010
-////////////////////////////////////////////////////////////////////
+/*
+ * Purpose: to be run by cron every hour, look for appointments
+ * in the pre-notification period and send an phone reminder
+ * Based on cron_email_notification by Larry Lart
+ *
+ * @package OpenEMR
+ * @author Maviq <info@maviq.com>
+ * @copyright Copyright (c) 2010 Maviq <info@maviq.com>
+ * @link https://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+// comment below exit if plan to use this script
+exit;
 
 $backpic = "";
 //phone notification
@@ -28,6 +27,7 @@ chdir($current_dir);
 require_once("../../interface/globals.php");
 require_once("$srcdir/maviq_phone_api.php");
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -39,7 +39,8 @@ $before_trigger_hours = $GLOBALS['phone_notification_hour'];
 //set up the phone notification settings for external phone service
 $phone_url =    $GLOBALS['phone_gateway_url'] ;
 $phone_id = $GLOBALS['phone_gateway_username'];
-$phone_token = decryptStandard($GLOBALS['phone_gateway_password']);
+$cryptoGen = new CryptoGen();
+$phone_token = $cryptoGen->decryptStandard($GLOBALS['phone_gateway_password']);
 $phone_time_range = $GLOBALS['phone_time_range'];
 
 //get the facility_id-message map
@@ -109,8 +110,8 @@ for ($p=0; $p<count($db_patient); $p++) {
 sqlClose();
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_updateentry
-// Purpose:	update status yes if alert send to patient
+// Function:    cron_updateentry
+// Purpose: update status yes if alert send to patient
 ////////////////////////////////////////////////////////////////////
 function cron_updateentry($type, $pid, $pc_eid)
 {
@@ -122,19 +123,18 @@ function cron_updateentry($type, $pid, $pc_eid)
         $query.=" pc_sendalertsms='YES' ";
     } elseif ($type=='Email') {
         $query.=" pc_sendalertemail='YES' ";
-    } //Added by Yijin for phone reminder.. Uses the same field as SMS.
-    elseif ($type=='Phone') {
+    } elseif ($type=='Phone') { // Added by Yijin for phone reminder.. Uses the same field as SMS.
         $query.=" pc_sendalertsms='YES' ";
     }
 
     $query .=" where pc_pid=? and pc_eid=? ";
-    //echo "<br>".$query;
+    // echo "<br>".$query;
     $db_sql = (sqlStatement($query, array($pid, $pc_eid)));
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getPhoneAlertpatientData
-// Purpose:	get patient data for send to alert
+// Function:    cron_getPhoneAlertpatientData
+// Purpose: get patient data for send to alert
 ////////////////////////////////////////////////////////////////////
 function cron_getPhoneAlertpatientData($type, $trigger_hours)
 {
@@ -171,8 +171,8 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_InsertNotificationLogEntry
-// Purpose:	insert log entry in table
+// Function:    cron_InsertNotificationLogEntry
+// Purpose: insert log entry in table
 ////////////////////////////////////////////////////////////////////
 function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway)
 {
@@ -182,12 +182,12 @@ function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway)
 
     $sql_loginsert = "INSERT INTO `notification_log` ( `iLogId` , `pid` , `pc_eid` , `message`, `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime` ) VALUES ";
     $sql_loginsert .= "(NULL , ?, ?, ?, 'Phone', ?, ?, ?, ?, ?, ?, ?)";
-    $db_loginsert = ( sqlStatement($sql_loginsert, array($prow[pid], $prow[pc_eid], $message, $patient_info, $phone_gateway, $prow[pc_eventDate], $prow[pc_endDate], $prow[pc_startTime], $prow[pc_endTime], date("Y-m-d H:i:s"))));
+    $db_loginsert = ( sqlStatement($sql_loginsert, array($prow['pid'], $prow['pc_eid'], $message, $patient_info, $phone_gateway, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], date("Y-m-d H:i:s"))));
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	WriteLog
-// Purpose:	written log into file
+// Function:    WriteLog
+// Purpose: written log into file
 ////////////////////////////////////////////////////////////////////
 function WriteLog($data)
 {
@@ -210,8 +210,8 @@ function WriteLog($data)
     }
 }
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getFacilities
-// Purpose:	get facilities data once and store in map
+// Function:    cron_getFacilities
+// Purpose: get facilities data once and store in map
 ////////////////////////////////////////////////////////////////////
 function cron_getFacilitiesMap()
 {

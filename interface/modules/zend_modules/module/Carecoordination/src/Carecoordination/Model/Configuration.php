@@ -17,8 +17,8 @@ class Configuration extends Form implements InputFilterAwareInterface
         $this->setAttribute('method', 'post');
         
     /*
-	* Automatic SignOff settings
-	*/
+    * Automatic SignOff settings
+    */
         $this->add(array(
             'name'      => 'hie_auto_sign_off_id',
             'attributes'    => array(
@@ -31,8 +31,8 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Automatic Tranfer settings
-	*/
+    * Automatic Tranfer settings
+    */
         $this->add(array(
         'type' => 'Zend\Form\Element\Checkbox',
             'name' => 'hie_auto_send_id',
@@ -47,8 +47,8 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Author settings
-	*/
+    * Author settings
+    */
         $this->add(array(
             'name'  => 'hie_author_id',
         'type'      => 'Zend\Form\Element\Select',
@@ -59,15 +59,15 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_author_fname'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Author'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
-	* Data Enterer settings
-	*/
+    * Data Enterer settings
+    */
         $this->add(array(
             'name'  => 'hie_data_enterer_id',
         'type'      => 'Zend\Form\Element\Select',
@@ -78,15 +78,15 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_data_enterer_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Data Enterer'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
-	* Informant settings
-	*/
+    * Informant settings
+    */
         $this->add(array(
             'name'  => 'hie_informant_id',
         'type'      => 'Zend\Form\Element\Select',
@@ -97,15 +97,15 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_informant_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Informant'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
-	* Personal Informant settings
-	*/
+    * Personal Informant settings
+    */
         $this->add(array(
             'name'  => 'hie_personal_informant_id',
             'attributes'=> array(
@@ -118,8 +118,8 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Custodian settings
-	*/
+    * Custodian settings
+    */
         $this->add(array(
             'name'  => 'hie_custodian_id',
         'type'      => 'Zend\Form\Element\Select',
@@ -130,15 +130,15 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_custodian_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Custodian'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
-	* Recipient settings
-	*/
+    * Recipient settings
+    */
         $this->add(array(
             'name'  => 'hie_recipient_id',
         'type'      => 'Zend\Form\Element\Select',
@@ -149,15 +149,15 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_recipient_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Recipient'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
-	* Legal Authenticator settings
-	*/
+    * Legal Authenticator settings
+    */
         $this->add(array(
             'name'  => 'hie_legal_authenticator_id',
         'type'      => 'Zend\Form\Element\Select',
@@ -168,15 +168,15 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_legal_authenticator_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Legal Authenticator'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
-	* Authenticator settings
-	*/
+    * Authenticator settings
+    */
         $this->add(array(
             'name'  => 'hie_authenticator_id',
         'type'      => 'Zend\Form\Element\Select',
@@ -187,15 +187,15 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_authenticator_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Authenticator'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
-	* Primary Care Provider settings
-	*/
+    * Primary Care Provider settings
+    */
         $this->add(array(
             'name'  => 'hie_primary_care_provider_id',
         'type'      => 'Zend\Form\Element\Select',
@@ -206,15 +206,15 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_primary_care_provider_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Primary Care Provider'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
-	* MIRTH IP settings
-	*/
+    * MIRTH IP settings
+    */
         $this->add(array(
             'name'  => 'hie_mirth_ip',
             'attributes'=> array(

@@ -7,14 +7,13 @@
 	GRANT ALL on openemr.* to 'secure'@'localhost';
 
 -- Revoke the default openemr user permissions of "all"
-	revoke all on openemr.* FROM 'openemr'@'localhost';	
+	revoke all on openemr.* FROM 'openemr'@'localhost';
 
 -- Grant ALL for each table individually
 	GRANT ALL ON openemr.addresses to 'openemr'@'localhost';
 	GRANT ALL ON openemr.amc_misc_data to 'openemr'@'localhost';
 	GRANT ALL ON openemr.ar_activity to 'openemr'@'localhost';
 	GRANT ALL ON openemr.ar_session to 'openemr'@'localhost';
-	GRANT ALL ON openemr.array to 'openemr'@'localhost';
 	GRANT ALL ON openemr.audit_details to 'openemr'@'localhost';
 	GRANT ALL ON openemr.audit_master to 'openemr'@'localhost';
 	GRANT ALL ON openemr.automatic_notification to 'openemr'@'localhost';
@@ -31,8 +30,6 @@
 	GRANT ALL ON openemr.clinical_rules to 'openemr'@'localhost';
 	GRANT ALL ON openemr.code_types to 'openemr'@'localhost';
 	GRANT ALL ON openemr.codes to 'openemr'@'localhost';
-	GRANT ALL ON openemr.config to 'openemr'@'localhost';
-	GRANT ALL ON openemr.config_seq to 'openemr'@'localhost';
 	GRANT ALL ON openemr.customlists to 'openemr'@'localhost';
 	GRANT ALL ON openemr.dated_reminders to 'openemr'@'localhost';
 	GRANT ALL ON openemr.dated_reminders_link to 'openemr'@'localhost';
@@ -85,8 +82,6 @@
 	GRANT ALL ON openemr.gacl_groups_aro_map to 'openemr'@'localhost';
 	GRANT ALL ON openemr.gacl_groups_axo_map to 'openemr'@'localhost';
 	GRANT ALL ON openemr.gacl_phpgacl to 'openemr'@'localhost';
-	GRANT ALL ON openemr.geo_country_reference to 'openemr'@'localhost';
-	GRANT ALL ON openemr.geo_zone_reference to 'openemr'@'localhost';
 	GRANT ALL ON openemr.globals to 'openemr'@'localhost';
 	GRANT ALL ON openemr.gprelations to 'openemr'@'localhost';
 	GRANT ALL ON openemr.groups to 'openemr'@'localhost';

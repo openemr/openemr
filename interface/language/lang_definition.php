@@ -17,6 +17,8 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 // Ensure this script is not called separately
 if ((empty($_SESSION['lang_module_unique_id'])) ||
     (empty($unique_id)) ||
@@ -37,8 +39,8 @@ if (!$thisauth) {
 ?>
 
   <table>
-    <form name='filterform' id='filterform' method='post' action='?m=definition&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>' onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <form name='filterform' id='filterform' method='post' action='?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
     <tr>
       <td><?php echo xlt('Filter for Constants'); ?>:</td>
@@ -103,8 +105,8 @@ if (!$disable_utf8_flag) {
 }
 
 if ($_POST['load']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
   // query for entering new definitions it picks the cons_id because is existant.
@@ -135,7 +137,7 @@ if ($_POST['load']) {
     }
 
   // query for updating preexistant definitions uses def_id because there is no def yet.
-  // echo ('<pre>');	print_r($_POST['def_id']);	echo ('</pre>');
+  // echo ('<pre>');    print_r($_POST['def_id']);  echo ('</pre>');
     if (!empty($_POST['def_id'])) {
         foreach ($_POST['def_id'] as $key => $value) {
             $value = trim($value);
@@ -168,8 +170,8 @@ if ($_POST['load']) {
 }
 
 if ($_POST['edit']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($_POST['language_select'] == '') {
@@ -204,8 +206,8 @@ if ($_POST['edit']) {
     $res = SqlStatement($sql, $bind_sql_array);
 
         $isResults = false; //flag to record whether there are any results
-    echo ('<table><FORM METHOD=POST ACTION="?m=definition&csrf_token_form=' . attr_url(collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
-    echo ('<input type="hidden" name="csrf_token_form" value="' . attr(collectCsrfToken()) . '" />');
+    echo ('<table><FORM METHOD=POST ACTION="?m=definition&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
+    echo ('<input type="hidden" name="csrf_token_form" value="' . attr(CsrfUtils::collectCsrfToken()) . '" />');
     // only english definitions
     if ($lang_id==1) {
         while ($row=SqlFetchArray($res)) {
@@ -288,7 +290,7 @@ if ($_POST['edit']) {
 
     if ($isResults) {
             echo ('<tr><td colspan=3><INPUT TYPE="submit" name="load" Value="' . xla('Load Definitions') . '"></td></tr>');
-                ?>
+        ?>
             <INPUT TYPE="hidden" name="filter_cons" value="<?php echo attr($_POST['filter_cons']); ?>">
             <INPUT TYPE="hidden" name="filter_def" value="<?php echo attr($_POST['filter_def']); ?>">
             <INPUT TYPE="hidden" name="language_select" value="<?php echo attr($_POST['language_select']); ?>">

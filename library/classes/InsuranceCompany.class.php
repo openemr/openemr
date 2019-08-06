@@ -1,6 +1,6 @@
 <?php
 /************************************************************************
-  			InsuranceCompany.php - Copyright duhlman
+            InsuranceCompany.php - Copyright duhlman
 
 
 
@@ -49,23 +49,24 @@ class InsuranceCompany extends ORDataObject
     var $attn;
     var $cms_id;
     var $alt_cms_id;
+    var $eligibility_id;
     //this is now deprecated use new x12 partners instead
     var $x12_receiver_id;
     var $x12_default_partner_id;
-
+    var $x12_default_eligibility_id;
     /*
-	*	OpenEMR used this value to determine special formatting for the specified type of payer.
-	*	This value is a mutually exclusive choice answering the FB.Payer.isX API calls
-	*	It references a set of constant defined in this file INS_TYPE_XXX
-	*	Defaults to type INS_TYPE_OTHER_HCFA
-	*	@var int Holds constant for type of payer as far as INS is concerned, see FB.Payer.isXXX API calls
-	*/
+    *   OpenEMR used this value to determine special formatting for the specified type of payer.
+    *   This value is a mutually exclusive choice answering the FB.Payer.isX API calls
+    *   It references a set of constant defined in this file INS_TYPE_XXX
+    *   Defaults to type INS_TYPE_OTHER_HCFA
+    *   @var int Holds constant for type of payer as far as INS is concerned, see FB.Payer.isXXX API calls
+    */
     var $ins_type_code;
 
     /*
-	*	Array used to populate select dropdowns or other form elements, it must coincide with the INS_TYPE_XXX constants
-	*	@var array Values are display strings that match constants for FB.Payer.isXXX payer types, used for populating select dropdowns, etc
-	*/
+    *   Array used to populate select dropdowns or other form elements, it must coincide with the INS_TYPE_XXX constants
+    *   @var array Values are display strings that match constants for FB.Payer.isXXX payer types, used for populating select dropdowns, etc
+    */
     var $ins_type_code_array = array('','Other HCFA'
                                         ,'Medicare Part B'
                                         ,'Medicaid'
@@ -232,6 +233,14 @@ class InsuranceCompany extends ORDataObject
     {
         return $this->alt_cms_id;
     }
+    function set_eligibility_id($id)
+    {
+        $this->eligibility_id = $id;
+    }
+    function get_eligibility_id()
+    {
+        return $this->eligibility_id;
+    }
     function set_ins_type_code($type)
     {
         $this->ins_type_code = $type;
@@ -309,6 +318,22 @@ class InsuranceCompany extends ORDataObject
     {
         $xa = $this->_utility_array($this->X12Partner->x12_partner_factory());
         return $xa[$this->get_x12_default_partner_id()];
+    }
+
+    function set_x12_default_eligibility_id($id)
+    {
+        $this->x12_default_eligibility_id = $id;
+    }
+
+    function get_x12_default_eligibility_id()
+    {
+        return $this->x12_default_eligibility_id;
+    }
+
+    function get_x12_default_eligibility_name()
+    {
+        $xa = $this->_utility_array($this->X12Partner->x12_partner_factory());
+        return $xa[$this->get_x12_default_eligibility_id()];
     }
 
     function populate()

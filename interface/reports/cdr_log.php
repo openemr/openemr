@@ -15,11 +15,12 @@ require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -35,7 +36,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
     <?php Header::setupHeader('datetime-picker'); ?>
 
     <script LANGUAGE="JavaScript">
-        $(document).ready(function() {
+        $(function() {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
@@ -80,7 +81,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 <span class='title'><?php echo xlt('Alerts Log'); ?></span>
 
 <form method='post' name='theform' id='theform' action='cdr_log.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type="hidden" name="search" value="1" />
 
 <div id="report_parameters">
@@ -138,7 +139,6 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 <br>
 
 <?php if ($_POST['search'] == 1) { ?>
-
  <div id="report_results">
  <table>
 

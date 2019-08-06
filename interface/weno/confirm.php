@@ -15,6 +15,7 @@
 require_once('../globals.php');
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\TransmitData;
 
@@ -105,7 +106,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 <script type="text/javascript">
 
 
-    $(document).ready(function(){
+    $(function(){
 
 
         var toTran = <?php echo json_encode($drug); ?>; //pass php array to jquery script
@@ -132,7 +133,7 @@ $mailOrder = $tData->mailOrderPharmacy();
             $("#confirm").toggle();
 
             //this is to set the pharmacy for the presciption(s)
-            $.ajax({ url: 'markTx.php?arr=' + encodeURIComponent(pharm_Id) + ',' + encodeURIComponent(toTran) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?> });
+            $.ajax({ url: 'markTx.php?arr=' + encodeURIComponent(pharm_Id) + ',' + encodeURIComponent(toTran) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?> });
 
             //Makes the returned ajax call a global variable
             function getReturnJson(x){
@@ -146,7 +147,7 @@ $mailOrder = $tData->mailOrderPharmacy();
                 //this is to create the json script to be transmitted
                 $.ajax({
                     //feeds the json generator
-                    url: 'jsonScript.php?getJson=' + encodeURIComponent(pharm_Id) + ',' + encodeURIComponent(value) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>,
+                    url: 'jsonScript.php?getJson=' + encodeURIComponent(pharm_Id) + ',' + encodeURIComponent(value) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
 
                     success: function(response){
                         console.log(response);

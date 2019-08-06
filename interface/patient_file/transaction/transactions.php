@@ -14,6 +14,7 @@ require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -32,7 +33,7 @@ use OpenEMR\OeUI\OemrUI;
     // Process click on Delete button.
     function deleteme(transactionId) {
         top.restoreSession();
-        dlgopen('../deleter.php?transaction=' + encodeURIComponent(transactionId) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450);
+        dlgopen('../deleter.php?transaction=' + encodeURIComponent(transactionId) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
         return false;
     }
 <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
@@ -88,7 +89,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 <?php
                 if ($result = getTransByPid($pid)) {
-                ?>
+                    ?>
 
                     <table class="table table-striped">
                     <thead>
@@ -148,17 +149,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <td><?php echo text($item['user']); ?></td>
                                 <td><?php echo text($item['body']); ?></td>
                             </tr>
-                        <?php
+                            <?php
                         }
                         ?>
                     </tbody>
                     </table>
 
-                <?php
+                    <?php
                 } else {
-                ?>
+                    ?>
                 <span class="text"><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo xlt('There are no transactions on file for this patient.'); ?></span>
-                <?php
+                    <?php
                 }
                 ?>
             </div>

@@ -11,6 +11,7 @@ require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $alertmsg = '';
@@ -73,7 +74,6 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <title><?php echo $drug_id ? xlt("Edit") : xlt("Add New");
 echo ' ' . xlt('Drug'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
@@ -141,8 +141,8 @@ function sel_related() {
 // First check for duplicates.
 //
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $crow = sqlQuery(
@@ -168,8 +168,8 @@ if ($_POST['form_save']) {
 }
 
 if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $new_drug = false;
@@ -284,7 +284,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
                     }
                 }
 
-                sqlInsert(
+                sqlStatement(
                     "INSERT INTO drug_templates ( " .
                     "drug_id, selector, dosage, period, quantity, refills, taxrates " .
                     ") VALUES ( ?, ?, ?, ?, ?, ?, ? )",
@@ -364,7 +364,7 @@ if ($drug_id) {
 ?>
 
 <form class="form" method='post' name='theform' action='add_edit_drug.php?drug=<?php echo attr_url($drug_id); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
 
 <table class="table" border='0' width='100%'>

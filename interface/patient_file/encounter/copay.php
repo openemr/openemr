@@ -12,6 +12,8 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 // This may be more appropriate to move to the library
 // later
 function getInsuranceCompanies($pid)
@@ -45,7 +47,6 @@ document.copay_form.codeH.value="";
 </script>
 
 
-<?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_bottom">
@@ -57,7 +58,7 @@ document.copay_form.codeH.value="";
 
 <dl>
 
-<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"
+<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 
 <dt><span class=title><?php echo xlt('Copay'); ?></span></dt>
@@ -71,7 +72,7 @@ document.copay_form.codeH.value="";
 
 <div<?php if ($GLOBALS['simplified_copay']) {
     echo " style='display:none;'";
-} ?>>
+    } ?>>
 <input type="RADIO" name="payment_method" value="cash" checked><?php echo xlt('cash'); ?>
 <input type="RADIO" name="payment_method" value="credit card"><?php echo xlt('credit'); ?>
 <input type="RADIO" name="payment_method" value="check"><?php echo xlt('check'); ?>

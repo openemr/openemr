@@ -75,6 +75,7 @@ if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
 
 // Html2pdf fails to generate checked checkboxes properly, so write plain HTML
 // if we are doing a visit-specific form to be completed.
+// TODO - now use mPDF, so should test if still need this fix
 $PDF_OUTPUT = ($formid && $isblankform) ? false : true;
 //$PDF_OUTPUT = false; // debugging
 
@@ -117,7 +118,6 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <?php if (!$PDF_OUTPUT) { ?>
 <html>
 <head>
-<?php html_header_show();?>
 <?php } ?>
 
 <style>
@@ -164,8 +164,9 @@ div.section {
   // html2pdf screws up the div borders when a div overflows to a second page.
   // Our temporary solution is to turn off the borders in the case where this
   // is likely to happen (i.e. where all form options are listed).
+  // TODO - now use mPDF, so should test if still need this fix
 if (!$isblankform) {
-?>
+    ?>
 border-style: solid;
 border-width: 1px;
 border-color: #ffffff #ffffff #ffffff #ffffff;
@@ -261,7 +262,8 @@ for ($lcols = 1; $lcols < $CPR; ++$lcols) {
 $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
-  // Would use max-height here but html2pdf does not support it.
+    // Would use max-height here but html2pdf does not support it.
+    // TODO - now use mPDF, so should test if still need this fix
     $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(round($FONTSIZE * 5.14)) . "pt' />";
 } else {
     $logo = "<!-- '$ma_logo_path' does not exist. -->";
@@ -293,8 +295,7 @@ function end_row()
     global $cell_count, $CPR;
     end_cell();
     if ($cell_count > 0) {
-        for (; $cell_count < $CPR;
-        ++$cell_count) {
+        for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
         }
 
@@ -308,6 +309,7 @@ function getContent()
     global $web_root, $webserver_root;
     $content = ob_get_clean();
     // Fix a nasty html2pdf bug - it ignores document root!
+    // TODO - now use mPDF, so should test if still need this fix
     $i = 0;
     $wrlen = strlen($web_root);
     $wsrlen = strlen($webserver_root);
@@ -357,7 +359,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     if ($currvalue === false) {
         // Should not happen.
-        error_log("Function lbf_current_value() failed for field '$field_id'.");
+        error_log("Function lbf_current_value() failed for field '" . errorLogEscape($field_id) . "'.");
         continue;
     }
 
@@ -401,7 +403,7 @@ while ($frow = sqlFetchArray($fres)) {
         $gname = $grparr[substr($group_levels, 0, $i)]['grp_title'];
         $subtitle = xl_layout_label($grparr[substr($group_levels, 0, $i)]['grp_subtitle']);
 
-        // This is also for html2pdf. Telling it that the following stuff should
+        // This is also for mPDF. Telling it that the following stuff should
         // start on a new page if there is not otherwise room for it on this page.
         echo "<nobreak>\n";
         echo "<div class='grpheader'>" . text(xl_layout_label($gname)) . "</div>\n";
@@ -453,6 +455,7 @@ while ($frow = sqlFetchArray($fres)) {
             echo " style='padding-left:10pt'";
         }
         // echo " nowrap>"; // html2pdf misbehaves with this.
+        // TODO - now use mPDF, so should test if still need this fix
         echo ">";
         $cell_count += $titlecols;
     }
@@ -599,10 +602,10 @@ if ($fs && isset($LBF_DIAGS_SECTION)) {
 <?php
 if ($PDF_OUTPUT) {
     $content = getContent();
-    $pdf->writeHTML($content, false);
+    $pdf->writeHTML($content);
     $pdf->Output('form.pdf', 'I'); // D = Download, I = Inline
 } else {
-?>
+    ?>
 <script language='JavaScript'>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);

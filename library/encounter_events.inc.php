@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,9 +19,9 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
+//           Paul Simon K <paul@zhservices.com>
 //           Ian Jardine ( github.com/epsdky ) ( Modified calendar_arrived )
 //
 // +------------------------------------------------------------------------------+
@@ -264,7 +264,7 @@ function update_event($eid)
 {
     $origEventRes = sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
     $origEvent=sqlFetchArray($origEventRes);
-    $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+    $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
     $duration=$origEvent['pc_duration'];
     $starttime=$origEvent['pc_startTime'];
     $endtime=$origEvent['pc_endTime'];
@@ -287,34 +287,34 @@ function update_event($eid)
                         "exdate" => ""
                     );
     // Useless garbage that we must save.
-    $locationspecs = array("event_location" => "",
+        $locationspecs = array("event_location" => "",
                             "event_street1" => "",
                             "event_street2" => "",
                             "event_city" => "",
                             "event_state" => "",
                             "event_postal" => ""
                         );
-    $locationspec = serialize($locationspecs);
-    $args['event_date'] = date('Y-m-d');
-    $args['duration'] = $duration;
+        $locationspec = serialize($locationspecs);
+        $args['event_date'] = date('Y-m-d');
+        $args['duration'] = $duration;
     // this event is forced to NOT REPEAT
-    $args['form_repeat'] = "0";
-    $args['recurrspec'] = $noRecurrspec;
-    $args['form_enddate'] = "0000-00-00";
-    $args['starttime'] = $starttime;
-    $args['endtime'] = $endtime;
-    $args['locationspec'] = $locationspec;
-    $args['form_category']=$origEvent['pc_catid'];
-    $args['new_multiple_value']=$origEvent['pc_multiple'];
-    $args['form_provider']=$origEvent['pc_aid'];
-    $args['form_pid']=$origEvent['pc_pid'];
-    $args['form_title']=$origEvent['pc_title'];
-    $args['form_allday']=$origEvent['pc_alldayevent'];
-    $args['form_apptstatus']='@';
-    $args['form_prefcat']=$origEvent['pc_prefcatid'];
-    $args['facility']=$origEvent['pc_facility'];
-    $args['billing_facility']=$origEvent['pc_billing_location'];
-    InsertEvent($args, 'payment');
+        $args['form_repeat'] = "0";
+        $args['recurrspec'] = $noRecurrspec;
+        $args['form_enddate'] = "0000-00-00";
+        $args['starttime'] = $starttime;
+        $args['endtime'] = $endtime;
+        $args['locationspec'] = $locationspec;
+        $args['form_category']=$origEvent['pc_catid'];
+        $args['new_multiple_value']=$origEvent['pc_multiple'];
+        $args['form_provider']=$origEvent['pc_aid'];
+        $args['form_pid']=$origEvent['pc_pid'];
+        $args['form_title']=$origEvent['pc_title'];
+        $args['form_allday']=$origEvent['pc_alldayevent'];
+        $args['form_apptstatus']='@';
+        $args['form_prefcat']=$origEvent['pc_prefcatid'];
+        $args['facility']=$origEvent['pc_facility'];
+        $args['billing_facility']=$origEvent['pc_billing_location'];
+        InsertEvent($args, 'payment');
 }
 //===============================================================================
 // check if event exists
@@ -330,7 +330,7 @@ function check_event_exist($eid)
     $pc_endTime=$origEvent['pc_endTime'];
     $pc_facility=$origEvent['pc_facility'];
     $pc_billing_location=$origEvent['pc_billing_location'];
-    $pc_recurrspec_array = unserialize($origEvent['pc_recurrspec']);
+    $pc_recurrspec_array = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
     $origEvent = sqlStatement(
         "SELECT * FROM openemr_postcalendar_events WHERE pc_eid != ? and pc_catid=? and pc_aid=? ".
         "and pc_pid=? and pc_eventDate=? and pc_startTime=? and pc_endTime=? and pc_facility=? and pc_billing_location=?",
@@ -416,9 +416,14 @@ function InsertEvent($args, $from = 'general')
  */
 function &__increment($d, $m, $y, $f, $t)
 {
+    if ($t == REPEAT_DAYS_EVERY_WEEK) {
+        $old_appointment_date = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));
+        $next_appointment_date = getTheNextAppointment($old_appointment_date, $f);
+        return $next_appointment_date;
+    }
 
     if ($t == REPEAT_EVERY_DAY) {
-        return date('Y-m-d', mktime(0, 0, 0, $m, ($d+$f), $y));
+        $d = $d+$f;
     } elseif ($t == REPEAT_EVERY_WORK_DAY) {
         // a workday is defined as Mon,Tue,Wed,Thu,Fri
         // repeating on every or Nth work day means to not include
@@ -442,24 +447,23 @@ function &__increment($d, $m, $y, $f, $t)
             if ($nextWorkDOW == $GLOBALS['weekend_days'][0]) {
                 $f+=2;
             } elseif ($nextWorkDOW == $GLOBALS['weekend_days'][1]) {
-                 $f++;
+                $f++;
             }
         } elseif (count($GLOBALS['weekend_days']) === 1 && $nextWorkDOW === $GLOBALS['weekend_days'][0]) {
             $f++;
         }
 
-        return date('Y-m-d', mktime(0, 0, 0, $m, ($d+$f), $y));
+        $d = $d+$f;
     } elseif ($t == REPEAT_EVERY_WEEK) {
-        return date('Y-m-d', mktime(0, 0, 0, $m, ($d+(7*$f)), $y));
+        $d = $d+(7*$f);
     } elseif ($t == REPEAT_EVERY_MONTH) {
-        return date('Y-m-d', mktime(0, 0, 0, ($m+$f), $d, $y));
+        $m = $m+$f;
     } elseif ($t == REPEAT_EVERY_YEAR) {
-        return date('Y-m-d', mktime(0, 0, 0, $m, $d, ($y+$f)));
-    } elseif ($t == REPEAT_DAYS_EVERY_WEEK) {
-        $old_appointment_date = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));
-        $next_appointment_date = getTheNextAppointment($old_appointment_date, $f);
-        return $next_appointment_date;
+        $y = $y+$f;
     }
+
+    $dtYMD = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));
+    return $dtYMD;
 }
 
 function getTheNextAppointment($appointment_date, $freq)

@@ -14,8 +14,10 @@
 
 require_once("../globals.php");
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $pwd_expires = "";
@@ -55,7 +57,6 @@ if (($pwd_expires == "0000-00-00") or ($pwd_expires == "")) {
 <html>
 <head>
 <meta http-equiv="Content-Language" content="en-us">
-<?php html_header_show();?>
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_bottom">

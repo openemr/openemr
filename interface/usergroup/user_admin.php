@@ -16,14 +16,15 @@ require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
 
 if (!empty($_GET)) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -228,17 +229,34 @@ function authorized_clicked() {
 <body class="body_top">
 
 <div class="container">
-
+    <?php
+    /*  Get the list ACL for the user */
+    $is_super_user = acl_check('admin', 'super');
+    $acl_name=acl_get_group_titles($iter["username"]);
+    $bg_name='';
+    $bg_count=count($acl_name);
+    $selected_user_is_superuser = false;
+    for ($i=0; $i<$bg_count; $i++) {
+        if ($acl_name[$i] == "Emergency Login") {
+            $bg_name=$acl_name[$i];
+        }
+        //check if user member on group with superuser rule
+        if (is_group_include_superuser($acl_name[$i])) {
+            $selected_user_is_superuser = true;
+        }
+    }
+    $disabled_save = !$is_super_user && $selected_user_is_superuser ? 'disabled' : '';
+    ?>
 <table><tr><td>
 <span class="title"><?php echo xlt('Edit User'); ?></span>&nbsp;
 </td><td>
-    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()'> <span><?php echo xlt('Save');?></span> </a>
+    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()' <?php echo $disabled_save; ?>> <span><?php echo xlt('Save');?></span> </a>
     <a class="btn btn-link btn-cancel" id='cancel' href='#'><span><?php echo xlt('Cancel');?></span></a>
 </td></tr>
 </table>
 <br>
 <FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type=hidden name="pwd_expires" value="<?php echo attr($GLOBALS['password_expiration_days']); ?>" >
 <input type=hidden name="pre_active" value="<?php echo attr($iter["active"]); ?>" >
@@ -256,17 +274,6 @@ if ($password_exp != "0000-00-00") {
 ?>
 <input type=hidden name="current_date" value="<?php echo attr(strtotime($current_date)); ?>" >
 <input type=hidden name="grace_time" value="<?php echo attr(strtotime($grace_time1)); ?>" >
-<!--  Get the list ACL for the user -->
-<?php
-$acl_name=acl_get_group_titles($iter["username"]);
-$bg_name='';
-$bg_count=count($acl_name);
-for ($i=0; $i<$bg_count; $i++) {
-    if ($acl_name[$i] == "Emergency Login") {
-        $bg_name=$acl_name[$i];
-    }
-}
-?>
 <input type=hidden name="user_type" value="<?php echo attr($bg_name); ?>" >
 
 <TABLE border=0 cellpadding=0 cellspacing=0>
@@ -333,8 +340,8 @@ if ($fres) {
         ?>
           <option value="<?php echo attr($iter2['id']); ?>" <?php if ($iter['facility_id'] == $iter2['id']) {
                 echo "selected";
-} ?>><?php echo text($iter2['name']); ?></option>
-<?php
+                         } ?>><?php echo text($iter2['name']); ?></option>
+        <?php
     }
 }
 ?>
@@ -347,23 +354,23 @@ if ($fres) {
  <td><span class=text><?php echo xlt('Schedule Facilities:');?></td>
  <td>
   <select name="schedule_facility[]" multiple style="width:150px;" class="form-control">
-<?php
-  $userFacilities = getUserFacilities($_GET['id']);
-  $ufid = array();
-foreach ($userFacilities as $uf) {
-    $ufid[] = $uf['id'];
-}
+    <?php
+    $userFacilities = getUserFacilities($_GET['id']);
+    $ufid = array();
+    foreach ($userFacilities as $uf) {
+        $ufid[] = $uf['id'];
+    }
 
-  $fres = $facilityService->getAllServiceLocations();
-if ($fres) {
-    foreach ($fres as $frow) :
-?>
+    $fres = $facilityService->getAllServiceLocations();
+    if ($fres) {
+        foreach ($fres as $frow) :
+            ?>
    <option <?php echo in_array($frow['id'], $ufid) || $frow['id'] == $iter['facility_id'] ? "selected" : null ?>
            class="form-control" value="<?php echo attr($frow['id']); ?>"><?php echo text($frow['name']) ?></option>
-<?php
-    endforeach;
-}
-?>
+            <?php
+        endforeach;
+    }
+    ?>
   </select>
  </td>
 </tr>
@@ -379,7 +386,7 @@ if ($fres) {
 <td class='text'><?php echo xlt('See Authorizations'); ?>: </td>
 <td><select name="see_auth" style="width:150px;" class="form-control" >
 <?php
-foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
+foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
     echo " <option value='" . attr($key) . "'";
     if ($key == $iter['see_auth']) {
         echo " selected";
@@ -423,7 +430,7 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
   </td>
   <td>
     <?php
-    $menuMain = new MainMenuRole();
+    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
     echo $menuMain->displayMenuRoleSelector($iter["main_menu_role"]);
     ?>
   </td>
@@ -443,25 +450,25 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 <tr>
  <td class="text"><?php echo xlt('Default Warehouse'); ?>: </td>
  <td class='text'>
-<?php
-echo generate_select_list(
-    'default_warehouse',
-    'warehouse',
-    $iter['default_warehouse'],
-    ''
-);
-?>
+    <?php
+    echo generate_select_list(
+        'default_warehouse',
+        'warehouse',
+        $iter['default_warehouse'],
+        ''
+    );
+    ?>
  </td>
  <td class="text"><?php echo xlt('Invoice Refno Pool'); ?>: </td>
  <td class='text'>
-<?php
-echo generate_select_list(
-    'irnpool',
-    'irnpool',
-    $iter['irnpool'],
-    xl('Invoice reference number pool, if used')
-);
-?>
+    <?php
+    echo generate_select_list(
+        'irnpool',
+        'irnpool',
+        $iter['irnpool'],
+        xl('Invoice reference number pool, if used')
+    );
+    ?>
  </td>
 </tr>
 <?php } ?>
@@ -471,7 +478,7 @@ echo generate_select_list(
  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" class="form-control">
 <?php
 // Collect the access control group of user
-$list_acl_groups = acl_get_group_title_list();
+$list_acl_groups = acl_get_group_title_list($is_super_user || $selected_user_is_superuser);
 $username_acl_groups = acl_get_group_titles($iter["username"]);
 foreach ($list_acl_groups as $value) {
     if (($username_acl_groups) && in_array($value, $username_acl_groups)) {
@@ -482,7 +489,7 @@ foreach ($list_acl_groups as $value) {
         echo " <option value='" . attr($value) . "'>" . text(xl_gacl_group($value)) . "</option>\n";
     }
 }
-    ?>
+?>
   </select></td>
   <td><span class=text><?php echo xlt('Additional Info'); ?>:</span></td>
   <td><textarea style="width:150px;" name="comments" wrap=auto rows=4 cols=25 class="form-control"><?php echo text($iter["info"]); ?></textarea></td>
@@ -490,7 +497,12 @@ foreach ($list_acl_groups as $value) {
   </tr>
   <tr height="20" valign="bottom">
   <td colspan="4" class="text">
-  *<?php echo xlt('You must enter your own password to change user passwords. Leave blank to keep password unchanged.'); ?>
+      <p>*<?php echo xlt('You must enter your own password to change user passwords. Leave blank to keep password unchanged.'); ?></p>
+    <?php
+    if (!$is_super_user && $selected_user_is_superuser) {
+        echo '<p class="redtext">*' . xlt('View mode - only administrator can edit another administrator user') . '.</p>';
+    }
+    ?>
 <!--
 Display red alert if entered password matched one of last three passwords/Display red alert if user password was expired and the user was inactivated previously
 -->
@@ -507,7 +519,7 @@ Display red alert if entered password matched one of last three passwords/Displa
 <INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo attr($GLOBALS['secure_password']); ?>">
 </FORM>
 <script language="JavaScript">
-$(document).ready(function(){
+$(function(){
     $("#cancel").click(function() {
           dlgclose();
      });

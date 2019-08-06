@@ -13,6 +13,7 @@
 require_once("../../globals.php");
 require_once("$srcdir/dated_reminder_functions.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $dateRanges = array();
@@ -53,8 +54,8 @@ $max_reminder_words=160;
 
 // ---------------- FOR FORWARDING MESSAGES ------------->
 if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $forwarding = true;
@@ -67,8 +68,8 @@ if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
 
 // --- add reminders
 if ($_POST) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
 // --- initialize $output as blank
@@ -88,14 +89,14 @@ if ($_POST) {
     if (// ------- check sendTo is not empty
     !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-    isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', $_POST['dueDate']) and
+    isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', DateToYYYYMMDD($_POST['dueDate'])) and
 // ------- check priority, only allow 1-3
     isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db
     isset($_POST['message']) and mb_strlen($_POST['message']) <= $max_reminder_words and mb_strlen($_POST['message']) > 0 and
 // ------- check if PatientID is set and in numeric
     isset($_POST['PatientID']) and is_numeric($_POST['PatientID'])) {
-        $dueDate = $_POST['dueDate'];
+        $dueDate = DateToYYYYMMDD($_POST['dueDate']);
         $priority = intval($_POST['priority']);
         $message = $_POST['message'];
         $fromID = $_SESSION['authId'];
@@ -129,9 +130,7 @@ if ($_POST) {
         }
 
 // --------------------------------------------------------------------------------------------------------------------------
-    } // --------------------------------------------------------------------------------------------------------------------------
-
-    else {
+    } else {
 // ------- if POST error
         $output .= '<div style="text-align:center;">* '.xlt('Data Error').'</div> ';
     }
@@ -150,16 +149,16 @@ if (isset($this_message['pid'])) {
     $patientID = (isset($pid) ? $pid : 0);
     $reminder_title = xl("Send a Reminder");
 }
-    ?>
+?>
 <html>
   <head>
 
     <title><?php echo xlt('Send a Reminder') ?></title>
 
-    <?php Header::setupHeader(['datetime-picker','opener','topdialog','common']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener' ,'topdialog', 'common', 'moment']); ?>
 
     <script language="JavaScript">
-      $(document).ready(function (){
+      $(function (){
 
         $('#timeSpan').change(function(){
           var value = $(this).val();
@@ -191,8 +190,9 @@ if (isset($this_message['pid'])) {
             curr_month = '0'+curr_month;
           }
           var curr_year = d.getFullYear();
-          $('#dueDate').val(curr_year + "-" + curr_month + "-" + curr_date);
-        })
+          var fullDate = curr_year + "-" + curr_month + "-" + curr_date;
+          $('#dueDate').val(moment(fullDate).format(<?php echo js_escape(DateFormatRead('validateJS'))?>));
+        });
 
 
         $("#sendButton").click(function(){
@@ -250,7 +250,7 @@ if (isset($this_message['pid'])) {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -276,7 +276,7 @@ if (isset($this_message['pid'])) {
         }
 
         function selectAll(){
-          $("#sendTo").each(function(){$("#sendTo option").attr("selected","selected"); });
+          $("#sendTo").each(function(){$("#sendTo option").prop("selected",true); });
         }
     </script>
     <style>
@@ -305,7 +305,7 @@ if (isset($this_message['pid'])) {
     <div class="container">
     <h4><?php echo attr($reminder_title) ?></h4>
     <form id="addDR"  class="form-horizontal" id="newMessage" method="post" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
        <fieldset id='error-info' class='oe-error-modal' style="display:none">
         <div style="text-align:center;" id="errorMessage"></div>
@@ -360,7 +360,7 @@ if (isset($this_message['pid'])) {
             <div class="form-group">
                 <div class="col-xs-5">
                     <label class="control-label" for="dueDate"><?php echo xlt('Due Date') ?>:</label>
-                    <input type='text' class='datepicker form-control' name='dueDate' id="dueDate" value="<?php echo ($this_message['dueDate'] == '' ? date('Y-m-d') : attr($this_message['dueDate'])); ?>" title='<?php echo xla('yyyy-mm-dd'); ?>'>
+                    <input type='text' class='datepicker form-control' name='dueDate' id="dueDate" value="<?php echo ($this_message['dueDate'] == '' ? oeFormatShortDate() : attr(oeFormatShortDate($this_message['dueDate']))); ?>" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                 </div>
                 <div class="col-xs-2">
                 <label class="control-label" for="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
@@ -389,13 +389,13 @@ if (isset($this_message['pid'])) {
             </div>
             <div class="col-xs-6">
                 <label class="radio-inline"><input <?php echo ($this_message['message_priority'] == 3 ? 'checked="checked"' : '') ?>
-                    type="radio" name="priority" id="priority_3" value='3'><strong><?php echo xlt('Low') ?></strong>
+                    type="radio" name="priority" id="priority_3" value='3'><strong><?php echo xlt('Low{{Priority}}') ?></strong>
                 </label>
                 <label class="radio-inline"><input type="radio" name="optradio"><input <?php echo ($this_message['message_priority'] == 2 ? 'checked="checked"' : '') ?>
-                    type="radio" name="priority" id="priority_2" value='2'><strong><?php echo xlt('Medium') ?></strong>
+                    type="radio" name="priority" id="priority_2" value='2'><strong><?php echo xlt('Medium{{Priority}}') ?></strong>
                 </label>
                 <label class="radio-inline"><input type="radio" name="optradio"><input <?php echo ($this_message['message_priority'] == 1 ? 'checked="checked"' : '') ?>
-                type="radio" name="priority" id="priority_1" value='1'><strong><?php echo xlt('High') ?></strong>
+                type="radio" name="priority" id="priority_1" value='1'><strong><?php echo xlt('High{{Priority}}') ?></strong>
                 </label>
             </div>
         </div>
@@ -431,7 +431,7 @@ if (isset($this_message['pid'])) {
     <div class="col-xs-12">
     <?php
         $_GET['sentBy'] = array($_SESSION['authId']);
-        $_GET['sd'] = date('Y/m/d');
+        $_GET['sd'] = oeFormatShortDate();
         $TempRemindersArray = logRemindersArray();
         $remindersArray = array();
     foreach ($TempRemindersArray as $RA) {
@@ -447,7 +447,7 @@ if (isset($this_message['pid'])) {
                 <thead>
                   <tr>
                     <th>'.xlt('ID').'</th>
-                    <th>'.xlt('To').'</th>
+                    <th>'.xlt('To{{Destination}}').'</th>
                     <th>'.xlt('Patient').'</th>
                     <th>'.xlt('Message').'</th>
                     <th>'.xlt('Due Date').'</th>
@@ -461,7 +461,7 @@ if (isset($this_message['pid'])) {
                   <td>'.text($RA['ToName']).'</td>
                   <td>'.text($RA['PatientName']).'</td>
                   <td>'.text($RA['message']).'</td>
-                  <td>'.text($RA['dDate']).'</td>
+                  <td>'.text(oeFormatShortDate($RA['dDate'])).'</td>
                 </tr>';
     }
 

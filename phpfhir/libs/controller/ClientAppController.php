@@ -5,12 +5,16 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
- * @license   https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("oeDispatcher.php");
+require_once(dirname(__FILE__) . "/../../../_rest_config.php");
 
+use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FhirResourcesService;
@@ -43,9 +47,9 @@ class clientController extends oeDispatchController
 
     public function createEncounterAllAction()
     {
-        $pid = $this->getRequest(pid);
-        $oeid = $this->getRequest(oeid);
-        $type = $this->getRequest(type);
+        $pid = $this->getRequest('pid');
+        $oeid = $this->getRequest('oeid');
+        $type = $this->getRequest('type');
 
         $this->encounterService = new EncounterService();
         $this->fhirService = new FhirResourcesService();
@@ -64,14 +68,16 @@ class clientController extends oeDispatchController
 
     public function createAction()
     {
-        $oeid = $this->getRequest(oeid);
-        $type = $this->getRequest(type);
+        $oeid = $this->getRequest('oeid');
+        $type = $this->getRequest('type');
 
         $fhir_uri = $type . '/' . strtolower($type) . '-' . $oeid;
-        $api_uri = $type . '/' . $oeid;
+        $api = '/fhir/' . $type . '/' . $oeid;
+
         // get resource from api
-        $response = oeHttp::usingBaseUri($this->apiBase)->get($api_uri);
-        $resource = $response->body(); // json encoded
+        $gbl = RestConfig::GetInstance();
+        $gbl::setNotRestCall();
+        $resource = HttpRestRouteHandler::dispatch($gbl::$FHIR_ROUTE_MAP, $api, 'GET', 'direct-json');
 
         // create resource on Fhir server.
         $returned = oeHttp::bodyFormat('body')->usingBaseUri($this->fhirBase)->put($fhir_uri, $resource);
@@ -87,8 +93,8 @@ class clientController extends oeDispatchController
 
     public function historyAction()
     {
-        $oeid = $this->getRequest(oeid);
-        $type = $this->getRequest(type);
+        $oeid = $this->getRequest('oeid');
+        $type = $this->getRequest('type');
 
         $id = strtolower($type) . '-' . $oeid;
         $uri = $type . '/' . $id . '/_history';
@@ -98,8 +104,8 @@ class clientController extends oeDispatchController
 
     public function readAction()
     {
-        $oeid = $this->getRequest(oeid);
-        $type = $this->getRequest(type);
+        $oeid = $this->getRequest('oeid');
+        $type = $this->getRequest('type');
 
         $uri = $type . '/' . strtolower($type) . '-' . $oeid;
         $response = oeHttp::usingBaseUri($this->fhirBase)->get($uri);
@@ -109,8 +115,8 @@ class clientController extends oeDispatchController
 
     public function searchAction()
     {
-        $pid = $this->getRequest(pid);
-        $type = $this->getRequest(type);
+        $pid = $this->getRequest('pid');
+        $type = $this->getRequest('type');
         if ($type === 'Patient') {
             return xlt('Patient Search Not Available');
         }

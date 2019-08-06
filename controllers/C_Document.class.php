@@ -1,12 +1,18 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * C_Document.class.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once(dirname(__FILE__) . "/../library/forms.inc");
-require_once(dirname(__FILE__) . "/../library/crypto.php");
 
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 
@@ -32,7 +38,9 @@ class C_Document extends Controller
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "document&");
 
-        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+
+        $this->assign("IMAGES_STATIC_RELATIVE", $GLOBALS['images_static_relative']);
 
         //get global config options for this namespace
         $this->_config = $GLOBALS['oer_config']['documents'];
@@ -44,6 +52,9 @@ class C_Document extends Controller
         //print_r($t->tree);
         $this->tree = $t;
         $this->Document = new Document();
+
+        // Create a crypto object that will be used for for encryption/decryption
+        $this->cryptoGen = new CryptoGen();
     }
 
     function upload_action($patient_id, $category_id)
@@ -185,7 +196,7 @@ class C_Document extends Controller
                     $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
                     fclose($tmpfile);
                     if ($doDecryption) {
-                        $filetext = decryptStandard($filetext, $passphrase);
+                        $filetext = $this->cryptoGen->decryptStandard($filetext, $passphrase);
                         if ($filetext === false) {
                             error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                             $filetext = "";
@@ -347,12 +358,12 @@ class C_Document extends Controller
         $d = new Document($doc_id);
         $notes = $d->get_notes();
 
-        $this->assign("csrf_token_form", collectCsrfToken());
+        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken());
 
         $this->assign("file", $d);
-        $this->assign("web_path", $this->_link("retrieve") . "document_id=" . $d->get_id() . "&");
+        $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode($d->get_id()) . "&");
         $this->assign("NOTE_ACTION", $this->_link("note"));
-        $this->assign("MOVE_ACTION", $this->_link("move") . "document_id=" . $d->get_id() . "&process=true");
+        $this->assign("MOVE_ACTION", $this->_link("move") . "document_id=" . urlencode($d->get_id()) . "&process=true");
         $this->assign("hide_encryption", $GLOBALS['hide_document_encryption']);
         $this->assign("assets_static_relative", $GLOBALS['assets_static_relative']);
         $this->assign("webroot", $GLOBALS['webroot']);
@@ -360,8 +371,8 @@ class C_Document extends Controller
         // Added by Rod to support document delete:
         $delete_string = '';
         if (acl_check('patients', 'docs_rm')) {
-            $delete_string = "<a href='' class='css_button' onclick='return deleteme(" . $d->get_id() .
-                ")'><span><font color='red'>" . xl('Delete') . "</font></span></a>";
+            $delete_string = "<a href='' class='css_button' onclick='return deleteme(" . attr_js($d->get_id()) .
+                ")'><span><font color='red'>" . xlt('Delete') . "</font></span></a>";
         }
         $this->assign("delete_string", $delete_string);
         $this->assign("REFRESH_ACTION", $this->_link("list"));
@@ -392,7 +403,7 @@ class C_Document extends Controller
 
         // For tagging to encounter
         // Populate the dropdown with patient's encounter list
-        $this->assign("TAG_ACTION", $this->_link("tag") . "document_id=" . $d->get_id() . "&process=true");
+        $this->assign("TAG_ACTION", $this->_link("tag") . "document_id=" . urlencode($d->get_id()) . "&process=true");
         $encOptions = "<option value='0'>-- " . xlt('Select Encounter') . " --</option>";
         $result_docs = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
             "LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date desc", array($patient_id));
@@ -406,7 +417,7 @@ class C_Document extends Controller
 
         //clear encounter tag
         if ($d->get_encounter_id() != 0) {
-            $this->assign('clear_encounter_tag', $this->_link('clear_encounter_tag')."document_id=" . $d->get_id());
+            $this->assign('clear_encounter_tag', $this->_link('clear_encounter_tag')."document_id=" . urlencode($d->get_id()));
         } else {
             $this->assign('clear_encounter_tag', 'javascript:void(0)');
         }
@@ -425,7 +436,7 @@ class C_Document extends Controller
 
         $this->assign("notes", $notes);
 
-        $this->assign("IMG_PROCEDURE_TAG_ACTION", $this->_link("image_procedure") . "document_id=" . $d->get_id());
+        $this->assign("IMG_PROCEDURE_TAG_ACTION", $this->_link("image_procedure") . "document_id=" . urlencode($d->get_id()));
             // Populate the dropdown with image procedure order list
         $imgOptions = "<option value='0'>-- " . xlt('Select Image Procedure') . " --</option>";
         $imgOrders  = sqlStatement("select procedure_name,po.procedure_order_id,procedure_code from procedure_order po inner join procedure_order_code poc on poc.procedure_order_id = po.procedure_order_id where po.patient_id = ?  and poc.procedure_order_title = 'imaging'", array($patient_id));
@@ -442,7 +453,7 @@ class C_Document extends Controller
 
         $this->assign('IMAGE_PROCEDURE_LIST', $imgOptions);
 
-        $this->assign('clear_procedure_tag', $this->_link('clear_procedure_tag')."document_id=" . $d->get_id());
+        $this->assign('clear_procedure_tag', $this->_link('clear_procedure_tag')."document_id=" . urlencode($d->get_id()));
 
         $this->_last_node = null;
 
@@ -546,7 +557,7 @@ class C_Document extends Controller
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
             if ($doEncryption) {
-                $ciphertext = encryptStandard($filetext, $passphrase);
+                $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
                 header('Content-Disposition: attachment; filename="' . basename_international("/encrypted_aes_".$d->get_url_file()) . '"');
                 header("Content-Type: application/octet-stream");
                 header("Content-Length: " . strlen($ciphertext));
@@ -603,7 +614,7 @@ class C_Document extends Controller
                     unlink($to_file_tmp);
                     unlink($to_file_tmp_name);
                 } else {
-                    error_log("ERROR: Document '" . basename_international($url) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
+                    error_log("ERROR: Document '" . errorLogEscape(basename_international($url)) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
                 }
                 // now collect the newly created converted jpg
                 $couchF = new CouchDB();
@@ -667,7 +678,7 @@ class C_Document extends Controller
             if ($original_file) {
                 //normal case when serving the file referenced in database
                 if ($d->get_encrypted() == 1) {
-                    $filetext = decryptStandard(file_get_contents($url), null, 'database');
+                    $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
                 } else {
                     $filetext = file_get_contents($url);
                 }
@@ -680,7 +691,7 @@ class C_Document extends Controller
                 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
                 header('Pragma: public');
                 if ($doEncryption) {
-                    $ciphertext = encryptStandard($filetext, $passphrase);
+                    $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
                     header('Content-Disposition: attachment; filename="' . basename_international("/encrypted_aes_".$d->get_url_file()) . '"');
                     header("Content-Type: application/octet-stream");
                     header("Content-Length: " . strlen($ciphertext));
@@ -701,7 +712,7 @@ class C_Document extends Controller
                 if (!is_file($url)) {
                     if ($d->get_encrypted() == 1) {
                         // decrypt the from-file into a temporary file
-                        $from_file_unencrypted = decryptStandard(file_get_contents($originalUrl), null, 'database');
+                        $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), null, 'database');
                         $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
                         file_put_contents($from_file_tmp_name, $from_file_unencrypted);
                         // prepare a temporary file for the unencrypted to-file
@@ -713,7 +724,7 @@ class C_Document extends Controller
                         unlink($from_file_tmp_name);
                         // make the encrypted to-file if a to-file was created in above convert call
                         if (is_file($to_file_tmp_name)) {
-                            $to_file_encrypted = encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
+                            $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
                             file_put_contents($url, $to_file_encrypted);
                             // remove unencrypted tmp files
                             unlink($to_file_tmp);
@@ -726,13 +737,13 @@ class C_Document extends Controller
                 }
                 if (is_file($url)) {
                     if ($d->get_encrypted() == 1) {
-                        $filetext = decryptStandard(file_get_contents($url), null, 'database');
+                        $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
                     } else {
                         $filetext = file_get_contents($url);
                     }
                 } else {
                     $filetext = '';
-                    error_log("ERROR: Document '" . basename_international($url) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
+                    error_log("ERROR: Document '" . errorLogEscape(basename_international($url)) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
                 }
                 if ($disable_exit == true) {
                     return $filetext;
@@ -770,7 +781,7 @@ class C_Document extends Controller
                     preg_match("/^([0-9]+)_/", basename_international($file), $patient_match);
                     $file_info['patient_id'] = $patient_match[1];
                     $file_info['document_id'] = $d->get_id();
-                    $file_info['web_path'] = $this->_link("retrieve", true) . "document_id=" . $d->get_id() . "&";
+                    $file_info['web_path'] = $this->_link("retrieve", true) . "document_id=" . urlencode($d->get_id()) . "&";
 
                     //merge the tmp array into the larger array
                     $queue_files[] = $file_info;
@@ -934,8 +945,8 @@ class C_Document extends Controller
                 $this->assign("messages", $messages);
                 return $this->list_action($patient_id);
             }
-        } //in this case return the document to the queue instead of moving it
-        elseif (strtolower($new_patient_id) == "q" && is_numeric($document_id)) {
+        } elseif (strtolower($new_patient_id) == "q" && is_numeric($document_id)) { // in this case return the document
+            // to the queue instead of moving it
             $d = new Document($document_id);
             $new_path = $this->_config['repository'];
             $fname = $d->get_url_file();
@@ -1017,7 +1028,7 @@ class C_Document extends Controller
             }
 
             if ($d->get_encrypted() == 1) {
-                $content = decryptStandard(file_get_contents($url), null, 'database');
+                $content = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
             } else {
                 $content = file_get_contents($url);
             }
@@ -1117,7 +1128,7 @@ class C_Document extends Controller
         $menu  = new HTML_TreeMenu();
         $rnode = $this->_array_recurse($this->tree->tree, $categories_list);
         $menu->addItem($rnode);
-        $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
+        $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'public/images', 'defaultClass' => 'treeMenuDefault'));
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
         $this->assign("tree_html", $treeMenu->toHTML());
 
@@ -1138,7 +1149,7 @@ class C_Document extends Controller
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
 
-    /*	This is a recursive function to rename a file to something that doesn't already exist.
+    /*  This is a recursive function to rename a file to something that doesn't already exist.
      *      Modified in version 3.2.0 to place a counter within the filename (previously was placed
      *      at end) to ensure documents opened correctly by external browser viewers. If the
      *      counter is at the end of the file, then will use it (to continue to work with older
@@ -1242,7 +1253,7 @@ class C_Document extends Controller
             $icon = "file3.png";
             if (is_array($categories[$id])) {
                 foreach ($categories[$id] as $doc) {
-                    $link = $this->_link("view") . "doc_id=" . $doc['document_id'] . "&";
+                    $link = $this->_link("view") . "doc_id=" . urlencode($doc['document_id']) . "&";
           // If user has no access then there will be no link.
                     if (!acl_check_aco_spec($doc['aco_spec'])) {
                         $link = '';
@@ -1253,7 +1264,7 @@ class C_Document extends Controller
                         'link' => $link,
                         'icon' => $icon,
                         'expandedIcon' => $expandedIcon,
-                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . $doc['document_id'] . "','_blank');")
+                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . attr_url($doc['document_id']) . "','_blank');")
                                 )));
                     } elseif ($this->tree->get_node_name($id) == "CCD") {
                                 $current_node->addItem(new HTML_TreeNode(array(
@@ -1261,7 +1272,7 @@ class C_Document extends Controller
                         'link' => $link,
                         'icon' => $icon,
                         'expandedIcon' => $expandedIcon,
-                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . $doc['document_id'] . "','_blank');")
+                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . attr_url($doc['document_id']) . "','_blank');")
                                 )));
                     } else {
                                 $current_node->addItem(new HTML_TreeNode(array(
@@ -1285,9 +1296,21 @@ class C_Document extends Controller
         if (!is_dir($log_path)) {
             mkdir($log_path, 0777, true);
         }
-        $LOG = fopen($log_path.$log_file, 'a');
-        fwrite($LOG, $content);
-        fclose($LOG);
+
+        $LOG = file_get_contents($log_path.$log_file);
+
+        if ($this->cryptoGen->cryptCheckStandard($LOG)) {
+            $LOG = $this->cryptoGen->decryptStandard($LOG, null, 'database');
+        }
+
+        $LOG .= $content;
+
+        if (!empty($LOG)) {
+            if ($GLOBALS['drive_encryption']) {
+                $LOG = $this->cryptoGen->encryptStandard($LOG, null, 'database');
+            }
+            file_put_contents($log_path.$log_file, $LOG);
+        }
     }
 
     function document_send($email, $body, $attfile, $pname)
@@ -1412,7 +1435,7 @@ class C_Document extends Controller
 
             $img_result = sqlQuery("select * from procedure_result where procedure_report_id = ? and document_id = ?", array($img_report_id,$document_id));
             if (empty($img_result)) {
-                sqlInsert("INSERT INTO procedure_result(procedure_report_id,date,document_id,result_status) values(?,?,?,'final')", array($img_report_id,date('Y-m-d H:i:s'),$document_id));
+                sqlStatement("INSERT INTO procedure_result(procedure_report_id,date,document_id,result_status) values(?,?,?,'final')", array($img_report_id,date('Y-m-d H:i:s'),$document_id));
             }
 
             $this->image_result_indication($document_id, 0, $img_procedure_id);

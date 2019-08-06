@@ -19,22 +19,19 @@
   <!-- Code MUST use an indent of 4 spaces, and MUST NOT use tabs for indenting. -->
   <rule ref="Generic.WhiteSpace.ScopeIndent">
     <properties>
-      <property name="ignoreIndentationTokens" type="array" value="T_COMMENT,T_DOC_COMMENT_OPEN_TAG" />
+      <property name="ignoreIndentationTokens" type="array">
+        <element value="T_COMMENT"/>
+        <element value="T_DOC_COMMENT_OPEN_TAG" />
+      </property>
     </properties>
   </rule>
 
   <exclude-pattern>*/vendor/*</exclude-pattern>
-  <exclude-pattern>*/gacl/*</exclude-pattern>
   <exclude-pattern>*/bower_components/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>*/public/assets/*</exclude-pattern>
-  <exclude-pattern>*/Documentation/*</exclude-pattern>
-  <exclude-pattern>*/tests/*</exclude-pattern>
-  <exclude-pattern>*/images/*</exclude-pattern>
-  <exclude-pattern>*/library/html2pdf/*</exclude-pattern>
+  <exclude-pattern>*/gacl/*</exclude-pattern>
   <exclude-pattern>*/library/classes/fpdf/*</exclude-pattern>
   <exclude-pattern>*/library/classes/smtp/*</exclude-pattern>
   <exclude-pattern>*/library/classes/PDF_Label.php</exclude-pattern>
-  <exclude-pattern>*/library/custom_template/*</exclude-pattern>
-  <exclude-pattern>*/library/fonts/*</exclude-pattern>
 </ruleset>

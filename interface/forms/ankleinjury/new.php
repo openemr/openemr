@@ -19,17 +19,18 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 formHeader("Form: ankleinjury");
 ?>
 
 <html><head>
-<?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 
 <body class="body_top">
 <form method=post action="<?php echo $rootdir;?>/forms/ankleinjury/save.php?mode=new" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <span class="title"><?php echo xlt('Ankle Evaluation Form'); ?></span><br></br>
 
@@ -131,7 +132,7 @@ formHeader("Form: ankleinjury");
 </tr>
 <tr>
 <td valign="top"><select name="ankle_diagnosis1" onChange="doCPT(this);">
-      <option value=""><?php echo xlt('None'); ?></option>
+      <option value=""><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="845.00 ankle sprain NOS"><?php echo xlt('845.00 ankle sprain NOS'); ?></option>
       <option value="845.01 Sprain Medial (Deltoid) Lig."><?php echo xlt('845.01 Sprain Medial (Deltoid) Lig.'); ?></option>
       <option value="845.02 Sprain, Calcaneal fibular"><?php echo xlt('845.02 Sprain, Calcaneal fibular'); ?></option>
@@ -156,7 +157,7 @@ formHeader("Form: ankleinjury");
 <tr>
     <td></td>
     <td colspan="2">
-        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value=""><?php echo xlt('none'); ?><br>
+        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value=""><?php echo xlt('none{{Code}}'); ?><br>
         &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value="99212 Established - Uncomplicated"><?php echo xlt('99212 Established - Uncomplicated'); ?><br>
         &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value="99213 Established - Low Complexity"><?php echo xlt('99213 Established - Low Complexity'); ?><br>
     </td>
@@ -168,7 +169,7 @@ formHeader("Form: ankleinjury");
 <tr>
 <td>
   <select name="ankle_diagnosis2" onChange="doCPT(this);">
-      <option value=""><?php echo xlt('None'); ?></option>
+      <option value=""><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="845.00 ankle sprain NOS"><?php echo xlt('845.00 ankle sprain NOS'); ?></option>
       <option value="845.01 Sprain Medial (Deltoid) Lig."><?php echo xlt('845.01 Sprain Medial (Deltoid) Lig.'); ?></option>
       <option value="845.02 Sprain, Calcaneal fibular"><?php echo xlt('845.02 Sprain, Calcaneal fibular'); ?></option>
@@ -182,7 +183,7 @@ formHeader("Form: ankleinjury");
    </td></tr>
 <td>
    <select name="ankle_diagnosis3" onChange="doCPT(this);">
-      <option value=""><?php echo xlt('None'); ?></option>
+      <option value=""><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="845.00 ankle sprain NOS"><?php echo xlt('845.00 ankle sprain NOS'); ?></option>
       <option value="845.01 Sprain Medial (Deltoid) Lig."><?php echo xlt('845.01 Sprain Medial (Deltoid) Lig.'); ?></option>
       <option value="845.02 Sprain, Calcaneal fibular"><?php echo xlt('845.02 Sprain, Calcaneal fibular'); ?></option>
@@ -197,7 +198,7 @@ formHeader("Form: ankleinjury");
 </tr>
 <td>
    <select name="ankle_diagnosis4" onChange="doCPT(this);">
-      <option value=""><?php echo xlt('None'); ?></option>
+      <option value=""><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="845.00 ankle sprain NOS"><?php echo xlt('845.00 ankle sprain NOS'); ?></option>
       <option value="845.01 Sprain Medial (Deltoid) Lig."><?php echo xlt('845.01 Sprain Medial (Deltoid) Lig.'); ?></option>
       <option value="845.02 Sprain, Calcaneal fibular"><?php echo xlt('845.02 Sprain, Calcaneal fibular'); ?></option>

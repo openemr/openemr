@@ -17,6 +17,7 @@ require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 function checkWarehouseUsed($warehouse_id)
 {
@@ -105,7 +106,6 @@ if (!$drug_id) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title><?php echo $lot_id ? xlt("Edit") : xlt("Add New");
 echo " " . xlt('Lot'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
@@ -177,7 +177,7 @@ td { font-size:10pt; }
   document.getElementById('row_distributor').style.display = showDistributor ? '' : 'none';
  }
 
-    $(document).ready(function(){
+    $(function(){
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -200,8 +200,8 @@ if ($lot_id) {
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save'] || $_POST['form_delete']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $form_quantity = $_POST['form_quantity'] + 0;
@@ -273,8 +273,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                 sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ? " .
                 "AND inventory_id = ?", array($drug_id,$lot_id));
             }
-        } // Destination lot will be created.
-        else {
+        } else { // Destination lot will be created.
             if ($form_quantity < 0) {
                 $info_msg = xl('Transaction failed, quantity is less than zero');
             } else {
@@ -312,7 +311,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                 $form_sale_date = date('Y-m-d');
             }
 
-            sqlInsert(
+            sqlStatement(
                 "INSERT INTO drug_sales ( " .
                 "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
                 "sale_date, quantity, fee, xfer_inventory_id, distributor_id, notes " .
@@ -373,7 +372,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 
 <form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'
  onsubmit='return validate()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
 
 <table border='0' width='100%'>
@@ -446,7 +445,7 @@ if (!genWarehouseList(
    <select name='form_trans_type' onchange='trans_type_changed()'>
 <?php
 foreach (array(
-  '0' => xl('None'),
+  '0' => xl('None{{Transaction}}'),
   '2' => xl('Purchase'),
   '3' => xl('Return'),
   '6' => xl('Distribution'),

@@ -7,27 +7,26 @@
  * @author    Garden State Health Systems <http://www.gshsys.com/>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Garden State Health Systems <http://www.gshsys.com/>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
 // check if using the patient portal
 //(if so, then use the portal authorization)
-if (isset($_GET['portal_auth']) || isset($_GET['portal_auth_two'])) {
-    if (isset($_GET['portal_auth'])) {
-        $landingpage = "../patients/index.php";
-    } else { // isset($_GET['portal_auth_two'])
-        $landingpage = "../portal/index.php";
-    }
+if (isset($_GET['portal_auth'])) {
+    $landingpage = "../portal/index.php";
 
-    session_start();
-    if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two']))) {
+    // Will start the (patient) portal OpenEMR session/cookie.
+    require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+
+    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         $pid = $_SESSION['pid'];
         $ignoreAuth=true;
         global $ignoreAuth;
     } else {
-        session_destroy();
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         header('Location: '.$landingpage.'?w');
         exit;
     }
@@ -160,7 +159,7 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = "")
                     return;
         }
 
-        if ($zip->open($zipName, ZIPARCHIVE::CREATE)) {
+        if ($zip->open($zipName, ZipArchive::CREATE)) {
             $zip->addFile("stylesheet/ccr.xsl", "stylesheet/ccr.xsl");
             $xmlName = $tempDir . "/" . getReportFilename() . "-ccr.xml";
             if (file_exists($xmlName)) {
@@ -253,7 +252,7 @@ function viewCCD($ccr, $raw = "no", $requested_by = "")
             return;
         }
 
-        if ($zip->open($zipName, ZIPARCHIVE::CREATE)) {
+        if ($zip->open($zipName, ZipArchive::CREATE)) {
             $zip->addFile("stylesheet/cda.xsl", "stylesheet/cda.xsl");
             $xmlName = $tempDir . "/" . getReportFilename() . "-ccd.xml";
             if (file_exists($xmlName)) {

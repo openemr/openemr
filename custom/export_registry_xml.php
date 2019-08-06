@@ -9,16 +9,15 @@
  // This program exports report to PQRI 2009 XML format.
 
 
-
-
-
 require_once("../interface/globals.php");
 require_once("../library/patient.inc");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 //To improve performance and not freeze the session when running this
@@ -153,7 +152,6 @@ foreach ($dataSheet as $row) {
          $firstProviderFlag = false;
          $existProvider = true;
     } else { // isset($row['is_plan'])
-
         if ($firstPlanFlag == false) {
             if ($firstProviderFlag == false) {
                 $xml->close_provider();
@@ -184,7 +182,6 @@ $xml->close_submission();
 
 <html>
 <head>
-<?php html_header_show();?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php echo xlt('Export PQRI Report'); ?></title>

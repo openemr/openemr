@@ -156,7 +156,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     font-size: 10pt;
 }
 .timeslot {
-    height: [-php-]echo $timeslotHeightVal.$timeslotHeightUnit;[-/php-];
+    height: [-php-]echo attr($timeslotHeightVal.$timeslotHeightUnit);[-/php-];
     margin: 0px;
     padding: 0px;
 }
@@ -259,16 +259,15 @@ foreach ($providers as $provider) {
     $addPagebreak = true;
 
     echo "<div id='bigCalHeader'>";
-    //echo "<img src='/images/cfa_logo_small.gif' style='position:relative; z-index:-100'/>";
 
     echo "<div id='bigCalText'>";
     // output the provider name
-    echo "<span id='provname'>".$provider['fname'] . " " . $provider['lname']."</span>";
+    echo "<span id='provname'>" . text($provider['fname']) . " " . text($provider['lname']) . "</span>";
     echo "<br>";
     // output the date range
     $atmp = array_keys($A_EVENTS);
     echo "<span id='daterange'>";
-    echo  xl(date('F', strtotime($Date))). " " . date('Y', strtotime($Date));
+    echo  xlt(date('F', strtotime($Date))) . " " . text(date('Y', strtotime($Date)));
     echo "</span>";
     echo "</div>";
 
@@ -301,7 +300,7 @@ foreach ($providers as $provider) {
     foreach ($A_EVENTS as $date => $events) {
         if ($defaultDate == "") $defaultDate = date("Ymd", strtotime($date));
         echo "<th>";
-        echo xl(date("l", strtotime($date)));
+        echo xlt(date("l", strtotime($date)));
         echo "</th>";
         if ($dowCount++ == 6) { break; }
     }
@@ -324,7 +323,7 @@ foreach ($providers as $provider) {
         echo "<td class='schedule'>";
         echo "<div style='position: relative; height: 100%; width: 100%;'>\n";
         echo "<div style='width:100%; font-size: 0.8em; text-align:right; background-color:lightgrey; padding:1px 2px 1px 2px;'>";
-        echo date("d", strtotime($date))."</div>";
+        echo text(date("d", strtotime($date))) . "</div>";
 
         if (count($events) == 0) { echo "&nbsp;"; }
 
@@ -391,7 +390,7 @@ foreach ($providers as $provider) {
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
-            $comment = addslashes($event['hometext']);
+            $comment = $event['hometext'];
             $catname = $event['catname'];
             $title = "Age $patient_age ($patient_dob)";
 
@@ -412,20 +411,20 @@ foreach ($providers as $provider) {
                 else if ($catid ==  8) $catname = xl("LUNCH");
                 else if ($catid == 11) $catname = xl("RESERVED");
 
-                $content .= $displayTime." ";
-                $content .= $catname;
-                if ($comment) $content .= " - $comment";
+                $content .= text($displayTime) . " ";
+                $content .= text($catname);
+                if ($comment) $content .= " - " . text($comment);
             }
             else {
                 // some sort of patient appointment
 
-                $content .= $displayTime. " ";
+                $content .= text($displayTime). " ";
                 if ($catid == 1) $content .= "<strike>";
-                $content .= htmlspecialchars($lname);
+                $content .= text($lname);
                 if ($catid == 1) $content .= "</strike>";
             }
 
-            echo "<div class='".$evtClass."' style='background-color:".$event['catcolor'].";'>";
+            echo "<div class='" . attr($evtClass) . "' style='background-color:" . attr($event['catcolor']) . ";'>";
             echo $content;
             echo "</div>\n";
         } // end EVENT loop
@@ -439,10 +438,6 @@ foreach ($providers as $provider) {
     echo "</div>";
 } // end provider
 
- // [-*footer*-]
- // [-include file="$TPL_NAME/views/global/footer.html"-]
- // [-include file="$TPL_NAME/views/footer.html"-]
-
 /* output a small calendar, based on the date-picker code from the normal calendar */
 function PrintDatePicker($caldate, $DOWlist, $daynames) {
 
@@ -453,12 +448,12 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
     echo '<table>';
     echo '<tr>';
     echo '<td colspan="7" class="tdMonthName-small">';
-    echo date('F Y', $caldate);
+    echo text(date('F Y', $caldate));
     echo '</td>';
     echo '</tr>';
     echo '<tr>';
     foreach ($DOWlist as $dow) {
-        echo "<td class='tdDOW-small'>".$daynames[$dow]."</td>";
+        echo "<td class='tdDOW-small'>" . text($daynames[$dow]) . "</td>";
     }
     echo '</tr>';
 
@@ -501,11 +496,11 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
 
         // output the TD
         $td = "<td ";
-        $td .= "class=\"".$tdClass."\" ";
-        //$td .= "id=\"".date("Ymd", $currdate)."\" ";
-        $td .= "id=\"".date("Ymd", $currdate)."\" ";
-        $td .= "title=\"Go to week of ".date('M d, Y', $currdate)."\" ";
-        $td .= "> ".date('d', $currdate)."</td>\n";
+        $td .= "class=\"" . attr($tdClass) . "\" ";
+        //$td .= "id=\"" . attr(date("Ymd", $currdate)) . "\" ";
+        $td .= "id=\"" . attr(date("Ymd", $currdate)) . "\" ";
+        $td .= "title=\"Go to week of " . attr(date('M d, Y', $currdate)) . "\" ";
+        $td .= "> " . text(date('d', $currdate)) . "</td>\n";
         if ($skipit == true) { echo "<td></td>"; }
         else { echo $td; }
 
@@ -524,7 +519,7 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
 </body>
 
 <script language='JavaScript'>
-$(document).ready(function(){
+$(function (){
     var win = top.printLogPrint ? top : opener.top;
     win.printLogPrint(window);
 });

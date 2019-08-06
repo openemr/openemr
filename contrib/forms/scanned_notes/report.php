@@ -1,13 +1,18 @@
 <?php
-// Copyright (C) 2006-2012 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * scanned_notes report.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2012 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-include_once("../../globals.php");
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once("../../globals.php");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 function scanned_notes_report($pid, $useless_encounter, $cols, $id)
 {
@@ -25,15 +30,13 @@ function scanned_notes_report($pid, $useless_encounter, $cols, $id)
     if ($data) {
         if ($data['notes']) {
             echo "  <span class='bold'>Comments: </span><span class='text'>";
-            echo nl2br($data['notes']) . "</span><br />\n";
+            echo nl2br(text($data['notes'])) . "</span><br />\n";
         }
 
         for ($i = -1; true; ++$i) {
              $suffix = ($i < 0) ? "" : "-$i";
-             $imagepath = $GLOBALS['OE_SITE_DIR'] .
-            "/documents/$pid/encounters/${thisenc}_$id$suffix.jpg";
-             $imageurl  = "$web_root/sites/" . $_SESSION['site_id'] .
-            "/documents/$pid/encounters/${thisenc}_$id$suffix.jpg";
+             $imagepath = $GLOBALS['OE_SITE_DIR'] . "/documents/" . check_file_dir_name($pid) . "/encounters/" . check_file_dir_name($thisenc) . "_" . check_file_dir_name($id) . check_file_dir_name($suffix) . ".jpg";
+             $imageurl  = $web_root . "/sites/" . $_SESSION['site_id'] . "/documents/" . check_file_dir_name($pid) . "/encounters/" . check_file_dir_name($thisenc) . "_" . check_file_dir_name($id) . check_file_dir_name($suffix) . ".jpg";
             if (is_file($imagepath)) {
                 echo "   <img src='$imageurl'";
                 // Flag images with excessive width for possible stylesheet action.

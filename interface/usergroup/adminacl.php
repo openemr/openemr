@@ -17,6 +17,7 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -40,7 +41,7 @@ if (!isset($phpgacl_location)) {
     <?php Header::setupHeader(); ?>
 
     <script type="text/JavaScript">
-        $(document).ready(function(){
+        $(function(){
             //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
             var groupTitle = <?php echo xlj('This section allows you to create and remove groups and modify or grant access privileges to existing groups. Check the check box to display section'); ?>;
             $('#advanced-tooltip').attr( "title", <?php echo xlj('Click to manually configure access control, recommended for advanced users'); ?> ).tooltip();
@@ -99,7 +100,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                         control: "acl",
                         action: "add",
                         title: title,
@@ -171,7 +172,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                         control: "acl",
                         action: "remove",
                         title: title,
@@ -221,7 +222,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                         control: "username",
                         action: "list"
                     },
@@ -270,7 +271,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                         control: "acl",
                         action: "list"
                     },
@@ -316,6 +317,7 @@ if (!isset($phpgacl_location)) {
                 action = temparray[2];
                 return_value = temparray[3];
                 if (control == "membership") {
+                    identityFormatted = identity;
                     contentPointer = "#" + identity.replace(/([ .])/g,"\\$1");
                     linkPointer = "#link_" + identity.replace(/([ .])/g,"\\$1");
                     linkPointerPost ="";
@@ -368,7 +370,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                         name: identityFormatted,
                         control: control,
                         action: action,

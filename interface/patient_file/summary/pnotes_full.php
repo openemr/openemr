@@ -17,6 +17,7 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
@@ -74,7 +75,6 @@ if ($_REQUEST['s'] == '1') {
     $inbox = "current";
     $outbox = "";
     $inbox_style = "style='border:5px solid #FFFFFF;'";
-    ;
     $outbox_style = "style='display:none;border:5px solid #FFFFFF;'";
 }
 
@@ -102,8 +102,8 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($mode == "update") {
@@ -211,7 +211,7 @@ $result_sent = getSentPnotesByDate(
 <html>
 <head>
 
-    <?php Header::setupHeader(['common', 'jquery-ui']); ?>
+    <?php Header::setupHeader(['common', 'jquery-ui', 'opener']); ?>
 
 <script type="text/javascript">
 /// todo, move this to a common library
@@ -225,12 +225,12 @@ $(document).ready(function(){
     // load divs
     $("#stats_div").load("stats.php",
         {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
     $("#notes_div").load("pnotes_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
     );
 
@@ -239,7 +239,7 @@ $(document).ready(function(){
     $(".note_modal").on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        dlgopen('', '', 650, 400, '', '', {
+        dlgopen('', '', 700, 400, '', '', {
             buttons: [
                 {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
             ],
@@ -267,14 +267,18 @@ function refreshme() {
     top.restoreSession();
     document.location.reload();
 }
+
+function restoreSession() {
+    return opener.top.restoreSession();
+}
 </script>
 </head>
 <body class="body_top">
 
-<div id="pnotes"> <!-- large outer DIV -->
+<div class="container-fluid" id="pnotes"> <!-- large outer DIV -->
 
 <form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo attr_url($docid); ?>&orderid=<?php echo attr_url($orderid); ?>&<?php echo $activity_string_html; ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <?php
 $title_docname = "";
@@ -289,16 +293,20 @@ if ($orderid) {
 }
 
 $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
+$title = text(getPatientName($patient_id));
 ?>
-
+    <title><?php echo $title; ?></title>
     <div class="row">
         <div class="col-md-12">
             <div class="page-header">
-                <h2><?php echo xlt('Patient Messages') . text($title_docname); ?></h2>
-                <div id='namecontainer_pnotes' class='namecontainer_pnotes oe-margin-b-20'>
-                    <?php echo xlt('for'); ?>&nbsp;<span class="title">
-      <a href="../summary/demographics.php" onclick="return top.restoreSession()"><?php echo text(getPatientName($patient_id)); ?></a></span>
-                </div>
+                <h3><?php echo xlt('Patient Messages') . text($title_docname) . " " . xlt('for');
+                if (!$orderid) {
+                    ?>&nbsp;
+                        <span><a href="../summary/demographics.php"
+                                           onclick="return top.restoreSession()"><?php echo $title; ?></a></span>
+                    <?php } else { ?>
+                        <span><?php echo $title; ?></span><?php } ?>
+                </h3>
             </div>
         </div>
     </div>
@@ -307,15 +315,14 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
             <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="btn btn-default note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
             <a href="#" class="change_activity btn btn-default" ><span><?php echo xlt('Update Active'); ?></span></a>
             <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-default" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
-            <a href="demographics.php" class="btn btn-default" onclick="top.restoreSession()">
-                <span><?php echo xlt('Back to Patient'); ?></span>
-            </a>
+            <?php if (!$orderid) { ?>
+                <a href="demographics.php" class="btn btn-default" onclick="top.restoreSession()"><span><?php echo xlt('Back to Patient'); ?></span></a>
+            <?php } ?>
         </div>
 
     </div>
     <div class="row oe-margin-b-10">
         <div class="col-md-12">
-
             <?php
             // Get the billing note if there is one.
             $billing_note = "";
@@ -333,7 +340,6 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
             ?>
 
             <?php if ($billing_note || $balance) { ?>
-
                 <div style='margin-top:3px'>
                     <table width='80%'>
                         <?php
@@ -403,7 +409,7 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
   <div id='inbox_div' <?php echo $inbox_style; ?> >
 <form border='0' method='post' name='update_activity' id='update_activity'
  action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
 <input type='hidden' name='mode' value="update">
@@ -422,7 +428,7 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
 
 if ($result != "") {
     echo " <tr class=showborder_head align='left'>\n";
-    echo "  <th style='width:100px';>&nbsp;</th>\n";
+    echo "  <th style='width:130px;'>" . xlt('Actions') . "</th>\n";
     echo "  <th>" . xlt('Active') . "&nbsp;</th>\n";
     echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
     echo "  <th>" . xlt('Type') . "</th>\n";
@@ -533,7 +539,7 @@ if ($result != "") {
     }
 } else {
   //no results
-    print "<tr><td colspan='3' class='text'>" . xlt('None') . ".</td></tr>\n";
+    print "<tr><td colspan='3' class='text'>" . xlt('None{{Note}}') . ".</td></tr>\n";
 }
 
 ?>
@@ -739,10 +745,10 @@ if ($result_sent_count == $M) {
 <?php
 if ($_GET['set_pid']) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
-?>
+    ?>
  parent.left_nav.setPatient(<?php echo js_escape($ndata['fname']." ".$ndata['lname']) . "," .
      js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
-<?php
+    <?php
 }
 
 // If this note references a new patient document, pop up a display
@@ -753,10 +759,10 @@ if ($noteid /* && $title == 'New Document' */) {
     if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
         $docid = $matches[1];
         $docname = $matches[2];
-    ?>
+        ?>
      window.open('../../../controller.php?document&retrieve&patient_id=<?php echo attr_url($patient_id); ?>&document_id=<?php echo attr_url($docid); ?>&<?php echo attr_url($docname);?>&as_file=true',
   '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
-<?php
+        <?php
     }
 }
 ?>

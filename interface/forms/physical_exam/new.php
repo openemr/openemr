@@ -17,6 +17,8 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("lines.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (! $encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
 }
@@ -88,8 +90,8 @@ if ($_POST['bn_save']) {
  // Skip rows that have no entries.
  // There are also 3 special rows with just one checkbox and a text
  // input field.  Maybe also a diagnosis line, not clear.
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($formid) {
@@ -113,7 +115,7 @@ if ($_POST['bn_save']) {
              ) VALUES (
              ?, ?, ?, ?, ?, ?
              )";
-            sqlInsert($query, array($formid, $line_id, $wnl, $abn, $diagnosis, $comments));
+            sqlStatement($query, array($formid, $line_id, $wnl, $abn, $diagnosis, $comments));
         }
     }
 
@@ -137,7 +139,6 @@ if ($formid) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="JavaScript">
@@ -164,7 +165,7 @@ if ($formid) {
 <body class="body_top">
 <form method="post" action="<?php echo $rootdir ?>/forms/physical_exam/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 

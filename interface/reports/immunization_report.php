@@ -14,11 +14,12 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -271,7 +272,7 @@ if ($_POST['form_get_hl7']==='true') {
     <script language="JavaScript">
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        $(document).ready(function() {
+        $(function() {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 
@@ -319,11 +320,11 @@ if ($_POST['form_get_hl7']==='true') {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Immunization Registry'); ?></span>
 
 <div id="report_parameters_daterange">
-    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='immunization_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <input type='hidden' name='form_get_hl7' id='form_get_hl7' value=''/>
@@ -368,7 +369,7 @@ while ($crow = sqlFetchArray($cres)) {
             size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
           </td>
           <td class='control-label'>
-            <?php echo xlt('To'); ?>:
+            <?php echo xlt('To{{Range}}'); ?>:
           </td>
           <td>
             <input type='text' name='form_to_date' id="form_to_date"
@@ -418,7 +419,7 @@ while ($crow = sqlFetchArray($cres)) {
 
 <?php
 if ($_POST['form_refresh']) {
-?>
+    ?>
 <div id="report_results">
 <table>
 <thead align="left">
@@ -429,35 +430,35 @@ if ($_POST['form_refresh']) {
 <th> <?php echo xlt('Immunization Date'); ?> </th>
 </thead>
 <tbody>
-<?php
-$total = 0;
+    <?php
+    $total = 0;
 //echo "<p> DEBUG query: $query </p>\n"; // debugging
-$res = sqlStatement($query, $sqlBindArray);
+    $res = sqlStatement($query, $sqlBindArray);
 
 
-while ($row = sqlFetchArray($res)) {
-?>
+    while ($row = sqlFetchArray($res)) {
+        ?>
 <tr>
 <td>
-<?php echo text($row['patientid']); ?>
+        <?php echo text($row['patientid']); ?>
 </td>
 <td>
-<?php echo text($row['patientname']); ?>
+        <?php echo text($row['patientname']); ?>
 </td>
 <td>
-<?php echo text($row['cvx_code']); ?>
+        <?php echo text($row['cvx_code']); ?>
 </td>
 <td>
-<?php echo text($row['immunizationtitle']); ?>
+        <?php echo text($row['immunizationtitle']); ?>
 </td>
 <td>
-<?php echo text($row['immunizationdate']); ?>
+        <?php echo text($row['immunizationdate']); ?>
 </td>
 </tr>
-<?php
-++$total;
-}
-?>
+        <?php
+        ++$total;
+    }
+    ?>
 <tr class="report_totals">
  <td colspan='9'>
     <?php echo xlt('Total Number of Immunizations'); ?>

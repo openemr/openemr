@@ -15,6 +15,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 /** CHANGE THIS - name of the database table associated with this form **/
 $table_name = "form_example";
 
@@ -48,7 +50,6 @@ if ($record['sig_date'] != "") {
 ?>
 
 <html><head>
-<?php html_header_show();?>
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
@@ -65,7 +66,7 @@ if ($record['sig_date'] != "") {
 Printed on <?php echo date("F d, Y", time()); ?>
 
 <form method=post action="">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <span class="title"><?php echo xlt($form_name); ?></span><br>
 
@@ -106,11 +107,11 @@ Use this space to express notes <br>
 Signature?
 <input type="radio" id="sig" name="sig" value="y" <?php if ($record["sig"] == 'y') {
     echo "CHECKED";
-} ?>>Yes
+                                                  } ?>>Yes
 /
 <input type="radio" id="sig" name="sig" value="n" <?php if ($record["sig"] == 'n') {
     echo "CHECKED";
-} ?>>No
+                                                  } ?>>No
 &nbsp;&nbsp;
 Date of signature:
    <input type='text' size='10' name='sig_date' id='sig_date'

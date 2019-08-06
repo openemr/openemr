@@ -1,34 +1,27 @@
 <?php
 /**
-* Script to display results for a given procedure order.
-*
-* Copyright (C) 2013-2015 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-*/
-
-
+ * Script to display results for a given procedure order.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013-2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once(dirname(__FILE__) . '/../globals.php');
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 
+use Mpdf\Mpdf;
+use OpenEMR\Core\Header;
+
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
 if (!$thisauth) {
-    die(xl('Not authorized'));
+    die(xlt('Not authorized'));
 }
 
 $orderid = intval($_GET['orderid']);
@@ -37,7 +30,7 @@ $finals_only = empty($_POST['form_showall']);
 
 if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
     if (!acl_check('patients', 'sign')) {
-        die(xl('Not authorized to sign results'));
+        die(xlt('Not authorized to sign results'));
     }
 
   // When signing results we are careful to sign only those reports that were
@@ -50,15 +43,40 @@ if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
         "review_status = 'reviewed' WHERE " .
         "procedure_report_id = ?", array($id));
     }
+    if ($orderid) {
+        sqlStatement("UPDATE procedure_order SET " .
+            "order_status = 'complete' WHERE " .
+            "procedure_order_id = ?", array($orderid));
+    }
 }
 
 // This mess generates a PDF report and sends it to the patient.
 if (!empty($_POST['form_send_to_portal'])) {
   // Borrowing the general strategy here from custom_report.php.
   // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
-    require_once("$srcdir/html2pdf/html2pdf.class.php");
     require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
-    $pdf = new HTML2PDF('P', 'Letter', 'en');
+    $config_mpdf = array(
+        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+        'mode' => $GLOBALS['pdf_language'],
+        'format' => 'Letter',
+        'default_font_size' => '9',
+        'default_font' => 'dejavusans',
+        'margin_left' => $GLOBALS['pdf_left_margin'],
+        'margin_right' => $GLOBALS['pdf_right_margin'],
+        'margin_top' => $GLOBALS['pdf_top_margin'],
+        'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
+        'margin_header' => '',
+        'margin_footer' => '',
+        'orientation' => 'P',
+        'shrink_tables_to_fit' => 1,
+        'use_kwt' => true,
+        'autoScriptToLang' => true,
+        'keep_table_proportions' => true
+    );
+    $pdf = new mPDF($config_mpdf);
+    if ($_SESSION['language_direction'] == 'rtl') {
+        $pdf->SetDirectionality('rtl');
+    }
     ob_start();
     echo "<link rel='stylesheet' type='text/css' href='$webserver_root/interface/themes/style_pdf.css'>\n";
     echo "<link rel='stylesheet' type='text/css' href='$webserver_root/library/ESign/css/esign_report.css'>\n";
@@ -66,7 +84,7 @@ if (!empty($_POST['form_send_to_portal'])) {
     generate_order_report($orderid, false, true, $finals_only);
     $GLOBALS['PATIENT_REPORT_ACTIVE'] = false;
   // echo ob_get_clean(); exit(); // debugging
-    $pdf->writeHTML(ob_get_clean(), false);
+    $pdf->writeHTML(ob_get_clean());
     $contents = $pdf->Output('', true);
   // Send message with PDF as attachment.
     $result = cms_portal_call(array(
@@ -85,13 +103,12 @@ if (!empty($_POST['form_send_to_portal'])) {
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
-<link rel="stylesheet" href='<?php echo $css_header; ?>' type='text/css'>
+    <?php Header::setupHeader(['jquery-ui']); ?>
 <title><?php echo xlt('Order Results'); ?></title>
 <style>
 body {
  margin: 9pt;
- font-family: sans-serif; 
+ font-family: sans-serif;
  font-size: 1em;
 }
 </style>
@@ -107,7 +124,7 @@ body {
 if (empty($_POST['form_sign'])) {
     generate_order_report($orderid, true, true, $finals_only);
 } else {
-?>
+    ?>
 <script language='JavaScript'>
  if (opener.document.forms && opener.document.forms[0]) {
   // Opener should be list_reports.php. Make it refresh.
@@ -117,9 +134,10 @@ if (empty($_POST['form_sign'])) {
    f.submit();
   }
  }
- window.close();
+ let stayHere = './single_order_results.php?orderid=' + <?php echo js_escape($orderid); ?>;
+ window.location.assign(stayHere);
 </script>
-<?php
+    <?php
 }
 ?>
 </body>

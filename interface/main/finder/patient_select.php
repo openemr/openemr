@@ -15,9 +15,13 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
+use OpenEMR\Events\BoundFilter;
+
 if (!empty($_REQUEST)) {
-    if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -30,7 +34,6 @@ $from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
 <!DOCTYPE html>
 <html>
 <head>
-<?php html_header_show();?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
@@ -125,7 +128,7 @@ function submitList(offset) {
 <body class="body_top">
 
 <form method='post' action='patient_select.php' name='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type='hidden' name='fstart'  value='<?php echo attr($fstart); ?>' />
 
@@ -193,6 +196,19 @@ if ($popup) {
         array_push($sqlBindArray, $search_service_code);
     }
 
+    // Custom filtering which enables module developer to filter patients out of search
+    $patientSelectFilterEvent = new PatientSelectFilterEvent(new BoundFilter());
+    $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientSelectFilterEvent::EVENT_HANDLE, $patientSelectFilterEvent, 10);
+    $boundFilter = $patientSelectFilterEvent->getBoundFilter();
+    $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
+    $customWhere = $boundFilter->getFilterClause();
+
+    if (empty($where)) {
+        $where = $customWhere;
+    } else {
+        $where = "$customWhere AND $where";
+    }
+
     $sql = "SELECT $given FROM patient_data " .
     "WHERE $where ORDER BY $orderby LIMIT " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
 
@@ -202,7 +218,7 @@ if ($popup) {
         $result[] = $row;
     }
 
-    _set_patient_inc_count($sqllimit, count($result), $where, $sqlBindArray);
+    _set_patient_inc_count($sqllimit, count($result), "$customWhere AND $where", $sqlBindArray);
 } else if ($from_page == "cdr_report") {
   // Collect setting from cdr report
     echo "<input type='hidden' name='from_page' value='" . attr($from_page) . "' />\n";
@@ -281,7 +297,7 @@ if ($popup) {
   </td>
   <td>
     <?php if ($from_page == "cdr_report") { ?>
-    <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label']) . "&print_patients=1&csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='css_button' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
+        <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label']) . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='css_button' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
   <td class='text' align='right'>
@@ -331,7 +347,7 @@ if ($fend > $count) {
         echo " - ";
         echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
         echo "</td>";
-} ?>
+    } ?>
  </tr>
 </table>
 
@@ -351,17 +367,17 @@ if ($fend > $count) {
 <th class="srNumDays"><?php echo xlt('[Days Since Last Encounter]'); ?></th>
 <th class="srDateLast"><?php echo xlt('[Date of Last Encounter]'); ?></th>
 <th class="srDateNext">
-<?php
-$add_days = 90;
-if (!$popup && preg_match('/^(\d+)\s*(.*)/', $patient, $matches) > 0) {
-    $add_days = $matches[1];
-    $patient = $matches[2];
-}
-?>
+    <?php
+    $add_days = 90;
+    if (!$popup && preg_match('/^(\d+)\s*(.*)/', $patient, $matches) > 0) {
+        $add_days = $matches[1];
+        $patient = $matches[2];
+    }
+    ?>
 [<?php echo attr($add_days);?> <?php echo xlt('Days From Last Encounter'); ?>]
 </th>
 
-<?php
+    <?php
 } else {
   // Alternate patient search results style; this gets address plus other
   // fields that are mandatory, up to a limit of 5.
@@ -518,7 +534,7 @@ if ($result) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function (){
     // $("#searchparm").focus();
     $(".oneresult").mouseover(function() { $(this).addClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });

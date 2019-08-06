@@ -125,6 +125,14 @@ body {
 .body_top {
 	background-color: $paler;
 }
+.body_main {
+    background-color: $midpale !important;
+    border-top: solid 8px $dark;
+}
+.body_main_widescreen {
+    background-color: $midpale !important;
+    border-top: solid 14px $dark;
+}
 /* $top_bg_line RP_MODIFIED 2/8/15 $paler*/
 
 .bgcolor2 {
@@ -473,25 +481,59 @@ div.section, div.borderbox {
 	border-color: $darkest !important;
 }
 /* flow board filters*/
+/*openemr 5 patient-finder*/
+@media screen and (max-width: 750px) {
+    #pt_table {
+        font-size: .9rem;
+    }
+}
+/*openemr 5 patient-finder*/
 
+/*vertical main menu */
+
+.appMenu_small .menuSection > .menuEntries {
+    left:40px;
+    box-shadow:3px 5px 8px $darker !important;
+}
+/*vertical main menu */
+
+/*search any*/
+*.oe-expandable-search .any-search-legacy {
+    background: $paler;
+}
+/*search any*/
 @import "colors/openemr5/external-data";
 @import "colors/openemr5/ros";
 @import "colors/openemr5/codes";
 @import "colors/openemr5/bootstrap-nav-menu";
 @import "colors/openemr5/bootstrap";
 
-#globals_form_search {
-	margin-top: -3px;
-	padding: 2px 3px 1px 3px;
+/*search any*/
+*.oe-expandable-search .any-search-legacy {
+    background: $paler;
 }
+/*search any*/
+
 th.currentvalues, th.historicalvalues {
 	background: $dark !important;
 }
+
+#create_patient_btn {
+	float: right;
+	margin-top: 35px;
+}
+/*search any*/
+*.oe-expandable-search .any-search-legacy {
+    background: $paler;
+}
+/*search any*/
 
 @import "colors/openemr5/batch-payments";
 @import "colors/openemr5/recall-flow-board";
 @import "colors/openemr5/help-files";
 @import "oe-common/all-common-import";
+@import "colors/openemr5/edit_globals_colors";
+
 
 @include if-rtl {
 	@include rtl_style;

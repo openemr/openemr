@@ -1,26 +1,20 @@
 <?php
 /**
+ * messages.php
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-session_start();
+
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $_SESSION['whereto'] = 'profilepanel';
     $pid = $_SESSION['pid'];
@@ -29,7 +23,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['portal_username']);
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
     if (! isset($_SESSION['authUserID'])) {
@@ -47,6 +41,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("./../lib/portal_mail.inc");
+
 use OpenEMR\Core\Header;
 
 $docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
@@ -102,7 +97,7 @@ function getAuthPortalUsers()
     content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Mail Application" />
 
-<?php Header::setupHeader(['summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
+<?php Header::setupHeader(['no_main-theme', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
 
 </head>
 <body class="skin-blue">
@@ -127,7 +122,7 @@ function getAuthPortalUsers()
     $scope.deletedItems = [];
     $scope.inboxItems = [];
     $scope.inboxItems = <?php echo json_encode($theresult);?>;
-    $scope.userproper = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : ($dashuser['fname'] . ' ' . $dashuser['lname']) ;?>";
+    $scope.userproper = <?php echo $_SESSION['ptName'] ? js_escape($_SESSION['ptName']) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']) ;?>;
     $scope.isPortal = "<?php echo IS_PORTAL;?>" ;
     $scope.isDashboard = "<?php echo IS_DASHBOARD ? IS_DASHBOARD : 0;?>" ;
     $scope.cUserId = $scope.isPortal ? $scope.isPortal : $scope.isDashboard;
@@ -135,10 +130,10 @@ function getAuthPortalUsers()
     $scope.compose.task = 'add';
     $scope.xLate = [];
     $scope.xLate.confirm = [];
-    $scope.xLate.fwd = "<?php echo xlt('Forwarded Portal Message Re: '); ?>";
-    $scope.xLate.confirm.one = "<?php echo xlt('Confirm to Delete Current Thread?'); ?>";
-    $scope.xLate.confirm.all = "<?php echo xlt('Confirm to Delete Selected?'); ?>";
-    $scope.xLate.confirm.err = "<?php echo xlt('You are sending to yourself!'); ?>";  // I think I got rid of this ability - look into..
+    $scope.xLate.fwd = <?php echo xlj('Forwarded Portal Message Re: '); ?>;
+    $scope.xLate.confirm.one = <?php echo xlj('Confirm to Delete Current Thread?'); ?>;
+    $scope.xLate.confirm.all = <?php echo xlj('Confirm to Delete Selected?'); ?>;
+    $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
 
         $scope.init = function () {
            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";

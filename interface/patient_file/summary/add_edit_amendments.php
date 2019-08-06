@@ -15,9 +15,11 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (isset($_POST['mode'])) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $currentUser = $_SESSION['authUserID'];
@@ -108,7 +110,6 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 
 <html>
 <head>
-<?php html_header_show();?>
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
@@ -152,7 +153,7 @@ function formValidation() {
     $("#add_edit_amendments").submit();
 }
 
-$(document).ready(function() {
+$(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -169,7 +170,7 @@ $(document).ready(function() {
 <body class="body_top">
 
 <form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
     <table>
     <tr>
@@ -254,20 +255,20 @@ $(document).ready(function() {
         <th align="left"><?php echo xlt('Comments'); ?></th>
     </tr>
 
-    <?php
-    if (sqlNumRows($resultSet)) {
-        while ($row = sqlFetchArray($resultSet)) {
-            $created_date = date('Y-m-d', strtotime($row['created_time']));
-            echo "<tr>";
-            $userName = $row['lname'] . ", " . $row['fname'];
-            echo "<td align=left class=text>" . text(oeFormatShortDate($created_date)) . "</td>";
-            echo "<td align=left class=text>" . text($userName) . "</td>";
-            echo "<td align=left class=text>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type'=>'1','list_id'=>'amendment_status'), $row['amendment_status']) : '') . "</td>";
-            echo "<td align=left class=text>" . text($row['amendment_note']) . "</td>";
-            echo "<tr>";
+        <?php
+        if (sqlNumRows($resultSet)) {
+            while ($row = sqlFetchArray($resultSet)) {
+                $created_date = date('Y-m-d', strtotime($row['created_time']));
+                echo "<tr>";
+                $userName = $row['lname'] . ", " . $row['fname'];
+                echo "<td align=left class=text>" . text(oeFormatShortDate($created_date)) . "</td>";
+                echo "<td align=left class=text>" . text($userName) . "</td>";
+                echo "<td align=left class=text>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type'=>'1','list_id'=>'amendment_status'), $row['amendment_status']) : '') . "</td>";
+                echo "<td align=left class=text>" . text($row['amendment_note']) . "</td>";
+                echo "<tr>";
+            }
         }
-    }
-    ?>
+        ?>
     </table>
     <?php } ?>
 

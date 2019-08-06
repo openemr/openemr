@@ -105,9 +105,9 @@ $res = sqlQuery("select * from users where username=?", array($_SESSION{"authUse
     <td align="left" style="width:<?php echo attr($width_column) ?>">
         <div class="tinylogocontainer"><span><?php if ($GLOBALS['tiny_logo_1']) {
             echo $tinylogocode1;
-} if ($GLOBALS['tiny_logo_2']) {
-    echo $tinylogocode2;
-} ?></span></div>
+                                             } if ($GLOBALS['tiny_logo_2']) {
+                                                 echo $tinylogocode2;
+                                             } ?></span></div>
     </td>
 <?php } ?>
 
@@ -150,11 +150,11 @@ $url = "open-emr.org/wiki/index.php/OpenEMR_".$open_emr_ver."_Users_Guide";
 <td style="margin:3px 0px 3px 0px;vertical-align:middle;" align="left">
     <table cellspacing="0" cellpadding="1" ><tr><td>
         <div style='margin-left:5px; float:left; display:none' id="past_encounter_block">
-            <span class='title_bar_top' id="past_encounter"><b><?php echo xlt('None'); ?></b></span>
+            <span class='title_bar_top' id="past_encounter"><b><?php echo xlt('None{{Encounter}}'); ?></b></span>
         </div></td></tr>
     <tr><td valign="baseline" align="center">
         <div style='display:none' class='text' id="current_encounter_block" >
-            <span class='text'><?php echo xlt('Selected Encounter'); ?>:&nbsp;</span><span class='title_bar_top' id="current_encounter"><b><?php echo xlt('None'); ?></b></span>
+            <span class='text'><?php echo xlt('Selected Encounter'); ?>:&nbsp;</span><span class='title_bar_top' id="current_encounter"><b><?php echo xlt('None{{Encounter}}'); ?></b></span>
         </div></td></tr></table>
 </td>
 

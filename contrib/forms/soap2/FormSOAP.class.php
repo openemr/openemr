@@ -172,8 +172,8 @@ class FormSOAP extends ORDataObject
 
 
     /*  The following code replaces assessment.  It is
-	  part of the SOAP form Dr J has requested.
-	*/
+      part of the SOAP form Dr J has requested.
+    */
 
 
     // **** General *****

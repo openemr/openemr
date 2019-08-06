@@ -20,6 +20,7 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // TBD - Resolve functional issues if opener is included in Header
@@ -28,8 +29,8 @@ use OpenEMR\Core\Header;
 <?php
 
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // Following hidden field received in the form will be used to ensure integrity of form values
@@ -211,8 +212,8 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $i = 0;
@@ -494,7 +495,7 @@ if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?issue=' + <?php echo js_url($issue); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450);
+  dlgopen('../deleter.php?issue=' + <?php echo js_url($issue); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
   return false;
  }
 
@@ -612,7 +613,7 @@ function divclick(cb, divid) {
  return true;
 }
 
-$(document).ready(function() {
+$(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -663,7 +664,7 @@ if ($issue) {
     <div class='tab current' style='height:auto;width:97%;'>
         <div class='col-sm-12'>
             <form class="form-horizontal" name='theform' method="post" onsubmit='return validate()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <?php
                 // action setting not required in html5.  By default form will submit to itself.
                 // Provide key values previously passed as part of action string.
@@ -857,7 +858,7 @@ if ($issue) {
                                 <?php
                                 if ($issue && acl_check('admin', 'super')) { ?>
                                     <button type='submit' name='form_delete'  class="btn btn-default btn-cancel btn-delete btn-separate-left" onclick='deleteme()' value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
-                                <?php
+                                    <?php
                                 } ?>
                             </div>
                         </div>
@@ -885,7 +886,7 @@ if ($issue) {
  // Set up the tabbed UI.
  tabbify();
 
-$(document).ready(function() {
+$(function() {
     // Include bs3 / bs4 classes here.  Keep html tags functional.
     $('table').addClass('table table-sm');
 });

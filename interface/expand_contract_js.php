@@ -11,6 +11,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 // ensure that $user_settings_php_path, $arr_files_php variables are set in the script calling this script
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 $( document ).ready(function() {
     $('.expand_contract').click(function() {
@@ -29,7 +32,7 @@ $( document ).ready(function() {
                         {
                             target: arrFiles[index].trim(),
                             setting: 0,
-                            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                         }
                     );
                 });
@@ -44,7 +47,7 @@ $( document ).ready(function() {
                         {
                             target: arrFiles[index].trim(),
                             setting: 1,
-                            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                         }
                     );
                 });

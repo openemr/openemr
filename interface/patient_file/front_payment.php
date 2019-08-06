@@ -22,6 +22,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
@@ -154,8 +155,8 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $form_pid = $_POST['form_pid'];
@@ -165,7 +166,7 @@ if ($_POST['form_save']) {
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
-            $payment_id = idSqlStatement(
+            $payment_id = sqlInsert(
                 "insert into ar_session set " .
                 "payer_id = ?" .
                 ", patient_id = ?" .
@@ -250,7 +251,7 @@ if ($_POST['form_save']) {
                     }
 
                           $adjustment_code = 'patient_payment';
-                          $payment_id = idSqlStatement(
+                          $payment_id = sqlInsert(
                               "insert into ar_session set " .
                               "payer_id = ?" .
                               ", patient_id = ?" .
@@ -414,13 +415,13 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
     }
 
     // Now proceed with printing the receipt.
-?>
+    ?>
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
-<?php Header::setupHeader(['jquery-ui']); ?>
+    <?php Header::setupHeader(['jquery-ui']); ?>
 <script language="JavaScript">
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
 $(document).ready(function () {
     var win = top.printLogSetup ? top : opener.top;
@@ -455,7 +456,7 @@ function printlog_before_print() {
 
 // Process click on Delete button.
 function deleteme() {
-    dlgopen('deleter.php?payment=' + <?php echo js_url($payment_key); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450);
+    dlgopen('deleter.php?payment=' + <?php echo js_url($payment_key); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
     return false;
 }
 
@@ -563,7 +564,7 @@ function toencounter(enc, datestr, topframe) {
     </center>
 </body>
 
-<?php
+    <?php
   //
   // End of receipt printing logic.
   //
@@ -571,7 +572,7 @@ function toencounter(enc, datestr, topframe) {
   //
   // Here we display the form for data entry.
   //
-?>
+    ?>
 <title><?php echo xlt('Record Payment'); ?></title>
 
 <style type="text/css">
@@ -594,7 +595,7 @@ function toencounter(enc, datestr, topframe) {
 <script language='JavaScript'>
     var mypcc = '1';
 </script>
-<?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
 <script language="javascript" type="text/javascript">
     document.onclick=HideTheAjaxDivs;
 </script>
@@ -602,7 +603,7 @@ function toencounter(enc, datestr, topframe) {
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 
 <script language="JavaScript">
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 function closeHow(e) {
     if (top.tab_mode) {
         top.activateTabByName('pat', true);
@@ -946,9 +947,9 @@ function make_insurance() {
 }
 </style>
 <title><?php echo xlt('Record Payment'); ?></title>
-<?php $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname']; ?>
-<?php
-$arrOeUiSettings = array(
+    <?php $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname']; ?>
+    <?php
+    $arrOeUiSettings = array(
     'heading_title' => xl('Accept Payment'),
     'include_patient_name' => true,// use only in appropriate pages
     'expandable' => false,
@@ -958,9 +959,9 @@ $arrOeUiSettings = array(
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => false,
     'help_file_name' => ""
-);
-$oemr_ui = new OemrUI($arrOeUiSettings);
-?>
+    );
+    $oemr_ui = new OemrUI($arrOeUiSettings);
+    ?>
 </head>
 <body>
     <div class="container"><!--begin container div for form-->
@@ -974,7 +975,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' action='front_payment.php<?php echo ($payid) ? "?payid=".attr_url($payid) : ""; ?>' onsubmit='return validate();'>
-                   <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                   <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                    <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>'>
                     <fieldset>
                     <legend><?php echo xlt('Payment'); ?></legend>
@@ -1275,7 +1276,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </script>
     <?php
 }
-    ?>
+?>
     </div><!--end of container div of accept payment i.e the form-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>

@@ -16,6 +16,8 @@
 require_once('../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
         $days_to_show = 30;
         $alerts_to_show = $GLOBALS['dated_reminders_max_alerts_to_show'];
         $updateDelay = 60; // time is seconds
@@ -35,8 +37,8 @@ require_once("$srcdir/dated_reminder_functions.php");
 // Javascript will send a post
 // ----------------------------------------------------------------------------
 if (isset($_POST['drR'])) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     // set as processed
@@ -55,7 +57,7 @@ if (isset($_POST['drR'])) {
 
       $reminders = RemindersArray($days_to_show, $today, $alerts_to_show);
 
-        ?>
+?>
 
       <style type="text/css">
          div.dr{
@@ -83,7 +85,7 @@ if (isset($_POST['drR'])) {
          }
       </style>
       <script type="text/javascript">
-         $(document).ready(function (){
+         $(function (){
             $(".hideDR").click(function(){
               if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){
                 $(this).html("<span><?php echo xla('Show Reminders') ?></span>");
@@ -93,10 +95,10 @@ if (isset($_POST['drR'])) {
                 $(this).html("<span><?php echo xla('Hide Reminders') ?></span>");
                 $(".drHide").slideDown("slow");
               }
-            })
+            });
            // run updater after 30 seconds
            var updater = setTimeout("updateme(0)", 1);
-         })
+         });
 
            function openAddScreen(id){
              if(id == 0){
@@ -104,7 +106,7 @@ if (isset($_POST['drR'])) {
                dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
              }else{
                top.restoreSession();
-               dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?mID='+encodeURIComponent(id)+'&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>', '_drAdd', 700, 500);
+               dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?mID='+encodeURIComponent(id)+'&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>', '_drAdd', 700, 500);
              }
            }
 
@@ -123,7 +125,7 @@ if (isset($_POST['drR'])) {
                {
                 drR: id,
                 skip_timeout_reset: "1",
-                csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
                },
                function(data) {
                 if(data == 'error'){

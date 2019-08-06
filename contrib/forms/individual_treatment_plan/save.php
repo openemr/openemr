@@ -1,12 +1,8 @@
 <?php
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
-foreach ($_POST as $k => $var) {
-    $_POST[$k] = add_escape_custom($var);
-    echo "$var\n";
-}
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
 if ($encounter == "") {
     $encounter = date("Ymd");
@@ -17,7 +13,7 @@ if ($_GET["mode"] == "new") {
 
     addForm($encounter, "Individual Treatment Plan", $newid, "individual_treatment_plan", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert("update form_individual_treatment_plan set pid = ?, groupname= ?, user = ?, authorized = ?, activity=1, date = NOW(), 
+    sqlStatement("update form_individual_treatment_plan set pid = ?, groupname= ?, user = ?, authorized = ?, activity=1, date = NOW(), 
 date_of_referal = ?,
 dcn = ?,
 icd9 = ?,
@@ -47,7 +43,7 @@ other_supports_contact_2 = ?,
 medications_1 = ?,
 medications_2 = ?,
 referrals_1 = ?,
-referrals_2 = ? where id=$id", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["date_of_referal"], $_POST["dcn"], $_POST["icd9"], $_POST["prognosis"],$_POST["diagnosis_description"],
+referrals_2 = ? where id=?", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["date_of_referal"], $_POST["dcn"], $_POST["icd9"], $_POST["prognosis"],$_POST["diagnosis_description"],
     $_POST["presenting_problem"], $_POST["frequency"], $_POST["duration"], $_POST["scope"], $_POST["short_term_goals_1"], $_POST["time_frame_1"], $_POST["short_term_goals_2"], $_POST["time_frame_2"],
     $_POST["short_term_goals_3"], $_POST["time_frame_3"], $_POST["long_term_goals"], $_POST["discharge_criteria"], $_POST["individual_family_therapy"], $_POST["substance_abuse"], $_POST["group_therapy"],
     $_POST["parenting"], $_POST["action_steps_by_supports"], $_POST["other_supports_name_1"], $_POST["other_supports_name_2"], $_POST["other_supports_contact_1"], $_POST["other_supports_contact_2"],$_POST["medications_1"],

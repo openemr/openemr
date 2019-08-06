@@ -6,7 +6,7 @@
  * @link    http://www.open-emr.org
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 require_once("../globals.php");
 require_once("$srcdir/gen_x12_837i.inc.php");
@@ -113,7 +113,7 @@ function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf"
 {
     $top = isset($_POST["left_ubmargin"]) ? $_POST["left_ubmargin"] : $GLOBALS['left_ubmargin_default'];
     $side = isset($_POST["top_ubmargin"]) ? $_POST["top_ubmargin"] : $GLOBALS['top_ubmargin_default'];
-    $form_filename = $GLOBALS['OE_SITE_DIR'] . "/edi/$filename";
+    $form_filename = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/$filename";
     // convert points to inches-some tricky calculus here! 72 pts/inch
     $top = round($top / 72.00, 2) . "in";
     $side = round($side / 72.00, 2) . "in";

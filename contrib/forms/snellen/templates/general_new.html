@@ -1,6 +1,5 @@
 <html>
 <head>
-{headerShow}
 {literal}
 
  <style type="text/css" title="mystyles" media="all">
@@ -37,7 +36,7 @@ a {
 </style>
 {/literal}
 </head>
-<body bgcolor="{$STYLE.BGCOLOR2}">
+<body bgcolor="{$STYLE.BGCOLOR2|attr}">
 <p><span class="title">Snellen Eye Exam</span></p>
 <form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/snellen/save.php"
  onsubmit="return top.restoreSession()">
@@ -50,13 +49,13 @@ a {
 	</tr>
 	<tr>
 		<td><b>Left Eye</b></td>
-		<td>20/<input type='text' size='15px' name='left_1' value='{$data->get_left_1()}'></td>
-		<td>20/<input type='text' size='15px' name='left_2' value='{$data->get_left_2()}'></td>
+		<td>20/<input type='text' size='15px' name='left_1' value='{$data->get_left_1()|attr}'></td>
+		<td>20/<input type='text' size='15px' name='left_2' value='{$data->get_left_2()|attr}'></td>
 	</tr>
 	<tr>
 		<td><b>Right Eye</b></td>
-		<td>20/<input type='text' size='15px' name='right_1' value='{$data->get_right_1()}'></td>
-		<td>20/<input type='text' size='15px' name='right_2' value='{$data->get_right_2()}'></td>
+		<td>20/<input type='text' size='15px' name='right_1' value='{$data->get_right_1()|attr}'></td>
+		<td>20/<input type='text' size='15px' name='right_2' value='{$data->get_right_2()|attr}'></td>
 	</tr>
 </table>
 
@@ -66,7 +65,7 @@ a {
 		<td><b>NOTES</b></td>
 	</tr>
 	<tr class='text'>
-		<td><textarea cols='80' rows='5' name='notes'>{$data->get_notes()}</textarea></td>
+		<td><textarea cols='80' rows='5' name='notes'>{$data->get_notes()|text}</textarea></td>
 	</tr>
 </table>
 
@@ -80,8 +79,8 @@ a {
 		</td>
 	</tr>
 </table>
-<input type="hidden" name="id" value="{$data->get_id()}" />
-<input type="hidden" name="pid" value="{$data->get_pid()}">
+<input type="hidden" name="id" value="{$data->get_id()|attr}" />
+<input type="hidden" name="pid" value="{$data->get_pid()|attr}">
 <input type="hidden" name="process" value="true">
 </form>
 </body>

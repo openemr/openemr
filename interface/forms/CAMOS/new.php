@@ -15,6 +15,8 @@
 require_once("../../globals.php");
 require_once("../../../library/api.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $out_of_encounter = false;
 if ((($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode'] == 'external')) {
     $out_of_encounter = true;
@@ -71,13 +73,13 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
     if ($_POST['hidden_selection'] == 'change_category') {
         $preselect_category_override = $_POST['change_category'];
         $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_category")." (user, category) values (?, ?)";
-        sqlInsert($query, array($_SESSION['authUser'], $category));
+        sqlStatement($query, array($_SESSION['authUser'], $category));
     } elseif ($_POST['hidden_selection'] == 'change_subcategory') {
         $preselect_subcategory_override = $_POST['change_subcategory'];
         $category_id = $_POST['hidden_category'];
         if ($category_id >= 0) {
             $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." (user, subcategory, category_id) values (?, ?, ?)";
-            sqlInsert($query, array($_SESSION['authUser'], $subcategory, $category_id));
+            sqlStatement($query, array($_SESSION['authUser'], $subcategory, $category_id));
         }
     } elseif ($_POST['hidden_selection'] == 'change_item') {
         $preselect_item_override = $_POST['change_item'];
@@ -85,7 +87,7 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
         $subcategory_id = $_POST['hidden_subcategory'];
         if (($category_id >= 0 ) && ($subcategory_id >=0)) {
             $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, content, subcategory_id) values (?, ?, ?, ?)";
-            sqlInsert($query, array($_SESSION['authUser'], $item, $content, $subcategory_id));
+            sqlStatement($query, array($_SESSION['authUser'], $item, $content, $subcategory_id));
         }
     } elseif ($_POST['hidden_selection'] == 'change_content') {
         $item_id = $_POST['hidden_item'];
@@ -98,7 +100,7 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
             }
 
             $query = "UPDATE ".mitigateSqlTableUpperCase("form_CAMOS_item")." set content = ? where id = ?";
-            sqlInsert($query, array($content, $item_id));
+            sqlStatement($query, array($content, $item_id));
         }
     }
 } elseif ($_POST['hidden_mode'] == 'delete') {
@@ -108,30 +110,30 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
             $statement1 = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where category_id = ?", array($to_delete_id));
             while ($result1 = sqlFetchArray($statement1)) {
                 $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE subcategory_id = ?";
-                sqlInsert($query, array($result1['id']));
+                sqlStatement($query, array($result1['id']));
             }
 
             $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." WHERE category_id = ?";
-            sqlInsert($query, array($to_delete_id));
+            sqlStatement($query, array($to_delete_id));
             $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_category")." WHERE id = ?";
-            sqlInsert($query, array($to_delete_id));
+            sqlStatement($query, array($to_delete_id));
         } elseif ($_POST['hidden_selection'] == 'change_subcategory') {
             $to_delete_id = $_POST['hidden_subcategory'];
             $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE subcategory_id = ?";
-            sqlInsert($query, array($to_delete_id));
+            sqlStatement($query, array($to_delete_id));
             $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." WHERE id = ?";
-            sqlInsert($query, array($to_delete_id));
+            sqlStatement($query, array($to_delete_id));
         } elseif ($_POST['hidden_selection'] == 'change_item') {
             if ((isset($_POST['select_item'])) && (count($_POST['select_item'])>1)) {
                 foreach ($_POST['select_item'] as $v) {
                     $to_delete_id = $v;
                     $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE id = ?";
-                    sqlInsert($query, array($to_delete_id));
+                    sqlStatement($query, array($to_delete_id));
                 }
             } else {
                 $to_delete_id = $_POST['hidden_item'];
                 $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE id = ?";
-                sqlInsert($query, array($to_delete_id));
+                sqlStatement($query, array($to_delete_id));
             }
         }
     } else {
@@ -159,14 +161,14 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
 
         if ($subtablename == '') {
             $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like ?";
-            sqlInsert($query, array($to_delete_id));
+            sqlStatement($query, array($to_delete_id));
         } else {
             $query = "SELECT count(id) FROM ".escape_table_name($to_delete_from_subtable)." WHERE " . escape_sql_column_name($tablename.'_id', [$to_delete_from_subtable]) . " like ?";
             $statement = sqlStatement($query, array($to_delete_id));
             if ($result = sqlFetchArray($statement)) {
                 if ($result['count(id)'] == 0) {
                     $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like ?";
-                    sqlInsert($query, array($to_delete_id));
+                    sqlStatement($query, array($to_delete_id));
                 } else {
                     $error = $subtablename." not empty!";
                 }
@@ -189,7 +191,7 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
         $to_alter_column = 'item';
     }
 
-    sqlInsert("UPDATE ".escape_table_name($to_alter_table)." set " . escape_sql_column_name($to_alter_column, [$to_alter_table]) . " = ? where id =  ?", array($newval, $to_alter_id));
+    sqlStatement("UPDATE ".escape_table_name($to_alter_table)." set " . escape_sql_column_name($to_alter_column, [$to_alter_table]) . " = ? where id =  ?", array($newval, $to_alter_id));
 }
 
   //preselect column items
@@ -620,7 +622,6 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                 }
             }
         } else {//end of clone others
-
             if ($_POST['hidden_mode'] == 'clone last visit') {
                 //go back $stepback # of encounters...
             //This has been changed to clone last visit based on actual last encounter rather than as it was
@@ -1034,13 +1035,13 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     f2.hidden_item.value = item_value;
 <?php
 if (!$out_of_encounter) {
-?>
+    ?>
     f2.action = '<?php print $GLOBALS['webroot'] ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
-<?php
+    <?php
 } else {
-?>
+    ?>
     f2.action = '<?php print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/new.php?mode=external';
-<?php
+    <?php
 }
 ?>
     f2.target = '_self';
@@ -1058,7 +1059,7 @@ if (!$out_of_encounter) {
       myarray['content'] = (f2.textarea_content.value).substring(f2.textarea_content.selectionStart, f2.textarea_content.selectionEnd);
     }
     else {myarray['content'] = f2.textarea_content.value;}
-    myarray['csrf_token_form'] = <?php echo js_escape(collectCsrfToken()); ?>;
+    myarray['csrf_token_form'] = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
     var str = setformvalues(myarray);
 //    alert(str);
     processajax ('<?php print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
@@ -1098,11 +1099,11 @@ function processEnter(e,message) {
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="init()">
 <div name="form_container" onKeyPress="gotoOne(event)">
 <form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
 if (!$out_of_encounter) {
-//	echo "<h1>$out_of_encounter</h1>\n";
-?>
+//  echo "<h1>$out_of_encounter</h1>\n";
+    ?>
 <input type=button name=clone value='<?php echo xla('Clone'); ?>' onClick="js_button('clone', 'clone')">
 <input type=button name=clone_visit value='<?php echo xla('Clone Past Visit'); ?>' onClick="js_button('clone last visit', 'clone last visit')">
 <select name=stepback>
@@ -1119,12 +1120,12 @@ if (!$out_of_encounter) {
   <option value=11><?php echo xlt('Back eleven visits'); ?></option>
   <option value=12><?php echo xlt('Back twelve visits'); ?></option>
 </select>
-<?php
-echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xlt('Leave The Form')."]</a>";
-?>
+    <?php
+    echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xlt('Leave The Form')."]</a>";
+    ?>
 <input type=button name='hide columns' value='<?php echo xla('Hide/Show Columns'); ?>' onClick="hide_columns()">
 <input type=button name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
-<?php
+    <?php
 } //end of if !$out_of_encounter
 ?>
 <div id=id_info style="display:inline">
@@ -1165,12 +1166,12 @@ if ($error != '') {
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
-?>
+    ?>
     <input type=text name=change_category><br>
     <input type=button name=add1 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_category')">
     <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_category')">
     <input type=button name=del1 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_category')"><br>
-<?php
+    <?php
 }
 ?>
   </div> <!-- end of id_category_column -->
@@ -1181,12 +1182,12 @@ if (myAuth() == 1) {//root user only can see administration option
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
-?>
+    ?>
     <input type=text name=change_subcategory><br>
     <input type=button name=add2 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_subcategory')">
     <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_subcategory')">
     <input type=button name=del2 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_subcategory')"><br>
-<?php
+    <?php
 }
 ?>
   </div> <!-- end of id_subcategory_column -->
@@ -1197,12 +1198,12 @@ if (myAuth() == 1) {//root user only can see administration option
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
-?>
+    ?>
     <input type=text name=change_item><br>
     <input type=button name=add3 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_item')">
     <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_item')">
     <input type=button name=del3 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_item')"><br>
-<?php
+    <?php
 }
 ?>
   </div> <!-- end of id_item_column -->
@@ -1217,21 +1218,21 @@ if (myAuth() == 1) {//root user only can see administration option
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
-?>
+    ?>
 <div id=id_main_content_buttons style="display:block">
     <input type=button name=add4 value='<?php echo xla('Add'); ?>' onClick="js_button('add','change_content')">
     <input type=button name=add4 value='<?php echo xla('Add to'); ?>' onClick="js_button('add to','change_content')">
     <input type=button name=lock value='<?php echo xla('Lock'); ?>' onClick="lock_content()">
-<?php
+    <?php
 
-if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-?>
+    if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
+        ?>
     <input type=button name=icd9 value='<?php echo xla('ICD9'); ?>' onClick="append_icd9()">
 </div> <!-- end of id_main_content_buttons-->
-<?php
-}
-?>
-<?php
+        <?php
+    }
+    ?>
+    <?php
 }
 ?>
   </td>
@@ -1252,10 +1253,10 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 <?php
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-?>
+    ?>
 <input type=button name='submit form' value='<?php echo xla('Submit All Content'); ?>' onClick="js_button('submit','submit')">
 <input type=button name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
-<?php
+    <?php
 }
 ?>
 <?php

@@ -1,25 +1,25 @@
 <?php
 /*
  * test_997_codes.php
- * 
+ *
  * Copyright 2014 Kevin McCormick Longview, Texas
- * 
- * 
+ *
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 3 or later.  You should have 
- * received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 
+ * the Free Software Foundation; version 3 or later.  You should have
+ * received a copy of the GNU General Public License along with this program;
+ * if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *  <http://opensource.org/licenses/gpl-license.php>
- * 
- * 
- * 
+ *
+ *
+ *
  * @link: http://www.open-emr.org
  * @package ediHistory
  */
@@ -111,11 +111,11 @@ function edih_997_code_text($ak_seg_field, $ak_code)
          'I6' => 'Implementation dependent segment missing',
          );
     // array_key_exists($ak_seg_field, $aktext) && array_key_exists($ak_code, $aktext[$ak_seg_field]) )
-    return ( isset($aktext[$ak_seg_field][$ak_code]) ) ? $aktext[$ak_seg_field][$ak_code] : '';
+     return ( isset($aktext[$ak_seg_field][$ak_code]) ) ? $aktext[$ak_seg_field][$ak_code] : '';
     //if ( isset($aktext[$ak_seg_field][$ak_code]) ) {
-    //	return $aktext[$ak_seg_field][$ak_code];
+    //  return $aktext[$ak_seg_field][$ak_code];
     //} else {
-    //	return "";
+    //  return "";
     //}
 }
 

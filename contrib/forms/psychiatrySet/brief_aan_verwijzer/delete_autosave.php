@@ -1,13 +1,13 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Form:	Brief Aan Verwijzer - Delete Autosave
-// Package:	remove autosaved form  - Dutch specific form
-// Created by:	Larry Lart
-// Version:	1.0 - 30-03-2008
+// Form:    Brief Aan Verwijzer - Delete Autosave
+// Package: remove autosaved form  - Dutch specific form
+// Created by:  Larry Lart
+// Version: 1.0 - 30-03-2008
 ////////////////////////////////////////////////////////////////////
 
 //local includes
-include_once("../../globals.php");
+require_once("../../globals.php");
 
 /////////////////
 // here we check to se if there was an autosave version prior to the real save - hack!

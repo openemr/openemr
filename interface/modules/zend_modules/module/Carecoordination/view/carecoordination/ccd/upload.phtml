@@ -1,28 +1,17 @@
-<?php 
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*    @author  Riju KP <rijukp@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+<?php
+/**
+ * interface/modules/zend_modules/module/Carecoordination/view/carecoordination/ccd/upload.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Riju KP <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 ?>
 <script type="text/javascript">
-    $(document).ready(function()
+    $(function ()
     {
         height_value = parent.window.innerHeight-100;
         if(height_value < 600){ height_value = 600 };
@@ -30,42 +19,42 @@
             parent.iframeLoaded(height_value, 'ccd_iframe');
         }
     });
-  
-    $(document).ready(function()
+
+    $(function ()
     {
         var obj = $("#dragandrophandler");
-        obj.on('dragenter', function (e) 
+        obj.on('dragenter', function (e)
         {
             e.stopPropagation();
             e.preventDefault();
             $(this).css('background', 'url("<?php echo $this->basePath();?>/css/icons/ark.png") no-repeat center');
         });
-        obj.on('dragover', function (e) 
+        obj.on('dragover', function (e)
         {
             e.stopPropagation();
             e.preventDefault();
         });
-        obj.on('drop', function (e) 
+        obj.on('drop', function (e)
         {
             $(this).css('background', 'url("")');
             e.preventDefault();
             var files = e.originalEvent.dataTransfer.files;
-        
+
             //We need to send dropped files to Server
             handleFileUpload(files,obj);
         });
-        
+
         $('#file_uploader').change(function(e){
             var files = e.target.files;
             handleFileUpload(files,$('#file_uploader'));
         });
-        
+
         $('#close_patient_select').click(function(){
             $('#patient_select').hide('scale','',500,'');
         });
         var uploadURL = "<?php echo $this->basePath();?>/ccd/upload";
     });
-  
+
     function sendFileToServer(formData,status)
     {
         var uploadURL = "<?php echo $this->basePath();?>/ccd/upload"; //Upload URL
@@ -104,7 +93,7 @@
         });
         status.setAbort(jqXHR);
     }
-  
+
     var rowCount=0;
     var uploadedSuccessfullCount = 0;
     function createStatusbar(obj)
@@ -117,8 +106,8 @@
         this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
         this.progressBar = $("<div class='progressBar'><div></div></div>").appendTo(this.statusbar);
         this.abort = $("<div class='abort'><?php echo $this->listenerObject->z_xlt('Abort'); ?></div>").appendTo(this.statusbar);
-        $('#status1').append(this.statusbar);    
-       
+        $('#status1').append(this.statusbar);
+
         this.setFileNameSize = function(name,size)
         {
             var sizeStr="";
@@ -132,13 +121,13 @@
             {
                 sizeStr = sizeKB.toFixed(2)+" KB";
             }
-          
+
             this.filename.html(name);
             this.size.html(sizeStr);
         }
         this.setProgress = function(progress)
-        {		
-            var progressBarWidth =progress*this.progressBar.width()/ 100;  
+        {
+            var progressBarWidth =progress*this.progressBar.width()/ 100;
             this.progressBar.find('div').animate({ width: progressBarWidth }, 10).html(progress + "%&nbsp;");
             if(parseInt(progress) >= 100)
             {
@@ -156,11 +145,11 @@
             });
         }
     }
-  
+
     function handleFileUpload(files,obj)
     {
         fnames = '';
-        for (var i = 0; i < files.length; i++) 
+        for (var i = 0; i < files.length; i++)
         {
             var fd = new FormData();
             fd.append('file', files[i]);
@@ -168,9 +157,12 @@
             fd.append('file_location', '<?php echo $this->escapeHtml($this->file_location);?>');
             fd.append('patient_id', '<?php echo $this->escapeHtml($this->patient_id);?>');
             fd.append('upload','1');
-            
+
             nameArr = files[i].name.split(".");
-            if(nameArr[1]!== 'xml') {
+
+            // if we have a file extension and it is not an XML file... then we're going to error out.
+            // this code handles cases like sample.ccd.xml which is why we don't just go strictly off array position.s
+            if(nameArr.length > 1 && nameArr.pop() !== 'xml') {
               if(fnames == '') {
                 fnames = files[i].name;
               }
@@ -179,13 +171,14 @@
               }
               continue;
             }
-            
+
             var status = new createStatusbar(obj); //Using this we can set progress.
             status.setFileNameSize(files[i].name,files[i].size);
-            sendFileToServer(fd,status);    
+            sendFileToServer(fd,status);
         }
         if(fnames != '') {
-          alert('<?php echo $this->listenerObject->z_xlt("Can't upload");?> '+fnames);
+            console.error("Could not get file name. Files was of length " + files.length + ". Objects are: ", files);
+            alert('<?php echo $this->listenerObject->z_xlt("Can't upload");?> '+fnames);
         }
         $('#status1').show('clip','',500,'');
     }
@@ -200,11 +193,11 @@
               <div id="refresh" onclick="javascript:document.getElementById('form_ccda_import').submit();">&nbsp;</div>
             </div>
             <div class="clear"></div>
-            
+
             <!--Display upload status-->
             <div style="display: none" id="status1"></div>
             <!---->
-            
+
             <div class="clear"></div>
             <div class="se_in_8">
                 <?php
@@ -216,14 +209,14 @@
                             <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>            
+                            <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
                             <th>&nbsp;</th>
-                        </tr>                        
+                        </tr>
                     <?php
                     $slno = 0;
-                    foreach($this->records as $row){ 
+                    foreach($this->records as $row){
                         ?>
                         <tr>
                             <td style="height: 20px;"><?php echo ++$slno; ?></td>
@@ -249,7 +242,7 @@
                             <td nowrap>
                                 <a style="text-decoration: none;" target="_blank" href="<?php echo $this->basePath();?>/documents/documents/retrieve/<?php echo $this->escapeHtml($row['document_id']);?>">
                                   <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/view.png" title='<?php echo $this->listenerObject->z_xlt("View details");?>'>
-                                </a>      
+                                </a>
                             </td>
                         </tr>
                         <?php
@@ -260,7 +253,7 @@
                 }
                 else{
                     ?>
-                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->details) > 0){ ?>display: none; <?php } ?>">
+                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->records) > 0){ ?>display: none; <?php } ?>">
                         <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
                     </div>
                     <?php

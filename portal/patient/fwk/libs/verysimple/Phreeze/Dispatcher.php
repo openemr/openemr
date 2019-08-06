@@ -69,7 +69,7 @@ class Dispatcher
      * that the controller dependencies are all injected properly
      *
      * @param Phreezer $phreezer
-     *          Object persistance engine
+     *          Object persistence engine
      * @param IRenderEngine $renderEngine
      *          rendering engine
      * @param
@@ -96,8 +96,8 @@ class Dispatcher
                 include_once $controller_file;
             }
             
-            $controller = new $controller_class ( $phreezer, $renderEngine, $context, $router );
-            $controller->$method_param ();
+            $controller = new $controller_class($phreezer, $renderEngine, $context, $router);
+            $controller->$method_param();
             
             return true;
         }
@@ -151,7 +151,7 @@ class Dispatcher
         }
         
         // create an instance of the controller class
-        $controller = new $controller_class ( $phreezer, $renderEngine, $context, $router );
+        $controller = new $controller_class($phreezer, $renderEngine, $context, $router);
         
         // we have a valid instance, just verify there is a matching method
         if (! is_callable(array (

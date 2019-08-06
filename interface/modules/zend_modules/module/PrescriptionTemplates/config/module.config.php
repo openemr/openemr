@@ -17,19 +17,30 @@
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
  */
+namespace PrescriptionTemplates;
+
+use Zend\ServiceManager\Factory\InvokableFactory;
+use Zend\Router\Http\Segment;
+use PrescriptionTemplates\Controller\HtmlTemplatesController;
+use PrescriptionTemplates\Controller\PdfTemplatesController;
+use Interop\Container\ContainerInterface;
 
 return array(
 
     'controllers' => array(
-        'invokables' => array(
-            'PrescriptionTemplates\Controller\HtmlTemplates' => 'PrescriptionTemplates\Controller\HtmlTemplatesController',
-            'PrescriptionTemplates\Controller\PdfTemplates' => 'PrescriptionTemplates\Controller\PdfTemplatesController'
-        )
+        'factories' => [
+            HtmlTemplatesController::class => function (ContainerInterface $container, $requestedName) {
+                return new HtmlTemplatesController($container);
+            },
+            PdfTemplatesController::class => function (ContainerInterface $container, $requestedName) {
+                return new PdfTemplatesController($container);
+            }
+        ]
     ),
     'router' => array(
         'routes' => array(
             'p_html_template' => array(
-                'type'    => 'segment',
+                'type'    => Segment::class,
                 'options' => array(
                     'route'    => '/prescription-html-template[/:action][/:method]',
                     'constraints' => array(
@@ -37,14 +48,14 @@ return array(
                         'method'     => '[a-zA-Z][a-zA-Z0-9_-]*',
                     ),
                     'defaults' => array(
-                        'controller' => 'PrescriptionTemplates\Controller\HtmlTemplates',
+                        'controller' => HtmlTemplatesController::class,
                         'action'     => 'default'
                     ),
                 ),
             ),
             'p_pdf_template' => array(
 
-                'type'    => 'segment',
+                'type'    => Segment::class,
                 'options' => array(
                     'route'    => '/prescription-pdf-template[/:action][/:method]',
                     'constraints' => array(
@@ -52,7 +63,7 @@ return array(
                         'method'     => '[a-zA-Z][a-zA-Z0-9_-]*',
                     ),
                     'defaults' => array(
-                        'controller' => 'PrescriptionTemplates\Controller\PdfTemplates',
+                        'controller' => PdfTemplatesController::class,
                         'action'     => 'default'
                     ),
                 ),

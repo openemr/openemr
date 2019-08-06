@@ -1,24 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*    @author  Riju KP <rijukp@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Riju KP <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 namespace Carecoordination\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
@@ -26,7 +15,9 @@ use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
-
+use Carecoordination\Model\CcdTable;
+use Carecoordination\Model\CarecoordinationTable;
+use Documents\Model\DocumentsTable;
 use C_Document;
 use Document;
 use CouchDB;
@@ -34,15 +25,32 @@ use xmltoarray_parser_htmlfix;
 
 class CcdController extends AbstractActionController
 {
+    /**
+     * @var \Carecoordination\Model\CcdTable
+     */
     protected $ccdTable;
-    
+
     protected $carecoordinationTable;
-    
+
     protected $documentsTable;
-    
-    public function __construct($sm = null)
-    {
+
+    /**
+     * @var Documents\Controller\DocumentsController
+     */
+    private $documentsController;
+
+    public function __construct(
+        CcdTable $ccdTable,
+        CarecoordinationTable $carecoordinationTable,
+        DocumentsTable $documentsTable,
+        DocumentsController $documentsController
+    ) {
+
         $this->listenerObject = new Listener;
+        $this->ccdTable = $ccdTable;
+        $this->carecoordinationTable = $carecoordinationTable;
+        $this->documentsTable = $documentsTable;
+        $this->documentsController = $documentsController;
     }
 
     /*
@@ -56,7 +64,7 @@ class CcdController extends AbstractActionController
 
         if ($upload == 1) {
             $time_start         = date('Y-m-d H:i:s');
-            $obj_doc            = new DocumentsController();
+            $obj_doc            = $this->documentsController;
             $cdoc               = $obj_doc->uploadAction($request);
             $uploaded_documents = array();
             $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
@@ -110,21 +118,17 @@ class CcdController extends AbstractActionController
 
         $this->getCcdTable()->import($array, $document_id);
 
-        $view = new ViewModel();
+        // we return just empty Json, otherwise it triggers an error if we don't return some kind of HTTP response.
+        $view = new \Zend\View\Model\JsonModel();
         $view->setTerminal(true);
         return $view;
     }
     /**
     * Table gateway
-    * @return object
+    * @return \Carecoordination\Model\CcdTable
     */
     public function getCcdTable()
     {
-        if (!$this->ccdTable) {
-            $sm = $this->getServiceLocator();
-            $this->ccdTable = $sm->get('Carecoordination\Model\CcdTable');
-        }
-
         return $this->ccdTable;
     }
     /**
@@ -133,21 +137,11 @@ class CcdController extends AbstractActionController
      */
     public function getCarecoordinationTable()
     {
-        if (!$this->carecoordinationTable) {
-            $sm = $this->getServiceLocator();
-            $this->carecoordinationTable = $sm->get('Carecoordination\Model\CarecoordinationTable');
-        }
-
         return $this->carecoordinationTable;
     }
-    
+
     public function getDocumentsTable()
     {
-        if (!$this->documentsTable) {
-            $sm = $this->getServiceLocator();
-            $this ->documentsTable = $sm->get('Documents\Model\DocumentsTable');
-        }
-
         return $this->documentsTable;
     }
 }

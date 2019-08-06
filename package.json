@@ -6,16 +6,12 @@
   "scripts": {
     "postinstall": "napa && gulp -i",
     "build": "gulp -b",
-    "dev-build": "npm run gulp-build && npm run storybook-build",
+    "dev-build": "npm run gulp-build",
     "dev": "gulp --dev && gulp watch",
-    "dev-docs": "run-p storybook gulp-docs",
     "dev-sync": "gulp --dev --sync-only --p 80",
     "gulp-build": "gulp -b --dev",
-    "gulp-docs": "gulp -p 9001 --dev",
     "gulp-watch": "gulp watch",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "storybook": "start-storybook -s ./,./interface -p 9001 -c .storybook",
-    "storybook-build": "build-storybook -c .storybook -o .docs/.out"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "openemr"
@@ -23,8 +19,6 @@
   "author": "d3sandoval",
   "license": "GNU GPL",
   "devDependencies": {
-    "@storybook/addon-knobs": "^3.4.5",
-    "@storybook/react": "^3.4.5",
     "babel-core": "^6.26.3",
     "browser-sync": "^2.24.4",
     "del": "^3.0.0",
@@ -41,8 +35,7 @@
     "minimist": "^1.2.0",
     "napa": "^3.0.0",
     "replace-in-file": "^3.4.2",
-    "run-sequence": "^2.2.1",
-    "storybook-readme": "^3.3.0"
+    "run-sequence": "^2.2.1"
   },
   "dependencies": {
     "angular": "1.5.8",
@@ -94,7 +87,6 @@
     "jquery-1-7-2": "https://github.com/jquery/jquery/archive/1.7.2.tar.gz",
     "jquery-1-9-1": "https://github.com/jquery/jquery/archive/1.9.1.tar.gz",
     "jquery-1-10-2": "https://github.com/jquery/jquery/archive/1.10.2.tar.gz",
-    "jquery-1-11-3": "https://github.com/jquery/jquery/archive/1.11.3.tar.gz",
     "jquery-creditcardvalidator": "https://github.com/PawelDecowski/jquery-creditcardvalidator/archive/v1.1.0.tar.gz",
     "jquery-panelslider": "https://github.com/eduardomb/jquery-panelslider/archive/0.1.1.tar.gz",
     "jquery-ui-1-10-4": "https://jqueryui.com/resources/download/jquery-ui-1.10.4.zip",

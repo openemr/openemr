@@ -121,12 +121,12 @@ if (count($emr_app)) {
             'genericError' => xla('Error. Try again later'),
             'closeTooltip' => ''
         ));
-        ?>;
+                                    ?>;
 
         var registrationConstants = <?php echo json_encode(array(
             'webroot' => $GLOBALS['webroot']
         ))
-        ?>;
+                                    ?>;
     </script>
 
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -153,25 +153,13 @@ if (count($emr_app)) {
         function transmit_form() {
             document.forms[0].submit();
         }
-
-        function imsubmitted() {
-            <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
-                // Delete the session cookie by setting its expiration date in the past.
-                // This forces the server to create a new session ID.
-                var olddate = new Date();
-                olddate.setFullYear(olddate.getFullYear() - 1);
-                document.cookie = '<?php echo session_name() . '=' . session_id() ?>; path=<?php echo($web_root ? $web_root : '/');?>; expires=' + olddate.toGMTString();
-            <?php } ?>
-            return false; //Currently the submit action is handled by the encrypt_form().
-        }
     </script>
 
 </head>
 <body class="login">
     <div class="container">
         <form method="POST" id="login_form" autocomplete="off"
-            action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>"
-            target="_top" name="login_form" onsubmit="return imsubmitted();">
+            action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>" target="_top" name="login_form">
             <div class="row">
                 <div class="col-sm-12">
                     <div>
@@ -259,13 +247,13 @@ if (count($emr_app)) {
                             <?php echo xlt('Password security has recently been upgraded.').'&nbsp;&nbsp;'.xlt('Please login again.'); ?>
                         </strong>
                     </div>
-                    <?php unset($_SESSION['relogin']);
+                        <?php unset($_SESSION['relogin']);
                     endif;
-if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
+                    if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
                     <div class="alert alert-danger login-failure m-1">
-                        <?php echo xlt('Invalid username or password'); ?>
+                                            <?php echo xlt('Invalid username or password'); ?>
                     </div>
-                    <?php endif; // End login failure block?>
+                                        <?php endif; // End login failure block?>
                 </div>
             </div>
             <div class="row">
@@ -293,18 +281,18 @@ if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // B
                             <div class="col-sm-12 center-block">
                                 <?php echo $tinylogocode1; ?>
                             </div>
-                        <?php
+                            <?php
                         endif;
                         if ($t2 && !$t1) : ?>
                             <div class="col-sm-12 center-block">
                                 <?php echo $tinylogocode2; ?>
                             </div>
-                        <?php
+                            <?php
                         endif;
                         if ($t1 && $t2) : ?>
                             <div class="col-sm-6 center-block"><?php echo $tinylogocode1;?></div>
                             <div class="col-sm-6 center-block"><?php echo $tinylogocode2;?></div>
-                        <?php
+                            <?php
                         endif;
                         ?>
                     </div>

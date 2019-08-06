@@ -145,10 +145,9 @@
 
                     <p><?php echo ("These files need to have their permissions set so that they could be modified during the installation process");?>.
 
-                    <p><?php echo ("These two files should be writable by everybody"); ?>.
+                    <p><?php echo ("This file should be writable by everybody"); ?>.
                         <ul>
                             <li><strong><?php echo ("openemr/sites/default/sqlconf.php"); ?></strong></li>
-                            <li><strong><?php echo ("openemr/interface/modules/zend_modules/config/application.config.php"); ?></strong></li>
                         </ul>
                     <p><?php echo ("In Linux use the following command to set the proper permissions");?>.
 
@@ -158,12 +157,9 @@
 
                     <p><?php echo ("In the day to day working of the application certain files are created by the application and stored in the web server document root directory. Files like faxes, images etc. are constantly being uploaded to the application");?>.
 
-                    <p><?php echo ("To facilitate this process the following directories should be writable by the web server (Apache)"); ?>:
+                    <p><?php echo ("To facilitate this process the following directory should be writable by the web server (Apache)"); ?>:
                         <ul>
-                            <li><strong>/var/www/html/openemr/sites/default/documents</strong> - <?php echo ("where all scanned documents etc are stored"); ?></li>
-                            <li><strong>/var/www/html/openemr/sites/default/edi</strong> - <?php echo ("saves transmitted electronic batches for various kinds"); ?></li>
-                            <li><strong>/var/www/html/openemr/sites/default/era</strong> - <?php echo ("saves output from automated remittance (X12 835) processing. This includes archived remittance files, and copies of the generated HTML reports"); ?></li>
-                            <li><strong>/var/www/html/openemr/sites/default/letter_templates</strong> - <?php echo ("sample empty letter template"); ?></li>
+                            <li><strong>/var/www/html/openemr/sites/default/documents</strong> - <?php echo ("where all files etc are stored"); ?></li>
                         </ul>
 
                     <p><?php echo ("These files need to have owner and user set to the Apache user. In Linux the Apache user and owner are 'www-data' in Ubuntu and Debian, 'apache' in Redhat, Fedora and CentOS , 'nobody' is a generic user and group name that is used by other applications as well");?>.
@@ -226,10 +222,11 @@
                     <h4 class="oe-help-heading"><?php echo ("Step 2 Database and OpenEMR Initial User Setup Details"); ?><a href="#main-list"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                     <p><?php echo ("Lets you fill in the details needed for the setup script to start creating the database and the tables. It will also create the initial user for the OpenEMR application");?>.
 
-                    <p><?php echo ("It is divided into two sections"); ?>:
+                    <p><?php echo ("It is divided into three sections"); ?>:
                         <ul>
                             <li><?php echo ("MySQL Server Details"); ?></li>
                             <li><?php echo ("OpenEMR Initial User Details"); ?></li>
+                            <li><?php echo ("Enable 2 Factor Authentication for Initial User"); ?></li>
                         </ul>
                     <p><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo ("It is important to understand that two separate users will be created - a user that PHP will use to read and write to the database and an Initial User that will be accessing the OpenEMR application for the first time. By default the OpenEMR Initial User will have full administrator privileges over the entire OpenEMR application");?>.
 
@@ -296,6 +293,58 @@
                     <p><?php echo ("A user may belong to multiple groups, which again, can be altered on the user administration page");?>.
 
                     <p><?php echo ("It is suggested that no more than one group per office be used");?>.
+
+                    <p><strong><?php echo ("ENABLE 2 FACTOR AUTHENTICATION FOR INITIAL USER"); ?> :</strong>
+
+                    <p><strong><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo ("It is easy to setup and FREE to use");?>.</strong>
+
+                    <p><?php echo ("This is an optional feature that improves security by reducing the chance of unauthorized login");?>.
+
+                    <p><?php echo ("2FA requires the user to authenticate themselves to the application using two forms of authentication - something they know - i.e. password and something they have i.e. an app or key which will generate a unique code");?>.
+
+                    <p><?php echo ("By requiring a second form of authentication that only the user possesses the chance of a third party being able to masquerade as the user is greatly reduced");?>.
+
+                    <p><?php echo ("It is strongly recommended if the instance of OpenEMR is accessible from the internet");?>.
+
+                    <p><?php echo ("OpenEMR uses two methods of 2 Factor Authentication - 2FA");?>.
+                         <ul>
+                            <li><?php echo ("TOTP - Time-Based One-Time Password"); ?></li>
+                            <li><?php echo ("U2F - Universal 2nd Factor"); ?></li>
+                        </ul>
+
+                    <p><?php echo ("In the initial setup the only available option is TOTP");?>.
+
+                    <p><?php echo ("For TOTP to work a unique secret key must be shared between OpenEMR and the user");?>.
+
+                    <p><?php echo ("This key is generated by the setup script and is presented to the user in the form of a QR code");?>.
+
+                    <p><?php echo ("The QR code also contains the user name and needs to be captured by the user on to their mobile device using an authenticator app");?>.
+
+                    <p><?php echo ("Once this is done the shared secret key that is unique for each user should only exist in OpenEMR and on the user's authenticator app");?>.
+
+                    <p><?php echo ("Authenticator apps are available for both ios and android devices at their respective app stores and is free to use");?>.
+
+                    <p><?php echo ("The basic purpose of the authenticator app is to generate a 20 bytes (160 bits) code encoded in base32 using a secure hash function, SHA-1, and is called HMAC-SHA1 (Hash-based Message Authentication Code)");?>.
+
+                    <p><?php echo ("It does so by using an algorithm to combine the current UNIX time with the secret key to generate an ever changing unique key");?>.
+
+                    <p><?php echo ("For ease of use it is rendered as a unique 6 digit number");?>.
+
+                    <p><?php echo ("All TOTP authenticator apps use the same algorithm and secure hash function - HMAC-SHA1 to generate the unique key");?>.
+
+                    <p><?php echo ("An important concept to grasp is that once the secret key delivered via the QR code is captured by the authenticator app there is no further communication between the app and OpenEMR, each will use the current UNIX time and their copy of the user-specific shared secret key to generate the same unique 6 digit number");?>.
+
+                    <p><?php echo ("These numbers need to match to successfully authenticate the user");?>.
+
+                    <p><?php echo ("Once this feature is enabled you will be required to type in the 6 digit key at each login");?>.
+
+                    <p><?php echo ("After login you can choose to clear the key by deleting it under Miscellaneous > MFA Authentication");?>.
+
+                    <p><?php echo ("Those with administrator privileges can also go to Administration > Users and check Clear 2FA checkbox and Click Save");?>.
+
+                    <p><?php echo ("After login you can choose to add U2F key authentication or change to using U2F key authentication exclusively");?>.
+
+                    <p><?php echo ("A more detailed explanation is available in the help file for Miscellaneous > MFA Authentication");?>.
 
                     <p><?php echo ("Click on 'Create DB and User' button to continue");?>.
 
@@ -366,9 +415,7 @@
 
                     <p><?php echo ("They are"); ?>:
                         <ul>
-                            <li><strong>/var/www/html/openemr/sites/default/documents</strong> - <?php echo ("where all scanned documents etc are stored"); ?></li>
-                            <li><strong>/var/www/html/openemr/sites/default/edi</strong> - <?php echo ("saves transmitted electronic batches for various kinds"); ?></li>
-                            <li><strong>/var/www/html/openemr/sites/default/era</strong> - <?php echo ("saves output from automated remittance (X12 835) processing. This includes archived remittance files, and copies of the generated HTML reports"); ?></li>
+                            <li><strong>/var/www/html/openemr/sites/default/documents</strong> - <?php echo ("where all files etc are stored"); ?></li>
                         </ul>
                     <p><?php echo ("It will also ask you to add some data to the Apache configuration file to make the Zend Framework work better");?>.
 
@@ -394,7 +441,7 @@
 
                     <p><?php echo ("macOS Server 5 websites -	/Library/Server/Web/Config/apache2/server-httpd.conf");?>.
 
-                    <p><?php echo ("To configure Zend and to secure the /documents, /edi and /era directories you can paste following to the end of the apache configuration file");?>:
+                    <p><?php echo ("To configure Zend and to secure the /documents directory you can paste following to the end of the apache configuration file");?>:
 
                     <pre>
                     &lt;Directory &quot;openemrwebroot&quot;&gt;
@@ -405,12 +452,6 @@
                     &nbsp;&nbsp;AllowOverride None
                     &lt;/Directory&gt;
                     &lt;Directory &quot;openemrwebroot/sites/*/documents&quot;&gt;
-                    &nbsp;&nbsp;Require all denied
-                    &lt;/Directory&gt;
-                    &lt;Directory &quot;openemrwebroot/sites/*/edi&quot;&gt;
-                    &nbsp;&nbsp;Require all denied
-                    &lt;/Directory&gt;
-                    &lt;Directory &quot;openemrwebroot/sites/*/era&quot;&gt;
                     &nbsp;&nbsp;Require all denied
                     &lt;/Directory&gt;
                     </pre>
@@ -527,12 +568,9 @@
 
                     <p><i class="fa fa-exclamation-triangle  oe-text-red" aria-hidden="true"></i> <?php echo ("IMPORTANT:  If you do not do this the setup script for a fresh install will be executed when you log in to OpenEMR with the potential for massive data loss");?>.
 
-                    <p><strong><?php echo ("Step 4");?></strong> - <?php echo ("The following directories containing patient information should however be copied from the old version to the new version"); ?>:
+                    <p><strong><?php echo ("Step 4");?></strong> - <?php echo ("The following directory contains patient information should however be copied from the old version to the new version"); ?>:
                         <ul>
-                            <li><?php echo ("openemr/sites/default/documents - scanned documents, images etc"); ?></li>
-                            <li><?php echo ("openemr/sites/default/era - electronic remittance advice files"); ?></li>
-                            <li><?php echo ("openemr/sites/default/edi - transmitted electronic batches for various kinds"); ?></li>
-                            <li><?php echo ("openemr/sites/default/letter_templates - customized letters"); ?></li>
+                            <li><?php echo ("openemr/sites/default/documents - files, documents, images etc"); ?></li>
                         </ul>
 
                     <p><?php echo ("If there are other files that you have customized, then you will also need to customize those files in the current version");?>.
@@ -583,7 +621,7 @@
 
                     <p><?php echo ("The non-database data for each individual site will reside in the 'sites' directory under a sub-directory bearing the name of the site, i.e if your first multiuser site was called 'multi1' then the setup script will create a directory by the name of 'multi1' in the 'sites' directory"); ?>.
 
-                    <p><?php echo ("This directory will contain several directories that will hold unique site-specific patient information, 'documents', 'era', 'edi' and 'letter_templates' as well as the site-specific files 'config.php' and 'sqlconf.php'"); ?>.
+                    <p><?php echo ("This directory will contain a directory that will hold unique site-specific patient information, 'documents', as well as the site-specific files 'config.php' and 'sqlconf.php'"); ?>.
 
                     <p><?php echo ("In addition it will contain other directories - 'images' and 'LBF', and files - faxtitle.eps , referral_template.html, clickoptions.txt, faxcover.txt and statement.inc.php which will not contain patient information but can be customized as per the site requirement"); ?>.
 
@@ -715,27 +753,11 @@
 
         </div><!--end of container div-->
         <script>
-           $('#show_hide').click(function() {
-                var elementTitle = $('#show_hide').prop('title');
-                var hideTitle = '<?php echo xla('Click to Hide'); ?>';
-                var showTitle = '<?php echo xla('Click to Show'); ?>';
-                $('.hideaway').toggle('1000');
-                $(this).toggleClass('fa-eye-slash fa-eye');
-                if (elementTitle == hideTitle) {
-                    elementTitle = showTitle;
-                } else if (elementTitle == showTitle) {
-                    elementTitle = hideTitle;
-                }
-                $('#show_hide').prop('title', elementTitle);
-            });
-        </script>
-
-        <script>
         // better script for tackling nested divs
            $('.show_hide').click(function() {
                 var elementTitle = $(this).prop('title');
-                var hideTitle = '<?php echo xla('Click to Hide'); ?>';
-                var showTitle = '<?php echo xla('Click to Show'); ?>';
+                var hideTitle = '<?php echo ('Click to Hide'); ?>';
+                var showTitle = '<?php echo ('Click to Show'); ?>';
                 //$('.hideaway').toggle('1000');
                 $(this).parent().parent().closest('div').children('.hideaway').toggle('1000');
                 if (elementTitle == hideTitle) {

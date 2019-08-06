@@ -15,6 +15,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $feid = $_GET['feid'] + 0; // id from form_encounter table
 
 $info_msg = "";
@@ -25,7 +27,6 @@ if (!acl_check('acct', 'bill', '', 'write')) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -36,8 +37,8 @@ if (!acl_check('acct', 'bill', '', 'write')) {
 <body>
 <?php
 if ($_POST['form_submit'] || $_POST['form_cancel']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $fenote = trim($_POST['form_note']);
@@ -70,7 +71,7 @@ $fenote = $tmp['billing_note'];
 ?>
 
 <form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
 <textarea name='form_note' style='width:100%'><?php echo text($fenote); ?></textarea>

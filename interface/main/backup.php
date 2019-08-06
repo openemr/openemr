@@ -1,10 +1,10 @@
 <?php
 /**
- * This script creates a backup tarball and sends it to the users's
- * browser for download.  The tarball includes:
+ * This script creates a backup tarball, emr_backup.tar, and sends
+ * it to the user's browser for download.  The tarball includes:
  *
- * an OpenEMR database dump (gzipped)
- * the OpenEMR web directory (.tar.gz)
+ * an OpenEMR database dump  (openemr.sql.gz)
+ * the OpenEMR web directory (openemr.tar.gz)
  *
  * The OpenEMR web directory is important because it includes config-
  * uration files, patient documents, and possible customizations, and
@@ -14,7 +14,8 @@
  * This script depends on execution of some external programs:
  * mysqldump & pg_dump.  It has been tested with Debian and Ubuntu
  * Linux and with Windows XP.
- * Do not assume that it works for you until you have successfully
+ *
+ * DO NOT PRESUME THAT IT WORKS FOR YOU until you have successfully
  * tested a restore!
  *
  * @package   OpenEMR
@@ -22,8 +23,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Bill Cernansky (www.mi-squared.com)
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2008-2014, 2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -32,11 +35,12 @@ set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -57,20 +61,6 @@ if (!function_exists('gzopen') && function_exists('gzopen64')) {
 
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
-}
-
-include_once("Archive/Tar.php");
-
-// Set up method, which will depend on OS and if pear tar.php is installed
-if (class_exists('Archive_Tar')) {
-    # pear tar.php is installed so can use os independent method
-    $newBackupMethod = true;
-} elseif (IS_WINDOWS) {
-    # without the tar.php module, can't run backup in windows
-    die(xlt("Error. You need to install the Archive/Tar.php php module."));
-} else {
-    # without the tar.php module, can run via system commands in non-windows
-    $newBackupMethod = false;
 }
 
 $BTN_TEXT_CREATE = xl('Create Backup');
@@ -161,7 +151,7 @@ if ($form_step == 104) {
 <center>
 &nbsp;<br />
 <form method='post' action='backup.php' enctype='multipart/form-data' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table<?php echo ($form_step != 101) ? " style='width:50em'" : ""; ?>>
  <tr>
@@ -643,8 +633,9 @@ if ($cmd) {
              $res=sqlStatement("drop table if exists log_validator");
              $res=sqlStatement("rename table log_validator_backup to log_validator");
         }
+        //Removed the connection details as it exposes all the database credentials
 
-        die("\"" . text($cmd) . "\" returned " . text($tmp2) . ": " . text($tmp0));
+        die("There was an error on the backup");
     }
 
   //  ViSolve:  If the Eventlog is set, then clear the temporary table  -- Start here
@@ -708,30 +699,9 @@ function obliterate_dir($dir)
 // array of file/directory names to archive
 function create_tar_archive($archiveName, $compressMethod, $itemArray)
 {
-    global $newBackupMethod;
-
-    if ($newBackupMethod) {
-       // Create a tar object using the pear library
-       //  (this is the preferred method)
-        $tar = new Archive_Tar($archiveName, $compressMethod);
-        if ($tar->create($itemArray)) {
-            return true;
-        }
-    } else {
-       // Create the tar files via command line tools
-       //  (this method used when the tar pear library is not available)
-        $files = '"' . implode('" "', $itemArray) . '"';
-        if ($compressMethod == "gz") {
-            $command = "tar --same-owner --ignore-failed-read -zcphf " . escapeshellarg($archiveName) . " $files";
-        } else {
-            $command = "tar -cpf " . escapeshellarg($archiveName) . " $files";
-        }
-
-        $temp0 = exec($command, $temp1, $temp2);
-        if ($temp2) {
-            die("\"" . text($command) . "\" returned " . text($temp2) . ": " . text($temp0));
-        }
-
+    // Create a tar object using the pear library
+    $tar = new Archive_Tar($archiveName, $compressMethod);
+    if ($tar->create($itemArray)) {
         return true;
     }
 

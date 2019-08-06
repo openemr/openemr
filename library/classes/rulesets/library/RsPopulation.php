@@ -7,8 +7,8 @@
 // of the License, or (at your option) any later version.
 //
 require_once("RsPatient.php");
-/*	Defines a population of patients
- * 
+/*  Defines a population of patients
+ *
  */
 class RsPopulation implements Countable, Iterator, ArrayAccess
 {

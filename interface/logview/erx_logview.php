@@ -17,13 +17,14 @@
 
 require_once(__DIR__.'/../globals.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $error_log_path = $GLOBALS['OE_SITE_DIR'].'/documents/erx_error';
 
 if (array_key_exists('filename', $_GET)) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $filename = $_GET['filename'];
@@ -33,8 +34,8 @@ if (array_key_exists('filename', $_GET)) {
 }
 
 if (array_key_exists('start_date', $_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $start_date = $_POST['start_date'];
@@ -73,7 +74,7 @@ if ($filename) {
         <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'datetime-picker']); ?>
 
         <script language="JavaScript">
-            $(document).ready(function(){
+            $(function(){
                 $('.datepicker').datetimepicker({
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
@@ -87,7 +88,7 @@ if ($filename) {
     </head>
     <body class="body_top">
         <form method="post">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
         <font class="title"><?php echo xlt('eRx Logs'); ?></font><br><br>
         <table>
@@ -108,8 +109,8 @@ if ($filename) {
 
     $check_for_file = 0;
 if (array_key_exists('search_logs', $_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     if ($handle = opendir($error_log_path)) {
@@ -120,10 +121,10 @@ if (array_key_exists('search_logs', $_POST)) {
                 $check_for_file = 1;
                 $fd = fopen($error_log_path.'/'.$file, 'r');
                 $bat_content = fread($fd, filesize($error_log_path.'/'.$file));
-?>
-                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr_url($file); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"><?php echo text($file); ?></a></p>
+                ?>
+                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr_url($file); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"><?php echo text($file); ?></a></p>
                 <textarea rows="35" cols="132"><?php echo text($bat_content); ?></textarea>
-<?php
+                <?php
             }
         }
     }

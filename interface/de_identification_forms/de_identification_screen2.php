@@ -18,12 +18,14 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 /*executes the De Identification process, using the parameters chosen from the
@@ -87,7 +89,7 @@ if ($row = sqlFetchArray($res)) {
 
 if ($deIdentificationStatus == 0) {
  //0 - There is no De Identification in progress. (start new De Identification process)
-        ?>
+    ?>
 <html>
 <head>
 <title>De Identification</title>
@@ -171,10 +173,10 @@ if ($deIdentificationStatus == 0) {
 
         <td>&nbsp;</td>
         <td rowspan="3"><br>
-        <?php echo xlt('No Patient record found for given Selection criteria');
-        echo "</br></br>";
-        echo xlt('Please start new De Identification process');
-        echo "</br>";   ?> </br>
+                        <?php echo xlt('No Patient record found for given Selection criteria');
+                        echo "</br></br>";
+                        echo xlt('Please start new De Identification process');
+                        echo "</br>";   ?> </br>
         </td>
         <td>&nbsp;</td>
     </tr>
@@ -194,7 +196,7 @@ if ($deIdentificationStatus == 0) {
     </tr>
     </table>
 
-        <?php
+                        <?php
                     } else {   //delete old de_identified_data.xls file
                         $timestamp=0;
                         $query = "select now() as timestamp";
@@ -224,10 +226,10 @@ if ($deIdentificationStatus == 0) {
     <tr valign="top">
         <td>&nbsp;</td>
         <td rowspan="3"><br>
-        <?php echo xlt('De Identification Process is ongoing');
-        echo "</br></br>";
-        echo xlt('Please visit De Identification screen after some time');
-        echo "</br>";   ?> </br>
+                        <?php echo xlt('De Identification Process is ongoing');
+                        echo "</br></br>";
+                        echo xlt('Please visit De Identification screen after some time');
+                        echo "</br>";   ?> </br>
         </td>
         <td>&nbsp;</td>
     </tr>
@@ -246,7 +248,7 @@ if ($deIdentificationStatus == 0) {
         <td>&nbsp;</td>
     </tr>
     </table>
-        <?php
+                        <?php
                     }
                 }
             }

@@ -83,7 +83,6 @@ if ($postid) {
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
@@ -182,7 +181,7 @@ function validate() {
  return true;
 }
 
-$(document).ready(function() {
+$(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -318,7 +317,6 @@ if (empty($ptrow[$field_id])) {
 
 // hard code validation for old validation, in the new validation possible to add match rules
 <?php if ($GLOBALS['new_validate'] == 0) { ?>
-
 // Fix inconsistently formatted phone numbers from the database.
 var f = document.forms[0];
 if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);

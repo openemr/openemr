@@ -14,17 +14,18 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/immunization_helper.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (isset($_GET['mode'])) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     /*
-	 * THIS IS A BUG. IF NEW IMMUN IS ADDED AND USER PRINTS PDF,
-	 * WHEN BACK IS CLICKED, ANOTHER ITEM GETS ADDED
-	 */
+     * THIS IS A BUG. IF NEW IMMUN IS ADDED AND USER PRINTS PDF,
+     * WHEN BACK IS CLICKED, ANOTHER ITEM GETS ADDED
+     */
 
     if ($_GET['mode'] == "add") {
         $sql = "REPLACE INTO immunizations set
@@ -200,8 +201,8 @@ if ($entered_by_id) {
 }
 
 if ($_POST['type'] == 'duplicate_row') {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
     $observation_criteria = getImmunizationObservationLists('1');
     echo json_encode($observation_criteria);
@@ -209,8 +210,8 @@ if ($_POST['type'] == 'duplicate_row') {
 }
 
 if ($_POST['type'] == 'duplicate_row_2') {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
     $observation_criteria_value = getImmunizationObservationLists('2');
     echo json_encode($observation_criteria_value);
@@ -320,7 +321,6 @@ function saveImmunizationObservationResults($id, $immunizationdata)
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -349,7 +349,7 @@ tr.selected {
     <span class="title"><?php echo xlt('Immunizations'); ?></span>
 
 <form action="immunizations.php" name="add_immunization" id="add_immunization">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type="hidden" name="mode" id="mode" value="add">
 <input type="hidden" name="id" id="id" value="<?php echo attr($id); ?>">
@@ -541,7 +541,7 @@ tr.selected {
         </tr>
     <?php
     if ($entered_by) {
-    ?>
+        ?>
     <tr>
         <td align="right" class='text'>
             <?php echo xlt('Entered By'); ?>
@@ -550,7 +550,7 @@ tr.selected {
             <?php echo text($entered_by); ?>
         </td>
     </tr>
-    <?php
+        <?php
     }
 
     if ($GLOBALS['observation_results_immunization']) {
@@ -560,7 +560,7 @@ tr.selected {
             <img src='../../pic/add.png' onclick="showObservationResultSection();" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to see observation results'); ?>'>
           </td>
       </tr>
-    <?php
+        <?php
     }
     ?>
         <tr>
@@ -602,7 +602,7 @@ tr.selected {
                                     <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
                                       <option value="<?php echo attr($valoc['option_id']);?>" <?php echo ($valoc['option_id'] == $value['imo_criteria_value']  && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
                                     <?php }
-                                ?>
+                                    ?>
                               </select>
                             </td>
                                 <td <?php echo ($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) ? 'style="display: none;"' : ''; ?> class="code_serach_td" id="code_search_td_<?php echo attr(($key + 1)); ?>">
@@ -642,26 +642,26 @@ tr.selected {
                                   </td>
                                 <?php } ?>
                           </tr>
-                        <?php
+                            <?php
                         }
                     } else {?>
                       <tr id="or_tr_1">
                         <td id="observation_criteria_td_1">
         <label><?php echo xlt('Observation Criteria'); ?></label>
         <select id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);" style="width: 220px;">
-            <?php foreach ($observation_criteria as $keyo => $valo) { ?>
+                        <?php foreach ($observation_criteria as $keyo => $valo) { ?>
                               <option value="<?php echo attr($valo['option_id']);?>" <?php echo ($valo['option_id'] == $value['imo_criteria'] && $id !=0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
             <?php }
-?>
+                        ?>
                           </select>
                         </td>
       <td <?php echo ($value['imo_criteria'] != 'funding_program_eligibility') ? 'style="display: none;"' : ''; ?> class="observation_criteria_value_td" id="observation_criteria_value_td_1">
         <label><?php echo xlt('Observation Criteria Value'); ?></label>
                           <select id="observation_criteria_value_1" name="observation_criteria_value[]" style="width: 220px;">
-            <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
+                        <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
                               <option value="<?php echo attr($valoc['option_id']);?>" <?php echo ($valoc['option_id'] == $value['imo_criteria_value'] && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
             <?php }
-?>
+                        ?>
                           </select>
                         </td>
       <td <?php echo ($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) ? 'style="display: none;"' : ''; ?> class="code_serach_td" id="code_search_td_1">
@@ -681,9 +681,9 @@ tr.selected {
                         </td>
        <td <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="vis_published_date_td" id="vis_published_date_td_1">
         <label><?php echo xlt('Date VIS Published'); ?></label>
-        <?php
-          $vis_published_dateval = $value['imo_vis_date_published'] ? $value['imo_vis_date_published'] : '';
-        ?>
+                        <?php
+                        $vis_published_dateval = $value['imo_vis_date_published'] ? $value['imo_vis_date_published'] : '';
+                        ?>
         <input type="text" class='datepicker' name="vis_published_date[]" value="<?php echo ($id != 0 && $vis_published_dateval != 0) ? attr($vis_published_dateval) : ''; ?>" id="vis_published_date_1" style="width:140px">
                         </td>
                         <td <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="vis_presented_date_td" id="vis_presented_date_td_1">
@@ -694,7 +694,7 @@ tr.selected {
                           <input type="text" class='datepicker' name="vis_presented_date[]" value="<?php echo ($id != 0 && $vis_presented_dateval !=0) ? attr($vis_presented_dateval) : ''; ?>" id="vis_presented_date_1" style="width:140px">
                         </td>
                       </tr>
-                    <?php
+                        <?php
                     }
                     ?>
                 </table>
@@ -911,19 +911,19 @@ var SaveForm = function() {
 
 var EditImm = function(imm) {
     top.restoreSession();
-    location.href='immunizations.php?mode=edit&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>;
+    location.href='immunizations.php?mode=edit&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
 }
 
 var DeleteImm = function(imm) {
     if (confirm(<?php echo xlj('This action cannot be undone.'); ?> + "\n" + <?php echo xlj('Do you wish to PERMANENTLY delete this immunization record?'); ?>)) {
         top.restoreSession();
-        location.href='immunizations.php?mode=delete&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>;
+        location.href='immunizations.php?mode=delete&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
     }
 }
 
 var ErrorImm = function(imm) {
     top.restoreSession();
-    location.href='immunizations.php?mode=added_error&id=' + encodeURIComponent(imm.id) + '&isError=' + encodeURIComponent(imm.checked) + "&csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>;
+    location.href='immunizations.php?mode=added_error&id=' + encodeURIComponent(imm.id) + '&isError=' + encodeURIComponent(imm.checked) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
 }
 
 //This is for callback by the find-code popup.
@@ -1030,7 +1030,7 @@ function selectCriteria(id,value)
                 dataType: "json",
                 data: {
                     type : 'duplicate_row_2',
-                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 },
                 success: function(thedata){
                     $.each(thedata,function(i,item) {
@@ -1151,7 +1151,7 @@ function addNewRow()
         dataType: "json",
         data: {
             type : 'duplicate_row',
-            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         },
         success: function(thedata){
             $.each(thedata,function(i,item) {
@@ -1177,7 +1177,7 @@ $(function() {
 
   //autocomplete
   $(".auto").autocomplete({
-    source: "../../../library/ajax/imm_autocomplete/search.php?csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>,
+    source: "../../../library/ajax/imm_autocomplete/search.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
     minLength: 1
   });
 

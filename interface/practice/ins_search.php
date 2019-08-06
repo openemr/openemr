@@ -24,6 +24,7 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Putting a message here will cause a popup window to display it.
@@ -100,7 +101,7 @@ td { font-size:10pt; }
    '&form_zip='    + encodeURIComponent(f.form_zip.value   ) +
    '&form_phone='  + encodeURIComponent(f.form_phone.value ) +
    '&form_cms_id=' + encodeURIComponent(f.form_cms_id.value) +
-   '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>;
+   '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
 
     top.restoreSession();
     $("#form_list").load( search_list ).show();
@@ -154,8 +155,8 @@ td { font-size:10pt; }
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $ins_id = '';
@@ -167,7 +168,7 @@ if ($_POST['form_save']) {
     } else {
         $ins_id = generate_id();
 
-        sqlInsert("INSERT INTO insurance_companies ( " .
+        sqlStatement("INSERT INTO insurance_companies ( " .
         "id, name, attn, cms_id, ins_type_code, x12_receiver_id, x12_default_partner_id " .
         ") VALUES ( " .
         "'" . add_escape_custom($ins_id)                   . "', " .
@@ -179,7 +180,7 @@ if ($_POST['form_save']) {
         "'" . add_escape_custom($_POST['form_partner'])    . "' "  .
         ")");
 
-        sqlInsert("INSERT INTO addresses ( " .
+        sqlStatement("INSERT INTO addresses ( " .
         "id, line1, line2, city, state, zip, country, foreign_id " .
         ") VALUES ( " .
         "'" . add_escape_custom(generate_id())          . "', " .
@@ -199,7 +200,7 @@ if ($_POST['form_save']) {
             $phone_parts
         );
 
-        sqlInsert("INSERT INTO phone_numbers ( " .
+        sqlStatement("INSERT INTO phone_numbers ( " .
         "id, country_code, area_code, prefix, number, type, foreign_id " .
         ") VALUES ( " .
         "'" . add_escape_custom(generate_id())   . "', " .
@@ -230,12 +231,12 @@ if ($_POST['form_save']) {
  $xres = sqlStatement(
      "SELECT id, name FROM x12_partners ORDER BY name"
  );
-?>
+    ?>
 <div id="form_entry">
 
 <form method='post' name='theform' action='ins_search.php'
  onsubmit='return validate(this)'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
 
 <p>
@@ -328,7 +329,7 @@ for ($i = 1; $i < count($ins_type_code_array); ++$i) {
   <td valign='top' nowrap><b><?php echo xlt('X12 Partner'); ?>:</b></td>
   <td>
    <select name='form_partner' title='Default X12 Partner' class="input-sm">
-    <option value=""><?php echo '-- ' . xlt('None') . ' --'; ?></option>
+    <option value=""><?php echo '-- ' . xlt('None{{Partner}}') . ' --'; ?></option>
 <?php
 while ($xrow = sqlFetchArray($xres)) {
     echo "   <option value='" . attr($xrow['id']) . "'";

@@ -17,6 +17,8 @@ require_once('../../globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once("Holidays_Controller.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
@@ -26,8 +28,8 @@ $csv_file_data = $holidays_controller->get_file_csv_data();
 
 //this part download the CSV file after the click on the href link
 if ($_GET['download_file']==1) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $target_file=$holidays_controller->get_target_file();
@@ -52,8 +54,8 @@ if ($_GET['download_file']==1) {
 // Handle uploads.
 
 if (!empty($_POST['bn_upload'])) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     //Upload and save the csv
@@ -64,8 +66,8 @@ if (!empty($_POST['bn_upload'])) {
 }
 
 if (!empty($_POST['import_holidays'])) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     //Import from the csv file to the calendar external table
@@ -73,8 +75,8 @@ if (!empty($_POST['import_holidays'])) {
 }
 
 if (!empty($_POST['sync'])) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     //Upload and save the csv
@@ -108,7 +110,7 @@ if ($saved) {
 ?>
 <form method='post' action='import_holidays.php' enctype='multipart/form-data'
       onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
         <p class='text'>
         <table border='1' cellpadding='4'>
@@ -133,13 +135,12 @@ if ($saved) {
                 <td class='detail' nowrap>
                     <?php
                     if (!empty($csv_file_data)) {?>
-
                         <?php $path=explode("/", $holidays_controller->get_target_file());?>
                         <?php $filename=$path[count($path)-1];?>
                         <?php unset($path[count($path)-1]);?>
 
-                        <a href="#" onclick='window.open("import_holidays.php?download_file=1&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>")'><?php echo text($csv_file_data['date']);?></a>
-                    <?php
+                        <a href="#" onclick='window.open("import_holidays.php?download_file=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>")'><?php echo text($csv_file_data['date']);?></a>
+                        <?php
                     } else {
                         echo xlt('File not found');
                     } ?>
@@ -159,7 +160,7 @@ if ($saved) {
         <tr >
             <td >
                 <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <input type='submit' name='import_holidays' value='<?php echo xla('Import holiday events') ?>'></br>
 
                 </form>
@@ -173,7 +174,7 @@ if ($saved) {
             <tr >
                 <td >
                     <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                         <input type='submit' name='sync' value='<?php echo xla('Synchronize') ?>' /></br>
                     </form>
                 </td>

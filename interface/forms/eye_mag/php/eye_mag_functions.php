@@ -4,33 +4,20 @@
  *
  * Functions which extend clinical forms
  *
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Ray Magauran <magauran@MedFetch.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $form_folder = "eye_mag";
 require_once(dirname(__FILE__)."/../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
 global $PMSFH;
-    
+
     use OpenEMR\Services\FacilityService;
-    
+
     $facilityService = new FacilityService();
 
 /**
@@ -47,6 +34,10 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     global $priors;
     global $form_id;
     global $earlier;
+
+    if ($type=="canvas") {
+        $zone=$zone."_canvas";
+    }
 
     $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',
                 'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
@@ -378,7 +369,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 </table>
             </div>  <br />
             <div class="QP_lengthen"> <b><?php echo xlt('Comments'); ?>:</b><br />
-                  <textarea disabled id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS" Xstyle="width:4.0in;height:3em;"><?php echo text($EXT_COMMENTS); ?></textarea>
+                  <textarea disabled id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS"><?php echo text($EXT_COMMENTS); ?></textarea>
             </div>
 
             <?php
@@ -438,8 +429,13 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     <?php
                     // This is going to be based off a list in the near future
                     // to allow for end-user customization
-                        ?>
-                    <span id="PRIORS_dil_listbox_title"><?php echo xlt('Dilated with'); ?>:</span><br />
+                    ?>
+                    <span id="PRIORS_dil_listbox_title"><?php echo xlt('Dilation'); ?>:</span>
+                      <span id="PRIORS_dil_meds" class="pull-right"><?php
+                        if ($DIL_MEDS) {
+                            echo text($DIL_MEDS);
+                        }
+                        ?></span><br />
                     <table id="PRIORS_dil_listbox">
                       <tr>
                         <td>
@@ -566,7 +562,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                         <input type="text" disabled name="PRIOR_ODCUP" size="4" id="PRIOR_ODCUP" value="<?php echo attr($ODCUP); ?>">
                     </td>
                     <td>
-                        <input type="text" disabled name="PRIOR_OSCUP" size="4" id=PRIOR_OSCUP" value="<?php echo attr($OSCUP); ?>">
+                        <input type="text" disabled name="PRIOR_OSCUP" size="4" id="PRIOR_OSCUP" value="<?php echo attr($OSCUP); ?>">
                     </td>
                 </tr>
 
@@ -960,7 +956,7 @@ margin: 2px 0 2px 2px;">
                         </tr>
                     </table>
                 </div>
-                
+
             </div>
                 <?php
                 $hash_tag = '<i class="fa fa-minus"></i>';
@@ -1624,7 +1620,7 @@ function build_PMSFH($pid)
     $PMSFH = [];
     $PMSFH['CHRONIC']=[];
     //Define the PMSFH array elements as you need them:
-    $PMSFH_labels = array("POH", "POS", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
+    $PMSFH_labels = array("POH", "POS", "Eye Meds", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
     foreach ($PMSFH_labels as $panel_type) {
         $PMSFH[$panel_type] = [];
         $subtype = " and (subtype is NULL or subtype ='' )";
@@ -1661,10 +1657,10 @@ function build_PMSFH($pid)
             $subtype=" and subtype ='eye'";
         } elseif ($panel_type =='PMH') {
             $focusISSUE = "medical_problem"; //openEMR ISSUE_TYPE
-            $subtype=" and (subtype = ' ' OR subtype IS NULL)"; //fee_sheet makes subtype=
+            $subtype=" and (subtype = '' OR subtype IS NULL)"; //fee_sheet makes subtype=
         } elseif ($panel_type =='Surgery') {
             $focusISSUE = "surgery"; //openEMR ISSUE_TYPE
-            $subtype="  and (subtype = ' ' OR subtype IS NULL)";
+            $subtype="  and (subtype = '' OR subtype IS NULL)";
             $order = "ORDER BY begdate DESC";
         } elseif ($panel_type =='Allergy') {
             $focusISSUE = "allergy"; //openEMR ISSUE_TYPE
@@ -1672,6 +1668,9 @@ function build_PMSFH($pid)
         } elseif ($panel_type =='Medication') {
             $focusISSUE = "medication"; //openEMR ISSUE_TYPE
             $subtype="";
+        } elseif ($panel_type =='Eye Meds') {
+            $focusISSUE = "medication"; //openEMR ISSUE_TYPE
+            $subtype = "and subtype = 'eye'";// and subtype ='eye' ";
         }
 
         $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
@@ -2010,7 +2009,7 @@ function build_PMSFH($pid)
     $PMSFH['ROS']['ROSIMMUNO']['short_title']=xlt("IMMUNO{{Immunology/Rheumatology}}");
     $PMSFH['ROS']['ROSENDOCRINE']['short_title']=xlt("ENDO{{Endocrine}}");
     $PMSFH['ROS']['ROSCOMMENTS']['short_title']=xlt("Comments");
-    
+
     $PMSFH['ROS']['ROSGENERAL']['title']=xlt("General");
     $PMSFH['ROS']['ROSHEENT']['title']=xlt("HEENT");
     $PMSFH['ROS']['ROSCV']['title']=xlt("Cardiovascular");
@@ -2024,7 +2023,7 @@ function build_PMSFH($pid)
     $PMSFH['ROS']['ROSIMMUNO']['title']=xlt("Immune System");
     $PMSFH['ROS']['ROSENDOCRINE']['title']=xlt("Endocrine");
     $PMSFH['ROS']['ROSCOMMENTS']['title']=xlt("Comments");
-    
+
     return array($PMSFH); //yowsah!
 }
 /**
@@ -2081,13 +2080,13 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     }
 
     $counter = "0";
-    $column_max = round($total_PMSFH/$rows);
-    if ($column_max < "18") {
-        $column_max ='18';
+    $column_max = round($total_PMSFH/$rows)+1;
+    if ($column_max < "25") {
+        $column_max ='20';
     }
 
-    $open_table = "<table class='PMSFH_table'><tr><td>";
-    $close_table = "</td></tr></table>";
+    $open_table = "<div style='float:left' class='table PMSFH_table'>";
+    $close_table = "</div>";
     // $div is used when $counter reaches $column_max and a new row is needed.
     // It is used only if $row_count <= $rows, ie. $rows -1 times.
     $div = '</div>
@@ -2112,17 +2111,40 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                         <span class="left" style="font-weight:800;font-size:0.9em;">'.xlt($key).'</span>
                     </td>
                     <td>
-                        <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',\''.attr($key).'\',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
+                        <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\','.attr_js($key).',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
                     </td>
                 </tr>
                 </table>
         ';
-
         if (count($PMSFH[0][$key]) > '0') {
             $index=0;
             foreach ($PMSFH[0][$key] as $item) {
-                if (($key == "Medication") && ($item['status'] == "Inactive")) {
-                    continue; }
+                if (( ($key == "Medication") || ($key == "Eye Meds") )
+                    &&
+                        ($item['status'] == "Inactive")
+                ) {
+                    continue;
+                }
+                if (($key == "Medication") && ( !empty($item['row_subtype']))) {
+                    $subtype_Meds[$item['row_subtype']]['name'] = $item['row_subtype'];
+                    $subtype_Meds[$item['row_subtype']]['header'] = '
+                        <table class="PMSFH_header">
+                            <tr>
+                                <td width="90%">
+                                    <span class="left" style="font-weight:800;font-size:0.9em;">'.xlt(ucwords($item['row_subtype'])).' Meds</span>
+                                </td>
+                                <td>
+                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\','.attr_js($key).',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
+                                </td>
+                            </tr>
+                        </table>
+                        ';
+                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span $red name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
+                            onclick=\"alter_issue2(".attr_js($item['rowid']).",".attr_js($key).",".attr_js($index).");\">".text($item['title'].$reaction)."</span><br />";
+                    $index++;
+                    continue;
+                }
+
                 if ($key == "Allergy") {
                     if ($item['reaction']) {
                         $reaction = " (".text($item['reaction']).")";
@@ -2136,7 +2158,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 }
 
                 $table .= "<span $red name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
-                onclick=\"alter_issue2('".attr($item['rowid'])."','".attr($key)."','".attr($index)."');\">".text($item['title']).$reaction."</span><br />";
+                onclick=\"alter_issue2(".attr_js($item['rowid']).",".attr_js($key).",".attr_js($index).");\">".text($item['title'].$reaction)."</span><br />";
                 $index++;
             }
         } else {
@@ -2162,6 +2184,14 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     $count = $count + $count['POS'] + 4;
     if ($count >= $column_max) {
         echo $div.$header1;
+    }
+
+    echo $display_PMSFH['Eye Meds'];
+    $count = $count + $count['Surgery'] +  4;
+    if (($count >= $column_max) && ($row_count < $rows)) {
+        echo $div;
+        $count=0;
+        $row_count =2;
     }
 
     echo $display_PMSFH['PMH'];
@@ -2320,7 +2350,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             }
 
                     echo $close_table;
-        ?>
+            ?>
         </div>
             <?php
             $PMH_panel = ob_get_contents();
@@ -2337,6 +2367,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
  */
 function show_PMSFH_panel($PMSFH, $columns = '1')
 {
+    global $pcp_data;
+    global $ref_data;
     ob_start();
     echo '<div>
     <div>';
@@ -2353,7 +2385,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         $i=0;
         foreach ($PMSFH[0]['POH'] as $item) {
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','POH','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'POH','".$i."');\">".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2374,12 +2406,35 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         $i=0;
         foreach ($PMSFH[0]['POS'] as $item) {
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','POS','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'POS','".$i."');\">".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
         <span href="#PMH_anchor"
         onclick="alter_issue2('0','POS','');" class="disabled_button"><?php echo xlt("None"); ?><br /></span>
+        <?php
+    }
+
+//<!-- Eye Meds -->
+    echo "<br /><span class='panel_title' title='".xla("Eye Meds")."'>".xlt("Eye Meds").":</span>";
+    ?><span class="top-right btn-sm" href="#PMH_anchor"
+            onclick="alter_issue2('0','Medication','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
+    <br />
+    <?php
+    if ($PMSFH[0]['Eye Meds']) {
+         $i=0;
+        foreach ($PMSFH[0]['Eye Meds'] as $item) {
+            if (($item['status'] == "Inactive") || ($item['row_subtype'] != "eye")) {
+                $i++;
+                continue;
+            }
+            echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Medication','".$i."');\" > ".text($item['title'])."</span><br />";
+            $i++;
+        }
+    } else { ?>
+        <span href="#PMH_anchor"
+        onclick="alter_issue2('0','Medication','');" class="disabled_button"><?php echo xlt("None"); ?><br /></span>
         <?php
     }
 
@@ -2394,7 +2449,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         foreach ($PMSFH[0]['PMH'] as $item) {
             if ($item['enddate'] !==" ") {
                 echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','PMH','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'PMH','".$i."');\">".text($item['title'])."</span><br />";
                 $i++;
             }
         }
@@ -2405,7 +2460,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
     //<!-- Surgeries -->
-    echo "<br /><span class='panel_title' title='".xlt("Past Surgical History")."'>".xlt("Surgery").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Past Surgical History")."'>".xlt("Surgery").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','Surgery','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
@@ -2414,7 +2469,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         $i=0;
         foreach ($PMSFH[0]['Surgery'] as $item) {
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Surgery','$i');\">".text($item['title'])."<br /></span>";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Surgery','".$i."');\">".text($item['title'])."<br /></span>";
             $i++;
         }
     } else { ?>
@@ -2424,7 +2479,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
     //<!-- Meds -->
-    echo "<br /><span class='panel_title' title='".xlt("Medications")."'>".xlt("Medication").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Medications")."'>".xlt("Medication").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','Medication','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
@@ -2432,10 +2487,12 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     if ($PMSFH[0]['Medication']) {
         $i=0;
         foreach ($PMSFH[0]['Medication'] as $item) {
-            if ($item['status'] == "Inactive") {
-                continue; }
+            if (($item['row_subtype'] == "eye") || ($item['status'] == "Inactive")) {
+                $i++;
+                continue;
+            }
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Medication','$i');\">".text($item['title'])."</span><br />";
+            onclick=\"alter_issue2(".attr_js($item['rowid']).",'Medication','".$i."');\">".text($item['title'])."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2446,7 +2503,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
 
 
     //<!-- Allergies -->
-    echo "<br /><span class='panel_title' title='".xlt("Allergies")."'>".xlt("Allergy").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Allergies")."'>".xlt("Allergy").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','Allergy','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
@@ -2460,8 +2517,8 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
                 $reaction ="";
             }
 
-            echo "<span ok style='color:red;' name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
-      onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Allergy','$i');\">".text($item['title'])." ".$reaction."</span><br />";
+            echo "<span style='color:red;' name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
+      onclick=\"alter_issue2(".attr_js($item['rowid']).",'Allergy','".$i."');\">".text($item['title'])." ".$reaction."</span><br />";
             $i++;
         }
     } else { ?>
@@ -2471,7 +2528,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     }
 
        //<!-- Social History -->
-    echo "<br /><span class='panel_title' title='".xlt("Social History")."'>".xlt('Soc Hx{{Social History}}').":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Social History")."'>".xlt('Soc Hx{{Social History}}').":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','SOCH','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?>
     </span><br />
@@ -2489,11 +2546,11 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         ?>
         <span href="#PMH_anchor"
         onclick="alter_issue2('0','SOCH','');" class="disabled_button"><?php echo xlt("Negative"); ?><br /></span>
-    <?php
+        <?php
     }
 
     //<!-- Family History -->
-    echo "<br /><span class='panel_title' title='".xlt("Family History")."'>".xlt("FH{{Family History}}").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Family History")."'>".xlt("FH{{Family History}}").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue2('0','FH','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span><br />
 
@@ -2515,7 +2572,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         <?php
     }
 
-    echo "<br /><span class='panel_title' title='".xlt("Review of System")."'>".xlt("ROS{{Review of Systems}}").":</span>";
+    echo "<br /><span class='panel_title' title='".xla("Review of Systems")."'>".xlt("ROS{{Review of Systems}}").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
     onclick="alter_issue('0','ROS','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
@@ -2798,7 +2855,7 @@ function show_PMSFH_report($PMSFH)
  *
  *  @param string $zone options EXT,ANTSEG,RETINA,NEURO
  *  @param string $provider_id
- *  @return QP text : when called directly outputs the ZONE specific HTML5 CANVAS widget
+ *  @return QP text: when called directly outputs the ZONE QP lists for this provider
  */
 function display_QP($zone, $provider_id)
 {
@@ -2817,17 +2874,19 @@ function display_QP($zone, $provider_id)
         $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
         $result = sqlStatement($query, array("Eye_QP_".$zone."_defaults"));
         $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES (?,?,?,?,?,?,?,?,?)";
+    } else {
+        $SQL_INSERT ='';
     }
 
-    while ($QP= sqlFetchArray($result)) {
-        if ($SQL_INSERT) {
+    while ($QP = sqlFetchArray($result)) {
+        if (!empty($SQL_INSERT)) {
             sqlStatement($SQL_INSERT, array("Eye_QP_".$zone."_".$provider_id,$QP['option_id'],$QP['title'],$QP['seq'],$QP['mapping'],$QP['notes'],$QP['codes'],$QP['activity'],$QP['subtype']));
         }
 
         $here[$QP['title']][$QP['subtype']]['notes']    = $QP['notes'];     //the text to fill into form
         $here[$QP['title']][$QP['subtype']]['codes']    = $QP['codes'];     //the code if attached.
         $here[$QP['title']][$QP['subtype']]['mapping']  = $QP['mapping'];   //the fieldname without laterality eg CONJ
-        $here[$QP['title']][$QP['subtype']]['activity'] = $QP['activity'];  //1 to replace, 0 to append
+        $here[$QP['title']][$QP['subtype']]['activity'] = $QP['activity'];  //1 to replace, 2 to append
     }
 
     foreach ($here as $title => $values) { //start QP section items
@@ -2835,12 +2894,7 @@ function display_QP($zone, $provider_id)
         if (preg_match('/clear field/', $title)) {
             $title_show = "<em><strong>$title</strong></em>";
         }
-/**
- * if ($zone=='RETINA') {
-    echo "SELECT * FROM list_options WHERE list_id ='Eye_QP_" . $zone . "_" . $provider_id . " ?  ORDER BY seq";
-    var_dump($here);
-}
- * */
+
         if ($values['OD']) {
             if ($values['OD']['activity'] == '0') {
                 $action = "ADD";
@@ -2897,7 +2951,7 @@ function display_QP($zone, $provider_id)
         }
     } //end QP section items
     ?>
-    <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone)."_".attr($provider_id); ?>" target="RTop"
+      <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone)."_".attr($provider_id); ?>','QP Editor');"
       title="<?php echo xla('Click here to Edit this Doctor\'s Quick Pick list'); ?>"
       name="provider_todo" style="color:black;font-weight:600;"><i class="closeButton pull-right fa fa-pencil fa-fw"></i> </a>
         <?php
@@ -2906,7 +2960,110 @@ function display_QP($zone, $provider_id)
         return $QP_panel;
 }
 
+function canvas_select($zone, $encounter, $pid)
+{
+    /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
+     * just like we do in the text fields.
+     * Will need to do a lot of thinking to create this.  Jist is ajax call to server for image retrieval.
+     * To get this to work we need a way to select an old image to work from, use current or return to baseline.
+     * This will require a global BACK button like above (BUTTON_BACK_<?php echo attr($zone); ?>).
+     * The Undo Redo buttons are currently javascript client side.
+     * The Undo Redo features will only work for changes made since form was loaded locally.
 
+     * If we want to look back at a prior VISITs saved final images,
+     * we will need to create this logic.
+     * Need to think about how to display this visually so it's intuitive, without cluttering the page...
+     * At first glance, using the text PRIORS selection method should work...  Not yet.
+     *
+     *
+     *   $documents['categories']=$categories;
+     *  $documents['my_name']=$my_name;
+     *  $documents['children_names']=$children_names;
+     *  $documents['parent_name'] = $parent_name;
+     *  $documents['zones'] = $zones;
+     *  $documents['docs_in_zone'] = $docs_in_zone;
+     *  $documents['docs_in_cat_id'] = $docs_in_cat_id;
+     *  $documents['docs_in_name'] = $docs_in_name;
+     *  $documents['docs_by_date'] = $docs_by_date;
+     *
+     * Let's try $documents['docs_in_name'] where ['name']['zone']
+     */
+    //iterate through documents?
+        // which are in this zone?
+    //are any from the same as the encounter?  If so selected=selected
+    //
+    global $documents;
+    $side="OU";
+    $type_name = $side."_".$zone."_VIEW";
+    $canvi=[];
+    if (!empty($documents['zones'][$zone])) {
+        foreach ($documents['docs_in_name']['Drawings'] as $doc) {
+            if (!preg_match("/" . $zone . "_VIEW/", $doc['url'])) {
+                continue;
+            }
+            if (!$doc['encounter_id']) {
+                continue;
+            }
+            $canvi[] = $doc;
+        }
+    }
+    usort($canvi, function ($a, $b) {
+        return $b['encounter_date'] <=> $a['encounter_date'];
+    });
+    if (!empty($canvi)) {
+        if ($canvi[0]['encounter_id'] != $encounter) {
+            //put today on the front as current, item "0"
+            //echo "<pre style='text-align:left;'>".$canvi[0]['id'] ." and ". $encounter['encounter_id'];var_dump($canvi);echo "</pre>";
+            //$today_doc = ["Hi"];
+            $today_doc['encounter_date'] = 'New';
+            array_unshift($canvi, $today_doc);
+        }
+   //
+        if (count($canvi) > '1') {
+            $select = '<div class="">';
+            $select .= '<span id="old_canvas_leftest_' . attr($zone) . '"
+                        name="old_canvas_leftest"
+                        class="fa fa-fast-backward fa-sm PRIORS hand"
+                        data-target="SELECT_CANVAS_' . attr($zone) . '"
+                        data-direction="oldest"
+                        title="' . xla('Oldest drawing') . '"></span>';
+            $select .= '<span id="old_canvas_left_' . attr($zone) . '"
+                        name="old_canvas"
+                        class="fa fa-step-backward fa-sm PRIORS hand"
+                        data-target="SELECT_CANVAS_' . attr($zone) . '"
+                        data-direction="older"
+                        title="' . xla('Look back one drawing') . '"></span>';
+
+            $select .= "<select id='SELECT_CANVAS_" . attr($zone) . "' name='CANVAS_selector' data-step='0'>";
+            $count = '0';
+            foreach ($canvi as $hit) {
+                if ($count == '0') {
+                    $select .= "<option value='current'>" . text($hit['encounter_date']) . "</option>\n";
+                } else {
+                    $select .= "<option value='" . attr($hit['document_id']) . "'>" . text($hit['encounter_date']) . "</option>\n";
+                }
+                $count++;
+            }
+            $select .= "</select>";
+            $select .= '<span id="old_canvas_right_' . attr($zone) . '"
+                    name="old_canvas"
+                    class="fa  fa-step-forward PRIORS hand"
+                    data-target="SELECT_CANVAS_' . attr($zone) . '"
+                    data-direction="newer"
+                    data-step="1"
+                    title="' . xla('Forward one drawing') . '"></span>';
+            $select .= '<span id="old_canvas_rightest_' . attr($zone) . '"
+                    name="old_canvas_rightest"
+                    class="fa fa-fast-forward PRIORS hand"
+                    data-target="SELECT_CANVAS_' . attr($zone) . '"
+                    data-direction="newest"
+                    title="' . xla('Forward to current canvas') . '"></span>
+                    
+        </div>';
+        }
+    }
+    return $select;
+}
 /**
  *  This function returns display the draw/sketch diagram for a zone (4 input values)
  *
@@ -2927,6 +3084,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
     global $form_folder;
     $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid ."/";
     $base_name = $pid."_".$encounter."_".$side."_".$zone."_VIEW";
+
     $file_history =  $filepath.$base_name;
     $file_store= $file_history.".jpg";
     ?>
@@ -2936,96 +3094,82 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
         <i class="closeButton_3 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open the Shorthand Window and display Shorthand Codes"); ?>"></i>
 
         <?php
-            /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
-             * just like we do in the text fields.
-             * Will need to do a lot of thinking to create this.  Jist is ajax call to server for image retrieval.
-             * To get this to work we need a way to select an old image to work from, use current or return to baseline.
-             * This will require a global BACK button like above (BUTTON_BACK_<?php echo attr($zone); ?>).
-             * The Undo Redo buttons are currently javascript client side.
-             * The Undo Redo features will only work for changes made since form was loaded locally.
-
-             * If we want to look back at a prior VISITs saved final images,
-             * we will need to create this logic.
-             * Need to think about how to display this visually so it's intuitive, without cluttering the page...
-             * At first glance, using the text PRIORS selection method should work...  Not yet.
-             */
-        //$output = priors_select($zone,$orig_id,$id_to_show,$pid); echo $output;
+            $output = canvas_select($zone, $encounter, $pid);
+            echo $output;
         ?>
-        <div class="tools" style="text-align:center;width:100%;text-align:left;margin-left:2em;">
-            <div id="sketch_tooled_<?php echo attr($zone); ?>_8" style="position: relative;
-                        float: left;
-                        background-image: url(../../forms/eye_mag/images/pencil_white.png);
-                        background-size: 40px 80px;
-                        margin-right:50px;">
-                <input class="jscolor {mode:'HVS',
-                                position:'right',
-                                borderColor:'#FFF #666 #666 #FFF',
-                                insetColor:'#666 #FFF #FFF #666',
-                                backgroundColor:'#CCC',
-                                hash:'true',
-                                styleElement:'sketch_tool_<?php echo attr($zone); ?>_color',
-                                valueElement: 'selColor_<?php echo attr($zone); ?>',
-                                refine:true
-                            }"
-                id="sketch_tool_<?php echo attr($zone); ?>_color"
-                type="text" style="width: 38px;
-height: 20px;
-padding: 11px 0px;
-background-color: blue;
-margin-top: 26px;
-color: white;
-background-image: none;" />
+        <div id="<?php echo attr($zone); ?>_canvas">
+            <div class="tools">
+                <div id="sketch_tooled_<?php echo attr($zone); ?>_8">
+                    <input class="jscolor {mode:'HVS',
+                                    position:'right',
+                                    borderColor:'#FFF #666 #666 #FFF',
+                                    insetColor:'#666 #FFF #FFF #666',
+                                    backgroundColor:'#CCC',
+                                    hash:'true',
+                                    styleElement:'sketch_tool_<?php echo attr($zone); ?>_color',
+                                    valueElement:'selColor_<?php echo attr($zone); ?>',
+                                    refine:true
+                                }"
+                    id="sketch_tool_<?php echo attr($zone); ?>_color"
+                    type="text" style="width: 38px;
+    height: 20px;
+    padding: 11px 0px;
+    background-color: blue;
+    margin-top: 26px;
+    color: white;
+    background-image: none;" />
+                </div>
+                <?php
+
+                    $sql = "SELECT * from documents where url like ?";
+                    $doc = sqlQuery($sql, array("%". $base_name ."%"));
+                    $base_filetoshow = $GLOBALS['web_root']."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
+                if (file_exists($file_store) && ($doc['id'] > '0')) {
+                    $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=".attr($pid)."&document_id=".attr($doc['id'])."&as_file=false&show_original=true&blahblah=".rand();
+                } else {
+                    //base image.
+                    $filetoshow = $base_filetoshow;
+                }
+                ?>
+
+                <input type="hidden" id="url_<?php echo attr($zone); ?>" name="url_<?php echo attr($zone); ?>" value="<?php echo $filetoshow; ?>" />
+                <input type="hidden" id="base_url_<?php echo attr($zone); ?>" name="base_url_<?php echo attr($zone); ?>" value="<?php echo $base_filetoshow; ?>" />
+                <input type="hidden" id="selWidth_<?php echo attr($zone); ?>" value="1">
+                <input type="hidden" id="selColor_<?php echo attr($zone); ?>" value="#000" />
+
+
+
+                <img id="sketch_tools_<?php echo attr($zone); ?>_1" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#1AA2E1");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_blue.png" style="height:30px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_2" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ff0");'  src="../../forms/<?php echo $form_folder; ?>/images/pencil_yellow.png" style="height:30px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_3" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ffad00");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_orange.png" style="height:30px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_4" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#AC8359");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_brown.png" style="height:30px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_5" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#E10A17");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_red.png" style="height:30px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_6" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#000");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_black.png" style="height:50px;width:15px;">
+                <img id="sketch_tools_<?php echo attr($zone); ?>_7" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#fff");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_white.png" style="height:30px;width:15px;">
+
+                <span style="min-width:1in;">&nbsp;</span>
+                <!-- now to pencil size -->
+                <img id="sketch_sizes_<?php echo attr($zone); ?>_1" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("1");' src="../../forms/<?php echo $form_folder; ?>/images/brush_1.png" style="height:20px;width:20px; border-bottom: 2pt solid black;">
+                <img id="sketch_sizes_<?php echo attr($zone); ?>_3" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("3");' src="../../forms/<?php echo $form_folder; ?>/images/brush_3.png" style="height:20px;width:20px;">
+                <img id="sketch_sizes_<?php echo attr($zone); ?>_5" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("5");' src="../../forms/<?php echo $form_folder; ?>/images/brush_5.png" style="height:20px;width:20px;">
+                <img id="sketch_sizes_<?php echo attr($zone); ?>_10" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("10");' src="../../forms/<?php echo $form_folder; ?>/images/brush_10.png" style="height:20px;width:20px;">
+                <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
             </div>
-            <?php
-                $sql = "SELECT * from documents where url like ?";
-                $doc = sqlQuery($sql, array("%". $base_name ."%"));
-                $base_filetoshow = $GLOBALS['web_root']."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
 
-                // random to not pull from cache.
-            if (file_exists($file_store) && ($doc['id'] > '0')) {
-                $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=".attr($pid)."&document_id=".attr($doc['id'])."&as_file=false&show_original=true&blahblah=".rand();
-            } else {
-                //base image.
-                $filetoshow = $base_filetoshow;
-            }
-            ?>
-
-            <input type="hidden" id="url_<?php echo attr($zone); ?>" name="url_<?php echo attr($zone); ?>" value="<?php echo $filetoshow; ?>" />
-            <input type="hidden" id="base_url_<?php echo attr($zone); ?>" name="base_url_<?php echo attr($zone); ?>" value="<?php echo $base_filetoshow; ?>" />
-            <input type="hidden" id="selWidth_<?php echo attr($zone); ?>" value="1">
-            <input type="hidden" id="selColor_<?php echo attr($zone); ?>" value="#000" />
-
-
-
-            <img id="sketch_tools_<?php echo attr($zone); ?>_1" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#1AA2E1");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_blue.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_2" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ff0");'  src="../../forms/<?php echo $form_folder; ?>/images/pencil_yellow.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_3" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ffad00");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_orange.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_4" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#AC8359");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_brown.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_5" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#E10A17");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_red.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_6" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#000");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_black.png" style="height:50px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_7" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#fff");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_white.png" style="height:30px;width:15px;">
-
-            <span style="min-width:1in;">&nbsp;</span>
-            <!-- now to pencil size -->
-            <img id="sketch_sizes_<?php echo attr($zone); ?>_1" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("1");' src="../../forms/<?php echo $form_folder; ?>/images/brush_1.png" style="height:20px;width:20px; border-bottom: 2pt solid black;">
-            <img id="sketch_sizes_<?php echo attr($zone); ?>_3" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("3");' src="../../forms/<?php echo $form_folder; ?>/images/brush_3.png" style="height:20px;width:20px;">
-            <img id="sketch_sizes_<?php echo attr($zone); ?>_5" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("5");' src="../../forms/<?php echo $form_folder; ?>/images/brush_5.png" style="height:20px;width:20px;">
-            <img id="sketch_sizes_<?php echo attr($zone); ?>_10" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("10");' src="../../forms/<?php echo $form_folder; ?>/images/brush_10.png" style="height:20px;width:20px;">
-            <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
+                <div align="center" class="borderShadow">
+                    <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
+                </div>
+                <div style="margin-top: 7px;">
+                    <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
+                    <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
+                    <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
+                    <button onclick="javascript:cReload('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
+                    <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
+                </div>
+            </div>
+            <div id="<?php echo attr($zone); ?>_olddrawing"></div>
         </div>
 
-        <div align="center" class="borderShadow">
-            <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
-        </div>
-        <div style="margin-top: 7px;">
-            <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
-            <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
-            <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
-            <button onclick="javascript:cReload('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
-            <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
-        </div>
-        <br />
-    </div>
     <?php
 }
 
@@ -3488,7 +3632,7 @@ function build_IMPPLAN_items($pid, $form_id)
 
     return $IMPPLAN_items;
 }
-    
+
             /**
              *  This builds the CODING_items variable for a given pid and encounter.
              *  @param string $pid patient_id
@@ -3500,7 +3644,7 @@ function build_CODING_items($pid, $encounter)
     $query ="select * from billing where encounter=? and pid=? ORDER BY id";
     $fres = sqlStatement($query, array($encounter,$pid));
     $i=0;
-    
+
     while ($frow = sqlFetchArray($fres)) {
         $CODING_items[$i]['encounter'] = $frow['encounter'];
         $CODING_items[$i]['pid'] = $frow['pid'];
@@ -3621,10 +3765,10 @@ function display($pid, $encounter, $category_value)
     }
 
     for ($j=0; $j < count($documents['zones'][$category_value]); $j++) {
-        $count_here = count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
-        
+        $count_here = empty($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) ? 0 : count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
+
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here-1]['document_id'];
-    
+        $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", $documents['zones'][$category_value][$j]['name']);
         $episode .= "<tr>
         <td class='right'><b>".text($documents['zones'][$category_value][$j]['name'])."</b>:&nbsp;</td>
         <td>
@@ -3633,8 +3777,9 @@ function display($pid, $encounter, $category_value)
             </a>
         </td>
         <td>
-            <a onclick=\"openNewForm('".$GLOBALS['webroot']."/controller.php?document&view&patient_id=".$pid."&doc_id=".$id_to_show."','Documents');\"></a>
-                <img onclick=\"return showpnotes('". $id_to_show ."')\" src='../../forms/".$form_folder."/images/upload_multi.png' class='little_image'>
+            <a onclick=\"return showpnotes('". $id_to_show ."');\">
+                <img  src='../../forms/".$form_folder."/images/upload_multi.png' class='little_image'>
+            </a>
         </td>
         <td>";
         //open via OpenEMR Documents with treemenu
@@ -3736,8 +3881,10 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             <li id="menu_ANTSEG" name="menu_ANTSEG" ><a><?php echo xlt("Anterior Segment"); ?></a></li>
                             <li id="menu_POSTSEG" name="menu_POSTSEG" ><a><?php echo xlt("Posterior Segment"); ?></a></li>
                             <li id="menu_NEURO" name="menu_NEURO" ><a><?php echo xlt("Neuro"); ?></a></li>
+                            <li id="menu_IMPPLAN" name="menu_IMPPLAN" ><a><?php echo xlt("Imp Plan"); ?></a></li>
                             <li class="divider"></li>
                             <li id="menu_Right_Panel" name="menu_Right_Panel"><a><?php echo xlt("PMSFH Panel"); ?><span class="menu_icon"><i class="fa fa-list" ></i></span></a></li>
+                            <li id="menu_left_tabs" name="menu_left_tabs"><a><?php echo xlt("Chart View"); ?><span class="menu_icon"><i class="fa fa-user-md" ></i></span></a></li>
 
                             <?php
                             /*
@@ -3749,7 +3896,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 <li id="menu_fullscreen" name="menu_fullscreen" <?php echo $fullscreen; ?>>
                                     <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup('<?php echo $_SERVER['REQUEST_URI']. '&display=fullscreen&encounter='.$encounter; ?>');" href="JavaScript:void(0);" class=""><?php echo xlt('Fullscreen'); ?></a>
                                 </li>
-                            <?php
+                                <?php
                             } ?>
                         </ul>
                     </li>
@@ -3779,6 +3926,8 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
+                    <li><span style="margin-right:15px;color:black;"  onclick="editScripts('/openemr/controller.php?prescription&list&id=<?php echo $pid; ?>');">eRx</button>
+                        </span></li>
                     <li ><span id="active_flag" name="active_flag" style="margin-right:15px;color:red;"> <?php echo xlt('Active Chart'); ?> </span>
                         <span name="active_icon" id="active_icon" style="color:black;"><i class='fa fa-toggle-on'></i></span></li>
 
@@ -3805,24 +3954,25 @@ function menu_overhaul_left($pid, $encounter)
     global $pat_data;
     global $visit_date;
     global $documents;
-    global $dated;
     global $display;
-    global $providerNAME;
     global $reason;
     global $priors;
-
+    global $pcp_data;
+    global $ref_data;
+    global $ins_coA;
+    global $ins_coB;
+   
     /*
      * find out if the patient has a photo
      */
     if (!$documents) {
         list($documents) = document_engine($pid);
     }
-        ?>
+    ?>
     <div class="borderShadow" id="title_bar">
         <div id="left_menu" name="left_menu" class="col-md-4">
             <div style="padding-left: 18px;">
                 <table style="text-align:left;">
-                    <?php if ($display == 'fullscreen') { ?>
                     <tr><td class="right" >
                             <?php
                             $age = getPatientAgeDisplay($pat_data['DOB'], $encounter_date);
@@ -3834,12 +3984,11 @@ function menu_overhaul_left($pid, $encounter)
                             ?>
                         </td>
                     </tr>
-                    <?php  }
-
+                    <?php
                         echo "<tr><td class='right' nowrap><b>".xlt('Visit Date').":</b></td><td>&nbsp;".$visit_date."</td></tr>";
                     ?>
                     <tr><td class="right" style="vertical-align:top;" nowrap><b><?php echo xlt("Provider"); ?>:</b>&nbsp;</td>
-                        <td><?php echo text($providerNAME); ?></td>
+                        <td><?php echo text(getProviderName(getProviderIdOfEncounter($encounter))); ?></td>
                     </tr>
 
                     <tr>
@@ -3870,9 +4019,9 @@ function menu_overhaul_left($pid, $encounter)
                 ?>
                 <object><embed src="<?php echo $GLOBALS['webroot']; ?>/controller.php?document&amp;retrieve&amp;patient_id=<?php echo attr($pid); ?>&amp;document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&amp;as_file=false" frameborder="0"
                      type="<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['mimetype']); ?>" allowscriptaccess="always" allowfullscreen="false" height="50"></embed></object>
-            <?php
+                <?php
             } else {
-            ?>
+                ?>
             <object><embed src="<?php echo $GLOBALS['web_root']; ?>/interface/forms/<?php echo $form_folder; ?>/images/anon.gif" frameborder="0"
                  type="image/gif" height="50"></embed></object>
                 <?php
@@ -3881,89 +4030,41 @@ function menu_overhaul_left($pid, $encounter)
         </div>
 
         <div id="left_menu2" name="left_menu2" class="col-md-4" style="font-size:1.0em;">
-            <?php
-            $query = "Select * from users where id =?";
-            $prov = sqlQuery($query, array($pat_data['ref_providerID']));
-            $Ref_provider = $prov['fname']." ".$prov['lname'];
-            $prov = sqlQuery($query, array($pat_data['providerID']));
-           // $PCP = $prov['fname']." ".$prov['lname'];
-
-            $query = "Select * from insurance_companies where id in (select provider from insurance_data where pid =? and type='primary')";
-            $ins = sqlQuery($query, array($pid));
-            $ins_co1 = $ins['name'];
-            $query = "Select * from insurance_companies where id in (select provider from insurance_data where pid =? and type='secondary')";
-            $ins = sqlQuery($query, array($pid));
-            $ins_co2 = $ins['name'];
-            ?>
-
+            
             <div style="position:relative;float:left;padding-left:18px;top:0px;">
-            <table style="border:1pt;font-size:1.0em;">
-                <tr>
-                    <td class="right"><b><?php echo xlt("PCP"); ?>:</b>&nbsp;</td><td style="font-size:0.8em;">&nbsp;
-                        <?php
-                            $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
-                              "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-                              "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
-                              "ORDER BY lname, fname");
-                            echo "<select name='form_PCP' id='form_PCP' title='".xla('Primary Care Provider')."'>";
-                            echo "<option value=''>" . xlt($empty_title) . "</option>";
-                            $got_selected = false;
-                        while ($urow = sqlFetchArray($ures)) {
-                            $uname = text($urow['lname'] . ' ' . $urow['fname']);
-                            $optionId = attr($urow['id']);
-                            echo "<option value='$optionId'";
-                            if ($urow['id'] == $pat_data['providerID']) {
-                                echo " selected";
-                                $got_selected = true;
+                <table style="border:1pt;font-size:1.0em;">
+                    <tr>
+                        <td class="right"><b><?php echo xlt("PCP"); ?>:</b>&nbsp;</td>
+                        <td class="left"><span id="pcp_name"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
+                                    echo ", ".text($pcp_data['suffix']);} ?></span></td>
+                        </td>
+                    </tr>
+                    
+                    <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td>
+                        <td class="left">&nbsp;
+    
+                        <span id="ref_name"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
+                                    echo ", ".text($ref_data['suffix']);} ?></span></td>
+                        </tr>
+                    <tr><td class="right"><b><?php echo xlt("Insurance"); ?>:</b>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coA); ?></td></tr>
+                    <tr><td class="right"><b><?php echo xlt("Secondary"); ?>:</b>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coB); ?></td></tr>
+                    <tr><td class="right"><b><?php echo xlt("Pharmacy"); ?>:</b>&nbsp;</td>
+                        <td class="left">&nbsp;
+                            <?php
+                            if (!empty($pat_data['pharmacy_id'])) {
+                                $sql = "SELECT d.id, d.name, a.line1, a.city, " .
+                                    "a.state, p.area_code, p.prefix, p.number FROM pharmacies AS d " .
+                                    "LEFT OUTER JOIN addresses AS a ON a.foreign_id = d.id " .
+                                    "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id " .
+                                    "AND p.type = 2 where d.id=?" .
+                                    "ORDER BY state, city, name, area_code, prefix, number";
+                                $pharm = sqlQuery($sql, array($pat_data['pharmacy_id']));
+                                echo text($pharm['name'].", ".$pharm['city']." ".$pharm['state']);
                             }
+                            ?>
+                        </td></tr>
 
-                            echo ">$uname</option>";
-                        }
-
-                        if (!$got_selected && $currvalue) {
-                            echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
-                            echo "</select>";
-                            echo "<span class='danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
-                        } else {
-                            echo "</select>";
-                        }
-                        ?>
-                    </td>
-                </tr>
-                
-                <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td><td style="font-size:0.8em;">&nbsp;
-                    <?php
-                            $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
-                              "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-                              "AND ( authorized = 1 OR ( username = '') ) " .
-                              "ORDER BY lname, fname");
-                            echo "<select name='form_rDOC' id='form_rDOC' title='".xla('Every name in the address book appears here, not only physicians.')."'>";
-                            echo "<option value=''>" . xlt($empty_title) . "</option>";
-                            $got_selected = false;
-                    while ($urow = sqlFetchArray($ures)) {
-                        $uname = text($urow['lname'] . ' ' . $urow['fname']);
-                        $optionId = attr($urow['id']);
-                        echo "<option value='$optionId'";
-                        if ($urow['id'] == $pat_data['ref_providerID']) {
-                            echo " selected";
-                            $got_selected = true;
-                        }
-
-                        echo ">$uname</option>";
-                    }
-
-                    if (!$got_selected && $currvalue) {
-                        echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
-                        echo "</select>";
-                        echo " <span class='danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
-                    } else {
-                        echo "</select>";
-                    }
-                        ?>
-                    </td></tr>
-                <tr><td class="right"><b><?php echo xlt("Insurance"); ?>:</b>&nbsp;</td><td>&nbsp;<?php echo text($ins_co1); ?></td></tr>
-                <tr><td class="right"><b><?php echo xlt("Secondary"); ?>:</b>&nbsp;</td><td>&nbsp;<?php echo text($ins_co2); ?></td></tr>
-            </table>
+                </table>
             </div>
         </div>
 
@@ -4061,7 +4162,7 @@ function report_header($pid, $direction = 'shell')
                         echo "<img src='$practice_logo' align='left' style='width:100px;margin:0px 10px;'><br />\n";
                     }
                 }
-            ?>
+                ?>
             </td>
             <td style='width:40%;'>
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
@@ -4589,19 +4690,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     global $ODIOPTARGET;
     global $OSIOPTARGET;
     global $dated;
+    global $visit_date;
 
     if (!$documents) {
         list($documents) = document_engine($pid);
     }
 
-    $count_OCT = count($documents['docs_in_name']['OCT']);
+    $count_OCT = empty($documents['docs_in_name']['OCT']) ? 0 : count($documents['docs_in_name']['OCT']);
     if ($count_OCT > 0) {
         foreach ($documents['docs_in_name']['OCT'] as $OCT) {
             $OCT_date[] = $OCT['docdate'];
         }
     }
 
-    $count_VF = count($documents['docs_in_name']['VF']);
+    $count_VF = empty($documents['docs_in_name']['VF']) ? 0 : count($documents['docs_in_name']['VF']);
     if ($count_VF > 0) {
         foreach ($documents['docs_in_name']['VF'] as $VF) {
             $VF_date[] = $VF['docdate'];
@@ -4610,7 +4712,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
     $i=0;
         //if there are no priors, this is the first visit, display a generic splash screen.
-    if ($priors) {
+    if ((array)$priors) {
         foreach ($priors as $visit) {
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
             if ($visit['date']=='') {
@@ -4696,7 +4798,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         $OSIOP[$i]['time'] = $time;
         //$IOPTARGET['visit_date'] = $encounter_data['exam_date'];
         if ($encounter_data['ODIOPAP']>'') {
-            $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP'];
+            if (!is_int($encounter_data['ODIOPAP'])) {
+                $ODIOP[$k]['IOP']='';
+            } else {
+                $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP']; }
             $ODIOP[$i]['method'] = "AP";
         } else if ($encounter_data['ODIOPTPN']>'') {
             $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
@@ -4704,7 +4809,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         }
 
         if ($encounter_data['OSIOPAP']>'') {
-            $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP'];
+            if (!is_int($encounter_data['OSIOPAP'])) {
+                $OSIOP[$k]['IOP']='';
+            } else {
+                $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP']; }
             $OSIOP[$i]['method'] = "AP";
         } else if ($encounter_data['OSIOPTPN']>'') {
             $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
@@ -4754,10 +4862,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     usort($times_OU, "cmp");
 
     for ($a=0; $a < count($date_OU); $a++) {
-        foreach ($GONIO_date as $GONIO) {
-            if ($date_OU[$a] == $GONIO) {
-                $GONIO_values[$a] = "1";
-                break;
+        if (!empty($GONIO_date)) {
+            foreach ($GONIO_date as $GONIO) {
+                if ($date_OU[$a] == $GONIO) {
+                    $GONIO_values[$a] = "1";
+                    break;
+                }
             }
         }
 
@@ -4793,6 +4903,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
         for ($k=0; $k < count($VISITS_date); $k++) {
             if ($date_OU[$a] == $VISITS_date[$k]) {
+                if (preg_match('/[a-z]/i', $ODIOP[$k]['IOP'])) {
+                    $ODIOP[$k]['IOP']='';}
+                if (preg_match('/[a-z]/i', $OSIOP[$k]['IOP'])) {
+                    $OSIOP[$k]['IOP']='';}
                 $OD_values[$a] = "'".$ODIOP[$k]['IOP']."'";
                 $OD_methods[$a] = $ODIOP[$k]['method'];
                 $OS_values[$a] = $OSIOP[$k]['IOP'];
@@ -4837,7 +4951,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             }
         }
 
-        if (!$OD_time_values[$a]) {
+        if (( !$OD_time_values[$a]) || (!is_int($OD_time_values[$a]))) {
             $OD_time_values[$a] = "";
         }
 
@@ -4878,14 +4992,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     $count_Meds = count($PMSFH[0]['Medication']);
                 if ($count_Meds > '0') {
                     foreach ($PMSFH[0]['Medication'] as $drug) {
-                        if (($drug['row_subtype'] =="eye") && ($drug['enddate'] !== "")) {
+                        if (($drug['row_subtype'] =="eye") && (strtotime($drug['enddate']) < strtotime($visit_date) ) && ($drug['status'] != "Inactive")) {
                             $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
-                                      onclick=\"alter_issue2('".attr(addslashes($drug['rowid']))."','Medication','$i');\">".text($drug['title'])."</span></td>
+                                      onclick=\"alter_issue2(".attr_js($drug['rowid']).",'Medication','".$i."');\">".text($drug['title'])."</span></td>
                                       <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td></tr>";
-                        } else if (($drug['row_subtype'] =="eye")&&($drug['enddate'] > "")&&(strtotime($drug['enddate']) < strtotime($visit_date))) {//what meds have a subtype eye that are discontinued?
+                        } else if (($drug['row_subtype'] =="eye")&& (!empty($drug['enddate']))) {//what meds have a subtype eye that are discontinued?
                             $hideme = "hideme_drugs nodisplay";
                             $FAILED_drugs .= "<tr class='".$hideme."'><td colspan='1' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
-                                      onclick=\"alter_issue2('".attr(addslashes($drug['rowid']))."','Medication','$i');\">".text($drug['title'])."</span></td>
+                                      onclick=\"alter_issue2(".attr_js($drug['rowid']).",'Medication','".$i."');\">".text($drug['title'])."</span></td>
                                       <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td><td class='GFS_td'>".text(oeFormatShortDate($drug['enddate']))."</td></tr>";
                         }
 
@@ -4898,7 +5012,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     }
 
                     foreach ($PMSFH[0]['Medication'] as $drug) {
-                        if (($drug['row_subtype'] =="eye")&&($drug['enddate'] > "")) {
+                        if (($drug['row_subtype'] =="eye") && (!empty($drug['enddate']))) {
                             $FAILED_drug .= "<li>".text($drug['title'])."</li>";
                         }
                     }
@@ -4927,7 +5041,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     foreach ($documents['docs_in_name']['VF'] as $VF) {
                         if ($count < 1) {
                             //    $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
-    
+
                             $current_VF = '<tr><td class="GFS_td_1 blue">
                                 <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($VF['id']).'\',\'Documents\');">
                                 <img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
@@ -5008,12 +5122,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 $GONIO_chart .= ',';
                             }
                         }
-
-                        $GONIO = chop($GONIO, ",");
+                        if (!empty($GONIO)) {
+                            $GONIO = chop($GONIO, ",");
+                        }
                         if ($count ==0) {
                             $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('Not documented')."</td></tr>";
                         }
-                    ?>
+                        ?>
                 <tr>
                     <td class="GFS_title_1" id="GFS_gonios" name="GFS_gonios" style="position:relative;"><?php echo xlt('Gonioscopy'); ?>:</td>
                     <?php
@@ -5745,7 +5860,7 @@ function display_refractive_data($encounter_data)
 {
     @extract($encounter_data);
     $count_rx = '0';
-    
+
     $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? ORDER BY RX_NUMBER";
 
     $wear = sqlStatement($query, array($pid,$id));
@@ -5772,7 +5887,7 @@ function display_refractive_data($encounter_data)
         ${"W_$count_rx"} = '1';
         ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
     }
-    
+
     if (!$ODVA||$OSVA||$ARODSPH||$AROSSPH||$MRODSPH||$MROSSPH||$CRODSPH||$CROSSPH||$CTLODSPH||$CTLOSSPH) { ?>
         <table class="refraction_tables">
            <tr class="text-center bold underline" style="background-color: #F3EEC7;">
@@ -5799,13 +5914,6 @@ function display_refractive_data($encounter_data)
                 } else if (${"RX_TYPE_$i"} =="3") {
                     $RX_TYPE = xlt('Progressive');
                 }
-                
-                /*
-              Note html2pdf does not like the last field of a table to be blank.
-              If it is it will squish the lines together.
-              Work around: if the field is blank, then replace it with a "-" else echo it.
-              aka echo (text($field))?:"-");
-                */
                 ?>
                 <tr>
                     <td class="bold"><?php echo xlt('Wear RX')." #".$i.": "; ?></td>
@@ -5821,7 +5929,7 @@ function display_refractive_data($encounter_data)
                    </tr>
                    <tr>
                     <td><?php echo $RX_TYPE; ?></td>
-                    <td class="bold""><?php echo xlt('OS{{left eye}}'); ?></td>
+                    <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
                     <td ><?php echo (text(${"OSSPH_$i"})?:"-"); ?></td>
                     <td ><?php echo (text(${"OSCYL_$i"})?:"-"); ?></td>
                     <td ><?php echo (text(${"OSAXIS_$i"})?:"-"); ?></td>
@@ -5844,7 +5952,7 @@ function display_refractive_data($encounter_data)
                     ?><tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
-            
+
             if ($ARODSPH||$AROSSPH) { ?>
                    <tr style="border-bottom:1pt solid black;">
                        <td class="bold"><?php echo xlt('AutoRef'); ?></td>
@@ -5883,7 +5991,7 @@ function display_refractive_data($encounter_data)
                    <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
-            
+
             if ($MRODSPH||$MROSSPH) { ?>
                    <tr>
                        <td class="bold"><?php echo xlt('MR (Dry)'); ?></td>
@@ -5913,7 +6021,7 @@ function display_refractive_data($encounter_data)
                 <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
-            
+
             if ($CRODSPH||$CROSSPH) { ?>
                    <tr>
                        <td class="bold"><?php echo xlt('CR (Wet)'); ?></td>
@@ -5942,7 +6050,7 @@ function display_refractive_data($encounter_data)
                 <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
-            
+
             if ($CTLODSPH||$CTLOSSPH) { ?>
                    <tr class="bold text-center underline">
                        <td></td>
@@ -6005,20 +6113,20 @@ function display_refractive_data($encounter_data)
                            <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLOSQUANTITY); ?></td>
                        </tr>
                     <?php }
-if (!empty($COMMENTS)) { ?>
+                    if (!empty($COMMENTS)) { ?>
                             <tr>
                                 <td></td>
                                 <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($COMMENTS); ?></td>
                             </tr>
-                    <?php }
+                                        <?php }
             }
             ?>
             <tr><td colspan="10">--------------------------------------------------------</td></tr>
         </table>
-    
+
         <?php
     } ?>
-        
+
     <?php
     if ($GLAREODVA||$CONTRASTODVA||$ODK1||$ODK2||$LIODVA||$PAMODBA) { ?>
       <table>
@@ -6063,7 +6171,7 @@ if (!empty($COMMENTS)) { ?>
               <td><?php echo xlt('LT{{lens thickness}}'); ?></td>
               <td><?php echo xlt('W2W{{white-to-white}}'); ?></td>
               <td><?php echo xlt('ECL{{equivalent contact lens power at the corneal level}}'); ?></td>
-              <!-- <td><?php echo xlt('pend'); ?></td> -->
+              <td><?php echo xlt('VABiNoc{{Binocular visual acuity}}'); ?></td>
             </tr>
             <tr><td class="bold"><?php echo xlt('OD{{right eye}}'); ?>:</td>
               <td><?php echo text($ODAXIALLENGTH); ?></td>
@@ -6072,7 +6180,7 @@ if (!empty($COMMENTS)) { ?>
               <td><?php echo text($ODLT); ?></td>
               <td><?php echo text($ODW2W); ?></td>
               <td><?php echo text($ODECL); ?></td>
-              <!-- <td><input type=text id="pend" name="pend"  value="<?php echo text($pend); ?>"></td> -->
+              <td><?php echo text($VABINOC); ?></td>
             </tr>
             <tr>
               <td class="bold"><?php echo xlt('OS{{left eye}}'); ?>:</td>
@@ -6103,6 +6211,9 @@ if (!empty($COMMENTS)) { ?>
  */
 function in_array_r($needle, $haystack, $strict = false)
 {
+    if (empty($haystack)) {
+        return false;
+    }
     foreach ($haystack as $item) {
         if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
             return true;

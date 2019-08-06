@@ -20,6 +20,7 @@ require_once("$srcdir/options.inc.php");
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
@@ -177,7 +178,7 @@ $check_res = $formid ? $check_res : array();
                 }
             }
 
-            $(document).ready(function() {
+            $(function () {
                 // special case to deal with static and dynamic datepicker items
                 $(document).on('mouseover','.datepicker', function(){
                     $(this).datetimepicker({
@@ -200,7 +201,7 @@ $check_res = $formid ? $check_res : array();
             </div>
             <div class="row">
                 <form method='post' name='my_form' action='<?php echo $rootdir; ?>/forms/observation/save.php?id=<?php echo attr_url($formid); ?>'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('Enter Details'); ?></legend>
                         <?php
@@ -265,7 +266,7 @@ $check_res = $formid ? $check_res : array();
                                         <div class="clearfix"></div>
                                     </div>
                                 </div>
-                            <?php
+                                <?php
                             }
                         } else { ?>
                             <div class="tb_row" id="tb_row_1">
@@ -327,7 +328,7 @@ $check_res = $formid ? $check_res : array();
                                     <div class="clearfix"></div>
                                 </div>
                             </div>
-                        <?php
+                            <?php
                         }
                         ?>
                     </fieldset>

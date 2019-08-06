@@ -14,12 +14,13 @@
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -27,7 +28,7 @@ $facilityService = new FacilityService();
 
 $alertmsg = '';
 
-/*		Inserting New facility					*/
+/*      Inserting New facility                  */
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] != "admin_facility") {
     $newFacility = array(
       "name" => trim(isset($_POST["facility"]) ? $_POST["facility"] : ''),
@@ -65,7 +66,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
     exit(); // sjp 12/20/17 for ajax save
 }
 
-/*		Editing existing facility					*/
+/*      Editing existing facility                   */
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility") {
     $newFacility = array(
       "fid" => trim(isset($_POST["fid"]) ? $_POST["fid"] : ''),
@@ -124,7 +125,7 @@ function refreshme() {
     top.restoreSession();
     document.location.reload();
 }
-$(document).ready(function(){
+$(function(){
 
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
@@ -217,14 +218,14 @@ $(document).ready(function(){
                                     if ($iter3["mail_state"]!="") {
                                         $varmstate=$iter3["mail_state"].",";
                                     }
-                            ?>
+                                    ?>
                             <tr height="22">
                                  <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>" class="medium_modal"><span><?php echo xlt($iter3["name"]);?></span></a></b>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varmstreet.$varmcity.$varmstate.$iter3['mail_zip']); ?></td>
                                  <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
                             </tr>
-                            <?php
+                                    <?php
                                 }
                             }
 
@@ -232,7 +233,7 @@ $(document).ready(function(){
                             <tr height="25">
                                 <td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xlt("Currently there are no facilities."); ?></td>
                             </tr>
-                            <?php
+                                <?php
                             } ?>
                         </tbody>
                     </table>

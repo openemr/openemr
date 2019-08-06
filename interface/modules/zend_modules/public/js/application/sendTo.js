@@ -1,24 +1,14 @@
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  BASIL PT <basil@zhservices.com>
-*    @author  FASALU RAHMAN K.M <fasalu@zhservices.com>
-*    @author  Riju K P <rijukp@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/public/js/application/sendTo.js
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    BASIL PT <basil@zhservices.com>
+ * @author    FASALU RAHMAN K.M <fasalu@zhservices.com>
+ * @author    Riju K P <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // Hide Menu if clicked outside
 $(document).mouseup(function (e){
@@ -30,12 +20,12 @@ $(document).mouseup(function (e){
 	}
 })
 //
-	 
+
 var check_count = 0;
 (function ($) {
- 
+
     window.addRule = function (selector, styles, sheet) {
- 
+
         styles = (function (styles) {
             if (typeof styles === "string") return styles;
             var clone = "";
@@ -49,23 +39,23 @@ var check_count = 0;
             return clone;
         }(styles));
         sheet = sheet || document.styleSheets[document.styleSheets.length - 1];
- 
+
         if (sheet.insertRule) sheet.insertRule(selector + " {" + styles + "}", sheet.cssRules.length);
         else if (sheet.addRule) sheet.addRule(selector, styles);
- 
+
         return this;
- 
+
     };
- 
+
     if ($) $.fn.addRule = function (styles, sheet) {
         addRule(this.selector, styles, sheet);
         return this;
     };
- 
+
 }(this.jQuery || this.Zepto));
 
-$(document).ready(function(){
-	      
+$(function (){
+
 	  /* show hide on click  */
 		$('.send-to').click(function(){
 			//var pos  = $(this).position();
@@ -77,12 +67,12 @@ $(document).ready(function(){
                         var cleintwidth = $(window).width();
                         var pos = $(this).position();
                         var sendLeft = $('.ap-st-st-12').width()+pos.left;
-                        
+
                         if(sendLeft > cleintwidth){
                             var sendCss = {
                                 right : ((cleintwidth-pos.left)-74)+"px",
                                 top : (pos.top+35)+"px"
-                                
+
                             }
                             $('.ap-st-st-12:after').addRule({ left :"98%" });
                             $('.ap-st-st-12:before').addRule({ left :"98%" });
@@ -92,7 +82,7 @@ $(document).ready(function(){
                         }
                         $('.ap-st-st-12').fadeToggle().css(sendCss);
 		});
-	
+
 	$(".ap-st-st-4").click(function(){
 		if($(this).is(":checked")){
 			$(".check_component").attr("checked",true);
@@ -101,17 +91,17 @@ $(document).ready(function(){
 			$(".check_component").removeAttr("checked");
 			$(".option_wrap").addClass("selected_check");
 		}
-		
+
 	});
-	
+
 	$(".ap-st-st-5").on("click",".check_component",function(){
 		checkedCount = $('[name="componentcheckbox[]"]:checked').length;
 		if(check_count == checkedCount) $(".ap-st-st-4").attr("checked",true);
 		else $(".ap-st-st-4").attr("checked",false);
 		$(this).parent().toggleClass("selected_check");
 	});
-	
-	// Toggle Fax Section 
+
+	// Toggle Fax Section
 	$('[name="send_to"]').click(function(){
 		if($(this).attr("id") == "send_to_fax") {
 			$(".ap-st-st-8").show();
@@ -136,7 +126,7 @@ $(document).ready(function(){
 			$("#download_all_div").addClass("display_block");
 		}
 	});
-	
+
 	//
 	$("#fax_reciever").change(function(){
 		if($("#fax_reciever").val() != ''){
@@ -159,7 +149,7 @@ $(document).ready(function(){
 					},
 					success: function(thedata){
 						$("#facility_fax_no").html(thedata);
-						
+
 					},
 					error:function(){
 						alert("ajax error");
@@ -168,8 +158,8 @@ $(document).ready(function(){
 			}
 		}
 	});
-	
-	
+
+
 	//
 	$("#facility_fax_no").change(function(){
 		if($("#facility_fax_no").val()){
@@ -183,26 +173,26 @@ $(document).ready(function(){
 		}
 		return false;
 	});
-        
+
         $(".showcomponentsForCCDA-div").click(function(){
           $("#componentsForCCDA").slideToggle('slow');
         });
-              
-	//check all for component 
-            $('#chkall_cmp1').click(function(event) {  
-                if(this.checked) { 
+
+	//check all for component
+            $('#chkall_cmp1').click(function(event) {
+                if(this.checked) {
                   $("#chkall_cmp_div1").removeClass("selected_check");
-                  $('.chkbxcmp_click1').each(function() { 
-                    this.checked = true; 
+                  $('.chkbxcmp_click1').each(function() {
+                    this.checked = true;
                     $(".selected_check").removeClass("selected_check");
                   });
                 }
                 else {
                   $("#chkall_cmp_div1").addClass("selected_check");
-                  $('.chkbxcmp_click1').each(function() { 
-                    this.checked = false;  
+                  $('.chkbxcmp_click1').each(function() {
+                    this.checked = false;
                     $(".chkdivcmp1").addClass("selected_check");
-                  });         
+                  });
                 }
               });
               $(".chkbxcmp_click1").click(function(){
@@ -214,11 +204,11 @@ $(document).ready(function(){
                 }
                 chkbx_click_len         = $(".chkbxcmp_click1").length;
                 chkbx_click_checked_len = $(".chkbxcmp_click1:checked").length;
-                if(chkbx_click_checked_len == chkbx_click_len){                  
+                if(chkbx_click_checked_len == chkbx_click_len){
                 $("#chkall_cmp1").attr("checked",true);
                 $("#chkall_cmp_div1").removeClass("selected_check");
                 }else{
-                   $("#chkall_cmp1").attr("checked",false); 
+                   $("#chkall_cmp1").attr("checked",false);
                    $("#chkall_cmp_div1").addClass("selected_check");
                 }
               });
@@ -236,7 +226,7 @@ function getComponents(val){
 		success: function(json){
 			$(".ap-st-st-5").html("");
 			$(".ap-st-st-4").attr("checked",false);
-			
+
 			checkBox		=	"";
 			components 	= JSON.parse(json);
 			for(form_id in components){
@@ -246,8 +236,8 @@ function getComponents(val){
 			checkBox+="<div class='clear'></div>";
 			$(".ap-st-st-4").attr("checked",true);
 			$(".ap-st-st-5").html(checkBox);
-			
-		}, 
+
+		},
 		error:function(){
 			var resultTranslated = js_xl("Something went wrong");
 			alert(resultTranslated.msg);
@@ -256,7 +246,7 @@ function getComponents(val){
 }
 
 function send(){
-	var send_to = $('input:radio[name="send_to"]:checked').val();	
+	var send_to = $('input:radio[name="send_to"]:checked').val();
 	var cover_letter = 0;
   var latest_ccda = '';
 	if($("#include_coverletter").is(":checked")) cover_letter = 1;
@@ -318,7 +308,7 @@ function send(){
 				async: true,
 				success: function(data){
                     $('.activity_indicator').css({"display" :"none"});
-				}, 
+				},
 				error:function(){
 					var resultTranslated = js_xl("Fax sending failed");
 					alert(resultTranslated.msg);
@@ -336,7 +326,7 @@ function send(){
                     str += components[i].value;
                 }
             }
-            
+
             if(document.getElementById('ccda_pid')){
                 combination = document.getElementById('ccda_pid').value;
             }
@@ -356,27 +346,27 @@ function send(){
                 alert(resultTranslated.msg);
                 return false;
             }
-            
+
             $.ajax({
                 type: "POST",
                 url : APP_URL+"/encounterccdadispatch/index?combination="+combination+"&sections="+str+"&send=1&recipient=hie&components="+comp+"&latest_ccda="+latest_ccda,
                 dataType: "html",
                 data: {
                 },
-                success: function(thedata){                    
+                success: function(thedata){
                     $('.ap-st-st-12').fadeToggle();
                     $('.activity_indicator').css({"display" :"none"});
 					var resultTranslated = js_xl('Successfully Sent');
                     alert(resultTranslated.msg);
                 },
-                error: function(){                    
+                error: function(){
                     $('.activity_indicator').css({"display" :"none"});
 					var resultTranslated = js_xl("Send To HIE failed");
                     alert(resultTranslated.msg);
                 }
             });
         }
-        
+
 	else if(send_to == "download"){
 		$('.activity_indicator').css({"display" :"none"});
 		obj = document.getElementsByName('download_format');
@@ -439,19 +429,19 @@ function send(){
 			dataType: "html",
 			data: {
 			},
-			success: function(thedata){                    
+			success: function(thedata){
 				$('.ap-st-st-12').fadeOut();
 				$('.activity_indicator').css({"display" :"none"});
                                 var resultTranslated = js_xl(thedata);
                                 alert(resultTranslated.msg);
 			},
-			error: function(){          
+			error: function(){
 				$('.ap-st-st-12').fadeOut();
 				$('.activity_indicator').css({"display" :"none"});
                                 var resultTranslated = js_xl("Failed to send");
                                 alert(resultTranslated.msg);
 			}
-		});    
+		});
 		}
 		else {
 			$('.activity_indicator').css({"display" :"none"});
@@ -460,7 +450,7 @@ function send(){
 		}
 	}
         else if(send_to == "download_all") {
-    var count = 0; 
+    var count = 0;
      if($('#ccda_pid').val()) {
        pids = $('#ccda_pid').val();
        pids = pids.split("_");
@@ -468,14 +458,14 @@ function send(){
        count++;
      }
      else {
-       pids = document.getElementsByName('ccda_pid[]');   
-       for(i=0 ; i<pids.length ; i++){        
-         if(pids[i].checked){          
-           count++;        
-         }      
+       pids = document.getElementsByName('ccda_pid[]');
+       for(i=0 ; i<pids.length ; i++){
+         if(pids[i].checked){
+           count++;
+         }
        }
-     } 
-         
+     }
+
     if(count == 0) {
       $('.ap-st-st-12').fadeOut();
       $('.activity_indicator').css({"display" :"none"});
@@ -484,7 +474,7 @@ function send(){
       return false;
     }
     else {
-      var download_format = $('input:radio[name="downloadformat"]:checked').val();	
+      var download_format = $('input:radio[name="downloadformat"]:checked').val();
       if(download_format == 'ccda') {
         if($('#ccda_pid').val()) {
           window.location.assign(WEB_ROOT+"/interface/modules/zend_modules/public/encountermanager/index?pid_ccda="+pid+"&downloadccda=download_ccda&components="+comp+"&latest_ccda="+latest_ccda);
@@ -492,7 +482,7 @@ function send(){
         else {
           $('#components').val(comp);
           $("#latestccda").val(latest_ccda);
-          $('#download_ccda').trigger("click"); 
+          $('#download_ccda').trigger("click");
           $(".check_pid").prop("checked",false);
         }
       }
@@ -501,18 +491,18 @@ function send(){
           window.location.assign(WEB_ROOT+"/interface/modules/zend_modules/public/encountermanager/index?pid_ccr="+pid+"&downloadccr=download_ccr");
         }
         else {
-          $('#download_ccr').trigger("click"); 
+          $('#download_ccr').trigger("click");
           $(".check_pid").prop("checked",false);
-        }   
+        }
       }
       else if(download_format == 'ccd') {
         if($('#ccda_pid').val()) {
           window.location.assign(WEB_ROOT+"/interface/modules/zend_modules/public/encountermanager/index?pid_ccd="+pid+"&downloadccd=download_ccd");
         }
         else {
-          $('#download_ccd').trigger("click"); 
+          $('#download_ccd').trigger("click");
           $(".check_pid").prop("checked",false);
-        }   
+        }
       }
       //$(".check_pid").prop("checked",false);
       $('.ap-st-st-12').fadeOut();

@@ -1,23 +1,17 @@
 <?php
 /**
-* Maintenance for the list of procedure providers.
-*
-* Copyright (C) 2012 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-*/
+ * Maintenance for the list of procedure providers.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
@@ -57,14 +51,14 @@ function refreshme() {
 // Process click to pop up the add window.
 function doedclick_add() {
  top.restoreSession();
- var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + '<?php echo xlt("Add Mode"); ?>';
+ var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
  dlgopen('procedure_provider_edit.php?ppid=0', '_blank', 800, 750, false, addTitle);
 }
 
 // Process click to pop up the edit window.
 function doedclick_edit(ppid) {
  top.restoreSession();
- var editTitle = '<i class="fa fa-pencil" style="width:20px;" aria-hidden="true"></i> ' + '<?php echo xlt("Edit Mode"); ?> ';
+ var editTitle = '<i class="fa fa-pencil" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
  dlgopen('procedure_provider_edit.php?ppid=' + ppid, '_blank', 800, 750, false, editTitle);
 }
 
@@ -95,7 +89,7 @@ function doedclick_edit(ppid) {
                <form method='post' action='procedure_provider_list.php'>
                     <div class="btn-group">
                         <button type="button" name="form_search" class="btn btn-default btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
-                        <button type="button" class="btn btn-default btn-add" onclick="doedclick_add()"><?php echo xlt('Add New');?></button>
+                        <button type="button" class="btn btn-default btn-add" onclick="doedclick_add()"><?php echo xlt('Add New{{Provider}}');?></button>
                     </div>
                     <br>
                     <br>
@@ -117,7 +111,7 @@ function doedclick_edit(ppid) {
                                 echo "  <td>" . text($row['protocol']) . "</td>\n";
                                 if (acl_check('admin', 'practice')) {
                                         $trTitle = xl('Edit') . ' ' . $row['name'];
-                                        echo "  <td class=\"text-center\"><span style=\"color:#000000; cursor: pointer;\"  onclick='doedclick_edit(" . $row['ppid'] . ")' class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";
+                                        echo "  <td class=\"text-center\"><span style=\"color:#000000; cursor: pointer;\"  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";
                                 } else {
                                         $trTitle = xl("Not Allowed to Edit") . ' ' . $row['name'];
                                         echo "  <td class=\"text-center\"><span style=\"color:#CACFD2;cursor: no-drop;\"  class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";

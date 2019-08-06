@@ -16,11 +16,12 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -42,7 +43,7 @@ function bucks($amt)
     <script language="JavaScript">
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        $(document).ready(function() {
+        $(function() {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 
@@ -98,11 +99,11 @@ function bucks($amt)
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Front Office Receipts'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt("to") . " &nbsp; ". text(oeFormatShortDate($to_date)); ?>
+<?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt("to{{Range}}") . " &nbsp; ". text(oeFormatShortDate($to_date)); ?>
 </div>
 
 <form name='theform' method='post' action='front_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -164,7 +165,7 @@ function bucks($amt)
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
             </td>
             <td class='control-label'>
-                <?php xl('To', 'e'); ?>:
+                <?php xl('To{{Range}}', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
@@ -201,7 +202,7 @@ function bucks($amt)
 
 <?php
 if ($_POST['form_refresh'] || $_POST['form_orderby']) {
-?>
+    ?>
 <div id="report_results">
 <table>
 <thead>
@@ -215,76 +216,76 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 <th align='right'> <?php echo xlt('Total'); ?> </th>
 </thead>
 <tbody>
-<?php
-if (true || $_POST['form_refresh']) {
-    $total1 = 0.00;
-    $total2 = 0.00;
+    <?php
+    if (true || $_POST['form_refresh']) {
+        $total1 = 0.00;
+        $total2 = 0.00;
 
-    $inputArray=array($from_date.' 00:00:00', $to_date.' 23:59:59');
-    $query = "SELECT r.pid, r.dtime, " .
-    "SUM(r.amount1) AS amount1, " .
-    "SUM(r.amount2) AS amount2, " .
-    "MAX(r.method) AS method, " .
-    "MAX(r.source) AS source, " .
-    "MAX(r.user) AS user, " .
-    "p.fname, p.mname, p.lname, p.pubpid " .
-    "FROM payments AS r " .
-    "JOIN form_encounter AS fe ON fe.encounter=r.encounter " .
-    "LEFT OUTER JOIN patient_data AS p ON " .
-    "p.pid = r.pid " .
-    "WHERE " .
-    "r.dtime >= ? AND " .
-    "r.dtime <= ? AND ";
-    if ($_POST['form_facility']!="") {
-        $inputArray[]=$_POST['form_facility'];
-        $query.="fe.facility_id = ? AND ";
-    }
-    if ($_POST['form_provider']!="") {
-        $inputArray[]=$_POST['form_provider'];
-        $query.="fe.provider_id = ? AND ";
-    }
-    $query.="1 GROUP BY r.dtime, r.pid ORDER BY r.dtime, r.pid";
+        $inputArray=array($from_date.' 00:00:00', $to_date.' 23:59:59');
+        $query = "SELECT r.pid, r.dtime, " .
+        "SUM(r.amount1) AS amount1, " .
+        "SUM(r.amount2) AS amount2, " .
+        "MAX(r.method) AS method, " .
+        "MAX(r.source) AS source, " .
+        "MAX(r.user) AS user, " .
+        "p.fname, p.mname, p.lname, p.pubpid " .
+        "FROM payments AS r " .
+        "JOIN form_encounter AS fe ON fe.encounter=r.encounter " .
+        "LEFT OUTER JOIN patient_data AS p ON " .
+        "p.pid = r.pid " .
+        "WHERE " .
+        "r.dtime >= ? AND " .
+        "r.dtime <= ? AND ";
+        if ($_POST['form_facility']!="") {
+            $inputArray[]=$_POST['form_facility'];
+            $query.="fe.facility_id = ? AND ";
+        }
+        if ($_POST['form_provider']!="") {
+            $inputArray[]=$_POST['form_provider'];
+            $query.="fe.provider_id = ? AND ";
+        }
+        $query.="1 GROUP BY r.dtime, r.pid ORDER BY r.dtime, r.pid";
 
-    // echo " $query \n"; // debugging
-    $res = sqlStatement($query, $inputArray);
+        // echo " $query \n"; // debugging
+        $res = sqlStatement($query, $inputArray);
 
-    while ($row = sqlFetchArray($res)) {
-        // Make the timestamp URL-friendly.
-        $timestamp = preg_replace('/[^0-9]/', '', $row['dtime']);
-    ?>
+        while ($row = sqlFetchArray($res)) {
+            // Make the timestamp URL-friendly.
+            $timestamp = preg_replace('/[^0-9]/', '', $row['dtime']);
+            ?>
    <tr>
     <td nowrap>
      <a href="javascript:show_receipt(<?php echo attr_js($row['pid']); ?>, <?php echo attr_js($timestamp); ?>)">
-        <?php echo text(oeFormatShortDate(substr($row['dtime'], 0, 10))) . text(substr($row['dtime'], 10, 6)); ?>
+            <?php echo text(oeFormatShortDate(substr($row['dtime'], 0, 10))) . text(substr($row['dtime'], 10, 6)); ?>
    </a>
   </td>
   <td>
-        <?php echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']); ?>
+            <?php echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']); ?>
   </td>
   <td>
-        <?php echo text($row['pubpid']); ?>
+            <?php echo text($row['pubpid']); ?>
   </td>
   <td>
-        <?php echo text($row['method']); ?>
+            <?php echo text($row['method']); ?>
   </td>
   <td>
-        <?php echo text($row['source']); ?>
+            <?php echo text($row['source']); ?>
   </td>
   <td align='right'>
-        <?php echo text(bucks($row['amount1'])); ?>
+            <?php echo text(bucks($row['amount1'])); ?>
   </td>
   <td align='right'>
-        <?php echo text(bucks($row['amount2'])); ?>
+            <?php echo text(bucks($row['amount2'])); ?>
   </td>
   <td align='right'>
-        <?php echo text(bucks($row['amount1'] + $row['amount2'])); ?>
+            <?php echo text(bucks($row['amount1'] + $row['amount2'])); ?>
   </td>
  </tr>
-<?php
-    $total1 += $row['amount1'];
-    $total2 += $row['amount2'];
-    }
-?>
+            <?php
+            $total1 += $row['amount1'];
+            $total2 += $row['amount2'];
+        }
+        ?>
 
 <tr>
  <td colspan='8'>
@@ -294,22 +295,22 @@ if (true || $_POST['form_refresh']) {
 
 <tr class="report_totals">
  <td colspan='5'>
-    <?php echo xlt('Totals'); ?>
+        <?php echo xlt('Totals'); ?>
  </td>
  <td align='right'>
-    <?php echo text(bucks($total1)); ?>
+        <?php echo text(bucks($total1)); ?>
  </td>
  <td align='right'>
-    <?php echo text(bucks($total2)); ?>
+        <?php echo text(bucks($total2)); ?>
  </td>
  <td align='right'>
-    <?php echo text(bucks($total1 + $total2)); ?>
+        <?php echo text(bucks($total1 + $total2)); ?>
  </td>
 </tr>
 
-<?php
-}
-?>
+        <?php
+    }
+    ?>
 </tbody>
 </table>
 </div> <!-- end of results -->

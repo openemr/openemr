@@ -48,7 +48,7 @@ $display_collapse_msg = "display:inline;";
 
 <script type="text/javascript">
     var global_date_format = '<?php echo DateFormatRead(); ?>';
-    $(document).ready(function() {
+    $(function () {
         $("#docdiv a").each(function() {
 
             let name = $(this).get(0);
@@ -166,7 +166,7 @@ $display_collapse_msg = "display:inline;";
             <td><input type='text' class='datepicker' name='form_from_doc_date' id="form_from_doc_date"
                 size='10' value='<?php echo attr($form_from_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>'>
             </td>
-            <td class='label_custom'><?php echo xlt('To'); ?>:</td>
+            <td class='label_custom'><?php echo xlt('To{{Range}}'); ?>:</td>
             <td><input type='text' class='datepicker' name='form_to_doc_date' id="form_to_doc_date"
                 size='10' value='<?php echo attr($form_to_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>'>
             </td>
@@ -245,9 +245,9 @@ $display_collapse_msg = "display:inline;";
                 <td><?php echo $note; ?> &nbsp;</td>
                 <td align="center"><?php echo ( $row['encounter_id'] ) ? text($row['encounter_id']) : ''; ?> </td>
             </tr>
-        <?php
+            <?php
         } ?>
-    <?php
+        <?php
     } ?>
     </table>
     </div>

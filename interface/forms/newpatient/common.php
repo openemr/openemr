@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,8 +16,10 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\OeUI\OemrUI;
 
 $facilityService = new FacilityService();
 
@@ -98,7 +102,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     }
     ?>
     var collectvalidation = <?php echo $collectthis; ?>;
-    $(document).ready(function(){
+    $(function(){
         window.saveClicked = function(event) {
             var submit = submitme(1, event, 'new-encounter-form', collectvalidation);
             if (submit) {
@@ -142,7 +146,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
                 data: {
                     mode: "get_pos",
                     facility_id: facility,
-                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }})
                 .done(function (fid) {
                     document.forms[0].pos_code.value = fid;
@@ -207,22 +211,34 @@ if ($GLOBALS['enable_help'] == 1) {
      $help_icon = '';
 }
 ?>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => $heading_caption,
+    'include_patient_name' => true,// use only in appropriate pages
+    'expandable' => false,
+    'expandable_files' => array(""),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => true,
+    'help_file_name' => "common_help.php"
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 <body class="body_top" <?php echo $body_javascript;?>>
-    <div class="container">
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-sm-12">
                 <!-- Required for the popup date selectors -->
                 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-                <div class="">
-                    <div class="page-header">
-                        <h2><?php echo text($heading_caption); ?><?php echo $help_icon; ?></h2>
-                    </div>
+                <div class="page-header clearfix">
+                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-sm-12">
                 <form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
                 <?php if ($viewmode) { ?>
                     <input type=hidden name='mode' value='update'>
@@ -230,7 +246,7 @@ if ($GLOBALS['enable_help'] == 1) {
                 <?php } else { ?>
                     <input type='hidden' name='mode' value='new'>
                 <?php } ?>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('Visit Details')?></legend>
                         <div id = "visit-details">
@@ -303,7 +319,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                         <select name='form_sensitivity' id='form_sensitivity' class='form-control col-sm-12' >
                                             <?php
                                             foreach ($sensitivities as $value) {
-                                               // Omit sensitivities to which this user does not have access.
+                                                // Omit sensitivities to which this user does not have access.
                                                 if (acl_check('sensitivities', $value[1])) {
                                                     echo "       <option value='" . attr($value[1]) . "'";
                                                     if ($viewmode && $result['sensitivity'] == $value[1]) {
@@ -319,14 +335,14 @@ if ($GLOBALS['enable_help'] == 1) {
                                                 echo " selected";
                                             }
 
-                                            echo ">" . xlt('None'). "</option>\n";
+                                            echo ">" . xlt('None{{Sensitivity}}'). "</option>\n";
                                             ?>
                                         </select>
                                         <?php
                                     } else {
-                                    ?>
+                                        ?>
 
-                                    <?php
+                                        <?php
                                     }
                                     ?>
                                     </div>
@@ -357,8 +373,9 @@ if ($GLOBALS['enable_help'] == 1) {
                                 <div class="form-group"
                                     <?php
                                     if (!$GLOBALS['gbl_visit_referral_source']) {
-                                        echo "style='display:none'";
-                                    } ?>>">
+                                        echo "style='display:none' " ;
+                                    } ?>
+                                    >
                                     <label  class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Referral Source'); ?>:</label>
                                     <div class="col-sm-3">
                                         <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', '');?>
@@ -392,15 +409,15 @@ if ($GLOBALS['enable_help'] == 1) {
                                             if ($facilities) {
                                                 foreach ($facilities as $iter) { ?>
                                             <option value="<?php echo attr($iter['id']); ?>"
-                                                <?php
-                                                if ($def_facility == $iter['id']) {
-                                                    if (!$viewmode) {
-                                                        $posCode = $iter['pos_code'];
-                                                    }
-                                                    echo "selected";
-                                                }?>><?php echo text($iter['name']); ?>
+                                                    <?php
+                                                    if ($def_facility == $iter['id']) {
+                                                        if (!$viewmode) {
+                                                            $posCode = $iter['pos_code'];
+                                                        }
+                                                        echo "selected";
+                                                    }?>><?php echo text($iter['name']); ?>
                                             </option>
-                                            <?php
+                                                    <?php
                                                 }
                                             }
                                             ?>
@@ -449,22 +466,22 @@ if ($GLOBALS['enable_help'] == 1) {
                                 </div>
                             </div>
                     </fieldset>
+                    <?php
+                    // To see issues stuff user needs write access to all issue types.
+                    $issuesauth = true;
+                    foreach ($ISSUE_TYPES as $type => $dummy) {
+                        if (!acl_check_issue($type, '', 'write')) {
+                            $issuesauth = false;
+                            break;
+                        }
+                    }
+                    if ($issuesauth) {
+                        ?>
                     <fieldset>
                         <legend><?php echo xlt('Link/Add Issues (Injuries/Medical/Allergy) to Current Visit')?></legend>
                             <div id = "visit-issues">
                                 <div class="form-group clearfix">
                                     <div class="col-sm-6 col-lg-offset-3">
-                                        <?php
-                                        // To see issues stuff user needs write access to all issue types.
-                                        $issuesauth = true;
-                                        foreach ($ISSUE_TYPES as $type => $dummy) {
-                                            if (!acl_check_issue($type, '', 'write')) {
-                                                $issuesauth = false;
-                                                break;
-                                            }
-                                        }
-                                        if ($issuesauth) {
-                                        ?>
                                             <div class="col-sm-12">
                                                 <div class="col-sm-12 pull-left" style="padding-bottom:5px">
                                                     <div class="btn-group" role="group">
@@ -509,13 +526,13 @@ if ($GLOBALS['enable_help'] == 1) {
                                                     . 'Hold down [Ctrl] button to select multiple issues.'); ?></i></p>
                                                 </div>
                                             </div>
-                                        <?php
-                                        }
-                                        ?>
                                     </div>
                                 </div>
                             </div>
                     </fieldset>
+                        <?php
+                    }
+                    ?>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                     <div class="form-group clearfix">
                         <div class="col-sm-12 text-left position-override">
@@ -532,17 +549,8 @@ if ($GLOBALS['enable_help'] == 1) {
                 </form>
             </div>
         </div>
-    </div><!--end of container div-->
-     <br>
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'common_help.php'</script>";
-        //help_modal.php lives in interface, set path accordingly
-        require "../../help_modal.php";
-    }
-    ?>
+    </div><!--End of container div-->
+    <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 <script language="javascript">
 <?php
@@ -557,10 +565,10 @@ if (!$viewmode) { ?>
         }
         // otherwise just continue normally
     }
-<?php
+    <?php
 
   // Search for an encounter from today
-  $erow = sqlQuery("SELECT fe.encounter, fe.date " .
+    $erow = sqlQuery("SELECT fe.encounter, fe.date " .
     "FROM form_encounter AS fe, forms AS f WHERE " .
     "fe.pid = ? " .
     " AND fe.date >= ? " .
@@ -569,11 +577,11 @@ if (!$viewmode) { ?>
     "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0 " .
     "ORDER BY fe.encounter DESC LIMIT 1", array($pid,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
 
-if (!empty($erow['encounter'])) {
-    // If there is an encounter from today then present the duplicate visit dialog
-    echo "duplicateVisit(" . js_escape($erow['encounter']) . ", " .
+    if (!empty($erow['encounter'])) {
+        // If there is an encounter from today then present the duplicate visit dialog
+        echo "duplicateVisit(" . js_escape($erow['encounter']) . ", " .
         js_escape(oeFormatShortDate(substr($erow['date'], 0, 10))) . ");\n";
-}
+    }
 }
 ?>
 
@@ -608,12 +616,12 @@ if ($GLOBALS['enable_group_therapy']) { ?>
     <?php
     if ($viewmode && in_array($result['pc_catid'], $therapyGroupCategories)) {?>
         $('#therapy_group_name').show();
-    <?php
+        <?php
     } ?>
-<?php
+    <?php
 } ?>
 
-$(document).ready(function(){
+$(function (){
     $('#billing_facility').addClass('col-sm-9');
     //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
     // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip

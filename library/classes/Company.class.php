@@ -1,6 +1,6 @@
 <?php
 /************************************************************************
-  			address.php - Copyright duhlman
+            address.php - Copyright duhlman
 
 /usr/share/apps/umbrello/headings/heading.php
 

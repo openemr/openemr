@@ -1,23 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Basil PT <basil@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Basil PT <basil@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace Documents\Model;
 
@@ -38,7 +28,7 @@ class DocumentsTable extends AbstractTableGateway
         $sql = "INSERT INTO categories_to_documents (category_id, document_id) VALUES (?, ?)";
         $result = $obj->zQuery($sql, array($category_id, $document_id));
     }
-  
+
   /*
   * Move the document to a different category
   * @param    $category_id    integer   Category ID
@@ -50,7 +40,7 @@ class DocumentsTable extends AbstractTableGateway
         $sql = "UPDATE categories_to_documents SET category_id = ? WHERE document_id = ?";
         $result = $obj->zQuery($sql, array($category_id, $document_id));
     }
-  
+
   /**
    * getCategories - Get Document Categories
    * @param Integer $categoryParentId
@@ -71,7 +61,7 @@ class DocumentsTable extends AbstractTableGateway
 
         return $category;
     }
-  
+
   /**
    * getDocument - get Document Data by Id
    * @param Integer $documentId Document Id
@@ -86,7 +76,7 @@ class DocumentsTable extends AbstractTableGateway
         $result = $obj->zQuery($sql, array($documentId));
         return $result->current();
     }
-  
+
   /**
    * getCategoryIDs - get Category Ids By Name
    * @param Array $categories - Category Lists
@@ -111,7 +101,7 @@ class DocumentsTable extends AbstractTableGateway
 
         return $category;
     }
-  
+
   /**
    * saveDocumentdetails - save document details
    * @param Array $current_document - document details
@@ -133,7 +123,7 @@ class DocumentsTable extends AbstractTableGateway
             $this->updateDocumentCategory($values['category'], $values['doc_id']);
         }
     }
-  
+
   /**
    * getCategory - get document categories
    * @return Array
@@ -149,7 +139,7 @@ class DocumentsTable extends AbstractTableGateway
 
         return $category;
     }
-  
+
    /**
    * deleteDocument - remove document from list
    * @param Int $docid
@@ -164,7 +154,7 @@ class DocumentsTable extends AbstractTableGateway
           WHERE `id` = ?";
         $obj->zQuery($sql, array(0,$docid));
     }
-  
+
   /**
    *Update document category using category name
    *@param $category_name - Name of the category to which the document has to be moved

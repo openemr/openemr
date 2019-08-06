@@ -90,7 +90,7 @@ function insert_ccr_into_audit_data($var)
 
     $detail_query = substr($detail_query, 0, -1);
     $detail_query = $detail_query.';';
-    sqlInsert($detail_query, $detail_query_array);
+    sqlStatement($detail_query, $detail_query_array);
 }
 
 function insert_patient($audit_master_id)
@@ -132,14 +132,14 @@ function insert_patient($audit_master_id)
         if ($table == 'patient_data') {
             updatePatientData($pid, $newdata['patient_data'], true);
         } elseif ($table == 'lists1') {
-            sqlInsert("INSERT INTO lists(".
+            sqlStatement("INSERT INTO lists(".
                 "pid,diagnosis,activity".
                 ") VALUES (".
                 "'".add_escape_custom($pid)."',".
                 "'".add_escape_custom($newdata['lists1']['diagnosis'])."',".
                 "'".add_escape_custom($newdata['lists1']['activity'])."')");
         } elseif ($table == 'lists2') {
-            sqlInsert("INSERT INTO lists(".
+            sqlStatement("INSERT INTO lists(".
                 "pid,date,type,title,diagnosis,reaction".
                 ") VALUES (".
                 "'".add_escape_custom($pid)."',".
@@ -149,7 +149,7 @@ function insert_patient($audit_master_id)
             "'".add_escape_custom($newdata['lists2']['diagnosis'])."',".
                 "'".add_escape_custom($newdata['lists2']['reaction'])."')");
         } elseif ($table == 'prescriptions') {
-            sqlInsert("INSERT INTO prescriptions(".
+            sqlStatement("INSERT INTO prescriptions(".
                 "patient_id,date_added,active,drug,size,form,quantity".
                 ") VALUES (".
                 "'".add_escape_custom($pid)."',".
@@ -160,28 +160,28 @@ function insert_patient($audit_master_id)
                 "'".add_escape_custom($newdata['prescriptions']['form'])."',".
                 "'".add_escape_custom($newdata['prescriptions']['quantity'])."')");
         } elseif ($table == 'immunizations') {
-            sqlInsert("INSERT INTO immunizations(".
+            sqlStatement("INSERT INTO immunizations(".
                 "patient_id,administered_date,note".
                 ") VALUES (".
                 "'".add_escape_custom($pid)."',".
                 "'".add_escape_custom($newdata['immunizations']['administered_date'])."',".
                 "'".add_escape_custom($newdata['immunizations']['note'])."')");
         } elseif ($table == 'procedure_result') {
-            /*sqlInsert("INSERT INTO procedure_result(".
-				"date,result,abnormal".
-				") VALUES (".
-				"'".add_escape_custom($newdata['procedure_result']['date'])."',".
-				"'".add_escape_custom($newdata['procedure_result']['result'])."',".
-				"'".add_escape_custom($newdata['procedure_result']['abnormal'])."')"
-			);*/
+            /*sqlStatement("INSERT INTO procedure_result(".
+                "date,result,abnormal".
+                ") VALUES (".
+                "'".add_escape_custom($newdata['procedure_result']['date'])."',".
+                "'".add_escape_custom($newdata['procedure_result']['result'])."',".
+                "'".add_escape_custom($newdata['procedure_result']['abnormal'])."')"
+            );*/
         } elseif ($table == 'procedure_type') {
-            /*sqlInsert("INSERT INTO procedure_type(".
-				"name".
-				") VALUES (".
-				"'".add_escape_custom($newdata['procedure_type']['name'])."')"
-			);*/
+            /*sqlStatement("INSERT INTO procedure_type(".
+                "name".
+                ") VALUES (".
+                "'".add_escape_custom($newdata['procedure_type']['name'])."')"
+            );*/
         } elseif ($table == 'misc_address_book') {
-            sqlInsert("INSERT INTO misc_address_book(".
+            sqlStatement("INSERT INTO misc_address_book(".
                 "lname,fname,street,city,state,zip,phone".
                 ") VALUES (".
                 "'".add_escape_custom($newdata['misc_address_book']['lname'])."',".

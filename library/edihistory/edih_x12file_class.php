@@ -130,14 +130,14 @@ class edih_x12_file
     }
 
     /*
-	 * function to support empty object and '_x12_' functions called with supplied file text
-	 *
-	 * @param string   $file_text
-	 * @param bool     return x12 type
-	 * @param bool     return delimiters
-	 * @param bool     return segments
-	 * @return array   array['filetext'] and maybe ['type'] ['$delimiters'] ['segments']
-	 */
+     * function to support empty object and '_x12_' functions called with supplied file text
+     *
+     * @param string   $file_text
+     * @param bool     return x12 type
+     * @param bool     return delimiters
+     * @param bool     return segments
+     * @return array   array['filetext'] and maybe ['type'] ['$delimiters'] ['segments']
+     */
     private function edih_file_text($file_text, $type = false, $delimiters = false, $segments = false)
     {
         //
@@ -176,8 +176,8 @@ class edih_x12_file
     }
 
     /*
-	 *  functions to return properties
-	 */
+     *  functions to return properties
+     */
     public function classname()
     {
         return get_class($this);
@@ -433,29 +433,29 @@ class edih_x12_file
             }
 
             /* **** this replaced by preg_match_all() above ******
-			}
-			// scan GS segments
-			$gs_str = $dt.'GS'.$de;
-			$gs_pos = 1;
-			$gse_pos = 2;
-			while ($gs_pos) {
-				$gs_pos = strpos($f_text, $gs_str, $gs_pos);
-				if ($gs_pos) {
-					$gsterm = strpos($f_text, $dt, $gs_pos+1);
-					$gsseg = trim(substr($f_text, $gs_pos+1, $gsterm-$gs_pos-1));
-					//$gs_ar = explode($de, substr($f_text, $gs_pos+1, $gsterm-$gs_pos-1) );
-					$this->message[] = 'edih_x12_type: '.$gsseg.PHP_EOL;
-					$gs_ar = explode($de, $gsseg);
-					if ( array_key_exists($gs_ar[1], $this->gstype_ar) ) {
-						$tp_tmp[] = $this->gstype_ar[$gs_ar[1]];
-					} else {
-						$tp_tmp[] = $gs_ar[1];
-						$this->message[] = 'edih_x12_type: unknown x12 type '.$gs_ar[1];
-					}
-					$gs_pos = $gsterm + 1;
-				}
-			}
-			******************* */
+            }
+            // scan GS segments
+            $gs_str = $dt.'GS'.$de;
+            $gs_pos = 1;
+            $gse_pos = 2;
+            while ($gs_pos) {
+                $gs_pos = strpos($f_text, $gs_str, $gs_pos);
+                if ($gs_pos) {
+                    $gsterm = strpos($f_text, $dt, $gs_pos+1);
+                    $gsseg = trim(substr($f_text, $gs_pos+1, $gsterm-$gs_pos-1));
+                    //$gs_ar = explode($de, substr($f_text, $gs_pos+1, $gsterm-$gs_pos-1) );
+                    $this->message[] = 'edih_x12_type: '.$gsseg.PHP_EOL;
+                    $gs_ar = explode($de, $gsseg);
+                    if ( array_key_exists($gs_ar[1], $this->gstype_ar) ) {
+                        $tp_tmp[] = $this->gstype_ar[$gs_ar[1]];
+                    } else {
+                        $tp_tmp[] = $gs_ar[1];
+                        $this->message[] = 'edih_x12_type: unknown x12 type '.$gs_ar[1];
+                    }
+                    $gs_pos = $gsterm + 1;
+                }
+            }
+            ******************* */
         }
 
         // x12 type information collected
@@ -505,12 +505,12 @@ class edih_x12_file
             }
 
             /* Extract delimiters using the prescribed positions.
-			 *  -- problem is possibly mangled files
-			 * $t_ar['e'] = substr($isa_str, 3, 1);
-			 * $t_ar['r'] = substr($isa_str, 82, 1);
-			 * $t_ar['s'] = substr($isa_str, 104, 1);
-			 * $t_ar['t'] = substr($isa_str, 105, 1);
-			 */
+             *  -- problem is possibly mangled files
+             * $t_ar['e'] = substr($isa_str, 3, 1);
+             * $t_ar['r'] = substr($isa_str, 82, 1);
+             * $t_ar['s'] = substr($isa_str, 104, 1);
+             * $t_ar['t'] = substr($isa_str, 105, 1);
+             */
         } else {
             $this->message[] = 'edih_x12_delimiters: ISA string too short'.PHP_EOL;
             return $delim_ar;
@@ -1065,7 +1065,7 @@ class edih_x12_file
         }
 
         //array('HB'=>'271', 'HS'=>'270', 'HR'=>'276', 'HI'=>'278',
-        //		'HN'=>'277', 'HP'=>'835', 'FA'=>'999', 'HC'=>'837');
+        //      'HN'=>'277', 'HP'=>'835', 'FA'=>'999', 'HC'=>'837');
         if (substr($tp, 0, 5) == 'mixed') {
             $tp = substr($tp, -2);
         }

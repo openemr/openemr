@@ -15,10 +15,12 @@
 require_once("../globals.php");
 require_once($srcdir."/patient.inc");
 
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Rx\Weno\TransmitData;
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $date = date("Y-m-d");
@@ -26,7 +28,7 @@ $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];
 
 //Randomly generate number for each order unique ID
-$i = rand();
+$i = rand().rand().rand();
 $fillData = filter_input(INPUT_GET, "getJson");
 
 $fill = explode(",", $fillData);
@@ -56,6 +58,9 @@ foreach ($fill as $data) {
     // Collect drug data
     $drugData = $prInfo->oneDrug($data);
 
+    // Set up crypto object
+    $cryptoGen = new CryptoGen();
+
     // Build the array
     $completeArray = array(
         array(
@@ -84,7 +89,7 @@ foreach ($fill as $data) {
                 "facilityzip"     => $proData[0]['postal_code'],
                 "qualifier"       => $GLOBALS['weno_provider_id'] . ':' . $proData[0]['weno_prov_id'],
                 "wenoAccountId"   => $GLOBALS['weno_account_id'],
-                "wenoAccountPass" => decryptStandard($GLOBALS['weno_account_pass']),
+                "wenoAccountPass" => (($cryptoGen->cryptCheckStandard($GLOBALS['weno_account_pass'])) ? $cryptoGen->decryptStandard($GLOBALS['weno_account_pass']) : $GLOBALS['weno_account_pass']),
                 "wenoClinicId"    => $GLOBALS['weno_provider_id'] . ':' . $proData[0]['weno_prov_id']
             )
         ),
@@ -106,7 +111,12 @@ foreach ($fill as $data) {
                 "refills"      => $drugData['refills'],
                 "dateModified" => $drugData['date_Modified'],
                 "note"         => $drugData['note'],
-                "take"         => $drugData['dosage']
+                "take"         => $drugData['dosage'],
+                "strength"     => $drugData['strength'],
+                "route"        => $drugData['route'],
+                "potency"      => $drugData['potency_unit_code'],
+                "qualifier"    => $drugData['drug_db_code_qualifier'],
+                "dea_sched"    => $drugData['dea_schedule']
             )
         )
     );

@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,15 +25,18 @@ use OpenEMR\Core\Header;
     <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
 
 <script type="text/javascript" src="../interface/main/tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
-<link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
-<link href="sign/css/signer.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
-<link href="sign/assets/signpad.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet">
+<link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
+<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 
-<script src="sign/assets/signpad.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
-<script src="sign/assets/signer.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
+
 <script type="text/javascript">
     var tab_mode = true; // for dialogs
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    function restoreSession(){
+        //dummy functions so the dlgopen function will work in the patient portal
+        return true;
+    }
 </script>
 
 <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
@@ -92,7 +97,7 @@ use OpenEMR\Core\Header;
                             <?php if ($GLOBALS['allow_portal_chat']) { ?>
                                 <a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
                                 <?php } ?>
-                                <a href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
+                                <a type="patient-signature" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
 
                             <li class="divider"></li>
 
@@ -126,7 +131,7 @@ use OpenEMR\Core\Header;
                     <li data-toggle="pill"><a href="#lists" data-toggle="collapse"
                         data-parent="#panelgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
                     </a></li>
-                    <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr($pid); ?>"> <i class="fa fa-gavel"></i>
+                    <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"> <i class="fa fa-gavel"></i>
                             <span><?php echo xlt('Patient Documents'); ?></span>
                     </a></li>
                     <?php if ($GLOBALS['allow_portal_appointments']) { ?>
@@ -134,7 +139,7 @@ use OpenEMR\Core\Header;
                             data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>
                     </a></li>
                     <?php } ?>
-                    <?php if ($GLOBALS['portal_two_ledger'] && $GLOBALS['portal_two_payments']) { ?>
+                    <?php if ($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments']) { ?>
                         <li class="dropdown accounting-menu"><a href="#"
                             class="dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-book"></i> <span><?php echo xlt('Accountings'); ?></span></a>
                             <ul class="dropdown-menu">
@@ -174,7 +179,7 @@ use OpenEMR\Core\Header;
                             data-parent="#panelgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>
                     </a></li>
                     <?php } ?>
-                    <li data-toggle="pill"><a href="#openSignModal" data-toggle="modal" > <i
+                    <li data-toggle="pill"><a type="patient-signature" href="#openSignModal" data-toggle="modal" > <i
                             class="fa fa-sign-in"></i><span><?php echo xlt('Signature on File'); ?></span>
                     </a></li>
                     <li><a href="logout.php"><i class="fa fa-ban fa-fw"></i> <span><?php echo xlt('Logout'); ?></span></a></li>

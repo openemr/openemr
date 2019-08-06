@@ -607,7 +607,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #EndIf
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2018-10-01 load_filename 2019-ICD-10-PCS-Order-File.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-PCS-Order-File.zip', 'eb545fe61ada9efad0ad97a669f8671f');
-#Endif
+#EndIf
 
 #IfNotTable login_mfa_registrations
 CREATE TABLE `login_mfa_registrations` (
@@ -745,9 +745,9 @@ ALTER TABLE `issue_encounter`
     MODIFY `pid` bigint(20) NOT NULL;
 #EndIf
 
-#IfNotColumnType onsite_documents pid bigint(20)
+#IfNotColumnType onsite_documents pid bigint(20) unsigned
 ALTER TABLE `onsite_documents`
-    MODIFY `pid` bigint(20) UNSIGNED DEFAULT NULL;
+    MODIFY `pid` bigint(20) UNSIGNED default NULL;
 #EndIf
 
 #IfNotColumnType patient_access_onsite pid bigint(20)
@@ -814,6 +814,202 @@ ALTER TABLE `ar_session`
 ALTER TABLE `documents` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes';
 #EndIf
 
-#IfNotRow4D supported_external_dataloads load_type CQM_VALUESET load_source NIH_VASC load_release_date 2017-09-29 load_filename ep_ec_only_cms_20170929.xml.zip
+#IfNotRow4D supported_external_dataloads load_type CQM_VALUESET load_source NIH_VSAC load_release_date 2017-09-29 load_filename ep_ec_only_cms_20170929.xml.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('CQM_VALUESET', 'NIH_VSAC', '2017-09-29','ep_ec_only_cms_20170929.xml.zip','38d2e1a27646f2f09fcc389fd2335c50');
+#EndIf
+
+#IfNotColumnType eligibility_verification response_id varchar(32)
+ALTER TABLE `eligibility_verification` CHANGE `response_id` `response_id` VARCHAR(32) DEFAULT NULL;
+#EndIf
+
+#IfNotTable benefit_eligibility
+CREATE TABLE `benefit_eligibility` (
+    `response_id` bigint(20) NOT NULL,
+    `verification_id` bigint(20) NOT NULL,
+    `type` varchar(4) DEFAULT NULL,
+    `benefit_type` varchar(255) DEFAULT NULL,
+    `start_date` date DEFAULT NULL,
+    `end_date` date DEFAULT NULL,
+    `coverage_level` varchar(255) DEFAULT NULL,
+    `coverage_type` varchar(512) DEFAULT NULL,
+    `plan_type` varchar(255) DEFAULT NULL,
+    `plan_description` varchar(255) DEFAULT NULL,
+    `coverage_period` varchar(255) DEFAULT NULL,
+    `amount` decimal(5,2) DEFAULT NULL,
+    `percent` decimal(3,2) DEFAULT NULL,
+    `network_ind` varchar(2) DEFAULT NULL,
+    `message` varchar(512) DEFAULT NULL,
+    `response_status` enum('A','D') DEFAULT 'A',
+    `response_create_date` date DEFAULT NULL,
+    `response_modify_date` date DEFAULT NULL
+) ENGINE=InnoDB;
+#EndIf
+
+#IfTable eligibility_response
+DROP TABLE `eligibility_response`;
+#EndIf
+
+#IfTable x12_partners
+ALTER TABLE `x12_partners` CHANGE `processing_format` `processing_format` ENUM('standard','medi-cal','cms','proxymed','oa_eligibility','availity_eligibility') DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn insurance_companies eligibility_id
+ALTER TABLE `insurance_companies` ADD `eligibility_id` VARCHAR(32) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn insurance_companies x12_default_eligibility_id
+ALTER TABLE `insurance_companies` ADD `x12_default_eligibility_id` INT(11)  DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn users_secure login_fail_counter
+ALTER TABLE `users_secure` ADD `login_fail_counter` INT(11) DEFAULT '0';
+#EndIf
+
+#IfMissingColumn x12_partners x12_dtp03
+ALTER TABLE `x12_partners` ADD `x12_dtp03` CHAR(1) DEFAULT 'A';
+#EndIf
+
+#IfMissingColumn procedure_order order_diagnosis
+ALTER TABLE `procedure_order` ADD `order_diagnosis` VARCHAR(255) DEFAULT '';
+#EndIf
+
+#IfTable erx_drug_paid
+DROP TABLE `erx_drug_paid`;
+#EndIf
+
+#IfNotTable erx_weno_drugs
+CREATE TABLE `erx_weno_drugs` (
+  `drug_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rxcui_drug_coded` int(11) DEFAULT NULL,
+  `generic_rxcui` int(11) DEFAULT NULL,
+  `drug_db_code_qualifier` text,
+  `full_name` varchar(250) NOT NULL,
+  `rxn_dose_form` text,
+  `full_generic_name` varchar(250) NOT NULL,
+  `brand_name` varchar(250) NOT NULL,
+  `display_name` varchar(250) NOT NULL,
+  `route` text,
+  `new_dose_form` varchar(100) DEFAULT NULL,
+  `strength` varchar(15) DEFAULT NULL,
+  `supress_for` text,
+  `display_name_synonym` text,
+  `is_retired` text,
+  `sxdg_rxcui` varchar(10) DEFAULT NULL,
+  `sxdg_tty` text,
+  `sxdg_name` varchar(100) DEFAULT NULL,
+  `psn_drugdescription` varchar(100) DEFAULT NULL,
+  `ncpdp_quantity_term` text,
+  `potency_unit_code` varchar(10) DEFAULT NULL,
+  `dea_schedule_no` int(2) DEFAULT NULL,
+  `dea_schedule` varchar(7) DEFAULT NULL,
+  `ingredients` varchar(100) DEFAULT NULL,
+  `drug_interaction` varchar(100) DEFAULT NULL,
+  `unit_source_code` varchar(3) DEFAULT NULL,
+  `code_list_qualifier` int(3) DEFAULT NULL,
+  PRIMARY KEY (`drug_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotWenoRx
+#EndIf
+
+#IfTable openemr_postcalendar_limits
+DROP TABLE `openemr_postcalendar_limits`;
+#EndIf
+
+#IfTable openemr_postcalendar_topics
+DROP TABLE `openemr_postcalendar_topics`;
+#EndIf
+
+#IfTable openemr_session_info
+DROP TABLE `openemr_session_info`;
+#EndIf
+
+#IfTable array
+DROP TABLE `array`;
+#EndIf
+
+#IfTable config
+DROP TABLE `config`;
+#EndIf
+
+#IfTable config_seq
+DROP TABLE `config_seq`;
+#EndIf
+
+#IfTable geo_country_reference
+DROP TABLE `geo_country_reference`;
+#EndIf
+
+#IfTable geo_zone_reference
+DROP TABLE `geo_zone_reference`;
+#EndIf
+
+#IfMissingColumn form_eye_acuity BINOCVA
+ALTER TABLE `form_eye_acuity`  ADD `BINOCVA` varchar(25) DEFAULT NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id ODVITREOUS_0
+UPDATE `list_options` SET `seq`= 1022 WHERE `list_id`='Eye_QP_RETINA_defaults' AND `option_id`='ODPERIPH_0';
+UPDATE `list_options` SET `seq`= 1024 WHERE `list_id`='Eye_QP_RETINA_defaults' AND `option_id`='OSPERIPH_0';
+UPDATE `list_options` SET `seq`= 1026 WHERE `list_id`='Eye_QP_RETINA_defaults' AND `option_id`='OUPERIPH_0';
+UPDATE `list_options` SET `title`= 'clear', `seq` = 505 WHERE `list_id`='Eye_Defaults_for_GENERAL' AND `option_id`='ODPERIPH';
+UPDATE `list_options` SET `title`= 'clear', `seq` = 515 WHERE `list_id`='Eye_Defaults_for_GENERAL' AND `option_id`='OSPERIPH';
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_0', 'vit: clear field', 910, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OD');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OSVITREOUS_0
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_0', 'vit: clear field', 920, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OS');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OUVITREOUS_0
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_0', 'vit: clear field', 930, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OU');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id ODVITREOUS_float
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_float', 'vit: floater', 940, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OD');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OSVITREOUS_float
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_float', 'vit: floater', 950, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OS');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OUVITREOUS_float
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_float', 'vit: floater', 960, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OU');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id ODVITREOUS_pvd
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_pvd', 'vit: PVD', 970, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OD');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OSVITREOUS_pvd
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_pvd', 'vit: PVD', 980, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OS');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OUVITREOUS_pvd
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_pvd', 'vit: PVD', 990, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OU');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id ODVITREOUS_vh
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_vh', 'vit: hemorrhage', 1000, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OD');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OSVITREOUS_vh
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_vh', 'vit: hemorrhage', 1010, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OS');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OUVITREOUS_vh
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_vh', 'vit: hemorrhage', 1020, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OU');
 #EndIf

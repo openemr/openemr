@@ -329,7 +329,7 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority)
         );
 
         foreach ($sendTo as $st) {
-            sqlInsert(
+            sqlStatement(
                 "INSERT INTO `dated_reminders_link` 
                             (`dr_id` ,`to_id`)
                             VALUES (?, ?);",
@@ -400,12 +400,12 @@ function logRemindersArray()
 // ----- HANDLE DATE RANGE FILTERS
     if (isset($_GET['sd']) and $_GET['sd'] != '') {
         $where = ($where == '' ? 'dr.dr_message_sent_date >= ?' : $where . ' AND dr.dr_message_sent_date >= ?');
-        $input[] = $_GET['sd'] . ' 00:00:00';
+        $input[] = DateToYYYYMMDD($_GET['sd']) . ' 00:00:00';
     }
 
     if (isset($_GET['ed']) and $_GET['ed'] != '') {
         $where = ($where == '' ? 'dr.dr_message_sent_date <= ?' : $where . ' AND dr.dr_message_sent_date <= ?');
-        $input[] = $_GET['ed'] . ' 23:59:59';
+        $input[] = DateToYYYYMMDD($_GET['ed']) . ' 23:59:59';
     }
 
 //------------------------------------------

@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 /* $isAuthorized tells us if the form is for user UI or claim processing and provides another security check */
 if ($isAuthorized !== true) {
@@ -48,7 +48,7 @@ if ($isAuthorized !== true) {
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui/jquery-ui.min.js"></script>
 
 <script type="text/javascript">
-$( document ).ready(function() {
+$(function() {
     $( "[title*='DATE']" ).datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -205,7 +205,7 @@ payerid = <?php echo js_escape($payerid);?>;
 pid = <?php echo js_escape($pid);?>;
 encounter = <?php echo js_escape($encounter);?>;
 isTemplate = <?php echo js_escape(($isAuthorized === true ? $isAuthorized : 0)); ?>;
-ub04id = <?php echo js_escape($ub04id);?>;
+ub04id = <?php echo $ub04id;?>;
 
 function adjustForm()
 {
@@ -947,7 +947,7 @@ textarea{
 <?php if ($isAuthorized !== true) {?>
 <h3 class='formhide'><em><?php echo xlt('Claim Edit') ?> </em><button class="btn btn-xs btn-warning" onclick="myZoom()" ><?php echo xlt('Zoom'); ?></button></h3>
 <div class="navbar-fixed-top formhide" id='menu'>
-<?php if ($pid && $encounter) {?>
+    <?php if ($pid && $encounter) {?>
     <button class="btn btn-xs btn-success" onclick="disposeSave('form')" title=<?php echo xla("Save for printing with form") ?>><?php echo xlt('Pdf With Form'); ?></button>
     <button class="btn btn-xs btn-success" onclick="disposeSave('noform')" title=<?php echo xla("Save for printing to a pre printed sheet"); ?>><?php echo xlt('Pdf Without Form'); ?></button>
     <button class="btn btn-xs btn-success" onclick="postClaim('batch_save')" title=<?php echo xla("Save claim for batch processing"); ?>><?php echo xlt('Save Claim'); ?></button>

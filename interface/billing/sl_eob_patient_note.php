@@ -17,6 +17,7 @@ require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/forms.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $info_msg = "";
@@ -34,8 +35,8 @@ if (! $patient_id) {
 }
 
 if ($_POST['form_save']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     $thevalue = trim($_POST['form_note']);
@@ -55,7 +56,7 @@ if ($_POST['form_save']) {
 
   $row = sqlQuery("select fname, lname, billing_note " .
     "from patient_data where pid = ? limit 1", array($patient_id));
-?>
+    ?>
 <div class="container">
     <div class = "row">
         <div class="page-header">
@@ -64,7 +65,7 @@ if ($_POST['form_save']) {
     </div>
     <div class = "row">
         <form method='post' action='sl_eob_patient_note.php?patient_id=<?php echo attr_url($patient_id); ?>'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <div class="col-xs-12" style="padding-bottom:5px">
 
             </div>

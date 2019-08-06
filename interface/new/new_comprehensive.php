@@ -20,6 +20,7 @@ require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Check authorization.
@@ -357,7 +358,7 @@ function selBlur(elem) {
 // This invokes the patient search dialog.
 function searchme() {
  var f = document.forms[0];
- var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>';
+ var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
 
 <?php
 $lres = getLayoutRes();
@@ -431,7 +432,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         <div class="row">
             <div class="col-sm-12">
                 <form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <table width='100%' cellpadding='0' cellspacing='8'>
                     <tr>
                       <td align='left' valign='top'>
@@ -455,8 +456,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         global $cell_count, $CPR;
                         end_cell();
                         if ($cell_count > 0) {
-                            for (; $cell_count < $CPR;
-                            ++$cell_count) {
+                            for (; $cell_count < $CPR; ++$cell_count) {
                                 echo "<td></td>";
                             }
 
@@ -616,7 +616,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                         for ($i=1; $i<=3; $i++) {
                             $result3 = $insurance_info[$i];
-                        ?>
+                            ?>
                         <table border="0">
                             <tr>
                                 <td valign='top' colspan='2'>
@@ -792,7 +792,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             </tr>
                         </table>
                         <hr />
-                        <?php
+                            <?php
                         }
 
                         echo "</div>\n";
@@ -823,7 +823,6 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 // hard code validation for old validation, in the new validation possible to add match rules
 <?php if ($GLOBALS['new_validate'] == 0) { ?>
-
 // fix inconsistently formatted phone numbers from the database
 var f = document.forms[0];
 if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
@@ -840,7 +839,7 @@ if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
 // var matches = 0; // number of patients that match the demographic information being entered
 // var override = false; // flag that overrides the duplication warning
 
-$(document).ready(function() {
+$(function () {
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         dlgopen('', '', 650, 460, '', '', {
@@ -899,7 +898,7 @@ $(document).ready(function() {
 
             $mflist .= js_escape($field_id);
         }
-?>
+        ?>
         <?php if (($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive())) :?>
             // Use zend module patient validation hook to open the controller and send the dup-checker fields.
             var url ='<?php echo $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation"; ?>';

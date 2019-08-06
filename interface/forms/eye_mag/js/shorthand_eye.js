@@ -3,24 +3,11 @@
  *
  * JS Functions for eye_mag form(s) Shorthand Entry System
  *
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Ray Magauran <magauran@MedFetch.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 function expand_vocab(text) {
@@ -115,11 +102,11 @@ function process_kb_1(field,text,appendix) {
         // imagine being able to enter meds as a list.  Just type them in the textarea
         // and poof they are documented. (or just dictate into this text area - sure!)
         // Structure = field:text.text.text;  field:text; all are appended, no replacement.
-    
+
         // First list fields that exist but need special processing...
         // Second, if the field exists on the form just do it/
         // Third, if what is entered does not exist, see if it makes sense...
-    
+
         // POH:text; 1 entry to POH.
         // PMH:text1.text2;PMH:text3;  3 entries to PMH.
         // POH:Phaco/IOL OD 4/4/1994.Phaco/IOL OS 4/24/1995.  Analyze for dates too?
@@ -133,7 +120,7 @@ function process_kb_1(field,text,appendix) {
             //Maybe Dental but we are not using that so leave it to others.
             //Not FH,SH or ROS though...
             //some aliases:
-    
+
     if (field == "ALL") field = "Allergy";
     if (field == "ALLERGY") field = "Allergy";
     if (field == "MEDICATION") field = "Medication";
@@ -151,10 +138,10 @@ function process_kb_1(field,text,appendix) {
         (field =="POH")||
         (field =="POS")) {
         //if you create your own Issue, identify it now
-        
+
             //Numerical text with a decimal need to be processed before splitting up entries.
         text = text.replace(/(\d)\.(\d)/g,"$1UGLYHACK$2");
-        
+
         var url = "../../forms/eye_mag/save.php?PMSFH_save=1&mode=update&form_save=1";
         var text_seg = text.match(/[^\.]*/g);
         for (index=0; index < text_seg.length; ++index) {
@@ -233,7 +220,7 @@ function process_kb_1(field,text,appendix) {
         if (field == 'LTA')     field2 = "LTEMPART";
         if (field == 'RCN5')    field2 = "RCNV";
         if (field == 'LCN5')    field2 = "LCNVI";
-        if (field == 'RCN7')    field2 = "RCMVII";
+        if (field == 'RCN7')    field2 = "RCNVII";
         if (field == 'LCN7')    field2 = "LCNVII";
         if (field == 'RH')      field2 = "ODHERTEL";
         if (field == 'LH')      field2 = "OLHERTEL";
@@ -295,7 +282,7 @@ function process_kb_1(field,text,appendix) {
         if (field == 'DAN')     field2 = 'DACCNEAR';
         if (field == 'NCOM')    field2 = 'NEURO_COMMENTS';
         if (field == 'IMPPLAN') field2 = 'IMP';
-        
+
         if (field2 > '') {
             (appendix == ".a") ? ($('#'+field2).val($('#'+field2).val() +", "+text)) : $('#'+field2).val(text);
             $('#'+field2).css("background-color","#F0F8FF");
@@ -303,7 +290,7 @@ function process_kb_1(field,text,appendix) {
             response['prior_text'] = $('#'+field2).val();
             return response;
         }
-        
+
         if (field == 'HERT') {
             $('#ODHERTEL').val(text.match(/(\d{2})-(\d{1,3})-(\d{2})/)[1]).css("background-color","#F0F8FF");
             $('#OSHERTEL').val(text.match(/(\d{2})-(\d{1,3})-(\d{2})/)[3]).css("background-color","#F0F8FF");

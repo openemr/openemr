@@ -17,8 +17,10 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 if ($encounter == "") {
@@ -29,7 +31,7 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_reviewofs", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Review of Systems Checks", $newid, "reviewofs", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert(
+    sqlStatement(
         "UPDATE form_reviewofs set pid = ?,
             groupname=?,
             user=?,

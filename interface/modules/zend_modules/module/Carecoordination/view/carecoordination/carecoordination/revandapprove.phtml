@@ -1,24 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
- *    OpenEMR - Open Source Electronic Medical Record
- *    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+/**
+ * interface/modules/zend_modules/module/Carecoordination/view/carecoordination/carecoordination/revandapprove.phtml
  *
- *    This program is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU Affero General Public License as
- *    published by the Free Software Foundation, either version 3 of the
- *    License, or (at your option) any later version.
- *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU Affero General Public License for more details.
- *
- *    You should have received a copy of the GNU Affero General Public License
- *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *    @author  Chandni Babu <chandnib@zhservices.com>
- *    @author  Riju KP <rijukp@zhservices.com>  
- * +------------------------------------------------------------------------------+
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Chandni Babu <chandnib@zhservices.com>
+ * @author    Riju KP <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $patient_data = array(
@@ -156,7 +145,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
     {
         $(".procedure_result-proc_name-" + ij).val(procedure_name);
     }
-    $(document).ready(function() {
+    $(function() {
         $('#checkall').click(function() {
             if ($(this).is(':checked')) {
                 $(".chkall_I").val('insert');
@@ -167,75 +156,75 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 $(".chkall_U").val('ignore');
             }
         });
-        $('.checkAssignProblem1').click(function(){ 
-          if ($(this).is(':checked')) { 
+        $('.checkAssignProblem1').click(function(){
+          if ($(this).is(':checked')) {
               $(this).val('1');
           }
-          else { 
+          else {
               $(this).val('0');
           }
       });
-      $('.checkAssignProblem2').click(function(){ 
-          if ($(this).is(':checked')) { 
+      $('.checkAssignProblem2').click(function(){
+          if ($(this).is(':checked')) {
               $(this).val('1');
           }
-          else { 
+          else {
               $(this).val('0');
           }
       });
-      $('.checkAssignProblem3').click(function(){ 
-          if ($(this).is(':checked')) { 
+      $('.checkAssignProblem3').click(function(){
+          if ($(this).is(':checked')) {
               $(this).val('1');
           }
-          else { 
+          else {
               $(this).val('0');
           }
       });
-      $('.checkAssignAllergy1').click(function(){ 
-          if ($(this).is(':checked')) { 
+      $('.checkAssignAllergy1').click(function(){
+          if ($(this).is(':checked')) {
               $(this).val('1');
           }
-          else { 
+          else {
               $(this).val('0');
           }
       });
-      $('.checkAssignAllergy2').click(function(){ 
-          if ($(this).is(':checked')) { 
+      $('.checkAssignAllergy2').click(function(){
+          if ($(this).is(':checked')) {
               $(this).val('1');
           }
-          else { 
+          else {
               $(this).val('0');
           }
       });
-      $('.checkAssignAllergy3').click(function(){ 
-          if ($(this).is(':checked')) { 
+      $('.checkAssignAllergy3').click(function(){
+          if ($(this).is(':checked')) {
               $(this).val('1');
           }
-          else { 
+          else {
               $(this).val('0');
           }
       });
-      $('.checkAssignMed1').click(function(){ 
-          if ($(this).is(':checked')) { 
+      $('.checkAssignMed1').click(function(){
+          if ($(this).is(':checked')) {
               $(this).val('1');
           }
-          else { 
+          else {
               $(this).val('0');
           }
       });
-      $('.checkAssignMed2').click(function(){ 
-          if ($(this).is(':checked')) { 
+      $('.checkAssignMed2').click(function(){
+          if ($(this).is(':checked')) {
               $(this).val('1');
           }
-          else { 
+          else {
               $(this).val('0');
           }
       });
-      $('.checkAssignMed3').click(function(){ 
-          if ($(this).is(':checked')) { 
+      $('.checkAssignMed3').click(function(){
+          if ($(this).is(':checked')) {
               $(this).val('1');
           }
-          else { 
+          else {
               $(this).val('0');
           }
       });
@@ -500,11 +489,11 @@ $insert = $this->listenerObject->z_xlt('Insert');
         foreach ($this->social_history_audit['social_history'] as $key => $val) {
             $array_his_alcohol = explode("|", $val['alcohol']);
             if ($array_his_alcohol[2] != 0 && $array_his_alcohol[2] != '') {
-                $his_alc_date = \Carecoordination\Model\CarecoordinationTable::formatDate($array_his_alcohol[2], 0);
+                $his_alc_date = $this->carecoordinationTable->formatDate($array_his_alcohol[2], 0);
             }
             $array_his_tobacco = explode("|", $val['smoking']);
             if ($array_his_tobacco[2] != 0 && $array_his_tobacco[2] != '') {
-                $his_tob_date = \Carecoordination\Model\CarecoordinationTable::formatDate($array_his_tobacco[2], 0);
+                $his_tob_date = $this->carecoordinationTable->formatDate($array_his_tobacco[2], 0);
             }
             ?>
             <tr style="border-bottom: 0px">
@@ -571,7 +560,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         }
         foreach ($this->encounter_audit['encounter'] as $key => $val) {
             if ($val['date'] != 0 && $val['date'] != '') {
-                $enc_xml_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val['date'], 0);
+                $enc_xml_date = $this->carecoordinationTable->formatDate($val['date'], 0);
             }
             ?>
             <tr>
@@ -616,11 +605,11 @@ $insert = $this->listenerObject->z_xlt('Insert');
         <tr class="se_in_9 se_in_25">
             <th colspan="9"><?php echo $this->listenerObject->z_xlt('Problems'); ?></th>
         </tr>
-        <?php 
+        <?php
         $internal_problems_Arr = $internal_conflicted_problems_Arr = $imported_conflicted_problems_Arr = array();
         foreach ($this->problems as $res_existing_prob) {
          $set = 0;
-         foreach ($this->problems_audit['lists1'] as $k => $v) { 
+         foreach ($this->problems_audit['lists1'] as $k => $v) {
           if(in_array(substr($res_existing_prob['diagnosis'], 10), $this->problems_audit['lists1'][$k])) {
            $set = 1;
            array_push($internal_conflicted_problems_Arr, $res_existing_prob);
@@ -629,7 +618,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
           }
          }
          if($set == 0) {
-          array_push($internal_problems_Arr, $res_existing_prob);   
+          array_push($internal_problems_Arr, $res_existing_prob);
          }
         }
         if(count($this->problems)>0) { ?>
@@ -637,7 +626,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 <td colspan="9"><?php echo $this->listenerObject->z_xlt('Internal Problems');?></td>
             </tr>
             <?php }
-            foreach($this->problems as $res_existing_prob) { 
+            foreach($this->problems as $res_existing_prob) {
             $beg_date = $end_date = '';
             if ($res_existing_prob['enddate']) {
                  $activity = 0;
@@ -671,7 +660,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                     <input type='hidden' name='lists1_exist-list_id[]' value='<?php echo $this->escapeHtml($res_existing_prob['id']);?>' >
                     <td><?php echo  $this->listenerObject->z_xlt('Mod Date');?></td>
                     <td>
-                      <?php		    
+                      <?php
                         echo \Application\Model\ApplicationTable::fixDate(substr($res_existing_prob['modifydate'], 0, 10), $date_format, 'yyyy-mm-dd');
                       ?>
                     </td>
@@ -711,7 +700,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                         <td><?php echo $this->listenerObject->z_xlt('Code'); ?></td>
                         <td><input type='text' name='lists1-diagnosis-con[]' value='<?php echo $this->escapeHtml($v['list_code']); ?>' ></td>
                         <td><?php echo $this->listenerObject->z_xlt('Begin Date'); ?></td>
-                        <td><input type='text' name='lists1-begdate-con[]' value='<?php if ($v['begdate']) echo \Carecoordination\Model\CarecoordinationTable::formatDate($v['begdate'], 0); ?>' ></td>
+                        <td><input type='text' name='lists1-begdate-con[]' value='<?php if ($v['begdate']) echo $this->carecoordinationTable->formatDate($v['begdate'], 0); ?>' ></td>
                         <td colspan="2">&nbsp;</td>
                         <td>
                             <select name='lists1-con-sel[]' class="chkall_U">
@@ -720,7 +709,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                             </select>
                         </td>
                     <input type='hidden' name='lists1-old-id-con[]' value='<?php echo $this->escapeHtml($res_existing_prob['id']); ?>' >
-                    <input type='hidden' name='lists1-enddate-con[]' value='<?php if ($v['enddate']) echo \Carecoordination\Model\CarecoordinationTable::formatDate($v['enddate'], 0); ?>'>
+                    <input type='hidden' name='lists1-enddate-con[]' value='<?php if ($v['enddate']) echo $this->carecoordinationTable->formatDate($v['enddate'], 0); ?>'>
                     <input type='hidden' name='lists1-activity-con[]' value='<?php echo $this->escapeHtml($act); ?>' >
                     <input type="hidden" name="lists1-extension-con[]" value="<?php echo $this->escapeHtml($v['extension']); ?>">
                     <input type="hidden" name="lists1-root-con[]" value="<?php echo $this->escapeHtml($v['root']); ?>">
@@ -746,7 +735,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
             <tr style="background:#DAF2FB;">
                 <td colspan="9"><?php echo $this->listenerObject->z_xlt('Imported Problems');?></td>
             </tr>
-            <?php } 
+            <?php }
         foreach ($this->problems_audit['lists1'] as $key => $val) {
             if ($val['status'] == 'Active') {
                 $activity = 'Active';
@@ -755,10 +744,10 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 $activity = 'Inactive';
             }
             if ($val['enddate'] != 0 && $val['enddate'] != '') {
-                $problem_enddate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['enddate'], 0);
+                $problem_enddate = $this->carecoordinationTable->formatDate($val['enddate'], 0);
             }
             if ($val['begdate'] != 0 && $val['begdate'] != '') {
-                $problem_begdate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['begdate'], 0);
+                $problem_begdate = $this->carecoordinationTable->formatDate($val['begdate'], 0);
             } ?>
             <tr style='border-bottom: 0px'>
                 <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
@@ -791,7 +780,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
             </tr>
             <tr>
             <input type='hidden' name='lists1-enddate[]' value='<?php if ($problem_enddate) echo $problem_enddate; ?>'>
-            <input type='hidden' name='lists1-activity[]' value='<?php echo $this->escapeHtml($activity); ?>' >   
+            <input type='hidden' name='lists1-activity[]' value='<?php echo $this->escapeHtml($activity); ?>' >
             <input type="hidden" name="lists1-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
             <input type="hidden" name="lists1-root[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
             <input type="hidden" name="lists1-observation_text[]" value="<?php echo $this->escapeHtml($val['observation_text']); ?>">
@@ -810,7 +799,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         $internal_allergies_Arr = $internal_conflicted_allergies_Arr = $imported_conflicted_allergies_Arr = array();
         foreach ($this->allergies as $res_existing_allergies) {
          $set = 0;
-         foreach ($this->allergies_audit['lists2'] as $key => $val) { 
+         foreach ($this->allergies_audit['lists2'] as $key => $val) {
           if(in_array(substr($res_existing_allergies['diagnosis'], 7), $this->allergies_audit['lists2'][$key])) {
            $set = 1;
            array_push($internal_conflicted_allergies_Arr, $res_existing_allergies);
@@ -819,7 +808,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
           }
          }
          if($set == 0) {
-          array_push($internal_allergies_Arr, $res_existing_allergies);   
+          array_push($internal_allergies_Arr, $res_existing_allergies);
          }
         }
         if(count($this->allergies)>0) { ?>
@@ -841,7 +830,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
             if ($res_existing_allergies['begdate'] != NULL && $res_existing_allergies['begdate'] != 0) {
                 $beg_date = \Application\Model\ApplicationTable::fixDate($res_existing_allergies['begdate'], $date_format, 'yyyy-mm-dd');
             }
-            $severity = Carecoordination\Model\CarecoordinationTable::getListTitle($res_existing_allergies['severity_al'], 'severity_ccda', $res_existing_allergies['severity_al']);
+            $severity = $this->carecoordinationTable->getListTitle($res_existing_allergies['severity_al'], 'severity_ccda', $res_existing_allergies['severity_al']);
             ?>
             <tr style="border-bottom: 0px">
                 <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
@@ -857,14 +846,14 @@ $insert = $this->listenerObject->z_xlt('Insert');
             <tr>
                 <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
                 <td><?php if($activity == 1) echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>'; else echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>'; ?></td>
-                <td><?php echo $this->listenerObject->z_xlt('End Date'); ?></td> 
+                <td><?php echo $this->listenerObject->z_xlt('End Date'); ?></td>
                 <td><?php if ($end_date) echo $end_date; ?></td>
                 <td><?php echo $this->listenerObject->z_xlt('Resolved');?></td>
                 <td><input type="checkbox" name="lists2_exist-resolved[]" value="<?php if($res_existing_allergies['enddate']) echo '1'; else echo '0';?>" <?php if($res_existing_allergies['enddate']) echo 'checked="checked"'?> class="checkAssignAllergy2"></td>
                 <input type='hidden' name='lists2_exist-list_id[]' value='<?php echo $this->escapeHtml($res_existing_allergies['id']);?>'>
                 <td><?php echo  $this->listenerObject->z_xlt('Mod Date');?></td>
 		<td>
-		  <?php		    
+		  <?php
 		    echo \Application\Model\ApplicationTable::fixDate(substr($res_existing_allergies['modifydate'], 0, 10), $date_format, 'yyyy-mm-dd');
 		  ?>
 		</td>
@@ -882,7 +871,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
             </tr>
          <?php }
         foreach ($internal_conflicted_allergies_Arr as $res_existing_allergies) {
-           
+
             if ($res_existing_allergies['enddate'] != NULL && $res_existing_allergies['enddate'] != 0) {
                 $end_date = \Application\Model\ApplicationTable::fixDate($res_existing_allergies['enddate'], $date_format, 'yyyy-mm-dd');
             }
@@ -890,7 +879,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 $beg_date = \Application\Model\ApplicationTable::fixDate($res_existing_allergies['begdate'], $date_format, 'yyyy-mm-dd');
             }
            foreach ($imported_conflicted_allergies_Arr as $key => $val) {
-               
+
             $allergy_begdate = '';
             $allergy_enddate = '';
 
@@ -901,11 +890,11 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 $activity = 'Inactive';
             }
             if ($val['begdate'] != 0 && $val['begdate'] != NULL) {
-                $allergy_begdate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['begdate'], 0);
+                $allergy_begdate = $this->carecoordinationTable->formatDate($val['begdate'], 0);
             }
 
             if ($val['enddate'] != 0 && $val['enddate'] != NULL) {
-                $allergy_enddate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['enddate'], 0);
+                $allergy_enddate = $this->carecoordinationTable->formatDate($val['enddate'], 0);
             }
              if (in_array(substr($res_existing_allergies['diagnosis'], 7), $imported_conflicted_allergies_Arr[$key])) { ?>
             <tr style="border-bottom: 0px">
@@ -927,14 +916,14 @@ $insert = $this->listenerObject->z_xlt('Insert');
             <input type='hidden' name='lists2-list_id-con[]' value='<?php echo $this->escapeHtml($res_existing_allergies['id']);?>' >
             <input type='hidden' name='lists2-enddate-con[]' value='<?php if ($allergy_enddate) echo $allergy_enddate; ?>'>
             <input type='hidden' name='lists2-activity-con[]' value='<?php echo $this->escapeHtml($activity); ?>' >
-            <input type='hidden' name='lists2-severity_al-con[]' value='<?php echo $this->escapeHtml($val['severity_al']); ?>' >  
+            <input type='hidden' name='lists2-severity_al-con[]' value='<?php echo $this->escapeHtml($val['severity_al']); ?>' >
             <input type="hidden" name="lists2-extension-con[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
             <input type="hidden" name="lists2-reaction-con[]" value="<?php echo $this->escapeHtml($val['reaction']); ?>">
             <input type="hidden" name="lists2-reaction_text-con[]" value="<?php echo $this->escapeHtml($val['reaction_text']); ?>">
             <input type="hidden" name="lists2-codeSystemName-con[]" value="<?php echo $this->escapeHtml($val['codeSystemName']); ?>">
             <input type="hidden" name="lists2-outcome-con[]" value="<?php echo $this->escapeHtml($val['outcome']); ?>">
             <input type="hidden" name="lists2-severity_al-con[]" value="<?php echo $this->escapeHtml($val['severity_al']); ?>">
-            </tr> 
+            </tr>
             <tr style='color:red' >
                 <td>&nbsp;</td>
                 <td><?php echo $this->escapeHtml($res_existing_allergies['title']); ?></td>
@@ -966,11 +955,11 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 $activity = 'Inactive';
             }
             if ($val['begdate'] != 0 && $val['begdate'] != NULL) {
-                $allergy_begdate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['begdate'], 0);
+                $allergy_begdate = $this->carecoordinationTable->formatDate($val['begdate'], 0);
             }
 
             if ($val['enddate'] != 0 && $val['enddate'] != NULL) {
-                $allergy_enddate = \Carecoordination\Model\CarecoordinationTable::formatDate($val['enddate'], 0);
+                $allergy_enddate = $this->carecoordinationTable->formatDate($val['enddate'], 0);
             }
             ?>
             <tr style="border-bottom: 0px">
@@ -1005,14 +994,14 @@ $insert = $this->listenerObject->z_xlt('Insert');
             <tr>
             <input type='hidden' name='lists2-enddate[]' value='<?php if ($allergy_enddate) echo $allergy_enddate; ?>'>
             <input type='hidden' name='lists2-activity[]' value='<?php echo $this->escapeHtml($activity); ?>' >
-            <input type='hidden' name='lists2-severity_al[]' value='<?php echo $this->escapeHtml($val['severity_al']); ?>' >  
+            <input type='hidden' name='lists2-severity_al[]' value='<?php echo $this->escapeHtml($val['severity_al']); ?>' >
             <input type="hidden" name="lists2-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
             <input type="hidden" name="lists2-reaction[]" value="<?php echo $this->escapeHtml($val['reaction']); ?>">
             <input type="hidden" name="lists2-reaction_text[]" value="<?php echo $this->escapeHtml($val['reaction_text']); ?>">
             <input type="hidden" name="lists2-codeSystemName[]" value="<?php echo $this->escapeHtml($val['codeSystemName']); ?>">
             <input type="hidden" name="lists2-outcome[]" value="<?php echo $this->escapeHtml($val['outcome']); ?>">
             <input type="hidden" name="lists2-severity_al[]" value="<?php echo $this->escapeHtml($val['severity_al']); ?>">
-            </tr>  
+            </tr>
             <?php
         }
         ?>
@@ -1022,11 +1011,11 @@ $insert = $this->listenerObject->z_xlt('Insert');
         <tr class="se_in_9 se_in_25">
             <th colspan="9"><?php echo $this->listenerObject->z_xlt('Medications'); ?></th>
         </tr>
-        <?php 
+        <?php
         $internal_medications_Arr = $internal_conflicted_medications_Arr = $imported_conflicted_medications_Arr = array();
         foreach ($this->medications as $res_existing_medications) {
          $set = 0;
-         foreach ($this->medications_audit['lists3'] as $key => $val) { 
+         foreach ($this->medications_audit['lists3'] as $key => $val) {
           if(in_array($res_existing_medications['rxnorm_drugcode'], $this->medications_audit['lists3'][$key])) {
            $set = 1;
            array_push($internal_conflicted_medications_Arr, $res_existing_medications);
@@ -1034,7 +1023,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
           }
          }
          if($set == 0) {
-          array_push($internal_medications_Arr, $res_existing_medications);   
+          array_push($internal_medications_Arr, $res_existing_medications);
          }
         }
         if(count($this->medications)>0) {?>
@@ -1042,9 +1031,9 @@ $insert = $this->listenerObject->z_xlt('Insert');
          <td colspan="9"><?php echo $this->listenerObject->z_xlt('Internal Medications');?></td>
         </tr>
         <?php }
-        foreach($this->medications as $res_existing_medications) {  
-            $units = \Carecoordination\Model\CarecoordinationTable::getListTitle($res_existing_medications['unit'], 'drug_units', '');
-            $route = \Carecoordination\Model\CarecoordinationTable::getListTitle($res_existing_medications['route'], 'drug_route', '');
+        foreach($this->medications as $res_existing_medications) {
+            $units = $this->carecoordinationTable->getListTitle($res_existing_medications['unit'], 'drug_units', '');
+            $route = $this->carecoordinationTable->getListTitle($res_existing_medications['route'], 'drug_route', '');
             if ($res_existing_medications['date_added'] != 0 && $res_existing_medications['date_added'] != '')
                 $date_added = $res_existing_medications['date_added'];  ?>
             <tr style="border-bottom: 0px">
@@ -1068,7 +1057,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 <input type='hidden' name='lists3_exist-id[]' value='<?php echo $res_existing_medications['id'];?>'>
                 <td><?php echo  $this->listenerObject->z_xlt('Mod Date');?></td>
 		<td>
-		  <?php		    
+		  <?php
 		    echo \Application\Model\ApplicationTable::fixDate(substr($res_existing_medications['datetime'], 0, 10), $date_format, 'yyyy-mm-dd');
 		  ?>
 		</td>
@@ -1087,17 +1076,17 @@ $insert = $this->listenerObject->z_xlt('Insert');
             </tr>
         <?php }
         foreach ($internal_conflicted_medications_Arr as $res_existing_medications) {
-            $units = \Carecoordination\Model\CarecoordinationTable::getListTitle($res_existing_medications['unit'], 'drug_units', '');
-            $route = \Carecoordination\Model\CarecoordinationTable::getListTitle($res_existing_medications['route'], 'drug_route', '');
+            $units = $this->carecoordinationTable->getListTitle($res_existing_medications['unit'], 'drug_units', '');
+            $route = $this->carecoordinationTable->getListTitle($res_existing_medications['route'], 'drug_route', '');
             if ($res_existing_medications['date_added'] != 0 && $res_existing_medications['date_added'] != '')
                 $date_added = $res_existing_medications['date_added'];
 
            foreach ($imported_conflicted_medications_Arr as $key => $val) {
-            $route_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_route', $val['route_display']);
-            $unit_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_units', $val['rate_unit']);
-            $drug_unit_list = \Application\Plugin\CommonPlugin::getList('drug_units', $unit_option_id, '');
-            $drug_route_list = \Application\Plugin\CommonPlugin::getList('drug_route', $route_option_id, '');
-            
+            $route_option_id = $this->carecoordinationTable->getOptionId('drug_route', $val['route_display']);
+            $unit_option_id = $this->carecoordinationTable->getOptionId('drug_units', $val['rate_unit']);
+            $drug_unit_list = $this->commonplugin->getList('drug_units', $unit_option_id, '');
+            $drug_route_list = $this->commonplugin->getList('drug_route', $route_option_id, '');
+
             if(strlen($val['begdate']) == 8){
              $val['begdate'] = substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2);
             }
@@ -1113,14 +1102,14 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 <td><?php echo $this->listenerObject->z_xlt('Name'); ?></td>
                 <td><input type='text' name='lists3-drug-con[]' value='<?php echo $this->escapeHtml($val['drug_text']); ?>' ></td>
                 <td><?php echo $this->listenerObject->z_xlt('Dose'); ?></td>
-                <td><input type='text' name='lists3-dose-con[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>        
+                <td><input type='text' name='lists3-dose-con[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>
                  <td><?php echo $this->listenerObject->z_xlt('Strength'); ?></td>
                 <td> <input style="" type='text'  name='lists3-size-con[]' value='<?php echo $this->escapeHtml($val['rate']); ?>' ></td>
                 <td>&nbsp;</td>
             </tr>
-            <tr style="border-bottom: 0px;">           
+            <tr style="border-bottom: 0px;">
                 <td><?php echo $this->listenerObject->z_xlt('Units'); ?></td>
-                <td> 
+                <td>
                     <select name='lists3-rate_unit-con[]'>
                         <?php foreach ($drug_unit_list as $value) : ?>
                             <option value="<?php echo $this->escapeHtml($value['value']); ?>" <?php if ($value['selected'] == 1) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['label']); ?></option>
@@ -1176,13 +1165,13 @@ $insert = $this->listenerObject->z_xlt('Insert');
         <tr style="background:#DAF2FB;">
          <td colspan="9"><?php echo $this->listenerObject->z_xlt('Imported Medications');?></td>
         </tr>
-        <?php } 
+        <?php }
         foreach ($this->medications_audit['lists3'] as $key => $val) {
-            $route_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_route', $val['route_display']);
-            $unit_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_units', $val['rate_unit']);
-            $drug_unit_list = \Application\Plugin\CommonPlugin::getList('drug_units', $unit_option_id, '');
-            $drug_route_list = \Application\Plugin\CommonPlugin::getList('drug_route', $route_option_id, '');
-            
+            $route_option_id = $this->carecoordinationTable->getOptionId('drug_route', $val['route_display']);
+            $unit_option_id = $this->carecoordinationTable->getOptionId('drug_units', $val['rate_unit']);
+            $drug_unit_list = $this->commonplugin->getList('drug_units', $unit_option_id, '');
+            $drug_route_list = $this->commonplugin->getList('drug_route', $route_option_id, '');
+
             if(strlen($val['begdate']) == 8){
              $val['begdate'] = substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2);
             }
@@ -1196,14 +1185,14 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 <td><?php echo $this->listenerObject->z_xlt('Name'); ?></td>
                 <td><input type='text' name='lists3-drug[]' value='<?php echo $this->escapeHtml($val['drug_text']); ?>' ></td>
                 <td><?php echo $this->listenerObject->z_xlt('Dose'); ?></td>
-                <td><input type='text' name='lists3-dose[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>        
+                <td><input type='text' name='lists3-dose[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>
                 <td><?php echo $this->listenerObject->z_xlt('Strength'); ?></td>
                 <td> <input style="" type='text' size='7' name='lists3-size[]' value='<?php echo $this->escapeHtml($val['rate']); ?>' ></td>
                 <td><?php if($val['enddate'] && $val['enddate'] != 0) echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>'; else echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>'; ?></td>
             </tr>
-            <tr>           
+            <tr>
                 <td><?php echo $this->listenerObject->z_xlt('Units'); ?></td>
-                <td> 
+                <td>
                     <select name='lists3-rate_unit[]'>
                         <?php foreach ($drug_unit_list as $value) : ?>
                             <option value="<?php echo $this->escapeHtml($value['value']); ?>" <?php if ($value['selected'] == 1) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['label']); ?></option>
@@ -1271,7 +1260,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         }
         foreach ($this->immunizations_audit['immunization'] as $key => $val) {
             if ($val['administered_date'] != 0 && $val['administered_date'] != '') {
-                $immunization_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val['administered_date'], 0);
+                $immunization_date = $this->carecoordinationTable->formatDate($val['administered_date'], 0);
             }
             ?>
             <tr>
@@ -1343,21 +1332,21 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 $ordered_date = $v1['date_ordered'];
             foreach ($v1 as $key2 => $value2) {
                 $t++;
-                ?> 
+                ?>
                 <tr <?php if (count($v1) != $t) { ?> style="border-bottom: 0px" <?php } ?>>
                     <?php if ($t == 1) { ?>
                         <td><?php echo $this->listenerObject->z_xlt($v1['order_title']); ?></td>
                         <td><?php if ($ordered_date) echo \Application\Model\ApplicationTable::fixDate($ordered_date, $date_format, 'yyyy-mm-dd'); ?></td>
-                    <?php } else { ?> 
-                        <td>&nbsp;</td> 
-                        <td>&nbsp;</td> 
+                    <?php } else { ?>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
                 <?php  }
                     if (is_array($value2)) {
                         ?>
                         <td><?php echo $this->listenerObject->z_xlt($value2['result_desc']); ?></td>
                         <td><?php echo $this->escapeHtml($value2['result_value']) . " " . $this->listenerObject->z_xlt($value2['units']); ?></td>
                         <td><?php echo $this->escapeHtml($value2['range']); ?></td>
-                        <td colspan="4">&nbsp;</td> 
+                        <td colspan="4">&nbsp;</td>
                     </tr>
                     <?php
                 }
@@ -1392,17 +1381,17 @@ $insert = $this->listenerObject->z_xlt('Insert');
             $k = 0;
             $ij++;
             if ($val1['date'] != 0) {
-                $result_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val1['date'], 0);
+                $result_date = $this->carecoordinationTable->formatDate($val1['date'], 0);
             }
             foreach ($val1 as $k2 => $val2) {
                 $k++;
                 if (is_array($val2) && $val2['results_date'] != 0 && $val2['results_date'] != '') {
-                    $proc_result_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val2['results_date'], 0);
+                    $proc_result_date = $this->carecoordinationTable->formatDate($val2['results_date'], 0);
                 }
                 ?>
                 <tr <?php if (count($val1) != $k) { ?> style="border-bottom: 0px" <?php } ?>>
                     <?php if ($k == 1) { ?>
-                        <td><input type='text'  name='procedure_result-proc_text[]' value='<?php echo $this->listenerObject->z_xlt($val1['proc_text']); ?>' onblur="setProcedureNameHidden(this.value, '<?php echo $ij; ?>');"></td>          
+                        <td><input type='text'  name='procedure_result-proc_text[]' value='<?php echo $this->listenerObject->z_xlt($val1['proc_text']); ?>' onblur="setProcedureNameHidden(this.value, '<?php echo $ij; ?>');"></td>
                     <?php } else { ?>
                         <td>&nbsp;</td>
             <?php }
@@ -1410,7 +1399,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                         ?>
                         <td><input type='text'  name='procedure_result-result_date[]' value='<?php if ($proc_result_date) echo $proc_result_date; ?>'></td>
                         <td><input type='text' name='procedure_result-result[]' value='<?php echo $this->listenerObject->z_xlt($val2['results_text']); ?>' ></td>
-                        <td><input type='text' name='procedure_result-result_value[]' value='<?php echo $this->escapeHtml($val2['results_value']); ?>' ></td>    
+                        <td><input type='text' name='procedure_result-result_value[]' value='<?php echo $this->escapeHtml($val2['results_value']); ?>' ></td>
                         <td><input type='text' name='procedure_result-result_range[]' value='<?php echo $this->escapeHtml($val2['results_range']); ?>' ></td>
                         <td colspan="5">
                             <select name='procedure_result-sel[]' class="chkall_I">
@@ -1474,7 +1463,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         }
         foreach ($this->vitals_audit['vital_sign'] as $key => $val) {
             if ($val['date'] != 0 && $val['date'] != '') {
-                $vitals_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val['date'], 0);
+                $vitals_date = $this->carecoordinationTable->formatDate($val['date'], 0);
             }
             ?>
             <tr style="border-bottom: 0px">
@@ -1538,7 +1527,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         }
         foreach ($this->procedure_audit['procedure'] as $key => $val) {
             if ($val['date'] != 0) {
-                $procedure_date = \Carecoordination\Model\CarecoordinationTable::formatDate($val['date'], 0);
+                $procedure_date = $this->carecoordinationTable->formatDate($val['date'], 0);
             }
             ?>
             <tr>
@@ -1651,7 +1640,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
             </tr>
             <?php
         }
-        ?>      
+        ?>
     </table>
     <br/>
     <table class="responsive">
@@ -1692,12 +1681,12 @@ $insert = $this->listenerObject->z_xlt('Insert');
     <table class="responsive">
                 <tr class="se_in_9 se_in_25">
                   <th colspan="9"><?php echo $this->listenerObject->z_xlt('Discharge Medications'); ?></th>
-                </tr> 
+                </tr>
                 <?php foreach ($this->discharge_medication_audit['discharge_medication'] as $key => $val) {
-                    $route_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_route', $val['route_display']);
-                    $unit_option_id = \Carecoordination\Model\CarecoordinationTable::getOptionId('drug_units', $val['rate_unit']);
-                    $drug_unit_list = \Application\Plugin\CommonPlugin::getList('drug_units', $unit_option_id, '');
-                    $drug_route_list = \Application\Plugin\CommonPlugin::getList('drug_route', $route_option_id, '');
+                    $route_option_id = $this->carecoordinationTable->getOptionId('drug_route', $val['route_display']);
+                    $unit_option_id = $this->carecoordinationTable->getOptionId('drug_units', $val['rate_unit']);
+                    $drug_unit_list = $this->commonplugin->getList('drug_units', $unit_option_id, '');
+                    $drug_route_list = $this->commonplugin->getList('drug_route', $route_option_id, '');
 
                     if(strlen($val['begdate']) == 8){
                      $val['begdate'] = substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2);
@@ -1712,14 +1701,14 @@ $insert = $this->listenerObject->z_xlt('Insert');
                         <td><?php echo $this->listenerObject->z_xlt('Name'); ?></td>
                         <td><input type='text' name='discharge_medication-drug[]' value='<?php echo $this->escapeHtml($val['drug_text']); ?>' ></td>
                         <td><?php echo $this->listenerObject->z_xlt('Dose'); ?></td>
-                        <td><input type='text' name='discharge_medication-dose[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>        
+                        <td><input type='text' name='discharge_medication-dose[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>
                         <td><?php echo $this->listenerObject->z_xlt('Strength'); ?></td>
                         <td> <input style="" type='text' size='7' name='discharge_medication-size[]' value='<?php echo $this->escapeHtml($val['rate']); ?>' ></td>
                         <td><?php if($val['enddate'] && $val['enddate'] != 0) echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>'; else echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>'; ?></td>
                     </tr>
-                    <tr>           
+                    <tr>
                         <td><?php echo $this->listenerObject->z_xlt('Units'); ?></td>
-                        <td> 
+                        <td>
                             <select name='discharge_medication-rate_unit[]'>
                                 <?php foreach ($drug_unit_list as $value) : ?>
                                     <option value="<?php echo $this->escapeHtml($value['value']); ?>" <?php if ($value['selected'] == 1) echo "selected"; ?>><?php echo $this->listenerObject->z_xlt($value['label']); ?></option>
@@ -1764,7 +1753,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
             <table class="responsive">
                 <tr class="se_in_9 se_in_25">
                   <th colspan="9"><?php echo $this->listenerObject->z_xlt('Discharge Summary'); ?></th>
-                </tr> 
+                </tr>
                  <?php
                 foreach($this->discharge_summary as $res_existing_discharge_summary){
                     ?>

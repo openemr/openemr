@@ -13,6 +13,7 @@
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 //the maximum number of records to pull out with the search:
@@ -38,7 +39,7 @@ $code_type = $_GET['type'];
 <td valign=top>
 
 <form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo attr_url($code_type); ?>">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type="hidden" name="mode" value="search">
 
@@ -53,8 +54,8 @@ $code_type = $_GET['type'];
 
 <?php
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "") {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     echo "<div id='resultsummary' style='background-color:lightgreen;'>";
@@ -62,8 +63,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "")
 }
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "") {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
   // $sql = "SELECT * FROM codes WHERE (code_text LIKE '%" . $_POST["text"] .
@@ -98,49 +99,49 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
         }
 
         echo "</div>";
-?>
+        ?>
 <div id="results">
 <table><tr class='text'><td valign='top'>
-<?php
-$count = 0;
-$total = 0;
+        <?php
+        $count = 0;
+        $total = 0;
 
-if ($result) {
-    foreach ($result as $iter) {
-        if ($count == $N) {
-            echo "</td><td valign='top'>\n";
-            $count = 0;
+        if ($result) {
+            foreach ($result as $iter) {
+                if ($count == $N) {
+                    echo "</td><td valign='top'>\n";
+                    $count = 0;
+                }
+
+                echo "<div class='oneresult' style='padding: 3px 0px 3px 0px;'>";
+                echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
+                    "&type="     . attr_url($code_type) .
+                    "&code="     . attr_url($iter{"code"}) .
+                    "&modifier=" . attr_url($iter{"modifier"}) .
+                    "&units="    . attr_url($iter{"units"}) .
+                    // "&fee="      . attr_url($iter{"fee"}) .
+                    "&fee="      . attr_url($iter['pr_price']) .
+                    "&text="     . attr_url($iter{"code_text"}) .
+                    "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
+                    "' onclick='top.restoreSession()'>";
+                echo ucwords("<b>" . text(strtoupper($iter{"code"})) . "&nbsp;" . text($iter['modifier']) .
+                    "</b>" . " " . text(strtolower($iter{"code_text"})));
+                echo "</a><br>\n";
+                echo "</div>";
+
+                $count++;
+                $total++;
+
+                if ($total == $M) {
+                    echo "</span><span class='alert-custom'>" . xlt('Some codes were not displayed.') . "</span>\n";
+                    break;
+                }
+            }
         }
-
-        echo "<div class='oneresult' style='padding: 3px 0px 3px 0px;'>";
-        echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
-            "&type="     . attr_url($code_type) .
-            "&code="     . attr_url($iter{"code"}) .
-            "&modifier=" . attr_url($iter{"modifier"}) .
-            "&units="    . attr_url($iter{"units"}) .
-            // "&fee="      . attr_url($iter{"fee"}) .
-            "&fee="      . attr_url($iter['pr_price']) .
-            "&text="     . attr_url($iter{"code_text"}) .
-            "&csrf_token_form=" . attr_url(collectCsrfToken()) .
-            "' onclick='top.restoreSession()'>";
-        echo ucwords("<b>" . text(strtoupper($iter{"code"})) . "&nbsp;" . text($iter['modifier']) .
-            "</b>" . " " . text(strtolower($iter{"code_text"})));
-        echo "</a><br>\n";
-        echo "</div>";
-
-        $count++;
-        $total++;
-
-        if ($total == $M) {
-            echo "</span><span class='alert-custom'>" . xlt('Some codes were not displayed.') . "</span>\n";
-            break;
-        }
-    }
-}
-?>
+        ?>
 </td></tr></table>
 </div>
-<?php
+        <?php
     }
 }
 ?>
@@ -156,7 +157,7 @@ if ($result) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function (){
     $("#text").trigger("focus");
     $(".oneresult").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".oneresult").on("mouseout", function() { $(this).toggleClass("highlight"); });

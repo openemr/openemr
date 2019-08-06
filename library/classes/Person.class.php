@@ -1,6 +1,6 @@
 <?php
 /************************************************************************
-  			pharmacy.php - Copyright duhlman
+            pharmacy.php - Copyright duhlman
 
 /usr/share/apps/umbrello/headings/heading.php
 

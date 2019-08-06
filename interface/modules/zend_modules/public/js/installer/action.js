@@ -1,31 +1,22 @@
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Jacob T.Paul <jacob@zhservices.com>
-*    @author  Vipin Kumar <vipink@zhservices.com>
-*    @author  Remesh Babu S <remesh@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/public/js/installer/action.js
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jacob T.Paul <jacob@zhservices.com>
+ * @author    Vipin Kumar <vipink@zhservices.com>
+ * @author    Remesh Babu S <remesh@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 function register(status,title,name,method,type){
 	$.post("./Installer/register", { st: status, mod_title: title, mod_name: name, mod_method:method,mtype:type},
 	   function(data) {
 			if(data == "Success") {
 				window.location.reload();
-      } else { 
+      } else {
         var resultTranslated = js_xl(data);
 				$('#err').html(resultTranslated.msg).fadeIn().delay(2000).fadeOut();
       }
@@ -38,7 +29,7 @@ function manage(id,action){
 		modencmenu = document.getElementById('mod_enc_menu').value;
 	else
 		modencmenu = '';
-	if(document.getElementById('mod_nick_name_'+id))	
+	if(document.getElementById('mod_nick_name_'+id))
 		modnickname = document.getElementById('mod_nick_name_'+id).value;
 	else
 		modnickname = '';
@@ -55,7 +46,7 @@ function manage(id,action){
 						parent.RTop.location.reload();
 					}
 					top.document.getElementById('fsright').rows = '*,*';
-				}				
+				}
 				window.location.reload();
 			}
 			else{
@@ -67,7 +58,7 @@ function manage(id,action){
 
 function configure(id,imgpath){
 	if($("#ConfigRow_"+id).css("display")!="none"){
-		$(".config").hide();		
+		$(".config").hide();
 		$("#ConfigRow_"+id).fadeOut();
 	}
 	else{
@@ -75,7 +66,7 @@ function configure(id,imgpath){
 			function(data) {
 				$(".config").hide();
 				$("#ConfigRow_"+id).hide();
-				$("#ConfigRow_"+id).html('<td colspan="10" align="center">'+data+'</td>').fadeIn();	
+				$("#ConfigRow_"+id).html('<td colspan="10" align="center">'+data+'</td>').fadeIn();
 			}
 		);
 	}
@@ -94,16 +85,16 @@ function SaveMe(frmId,mod_id){
 	var SelAccIndTab = $('#configaccord'+mod_id).accordion('getSelected');
 	if(SelAccIndTab)
 		var Acctitle 	= SelAccIndTab.panel('options').title;
-	
+
 	var SelTab 	= $('#tab'+mod_id).tabs('getSelected');
 	if(SelTab)
 		var Tabtitle = SelTab.panel('options').title;
-		
+
 	if(frmId == 'hooksform'){
 		$.ajax({
 			type: 'POST',
 			url: "./Installer/SaveHooks",
-			data: $('#'+frmId+mod_id).serialize(),   
+			data: $('#'+frmId+mod_id).serialize(),
 			success: function(data){
 				$.each(data, function(jsonIndex, jsonValue){
 					if (jsonValue['return'] == 1) {
@@ -115,7 +106,7 @@ function SaveMe(frmId,mod_id){
 					}
 				});
 			}
-		});	
+		});
 	}
 }
 
@@ -135,7 +126,7 @@ function DeleteACL(aclID,user,mod_id,msg){
 			},
 			success: function(data){
 					$.each(data, function(jsonIndex, jsonValue){
-						if (jsonValue['return'] == 1) {	
+						if (jsonValue['return'] == 1) {
 							$("#ConfigRow_"+mod_id).hide();
 							configure(mod_id,'');
 							alert(jsonValue['msg']);
@@ -174,13 +165,13 @@ function DeleteHooks(hooksID,mod_id,msg){
          }
        });
      }
-   });	
+   });
    }
 }
 
 /**
 * Save Settings Tab Contants
-* 
+*
 * @param {string} frmId
 * @param {int} mod_id
 * @returns {undefined}
@@ -189,13 +180,13 @@ function saveConfig(frmId, mod_id) {
   $.ajax({
     type: 'POST',
     url: "./Installer/saveConfig",
-    data: $('#' + frmId + mod_id).serialize(),   
-    success: function(data){ 
+    data: $('#' + frmId + mod_id).serialize(),
+    success: function(data){
       var resultTranslated = js_xl('Configuration saved successfully');
       $('#target' + data.modeId).html(resultTranslated.msg + ' ....').show().fadeOut(4000);
     }
   });
-  
+
 }
 
 function validateNickName(modId) {
@@ -225,5 +216,5 @@ function validateNickName(modId) {
 		$("#mod_nick_name_message_"+modId).html("");
 	}
 }
-  
+
 

@@ -14,8 +14,10 @@
 
 require_once("../../globals.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 $lbf_form_id = $_GET['formname'];
@@ -36,22 +38,22 @@ $result = sqlQuery(
 );
 
 if (!$result) { //If there are none
-?>
+    ?>
   <span class='text'> <?php echo xlt("None have been documented"); ?>
   </span>
 <?php } else { ?>
   <span class='text'><b>
-<?php
-  echo text(xl('Most recent from') . ": " .
+    <?php
+    echo text(xl('Most recent from') . ": " .
     oeFormatShortDate(substr($result['date'], 0, 10)));
-?>
+    ?>
   </b></span>
   <br />
   <br />
-<?php
-  include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-  call_user_func("lbf_report", '', '', 2, $result['form_id'], $lbf_form_id);
-?>
+    <?php
+    include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
+    call_user_func("lbf_report", '', '', 2, $result['form_id'], $lbf_form_id);
+    ?>
   <span class='text'>
   <br />
   <a href='../encounter/trend_form.php?formname=<?php echo attr_url($lbf_form_id); ?>'

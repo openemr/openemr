@@ -13,11 +13,12 @@
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     EventAuditLogger::instance()->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
@@ -29,7 +30,6 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_top">
@@ -39,10 +39,10 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
 <font class=more><?php echo text($tback); ?></font></a>
 
 <?php
-//	billing
-//	forms
-//	pnotes
-//	transactions
+//  billing
+//  forms
+//  pnotes
+//  transactions
 
 //fetch billing information:
 if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user from billing LEFT JOIN users as u on billing.user = u.id where billing.authorized=0 and groupname=?", array ($groupname))) {
@@ -79,8 +79,7 @@ if ($res = sqlStatement("select * from transactions where authorized=0 and group
 if (empty($GLOBALS['ignore_pnotes_authorization'])) {
   //fetch pnotes information, exclude ALL deleted notes
     if ($res = sqlStatement("select * from pnotes where authorized=0 and deleted!=1 and groupname=?", array($groupname))) {
-        for ($iter = 0; $row = sqlFetchArray($res);
-        $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result3[$iter] = $row;
         }
 
@@ -123,7 +122,7 @@ if ($authorize) {
 
         echo "<tr><td valign=top><span class=bold>". text($name{"fname"} . " " . $name{"lname"}) .
              "</span><br><a class=link_submit href='authorizations_full.php?mode=authorize&pid=" .
-             attr_url($ppid) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
+             attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
         echo "<td valign=top><span class=bold>".xlt('Billing').
              ":</span><span class=text><br>" . $patient{"billing"} . "</td>\n";
         echo "<td valign=top><span class=bold>".xlt('Transactions').

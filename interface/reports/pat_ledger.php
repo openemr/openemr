@@ -20,14 +20,15 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/appointments.inc.php');
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
-use OpenEMR\Services\FacilityService;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\FacilityService;
 
 if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 }
 
@@ -366,7 +367,7 @@ if ($_REQUEST['form_csvexport']) {
     header("Content-Disposition: attachment; filename=svc_financial_report_".attr($form_from_date)."--".attr($form_to_date).".csv");
     header("Content-Description: File Transfer");
 } else {
-?>
+    ?>
 <html>
 <head>
 
@@ -437,7 +438,7 @@ if ($_REQUEST['form_csvexport']) {
         }
     </style>
     <script language="JavaScript">
-        $(document).ready(function() {
+        $(function() {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 
@@ -514,7 +515,7 @@ if ($_REQUEST['form_csvexport']) {
         <div class="row hideaway" >
             <div class="col-sm-12">
                 <form method='post' action='pat_ledger.php?form=<?php echo attr_url($type_form); ?>&patient_id=<?php echo attr_url($form_pid); ?>' id='theform' onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div id="report_parameters">
                     <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
                     <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
@@ -523,10 +524,10 @@ if ($_REQUEST['form_csvexport']) {
                             <?php
                             if ($type_form == '1') { ?>
                             <td width='35%'>
-                            <?php
+                                <?php
                             } else { ?>
                             <td width='70%'>
-                            <?php
+                                <?php
                             } ?>
                                 <div style='float:left'>
                                     <table class='text'>
@@ -537,30 +538,30 @@ if ($_REQUEST['form_csvexport']) {
                                                 <?php echo xlt('Facility'); ?>:
                                             </td>
                                             <td>
-                                            <?php dropdown_facility($form_facility, 'form_facility', true); ?>
+                                                <?php dropdown_facility($form_facility, 'form_facility', true); ?>
                                             </td>
                                             <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
                                             <td>
-                                            <?php
-                                            $query = "SELECT id, lname, fname FROM users WHERE ".
-                                            "authorized=1 AND active!=0 ORDER BY lname, fname";
-                                            $ures = sqlStatement($query);
-                                            echo "   <select name='form_provider' class='form-control'>\n";
-                                            echo "    <option value=''>-- " . xlt('All') . " --\n";
-                                            while ($urow = sqlFetchArray($ures)) {
-                                                $provid = $urow['id'];
-                                                echo "    <option value='" . attr($provid) ."'";
-                                                if ($provid == $_REQUEST['form_provider']) {
-                                                    echo " selected";
+                                                <?php
+                                                $query = "SELECT id, lname, fname FROM users WHERE ".
+                                                "authorized=1 AND active!=0 ORDER BY lname, fname";
+                                                $ures = sqlStatement($query);
+                                                echo "   <select name='form_provider' class='form-control'>\n";
+                                                echo "    <option value=''>-- " . xlt('All') . " --\n";
+                                                while ($urow = sqlFetchArray($ures)) {
+                                                    $provid = $urow['id'];
+                                                    echo "    <option value='" . attr($provid) ."'";
+                                                    if ($provid == $_REQUEST['form_provider']) {
+                                                        echo " selected";
+                                                    }
+                                                    echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
                                                 }
-                                                echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
-                                            }
-                                            echo "   </select>\n";
-                                            ?>
+                                                echo "   </select>\n";
+                                                ?>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <?php
+                                                <?php
                                             } ?>
                                             <td class='control-label'>
                                                 <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
@@ -569,7 +570,7 @@ if ($_REQUEST['form_csvexport']) {
                                                 <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
                                             </td>
                                             <td class='control-label' class='control-label'>
-                                                <?php echo xlt('To'); ?>:
+                                                <?php echo xlt('To{{Range}}'); ?>:
                                             </td>
                                             <td>
                                                 <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
@@ -579,10 +580,10 @@ if ($_REQUEST['form_csvexport']) {
                                             <td><span class='control-label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
                                             <td>
                                                 <input type='text' size='20' name='form_patient' class='form-control' style='width:100%;cursor:pointer;cursor:hand' id='form_patient' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
-                                            <?php
+                                                <?php
                                             } else { ?>
                                                 <input type='hidden' name='form_patient' value='<?php echo attr($form_patient); ?>' />
-                                            <?php
+                                                <?php
                                             } ?>
                                                 <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
                                                 <input type='hidden' name='form_dob' value='<?php echo attr($form_dob); ?>' />
@@ -610,9 +611,9 @@ if ($_REQUEST['form_csvexport']) {
                                                             <a href="../patient_file/summary/demographics.php" class="btn btn-default btn-transmit" onclick="top.restoreSession()">
                                                             <?php echo xlt('Back To Patient');?>
                                                             </a>
-                                                        <?php
+                                                            <?php
                                                         } ?>
-                                                    <?php
+                                                        <?php
                                                     } ?>
                                                 </div>
                                             </div>
@@ -673,7 +674,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
         $pat_dob = $patient['DOB'];
         $pat_name = $patient['fname']. ' ' . $patient['lname'];
-    ?>
+        ?>
         <div id="report_header">
             <table width="98%"  border="0" cellspacing="0" cellpadding="0">
                 <tr>
@@ -733,11 +734,11 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                                     if ($type_form == '1') { ?>
                                         <?php echo text($pat_dob);?>
                                     </td>
-                                    <?php
+                                        <?php
                                     } else { ?>
                                         <?php echo text($form_dob); ?>
                                     </td>
-                                    <?php
+                                        <?php
                                     } ?>
                                     <td class='bold'> <?php echo xlt('ID')?>:
                                         <?php echo text($form_pid);?>
@@ -895,30 +896,30 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_adj)) ."</td>\n";
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_bal)) . "</td>\n";
         echo " </tr>\n";
-    ?>
+        ?>
     </table>
     <tr><td>&nbsp;</td></tr><br><br>
-    <?php
-    if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
-        $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
-    # add one day to date so it will not get todays appointment
-        $current_date2 = date('Y-m-d', $next_day);
-        $events = fetchNextXAppts($current_date2, $form_pid);
-        $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
-        $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
-        if (strlen($events[0]['umname']) != 0) {
-            $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
-        } else {
-            $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
-        }
+        <?php
+        if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
+            $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
+        # add one day to date so it will not get todays appointment
+            $current_date2 = date('Y-m-d', $next_day);
+            $events = fetchNextXAppts($current_date2, $form_pid);
+            $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
+            $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
+            if (strlen($events[0]['umname']) != 0) {
+                $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
+            } else {
+                $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
+            }
 
-        if (strlen($next_appoint_time) != 0) { ?>
+            if (strlen($next_appoint_time) != 0) { ?>
                                         <tr>
                                         <td class="title" ><?php echo xlt('Next Appointment Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider); ?></td>
                                         </tr>
-                                    <?php
-        }
-    } // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
+                                        <?php
+            }
+        } // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
     } // end (!$_REQUEST['form_csvexport'] && $orow)
     echo "</div>\n";
 }
@@ -943,13 +944,13 @@ if (! $_REQUEST['form_csvexport']) {
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
-        $(document).ready(function(){
+        $(function(){
             $(listId).addClass("active");
         });
     </script>
 </body>
 
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

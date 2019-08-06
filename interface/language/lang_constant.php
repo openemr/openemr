@@ -12,6 +12,8 @@
 
 require_once("language.inc.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 // Ensure this script is not called separately
 if ((empty($_SESSION['lang_module_unique_id'])) ||
     (empty($unique_id)) ||
@@ -30,8 +32,8 @@ if (!$thisauth) {
 }
 
 if ($_POST['add']) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
     //validate
@@ -68,8 +70,8 @@ if ($_POST['add']) {
 ?>
 
 <TABLE>
-<FORM name="cons_form" METHOD=POST ACTION="?m=constant&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<FORM name="cons_form" METHOD=POST ACTION="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <TR>
     <TD><?php echo xlt('constant name'); ?></TD>
     <TD><INPUT TYPE="text" NAME="constant_name" size="100" value="<?php echo attr($val_constant); ?>"></TD>

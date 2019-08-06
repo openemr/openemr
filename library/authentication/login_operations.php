@@ -43,6 +43,8 @@ function validate_user_password($username, &$password, $provider)
         if (is_array($userSecure)) {
             $phash=oemr_password_hash($password, $userSecure[COL_SALT]);
             if ($phash!=$userSecure[COL_PWD]) {
+                EventAuditLogger::instance()->newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user password incorrect");
+                incrementLoginFailedCounter($username);
                 return false;
             }
 
@@ -102,11 +104,21 @@ function validate_user_password($username, &$password, $provider)
             if ($userInfo['see_auth'] > '2') {
                 $_SESSION['userauthorized'] = '1';
             }
-
-            EventAuditLogger::instance()->newEvent('login', $username, $provider, 1, "success: " . $ip['ip_string']);
             $valid=true;
         } else {
             EventAuditLogger::instance()->newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in group: $provider");
+            $valid=false;
+        }
+    }
+
+    // Check if user exceeds max number of failed logins
+    if ($valid) {
+        if (checkLoginFailedCounter($username)) {
+            EventAuditLogger::instance()->newEvent('login', $username, $provider, 1, "success: " . $ip['ip_string']);
+            resetLoginFailedCounter($username);
+            $valid=true;
+        } else {
+            EventAuditLogger::instance()->newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
             $valid=false;
         }
     }
@@ -163,8 +175,33 @@ function active_directory_validation($user, $pass)
         $prov = $ad->connect('', $user.$GLOBALS['account_suffix'], $pass);
         $valid = $prov->auth()->attempt($user, $pass, true);
     } catch (Exception $e) {
-        error_log($e->getMessage());
+        error_log(errorLogEscape($e->getMessage()));
     }
 
     return $valid;
+}
+
+function resetLoginFailedCounter($user)
+{
+    privStatement("UPDATE `users_secure` SET `login_fail_counter` = 0 WHERE BINARY `username` = ?", [$user]);
+}
+
+function incrementLoginFailedCounter($user)
+{
+    privStatement("UPDATE `users_secure` SET `login_fail_counter` = login_fail_counter+1 WHERE BINARY `username` = ?", [$user]);
+}
+
+function checkLoginFailedCounter($user)
+{
+    if ($GLOBALS['password_max_failed_logins'] == 0 || $GLOBALS['use_active_directory']) {
+        // skip the check if turned off or using active directory for login
+        return true;
+    }
+
+    $query = privQuery("SELECT `login_fail_counter` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
+    if ($query['login_fail_counter'] >= $GLOBALS['password_max_failed_logins']) {
+        return false;
+    } else {
+        return true;
+    }
 }

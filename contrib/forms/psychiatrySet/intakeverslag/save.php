@@ -1,19 +1,14 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Form:	Intakeverslag
-// Package:	Report of First visit - Dutch specific form
-// Created by:	Larry Lart
-// Version:	1.0 - 27-03-2008
+// Form:    Intakeverslag
+// Package: Report of First visit - Dutch specific form
+// Created by:  Larry Lart
+// Version: 1.0 - 27-03-2008
 ////////////////////////////////////////////////////////////////////
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
-
-foreach ($_POST as $k => $var) {
-    $_POST[$k] = add_escape_custom($var);
-  // echo "$var\n";
-}
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
 if ($encounter == "") {
     $encounter = date("Ymd");
