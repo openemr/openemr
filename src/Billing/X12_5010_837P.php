@@ -1117,7 +1117,7 @@ class X12_5010_837P
             } else {
                 $log .= "*** Missing other insco payer name.\n";
             }
-            $out .= "*";
+            $out .= "*" .
             "*" .
             "*" .
             "*" .
