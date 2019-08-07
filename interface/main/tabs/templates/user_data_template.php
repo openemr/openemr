@@ -18,12 +18,12 @@
     <!-- ko with: user -->
         <div id="username" class="appMenu">
             <div class="menuSection userSection">
-                <div class='menuLabel' id="username" title="<?php echo xla('Current user') ?>">
+                <div class='menuLabel oe-pull-toward-unimportant' id="username" title="<?php echo xla('Current user') ?>">
                     <div><i class="fa fa-2x fa-user oe-show" aria-hidden="true" id="user_icon"></i></div>
                     <span data-bind="text:fname"></span>
                     <span data-bind="text:lname"></span>
                 </div>
-                <ul class="userfunctions menuEntries hideaway">
+                <ul class="userfunctions menuEntries hideaway oe-pull-toward-unimportant">
                     <li class="menuLabel" data-bind="click: editSettings"><?php echo xlt("Settings");?></li>
                     <li class="menuLabel" data-bind="click: changePassword"><?php echo xlt("Change Password");?></li>
                     <li class="menuLabel" data-bind="click: changeMFA"><?php echo xlt("MFA Management");?></li>
