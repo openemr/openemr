@@ -288,8 +288,8 @@ $GLOBALS_METADATA = array(
             array(
                 'dual' => xl('Dual'),
                 'comprehensive' => xl('Comprehensive'),
-                'fixed' => xl('fixed'),
-                'none' => xl('none'),
+                'fixed' => xl('Fixed'),     //Fixed input without animation
+                'none' => xl('None'),       //Hide search box
             ),
             'dual', // default
             xl('Search Patient By Any Demographics, Dual additionally lets direct access to Patient Finder, Comprehensive has collapsed input box')
