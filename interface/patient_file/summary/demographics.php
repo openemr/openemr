@@ -275,7 +275,7 @@ function editScripts(url) {
         buttons: [
             {text: <?php echo xlj('Back'); ?>, close: false, id: 'backButton', style: 'display:none;', class: 'btn-link btn-sm btn-back', click: ListScripts},
             {text: <?php echo xlj('Add'); ?>, close: false,  id: 'addButton', class: 'btn-default btn-sm btn-add', click: AddScript},
-            {text: <?php echo xlj('Done'); ?>, close: true, id: 'doneButton', class: 'btn-default btn-cancel btn-sm'}
+            {text: <?php echo xlj('Cancel'); ?>, close: true, id: 'doneButton', class: 'btn-default btn-cancel btn-sm'}
         ],
         onClosed: 'refreshme',
         allowResize: true,
