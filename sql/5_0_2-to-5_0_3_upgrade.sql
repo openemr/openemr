@@ -85,3 +85,6 @@
 --    arguments: none
 --    behavior: can take a long time.
 
+#IfMissingColumn facility iban
+ALTER TABLE `facility` ADD `iban` varchar(50) default NULL;
+#EndIf
