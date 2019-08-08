@@ -971,6 +971,18 @@
               "admin",
               "super"
             ]
+          },
+          {
+            "label": "Lists",
+            "menu_id": "adm0",
+            "target": "adm",
+            "url": "/interface/super/edit_list.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
           }          
         ],
         "requirement": 0,
@@ -1116,18 +1128,6 @@
         ]
       },
       {
-        "label": "Lists",
-        "menu_id": "adm0",
-        "target": "adm",
-        "url": "/interface/super/edit_list.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "super"
-        ]
-      },
-      {
         "label": "ACL",
         "menu_id": "adm0",
         "target": "adm",
@@ -1236,11 +1236,7 @@
       [
         "admin",
         "calendar"
-      ],
-      [
-        "admin",
-        "database"
-      ],
+      ],      
       [
         "admin",
         "forms"
@@ -1260,14 +1256,6 @@
       [
         "admin",
         "super"
-      ],
-      [
-        "admin",
-        "superbill"
-      ],
-      [
-        "admin",
-        "drugs"
       ]
     ]
   },
