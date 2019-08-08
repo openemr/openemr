@@ -268,8 +268,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     echo " <tr class='" . attr($bgclass) . " detail' $colorstyle>\n";
                     echo "  <td style='text-align:left' class='" . attr($click_class) . "' id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
-                    echo "  <td>" . text($row['begdate']) . "&nbsp;</td>\n";
-                    echo "  <td>" . text($row['enddate']) . "&nbsp;</td>\n";
+                    echo "  <td>" . text(oeFormatShortDate($row['begdate'])) . "&nbsp;</td>\n";
+                    echo "  <td>" . text(oeFormatShortDate($row['enddate'])) . "&nbsp;</td>\n";
                     // both codetext and statusCompute have already been escaped above with htmlspecialchars)
                     echo "  <td>" . $codetext . "</td>\n";
                     echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
@@ -283,7 +283,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     echo "  <td>" . text($row['referredby']) . "</td>\n";
-                    echo "  <td>" . text($row['modifydate']) . "</td>\n";
+                    echo "  <td>" . text(oeFormatDateTime($row['modifydate'])) . "</td>\n";
                     echo "  <td>" . text($row['comments']) . "</td>\n";
                     echo "  <td id='e_" . attr($rowid) . "' class='noclick center' title='" . xla('View related encounters') . "'>";
                     echo "  <input type='button' value='" . attr($ierow['count']) . "' class='editenc' id='" . attr($rowid) . "' />";
