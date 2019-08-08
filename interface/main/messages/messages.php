@@ -171,7 +171,7 @@ if (!empty($_REQUEST['go'])) { ?>
     }
 } else {
     //original message.php stuff
-    
+
     if ($GLOBALS['enable_help'] == 1) {
         $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
@@ -183,7 +183,7 @@ if (!empty($_REQUEST['go'])) { ?>
     if ($GLOBALS['disable_rcb'] != '1') {
         $heading_caption .= ', ' . xlt('Recalls');
     }
-    
+
     $arrOeUiSettings = array(
         'heading_title' => $heading_caption,
         'include_patient_name' => false,// use only in appropriate pages
@@ -1064,19 +1064,11 @@ if (!empty($_REQUEST['go'])) { ?>
             });
             parent.left_nav.setPatient(pname, pid, pubpid, '', str_dob);
             parent.left_nav.setPatientEncounter(EncounterIdArray, EncounterDateArray, CalendarCategoryArray);
-            <?php if ($GLOBALS['new_tabs_layout']) { ?>
             var docurl = '../controller.php?document&view' + "&patient_id=" + encodeURIComponent(pid) + "&document_id=" + encodeURIComponent(doc_id) + "&";
             var paturl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
             parent.left_nav.loadFrame('dem1', 'pat', paturl);
             parent.left_nav.loadFrame('doc0', 'enc', docurl);
             top.activateTabByName('enc', true);
-            <?php } else { ?>
-            var docurl = '<?php  echo $GLOBALS['webroot'] . "/controller.php?document&view"; ?>' + "&patient_id=" + encodeURIComponent(pid) + "&document_id=" + encodeURIComponent(doc_id) + "&";
-            var paturl = '<?php  echo $GLOBALS['webroot'] . "/interface/patient_file/summary/demographics.php?pid="; ?>' + encodeURIComponent(pid);
-            var othername = (window.name === 'RTop') ? 'RBot' : 'RTop';
-            parent.frames[othername].location.href = paturl;
-            location.href = docurl;
-            <?php } ?>
         }
 
         // This is for callback by the find-patient popup.

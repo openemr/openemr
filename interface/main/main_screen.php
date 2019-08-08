@@ -471,127 +471,18 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) {
     $nav_area_width = $GLOBALS['gbl_nav_area_width'];
 }
 
-// This is where will decide whether to use tabs layout or non-tabs layout
-// Will also set Session variables to communicate settings to tab layout
-if ($GLOBALS['new_tabs_layout']) {
-    $_SESSION['frame1url'] = $frame1url;
-    $_SESSION['frame1target'] = $frame1target;
-    $_SESSION['frame2url'] = $frame2url;
-    $_SESSION['frame2target'] = $frame2target;
-    // mdsupport - Apps processing invoked for valid app selections from list
-    if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
-        $_SESSION['app1'] = $_POST['appChoice'];
-    }
-
-    // Pass a unique token, so main.php script can not be run on its own
-    $_SESSION['token_main_php'] = RandomGenUtils::createUniqueToken();
-    header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
-    exit();
+// Will set Session variables to communicate settings to tab layout
+$_SESSION['frame1url'] = $frame1url;
+$_SESSION['frame1target'] = $frame1target;
+$_SESSION['frame2url'] = $frame2url;
+$_SESSION['frame2target'] = $frame2target;
+// mdsupport - Apps processing invoked for valid app selections from list
+if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
+    $_SESSION['app1'] = $_POST['appChoice'];
 }
 
+// Pass a unique token, so main.php script can not be run on its own
+$_SESSION['token_main_php'] = RandomGenUtils::createUniqueToken();
+header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
+exit();
 ?>
-<html>
-<head>
-<title>
-<?php echo text($openemr_name) ?>
-</title>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-    <script type="text/javascript" src="tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
-
-<link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-
-<script language='JavaScript'>
-
-// Flag that tab mode is off
-var tab_mode=false;
-// some globals to access using top.variable
-var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
-var webroot_url = <?php echo js_escape($web_root); ?>;
-var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
-
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
-
-// Since this should be the parent window, this is to prevent calls to the
-// window that opened this window. For example when a new window is opened
-// from the Patient Flow Board or the Patient Finder.
-window.opener = null;
-
-// This flag indicates if another window or frame is trying to reload the login
-// page to this top-level window.  It is set by javascript returned by auth.inc
-// and is checked by handlers of beforeunload events.
-var timed_out = false;
-
-// This counts the number of frames that have reported themselves as loaded.
-// Currently only left_nav and Title do this, so the maximum will be 2.
-// This is used to determine when those frames are all loaded.
-var loadedFrameCount = 0;
-
-function allFramesLoaded() {
- // Change this number if more frames participate in reporting.
- return loadedFrameCount >= 2;
-}
-</script>
-
-</head>
-
-<?php
-/*
- * for RTL layout we need to change order of frames in framesets
- */
-$lang_dir = $_SESSION['language_direction'];
-
-$sidebar_tpl = "<frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
-   <frame src='left_nav.php' name='left_nav' />
-   <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
-    border='0' framespacing='0' />
-  </frameset>";
-
-$main_tpl = "<frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1'>" ;
-$main_tpl .= "<frame src='". $frame1url ."' name='RTop' scrolling='auto' />
-   <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' /></frameset>";
-
-// Please keep in mind that border (mozilla) and framespacing (ie) are the
-// same thing. use both.
-// frameborder specifies a 3d look, not whether there are borders.
-
-if (empty($GLOBALS['gbl_tall_nav_area'])) {
-    // not tall nav area ?>
-<frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
- <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
-    <?php if ($lang_dir != 'rtl') { ?>
-     <frameset cols='<?php echo attr($nav_area_width) . ',*'; ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
-        <?php echo $sidebar_tpl ?>
-        <?php echo $main_tpl ?>
-     </frameset>
-
-    <?php } else { ?>
-     <frameset cols='<?php echo  '*,' . attr($nav_area_width); ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
-        <?php echo $main_tpl ?>
-        <?php echo $sidebar_tpl ?>
-     </frameset>
-
-    <?php } ?>
-
- </frameset>
-</frameset>
-
-<?php } else { // use tall nav area ?>
-<frameset cols='<?php echo attr($nav_area_width); ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4' onunload='imclosing()'>
- <frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
-  <frame src='left_nav.php' name='left_nav' />
-  <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
-   border='0' framespacing='0' />
- </frameset>
- <frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1'>
-  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' />
-  <frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1' border='4' framespacing='4'>
-   <frame src='<?php echo $frame1url ?>' name='RTop' scrolling='auto' />
-   <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' />
-  </frameset>
- </frameset>
-</frameset>
-
-<?php } // end tall nav area ?>
-
-</html>

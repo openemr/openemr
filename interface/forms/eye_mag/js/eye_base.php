@@ -922,7 +922,7 @@ function show_PRIOR_CANVAS_section(section, newValue) {
     var result = base+'/controller.php?document&retrieve&patient_id='+pid+'&document_id='+newValue+'&as_file=false';
     var cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
     var filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
-    
+
     $("#"+zone+"_canvas").addClass('nodisplay');
     $("#"+zone+"_olddrawing").html(filler);
     $("#"+zone+"_olddrawing").removeClass('nodisplay');
@@ -1020,18 +1020,18 @@ function show_KB() {
 function editScripts(url) {
     var pid = $('#pid').val();
         var AddScript = function () {
-            var iam = top.tab_mode ? top.frames.editScripts : window[0];
+            var iam = top.frames.editScripts;
             iam.location.href = "/openemr/controller.php?prescription&edit&id=&pid="+pid
         };
         var ListScripts = function () {
-            var iam = top.tab_mode ? top.frames.editScripts : window[0];
+            var iam = top.frames.editScripts;
             iam.location.href = "/openemr/controller.php?prescription&list&id="+pid
         };
-        
+
         let title = 'Prescriptions';
         let w = 810;
         w = 910;
-        
+
         dlgopen(url, 'editScripts', w, 300, '', '', {
             buttons: [
                 {text: 'Add', close: false, style: 'primary  btn-sm', click: AddScript},
@@ -2040,7 +2040,7 @@ function  update_Pharma() {
         }
     });
 }
-    
+
 
 /**
  *  Function to convert ophthalmic prescriptions between plus cylinder and minus cylinder
@@ -2158,21 +2158,19 @@ function color_IOP(IOP){
     }
 }
 function showpnotes(docid) {
-    if (top.tab_mode) {
-        let btnClose = 'Done';
-        let url = base+'/interface/patient_file/summary/pnotes.php?docid=' + docid;
-        dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
-            buttons: [
-                    {text: btnClose, close: true, style: 'default btn-xs'}
-                ],
-            sizeHeight: 'auto',
-            allowResize: true,
-            allowDrag: true,
-            dialogId: '',
-            type: 'iframe'
-        });
-        return false;
-    }
+    let btnClose = 'Done';
+    let url = base+'/interface/patient_file/summary/pnotes.php?docid=' + docid;
+    dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
+        buttons: [
+                {text: btnClose, close: true, style: 'default btn-xs'}
+            ],
+        sizeHeight: 'auto',
+        allowResize: true,
+        allowDrag: true,
+        dialogId: '',
+        type: 'iframe'
+    });
+    return false;
 }
 function getTimeStamp() {
     var now = new Date();
@@ -2216,7 +2214,7 @@ $(function() {
                   var allPanels = $('.building_blocks > dd').hide();
                   var allPanels2 = $('.building_blocks2 > dd').hide();
                   refresh_page();
-                  
+
                 // AUTO- CODING FEATURES
                   check_CPT_92060();
                   check_exam_detail();
@@ -2899,7 +2897,7 @@ $(function() {
                                    if (new_section[1] =="ALL") {
                                      //click updates prefs too
                                      $('#EXAM_QP').trigger("click");
-    
+
                                    } else {
                                       $('#BUTTON_QP_'+new_section[1]).trigger("click");
                                    }
@@ -3419,7 +3417,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES
                                                     ('lists', ?, ?, ?, '1', '0', '', '', '')";
                                                 $providerNAME = getProviderName($providerID);
-                                               
+
                                                 sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
                                                 $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES ".$add_fields;
                                                 sqlStatement($query);
@@ -3987,7 +3985,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   issue= value.match(/(.*)_(.*)/);
                                                   if (issue[1] == "CLINICAL") {
                                                       if (!$('#inc_PE').is(':checked')) { return; }
-    
+
                                                       var the_code='';
                                                       var the_codedesc='';
                                                       var the_codetext='';
@@ -4072,7 +4070,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         show_PRIOR_CANVAS_section(zone, this.value);
                     } else {
                         $("#"+zone+"_canvas").removeClass('nodisplay');
-                        
+
                         $("#"+zone+"_olddrawing").addClass('nodisplay');
                     }
                 });
@@ -4183,12 +4181,12 @@ $("body").on("click","[name^='old_canvas']", function() {
                         }
                         update_PREFS();
                   });
-                  
+
                   $(document).on('change','[name="visit_status"]', function (event) {
                         var item = $( "input[type=radio][name=visit_status]:checked" ).val();
                         update_appt_status(item);
                   });
-                
+
                   $(document).on("click", "[name='visit_justifier']", function () {
                                                    var d = $(this).data();
                                                    var item = d.justcode;
@@ -4222,15 +4220,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                   });
 
                   build_IMPPLAN(obj.IMPPLAN_items);
-                    <?php
-                    if ($GLOBALS['new_tabs_layout'] !=='1') {
-                        ?>  $("[class='tabHide']").css("display","inline-block"); <?php
-                    }
-                    ?>
 
                     $('[id^="BUTTON_TAB_"]').on('click', function () {
                         var item = this.id.match(/BUTTON_TAB_(.*)/)[1];
-                        
+
                         $('#tabs-left-'+item).addClass('ui-state-default');
                         $("#setting_"+item).val('0');
                         $("#"+item+'_1').addClass('nodisplay');

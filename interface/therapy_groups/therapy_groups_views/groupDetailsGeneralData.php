@@ -219,21 +219,14 @@
     }
 
     function newGroup(){
-        <?php if ($GLOBALS['new_tabs_layout']) : ?>
         top.restoreSession();
         parent.left_nav.loadFrame('gcv4','enc','forms/newGroupEncounter/new.php?autoloaded=1&calenc=')
-        <?php else : ?>
-        top.restoreSession();
-        top.frames['RBot'].location = <?php echo js_escape($GLOBALS['web_root']); ?> + '/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
-        <?php endif; ?>
     }
 
     parent.left_nav.setTherapyGroup(<?php echo js_escape($groupData['group_id'])?>, <?php echo js_escape($groupData['group_name'])?>);
-    <?php if (!$GLOBALS['new_tabs_layout']) : ?>
     top.restoreSession();
     parent.left_nav.loadFrame('enc2', 'RBot', '/patient_file/history/encounters.php');
     $(parent.Title.document.getElementById('clear_active')).hide();
-    <?php endif;?>
     /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */
     <?php
     $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe ".

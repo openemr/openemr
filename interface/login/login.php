@@ -38,23 +38,21 @@ require_once("../globals.php");
 //
 // Build a list of valid entries
 $emr_app = array();
-if ($GLOBALS['new_tabs_layout']) {
-    $rs = sqlStatement(
-        "SELECT option_id, title,is_default FROM list_options
-			WHERE list_id=? and activity=1 ORDER BY seq, option_id",
-        array ('apps')
-    );
-    if (sqlNumRows($rs)) {
-        while ($app = sqlFetchArray($rs)) {
-            $app_req = explode('?', trim($app['title']));
-            if (! file_exists('../'.$app_req[0])) {
-                continue;
-            }
+$rs = sqlStatement(
+    "SELECT option_id, title,is_default FROM list_options
+        WHERE list_id=? and activity=1 ORDER BY seq, option_id",
+    array ('apps')
+);
+if (sqlNumRows($rs)) {
+    while ($app = sqlFetchArray($rs)) {
+        $app_req = explode('?', trim($app['title']));
+        if (! file_exists('../'.$app_req[0])) {
+            continue;
+        }
 
-                $emr_app [trim($app ['option_id'])] = trim($app ['title']);
-            if ($app ['is_default']) {
-                $emr_app_def = $app ['option_id'];
-            }
+            $emr_app [trim($app ['option_id'])] = trim($app ['title']);
+        if ($app ['is_default']) {
+            $emr_app_def = $app ['option_id'];
         }
     }
 }

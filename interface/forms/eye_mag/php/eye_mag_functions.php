@@ -3942,7 +3942,6 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
 /**
  *  This is currently a floating div top with patient demographics and such.
  *  Used in fullscreen mode at the top.
- *  Moving towards containing info similar to main_title.php.
  *
  *  @param string $pid patient_id
  *  @param string $encounter is the current encounter number
@@ -3961,7 +3960,7 @@ function menu_overhaul_left($pid, $encounter)
     global $ref_data;
     global $ins_coA;
     global $ins_coB;
-   
+
     /*
      * find out if the patient has a photo
      */
@@ -4030,7 +4029,7 @@ function menu_overhaul_left($pid, $encounter)
         </div>
 
         <div id="left_menu2" name="left_menu2" class="col-md-4" style="font-size:1.0em;">
-            
+
             <div style="position:relative;float:left;padding-left:18px;top:0px;">
                 <table style="border:1pt;font-size:1.0em;">
                     <tr>
@@ -4039,10 +4038,10 @@ function menu_overhaul_left($pid, $encounter)
                                     echo ", ".text($pcp_data['suffix']);} ?></span></td>
                         </td>
                     </tr>
-                    
+
                     <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td>
                         <td class="left">&nbsp;
-    
+
                         <span id="ref_name"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
                                     echo ", ".text($ref_data['suffix']);} ?></span></td>
                         </tr>

@@ -271,13 +271,8 @@
     }
 
     function newGroup(){
-        <?php if ($GLOBALS['new_tabs_layout']) : ?>
         top.restoreSession();
         parent.left_nav.loadFrame('gcv4','enc','forms/newGroupEncounter/new.php?autoloaded=1&calenc=')
-        <?php else : ?>
-        top.restoreSession();
-        top.frames['RBot'].location = <?php echo js_escape($GLOBALS['web_root']); ?> + '/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
-        <?php endif; ?>
     }
    // parent.left_nav.setTherapyGroup(<?php echo attr_js($group_id);?>,<?php echo attr_js('test'); ?>);
     /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */

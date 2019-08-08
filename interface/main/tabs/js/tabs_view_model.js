@@ -299,7 +299,6 @@ function menuActionClick(data,evt)
         }
 
         // Fixups for loading a new encounter form, as these are now in tabs.
-        // See loadNewForm() in left_nav.php for comparable logic in the non-tabs case.
         var dataurl = data.url();
         var matches = dataurl.match(/load_form.php\?formname=(\w+)/);
         if (matches) {

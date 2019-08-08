@@ -32,7 +32,6 @@ use OpenEMR\Core\Header;
 <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
 
 <script type="text/javascript">
-    var tab_mode = true; // for dialogs
     function restoreSession(){
         //dummy functions so the dlgopen function will work in the patient portal
         return true;

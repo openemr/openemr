@@ -199,11 +199,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
-    <?php if ($GLOBALS['new_tabs_layout']) { ?>
    top.clearPatient();
-    <?php } else { ?>
-   parent.left_nav.clearPatient();
-    <?php } ?>
  }
 
  function newEvt() {
@@ -254,7 +250,7 @@ function editScripts(url) {
         __this.find("#backButton").css("display", "");
         __this.find("#addButton").css("display", "none");
 
-        var iam = top.tab_mode ? top.frames.editScripts : window[1];
+        var iam = top.frames.editScripts;
         iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=0&pid=' + <?php echo js_url($pid); ?>;
     };
     var ListScripts = function () {
@@ -263,7 +259,7 @@ function editScripts(url) {
         __this.find("#clearButton").css("display", "none");
         __this.find("#backButton").css("display", "none");
         __this.find("#addButton").css("display", "");
-        var iam = top.tab_mode ? top.frames.editScripts : window[1];
+        var iam = top.frames.editScripts
         iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=' + <?php echo js_url($pid); ?>;
     };
 
@@ -468,11 +464,11 @@ while ($gfrow = sqlFetchArray($gfres)) {
     $(".rx_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         var AddAmendment = function () {
-            var iam = top.tab_mode ? top.frames.editAmendments : window[0];
+            var iam = top.frames.editAmendments;
             iam.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/add_edit_amendments.php"
         };
         var ListAmendments = function () {
-            var iam = top.tab_mode ? top.frames.editAmendments : window[0];
+            var iam = top.frames.editAmendments;
             iam.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/list_amendments.php"
         };
         var title = <?php echo xlj('Amendments'); ?>;
@@ -590,11 +586,6 @@ while ($gfrow = sqlFetchArray($gfres)) {
 // JavaScript stuff to do when a new patient is set.
 //
 function setMyPatient() {
- // Avoid race conditions with loading of the left_nav or Title frame.
- if (!parent.allFramesLoaded()) {
-  setTimeout("setMyPatient()", 500);
-  return;
- }
 <?php
 if (isset($_GET['set_pid'])) {
     $date_of_death = is_patient_deceased($pid)['date_deceased']; ?>
@@ -632,16 +623,9 @@ if (isset($_GET['set_pid'])) {
     $_SESSION['encounter'] = $encounter;
     $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
  encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter);?> + '&pid=' + <?php echo js_url($pid);?>;
-    <?php if ($GLOBALS['new_tabs_layout']) { ?>
   parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
     top.restoreSession();
   parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
-    <?php } else { ?>
-  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
-  parent.left_nav.setEncounter(<?php echo js_escape(attr(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))))); ?>, <?php echo js_escape($encounter); ?>, othername);
-    top.restoreSession();
-  parent.frames[othername].location.href = '../' + encurl;
-    <?php } ?>
 <?php } // end setting new encounter id (only if new pid is also set) ?>
 }
 

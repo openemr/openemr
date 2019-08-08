@@ -1473,27 +1473,6 @@ div.tab table td {
     float: none !important;
 }
 
-
-/* /interface/main/main_title.php */
-table#main-title tr td:nth-child(1){
-    text-align: left !important;
-}
-table#main-title tr td:nth-child(2){
-    text-align: center !important;
-}
-table#main-title tr td:nth-child(2) div, table#main-title tr td:nth-child(3) div{
-    float: none !important;
-}
-table#main-title tr td:nth-child(3){
-    text-align: center !important;
-}
-table#main-title tr td:nth-child(4){
-    text-align: right !important;
-}
-table#main-title tr td:nth-child(4) table{
-    float: left;
-}
-
 /* /interface/patient_file/summary/demographics.php */
 .demographics-box{
     position: relative

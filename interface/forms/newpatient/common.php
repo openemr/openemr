@@ -160,21 +160,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     // Handler for Cancel clicked when creating a new encounter.
     // Show demographics or encounters list depending on what frame we're in.
     function cancelClickedNew() {
-        if (top.tab_mode) {
-            window.parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
-        }
-        var target = window;
-        while (target != top) {
-            if (target.name == 'RBot') {
-                target.parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
-                break;
-            }
-            else if (target.name == 'RTop') {
-                target.parent.left_nav.loadFrame('dem1', window.name, 'patient_file/summary/demographics.php');
-                break;
-            }
-            target = target.parent;
-        }
+        window.parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
         return false;
     }
 
