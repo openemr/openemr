@@ -826,15 +826,15 @@
               "admin",
               "super"
             ]
-          }          
+          }
         ],
         "requirement": 0,
-        "acl_req": [          
+        "acl_req": [
           [
             "admin",
             "super"
           ]
-        ]        
+        ]
       },
       {
         "label": "Practice",
@@ -884,12 +884,12 @@
           [
             "admin",
             "practice"
-          ],          
+          ],
           [
             "admin",
             "super"
           ]
-        ]        
+        ]
       },
       {
         "label": "Coding",
@@ -899,12 +899,12 @@
             "label": "Codes",
             "menu_id": "adm0",
             "target": "adm",
-            "url": "/controller.php?practice_settings&pharmacy&action=list",
+            "url": "/interface/patient_file/encounter/superbill_custom_full.php",
             "children": [],
             "requirement": 0,
             "acl_req": [
               "admin",
-              "practice"
+              "superbill"
             ]
           },
           {
@@ -936,8 +936,8 @@
         "acl_req": [
           [
             "admin",
-            "practice"
-          ],          
+            "superbill"
+          ],
           [
             "admin",
             "super"
@@ -959,7 +959,7 @@
               "admin",
               "forms"
             ]
-          },          
+          },
           {
             "label": "Layouts",
             "menu_id": "adm0",
@@ -983,7 +983,7 @@
               "admin",
               "super"
             ]
-          }          
+          }
         ],
         "requirement": 0,
         "acl_req": [
@@ -1004,7 +1004,7 @@
           {
             "label": "Document Templates",
             "menu_id": "adm0",
-            "target": "msc",
+            "target": "adm",
             "url": "/interface/super/manage_document_templates.php",
             "children": [],
             "requirement": 0,
@@ -1012,7 +1012,7 @@
               "admin",
               "practice"
             ]
-          }          
+          }
         ],
         "requirement": 0,
         "acl_req": [
@@ -1102,7 +1102,7 @@
             "users"
           ]
         ]
-      },      
+      },
       {
         "label": "Users",
         "menu_id": "adm0",
@@ -1138,7 +1138,7 @@
           "admin",
           "acl"
         ]
-      },      
+      },
       {
         "label": "De Identification",
         "menu_id": "adm0",
@@ -1236,7 +1236,7 @@
       [
         "admin",
         "calendar"
-      ],      
+      ],
       [
         "admin",
         "forms"
@@ -1256,6 +1256,10 @@
       [
         "admin",
         "super"
+      ],
+      [
+        "admin",
+        "superbill"
       ]
     ]
   },
@@ -2062,18 +2066,6 @@
           "docs",
           "write",
           "addonly"
-        ]
-      },
-      {
-        "label": "Document Templates",
-        "menu_id": "adm0",
-        "target": "msc",
-        "url": "/interface/super/manage_document_templates.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "practice"
         ]
       },
       {
