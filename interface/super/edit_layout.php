@@ -1420,7 +1420,7 @@ while ($row = sqlFetchArray($res)) {
   <table class='table table-condensed table-striped'>
   <thead>
    <tr class='head'>
-    <th style='width:1%'><?php echo xlt('Order'); ?></th>
+    <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
     <th <?php echo " $lbfonly"; ?>style='width:5%'><?php echo xlt('Source'); ?></th>
     <th style='width:5%'><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
     <th style='width:10%'><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
@@ -1489,7 +1489,7 @@ while ($row = sqlFetchArray($res)) {
 <table class='table table-condensed table-striped' style="border-collapse: collapse; margin-top: 5px;">
 <thead>
  <tr class='head'>
-  <th style='width:1%'><?php echo xlt('Order'); ?></th>
+  <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
   <th <?php echo " $lbfonly"; ?>style='width:5%'><?php echo xlt('Source'); ?></th>
   <th style='width:5%'><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
   <th style='width:10%'><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
@@ -1572,7 +1572,7 @@ foreach ($datatypes as $key => $value) {
 <table class="table table-condensed" style="border-collapse: collapse;">
  <thead>
   <tr class='head'>
-   <th style='width:1%'><?php echo xlt('Order'); ?></th>
+   <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
    <th <?php echo " $lbfonly"; ?>style='width:5%'><?php echo xlt('Source'); ?></th>
    <th style='width:5%'><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
    <th style='width:10%'><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>

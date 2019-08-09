@@ -712,7 +712,7 @@ function writeITLine($it_array)
     echo " <tr>\n";
     echo ctSelector($opt_line_no, $it_array, 'category', $ISSUE_TYPE_CATEGORIES, xl('OpenEMR Application Category'));
     echo ctGenCBox($opt_line_no, $it_array, 'active', xl('Is this active?'));
-    echo ctGenCell($opt_line_no, $it_array, 'ordering', 4, 10, xl('Order'));
+    echo ctGenCell($opt_line_no, $it_array, 'ordering', 4, 10, xl('Order{{Sequence}}'));
     echo ctGenCell($opt_line_no, $it_array, 'type', 15, 75, xl('Issue Type'));
     echo ctGenCell($opt_line_no, $it_array, 'plural', 15, 75, xl('Plural'));
     // if not english and translating lists then show the translation
@@ -1161,7 +1161,7 @@ function writeITLine($it_array)
         <?php elseif ($list_id == 'apptstat' || $list_id == 'groupstat') : ?>
             <th><b><?php echo xlt('ID'); ?></b></th>
             <th><b><?php echo xlt('Title'); ?></b></th>
-            <th><b><?php echo xlt('Order'); ?></b></th>
+            <th><b><?php echo xlt('Order{{Sequence}}'); ?></b></th>
             <th><b><?php echo xlt('Default'); ?></b></th>
             <th><b><?php echo xlt('Active'); ?></b></th>
             <th><b><?php echo xlt('Color'); ?></b></th>
@@ -1173,7 +1173,7 @@ function writeITLine($it_array)
         <?php elseif ($list_id == 'issue_types') : ?>
             <th><b><?php echo xlt('OpenEMR Application Category'); ?></b></th>
             <th><b><?php echo xlt('Active'); ?></b></th>
-            <th><b><?php echo xlt('Order'); ?></b></th>
+            <th><b><?php echo xlt('Order{{Sequence}}'); ?></b></th>
             <th><b><?php echo xlt('Type'); ?></b></th>
             <th><b><?php echo xlt('Plural'); ?></b></th>
             <?php //show translation column if not english and the translation lists flag is set
@@ -1201,7 +1201,7 @@ function writeITLine($it_array)
             if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
                 echo "<th><b>" . xlt('Translation') . "</b><span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
             } ?>
-            <th><b><?php echo xlt('Order'); ?></b></th>
+            <th><b><?php echo xlt('Order{{Sequence}}'); ?></b></th>
             <th><b><?php echo xlt('Default'); ?></b></th>
             <th><b><?php echo xlt('Active'); ?></b></th>
             <?php if ($list_id == 'taxrate') { ?>

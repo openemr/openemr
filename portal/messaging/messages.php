@@ -750,7 +750,7 @@ function getAuthPortalUsers()
                                     method="post" action="./handle_note.php">
                                     <fieldset>
                                         <div class="form-group">
-                                            <label class="col-sm-1 col-md-1" for="selSendto"><?php echo xlt('To'); ?></label>
+                                            <label class="col-sm-1 col-md-1" for="selSendto"><?php echo xlt('To{{Destination}}'); ?></label>
                                             <div class="col-sm-3 col-md-3">
                                                 <select class="form-control" id="selForwardto"
                                                     ng-hide="compose.task != 'forward'"
