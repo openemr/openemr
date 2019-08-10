@@ -15,15 +15,14 @@
 $data = (array)(json_decode(file_get_contents("php://input")));
 $pid = $data['pid'];
 $user = $data['user'];
-$signer = $data['signer'];
+$signer = !empty($data['signer']) ? $data['signer'] : '';
 $type = $data['type'];
+$isPortal = $data['is_portal'];
 $output = urldecode($data['output']);
+$ignoreAuth = false;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
-if ($type == 'patient-signature') {
-    // authorize via patient portal
-
-    // Will start the (patient) portal OpenEMR session/cookie.
+if ($isPortal) {
     require_once(dirname(__FILE__) . "/../../../src/Common/Session/SessionUtil.php");
     OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
@@ -32,24 +31,17 @@ if ($type == 'patient-signature') {
         $pid = $_SESSION['pid'];
         $ignoreAuth = true;
     } else {
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        echo js_escape("error");
         exit();
     }
-} else if ($type == 'admin-signature') {
-    // authorize via main openemr
-    $ignoreAuth = false;
-} else {
-    exit();
 }
 require_once("../../../interface/globals.php");
 
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($type == 'admin-signature') {
-        $signer = $user;
+        $pid = 0;
     }
-
-    $image_data = $output;
-
     $sig_hash = sha1($output);
     $created = time();
     $ip = $_SERVER['REMOTE_ADDR'];
@@ -60,11 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $isit = $c['x'] * 1;
     if ($isit) {
         $qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
-        $rcnt = sqlStatement($qstr, array($pid, $lastmod, $status, $user, $svgsig, $sig_hash, $ip, $image_data, $pid, $user));
+        $rcnt = sqlStatement($qstr, array($pid, $lastmod, $status, $user, null, $sig_hash, $ip, $output, $pid, $user));
     } else {
         $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
-        sqlStatement($qstr, array($pid, $lastmod, $status, $type, $user, $signer, $svgsig, $sig_hash, $ip, $created, $image_data));
+        sqlStatement($qstr, array($pid, $lastmod, $status, $type, $user, $signer, null, $sig_hash, $ip, $created, $output));
     }
 
     echo json_encode('Done');
+    exit();
 }

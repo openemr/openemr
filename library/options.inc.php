@@ -1315,6 +1315,17 @@ function generate_form_field($frow, $currvalue)
         echo "<img src='" . attr($currvalue) . "' id='form_{$field_id_esc}_img' style='display:none'>";
         // $date_init is a misnomer but it's the place for browser-side setup logic.
         $date_init .= " lbfCanvasSetup('form_$field_id_esc', $canWidth, $canHeight);\n";
+    } elseif ($data_type == 41 || $data_type == 42) {
+        $datatype = 'patient-signature';
+        $cpid = $GLOBALS['pid'];
+        $cuser = $_SESSION['authUserID'];
+        if ($data_type == 42) {
+            $datatype = 'admin-signature';
+        }
+        echo "<input type='hidden' id='form_$field_id_esc' name='form_$field_id_esc' value='' />\n";
+        echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description' 
+            data-pid='$cpid' data-user='$cuser' data-type='$datatype'
+            data-action='fetch_signature' alt='Get Signature' src='$currvalue'>\n";
     }
 }
 
@@ -1989,6 +2000,10 @@ function generate_print_field($frow, $currvalue)
         if ($currvalue) {
             echo "<img src='" . attr($currvalue) . "'>";
         }
+    } elseif ($data_type == 41 || $data_type == 42) {
+        if ($currvalue) {
+            echo "<img style='height:70px;width:auto;' src='" . attr($currvalue) . "'>";
+        }
     }
 }
 
@@ -2395,6 +2410,10 @@ function generate_display_field($frow, $currvalue)
     } elseif ($data_type == 40) { // Image from canvas drawing
         if ($currvalue) {
             $s .= "<img src='" . attr($currvalue) . "'>";
+        }
+    } elseif ($data_type == 41 || $data_type == 42) {
+        if ($currvalue) {
+            $s .= "<img style='height:70px;width:auto;' src='" . attr($currvalue) . "'>";
         }
     }
 
@@ -3489,7 +3508,12 @@ function generate_layout_validation($form_id)
             " if (canfld) canfld.value = lbfCanvasGetData(" . js_escape($fldid) . ");\n";
             continue;
         }
-
+        if ($data_type == 41 || $data_type == 42) {
+            $fldid = "form_" . $field_id;
+            // Move canvas image data to its hidden form field so the server will get it.
+            echo " lbfSetSignature(" . js_escape($fldid) . ");\n";
+            continue;
+        }
         if ($frow['uor'] < 2) {
             continue;
         }
@@ -3907,6 +3931,15 @@ function lbf_current_value($frow, $formid, $encounter)
     }
 
     return $currvalue;
+}
+
+function signer_head()
+{
+    return <<<EOD
+<link href="{$GLOBALS['web_root']}/portal/sign/css/signer_modal.css?v={$GLOBALS['v_js_includes']}" rel="stylesheet"/>
+<script src="{$GLOBALS['web_root']}/portal/sign/assets/signature_pad.umd.js?v={$GLOBALS['v_js_includes']}"></script>
+<script src="{$GLOBALS['web_root']}/portal/sign/assets/signer_api.js?v={$GLOBALS['v_js_includes']}"></script>
+EOD;
 }
 
 // This returns stuff that needs to go into the <head> section of a caller using

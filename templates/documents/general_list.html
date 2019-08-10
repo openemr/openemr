@@ -41,7 +41,14 @@ overflow: auto;
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js"></script>
 
 <script type="text/javascript">
-    // dropzone javascript asset translation(s)
+	function callTemplateModule() {literal}{{/literal}
+		top.restoreSession();
+		let tele  = document.getElementById("template_filename");
+		let tname = encodeURIComponent(tele.options[tele.selectedIndex].value);
+		let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?pid={$patient_id|attr}&catid={$category_id|attr}&is_module=true&new=' + tname;
+		location.assign(callUrl);
+	{literal}}{/literal}
+	// dropzone javascript asset translation(s)
     Dropzone.prototype.defaultOptions.dictDefaultMessage = {xlj t='Drop files here to upload'};
 </script>
 <title>{xlt t='Documents'}</title>
@@ -55,8 +62,8 @@ overflow: auto;
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-sm-12">
-			<div class="page-header">
-					<h2>{xlt t='Documents'}&nbsp;&nbsp;  <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()'  title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
+			<div class="title">
+					<h2>{xlt t='Documents'} <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
 			</div>
 		</div>
 	</div>

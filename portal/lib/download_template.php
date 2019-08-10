@@ -2,8 +2,8 @@
 /**
  * Document Template Download Module.
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,14 +17,19 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
  *
  * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
  * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
 
 // This module downloads a specified document template to the browser after
 // substituting relevant patient data into its variables.
-require_once(dirname(__file__) . "/../verify_session.php");
+$is_module = isset($_POST['isModule']) ? $_POST['isModule'] : 0;
+if($is_module) {
+    require_once(dirname(__file__) . '/../../interface/globals.php');
+} else {
+    require_once(dirname(__file__) . "/../verify_session.php");
+}
 
 require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
@@ -32,7 +37,7 @@ require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 $form_filename = $_POST['docid'];
 $pid = $_POST['pid'];
-// $user = $_POST['user'];
+$user = $_SESSION['authUserID'];
 
 $nextLocation = 0; // offset to resume scanning
 $keyLocation = false; // offset of a potential {string} to replace
@@ -119,8 +124,8 @@ function getIssues($type)
 function doSubs($s)
 {
     global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength;
-    global $groupLevel, $groupCount, $itemSeparator, $pid, $encounter;
-    global $tcnt, $grcnt, $ckcnt;
+    global $groupLevel, $groupCount, $itemSeparator, $pid, $user, $encounter;
+    global $tcnt, $grcnt, $ckcnt, $is_module;
     global $html_flag;
     $nextLocation = 0;
     $groupLevel = 0;
@@ -130,28 +135,31 @@ function doSubs($s)
         $nextLocation = $keyLocation + 1;
 
         if (keySearch($s, '{PatientSignature}')) {
-            $fn = $GLOBALS['web_root'] . '/portal/sign/assets/signhere.png';
             $sigfld = '<span>';
-            $sigfld .= '<img style="cursor:pointer;color:red" class="signature" type="patient-signature" id="patientSignature" onclick="getSignature(this)"' . 'alt="' . xla("Click in signature on file") . '" src="' . $fn . '">';
+            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid=' . attr_js((int)$pid) . ' data-user=' . attr_js((int)$user) . ' src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } else if (keySearch($s, '{AdminSignature}')) {
-            $fn = $GLOBALS['web_root'] . '/portal/sign/assets/signhere.png';
             $sigfld = '<span>';
-            $sigfld .= '<img style="cursor:pointer;color:red" class="signature" type="admin-signature" id="adminSignature" onclick="getSignature(this)"' . 'alt="' . xla("Click in signature on file") . '" src="' . $fn . '">';
+            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid=' . attr_js((int)$pid) . ' data-user=' . attr_js((int)$user) . ' src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } else if (keySearch($s, '{ParseAsHTML}')) {
             $html_flag = true;
             $s = keyReplace($s, "");
+        } else if (keySearch($s, '{TextBox}')) {
+            $sigfld = '<span>';
+            $sigfld .= '<textarea class="templateInput" rows="3" cols="40" style="margin:2px auto;" data-textvalue="" onblur="templateText(this);"></textarea>';
+            $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
         } else if (keySearch($s, '{TextInput}')) {
             $sigfld = '<span>';
-            $sigfld .= '<input class="templateInput" type="text" style="color:black;" data-textvalue="" onblur="templateText(this);">';
+            $sigfld .= '<input class="templateInput" type="text" style="margin:2px auto;" data-textvalue="" onblur="templateText(this);">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } else if (keySearch($s, '{smTextInput}')) {
             $sigfld = '<span>';
-            $sigfld .= '<input class="templateInput" type="text" style="color:black;max-width:50px;" data-textvalue="" onblur="templateText(this);">';
+            $sigfld .= '<input class="templateInput" type="text" style="margin:2px auto;max-width:50px;" data-textvalue="" onblur="templateText(this);">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } else if (keySearch($s, '{CheckMark}')) {
@@ -165,7 +173,7 @@ function doSubs($s)
             $sigfld = '<span class="ynuGroup" data-value="N/A" data-id="' . $grcnt . '" id="rgrp' . $grcnt . '">';
             $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="Yes">' . xlt("Yes") . '</label>';
             $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="No">' . xlt("No") . '</label>';
-            $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" checked="checked" data-id="' . $grcnt . '" value="N/A">N/A</label>';
+            $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" checked="checked" data-id="' . $grcnt . '" value="Unk">Unk</label>';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } else if (keySearch($s, '{PatientName}')) {
@@ -185,7 +193,6 @@ function doSubs($s)
 
                 $tmp .= $ptrow['lname'];
             }
-
             $s = keyReplace($s, dataFixup($tmp, xl('Name')));
         } else if (keySearch($s, '{PatientID}')) {
             $s = keyReplace($s, dataFixup($ptrow['pubpid'], xl('Chart ID')));
@@ -266,8 +273,8 @@ function doSubs($s)
         } else if (keySearch($s, '{ProblemList}')) {
             $s = keyReplace($s, dataFixup(getIssues('medical_problem'), xl('Problem List')));
         } else if (keySearch($s, '{GRP}')) { // This tag indicates the fields from here until {/GRP} are a group of fields
-            // separated by semicolons. Fields with no data are omitted, and fields with
-            // data are prepended with their field label from the form layout.
+          // separated by semicolons. Fields with no data are omitted, and fields with
+          // data are prepended with their field label from the form layout.
             ++ $groupLevel;
             $groupCount = 0;
             $s = keyReplace($s, '');
@@ -279,8 +286,8 @@ function doSubs($s)
             $s = keyReplace($s, '');
         } else if (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $keyLocation), $matches)) {
             // This is how we specify the separator between group items in a way that
-            // is independent of the document format. Whatever is between {ITEMSEP} and
-            // {/ITEMSEP} is the separator string. Default is "; ".
+          // is independent of the document format. Whatever is between {ITEMSEP} and
+          // {/ITEMSEP} is the separator string. Default is "; ".
             $itemSeparator = $matches[1];
             $keyLength = strlen($matches[0]);
             $s = keyReplace($s, '');
@@ -344,10 +351,8 @@ function doSubs($s)
 
     return $s;
 }
-// Get patient demographic info.
-$ptrow = sqlQuery("SELECT pd.*, " . "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, ur.title AS ur_title, ur.specialty AS ur_specialty " . "FROM patient_data AS pd " . "LEFT JOIN users AS ur ON ur.id = pd.ref_providerID " . "WHERE pd.pid = ?", array(
-    $pid
-));
+// Get patient demographic info. pd.ref_providerID
+$ptrow = sqlQuery("SELECT pd.*, " . "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, ur.title AS ur_title, ur.specialty AS ur_specialty " . "FROM patient_data AS pd " . "LEFT JOIN users AS ur ON ur.id = ? " . "WHERE pd.pid = ?", array($user, $pid));
 
 $hisrow = sqlQuery("SELECT * FROM history_data WHERE pid = ? " . "ORDER BY date DESC LIMIT 1", array(
     $pid
@@ -373,77 +378,12 @@ if (! file_exists($templatepath)) {
     $templatepath = "$templatedir/" . $pid . "/$form_filename";
 }
 
-// Create a temporary file to hold the output.
-$fname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
+$edata = file_get_contents($templatepath);
+$edata = doSubs($edata);
 
-// Get mime type in a way that works with old and new PHP releases.
-$mimetype = 'application/octet-stream';
-$ext = strtolower(array_pop((explode('.', $fname))));
-if ('dotx' == $ext) {
-    // PHP does not seem to recognize this type.
-    $mimetype = 'application/msword';
-} else if (function_exists('finfo_open')) {
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimetype = finfo_file($finfo, $templatepath);
-    finfo_close($finfo);
-} else if (function_exists('mime_content_type')) {
-    $mimetype = mime_content_type($templatepath);
-} else {
-    if ('doc' == $ext) {
-        $mimetype = 'application/msword';
-    } else if ('dot' == $ext) {
-        $mimetype = 'application/msword';
-    } else if ('htm' == $ext) {
-        $mimetype = 'text/html';
-    } else if ('html' == $ext) {
-        $mimetype = 'text/html';
-    } else if ('odt' == $ext) {
-        $mimetype = 'application/vnd.oasis.opendocument.text';
-    } else if ('ods' == $ext) {
-        $mimetype = 'application/vnd.oasis.opendocument.spreadsheet';
-    } else if ('ott' == $ext) {
-        $mimetype = 'application/vnd.oasis.opendocument.text';
-    } else if ('pdf' == $ext) {
-        $mimetype = 'application/pdf';
-    } else if ('ppt' == $ext) {
-        $mimetype = 'application/vnd.ms-powerpoint';
-    } elseif ('ps' == $ext) {
-        $mimetype = 'application/postscript';
-    } else if ('rtf' == $ext) {
-        $mimetype = 'application/rtf';
-    } else if ('txt' == $ext) {
-        $mimetype = 'text/plain';
-    } else if ('xls' == $ext) {
-        $mimetype = 'application/vnd.ms-excel';
-    }
+if ($html_flag) { // return raw minified html template
+    $html = trim(str_replace(["\r\n", "\r", "\n"], '', $edata));
+} else { // add br for lf in text template
+    $html = trim(str_replace(["\r\n", "\r", "\n"], '<br/>', $edata));
 }
-
-$zipin = new ZipArchive();
-if ($zipin->open($templatepath) === true) {
-    $xml = '';
-    // Must be a zip archive.
-    $zipout = new ZipArchive();
-    $zipout->open($fname, ZipArchive::OVERWRITE);
-    for ($i = 0; $i < $zipin->numFiles; ++ $i) {
-        $ename = $zipin->getNameIndex($i);
-        $edata = $zipin->getFromIndex($i);
-        $edata = doSubs($edata);
-        $xml .= $edata;
-        $zipout->addFromString($ename, $edata);
-    }
-
-    $zipout->close();
-    $zipin->close();
-    $html = nl2br($xml);
-} else {
-    // Not a zip archive.
-    $edata = file_get_contents($templatepath);
-    $edata = doSubs($edata);
-    if ($html_flag) { // return raw html template
-        $html = $edata;
-    } else { // add br for lf in text template
-        $html = nl2br($edata);
-    }
-}
-
 echo $html;

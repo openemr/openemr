@@ -78,6 +78,8 @@ $datatypes = array(
   "35" => xl("Facilities"),
   "36" => xl("Multiple Select List"),
   "40" => xl("Image canvas"),
+  "41" => xl("Patient Signature"),
+  "42" => xl("User Signature"),
 );
 
 $sources = array(

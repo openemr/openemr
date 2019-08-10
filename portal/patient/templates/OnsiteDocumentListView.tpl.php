@@ -11,13 +11,32 @@
 
 use OpenEMR\Core\Header;
 
-$this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Documents"));
-$this->assign('nav', 'onsitedocuments');
-
 $pid = $this->cpid;
 $recid = $this->recid;
 $docid = $this->docid;
+$is_module = $this->is_module;
+$is_portal = $this->is_portal;
+$is_dashboard = (!$is_module && !$is_portal);
+$category = $this->save_catid;
+$new_filename = $this->new_filename;
+$webroot = $GLOBALS['web_root'];
 $encounter = '';
+// for location assign
+$referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&";
+
+if (!$is_module) {
+    $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Documents"));
+} else {
+    $this->assign('title', xlt("Patient Template") . " | " . xlt("Documents"));
+}
+$this->assign('nav', 'onsitedocuments');
+
+$catname = '';
+if ($category) {
+    $result = sqlQuery("SELECT name FROM categories WHERE id = ?", array($category));
+    $catname = $result['name'] ? $result['name'] : '';
+}
+$catname = $catname ? $catname : xlt("Onsite Portal Reviewed");
 
 if (!$docid) {
     $docid = 'Hipaa_Document';
@@ -25,18 +44,31 @@ if (!$docid) {
 
 $isnew = false;
 $ptName = isset($_SESSION['ptName']) ? $_SESSION['ptName'] : $pid;
-$cuser = isset($_SESSION ['sessionUser']) ? $_SESSION ['sessionUser'] : $_SESSION ['authUserID'];
-echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($cuser) . "';var ptName='" . attr($ptName) . "';</script>";
-echo "<script>var recid='" . attr($recid) . "';var docid='" . attr($docid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var isNewDoc='" . attr($isnew) . "';</script>";
-echo "<script>var alertMsg1='" . xlt("Saved to Documents->Onsite Portal->Reviewed - Open there to move or rename.") . "';</script>";
+$cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION['authUserID'];
+// some necessary js globals
+echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
+    ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
+echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";</script>";
+echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";</script>";
+// translations
+echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": $catname';</script>";
 echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
 echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-<title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Documents'); ?></title>
-<meta   content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+<title><?php
+    if ($is_dashboard) {
+        echo xlt("Portal Document Review");
+    } elseif (!$is_module) {
+        echo xlt("Patient Portal Documents");
+    } else {
+        echo xlt("Patient Document Templates");
+    }
+    ?>
+</title>
+<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
     <?php Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
@@ -58,6 +90,7 @@ echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
 </script>
 </head>
+<body class="skin-blue">
 <script type="text/javascript">
     $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(
@@ -135,8 +168,9 @@ echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
             var v = $('#' + ckid).data('value');
             if (v)
                 $(this).replaceWith(v)
-            else
+            else {
                 $(this).replaceWith('No')
+            }
         });
     }
 
@@ -166,11 +200,20 @@ echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
         });
     }
 
+    function replaceSignatures() {
+        $('.signature').each(function () {
+            let type = $(this).data('type');
+            if ($(this).attr('src') != signhere && $(this).attr('src')) {
+                $(this).removeAttr('data-action');
+            }
+        });
+    }
+
     function flattenDocument() {
         replaceCheckMarks();
         replaceRadioValues();
         replaceTextInputs();
-
+        replaceSignatures()
     }
 
     function restoreDocumentEdits() {
@@ -222,14 +265,22 @@ body {
     <aside class="col-sm-2 col-xs-3" id="sidebar-pills">
         <ul class="nav nav-pills  nav-stacked" id="sidebar">
             <li data-toggle="pill" class="bg-info"><a id="signTemplate" href="#openSignModal"
-                data-toggle="modal" data-backdrop="true" data-target="#openSignModal"data-type="patient-signature"><span><?php echo xlt('Signature');?></span></a></li>
+                data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><span><?php echo xlt('Signature');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="saveTemplate" href="#"><span"><?php echo xlt('Save');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><span"><?php echo xlt('Print');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="submitTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="sendTemplate"  href="#"><span"><?php echo xlt('Send for Review');?></span></a></li>
-            <li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xlt('Save to Chart');?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xlt('Chart to Category') . " $catname";?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="downloadTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
-            <li data-toggle="pill" class="bg-danger"><a id="homeTemplate" href="#"  onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
+            <?php if (!$is_module) { ?>
+                <li data-toggle="pill" class="bg-warning">
+                    <a id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home'); ?></a>
+                </li>
+            <?php } else { ?>
+                <li data-toggle="pill" class="bg-warning">
+                    <a id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
+                </li>
+            <?php } ?>
         </ul>
     </aside>
     <div class="col-md-8 col-sm-8 col-xs-8 nopadding">
@@ -249,7 +300,7 @@ body {
                 <input type="hidden" name="status" id="status" value="Open">
              </form>
             <div class="panel-footer">
-<!-- delete button is is a separate form to prevent enter key from triggering a delete-->
+<!-- delete button is a separate form to prevent enter key from triggering a delete-->
 <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
     <fieldset>
         <div class="form-group">
@@ -271,18 +322,26 @@ body {
 </div>
 </script>
 <script type="text/template" id="onsiteDocumentCollectionTemplate">
-<body class="skin-blue">
-    <div class="container-fluid">
-        <div class="nav navbar-fixed-top" id="topnav">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="javascript:location.reload(true);"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xla('Pending Documents')?></a>
+        <nav class="nav navbar-fixed-top" id="topnav">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xla('Pending Documents') ?></a>
+                </div>
+                <ul class="nav navbar-nav" style='margin-top:5px;font-size:16px;font-weight:600'>
+                    <?php require_once(dirname(__FILE__) . '/../../lib/template_menu.php'); ?>
+                    <?php if (!$is_module) { ?>
+                        <li class="bg-warning">
+                            <a href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home'); ?></a>
+                        </li>
+                    <?php } else { ?>
+                        <li class="bg-warning">
+                            <a href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
+                        </li>
+                    <?php } ?>
+                </ul>
             </div>
-            <ul class="nav navbar-nav"  style='margin-top:5px'>
-                <?php require_once(dirname(__FILE__) . '/../../lib/template_menu.php');?>
-                <li class="bg-danger"><a href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
-            </ul>
             <div id="collectionAlert"></div>
-        </div>
+        </nav>
         <div class="container">
         <table class="collection table table-condensed table-hover">
         <thead>
@@ -297,7 +356,9 @@ body {
             </tr>
         </thead>
         <tbody>
-        <% items.each(function(item) { %>
+        <% items.each(function(item) {
+            // if ((!isPortal && item.get('denialReason') == 'Locked')) return;
+        %>
             <tr  style='background:white' id="<%= _.escape(item.get('id')) %>">
                 <td><%= _.escape(item.get('id') || '') %></td>
                 <td><button class='btn btn-primary btn-sm'><%= _.escape(item.get('docType').slice(0, -4).replace(/_/g, ' ') || '') %></button></td>
@@ -311,6 +372,7 @@ body {
         </tbody>
         </table>
         <%=  view.getPaginationHtml(page) %>
+    </div>
 </script>
     <!-- modal edit dialog -->
 <div class="modal fade" id="onsiteDocumentDetailDialog" tabindex="-1">
@@ -334,8 +396,8 @@ body {
     <!-- processed templates go here.-->
     <div id="onsiteDocumentModelContainer" class="modelContainer"></div>
     <div id="onsiteDocumentCollectionContainer" class="collectionContainer"></div>
-
-</div> <!-- /container -->
+</div>
+ <!-- /container -->
 </body>
 <?php
     $this->display('_Footer.tpl.php');

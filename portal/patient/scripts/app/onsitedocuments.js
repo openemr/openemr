@@ -6,9 +6,10 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+let isCharted = false;
 var page = {
 
     onsiteDocuments: new model.OnsiteDocumentCollection(),
@@ -21,6 +22,7 @@ var page = {
     fetchParams: { filter: '', orderBy: '', orderDesc: '', page: 1,patientId: cpid,recid: recid },
     fetchInProgress: false,
     dialogIsOpen: false,
+    isDashboard: (!isModule && !isPortal),
 
     init: function () {
         // ensure initialization only occurs once
@@ -54,8 +56,8 @@ var page = {
         });
 
         // make the rows clickable ('rendered' is a custom event, not a standard backbone event)
-        this.collectionView.on('rendered',function () {
-            if ( cuser != '-patient-') {
+        this.collectionView.on('rendered', function () {
+            if ( page.isDashboard) {
                 $("#topnav").hide();
             }
             // attach click handler to the table rows for editing
@@ -90,6 +92,10 @@ var page = {
 
             page.isInitialized = true;
             page.isInitializing = false;
+            // if dashboard let's aout open first doc for review.
+            if(page.isDashboard) {
+                $('table.collection tbody tr:first').click();
+            }
         });
 // ---------  Get Collection ------------------------//
         this.fetchOnsiteDocuments(page.fetchParams);
@@ -102,21 +108,15 @@ var page = {
         // tell the model view where it's template is located
         this.modelView.templateEl = $("#onsiteDocumentModelTemplate");
 // template rendered ready -------------------------------------------------------//
-        this.modelView.on('rendered',function () {
+        this.modelView.on('rendered', function () {
             docid = page.onsiteDocument.get('docType');
-            if ( cuser != '-patient-') {
-                function todocument(docid)
-                {
-                    // not used
-                  h = webRoot+'/controller.php?document&view&patient_id=30&doc_id=' + docid;
-                  location.href = h;
-                }
+            if (!isPortal) {
                 $("#signTemplate").hide();
-                $("#printTemplate").hide();
+                isModule ? $("#printTemplate").show() : $("#printTemplate").hide();
                 $("#submitTemplate").hide();
                 $("#sendTemplate").hide();
-                $("#saveTemplate").hide();
-                $("#homeTemplate").hide();
+                isModule ? $("#saveTemplate").show() : $("#saveTemplate").hide();
+                isModule ? $("#homeTemplate").show() : $("#homeTemplate").hide();
                 $("#downloadTemplate").show();
                 $("#chartTemplate").show();
 
@@ -130,30 +130,33 @@ var page = {
                      $("#status").val('charted');
                      page.onsiteDocument.set('denialReason','Locked')
                      page.onsiteDocument.set('authorizingSignator',cuser)
-                     //page.onsiteDocument.set('','')
                      pageAudit.onsitePortalActivity.set('status','closed')
                      pageAudit.onsitePortalActivity.set('pendingAction','completed')
                      pageAudit.onsitePortalActivity.set('actionUser',cuser)
-                    // $("#template").submit();
-                    var posting = $.post(
+                    let posting = $.post(
                          "./../lib/doc_lib.php",
                          {
                                 cpid: cpid,
                                 docid: docid,
+                                catid: catid,
                                 content: documentContents,
                                 handler: "chart"
                          }
                      );
-                     posting.done(function ( rtn ) {
+                     posting.done(function (rtn) {
                         if (rtn.indexOf("ERROR") !== -1) {
                             alert(rtn);
                             return false;
                         }
+                         isCharted = true;
+                         $("#chartTemplate").hide();
+                         alert(alertMsg1);
+                         model.reloadCollectionOnModelUpdate = false;
                          page.updateModel();
-                         eModal.alert(alertMsg1,"Success");
                      });
 
                 });
+
                  $("#downloadTemplate").on('click', function (e) {
                      e.preventDefault();
                      flattenDocument();
@@ -165,14 +168,12 @@ var page = {
                      $("#status").val('downloaded');
                      page.onsiteDocument.set('denialReason','Locked')
                      page.onsiteDocument.set('authorizingSignator',cuser)
-                     //page.onsiteDocument.set('','')
                      pageAudit.onsitePortalActivity.set('status','closed')
                      pageAudit.onsitePortalActivity.set('pendingAction','completed')
                      pageAudit.onsitePortalActivity.set('actionUser',cuser)
 
                      $("#template").submit();
                      page.updateModel();
-                    // location.reload();
                  });
             } else {
                 $("#downloadTemplate").hide();
@@ -190,25 +191,22 @@ var page = {
                     pageAudit.onsitePortalActivity.set('status', 'editing')
                     page.updateModel();
                 }
-
-                // setTimeout("location.reload();",1500);
-                // flattenDocument();
             });
+
             $('#sidebar').affix({
                 offset: {
                     top: $('navbar').height()
                 }
             });
+
             $("#sendTemplate").on('click', function (e) {
                  e.preventDefault();
                  var documentContents = document.getElementById('templatecontent').innerHTML;
-                 //$("#docid").val('hipaa.pdf');
                  $("#content").val(documentContents);
                  pageAudit.onsitePortalActivity.set('status','waiting')
                  page.onsiteDocument.set('denialReason','In Review')
                  page.updateModel();
-                 setTimeout("location.reload();",1500);
-                // flattenDocument();
+                 setTimeout("location.reload(true);",1500);
             });
 
             $("#submitTemplate").on('click', function () {
@@ -217,32 +215,37 @@ var page = {
                 }
                 else {
                     pageAudit.onsitePortalActivity.set('status', 'editing')
-
                     flattenDocument();
                 }
 
-                // document.getElementById("loader").style.display = "block";
                 var documentContents = document.getElementById('templatecontent').innerHTML;
                 $("#docid").val(docid);
                 $("#content").val(documentContents);
                 $("#template").submit();
                 page.updateModel();
-                // location.reload();
             });
                 page.getDocument(page.onsiteDocument.get('docType'),cpid)
-            if ( cuser != '-patient-') {
+            if ( page.isDashboard) { // review
                 flattenDocument();
             }
                 pageAudit.fetchParams.doc = page.onsiteDocument.get('id')
                 pageAudit.fetchOnsitePortalActivities(pageAudit.fetchParams);
 
-            if ( cuser != '-patient-') {
-                // disable admin signature in patient view
-                $('#patientSignature').prop("onclick", null);
-            } else {
-                $('#adminSignature').prop("onclick", null);
+            if (!isModule) {
+                if (!isPortal) {
+                    // disable admin signature in patient view
+                    $('#patientSignature').prop("onclick", null);
+                } else {
+                    $('#adminSignature').prop("onclick", null);
+                }
             }
         });
+
+        if(newFilename) { // auto load new on init. once only.
+            page.newDocument(cpid, cuser, newFilename);
+            newFilename = '';
+        }
+
     },
 
     /**
@@ -282,7 +285,6 @@ var page = {
 
         });
     },
-    // ----------------------------------------------------//
     newDocument: function (pid,user,docname) {
         docid = docname;
         cuser = user;
@@ -299,16 +301,17 @@ var page = {
     },
     getDocument: function (docname,pid) {
         var dn = page.onsiteDocument.get('docType');
-        if ( dn == docname && dn > '' && !isNewDoc) {
+        if (dn == docname && dn > '' && !isNewDoc) {
             $("#docid").val(dn)
             $('#templatecontent').empty().append(page.onsiteDocument.get('fullDocument'));
             restoreDocumentEdits();
+            initSignerApi();
         } else {
-            var liburl = webRoot+'/portal/lib/download_template.php';
+            var liburl = webRoot + '/portal/lib/download_template.php';
             $.ajax({
                 type: "POST",
                 url: liburl,
-                data: {docid: docname, pid: pid},
+                data: {docid: docname, pid: pid, isModule: isModule},
                 beforeSend: function (xhr) {
                     console.log("Please wait...");
                 },
@@ -318,21 +321,24 @@ var page = {
                 success: function (templateHtml, textStatus, jqXHR) {
                     $("#docid").val(docname);
                     $('#templatecontent').empty().append(templateHtml);
-                    if ( isNewDoc ) {
+                    if (isNewDoc) {
                         isNewDoc = false;
                         page.isSaved = false;
                         $("#printTemplate").hide();
                         $("#submitTemplate").hide();
                         $("#sendTemplate").hide();
                         page.onsiteDocument.set('fullDocument',templateHtml);
-                        $('#adminSignature').prop("onclick", null);
+                        if(!isModule) {
+                            $('#adminSignature').prop("onclick", null);
+                        }
+                        bindFetch();
                     }
                 }
             });
         }
         var cdate = page.onsiteDocument.get('createDate')
         var s = page.onsiteDocument.get('denialReason')
-        $('#docPanelHeader').append(' : '+dn+' Dated: '+cdate+' Status: ' + s)
+        $('#docPanelHeader').append(' : ' + dn + ' Dated: '+cdate+' Status: ' + s)
     },
     /**
      * show the doc for editing
@@ -349,7 +355,7 @@ var page = {
 
             page.onsiteDocument.fetch({
                 success: function () {
-                    if (cuser != '-patient-') {
+                    if ( page.isDashboard) {
                         page.renderModelView(false);
                     } else {
                         page.renderModelView(true);
@@ -409,17 +415,17 @@ var page = {
         // if this is new then on success we need to add it to the collection
         var isNew = page.onsiteDocument.isNew();
         var s = page.onsiteDocument.get('denialReason')
-        if ( !isNew && s == 'New' && s != 'In Review') {
+        if (!isNew && s == 'New' && s != 'In Review') {
             page.onsiteDocument.set('denialReason','Open')
 
             app.showProgress('modelLoader');
         }
         var isLink = $('#patientSignature').attr('src') ? $('#patientSignature').attr('src').indexOf('signhere') : -1
-        if (isLink != -1 ) {
+        if (isLink != -1) {
             $('#patientSignature').attr('src',signhere);
         }
         var ptsignature = $('#patientSignature').attr('src');
-        if ( ptsignature == signhere) {
+        if (ptsignature == signhere) {
             ptsignature = "";
         }
         page.onsiteDocument.save({
@@ -429,12 +435,12 @@ var page = {
             //'encounter': $('input#encounter').val(),
             'createDate': page.onsiteDocument.get('createDate'),
             'docType': page.onsiteDocument.get('docType'),
-            'patientSignedStatus': ptsignature?'1':'0',
-            'patientSignedTime': ptsignature? new Date() : '0000-00-00', //page.onsiteDocument.get('patientSignedTime'),
+            'patientSignedStatus': ptsignature ? '1':'0',
+            'patientSignedTime': ptsignature ? new Date() : '0000-00-00',
             'authorizeSignedTime': page.onsiteDocument.get('authorizeSignedTime'),
             'acceptSignedStatus': page.onsiteDocument.get('acceptSignedStatus'),
             'authorizingSignator': page.onsiteDocument.get('authorizingSignator'),
-            'reviewDate': (cuser != '-patient-')?new Date() : '0000-00-00',  //page.onsiteDocument.get('reviewDate'),
+            'reviewDate': (!isPortal) ? new Date() : '0000-00-00',
             'denialReason': page.onsiteDocument.get('denialReason'),
             'authorizedSignature': page.onsiteDocument.get('authorizedSignature'),
             'patientSignature': ptsignature,
@@ -448,7 +454,6 @@ var page = {
                 app.hideProgress('modelLoader');
                 pageAudit.onsitePortalActivity.set('date',page.onsiteDocument.get('createDate'))
                 pageAudit.onsitePortalActivity.set('activity','document')
-
                 pageAudit.onsitePortalActivity.set('patientId',cpid)
                 pageAudit.onsitePortalActivity.set('tableAction','update')
                 pageAudit.onsitePortalActivity.set('tableArgs',page.onsiteDocument.get('id'))
@@ -467,6 +472,11 @@ var page = {
                 if (model.reloadCollectionOnModelUpdate) {
                     page.fetchOnsiteDocuments(page.fetchParams,true);
                     page.showDetailDialog(page.onsiteDocument);
+                }
+
+                if (isCharted === true) {
+                    $("#a_docReturn").click();
+                    return;
                 }
             },
             error: function (model,response,scope) {
@@ -518,7 +528,7 @@ var page = {
                 if (model.reloadCollectionOnModelUpdate) {
                     // re-fetch and render the collection after the model has been updated
                     page.fetchOnsiteDocuments(page.fetchParams,true);
-                    setTimeout("location.reload();",2000);
+                    setTimeout("location.reload(true);",2000);
                 }
             },
             error: function (model,response,scope) {
@@ -528,5 +538,3 @@ var page = {
         });
     }
 };
-
-
