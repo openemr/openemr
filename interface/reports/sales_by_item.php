@@ -70,7 +70,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
     $pat_name = $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'];
 
     if (empty($rowcat)) {
-        $rowcat = xl('None');
+        $rowcat = xl('None{{Sales}}');
     }
 
     $rowproduct = $description;

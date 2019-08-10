@@ -141,7 +141,7 @@ if ($n>0) {?>
 } else {?>
     <br>
     <!-- Display None, if there is no disclosure -->
-    <span class='text' colspan='3'><?php echo xlt('None');?></span>
+    <span class='text' colspan='3'><?php echo xlt('None{{Disclosure}}');?></span>
     <?php
 }
 ?>
