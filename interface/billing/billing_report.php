@@ -637,7 +637,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $ThisPageSearchCriteriaRadioKeyMaster[5] = "%,1,0";
                 $ThisPageSearchCriteriaDisplayRadioMaster[6] = array(
                     xl("All"),
-                    xl("None"),
+                    xl("None{{Insurance}}"),
                     xl("Ins 1"),
                     xl("Ins 2 or Ins 3")
                 );

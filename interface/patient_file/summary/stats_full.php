@@ -205,7 +205,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 if (sqlNumRows($pres) < 1) {
                     if (getListTouch($pid, $focustype)) {
                         // Data entry has happened to this type, so can display an explicit None.
-                        echo "<tr><td class='text'><b>" . xlt("None") . "</b></td></tr>";
+                        echo "<tr><td class='text'><b>" . xlt("None{{Issue}}") . "</b></td></tr>";
                     } else {
                           // Data entry has not happened to this type, so can show the none selection option.
                           echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" .
@@ -214,7 +214,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo " disabled";
                         }
 
-                          echo " /><b>" . xlt("None") . "</b></td></tr>";
+                          echo " /><b>" . xlt("None{{Issue}}") . "</b></td></tr>";
                     }
                 }
 
