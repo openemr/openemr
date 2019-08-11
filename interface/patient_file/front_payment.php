@@ -1275,9 +1275,9 @@ function make_insurance() {
         calctotal();
         </script>
     </div><!--end of container div of accept payment i.e the form-->
-<?php
-    $oemr_ui->oeBelowContainerDiv();
-} // forms else close
-?>
+    <?php
+        $oemr_ui->oeBelowContainerDiv();
+    } // forms else close
+    ?>
 </body>
 </html>

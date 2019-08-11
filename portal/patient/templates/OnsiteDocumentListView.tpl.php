@@ -59,13 +59,13 @@ echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 <html>
 <head>
 <title><?php
-    if ($is_dashboard) {
-        echo xlt("Portal Document Review");
-    } elseif (!$is_module) {
-        echo xlt("Patient Portal Documents");
-    } else {
-        echo xlt("Patient Document Templates");
-    }
+if ($is_dashboard) {
+    echo xlt("Portal Document Review");
+} elseif (!$is_module) {
+    echo xlt("Patient Portal Documents");
+} else {
+    echo xlt("Patient Document Templates");
+}
     ?>
 </title>
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
@@ -335,7 +335,7 @@ body {
                         </li>
                     <?php } else { ?>
                         <li class="bg-warning">
-                            <a href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
+                            <a id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                         </li>
                     <?php } ?>
                 </ul>

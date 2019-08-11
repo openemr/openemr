@@ -25,7 +25,7 @@
 // This module downloads a specified document template to the browser after
 // substituting relevant patient data into its variables.
 $is_module = isset($_POST['isModule']) ? $_POST['isModule'] : 0;
-if($is_module) {
+if ($is_module) {
     require_once(dirname(__file__) . '/../../interface/globals.php');
 } else {
     require_once(dirname(__file__) . "/../verify_session.php");
@@ -273,8 +273,8 @@ function doSubs($s)
         } else if (keySearch($s, '{ProblemList}')) {
             $s = keyReplace($s, dataFixup(getIssues('medical_problem'), xl('Problem List')));
         } else if (keySearch($s, '{GRP}')) { // This tag indicates the fields from here until {/GRP} are a group of fields
-          // separated by semicolons. Fields with no data are omitted, and fields with
-          // data are prepended with their field label from the form layout.
+            // separated by semicolons. Fields with no data are omitted, and fields with
+            // data are prepended with their field label from the form layout.
             ++ $groupLevel;
             $groupCount = 0;
             $s = keyReplace($s, '');
@@ -286,8 +286,8 @@ function doSubs($s)
             $s = keyReplace($s, '');
         } else if (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $keyLocation), $matches)) {
             // This is how we specify the separator between group items in a way that
-          // is independent of the document format. Whatever is between {ITEMSEP} and
-          // {/ITEMSEP} is the separator string. Default is "; ".
+            // is independent of the document format. Whatever is between {ITEMSEP} and
+            // {/ITEMSEP} is the separator string. Default is "; ".
             $itemSeparator = $matches[1];
             $keyLength = strlen($matches[0]);
             $s = keyReplace($s, '');
