@@ -66,7 +66,7 @@ if ($is_dashboard) {
 } else {
     echo xlt("Patient Document Templates");
 }
-    ?>
+?>
 </title>
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">

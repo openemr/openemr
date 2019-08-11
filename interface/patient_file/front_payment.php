@@ -1277,7 +1277,7 @@ function make_insurance() {
     </div><!--end of container div of accept payment i.e the form-->
     <?php
         $oemr_ui->oeBelowContainerDiv();
-    } // forms else close
-    ?>
+} // forms else close
+?>
 </body>
 </html>
