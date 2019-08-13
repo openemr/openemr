@@ -273,7 +273,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     }
 
                                     echo "  <td>" . text($row['referredby']) . "</td>\n";
-                                    echo "  <td>" . text($row['modifydate']) . "</td>\n";
+                                    echo "  <td>" . text(oeFormatShortDate($row['modifydate'])) . "</td>\n";
                                     echo "  <td>" . text($row['comments']) . "</td>\n";
                                     echo "  <td id='e_" . attr($rowid) . "' class='noclick' title='" . xla('View related encounters') . "'>";
                                     echo "  <input type='button' value='" . attr($ierow['count']) . "' class='editenc' id='" . attr($rowid) . "' />";
