@@ -258,8 +258,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                     echo " <tr class={$click_class}>\n";
                                     echo "  <td id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
-                                    echo "  <td>" . text($row['begdate']) . "&nbsp;</td>\n";
-                                    echo "  <td>" . text($row['enddate']) . "&nbsp;</td>\n";
+                                    echo "  <td>" . text(oeFormatShortDate($row['begdate'])) . "&nbsp;</td>\n";
+                                    echo "  <td>" . text(oeFormatShortDate($row['enddate'])) . "&nbsp;</td>\n";
                                     // both codetext and statusCompute have already been escaped above with htmlspecialchars)
                                     echo "  <td>" . $codetext . "</td>\n";
                                     echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
