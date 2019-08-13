@@ -430,13 +430,13 @@ function callServer(action, value, value2, last, first) {
                         <div class="row">
                                 <div class="col-sm-12">
                                     <div class="form-group inline">
-                                        <label class="control-label" for="fname"><?php echo xlt('First')?></label>
+                                        <label class="control-label" for="fname"><?php echo xlt('First{{Name}}')?></label>
                                         <div class="controls inline-inputs">
                                             <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>">
                                         </div>
                                     </div>
                                     <div class="form-group inline">
-                                        <label class="control-label" for="mname"><?php echo xlt('Middle')?></label>
+                                        <label class="control-label" for="mname"><?php echo xlt('Middle{{Name}}')?></label>
                                         <div class="controls inline-inputs">
                                             <input type="text" class="form-control" id="mname" placeholder="<?php echo xla('Full or Initial'); ?>">
                                         </div>

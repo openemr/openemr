@@ -347,7 +347,7 @@ $.extend($.ui.multiselect.locale, {
     }
 
     $activatePlan = function() {
-        $("#plan-status-label").text('<?php echo xla('Status') . ': ' . xla('Active'); ?>');
+        $("#plan-status-label").text('<?php echo xla('Status') . ': ' . xla('Active{{Plan}}'); ?>');
         window.buttonStatus = "active";
         $("#cdr-status").removeAttr("disabled");
         $("#cdr-status").text('<?php echo xla('Deactivate'); ?>');

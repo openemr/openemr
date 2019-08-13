@@ -377,7 +377,7 @@ if ($drug_id) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php echo xlt('Active'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Active{{Drug}}'); ?>:</b></td>
   <td>
    <input type='checkbox' name='form_active' value='1'<?php
     if ($row['active']) {
