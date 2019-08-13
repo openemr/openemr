@@ -1516,7 +1516,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
 
                         if (!$counterFlag) {
-                            echo "&nbsp;&nbsp;" . xlt('None');
+                            echo "&nbsp;&nbsp;" . xlt('None{{Advanced_Directives}}');
                         } ?>
                       </div>
                         <?php

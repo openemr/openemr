@@ -673,7 +673,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 WHERE pc_active = 1 ORDER BY pc_seq";
                                                 $result = sqlStatement($sql);
                                                 echo "<select class='form-control' name='form_{$i}' id='form_{$i}'>\n";
-                                                echo "<option value='_blank'>" . xlt('None') . "</option>";
+                                                echo "<option value='_blank'>" . xlt('None{{Category}}') . "</option>";
                                                 while ($row = sqlFetchArray($result)) {
                                                     $catId = $row['pc_catid'];
                                                     $name = $row['pc_catname'];

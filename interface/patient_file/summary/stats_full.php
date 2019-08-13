@@ -204,9 +204,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             echo " disabled";
                                         }
 
-                                        echo " /><b>" . xlt("None") . "</b></td></tr>";
-                                    }
-                                }
+                          echo " /><b>" . xlt("None{{Issue}}") . "</b></td></tr>";
+                    }
+                }
 
                                 // display issues
                                 while ($row = sqlFetchArray($pres)) {
