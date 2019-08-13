@@ -106,7 +106,7 @@ function drugselected(sel) {
             <label for="drug" class="control-label col-sm-2">{xlt t="Drug"}</label>
             <div class="col-sm-7">
                 <div class="input-group">
-                    <input type="text" class="form-control" id="drug" name="drug" placeholder="{xlt t='e.x. Aspirin'}" value="{$prescription->drug|attr}">
+                    <input type="text" class="form-control" id="drug" name="drug" placeholder="{xla t='e.x.'} {xla t='Aspirin'}" value="{$prescription->drug|attr}">
                     <span class="input-group-btn">
                         <button class="btn btn-default btn-search" tabindex="-1" type="button" onclick="$('#hiddendiv').show();document.getElementById('hidden_content').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">Search</button>
                     </span>
@@ -123,7 +123,7 @@ function drugselected(sel) {
                 <div class="col-sm-6 col-sm-offset-2">
                     <select class="form-control" id="drug_id" name="drug_id">
                         <option></option>
-                        {html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT selected=$prescription->get_drug_id()}
+                        {html_options values=$DRUG_ARRAY_VALUES|attr output=$DRUG_ARRAY_OUTPUT selected=$prescription->get_drug_id()}
                     </select>
                     <input type="hidden" name="rxnorm_drugcode" value="{$prescription->rxnorm_drugcode|attr}">
                 </div>
@@ -138,47 +138,47 @@ function drugselected(sel) {
         <div class="form-group {$dosageVisibility}">
             <label for="size" class="control-label col-sm-2">{xlt t="Dosage"}</label>
             <div class="col-sm-2">
-                <input type="text" class="form-control" name="size" id="size" placeholder="{xlt t='ex 81'}" maxlength="10" value="{$prescription->size|attr}">
+                <input type="text" class="form-control" name="size" id="size" placeholder="{xla t='ex'}  {xla t='81'}" maxlength="10" value="{$prescription->size|attr}">
             </div>
             <div class="col-sm-2">
                 <select class="form-control" name="unit" id="unit">
                     <option></option>
-                    {html_options options=$prescription->unit_array selected=$prescription->unit}
+                    {html_options options=$prescription->unit_array|attr selected=$prescription->unit}
                 </select>
             </div>
             <label for="quantity" class="control-label col-sm-1">{xlt t="Quantity"}</label>
             <div class="col-sm-2">
-                <input type="text" name="quantity" id="quantity" class="form-control" placeholder="{xlt t='e.x. 30'}" maxlength="31" value="{$prescription->quantity|attr}" onchange="quantityChanged()">
+                <input type="text" name="quantity" id="quantity" class="form-control" placeholder="{xla t='e.x.'}  {xla t='30'}" maxlength="31" value="{$prescription->quantity|attr}" onchange="quantityChanged()">
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-2">
                 {if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->form && !$prescription->route && !$prescription->interval}
-                    <input class="form-control" type="text" name="dosage" id="dosage" size="30" maxlength="100" placeholder="{xlt t='ex 81'}" value="{$prescription->dosage|attr}">
+                    <input class="form-control" type="text" name="dosage" id="dosage" size="30" maxlength="100" placeholder="{xla t='ex'} 81" value="{$prescription->dosage|attr}">
                     <input type="hidden" name="form" id="form" value="0">
                     <input type="hidden" name="route" id="route" value="0">
                     <input type="hidden" name="interval" id="interval" value="0">
                 {else}
-                    <input class="form-control" type="text" placeholder="{xlt t='ex 1'}" name="dosage" id="dosage" size="2" maxlength="10" value="{$prescription->dosage|attr}">
+                    <input class="form-control" type="text" placeholder="{xla t='ex'} 1" name="dosage" id="dosage" size="2" maxlength="10" value="{$prescription->dosage|attr}">
                 {/if}
             </div>
             <div class="col-sm-2">
                 <select class="form-control" name="form" id="form">
                     <option></option>
-                    {html_options options=$prescription->form_array selected=$prescription->form}
+                    {html_options options=$prescription->form_array|attr selected=$prescription->form}
                 </select>
             </div>
             <div class="col-sm-3">
                 <select class="form-control" name="route" id="route">
                     <option></option>
-                    {html_options options=$prescription->route_array selected=$prescription->route}
+                    {html_options options=$prescription->route_array|attr selected=$prescription->route}
                 </select>
             </div>
             <div class="col-sm-2">
                 <select class="form-control" name="interval" id="interval">
                     <option></option>
-                    {html_options options=$prescription->interval_array selected=$prescription->interval}</select>
+                    {html_options options=$prescription->interval_array|attr selected=$prescription->interval}</select>
             </div>
         </div>
 
@@ -187,16 +187,16 @@ function drugselected(sel) {
                 <div class="form-group">
                     <label for="per_refill" class="control-label col-sm-4">{xlt t="Refills"}</label>
                     <div class="col-sm-6">
-                        {html_options name="refills" class="form-control" options=$prescription->refills_array selected=$prescription->refills}
+                        {html_options name="refills" class="form-control" options=$prescription->refills_array|attr selected=$prescription->refills}
                     </div>
                 </div>
                 <div class="form-group">
                     {if $SIMPLIFIED_PRESCRIPTIONS}
-                        <input TYPE="hidden" ID="per_refill" NAME="per_refill" VALUE="{$prescription->per_refill|attr}">
+                        <input type="hidden" id="per_refill" name="per_refill" value="{$prescription->per_refill|attr}">
                     {else}
-                        <label for="per_refill" class="control-label col-sm-4"># {xlt t="of tablets"}</label>
+                        <label for="per_refill" class="control-label col-sm-4">{xlt t="# of tablets"}</label>
                         <div class="col-sm-6">
-                            <input class="form-control" TYPE="TEXT" ID="per_refill" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill|attr}">
+                            <input class="form-control" type="text" id="per_refill" name="per_refill" size="2" maxlength="10" value="{$prescription->per_refill|attr}">
                         </div>
                     {/if}
                 </div>
@@ -204,21 +204,21 @@ function drugselected(sel) {
                     <div class="form-group">
                         <label for="medication" class="control-label col-sm-4">{xlt t="Add to Rx List"}</label>
                         <div class="col-sm-3">
-                            {html_options name="medication" id="medication" class="form-control" options=$prescription->medication_array selected=$prescription->medication}
+                            {html_options name="medication" id="medication" class="form-control" options=$prescription->medication_array|attr selected=$prescription->medication}
                         </div>
                     </div>
                 {/if}
                 <div class="form-group">
                     <label for="substitute" class="control-label col-sm-4">{xlt t="Substitution"}</label>
                     <div class="col-sm-5">
-                        {html_options class="form-control" id="substitute" name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
+                        {html_options class="form-control" id="substitute" name="substitute" options=$prescription->substitute_array|attr selected=$prescription->substitute}
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-8 col-sm-offset-4">
                         <select class="form-control" id="provider_id" name="provider_id">
                             <option></option>
-                            {html_options options=$prescription->provider->utility_provider_array() selected=$prescription->provider->get_id()}
+                            {html_options options=$prescription->provider->utility_provider_array()|attr selected=$prescription->provider->get_id()}
                         </select>
                         <input type="hidden" name="patient_id" value="{$prescription->patient->id|attr}">
                     </div>
@@ -228,7 +228,7 @@ function drugselected(sel) {
                         {if $prescription->get_refills() <= $prescription->get_dispensation_count()}
                             <div class="col-sm-offset-4 col-sm-4">
                                 <div class="input-group">
-                                    <input class="input-sm form-control" type="text" name="disp_quantity" size="2" placeholder="{xlt t='ex'} 1" maxlength="10" value="{$DISP_QUANTITY|attr}" />
+                                    <input class="input-sm form-control" type="text" name="disp_quantity" size="2" placeholder="{xla t='ex'} 1" maxlength="10" value="{$DISP_QUANTITY|attr}" />
                                     <span class="input-group-addon">{xlt t="units"}</span>
                                 </div>
                             </div>
@@ -251,7 +251,7 @@ function drugselected(sel) {
             <div class="col-sm-6">
                 <div class="form-group">
                     <div class="col-sm-12">
-                        <textarea class="form-control" name="note" rows="3" placeholder="{xlt t='Notes'}">{$prescription->note|text}</textarea>
+                        <textarea class="form-control" name="note" rows="3" placeholder="{xla t='Notes'}">{$prescription->note|text}</textarea>
                     </div>
                     <div class="col-sm-12">
                         {if $GLOBALS.enable_amc_prompting}
@@ -286,7 +286,9 @@ function drugselected(sel) {
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
                 <a href="#" onclick="submitfun();" class="btn btn-default btn-sm btn-save">{xlt t="Save Prescription"}</a>
-                <button type="submit" name="disp_button"class='btn btn-sm btn-default btn-transmit'>{xla t='Save and Dispense'}</button>
+                {if $DRUG_ARRAY_VALUES}
+                    <button type="submit" name="disp_button"class='btn btn-sm btn-default btn-transmit'>{xla t='Save and Dispense'}</button>
+                {/if}
                 <a href="controller.php?prescription&list&id={$prescription->patient->id|attr_url}" class="btn btn-secondary btn-sm btn-cancel">{xlt t="Cancel"}</a>
             </div>
         </div>
