@@ -108,7 +108,7 @@ function drugselected(sel) {
                 <div class="input-group">
                     <input type="text" class="form-control" id="drug" name="drug" placeholder="{xla t='e.x.'} {xla t='Aspirin'}" value="{$prescription->drug|attr}">
                     <span class="input-group-btn">
-                        <button class="btn btn-default btn-search" tabindex="-1" type="button" onclick="$('#hiddendiv').show();document.getElementById('hidden_content').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">Search</button>
+                        <button class="btn btn-default btn-search" tabindex="-1" type="button" onclick="$('#hiddendiv').show();document.getElementById('hidden_content').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">{xlt t="Search"}</button>
                     </span>
                 </div>
             </div>
