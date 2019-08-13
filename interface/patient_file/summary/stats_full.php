@@ -77,14 +77,6 @@ function doeclick(id) {
     dlgopen('../problem_encounter.php?issue=' + encodeURIComponent(id), '_blank', 700, 400);
 }
 
-// Process click on diagnosis for patient education popup.
-function educlick(codetype, codevalue) {
-  top.restoreSession();
-  dlgopen('../education.php?type=' + encodeURIComponent(codetype) +
-    '&code=' + encodeURIComponent(codevalue) +
-    '&language=' + <?php echo js_url($language); ?>,
-    '_blank', 1024, 750,true); // Force a new window instead of iframe to address cross site scripting potential
-}
 
 // Add Encounter button is clicked.
 function newEncounter() {
@@ -235,8 +227,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 $codetext .= "<br />";
                                             }
 
-                                            $codetext .= "<a href='javascript:educlick(" . attr_js($codetype) . "," . attr_js($code) . ")' class='btn btn-sm btn-text'>" .
-                                            text($diag . " (" . $codedesc . ")") . "</a>";
+                                            $codeTypeAttr = attr($codetype);
+                                            $codeAttr = attr($code);
+                                            $text = text($diag . " (" . $codedesc . ")");
+                                            $id = attr($rowid);
+
+                                            $codetext .= "<a href=\"#{$id}\" data-code-type=\"{$codeTypeAttr}\" data-code=\"{$codeAttr}\" class=\"code-link btn btn-sm btn-text\">{$text}</a>";
+
+//                                            $codetext .= "<a data-code-type=\"" . attr_js($codetype) . "\" data-code='" . attr_js($codetype) . "' href='#' class='code btn btn-sm btn-text'>" .
+//                                            text($diag . " (" . $codedesc . ")") . "</a>";
                                         }
                                     }
 
@@ -297,8 +296,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <script>
 var listId = '#' + <?php echo js_escape($list_id); ?>;
 
+/**
+ * Diagnosis link clicked
+ * @param e
+ */
+function codeClick(e) {
+    top.restoreSession();
+    let code = $(this).data("code");
+    let codeType = $(this).data("code-type");
+    dlgopen('../education.php?type=' + encodeURIComponent(codeType) +
+        '&code=' + encodeURIComponent(code) +
+        '&language=' + <?php echo js_url($language); ?>,
+        '_blank', 1024, 750,true);
+    // Stop this click event from bubbling up
+    e.stopPropogation();
+}
+
 $(document).ready(function(){
-    $(".statrow").click(function() { dopclick(this.id,0); });
+    $("tbody").on("click", ".code-link", codeClick)
+              .on("click", ".statrow", function(){dopclick(this.id,0)});
     $(".editenc").click(function(event) { doeclick(this.id); });
     $("#newencounter").click(function() { newEncounter(); });
     $("#history").click(function() { GotoHistory(); });
