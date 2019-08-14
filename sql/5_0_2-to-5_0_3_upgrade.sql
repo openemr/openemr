@@ -85,6 +85,10 @@
 --    arguments: none
 --    behavior: can take a long time.
 
+#IfMissingColumn facility iban
+ALTER TABLE `facility` ADD `iban` varchar(50) default NULL;
+#EndIf
+
 #IfNotRow2D list_options list_id apps option_id oeSignerRemote
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES
 ('apps', 'oeSignerRemote', './../portal/sign/assets/signit.php', 30, 0, 0, '', '', '', 0, 0, 0, '', 1);
