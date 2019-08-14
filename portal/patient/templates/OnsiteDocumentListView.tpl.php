@@ -45,40 +45,38 @@ if (!$docid) {
 $isnew = false;
 $ptName = isset($_SESSION['ptName']) ? $_SESSION['ptName'] : $pid;
 $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION['authUserID'];
-// some necessary js globals
-echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
-    ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
-echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";</script>";
-echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";</script>";
-// translations
-echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": $catname';</script>";
-echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
-echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-<title><?php
-if ($is_dashboard) {
-    echo xlt("Portal Document Review");
-} elseif (!$is_module) {
-    echo xlt("Patient Portal Documents");
-} else {
-    echo xlt("Patient Document Templates");
-}
+    <title><?php
+    if ($is_dashboard) {
+        echo xlt("Portal Document Review");
+    } elseif (!$is_module) {
+        echo xlt("Patient Portal Documents");
+    } else {
+        echo xlt("Patient Document Templates");
+    }
+        ?>
+    </title>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <meta name="description" content="Developed By sjpadgett@gmail.com">
+    <?php
+    // some necessary js globals
+    echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
+    ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
+    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";</script>";
+    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";</script>";
+    // translations
+    echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
+    echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
+    echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
+    Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'emodal']);
 ?>
-</title>
-<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-<meta name="description" content="Developed By sjpadgett@gmail.com">
-
-    <?php Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
-
-    <link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
-    <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
-
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
-
+<link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
+<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
+<script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 <script type="text/javascript">
     $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
@@ -206,6 +204,9 @@ if ($is_dashboard) {
             if ($(this).attr('src') != signhere && $(this).attr('src')) {
                 $(this).removeAttr('data-action');
             }
+            if (!isPortal) {
+                $(this).attr('data-user', cuser);
+            }
         });
     }
 
@@ -270,7 +271,7 @@ body {
             <li data-toggle="pill" class="bg-info"><a id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><span"><?php echo xlt('Print');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="submitTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="sendTemplate"  href="#"><span"><?php echo xlt('Send for Review');?></span></a></li>
-            <li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xlt('Chart to Category') . " $catname";?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xlt('Chart to Category') . ' ' . text($catname);?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="downloadTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
             <?php if (!$is_module) { ?>
                 <li data-toggle="pill" class="bg-warning">
@@ -359,7 +360,7 @@ body {
         <% items.each(function(item) {
             // if ((!isPortal && item.get('denialReason') == 'Locked')) return;
         %>
-            <tr  style='background:white' id="<%= _.escape(item.get('id')) %>">
+            <tr style='background:white' id="<%= _.escape(item.get('id')) %>">
                 <td><%= _.escape(item.get('id') || '') %></td>
                 <td><button class='btn btn-primary btn-sm'><%= _.escape(item.get('docType').slice(0, -4).replace(/_/g, ' ') || '') %></button></td>
                 <td><%if (item.get('createDate')) { %><%= item.get('createDate') %><% } else { %>NULL<% } %></td>
@@ -396,10 +397,6 @@ body {
     <!-- processed templates go here.-->
     <div id="onsiteDocumentModelContainer" class="modelContainer"></div>
     <div id="onsiteDocumentCollectionContainer" class="collectionContainer"></div>
-</div>
- <!-- /container -->
-</body>
 <?php
     $this->display('_Footer.tpl.php');
 ?>
-</html>

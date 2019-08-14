@@ -136,12 +136,12 @@ function doSubs($s)
 
         if (keySearch($s, '{PatientSignature}')) {
             $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid=' . attr_js((int)$pid) . ' data-user=' . attr_js((int)$user) . ' src="">';
+            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } else if (keySearch($s, '{AdminSignature}')) {
             $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid=' . attr_js((int)$pid) . ' data-user=' . attr_js((int)$user) . ' src="">';
+            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } else if (keySearch($s, '{ParseAsHTML}')) {

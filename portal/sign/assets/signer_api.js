@@ -550,7 +550,8 @@ function initSignerApi() {
 
 //-------------------- Continue loading seq with init of modal buttons and various bindings --------------------//
     $(function (global) {
-        const canvasOptions = {
+        var wrapper = document.getElementById("openSignModal");
+        var canvasOptions = {
             minWidth: .75,
             maxWidth: 2.75,
             penColor: 'rgb(0, 0, 0)',
@@ -558,13 +559,12 @@ function initSignerApi() {
             /*throttle: 0,*/
             velocityFilterWeight: .2,
         };
-        const wrapper = document.getElementById("openSignModal");
-        const placeSignatureButton = wrapper.querySelector("[data-action=place]");
-        const showSignature = wrapper.querySelector("[data-action=show]");
-        const saveSignature = wrapper.querySelector("[data-action=save_signature]");
-        const sendSignature = wrapper.querySelector("[data-action=send_signature]");
-        const clearButton = wrapper.querySelector("[data-action=clear]");
-        const canvas = wrapper.querySelector("canvas");
+        var placeSignatureButton = wrapper.querySelector("[data-action=place]");
+        var showSignature = wrapper.querySelector("[data-action=show]");
+        var saveSignature = wrapper.querySelector("[data-action=save_signature]");
+        var sendSignature = wrapper.querySelector("[data-action=send_signature]");
+        var clearButton = wrapper.querySelector("[data-action=clear]");
+        var canvas = wrapper.querySelector("canvas");
         let signaturePad;
 
         // this offsets signature image to center on element somewhat
@@ -581,6 +581,11 @@ function initSignerApi() {
         $("#openSignModal .close").on("click", function (e) {
             signaturePad.clear();
         });
+
+        if(typeof placeSignatureButton === 'undefined' || !placeSignatureButton) {
+            placeSignatureButton = wrapper.querySelector("[data-action=place]");
+        }
+
         // for our dynamically added modal
         $("#openSignModal").on('show.bs.modal', function (e) {
             let type = '';

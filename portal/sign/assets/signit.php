@@ -1,12 +1,16 @@
 <?php
+/**
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 // check if authenticated
 require_once(dirname(__FILE__) . "/../../../interface/globals.php");
 $thisuser = $_SESSION['authUser'];
 $thisDevice = "User:" . $thisuser;
-// don't want seesion stepped on somehow
-unset($_SESSION);
 
-// most know what this is..
 use OpenEMR\Core\Header;
 
 ?>
