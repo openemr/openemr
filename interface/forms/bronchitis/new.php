@@ -102,7 +102,7 @@ $returnurl = 'encounter_top.php';
 <td width="80" align="right"><?php echo xlt('Sputum:'); ?></td>
 <td><input type="checkbox" name="bronchitis_ops_sputum"></input></td>
 <td width="100" align="right"><?php echo xlt('Appearance:'); ?></td>
-<td><input type="text" name="bronchitis_ops_appearance" size="10" value="<?php echo xla('none'); ?>"></input></td>
+<td><input type="text" name="bronchitis_ops_appearance" size="10" value="<?php echo xla('none{{Symptoms}}'); ?>"></input></td>
 </tr>
 </table>
 
@@ -367,7 +367,7 @@ $returnurl = 'encounter_top.php';
 <table><tr>
    <td>
    <select name="diagnosis1_bronchitis_form" >
-      <option value="None"><?php echo xlt('None'); ?></option>
+      <option value="None"><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="465.9, URI"><?php echo xlt('465.9, URI'); ?></option>
       <option value="466.0, Bronchitis, Acute NOS"><?php echo xlt('466.0, Bronchitis, Acute NOS'); ?></option>
       <option value="493.92, Astma, Acute Exac."><?php echo xlt('493.92, Asthma, Acute Exac.'); ?></option>
@@ -383,7 +383,7 @@ $returnurl = 'encounter_top.php';
 <tr>
    <td>
    <select name="diagnosis2_bronchitis_form">
-      <option value="None"><?php echo xlt('None'); ?></option>
+      <option value="None"><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="465.9, URI"><?php echo xlt('465.9, URI'); ?></option>
       <option value="466.0, Bronchitis, Acute NOS"><?php echo xlt('466.0, Bronchitis, Acute NOS'); ?></option>
       <option value="493.92, Asthma, Acute Exac."><?php echo xlt('493.92, Asthma, Acute Exac.'); ?></option>
@@ -399,7 +399,7 @@ $returnurl = 'encounter_top.php';
 <tr>
    <td>
    <select name="diagnosis3_bronchitis_form">
-      <option value="None"><?php echo xlt('None'); ?></option>
+      <option value="None"><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="465.9, URI"><?php echo xlt('465.9, URI'); ?></option>
       <option value="466.0, Bronchitis, Acute NOS"><?php echo xlt('466.0, Bronchitis, Acute NOS'); ?></option>
       <option value="493.92, Asthma, Acute Exac."><?php echo xlt('493.92, Asthma, Acute Exac.'); ?></option>
@@ -415,7 +415,7 @@ $returnurl = 'encounter_top.php';
 <tr>
    <td>
    <select name="diagnosis4_bronchitis_form">
-      <option value="None"><?php echo xlt('None'); ?></option>
+      <option value="None"><?php echo xlt('None{{Diagnosis}}'); ?></option>
       <option value="465.9, URI"><?php echo xlt('465.9, URI'); ?></option>
       <option value="466.0, Bronchitis, Acute NOS"><?php echo xlt('466.0, Bronchitis, Acute NOS'); ?></option>
       <option value="493.92, Asthma, Acute Exac."><?php echo xlt('493.92, Asthma, Acute Exac.'); ?></option>

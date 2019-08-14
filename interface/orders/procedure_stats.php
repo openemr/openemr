@@ -423,7 +423,7 @@ title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
 </tr>
 <tr>
 <td valign='top' class='dehead' nowrap>
-    <?php echo xlt('To'); ?>:
+    <?php echo xlt('To{{Destination}}'); ?>:
 </td>
 <td colspan='3' valign='top' class='detail' nowrap>
     <?php

@@ -590,7 +590,7 @@ closedir($dh);
  <tr>
 
   <td class='control-label'>
-    <?php echo xlt('To'); ?>:
+    <?php echo xlt('To{{Destination}}'); ?>:
   </td>
 
   <td>

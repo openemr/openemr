@@ -25,7 +25,7 @@
   width: 275px;
   height: 31px;
   outline: none;
-  
+
 }
 .oe-expandable-search input:focus ~ button.btn-search1 {
   left: 245px;
@@ -57,4 +57,19 @@
 }
 .oe-expandable-search button.btn-globals-modern {
     left: 0;
+}
+.oe-expandable-search .any-search-fixed {
+    width: 250px !important;
+    border-radius: 7px;
+}
+.oe-expandable-search button.btn-globals-fixed {
+    position: inherit;
+    display: inline;
+}
+
+.oe-expandable-search .any-search-none {
+    display: none;
+}
+.oe-expandable-search button.btn-globals-none {
+    display: none;
 }
