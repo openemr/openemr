@@ -429,7 +429,7 @@ $title = text(getPatientName($patient_id));
 if ($result != "") {
     echo " <tr class=showborder_head align='left'>\n";
     echo "  <th style='width:130px;'>" . xlt('Actions') . "</th>\n";
-    echo "  <th>" . xlt('Active') . "&nbsp;</th>\n";
+    echo "  <th>" . xlt('Active{{Note}}') . "&nbsp;</th>\n";
     echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
     echo "  <th>" . xlt('Type') . "</th>\n";
     echo "  <th>" . xlt('Content') . "</th>\n";
@@ -601,7 +601,7 @@ if ($result_count == $N) {
 if ($result_sent != "") {
     echo " <tr class=showborder_head align='left'>\n";
     echo "  <th style='width:100px';>&nbsp;</th>\n";
-    echo "  <th>" . xlt('Active') . "&nbsp;</th>\n";
+    echo "  <th>" . xlt('Active{{Note}}') . "&nbsp;</th>\n";
     echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
     echo "  <th>" . xlt('Type') . "</th>\n";
     echo "  <th>" . xlt('Content') . "</th>\n";

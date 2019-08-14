@@ -756,7 +756,7 @@ if ($issue) {
                     </div>
                 </div>
                 <div class="form-group" id='row_active'>
-                    <label class="control-label col-xs-2" for="form_active"><?php echo xlt('Active'); ?>: </label>
+                    <label class="control-label col-xs-2" for="form_active"><?php echo xlt('Active{{Issue}}'); ?>: </label>
                     <div class="col-xs-10">
                         <div class="checkbox">
                             <label><input type='checkbox' name='form_active' id=='form_active' value='1' <?php echo ($irow['enddate']) ? "" : "checked"; ?>

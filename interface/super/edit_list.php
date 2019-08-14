@@ -1136,7 +1136,7 @@ function writeITLine($it_array)
             <td><b><?php echo xlt('Option'); ?></b></td>
             <td><b><?php echo xlt('Generates'); ?></b></td>
         <?php elseif ($list_id == 'code_types') : ?>
-            <th><b><?php echo xlt('Active'); ?></b></th>
+            <th><b><?php echo xlt('Active{{Code}}'); ?></b></th>
             <th><b><?php echo xlt('Key'); ?></b></th>
             <th><b><?php echo xlt('ID'); ?></b></th>
             <th><b><?php echo xlt('Label'); ?></b></th>
@@ -1163,7 +1163,7 @@ function writeITLine($it_array)
             <th><b><?php echo xlt('Title'); ?></b></th>
             <th><b><?php echo xlt('Order{{Sequence}}'); ?></b></th>
             <th><b><?php echo xlt('Default'); ?></b></th>
-            <th><b><?php echo xlt('Active'); ?></b></th>
+            <th><b><?php echo xlt('Active{{Appointment}}'); ?></b></th>
             <th><b><?php echo xlt('Color'); ?></b></th>
             <th><b><?php echo xlt('Alert Time'); ?></b></th>
             <th><b><?php echo xlt('Check In'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</b>
@@ -1172,7 +1172,7 @@ function writeITLine($it_array)
             <th><b><?php echo xlt('Code(s)'); ?></b></th>
         <?php elseif ($list_id == 'issue_types') : ?>
             <th><b><?php echo xlt('OpenEMR Application Category'); ?></b></th>
-            <th><b><?php echo xlt('Active'); ?></b></th>
+            <th><b><?php echo xlt('Active{{Issue}}'); ?></b></th>
             <th><b><?php echo xlt('Order{{Sequence}}'); ?></b></th>
             <th><b><?php echo xlt('Type'); ?></b></th>
             <th><b><?php echo xlt('Plural'); ?></b></th>
