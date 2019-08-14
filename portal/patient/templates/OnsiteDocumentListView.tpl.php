@@ -57,7 +57,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
     } else {
         echo xlt("Patient Document Templates");
     }
-        ?>
+    ?>
     </title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
@@ -72,7 +72,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
     echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
     Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'emodal']);
-?>
+    ?>
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
 <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
