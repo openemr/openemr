@@ -120,12 +120,12 @@ if (count($emr_app)) {
                 'genericError' => xla('Error. Try again later'),
                 'closeTooltip' => ''
             ));
-            ?>;
+                                    ?>;
 
         var registrationConstants = <?php echo json_encode(array(
                 'webroot' => $GLOBALS['webroot']
             ))
-            ?>;
+                                    ?>;
     </script>
 
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -290,18 +290,18 @@ if (count($emr_app)) {
                             <div class="col-sm-12 center-block">
                                 <?php echo $tinylogocode1; ?>
                             </div>
-                        <?php
+                            <?php
                         endif;
                         if ($t2 && !$t1) : ?>
                             <div class="col-sm-12 center-block">
                                 <?php echo $tinylogocode2; ?>
                             </div>
-                        <?php
+                            <?php
                         endif;
                         if ($t1 && $t2) : ?>
                             <div class="col-sm-6 center-block"><?php echo $tinylogocode1; ?></div>
                             <div class="col-sm-6 center-block"><?php echo $tinylogocode2; ?></div>
-                        <?php
+                            <?php
                         endif;
                         ?>
                     </div>
