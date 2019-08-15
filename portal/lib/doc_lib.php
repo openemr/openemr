@@ -83,14 +83,13 @@ try {
         header("Content-Disposition: attachment; filename=$form_filename");
         $pdf->Output($form_filename, 'D');
         $logit->portalLog('download document', $cpid, ('document:' . $form_filename));
-        echo js_escape('okay');
         exit();
     }
 
     if ($dispose == 'view') {
         Header("Content-type: application/pdf");
         $pdf->Output($templatepath, 'I');
-        echo js_escape('okay');
+        exit();
     }
 
     if ($dispose == 'chart') {
@@ -99,15 +98,11 @@ try {
             exit();
         }
         $data = $pdf->Output($form_filename, 'S');
-        ob_start();
         $d = new Document();
         $rc = $d->createDocument($cpid, $category, $form_filename, 'application/pdf', $data);
-        ob_clean();
         $logit->portalLog('chart document', $cpid, ('document:' . $form_filename));
-        echo js_escape('okay');
         exit();
     };
 } catch (Exception $e) {
-    echo js_escape('Message: ' . $e->getMessage());
-    die(xlt("no signature in document"));
+    die($e->getMessage());
 }

@@ -12,7 +12,7 @@
 require_once(dirname(__FILE__) . "/../../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
-$is_portal = isset($_SESSION['portal_init']) ? true : $_GET['isPortal'];
+$is_portal = isset($_SESSION['portal_init']) ? 1 : $_GET['isPortal'];
 if (!$is_portal) {
     session_destroy();
     require_once(dirname(__FILE__) . '/../../../interface/globals.php');
@@ -20,8 +20,8 @@ if (!$is_portal) {
     require_once dirname(__FILE__) . "/../../verify_session.php";
 }
 
-$cuser = js_escape(isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "-patient-");
-$cpid = js_escape(isset($_SESSION['pid']) ? $_SESSION['pid'] : "0");
+$cuser = attr(isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "-patient-");
+$cpid = attr(isset($_SESSION['pid']) ? $_SESSION['pid'] : "0");
 $api_id = isset($_SESSION['api_csrf_token']) ? $_SESSION['api_csrf_token'] : ''; // portal doesn't do remote
 
 $msg1 = xlt('Show Current Signature On File');
@@ -42,7 +42,7 @@ $msg15 = xlt("Remote is Currently Busy");
 // module translations
 $vars = "<script>const msgSignator='" . $msg7 . "';const msgNoSign='" . $msg8 . "';const msgWaiting='" . $msg9 . "';const msgBusy='" . $msg15 . "';</script>\n";
 $vars .= "<script>const msgNeedSign='" . $msg10 . "';const msgCheckIn='" . $msg11 . "';const msgFail='" . $msg12 . "';const msgAnswering='" . $msg14 . "';</script>\n";
-$vars .= "<script>const apiToken='" . js_escape($api_id) . "';</script>\n";
+$vars .= "<script>var apiToken=" . js_escape($api_id) . ";</script>\n";
 // short & sweet dynamic modal
 $modal = <<<MODAL
 $vars
@@ -58,7 +58,7 @@ $vars
 <div class='signature-pad--actions'><div><button type='button' class='btn btn-primary btn-sm clear' data-action='clear'>$msg5</button>
 </div><div><button type='button' class='btn btn-primary btn-sm save' data-action='save_signature'>$msg6</button>
 <button type='button' class='btn btn-primary btn-sm send' data-action='send_signature'style='display:none'>$msg6</button>
-<input type='hidden' id='name'/><input type='hidden' id='user' value=$cuser /><input type='hidden' id='pid' value=$cpid /></div>
+<input type='hidden' id='name'/><input type='hidden' id='user' value='$cuser' /><input type='hidden' id='pid' value='$cpid' /></div>
 </div></div></div></div></div></div></div></div></div></div>
 <i id='waitend' class='fa fa-refresh fa-spin' style='display: none;'></i>
 MODAL;

@@ -45,7 +45,7 @@ overflow: auto;
 		top.restoreSession();
 		let tele  = document.getElementById("template_filename");
 		let tname = encodeURIComponent(tele.options[tele.selectedIndex].value);
-		let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?pid={$patient_id|attr}&catid={$category_id|attr}&is_module=true&new=' + tname;
+        let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?pid=' + {$patient_id|js_url} + '&catid=' + {$category_id|js_url} + '&is_module=true&new=' + tname;
 		location.assign(callUrl);
 	{literal}}{/literal}
 	// dropzone javascript asset translation(s)

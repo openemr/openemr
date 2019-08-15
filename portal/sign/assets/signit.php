@@ -17,8 +17,7 @@ use OpenEMR\Core\Header;
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta charset="utf-8">
@@ -44,7 +43,7 @@ use OpenEMR\Core\Header;
         <h3 class="text-center"><?php echo xlt("Welcome to OpenEMR Signature Kiosk.") ?></h3>
         <h4 class="text-center"><?php echo xlt("A component of the Patient Portal.") ?></h4>
         <p class="text-center"><?php echo xlt("Once a request is received a dialog will come into view. Simply sign in the box and Authorize as your digital signature.") ?></p>
-        <h4 class="text-center"><?php echo xlt("Ready and Waiting as") . " " . $thisDevice ?></h4>
+        <h4 class="text-center"><?php echo xlt("Ready and Waiting as") . " " . text($thisDevice) ?></h4>
     </div>
 </div>
 </body>
