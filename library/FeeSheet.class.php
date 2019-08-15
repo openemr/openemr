@@ -402,11 +402,14 @@ class FeeSheet
                 if (!empty($prrow)) {
                     $fee = $prrow['pr_price'];
 
-                    // if this price level is a percentage, calculate price from default price
-                    if (!empty($prrow['notes']) && strpos($prrow['notes'], '%') > -1 && !empty($prdefault)) {
-                        $percent = intval(str_replace('%', '', $prrow['notes']));
-                        if ($percent > 0) {
-                            $fee = $prdefault['pr_price'] * ((100 - $percent) / 100);
+                    // if percent-based pricing is enabled...
+                    if ($GLOBALS['enable_percent_pricing']) {
+                        // if this price level is a percentage, calculate price from default price
+                        if (!empty($prrow['notes']) && strpos($prrow['notes'], '%') > -1 && !empty($prdefault)) {
+                            $percent = intval(str_replace('%', '', $prrow['notes']));
+                            if ($percent > 0) {
+                                $fee = $prdefault['pr_price'] * ((100 - $percent) / 100);
+                            }
                         }
                     }
                 }
@@ -567,11 +570,14 @@ class FeeSheet
             if (!empty($prrow)) {
                 $fee = $prrow['pr_price'];
 
-                // if this price level is a percentage, calculate price from default price
-                if (!empty($prrow['notes']) && strpos($prrow['notes'], '%') > -1 && !empty($prdefault)) {
-                    $percent = intval(str_replace('%', '', $prrow['notes']));
-                    if ($percent > 0) {
-                        $fee = $prdefault['pr_price'] * ((100 - $percent) / 100);
+                // if percent-based pricing is enabled...
+                if ($GLOBALS['enable_percent_pricing']) {
+                    // if this price level is a percentage, calculate price from default price
+                    if (!empty($prrow['notes']) && strpos($prrow['notes'], '%') > -1 && !empty($prdefault)) {
+                        $percent = intval(str_replace('%', '', $prrow['notes']));
+                        if ($percent > 0) {
+                            $fee = $prdefault['pr_price'] * ((100 - $percent) / 100);
+                        }
                     }
                 }
             }

@@ -164,18 +164,21 @@ class FeeSheetHtml extends FeeSheet
         while ($lrow = sqlFetchArray($lres)) {
             $price = empty($lrow['pr_price']) ? 0 : $lrow['pr_price'];
 
-            // Set standardPrice as the first price level (sorted by seq)
-            if ($standardPrice === 0) {
-                $standardPrice = $price;
-            }
+            // if percent-based pricing is enabled...
+            if ($GLOBALS['enable_percent_pricing']) {
+                // Set standardPrice as the first price level (sorted by seq)
+                if ($standardPrice === 0) {
+                    $standardPrice = $price;
+                }
 
-            // If price level notes contains a percentage,
-            // calculate price as percentage of standard price
-            $notes = $lrow['notes'];
-            if (!empty($notes) && strpos($notes, '%') > -1) {
-                $percent = intval(str_replace('%', '', $notes));
-                if ($percent > 0) {
-                    $price = $standardPrice * ((100 - $percent) / 100);
+                // If price level notes contains a percentage,
+                // calculate price as percentage of standard price
+                $notes = $lrow['notes'];
+                if (!empty($notes) && strpos($notes, '%') > -1) {
+                    $percent = intval(str_replace('%', '', $notes));
+                    if ($percent > 0) {
+                        $price = $standardPrice * ((100 - $percent) / 100);
+                    }
                 }
             }
 
