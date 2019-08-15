@@ -2148,7 +2148,7 @@ class Display extends base
 
                                           </td></tr>
                                           <tr><td class="text-right" style="vertical-align:bottom;">
-                                            <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
+                                            <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label></td><td>
                                             <input id="form_to_date" name="form_to_date"
                                                 class="datepicker form-control input-sm text-center"
                                                 value="<?php echo attr(oeFormatShortDate($to_date)); ?>"

@@ -201,9 +201,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($_POST['form_csvexport']) {
         // CSV headers:
         echo '"' . xl('Last Visit') . '",';
-        echo '"' . xl('First') . '",';
-        echo '"' . xl('Last') . '",';
-        echo '"' . xl('Middle') . '",';
+        echo '"' . xl('First{{Name}}') . '",';
+        echo '"' . xl('Last{{Name}}') . '",';
+        echo '"' . xl('Middle{{Name}}') . '",';
         echo '"' . xl('ID') . '",';
         echo '"' . xl('Street') . '",';
         echo '"' . xl('City') . '",';

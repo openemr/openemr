@@ -52,7 +52,7 @@ var pageAudit = {
 		pageAudit.fetchParams = params;
 
 		if (pageAudit.fetchInProgress) {
-			if (console) console.log('supressing fetch because it is already in progress');
+			if (console) console.log('pageAudit supressing fetch because it is already in progress');
 		}
 
 		pageAudit.fetchInProgress = true;
@@ -67,6 +67,7 @@ var pageAudit = {
 					pageAudit.getAudit(m);
 				//}
 				pageAudit.fetchInProgress = false;
+                console.log('Activity fetched!');
 			},
 
 			error: function(m, r) {

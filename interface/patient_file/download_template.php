@@ -84,7 +84,6 @@ function dataFixup($data, $title = '')
 // Return a string naming all issues for the specified patient and issue type.
 function getIssues($type)
 {
-  // global $itemSeparator;
     $tmp = '';
     $lres = sqlStatement("SELECT title, comments FROM lists WHERE " .
     "pid = ? AND type = ? AND enddate IS NULL " .
@@ -409,14 +408,14 @@ if ($pi['extension'] !== '') {
 header('Content-Description: File Transfer');
 header('Content-Transfer-Encoding: binary');
 header('Expires: 0');
+header("Cache-control: private");
 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-header('Pragma: public');
-// attachment, not inline
-header("Content-Disposition: attachment; filename=\"$dlname\"");
-header("Content-Type: $mimetype");
+header("Content-Type: $mimetype; charset=utf-8");
 header("Content-Length: " . filesize($fname));
-ob_clean();
-flush();
-readfile($fname);
+header('Content-Disposition: attachment; filename="'. $dlname .'"');
+
+ob_end_clean();
+@readfile($fname) or error_log("Template temp file not found: " . $fname);
 
 unlink($fname);
+exit;

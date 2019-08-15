@@ -217,7 +217,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                         <div class="well">
                         <div class="row">
                             <div class="form-group inline">
-                                <label class="control-label" for="fname"><?php echo xlt('First')?></label>
+                                <label class="control-label" for="fname"><?php echo xlt('First{{Name}}')?></label>
                                 <div class="controls inline-inputs">
                                     <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>">
                                 </div>

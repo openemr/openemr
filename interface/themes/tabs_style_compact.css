@@ -353,6 +353,9 @@ body
 {
     cursor: pointer;
     padding: 5px 12px 5px;
+    transition: background-color 0.1s ease;
+    width: 100%;
+    float: none;
 }
 .menuDisabled
 {

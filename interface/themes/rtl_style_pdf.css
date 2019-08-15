@@ -1147,8 +1147,14 @@ body {
 .oe-pull-toward {
     float:right !important;
 }
+.oe-pull-toward-unimportant {
+    float:right;
+}
 .oe-pull-away {
     float:left !important;
+}
+.oe-pull-away-unimportant {
+    float:left;
 }
 .oe-margin-toward {
     margin-right:30px;

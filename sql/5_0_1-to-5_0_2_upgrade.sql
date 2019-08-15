@@ -745,7 +745,7 @@ ALTER TABLE `issue_encounter`
     MODIFY `pid` bigint(20) NOT NULL;
 #EndIf
 
-#IfNotColumnType onsite_documents pid bigint(20)
+#IfNotColumnType onsite_documents pid bigint(20) unsigned
 ALTER TABLE `onsite_documents`
     MODIFY `pid` bigint(20) UNSIGNED default NULL;
 #EndIf
@@ -814,7 +814,7 @@ ALTER TABLE `ar_session`
 ALTER TABLE `documents` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes';
 #EndIf
 
-#IfNotRow4D supported_external_dataloads load_type CQM_VALUESET load_source NIH_VASC load_release_date 2017-09-29 load_filename ep_ec_only_cms_20170929.xml.zip
+#IfNotRow4D supported_external_dataloads load_type CQM_VALUESET load_source NIH_VSAC load_release_date 2017-09-29 load_filename ep_ec_only_cms_20170929.xml.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('CQM_VALUESET', 'NIH_VSAC', '2017-09-29','ep_ec_only_cms_20170929.xml.zip','38d2e1a27646f2f09fcc389fd2335c50');
 #EndIf
 
@@ -850,7 +850,7 @@ DROP TABLE `eligibility_response`;
 #EndIf
 
 #IfTable x12_partners
-ALTER TABLE `x12_partners` CHANGE `processing_format` `processing_format` ENUM('standard','medi-cal','cms','proxymed','oa-eligibility','avality-eligibility') DEFAULT NULL;
+ALTER TABLE `x12_partners` CHANGE `processing_format` `processing_format` ENUM('standard','medi-cal','cms','proxymed','oa_eligibility','availity_eligibility') DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn insurance_companies eligibility_id
@@ -943,4 +943,73 @@ DROP TABLE `geo_country_reference`;
 
 #IfTable geo_zone_reference
 DROP TABLE `geo_zone_reference`;
+#EndIf
+
+#IfMissingColumn form_eye_acuity BINOCVA
+ALTER TABLE `form_eye_acuity`  ADD `BINOCVA` varchar(25) DEFAULT NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id ODVITREOUS_0
+UPDATE `list_options` SET `seq`= 1022 WHERE `list_id`='Eye_QP_RETINA_defaults' AND `option_id`='ODPERIPH_0';
+UPDATE `list_options` SET `seq`= 1024 WHERE `list_id`='Eye_QP_RETINA_defaults' AND `option_id`='OSPERIPH_0';
+UPDATE `list_options` SET `seq`= 1026 WHERE `list_id`='Eye_QP_RETINA_defaults' AND `option_id`='OUPERIPH_0';
+UPDATE `list_options` SET `title`= 'clear', `seq` = 505 WHERE `list_id`='Eye_Defaults_for_GENERAL' AND `option_id`='ODPERIPH';
+UPDATE `list_options` SET `title`= 'clear', `seq` = 515 WHERE `list_id`='Eye_Defaults_for_GENERAL' AND `option_id`='OSPERIPH';
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_0', 'vit: clear field', 910, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OD');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OSVITREOUS_0
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_0', 'vit: clear field', 920, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OS');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OUVITREOUS_0
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_0', 'vit: clear field', 930, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OU');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id ODVITREOUS_float
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_float', 'vit: floater', 940, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OD');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OSVITREOUS_float
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_float', 'vit: floater', 950, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OS');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OUVITREOUS_float
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_float', 'vit: floater', 960, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OU');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id ODVITREOUS_pvd
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_pvd', 'vit: PVD', 970, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OD');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OSVITREOUS_pvd
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_pvd', 'vit: PVD', 980, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OS');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OUVITREOUS_pvd
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_pvd', 'vit: PVD', 990, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OU');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id ODVITREOUS_vh
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_vh', 'vit: hemorrhage', 1000, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OD');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OSVITREOUS_vh
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_vh', 'vit: hemorrhage', 1010, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OS');
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_QP_RETINA_defaults option_id OUVITREOUS_vh
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_vh', 'vit: hemorrhage', 1020, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OU');
 #EndIf

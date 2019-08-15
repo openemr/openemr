@@ -18,8 +18,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Ray Magauran <magauran@MedFetch.com>
- * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -215,6 +215,19 @@ if ($_REQUEST['AJAX_PREFS']) {
               VALUES
               ('PREFS','TOOLTIPS','Toggle Tooltips',?,'TOOLTIPS','79',?,'25')";
     sqlQuery($query, array($_SESSION['authId'], $_REQUEST['PREFS_TOOLTIPS']));
+
+    // These settings are sticky user preferences linked to a given page.
+// Could do ALL preferences this way instead of the modified extract above...
+// mdsupport - user_settings prefix
+    $uspfx = "EyeFormSettings_";
+    $setting_tabs_left = prevSetting($uspfx, 'setting_tabs_left', 'setting_tabs_left', '0');
+    $setting_HPI = prevSetting($uspfx, 'setting_HPI', 'setting_HPI', '1');
+    $setting_PMH = prevSetting($uspfx, 'setting_PMH', 'setting_PMH', '1');
+    $setting_ANTSEG = prevSetting($uspfx, 'setting_ANTSEG', 'setting_ANTSEG', '1');
+    $setting_POSTSEG = prevSetting($uspfx, 'setting_POSTSEG', 'setting_POSTSEG', '1');
+    $setting_EXT = prevSetting($uspfx, 'setting_EXT', 'setting_EXT', '1');
+    $setting_NEURO = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
+    $setting_IMPPLAN = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
 }
 
 /**
@@ -243,14 +256,12 @@ if ($providerID == '0') {
     $providerID = $userauthorized;//who is the default provider?
 }
 
-$providerNAME = getProviderName($providerID);
-
 // The form is submitted to be updated or saved in some way.
 // Give each instance of a form a uniqueID.  If the form has no owner, update DB with this uniqueID.
 // If the DB shows a uniqueID ie. an owner, and the save request uniqueID does not = the uniqueID in the DB,
 // ask if the new user wishes to take ownership?
 // If yes, any other's attempt to save fields/form are denied and the return code says you are not the owner...
-if ($_REQUEST['unlock'] == '1') {
+if ($_REQUEST['unlock'] === '1') {
     // we are releasing the form, by closing the page or clicking on ACTIVE FORM, so unlock it.
     // if it's locked and they own it ($REQUEST[LOCKEDBY] == LOCKEDBY), they can unlock it
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from form_eye_locking WHERE ID=?";
@@ -261,10 +272,14 @@ if ($_REQUEST['unlock'] == '1') {
     }
 
     exit;
-} elseif ($_REQUEST['acquire_lock'] == "1") {
+} elseif ($_REQUEST['acquire_lock'] === "1") {
     //we are taking over the form's active state, others will go read-only
-    $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=?,LOCKEDDATE=NOW() where id=?";//" and LOCKEDBY=?";
+    $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=? where id=?";//" and LOCKEDBY=?";
     $result = sqlQuery($query, array($_REQUEST['uniqueID'], $form_id ));
+    $query = "SELECT LOCKEDDATE from form_eye_locking WHERE ID=?";
+    $lock = sqlQuery($query, array($form_id));
+    echo $lock['LOCKEDDATE'];
+
     exit;
 } else {
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from form_eye_locking WHERE ID=?";
@@ -319,14 +334,14 @@ if ($_REQUEST["mode"] == "new") {
     // The user has write privileges to work with...
 
     if ($_REQUEST['action'] == "store_PDF") {
-        /*
-      * We want to store/overwrite the current PDF version of this encounter's f
-      * Currently this is only called 'beforeunload', ie. when you finish the form
-      * In this current paradigm, anytime the form is opened, then closed, the PDF
-      * is overwritten.  With esign implemented, the PDF should be locked.  I suppose
-      * with esign the form can't even be opened so the only way to get to the PDF
-      * is through the Documents->Encounters links.
-        */
+         /**
+          * We want to store/overwrite the current PDF version of this encounter's f
+          * Currently this is only called 'beforeunload', ie. when you finish the form
+          * In this current paradigm, anytime the form is opened, then closed, the PDF
+          * is overwritten.  With esign implemented, the PDF should be locked.  I suppose
+          * with esign the form can't even be opened so the only way to get to the PDF
+          * is through the Documents->Encounters links.
+          */
         $query = "select id from categories where name = 'Encounters'";
         $result = sqlStatement($query);
         $ID = sqlFetchArray($result);
@@ -339,10 +354,10 @@ if ($_REQUEST["mode"] == "new") {
             unlink($file);
         }
 
-        $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like '%" . $filename . "')";
-        sqlQuery($sql);
-        $sql = "DELETE from documents where documents.url like '%" . $filename . "'";
-        sqlQuery($sql);
+        $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
+        sqlQuery($sql, ['%'.$filename]);
+        $sql = "DELETE from documents where documents.url like ?";
+        sqlQuery($sql, ['%'.$filename]);
         // We want to overwrite so only one PDF is stored per form/encounter
         $config_mpdf = array(
             'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
@@ -384,7 +399,6 @@ if ($_REQUEST["mode"] == "new") {
         global $web_root, $webserver_root;
         $content = ob_get_clean();
         // Fix a nasty html2pdf bug - it ignores document root!
-        // TODO - now use mPDF, so should test if still need this fix
         $i = 0;
         $wrlen = strlen($web_root);
         $wsrlen = strlen($webserver_root);
@@ -443,7 +457,7 @@ if ($_REQUEST["mode"] == "new") {
 
     //change PCP/referring doc
     if ($_REQUEST['action'] == 'docs') {
-        $query = "update patient_data set providerID=?,ref_providerID=? where pid =?";
+        $query = "update patient_data set ref_providerID=?,referrerID=? where pid =?";
         sqlQuery($query, array($_REQUEST['pcp'], $_REQUEST['rDOC'], $pid));
 
         if ($_REQUEST['pcp']) {
@@ -541,7 +555,7 @@ if ($_REQUEST["mode"] == "new") {
             exit;
         } else {
             if ($form_type == 'ROS') { //ROS
-                $query = "UPDATE form_eye_ros set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=?,ROSCOMMENTS=?.pid=? where id=?";
+                $query = "UPDATE form_eye_ros set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=?,ROSCOMMENTS=?,pid=? where id=?";
                 sqlStatement($query, array($_REQUEST['ROSGENERAL'], $_REQUEST['ROSHEENT'], $_REQUEST['ROSCV'], $_REQUEST['ROSPULM'], $_REQUEST['ROSGI'], $_REQUEST['ROSGU'], $_REQUEST['ROSDERM'], $_REQUEST['ROSNEURO'], $_REQUEST['ROSPSYCH'], $_REQUEST['ROSMUSCULO'], $_REQUEST['ROSIMMUNO'], $_REQUEST['ROSENDOCRINE'], $_REQUEST['ROSCOMMENTS'],$pid, $form_id));
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
@@ -621,7 +635,7 @@ if ($_REQUEST["mode"] == "new") {
                 } elseif ($form_type == "POS") {
                     $form_type = "surgery";
                     $subtype = "eye";
-                } elseif ($form_type == "Medication") {
+                } elseif (($form_type == "Medication")||($form_type == "Eye Meds")) {
                     $form_type = "medication";
                     if ($_REQUEST['form_eye_subtype']) {
                         $subtype = "eye";
@@ -786,6 +800,13 @@ if ($_REQUEST["mode"] == "new") {
         exit;
     }
 
+
+    if ($_REQUEST['action'] == 'new_pharmacy') {
+        $query = "UPDATE patient_data set pharmacy_id=? where pid=?";
+        sqlStatement($query, array($_POST['new_pharmacy'], $pid));
+        echo "Pharmacy updated";
+        exit;
+    }
     /*** END CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
     //Update the visit status for this appointment (from inside the Coding Engine)
     //we also have to update the flow board...  They are not linked automatically.
@@ -804,7 +825,9 @@ if ($_REQUEST["mode"] == "new") {
                 "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
                 "VALUES (?,NOW(),?,?,?,?)";
             sqlStatement($sql, array($tracker['id'], $userauthorized, $_POST['new_status'], ' ', ($tracker['lastseq'] + 1)));
-            sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ? WHERE `pc_eid` = ?", array($_POST['new_status'], $tracker['eid']));
+            $sql = "UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ?, pc_room='' WHERE `pc_eid` = ?";
+            sqlStatement($sql, array($_POST['new_status'], $tracker['eid']));
+            echo "saved";
             exit;
         }
         echo "Failed to update Patient Tracker.";
@@ -1186,10 +1209,10 @@ if ($_REQUEST['canvas']) {
         unlink($file);
     }
 
-    $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like '%" . $filename . "')";
-    sqlQuery($sql);
-    $sql = "DELETE from documents where documents.url like '%" . $filename . "'";
-    sqlQuery($sql);
+    $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
+    sqlQuery($sql, ['%'.$filename]);
+    $sql = "DELETE from documents where documents.url like ?";
+    sqlQuery($sql, ['%'.$filename]);
     $return = addNewDocument($filename, $type, $_POST["imgBase64"], 0, $size, $_SESSION['authUserID'], $pid, $category_id);
     $doc_id = $return['doc_id'];
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter

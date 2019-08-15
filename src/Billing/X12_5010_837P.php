@@ -1117,7 +1117,7 @@ class X12_5010_837P
             } else {
                 $log .= "*** Missing other insco payer name.\n";
             }
-            $out .= "*";
+            $out .= "*" .
             "*" .
             "*" .
             "*" .
@@ -1373,7 +1373,7 @@ class X12_5010_837P
             // Loop 2420E, Ordering Provider.
             // for Medicare DME claims esp @joe on chat.open-emr.org :)
 
-            if ($claim->Box17Qualifier() == "DK" && ($claim->claimType() === 'MB')) {
+            if (!empty($claim->Box17Qualifier()) && ($claim->claimType() === 'MB')) {
                 ++$edicount;
                 $out .= "NM1" .
                     "*" . $claim->Box17Qualifier() .

@@ -1605,6 +1605,7 @@ CREATE TABLE `facility` (
   `mail_state` varchar(3) default NULL,
   `mail_zip` varchar(10) default NULL,
   `oid` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted',
+  `iban` varchar(50) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 ;
 
@@ -1612,7 +1613,7 @@ CREATE TABLE `facility` (
 -- Inserting data for table `facility`
 --
 
-INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '');
+INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '');
 
 -----------------------------------------------------------
 
@@ -4739,6 +4740,7 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES (
 INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','main/main_screen.php',10,1,0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','oeSignerRemote','./../portal/sign/assets/signit.php',30,0,0);
 
 -----------------------------------------------------------
 
@@ -8726,18 +8728,21 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_QP_RETINA_defaults', 'ODVESSELS_CRAO', 'v: CRAO', 880, 0, 0, 'VESSELS', 'CRAO', '', 0, 0, 0, 'OD'),
 ('Eye_QP_RETINA_defaults', 'OSVESSELS_CRAO', 'v: CRAO', 890, 0, 0, 'VESSELS', 'CRAO', '', 0, 0, 0, 'OS'),
 ('Eye_QP_RETINA_defaults', 'OUVESSELS_CRAO', 'v: CRAO', 900, 0, 0, 'VESSELS', 'CRAO', '', 0, 0, 0, 'OU'),
-('Eye_QP_RETINA_defaults', 'ODPERIPH_0', 'p: clear field', 910, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OD'),
-('Eye_QP_RETINA_defaults', 'OSPERIPH_0', 'p: clear field', 920, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OS'),
-('Eye_QP_RETINA_defaults', 'OUPERIPH_0', 'p: clear field', 930, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OU'),
-('Eye_QP_RETINA_defaults', 'ODPERIPH_float', 'p: floater', 940, 0, 0, 'PERIPH', 'vitreous floater', '', 0, 0, 0, 'OD'),
-('Eye_QP_RETINA_defaults', 'OSPERIPH_float', 'p: floater', 950, 0, 0, 'PERIPH', 'vitreous floater', '', 0, 0, 0, 'OS'),
-('Eye_QP_RETINA_defaults', 'OUPERIPH_float', 'p: floater', 960, 0, 0, 'PERIPH', 'vitreous floater', '', 0, 0, 0, 'OU'),
-('Eye_QP_RETINA_defaults', 'ODPERIPH_pvd', 'p: PVD', 970, 0, 0, 'PERIPH', 'PVD', '', 0, 0, 0, 'OD'),
-('Eye_QP_RETINA_defaults', 'OSPERIPH_pvd', 'p: PVD', 980, 0, 0, 'PERIPH', 'PVD', '', 0, 0, 0, 'OS'),
-('Eye_QP_RETINA_defaults', 'OUPERIPH_pvd', 'p: PVD', 990, 0, 0, 'PERIPH', 'PVD', '', 0, 0, 0, 'OU'),
-('Eye_QP_RETINA_defaults', 'ODPERIPH_vh', 'p: vit hem', 1000, 0, 0, 'PERIPH', 'vitreous hemorrhage', '', 0, 0, 0, 'OD'),
-('Eye_QP_RETINA_defaults', 'OSPERIPH_vh', 'p: vit hem', 1010, 0, 0, 'PERIPH', 'vitreous hemorrhage', '', 0, 0, 0, 'OS'),
-('Eye_QP_RETINA_defaults', 'OUPERIPH_vh', 'p: vit hem', 1020, 0, 0, 'PERIPH', 'vitreous hemorrhage', '', 0, 0, 0, 'OU'),
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_0', 'vit: clear field', 910, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OD'),
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_0', 'vit: clear field', 920, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OS'),
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_0', 'vit: clear field', 930, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OU'),
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_float', 'vit: floater', 940, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OD'),
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_float', 'vit: floater', 950, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OS'),
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_float', 'vit: floater', 960, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OU'),
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_pvd', 'vit: PVD', 970, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OD'),
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_pvd', 'vit: PVD', 980, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OS'),
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_pvd', 'vit: PVD', 990, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OU'),
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_vh', 'vit: hemorrhage', 1000, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OD'),
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_vh', 'vit: hemorrhage', 1010, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OS'),
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_vh', 'vit: hemorrhage', 1020, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OU'),
+('Eye_QP_RETINA_defaults', 'ODPERIPH_0', 'p: clear field', 1022, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OD'),
+('Eye_QP_RETINA_defaults', 'OSPERIPH_0', 'p: clear field', 1024, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OS'),
+('Eye_QP_RETINA_defaults', 'OUPERIPH_0', 'p: clear field', 1026, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OU'),
 ('Eye_QP_RETINA_defaults', 'ODPERIPH_tear', 'p: retinal tear', 1030, 0, 0, 'PERIPH', 'retinal tear', '', 0, 0, 0, 'OD'),
 ('Eye_QP_RETINA_defaults', 'OSPERIPH_tear', 'p: retinal tear', 1040, 0, 0, 'PERIPH', 'retinal tear', '', 0, 0, 0, 'OS'),
 ('Eye_QP_RETINA_defaults', 'OUPERIPH_tear', 'p: retinal tear', 1050, 0, 0, 'PERIPH', 'retinal tear', '', 0, 0, 0, 'OU'),
@@ -8797,7 +8802,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'ODIRIS', 'round', 230, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODLENS', 'clear', 210, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODMACULA', 'flat', 470, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODPERIPH', 'flat', 510, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
+('Eye_Defaults_for_GENERAL', 'ODPERIPH', 'clear', 505, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPUPILREACTIVITY', '+2', 270, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPUPILSIZE1', '3', 250, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPUPILSIZE2', '2', 260, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
@@ -8817,7 +8822,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'OSIRIS', 'round', 240, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSLENS', 'clear', 220, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSMACULA', 'flat', 480, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSPERIPH', 'flat', 520, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
+('Eye_Defaults_for_GENERAL', 'OSPERIPH', 'clear', 515, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPUPILREACTIVITY', '+2', 310, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPUPILSIZE1', '3', 290, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPUPILSIZE2', '2', 300, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
@@ -10151,10 +10156,11 @@ CREATE TABLE `form_eye_acuity` (
   `CTLOSVA1`      varchar(25)  DEFAULT NULL,
   `PAMODVA`       varchar(25)  DEFAULT NULL,
   `PAMOSVA`       varchar(25)  DEFAULT NULL,
-  `LIODVA`        varchar(25) NOT NULL,
-  `LIOSVA`        varchar(25) NOT NULL,
+  `LIODVA`        varchar(25)  NOT NULL,
+  `LIOSVA`        varchar(25)  NOT NULL,
   `WODVANEAR`     varchar(25)  DEFAULT NULL,
   `OSVANEARCC`    varchar(25)  DEFAULT NULL,
+  `BINOCVA`       varchar(25)  DEFAULT NULL,
   PRIMARY KEY `acuity_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
   )

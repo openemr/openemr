@@ -23,6 +23,7 @@
 
 <!-- Styles -->
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
 <?php } ?>
@@ -35,7 +36,8 @@
 <script type="text/javascript">
             $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js").wait()
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js")
-                .script("<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js")
+                .script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui/jquery-ui.min.js")
+                .script("<?php echo $GLOBALS['web_root']; ?>/library/dialog.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").wait()

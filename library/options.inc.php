@@ -59,7 +59,7 @@ function get_pharmacies()
     "LEFT OUTER JOIN addresses AS a ON a.foreign_id = d.id " .
     "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id " .
     "AND p.type = 2 " .
-    "ORDER BY name, area_code, prefix, number");
+    "ORDER BY state, city, name, area_code, prefix, number");
 }
 
 function optionalAge($frow, $date, &$asof, $description = '')
@@ -325,15 +325,15 @@ function generate_form_field($frow, $currvalue)
     $list_id     = $frow['list_id'];
     $backup_list = $frow['list_backup_id'];
 
-  // escaped variables to use in html
+    // escaped variables to use in html
     $field_id_esc= htmlspecialchars($field_id, ENT_QUOTES);
     $list_id_esc = htmlspecialchars($list_id, ENT_QUOTES);
 
-  // Added 5-09 by BM - Translate description if applicable
+    // Added 5-09 by BM - Translate description if applicable
     $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
 
-  // Support edit option T which assigns the (possibly very long) description as
-  // the default value.
+    // Support edit option T which assigns the (possibly very long) description as
+    // the default value.
     if (isOption($frow['edit_options'], 'T') !== false) {
         if (strlen($currescaped) == 0) {
             $currescaped = $description;
@@ -343,11 +343,11 @@ function generate_form_field($frow, $currvalue)
         $description = '';
     }
 
-  // added 5-2009 by BM to allow modification of the 'empty' text title field.
-  //  Can pass $frow['empty_title'] with this variable, otherwise
-  //  will default to 'Unassigned'.
-  // modified 6-2009 by BM to allow complete skipping of the 'empty' text title
-  //  if make $frow['empty_title'] equal to 'SKIP'
+    // added 5-2009 by BM to allow modification of the 'empty' text title field.
+    //  Can pass $frow['empty_title'] with this variable, otherwise
+    //  will default to 'Unassigned'.
+    // modified 6-2009 by BM to allow complete skipping of the 'empty' text title
+    //  if make $frow['empty_title'] equal to 'SKIP'
     $showEmpty = true;
     if (isset($frow['empty_title'])) {
         if ($frow['empty_title'] == "SKIP") {
@@ -371,8 +371,8 @@ function generate_form_field($frow, $currvalue)
     ) ? "checkSkipConditions();" : "";
     $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
-  // generic single-selection list or Race and Ethnicity.
-  // These data types support backup lists.
+    // generic single-selection list or Race and Ethnicity.
+    // These data types support backup lists.
     if ($data_type == 1 || $data_type == 33) {
         echo generate_select_list(
             "form_$field_id",
@@ -541,7 +541,15 @@ function generate_form_field($frow, $currvalue)
         echo "<option value='0'></option>";
         $pres = get_pharmacies();
         $got_selected = false;
+        $zone ='';
         while ($prow = sqlFetchArray($pres)) {
+            if ($zone != strtolower(trim($prow['city']))) {
+                if ($zone !='') {
+                    echo "</optgroup>";
+                }
+                $zone = strtolower(trim($prow['city']));
+                echo "<optgroup label='".attr($prow['city'])."'>";
+            }
             $key = $prow['id'];
             $optionValue = htmlspecialchars($key, ENT_QUOTES);
             $optionLabel = htmlspecialchars($prow['name'] . ' ' . $prow['area_code'] . '-' .
@@ -1025,12 +1033,12 @@ function generate_form_field($frow, $currvalue)
         $outputAddButton = "<input type='button' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
         $field_id_esc . "' class='addtolist' value='$inputValue' $disabled />";
         if (aco_exist('lists', $list_id)) {
-           // a specific aco exist for this list, so ensure access
+            // a specific aco exist for this list, so ensure access
             if (acl_check('lists', $list_id)) {
                 echo $outputAddButton;
             }
         } else {
-           // no specific aco exist for this list, so check for access to 'default' list
+            // no specific aco exist for this list, so check for access to 'default' list
             if (acl_check('lists', 'default')) {
                 echo $outputAddButton;
             }
@@ -1139,7 +1147,7 @@ function generate_form_field($frow, $currvalue)
         echo "<table cellpadding='0' cellspacing='0'>";
         echo "<tr>";
         if ($data_type == 28) {
-          // input text
+            // input text
             echo "<td><input type='text'" .
             " name='form_$field_id_esc'" .
             " id='form_$field_id_esc'" .
@@ -1150,7 +1158,7 @@ function generate_form_field($frow, $currvalue)
             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
             htmlspecialchars(xl('Status'), ENT_NOQUOTES).":&nbsp;&nbsp;</td>";
         } elseif ($data_type == 32) {
-          // input text
+            // input text
             echo "<tr><td><input type='text'" .
             " name='form_text_$field_id_esc'" .
             " id='form_text_$field_id_esc'" .
@@ -1159,7 +1167,7 @@ function generate_form_field($frow, $currvalue)
             " $string_maxlength" .
             " value='$resnote' $disabled />&nbsp;</td></tr>";
             echo "<td>";
-          //Selection list for smoking status
+            //Selection list for smoking status
             $onchange = 'radioChange(this.options[this.selectedIndex].value)';//VicarePlus :: The javascript function for selection list.
             echo generate_select_list(
                 "form_$field_id",
@@ -1307,6 +1315,17 @@ function generate_form_field($frow, $currvalue)
         echo "<img src='" . attr($currvalue) . "' id='form_{$field_id_esc}_img' style='display:none'>";
         // $date_init is a misnomer but it's the place for browser-side setup logic.
         $date_init .= " lbfCanvasSetup('form_$field_id_esc', $canWidth, $canHeight);\n";
+    } elseif ($data_type == 41 || $data_type == 42) {
+        $datatype = 'patient-signature';
+        $cpid = $GLOBALS['pid'];
+        $cuser = $_SESSION['authUserID'];
+        if ($data_type == 42) {
+            $datatype = 'admin-signature';
+        }
+        echo "<input type='hidden' id='form_$field_id_esc' name='form_$field_id_esc' value='' />\n";
+        echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description' 
+            data-pid='$cpid' data-user='$cuser' data-type='$datatype'
+            data-action='fetch_signature' alt='Get Signature' src='" . attr($currvalue) . "'>\n";
     }
 }
 
@@ -1324,9 +1343,9 @@ function generate_print_field($frow, $currvalue)
 
     $description = htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES);
 
-  // Can pass $frow['empty_title'] with this variable, otherwise
-  //  will default to 'Unassigned'.
-  // If it is 'SKIP' then an empty text title is completely skipped.
+    // Can pass $frow['empty_title'] with this variable, otherwise
+    //  will default to 'Unassigned'.
+    // If it is 'SKIP' then an empty text title is completely skipped.
     $showEmpty = true;
     if (isset($frow['empty_title'])) {
         if ($frow['empty_title'] == "SKIP") {
@@ -1340,8 +1359,8 @@ function generate_print_field($frow, $currvalue)
         $empty_title = "Unassigned";
     }
 
-  // generic single-selection list
-  //  Supports backup lists.
+    // generic single-selection list
+    //  Supports backup lists.
     if (false && ($data_type == 1 || $data_type == 26 || $data_type == 33)) {
         if (empty($fld_length)) {
             if ($list_id == 'titles') {
@@ -1369,7 +1388,7 @@ function generate_print_field($frow, $currvalue)
         }
 
         /*****************************************************************
-      echo "<input type='text'" .
+        echo "<input type='text'" .
         " size='$fld_length'" .
         " value='$tmp'" .
         " class='under'" .
@@ -1384,7 +1403,7 @@ function generate_print_field($frow, $currvalue)
         echo $tmp;
     } elseif ($data_type == 2 || $data_type == 15) { // simple text field
         /*****************************************************************
-      echo "<input type='text'" .
+        echo "<input type='text'" .
         " size='$fld_length'" .
         " value='$currescaped'" .
         " class='under'" .
@@ -1431,7 +1450,7 @@ function generate_print_field($frow, $currvalue)
         }
 
         /*****************************************************************
-      echo "<input type='text'" .
+        echo "<input type='text'" .
         " size='$fld_length'" .
         " value='$tmp'" .
         " class='under'" .
@@ -1463,7 +1482,7 @@ function generate_print_field($frow, $currvalue)
         }
 
         /*****************************************************************
-      echo "<input type='text'" .
+        echo "<input type='text'" .
         " size='$fld_length'" .
         " value='$tmp'" .
         " class='under'" .
@@ -1494,7 +1513,7 @@ function generate_print_field($frow, $currvalue)
         }
 
         /*****************************************************************
-      echo "<input type='text'" .
+        echo "<input type='text'" .
         " size='$fld_length'" .
         " value='$tmp'" .
         " class='under'" .
@@ -1524,7 +1543,7 @@ function generate_print_field($frow, $currvalue)
         }
 
         /*****************************************************************
-      echo "<input type='text'" .
+        echo "<input type='text'" .
         " size='$fld_length'" .
         " value='$tmp'" .
         " class='under'" .
@@ -1981,6 +2000,10 @@ function generate_print_field($frow, $currvalue)
         if ($currvalue) {
             echo "<img src='" . attr($currvalue) . "'>";
         }
+    } elseif ($data_type == 41 || $data_type == 42) {
+        if ($currvalue) {
+            echo "<img style='height:70px;width:auto;' src='" . attr($currvalue) . "'>";
+        }
     }
 }
 
@@ -2388,6 +2411,10 @@ function generate_display_field($frow, $currvalue)
         if ($currvalue) {
             $s .= "<img src='" . attr($currvalue) . "'>";
         }
+    } elseif ($data_type == 41 || $data_type == 42) {
+        if ($currvalue) {
+            $s .= "<img style='height:70px;width:auto;' src='" . attr($currvalue) . "'>";
+        }
     }
 
     return $s;
@@ -2407,9 +2434,9 @@ function generate_plaintext_field($frow, $currvalue)
     $backup_list = $frow['backup_list'];
     $s = '';
 
-  // generic selection list or the generic selection list with add on the fly
-  // feature, or radio buttons
-  //  Supports backup lists (for datatypes 1,26,33)
+    // generic selection list or the generic selection list with add on the fly
+    // feature, or radio buttons
+    //  Supports backup lists (for datatypes 1,26,33)
     if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 33) {
         $lrow = sqlQuery("SELECT title FROM list_options " .
         "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
@@ -2925,7 +2952,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
 
         // filter out all the empty field data from the patient report.
         if (!empty($currvalue) && !($currvalue == '0000-00-00 00:00:00')) {
-          // Handle starting of a new row.
+            // Handle starting of a new row.
             if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                 disp_end_row();
                 if ($prepend_blank_row) {
@@ -2947,7 +2974,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                 $titlecols = 1;
             }
 
-          // Handle starting of a new label cell.
+            // Handle starting of a new label cell.
             if ($titlecols > 0) {
                 disp_end_cell();
                 //echo "<td class='label_custom' colspan='$titlecols' valign='top'";
@@ -2972,7 +2999,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                 echo "&nbsp;";
             }
 
-          // Handle starting of a new data cell.
+            // Handle starting of a new data cell.
             if ($datacols > 0) {
                 disp_end_cell();
                 //echo "<td class='text data' colspan='$datacols' valign='top'";
@@ -3065,7 +3092,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
 
                 if ($formtype == 'DEM') {
                     if (strpos($field_id, 'em_') === 0) {
-                      // Skip employer related fields, if it's disabled.
+                        // Skip employer related fields, if it's disabled.
                         if ($GLOBALS['omit_employers']) {
                             continue;
                         }
@@ -3239,7 +3266,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
 
                 if ($formtype == 'DEM') {
                     if (strpos($field_id, 'em_') === 0) {
-                      // Skip employer related fields, if it's disabled.
+                        // Skip employer related fields, if it's disabled.
                         if ($GLOBALS['omit_employers']) {
                             continue;
                         }
@@ -3446,7 +3473,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
         }
     }
 
-  // Better to die than to silently truncate data!
+    // Better to die than to silently truncate data!
     if ($maxlength && $maxlength != 0 && strlen($value) > $maxlength) {
         die(htmlspecialchars(xl('ERROR: Field') . " '$field_id' " . xl('is too long'), ENT_NOQUOTES) .
         ":<br />&nbsp;<br />".htmlspecialchars($value, ENT_NOQUOTES));
@@ -3481,7 +3508,12 @@ function generate_layout_validation($form_id)
             " if (canfld) canfld.value = lbfCanvasGetData(" . js_escape($fldid) . ");\n";
             continue;
         }
-
+        if ($data_type == 41 || $data_type == 42) {
+            $fldid = "form_" . $field_id;
+            // Move canvas image data to its hidden form field so the server will get it.
+            echo " lbfSetSignature(" . js_escape($fldid) . ");\n";
+            continue;
+        }
         if ($frow['uor'] < 2) {
             continue;
         }
@@ -3731,8 +3763,8 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         $styling .= " class='" . attr($bodyClass) . "'";
     }
 
-  //next, create the first div tag to hold the information
-  // note the code that calls this function will then place the ending div tag after the data
+    //next, create the first div tag to hold the information
+    // note the code that calls this function will then place the ending div tag after the data
     echo "<div id='" . attr($label) . "_ps_expand' " . $styling . ">";
 }
 
@@ -3899,6 +3931,15 @@ function lbf_current_value($frow, $formid, $encounter)
     }
 
     return $currvalue;
+}
+
+function signer_head()
+{
+    return <<<EOD
+<link href="{$GLOBALS['web_root']}/portal/sign/css/signer_modal.css?v={$GLOBALS['v_js_includes']}" rel="stylesheet"/>
+<script src="{$GLOBALS['web_root']}/portal/sign/assets/signature_pad.umd.js?v={$GLOBALS['v_js_includes']}"></script>
+<script src="{$GLOBALS['web_root']}/portal/sign/assets/signer_api.js?v={$GLOBALS['v_js_includes']}"></script>
+EOD;
 }
 
 // This returns stuff that needs to go into the <head> section of a caller using

@@ -581,7 +581,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                                             if ($noteid) {
                                                 $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
-                                                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to') . '${3}', $body);
+                                                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
                                                 $body =nl2br(text(oeFormatPatientNote($body)));
                                                 echo "<div class='text oe-margin-t-3' style='background-color:white; color: gray; border:1px solid #999; padding: 5px;'>" . $body . "</div>";
                                             }

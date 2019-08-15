@@ -516,9 +516,9 @@ function getAuthPortalUsers()
                         href="javascript:;" ng-click="isInboxSelected()"><span
                             class="badge pull-right">{{inboxItems.length}}</span><?php echo xlt('Inbox'); ?></a></li>
                     <li data-toggle="pill" class="bg-info"><a href="javascript:;"
-                        ng-click="isSentSelected()"><span class="badge pull-right">{{sentItems.length}}</span><?php echo xlt('Sent'); ?></a></li>
+                        ng-click="isSentSelected()"><span class="badge pull-right">{{sentItems.length}}</span><?php echo xlt('Sent{{Mails}}'); ?></a></li>
                     <li data-toggle="pill" class="bg-info"><a href="javascript:;"
-                        ng-click="isAllSelected()"><span class="badge pull-right">{{allItems.length}}</span><?php echo xlt('All'); ?></a></li>
+                        ng-click="isAllSelected()"><span class="badge pull-right">{{allItems.length}}</span><?php echo xlt('All{{Mails}}'); ?></a></li>
                     <!-- <li data-toggle="pill" class="bg-info"><a href="#"><span class="badge pull-right">0</span><?php //echo xlt('Drafts'); ?></a></li> -->
                     <li data-toggle="pill" class="bg-info"><a href="javascript:;"
                         ng-click="isTrashSelected()"><span class="badge pull-right">{{deletedItems.length}}</span><?php echo xlt('Archive'); ?></a></li>
@@ -750,7 +750,7 @@ function getAuthPortalUsers()
                                     method="post" action="./handle_note.php">
                                     <fieldset>
                                         <div class="form-group">
-                                            <label class="col-sm-1 col-md-1" for="selSendto"><?php echo xlt('To'); ?></label>
+                                            <label class="col-sm-1 col-md-1" for="selSendto"><?php echo xlt('To{{Destination}}'); ?></label>
                                             <div class="col-sm-3 col-md-3">
                                                 <select class="form-control" id="selForwardto"
                                                     ng-hide="compose.task != 'forward'"

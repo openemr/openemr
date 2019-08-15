@@ -200,7 +200,7 @@ if ($_POST['form_save']) {
                     }
                 }
 
-        //----------------------------------------------------------------------------------------------------
+                //----------------------------------------------------------------------------------------------------
                   //Fetching the existing code and modifier
                   $ResultSearchNew = sqlStatement(
                       "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key ".
@@ -217,7 +217,7 @@ if ($_POST['form_save']) {
                     $Modifier = '';
                 }
 
-        //----------------------------------------------------------------------------------------------------
+                //----------------------------------------------------------------------------------------------------
                 if ($_REQUEST['radio_type_of_payment'] == 'copay') {//copay saving to ar_session and ar_activity tables
                     $session_id = sqlInsert(
                         "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
@@ -268,11 +268,11 @@ if ($_POST['form_save']) {
                               array(0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method)
                           );
 
-              //--------------------------------------------------------------------------------------------------------------------
+                    //--------------------------------------------------------------------------------------------------------------------
 
                             frontPayment($form_pid, $enc, $form_method, $form_source, 0, $amount, $timestamp);//insertion to 'payments' table.
 
-              //--------------------------------------------------------------------------------------------------------------------
+                    //--------------------------------------------------------------------------------------------------------------------
 
                             $resMoneyGot = sqlStatement(
                                 "SELECT sum(pay_amount) as PatientPay FROM ar_activity where pid =? and " .
@@ -282,7 +282,7 @@ if ($_POST['form_save']) {
                             $rowMoneyGot = sqlFetchArray($resMoneyGot);
                             $Copay = $rowMoneyGot['PatientPay'];
 
-              //--------------------------------------------------------------------------------------------------------------------
+                    //--------------------------------------------------------------------------------------------------------------------
 
                             //Looping the existing code and modifier
                             $ResultSearchNew = sqlStatement(
@@ -369,7 +369,7 @@ if ($_POST['form_save']) {
                                 sqlCommitTrans();
                     }
 
-                  //--------------------------------------------------------------------------------------------------------------------
+                    //--------------------------------------------------------------------------------------------------------------------
                 }//invoice_balance
             }//if ($amount = 0 + $payment)
         }//foreach
@@ -565,13 +565,13 @@ function toencounter(enc, datestr, topframe) {
 </body>
 
     <?php
-  //
-  // End of receipt printing logic.
-  //
+    //
+    // End of receipt printing logic.
+    //
 } else {
-  //
-  // Here we display the form for data entry.
-  //
+    //
+    // Here we display the form for data entry.
+    //
     ?>
 <title><?php echo xlt('Record Payment'); ?></title>
 
@@ -1274,10 +1274,10 @@ function make_insurance() {
         <script language="JavaScript">
         calctotal();
         </script>
-    <?php
-}
-?>
     </div><!--end of container div of accept payment i.e the form-->
-    <?php $oemr_ui->oeBelowContainerDiv();?>
+    <?php
+        $oemr_ui->oeBelowContainerDiv();
+} // forms else close
+?>
 </body>
 </html>

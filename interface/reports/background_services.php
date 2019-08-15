@@ -84,7 +84,7 @@ use OpenEMR\Core\Header;
   </th>
 
   <th align='center'>
-    <?php echo xlt('Active'); ?>
+    <?php echo xlt('Active{{Service}}'); ?>
   </th>
 
   <th align='center'>
@@ -96,7 +96,7 @@ use OpenEMR\Core\Header;
   </th>
 
   <th align='center'>
-    <?php echo xlt('Currently Busy'); ?>
+    <?php echo xlt('Currently Busy{{Service}}'); ?>
   </th>
 
   <th align='center'>
