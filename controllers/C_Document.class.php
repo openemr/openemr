@@ -89,6 +89,32 @@ class C_Document extends Controller
         }
         $this->assign("TEMPLATES_LIST", $templates_options);
 
+        // duplicate template list for new template form editor sjp 05/20/2019
+        // will call as module or individual template.
+        $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates';
+        $templates_options = "<option value=''>-- " . xlt('Open Forms Module') . " --</option>";
+        if (file_exists($templatedir)) {
+            $dh = opendir($templatedir);
+        }
+        if ($dh) {
+            $templateslist = array();
+            while (false !== ($sfname = readdir($dh))) {
+                if (substr($sfname, 0, 1) == '.') {
+                    continue;
+                }
+                if (substr(strtolower($sfname), strlen($sfname) - 4) == '.tpl') {
+                    $templateslist[$sfname] = $sfname;
+                }
+            }
+            closedir($dh);
+            ksort($templateslist);
+            foreach ($templateslist as $sfname) {
+                $optname = str_replace('_', ' ', basename($sfname, ".tpl"));
+                $templates_options .= "<option value='" . attr($sfname) . "'>" . text($optname) . "</option>";
+            }
+        }
+        $this->assign("TEMPLATES_LIST_PATIENT", $templates_options);
+
         $activity = $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
         $this->assign("activity", $activity);
         return $this->list_action($patient_id);
