@@ -1423,6 +1423,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default
             xl('Update policy number from ERA')
+        ),
+
+        'enable_percent_pricing' => array(
+            xl('Enable percent-based price levels'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Enable percent-based price levels')
         )
     ),
 

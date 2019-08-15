@@ -379,12 +379,40 @@ class FeeSheet
 
             if (!isset($args['fee'])) {
                 // Fees come from the prices table now.
-                $query = "SELECT pr_price FROM prices WHERE " .
-                "pr_id = ? AND pr_selector = '' AND pr_level = ? " .
-                "LIMIT 1";
+                $query = "SELECT pr_price, lo.option_id AS pr_level, lo.notes FROM list_options lo " .
+                    " LEFT OUTER JOIN prices p ON lo.option_id=p.pr_level AND pr_id = ? AND pr_selector = '' " .
+                    " WHERE lo.list_id='pricelevel' " .
+                    "ORDER BY seq";
                 // echo "\n<!-- $query -->\n"; // debugging
-                $prrow = sqlQuery($query, array($codes_id, $pricelevel));
-                $fee = empty($prrow) ? 0 : $prrow['pr_price'];
+
+                $prdefault = null;
+                $prrow = null;
+                $prrecordset = sqlStatement($query, array($codes_id));
+                while ($row = sqlFetchArray($prrecordset)) {
+                    if (empty($prdefault)) {
+                        $prdefault = $row;
+                    }
+
+                    if ($row['pr_level'] === $pricelevel) {
+                        $prrow = $row;
+                    }
+                }
+
+                $fee = 0;
+                if (!empty($prrow)) {
+                    $fee = $prrow['pr_price'];
+
+                    // if percent-based pricing is enabled...
+                    if ($GLOBALS['enable_percent_pricing']) {
+                        // if this price level is a percentage, calculate price from default price
+                        if (!empty($prrow['notes']) && strpos($prrow['notes'], '%') > -1 && !empty($prdefault)) {
+                            $percent = intval(str_replace('%', '', $prrow['notes']));
+                            if ($percent > 0) {
+                                $fee = $prdefault['pr_price'] * ((100 - $percent) / 100);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -520,11 +548,39 @@ class FeeSheet
         // If fee is not provided, get it from the prices table.
         // It is assumed in this case that units will match what is in the product template.
         if (!isset($args['fee'])) {
-            $query = "SELECT pr_price FROM prices WHERE " .
-            "pr_id = ? AND pr_selector = ? AND pr_level = ? " .
-            "LIMIT 1";
-            $prrow = sqlQuery($query, array($drug_id, $selector, $pricelevel));
-            $fee = empty($prrow) ? 0 : $prrow['pr_price'];
+            $query = "SELECT pr_price, lo.option_id AS pr_level, lo.notes FROM list_options lo " .
+                " LEFT OUTER JOIN prices p ON lo.option_id=p.pr_level AND pr_id = ? AND pr_selector = ? " .
+                " WHERE lo.list_id='pricelevel' " .
+                "ORDER BY seq";
+
+            $prdefault = null;
+            $prrow = null;
+            $prrecordset = sqlStatement($query, array($drug_id, $selector));
+            while ($row = sqlFetchArray($prrecordset)) {
+                if (empty($prdefault)) {
+                    $prdefault = $row;
+                }
+
+                if ($row['pr_level'] === $pricelevel) {
+                    $prrow = $row;
+                }
+            }
+
+            $fee = 0;
+            if (!empty($prrow)) {
+                $fee = $prrow['pr_price'];
+
+                // if percent-based pricing is enabled...
+                if ($GLOBALS['enable_percent_pricing']) {
+                    // if this price level is a percentage, calculate price from default price
+                    if (!empty($prrow['notes']) && strpos($prrow['notes'], '%') > -1 && !empty($prdefault)) {
+                        $percent = intval(str_replace('%', '', $prrow['notes']));
+                        if ($percent > 0) {
+                            $fee = $prdefault['pr_price'] * ((100 - $percent) / 100);
+                        }
+                    }
+                }
+            }
         }
 
         $fee = sprintf('%01.2f', $fee);
