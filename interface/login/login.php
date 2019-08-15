@@ -151,6 +151,13 @@ if (count($emr_app)) {
         }
 
         function transmit_form() {
+            <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
+            // Delete the session cookie by setting its expiration date in the past.
+            // This forces the server to create a new session ID.
+            var olddate = new Date();
+            olddate.setFullYear(olddate.getFullYear() - 1);
+            document.cookie = <?php echo json_encode(urlencode(session_name())); ?> + '=' + <?php echo json_encode(urlencode(session_id())); ?> + '; path=<?php echo($web_root ? $web_root : '/');?>; expires=' + olddate.toGMTString();
+            <?php } ?>
             document.forms[0].submit();
         }
     </script>
@@ -249,7 +256,7 @@ if (count($emr_app)) {
                     </div>
                         <?php unset($_SESSION['relogin']);
                     endif;
-                    if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
+if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
                     <div class="alert alert-danger login-failure m-1">
                                             <?php echo xlt('Invalid username or password'); ?>
                     </div>

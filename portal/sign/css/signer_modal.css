@@ -23,7 +23,7 @@
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    height: 45vh;
+    height: 50vh;
     width: 100%;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -54,8 +54,6 @@
     font-size: 10px;
     width: 100%;
     height: 100%;
-    /*max-width: 800px;
-    max-height: 460px;*/
     border: 1px solid #e8e8e8;
     background-color: #fff;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.27), 0 0 40px rgba(0, 0, 0, 0.08) inset;
@@ -80,9 +78,7 @@
     -ms-user-select: none;
     user-select: none;
     margin: 0;
-    /*padding: 32px 16px;*/
     background: #efefef;
-    /*font-family: Helvetica, Sans-Serif;*/
 }
 
 .signature-pad::before,
@@ -122,8 +118,7 @@ body {
     touch-action: none;
 }
 
-.signature-pad--body
-canvas {
+.signature-pad--body canvas {
     position: absolute;
     left: 0;
     top: 0;
@@ -173,13 +168,13 @@ canvas {
 }
 
 #openSignModal .modal-header .input-group {
-    padding-top: 5px;
+    /*padding-top: 5px;*/
     margin-left: 5%;
 }
 
 #openSignModal .modal-dialog {
-    min-width: 700px;
-    max-width: 800px;
+    min-width: 768px;
+    max-width: 900px;
 }
 
 #openSignModal .modal-body {
@@ -199,8 +194,9 @@ canvas {
 }
 
 .signature {
+    cursor: pointer;
     width: auto !important;
-    height: 70px;
+    height: 70px !important;
     z-index: 5 !important;
 }
 
@@ -218,7 +214,7 @@ canvas {
 #openSignModal .close {
     background: #ffffff !important;
     opacity: .9;
-    color: #000000;
+    color: #000000 !important;
     line-height: 45px;
     /*position: absolute;
     left: -10px;

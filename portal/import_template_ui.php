@@ -83,6 +83,7 @@ function getTemplateList($dir)
 <link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
 <link  href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote/dist/summernote.css" rel="stylesheet" type="text/css" />
 <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote/dist/summernote.js"></script>
 <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-nugget/plugins/nugget/summernote-ext-nugget.js"></script>
@@ -140,15 +141,12 @@ function getDocument(docname, mode, content) {
                     ],
                     nugget: {
                         list: [
-                            '{ParseAsHTML}', '{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}', '{ReferringDOC}', '{PatientID}','{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}', '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
+                            '{ParseAsHTML}', '{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{TextBox}', '{DOS}', '{ReferringDOC}', '{PatientID}','{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'
                         ],
-                        label: 'Tags / Directives',
-                        tooltip: 'Insert at current cursor location.'
+                        label: 'Tags/Keywords',
+                        tooltip: 'Select Tag/Keywords'
                     },
-                    options: {
-                        'label': 'Tags/Directives',
-                        'tooltip': 'Insert Tag or Directive'
-                    }
+                    options: {}
                 });
             }
             else if (mode == 'save') {
