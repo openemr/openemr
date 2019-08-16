@@ -157,7 +157,7 @@ if (count($emr_app)) {
                 // This forces the server to create a new session ID.
                 var olddate = new Date();
                 olddate.setFullYear(olddate.getFullYear() - 1);
-                document.cookie = <?php echo json_encode(urlencode(session_name())); ?> +'=' + <?php echo json_encode(urlencode(session_id())); ?> +'; path=<?php echo($web_root ? $web_root : '/');?>; expires=' + olddate.toGMTString();
+                document.cookie = <?php echo json_encode(urlencode(session_name())); ?> + '=' + <?php echo json_encode(urlencode(session_id())); ?> + '; path=<?php echo($web_root ? $web_root : '/');?>; expires=' + olddate.toGMTString();
             <?php } ?>
             document.forms[0].submit();
         }
