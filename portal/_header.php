@@ -37,6 +37,7 @@ use OpenEMR\Core\Header;
         //dummy functions so the dlgopen function will work in the patient portal
         return true;
     }
+    var isPortal = 1;
 </script>
 
 <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
@@ -97,7 +98,7 @@ use OpenEMR\Core\Header;
                             <?php if ($GLOBALS['allow_portal_chat']) { ?>
                                 <a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
                                 <?php } ?>
-                                <a type="patient-signature" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
+                                <a href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
 
                             <li class="divider"></li>
 
@@ -124,7 +125,7 @@ use OpenEMR\Core\Header;
                         <a href="#"><i class="fa fa-circle text-success"></i> <?php echo xlt('Online'); ?></a>
                     </div>
                 </div>
-                <ul class="nav  nav-pills nav-stacked" style='font-color:#fff;'><!-- css class was sidebar-menu -->
+                <ul class="nav nav-pills nav-stacked" style='font-color:#fff;'><!-- css class was sidebar-menu -->
                     <li data-toggle="pill"><a href="#profilepanel" data-toggle="collapse"
                         data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt('Profile'); ?></span>
                     </a></li>
@@ -179,7 +180,7 @@ use OpenEMR\Core\Header;
                             data-parent="#panelgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>
                     </a></li>
                     <?php } ?>
-                    <li data-toggle="pill"><a type="patient-signature" href="#openSignModal" data-toggle="modal" > <i
+                    <li data-toggle="pill"><a href="#openSignModal" data-toggle="modal" data-type="patient-signature"> <i
                             class="fa fa-sign-in"></i><span><?php echo xlt('Signature on File'); ?></span>
                     </a></li>
                     <li><a href="logout.php"><i class="fa fa-ban fa-fw"></i> <span><?php echo xlt('Logout'); ?></span></a></li>

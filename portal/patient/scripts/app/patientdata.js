@@ -459,7 +459,7 @@ page.patient.save({
 					//alert('Save Success')
 				}
 				else {
-					eModal.close(true)
+                    window.dlgCloseAjax();
 				}
 				app.hideProgress('modelLoader');
 				if (isNew) {

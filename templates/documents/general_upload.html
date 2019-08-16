@@ -4,6 +4,7 @@
 * @package   OpenEMR
 * @link      http://www.open-emr.org
 * @author    Brady Miller <brady.g.miller@gmail.com>
+* @author    Jerry Padgett <sjpadgett@gmail.com>
 * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 *}
@@ -57,15 +58,32 @@
 <form method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
 <input type='hidden' name='patient_id' value='{$patient_id|attr}' />
-<p class='text bold'>
- {xlt t="Download document template for this patient and visit"}
-</p>
-<p class='text'>
- <select name='form_filename'>{$TEMPLATES_LIST}</select> &nbsp;
- <input type='submit' value='{xla t="Fetch"}' />
-</p>
+<div class='col-sm-6'>
+	<p class='text bold'>
+		{xlt t="Download document template for this patient and visit"}
+	</p>
+	<div class="input-group">
+		<span class="input-group-btn">
+        	<button type="submit" class="btn btn-download">{xlt t="Fetch"}</button>
+        </span>
+		<select class="form-control" name='form_filename'>{$TEMPLATES_LIST}</select>
+	</div>
+</div>
 </form>
 <!-- End document template download section -->
+
+<!-- Section for portal document templates -->
+<div class='col-sm-6'>
+	<p class='text bold'>
+		{xlt t="Patient Document Template Forms"}
+	</p>
+	<div class="input-group">
+		<span class="input-group-btn">
+			<button class="btn btn-download" onclick="callTemplateModule()">{xlt t="Open"}</button>
+		</span>
+		<select class="form-control" id='template_filename'>{$TEMPLATES_LIST_PATIENT}</select>
+	</div>
+</div>
 
 {if !empty($file)}
 	<div class="text bold">

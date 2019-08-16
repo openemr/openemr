@@ -26,11 +26,10 @@
  */
 
 
-
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
-$ignoreAuth=true;
+$ignoreAuth = true;
 require_once("../globals.php");
 
 // mdsupport - Add 'App' functionality for user interfaces without standard menu and frames
@@ -42,16 +41,16 @@ if ($GLOBALS['new_tabs_layout']) {
     $rs = sqlStatement(
         "SELECT option_id, title,is_default FROM list_options
 			WHERE list_id=? and activity=1 ORDER BY seq, option_id",
-        array ('apps')
+        array('apps')
     );
     if (sqlNumRows($rs)) {
         while ($app = sqlFetchArray($rs)) {
             $app_req = explode('?', trim($app['title']));
-            if (! file_exists('../'.$app_req[0])) {
+            if (!file_exists('../' . $app_req[0])) {
                 continue;
             }
 
-                $emr_app [trim($app ['option_id'])] = trim($app ['title']);
+            $emr_app [trim($app ['option_id'])] = trim($app ['title']);
             if ($app ['is_default']) {
                 $emr_app_def = $app ['option_id'];
             }
@@ -110,22 +109,22 @@ if (count($emr_app)) {
 
     <script type="text/javascript">
         var registrationTranslations = <?php echo json_encode(array(
-            'title' => xla('OpenEMR Product Registration'),
-            'pleaseProvideValidEmail' => xla('Please provide a valid email address'),
-            'success' => xla('Success'),
-            'registeredSuccess' => xla('Your installation of OpenEMR has been registered'),
-            'submit' => xla('Submit'),
-            'noThanks' => xla('No Thanks'),
-            'registeredEmail' => xla('Registered email'),
-            'registeredId' => xla('Registered id'),
-            'genericError' => xla('Error. Try again later'),
-            'closeTooltip' => ''
-        ));
+                'title' => xla('OpenEMR Product Registration'),
+                'pleaseProvideValidEmail' => xla('Please provide a valid email address'),
+                'success' => xla('Success'),
+                'registeredSuccess' => xla('Your installation of OpenEMR has been registered'),
+                'submit' => xla('Submit'),
+                'noThanks' => xla('No Thanks'),
+                'registeredEmail' => xla('Registered email'),
+                'registeredId' => xla('Registered id'),
+                'genericError' => xla('Error. Try again later'),
+                'closeTooltip' => ''
+            ));
                                     ?>;
 
         var registrationConstants = <?php echo json_encode(array(
-            'webroot' => $GLOBALS['webroot']
-        ))
+                'webroot' => $GLOBALS['webroot']
+            ))
                                     ?>;
     </script>
 
@@ -133,12 +132,14 @@ if (count($emr_app)) {
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <script type="text/javascript">
-        jQuery(document).ready(function() {
+        jQuery(document).ready(function () {
             init();
 
             var productRegistrationController = new ProductRegistrationController();
-            productRegistrationController.getProductRegistrationStatus(function(err, data) {
-                if (err) { return; }
+            productRegistrationController.getProductRegistrationStatus(function (err, data) {
+                if (err) {
+                    return;
+                }
 
                 if (data.statusAsString === 'UNREGISTERED') {
                     productRegistrationController.showProductRegistrationModal();
@@ -180,12 +181,12 @@ if (count($emr_app)) {
                         // collect groups
                         $res = sqlStatement("select distinct name from `groups`");
                         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-                              $result[$iter] = $row;
+                            $result[$iter] = $row;
                         }
 
                         if (count($result) == 1) {
-                              $resvalue = $result[0]{"name"};
-                              echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
+                            $resvalue = $result[0]{"name"};
+                            echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
                         }
 
                         // collect default language id
@@ -211,18 +212,18 @@ if (count($emr_app)) {
                             $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
                             if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
                                 $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
-                                  $res3=SqlStatement($sql);
+                                $res3 = SqlStatement($sql);
                             } else {
                                 // Use and sort by the translated language name.
                                 $sql = "SELECT ll.lang_id, " .
                                     "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
-                                      "ll.lang_description " .
+                                    "ll.lang_description " .
                                     "FROM lang_languages AS ll " .
                                     "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
                                     "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                                     "ld.lang_id = ? " .
                                     "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-                                $res3=SqlStatement($sql, array($mainLangID));
+                                $res3 = SqlStatement($sql, array($mainLangID));
                             }
 
                             for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
@@ -230,11 +231,11 @@ if (count($emr_app)) {
                             }
 
                             if (count($result3) == 1) {
-                                  //default to english if only return one language
+                                //default to english if only return one language
                                 echo "<input type='hidden' name='languageChoice' value='1' />\n";
                             }
                         } else {
-                            echo "<input type='hidden' name='languageChoice' value='".attr($defaultLangID)."' />\n";
+                            echo "<input type='hidden' name='languageChoice' value='" . attr($defaultLangID) . "' />\n";
                         }
 
                         if ($GLOBALS['login_into_facility']) {
@@ -249,18 +250,19 @@ if (count($emr_app)) {
             <div class="row">
                 <div class="col-sm-12">
                     <?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)) : // Begin relogin dialog ?>
-                    <div class="alert alert-info m-1">
-                        <strong>
-                            <?php echo xlt('Password security has recently been upgraded.').'&nbsp;&nbsp;'.xlt('Please login again.'); ?>
-                        </strong>
-                    </div>
+                        <div class="alert alert-info m-1">
+                            <strong>
+                                <?php echo xlt('Password security has recently been upgraded.') . '&nbsp;&nbsp;' . xlt('Please login again.'); ?>
+                            </strong>
+                        </div>
                         <?php unset($_SESSION['relogin']);
                     endif;
-                    if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
-                    <div class="alert alert-danger login-failure m-1">
-                                            <?php echo xlt('Invalid username or password'); ?>
-                    </div>
-                                        <?php endif; // End login failure block?>
+                    if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block
+                        ?>
+                        <div class="alert alert-danger login-failure m-1">
+                            <?php echo xlt('Invalid username or password'); ?>
+                        </div>
+                    <?php endif; // End login failure block?>
                 </div>
             </div>
             <div class="row">
@@ -273,7 +275,7 @@ if (count($emr_app)) {
                         <?php echo $logocode; ?>
                     </div>
                 <?php endif; ?>
-                <div class="col-sm-<?php echo $loginFormColumnCount;?>">
+                <div class="col-sm-<?php echo $loginFormColumnCount; ?>">
                     <div class="row">
                         <div class="center-block login-title-label">
                             <?php if ($GLOBALS['show_label_login']) : ?>
@@ -297,8 +299,8 @@ if (count($emr_app)) {
                             <?php
                         endif;
                         if ($t1 && $t2) : ?>
-                            <div class="col-sm-6 center-block"><?php echo $tinylogocode1;?></div>
-                            <div class="col-sm-6 center-block"><?php echo $tinylogocode2;?></div>
+                            <div class="col-sm-6 center-block"><?php echo $tinylogocode1; ?></div>
+                            <div class="col-sm-6 center-block"><?php echo $tinylogocode2; ?></div>
                             <?php
                         endif;
                         ?>
@@ -310,7 +312,7 @@ if (count($emr_app)) {
                                 <select name="authProvider" class="form-control">
                                     <?php
                                     foreach ($result as $iter) {
-                                        echo "<option value='".attr($iter{"name"})."'>".text($iter{"name"})."</option>\n";
+                                        echo "<option value='" . attr($iter{"name"}) . "'>" . text($iter{"name"}) . "</option>\n";
                                     }
                                     ?>
                                 </select>
@@ -339,14 +341,14 @@ if (count($emr_app)) {
                                                 continue; // skip the dummy language
                                             }
 
-                                                echo "<option value='".attr($iter['lang_id'])."'>".text($iter['trans_lang_description'])."</option>\n";
+                                            echo "<option value='" . attr($iter['lang_id']) . "'>" . text($iter['trans_lang_description']) . "</option>\n";
                                         } else {
                                             if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
                                                 if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                                     continue; // skip the dummy language
                                                 }
 
-                                                    echo "<option value='".attr($iter['lang_id'])."'>" . text($iter['trans_lang_description']) . "</option>\n";
+                                                echo "<option value='" . attr($iter['lang_id']) . "'>" . text($iter['trans_lang_description']) . "</option>\n";
                                             }
                                         }
                                     endforeach; ?>
@@ -362,9 +364,9 @@ if (count($emr_app)) {
                                     <option value="user_default"><?php echo xlt('My default facility'); ?></option>
                                     <?php foreach ($facilities as $facility) : ?>
                                         <?php if (!is_null($facilitySelected) && $facilitySelected == $facility['id']) : ?>
-                                            <option value="<?php echo attr($facility['id']);?>" selected ><?php echo text($facility['name']);?></option>
+                                            <option value="<?php echo attr($facility['id']); ?>" selected><?php echo text($facility['name']); ?></option>
                                         <?php else : ?>
-                                            <option value="<?php echo attr($facility['id']);?>"><?php echo text($facility['name']);?></option>
+                                            <option value="<?php echo attr($facility['id']); ?>"><?php echo text($facility['name']); ?></option>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
                                 </select>
@@ -372,7 +374,7 @@ if (count($emr_app)) {
                         </div>
                     <?php endif; // End facilities menu block ?>
                     <div class="form-group pull-right">
-                        <button type="submit" class="btn btn-default btn-lg" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
+                        <button type="submit" class="btn btn-default btn-lg" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login'); ?></button>
                     </div>
                 </div>
                 <div class="col-sm-12 text-center">
