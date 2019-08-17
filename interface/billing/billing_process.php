@@ -382,14 +382,14 @@ function process_form($ar)
     if ($validatePass) {
         if (isset($ar['bn_hcfa_txt_file'])) {
             $format_bat = $bat_content;
-            $wrap = "<!DOCTYPE html><html><head></head><body><div><pre>text($format_bat)</pre></div></body></html>";
+            $wrap = "<!DOCTYPE html><html><head></head><body><div><pre>" . text($format_bat) . "</pre></div></body></html>";
             echo $wrap;
             exit();
         } elseif (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_ub04_x12'])) {
             global $bat_content;
             append_claim_close();
             $format_bat = str_replace('~', PHP_EOL, $bat_content);
-            $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>text($format_bat)</pre></div></body></html>";
+            $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>" . text($format_bat) . "</pre></div></body></html>";
             echo $wrap;
             exit();
         } else {
