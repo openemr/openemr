@@ -981,7 +981,7 @@ background:#fff;
                 </label>
                 <h5><span class="label label-default"><?php echo xlt('Available Recipients'); ?></span></h5>
                 <span>
-                    <button id="chkall" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button"><?php echo xlt('All'); ?></button>
+                    <button id="chkall" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button"><?php echo xlt('All{{Recipients}}'); ?></button>
                     <button id="chknone" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button"><?php echo xlt('None{{Recipients}}'); ?></button>
                 </span>
                 <label ng-repeat="user in chatusers | unique : 'username'" ng-show="!isPortal || (isPortal && user.dash)">
@@ -1025,7 +1025,7 @@ background:#fff;
                         <div class="panel-footer box-footer-hide">
                             <form id='msgfrm' ng-submit="saveMessage()">
                                 <div class="input-group">
-                                    <input type="text" placeholder="Type message..." id="msgedit" autofocus="autofocus"
+                                    <input type="text" placeholder="<?php echo xla('Type Message...'); ?>" id="msgedit" autofocus="autofocus"
                                            class="form-control" ng-model="me.message" ng-enter="saveMessage()">
                                     <span class="input-group-btn">
                                         <button type="submit" class="btn btn-danger btn-flat"><?php echo xlt('Send'); ?></button>
