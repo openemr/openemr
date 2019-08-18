@@ -172,8 +172,7 @@ var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']);
 var jsGlobals = {};
 </script>
 
-<?php Header::setupHeader(["knockout","tabs-theme",'jquery-ui']); ?>
-
+<?php Header::setupHeader(["knockout", "tabs-theme", "jquery-ui", "i18next"]); ?>
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
@@ -222,9 +221,35 @@ function jsFetchGlobals(scope) {
         })
     })
 }
-
 jsFetchGlobals('top').then(globalJson => {
     jsGlobals = globalJson;
+}).catch(error => {
+    console.log(error.message);
+});
+
+// set up global translations for js
+function setupI18n(lang_id) {
+    top.restoreSession();
+    return new Promise((resolve, reject) => {
+        fetch(<?php echo js_escape($GLOBALS['webroot'])?> + "/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id), {
+            credentials: 'same-origin',
+            method: 'GET'
+        })
+        .then(response => response.json())
+        .then(data => resolve(data))
+        .catch(error => reject(error))
+    })
+}
+setupI18n(<?php echo js_escape($_SESSION['language_choice']); ?>).then(translationsJson => {
+    i18next.init({
+        lng: 'selected',
+        debug: false,
+        resources: {
+            selected: {
+                translation: translationsJson
+            }
+        }
+    });
 }).catch(error => {
     console.log(error.message);
 });
@@ -509,6 +534,5 @@ $('#anySearchBox').keypress(function(event){
 <script>
 document.addEventListener('touchstart', {}); //specifically added for iOS devices, especially in iframes
 </script>
-
 </body>
 </html>

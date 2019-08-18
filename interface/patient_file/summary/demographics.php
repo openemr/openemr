@@ -173,6 +173,8 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
 <script type="text/javascript" language="JavaScript">
 
+ alert(xl("Delete"));
+
  function oldEvt(apptdate, eventid) {
    let title = <?php echo xlj('Appointments'); ?>;
    dlgopen('../../main/calendar/add_edit_event.php?date=' + encodeURIComponent(apptdate) + '&eid=' + encodeURIComponent(eventid), '_blank', 725, 500, '', title);
