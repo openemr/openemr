@@ -157,6 +157,15 @@ function send_batch()
     echo $bat_content;
 }
 
+function validate_payer_reset(&$payer_id_held, $patient_id, $encounter)
+{
+    if ($payer_id_held > -1) {
+        sqlStatement("UPDATE billing SET payer_id = ? WHERE " .
+            "pid= ? AND encounter = ? AND activity = 1", array($payer_id_held, $patient_id, $encounter));
+        $payer_id_held = -1;
+    }
+}
+
 process_form($_POST);
 
 function process_form($ar)
@@ -224,6 +233,7 @@ function process_form($ar)
             $clear_claim = isset($ar['btn-clear']);
             $validate_claim = isset($ar['btn-validate']);
             $validatePass = $validate_claim || $clear_claim;
+            $payer_id_held = -1;
             $tmp = 1;
             if (!$validate_claim) {
                 if ($clear_claim) {
@@ -250,6 +260,13 @@ function process_form($ar)
                     // $sql .= " billed = 1, ";
                     $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2);
                 }
+            } else {
+                // so if we validate lets validate against currently set payer.
+                // will reset to current payer once claim processed(below).
+                $payer_id_held = sqlQueryNoLog("SELECT payer_id FROM billing WHERE " .
+                    "pid= ? AND encounter = ? AND activity = 1", array($patient_id, $encounter))['payer_id'];
+                sqlStatementNoLog("UPDATE billing SET payer_id = ? WHERE " .
+                    "pid= ? AND encounter = ? AND activity = 1", array($payer_id, $patient_id, $encounter));
             }
             if (!$tmp) {
                 die(xlt("Claim ") . text($claimid) . xlt(" update failed, not in database?"));
@@ -270,6 +287,7 @@ function process_form($ar)
                     $hlog .= $log;
                     append_claim($segs);
                     if ($validatePass) {
+                        validate_payer_reset($payer_id_held, $patient_id, $encounter);
                         continue;
                     }
                     if (!BillingUtilities::updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename)) {
@@ -281,6 +299,7 @@ function process_form($ar)
                     $hlog .= $log;
                     append_claim($segs);
                     if ($validatePass) {
+                        validate_payer_reset($payer_id_held, $patient_id, $encounter);
                         continue;
                     }
                     if (!BillingUtilities::updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename, 'X12-837I', -1, 0, json_encode($ub04id))) {
@@ -303,6 +322,7 @@ function process_form($ar)
                         ));
                     }
                     if ($validatePass) {
+                        validate_payer_reset($payer_id_held, $patient_id, $encounter);
                         continue;
                     }
                     if (!BillingUtilities::updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename)) {
@@ -327,6 +347,7 @@ function process_form($ar)
                         ));
                     }
                     if ($validatePass) {
+                        validate_payer_reset($payer_id_held, $patient_id, $encounter);
                         continue;
                     }
                     if (!BillingUtilities::updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename)) {
@@ -338,6 +359,7 @@ function process_form($ar)
                     $template[] = buildTemplate($patient_id, $encounter, "", "", $log);
                     $hlog .= $log;
                     if ($validatePass) {
+                        validate_payer_reset($payer_id_held, $patient_id, $encounter);
                         continue;
                     }
                     if (!BillingUtilities::updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename, 'ub04', -1, 0, json_encode($ub04id))) {
@@ -350,6 +372,7 @@ function process_form($ar)
                     $hlog .= $log;
                     $bat_content .= $lines;
                     if ($validatePass) {
+                        validate_payer_reset($payer_id_held, $patient_id, $encounter);
                         continue;
                     }
                     if (!BillingUtilities::updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename)) {
@@ -382,14 +405,14 @@ function process_form($ar)
     if ($validatePass) {
         if (isset($ar['bn_hcfa_txt_file'])) {
             $format_bat = $bat_content;
-            $wrap = "<!DOCTYPE html><html><head></head><body><div><pre>text($format_bat)</pre></div></body></html>";
+            $wrap = "<!DOCTYPE html><html><head></head><body><div><pre>" . text($format_bat) . "</pre></div></body></html>";
             echo $wrap;
             exit();
         } elseif (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_ub04_x12'])) {
             global $bat_content;
             append_claim_close();
             $format_bat = str_replace('~', PHP_EOL, $bat_content);
-            $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>text($format_bat)</pre></div></body></html>";
+            $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>" . text($format_bat) . "</pre></div></body></html>";
             echo $wrap;
             exit();
         } else {
