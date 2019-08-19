@@ -334,7 +334,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
   <title><?php echo xlt('Global Settings'); ?></title>
 <?php } ?>
 
-<?php Header::setupHeader(['common','jscolor', 'bootstrap-sidebar']); ?>
+<?php Header::setupHeader(['common','jscolor', 'bootstrap-sidebar', 'select2']); ?>
 
 <script type="text/javascript">
 function validate_file() {
@@ -361,6 +361,17 @@ function validate_file() {
 }
 </script>
 <style>
+html {
+    scroll-padding-top: 70px;
+}
+
+.section-group:first-of-type {
+    padding-top: 70px;
+}
+
+#Appearance {
+    margin-top: 70px;
+}
 #oe-nav-ul.tabNav {
     display: flex !important;
     flex-flow: column !important;
@@ -418,19 +429,18 @@ $vars = array(
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li><a href="#">Link</a></li>
+                <li><a href="#" class="text-success"><i class="fa fa-check"></i>&nbsp;<?php echo xl("Save Changes");?></a></li>
+                <li><a href="#" class="text-muted"><i class="fa fa-times"></i>&nbsp;<?php echo xl("Cancel Changes");?></a></li>
             </ul>
-            <form class="navbar-form navbar-right">
+            <form class="navbar-form navbar-left">
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Search">
                 </div>
-                <button type="submit" class="btn btn-default btn-search">Search</button>
+                <button type="submit" class="btn btn-default btn-search"><?php echo xl("Search");?></button>
             </form>
         </div><!-- /.navbar-collapse -->
     </div>
 </nav>
-
-
 <div class="container-fluid">
     <div class="row">
         <div class="col-xs-12 col-md-2 sidebar sidebar-left sidebar-sm-show">
@@ -440,7 +450,7 @@ $vars = array(
                 foreach ($GLOBALS_METADATA as $grpname => $grparr):
                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)):
                         $current = ($i) ? "" : "active"; ?>
-                        <li class="<?php echo $current;?>"><a href="#<?php echo $grpname;?>"><?php echo xlt($grpname);?></a></li>
+                        <li class="<?php echo $current;?>"><a href="#<?php echo $grpname;?>" data-target="<?php echo $grpname;?>"><?php echo xlt($grpname);?></a></li>
                     <?php
                         ++$i;
                     endif;
@@ -448,7 +458,7 @@ $vars = array(
                 ?>
             </ul>
         </div>
-        <div class="col-xs-12 col-md-10 col-md-offset-2 main-area" style="margin-top: 50px;">
+        <div class="col-xs-12 col-md-10 col-md-offset-2 main-area">
             <?php if ($userMode) { ?>
             <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>
             <?php } else { ?>
@@ -478,7 +488,7 @@ $vars = array(
                 $srch_item = 0;
                 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
-                        $current = ($i) ? "hidden" : "current";
+                        $current = ($i) ? "" : "current";
                         $addendum = ($grpname == 'Apearance') ? ' (*'. xl("need to logout/login after changing these settings") .')' : '';
                         ?>
                         <div class="section-group <?php echo $current;?>" id="<?php echo $grpname;?>">
@@ -664,7 +674,7 @@ $vars = array(
                                         echo "  </select>\n";
                                     } elseif ($fldtype == 'm_lang') {
                                         $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
-                                        echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
+                                        echo "  <select multiple class='form-control multi-lang' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
                                         while ($row = sqlFetchArray($res)) {
                                             echo "   <option value='" . attr($row['lang_description']) . "'";
                                             foreach ($glarr as $glrow) {
@@ -845,14 +855,7 @@ $(function() {
         $('.tabNav li:nth-child(' + ($(this).index() + 1) + ') a').wrapInner("<mark></mark>");
     });
 
-    document.querySelector("#sidebarList").addEventListener("click", function (e) {
-        console.log(e.target.attributes.href.value);
-        for (let i in document.querySelectorAll(".main-area .section-group")) {
-            i.classList.add("hidden");
-        }
-        document.getElementById(e.target.attributes.href.value).classList.remove("hidden");
-    });
-
+    $(".multi-lang").select2();
 
     // Use the counter ($i) to make the form user friendly for user-specific globals use
     <?php
