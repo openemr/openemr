@@ -2070,7 +2070,7 @@ class Display extends base
                         <div class=" text-center row divTable" style="width: 85%;float:unset;margin: 0 auto;">
 
                                 <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                                    <input placeholder="<?php echo attr('Patient ID'); ?>"
+                                    <input placeholder="<?php echo xla('Patient ID'); ?>"
                                         class="form-control input-sm"
                                         type="text" id="form_patient_id"
                                         name="form_patient_id"
@@ -2078,7 +2078,7 @@ class Display extends base
                                         onKeyUp="show_this();">
 
                                     <input type="text"
-                                        placeholder="<?php echo attr('Patient Name'); ?>"
+                                        placeholder="<?php echo xla('Patient Name'); ?>"
                                         class="form-control input-sm" id="form_patient_name"
                                         name="form_patient_name"
                                         value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>"
@@ -2148,7 +2148,7 @@ class Display extends base
 
                                           </td></tr>
                                           <tr><td class="text-right" style="vertical-align:bottom;">
-                                            <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
+                                            <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label></td><td>
                                             <input id="form_to_date" name="form_to_date"
                                                 class="datepicker form-control input-sm text-center"
                                                 value="<?php echo attr(oeFormatShortDate($to_date)); ?>"

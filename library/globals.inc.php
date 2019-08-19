@@ -288,9 +288,11 @@ $GLOBALS_METADATA = array(
             array(
                 'dual' => xl('Dual'),
                 'comprehensive' => xl('Comprehensive'),
+                'fixed' => xl('Fixed'),
+                'none' => xl('None'),
             ),
             'dual', // default
-            xl('Search Patient By Any Demographics, Dual additionally lets direct access to Patient Finder, Comprehensive has collapsed input box')
+            xl('Search Patient By Any Demographics, Dual additionally lets direct access to Patient Finder, Comprehensive has collapsed input box, Fixed is similar to Dual with fixed size, None is do not show')
         ),
 
         'default_encounter_view' => array(
@@ -1421,6 +1423,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default
             xl('Update policy number from ERA')
+        ),
+
+        'enable_percent_pricing' => array(
+            xl('Enable percent-based price levels'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Enable percent-based price levels')
         )
     ),
 

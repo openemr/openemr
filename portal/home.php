@@ -252,7 +252,7 @@ function editAppointment(mode,deid){
 
                             if (isset($res) && $res != null) {
                                 if ($count < 1) {
-                                    echo "&nbsp;&nbsp;" . xlt('None');
+                                    echo "&nbsp;&nbsp;" . xlt('None{{Appointment}}');
                                 }
                             }
                         } else { // if no appts

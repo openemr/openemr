@@ -389,7 +389,7 @@ function checkSubmit() {
         <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>' title='yyyy-mm-dd'>
       </td>
       <td class='control-label'>
-          &nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('To'); ?>:
+          &nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:
       </td>
       <td>
         <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>' title='yyyy-mm-dd'>

@@ -429,7 +429,7 @@ $title = text(getPatientName($patient_id));
 if ($result != "") {
     echo " <tr class=showborder_head align='left'>\n";
     echo "  <th style='width:130px;'>" . xlt('Actions') . "</th>\n";
-    echo "  <th>" . xlt('Active') . "&nbsp;</th>\n";
+    echo "  <th>" . xlt('Active{{Note}}') . "&nbsp;</th>\n";
     echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
     echo "  <th>" . xlt('Type') . "</th>\n";
     echo "  <th>" . xlt('Content') . "</th>\n";
@@ -466,7 +466,7 @@ if ($result != "") {
 
         $body = $iter['body'];
         $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
-        $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to') . '${3}', $body);
+        $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
         if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
             $body = nl2br(text(oeFormatPatientNote($body)));
         } else {
@@ -601,7 +601,7 @@ if ($result_count == $N) {
 if ($result_sent != "") {
     echo " <tr class=showborder_head align='left'>\n";
     echo "  <th style='width:100px';>&nbsp;</th>\n";
-    echo "  <th>" . xlt('Active') . "&nbsp;</th>\n";
+    echo "  <th>" . xlt('Active{{Note}}') . "&nbsp;</th>\n";
     echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
     echo "  <th>" . xlt('Type') . "</th>\n";
     echo "  <th>" . xlt('Content') . "</th>\n";
@@ -696,7 +696,7 @@ if ($result_sent != "") {
     }
 } else {
   //no results
-    print "<tr><td colspan='3' class='text'>" . xlt('None') . ".</td></tr>\n";
+    print "<tr><td colspan='3' class='text'>" . xlt('None{{Result}}') . ".</td></tr>\n";
 }
 
 ?>

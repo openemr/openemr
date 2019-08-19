@@ -82,12 +82,12 @@ class SessionUtil
 
     public static function coreSessionDestroy()
     {
-        session_destroy();
+        self::standardSessionCookieDestroy();
     }
 
     public static function apiSessionCookieDestroy()
     {
-        self::portalSessionCookieDestroy();
+        self::standardSessionCookieDestroy();
     }
 
     public static function portalSessionStart()
@@ -119,6 +119,11 @@ class SessionUtil
     }
 
     public static function portalSessionCookieDestroy()
+    {
+        self::standardSessionCookieDestroy();
+    }
+
+    private static function standardSessionCookieDestroy()
     {
         // Destroy the cookie
         $params = session_get_cookie_params();

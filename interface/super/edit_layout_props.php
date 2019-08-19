@@ -274,7 +274,7 @@ if ($layout_id) {
 
  <tr>
   <td valign='top' width='1%' nowrap>
-    <?php echo xlt('Active'); ?>
+    <?php echo xlt('Active{{Item}}'); ?>
   </td>
   <td>
    <input type='checkbox' name='form_activity' <?php echo ($row['grp_activity']) ? "checked" : ""; ?> />

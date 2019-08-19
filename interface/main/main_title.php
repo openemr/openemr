@@ -144,7 +144,7 @@ $url = "open-emr.org/wiki/index.php/OpenEMR_".$open_emr_ver."_Users_Guide";
 </td>
 <td style="margin:3px 0px 3px 0px;vertical-align:middle;">
         <div style='margin-left:10px; float:left; display:none' id="current_patient_block">
-            <span class='text'><?php echo xlt('Patient'); ?>:&nbsp;</span><span class='title_bar_top' id="current_patient"><b><?php echo xlt('None'); ?></b></span>
+            <span class='text'><?php echo xlt('Patient'); ?>:&nbsp;</span><span class='title_bar_top' id="current_patient"><b><?php echo xlt('None{{Patient}}'); ?></b></span>
         </div>
 </td>
 <td style="margin:3px 0px 3px 0px;vertical-align:middle;" align="left">

@@ -29,7 +29,7 @@ if (!acl_check('admin', 'batchcom')) {
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
 $process_choices = array(xl('Download CSV File'), xl('Send Emails'), xl('Phone call list'));
-$gender_choices = array(xl('Any'), xl('Male'), xl('Female'));
+$gender_choices = array(xl('Any{{Gender}}'), xl('Male'), xl('Female'));
 $hipaa_choices = array(xl('No'), xl('Yes'));
 $sort_by_choices = array(xl('Zip Code')=>'patient_data.postal_code', xl('Last Name')=>'patient_data.lname', xl('Appointment Date')=>'last_appt');
 

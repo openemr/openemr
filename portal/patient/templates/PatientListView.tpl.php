@@ -103,21 +103,21 @@ body{
                     </div>
                 </div> -->
                 <div class="form-group inline" id="fnameInputContainer">
-                    <label class="control-label" for="fname"><?php echo xlt('First')?></label>
+                    <label class="control-label" for="fname"><?php echo xlt('First{{Name}}')?></label>
                     <div class="controls inline-inputs">
                         <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>" value="<%= _.escape(item.get('fname') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 <div class="form-group inline" id="mnameInputContainer">
-                    <label class="control-label" for="mname"><?php echo xlt('Middle')?></label>
+                    <label class="control-label" for="mname"><?php echo xlt('Middle{{Name}}')?></label>
                     <div class="controls inline-inputs">
                         <input type="text" class="form-control" id="mname" placeholder="<?php echo xla('Middle Name'); ?>" value="<%= _.escape(item.get('mname') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 <div class="form-group inline" id="lnameInputContainer">
-                    <label class="control-label" for="lname"><?php echo xlt('Last')?></label>
+                    <label class="control-label" for="lname"><?php echo xlt('Last{{Name}}')?></label>
                     <div class="controls inline-inputs">
                         <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Last Name'); ?>" value="<%= _.escape(item.get('lname') || '') %>">
                         <span class="help-inline"></span>

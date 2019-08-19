@@ -49,9 +49,9 @@
             <tr>
                 <th id="header_Date"><?php echo xlt('Date')?><% if (actpage.orderBy == 'Date') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_PatientId"><?php echo xlt('Patient Id')?><% if (actpage.orderBy == 'PatientId') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Fname"><?php echo xlt('First')?><% if (actpage.orderBy == 'Fname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Mname"><?php echo xlt('Middle')?><% if (actpage.orderBy == 'Mname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-                <th id="header_Lname"><?php echo xlt('Last')?><% if (actpage.orderBy == 'Lname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_Fname"><?php echo xlt('First{{Name}}')?><% if (actpage.orderBy == 'Fname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_Mname"><?php echo xlt('Middle{{Name}}')?><% if (actpage.orderBy == 'Mname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+                <th id="header_Lname"><?php echo xlt('Last{{Name}}')?><% if (actpage.orderBy == 'Lname') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_Narrative"><?php echo xlt('Narrative')?><% if (actpage.orderBy == 'Narrative') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_Activity"><?php echo xlt('Activity')?><% if (actpage.orderBy == 'Activity') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>
                 <th id="header_RequireAudit"><?php echo xlt('Require Audit')?><% if (actpage.orderBy == 'RequireAudit') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>

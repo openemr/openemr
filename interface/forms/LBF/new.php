@@ -365,6 +365,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
     <!-- LiterallyCanvas support -->
     <?php echo lbf_canvas_head(); ?>
+    <?php echo signer_head(); ?>
 
     <script language="JavaScript">
 

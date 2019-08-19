@@ -708,6 +708,43 @@ $vars = array(
                                             if ($catId < 9 && $catId != "5") {
                                                 continue;
                                             }
+                                                echo "  </select>\n";
+                                            } elseif ($fldtype == 'm_lang') {
+                                                $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
+                                                echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
+                                                while ($row = sqlFetchArray($res)) {
+                                                    echo "   <option value='" . attr($row['lang_description']) . "'";
+                                                    foreach ($glarr as $glrow) {
+                                                        if ($glrow['gl_value'] == $row['lang_description']) {
+                                                            echo " selected";
+                                                            break;
+                                                        }
+                                                    }
+                                                    echo ">";
+                                                    echo xlt($row['lang_description']);
+                                                    echo "</option>\n";
+                                                }
+                                                echo "  </select>\n";
+                                            } elseif ($fldtype == 'color_code') {
+                                                if ($userMode) {
+                                                    $globalTitle = $globalValue;
+                                                }
+                                                echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
+                                                "maxlength='15' value='" . attr($fldvalue) . "' />" .
+                                                "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
+                                            } elseif ($fldtype == 'default_visit_category') {
+                                                $sql = "SELECT pc_catid, pc_catname, pc_cattype 
+                                                FROM openemr_postcalendar_categories
+                                                WHERE pc_active = 1 ORDER BY pc_seq";
+                                                $result = sqlStatement($sql);
+                                                echo "<select class='form-control' name='form_{$i}' id='form_{$i}'>\n";
+                                                echo "<option value='_blank'>" . xlt('None{{Category}}') . "</option>";
+                                                while ($row = sqlFetchArray($result)) {
+                                                    $catId = $row['pc_catid'];
+                                                    $name = $row['pc_catname'];
+                                                    if ($catId < 9 && $catId != "5") {
+                                                        continue;
+                                                    }
 
                                             if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
                                                 continue;
