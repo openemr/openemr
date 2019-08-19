@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Sherwin Gaddis <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -811,6 +813,15 @@ function getPatientPID($args)
     }
 
     return $returnval;
+}
+function getPatientDoBonly($pid)
+{
+    if (empty($pid)) {
+        return "";
+    }
+
+    $sql = sqlQuery("SELECT DOB FROM patient_data WHERE pid = ?", array($pid));
+    return $sql['DOB'];
 }
 
 /* return a patient's name in the format LAST, FIRST */

@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com> contributed the header and footer only
  * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -30,6 +32,9 @@ $patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
 if ($patientid < 0) {
     $patientid = 0 + $pid; // -1 means current pid
 }
+
+$patientname = getPatientName($patientid);
+$patientdob = getPatientDoBonly($patientid);
 
 $visitid = empty($_REQUEST['visitid']) ? 0 : (0 + $_REQUEST['visitid']);
 if ($visitid < 0) {
@@ -99,6 +104,18 @@ if ($PDF_OUTPUT) {
         'keep_table_proportions' => true
     );
     $pdf = new mPDF($config_mpdf);
+    $pdf->SetHTMLHeader('
+		<div style="text-align: right; font-weight: bold;">
+			'.$patientname.' DOB: '.$patientdob.'
+		</div>');
+    $pdf->SetHTMLFooter('
+		<table width="100%">
+		<tr>
+			<td width="33%">{DATE j-m-Y}</td>
+			<td width="33%" align="center">{PAGENO}/{nbpg}</td>
+			<td width="33%" style="text-align: right;">'.$patientname.'</td>
+		</tr>
+	</table>');
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
