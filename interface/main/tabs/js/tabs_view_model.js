@@ -331,7 +331,7 @@ function menuActionClick(data,evt)
     {
         if(data.requirement===1)
         {
-            alert(jsGlobals['enable_group_therapy'] ? xl('You must first select or add a patient or therapy group.') : xl('You must first select or add a patient.'));
+            alert((jsGlobals['globals']['enable_group_therapy'] == 1) ? xl('You must first select or add a patient or therapy group.') : xl('You must first select or add a patient.'));
         }
         else if((data.requirement===2)||data.requirement===3)
         {
