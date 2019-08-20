@@ -25,8 +25,7 @@ if ($scope == 'globals' || $scope == 'all' || $scope == 'top') {
     $import['globals']['pid'] = $GLOBALS['pid'];
     $import['globals']['encounter'] = $GLOBALS['encounter'];
     $import['globals']['v_js_includes'] = $GLOBALS['v_js_includes'];
-}
-if ($scope == 'xl' || $scope == 'all') {
+    $import['globals']['enable_group_therapy'] = $GLOBALS['enable_group_therapy'];
 }
 if ($import === []) {
     $custom['custom_template']['templatesWarn'] = xlt("These templates are text only and will not render any other formatting other than pure text.");
