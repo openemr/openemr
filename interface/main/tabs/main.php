@@ -236,6 +236,8 @@ setupI18n(<?php echo js_escape($_SESSION['language_choice']); ?>).then(translati
     i18next.init({
         lng: 'selected',
         debug: false,
+        nsSeparator: false,
+        keySeparator: false,
         resources: {
             selected: {
                 translation: translationsJson
