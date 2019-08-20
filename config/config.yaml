@@ -178,3 +178,4 @@ assets:
         script: translate.js
         autoload: true
         allowNoLoad: true
+        
