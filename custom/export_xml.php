@@ -276,9 +276,6 @@ if ($rowed['id']) {
 <html>
 <head>
 <?php Header::setupHeader(); ?>
-
-<script>alert(xl("Delete"));</script>
-
 <title><?php echo xlt('Export Patient Demographics XML'); ?></title>
 </head>
 <body class="body_top">

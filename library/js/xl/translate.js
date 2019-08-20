@@ -11,10 +11,10 @@
 
 function xl(string) {
     if (typeof top.i18next.t == 'function') {
-        // top
         return top.i18next.t(string);
     } else {
-        // opener (if called from a modal/popup)
-        return opener.i18next.t(string);
+        // Unable to find the i18next.t function, so log error
+        console.log("xl function is unable to translate since can not find the i18next.t function");
+        return string;
     }
 }

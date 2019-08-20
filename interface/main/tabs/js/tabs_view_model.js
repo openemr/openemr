@@ -129,7 +129,7 @@ function navigateTab(url,name,afterLoadFunction)
     }
     else
     {
-        curTab=new tabStatus(xl_strings_tabs_view_model.new,url,name,true,false,false);
+        curTab=new tabStatus(xl('New'),url,name,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
         if(typeof afterLoadFunction === 'function'){
             afterLoadFunction();
@@ -274,7 +274,6 @@ function popMenuDialog(url, title) {
     });
 }
 
-// note the xl_strings_tabs_view_model variable is required for the alert messages and translations
 function menuActionClick(data,evt)
 {
 
@@ -294,7 +293,7 @@ function menuActionClick(data,evt)
             var encounterID=app_view_model.application_data[attendant_type]().selectedEncounterID();
             if(isEncounterLocked(encounterID))
             {
-                alert(xl_strings_tabs_view_model.encounter_locked);
+                alert(xl('This encounter is locked. No new forms can be added.'));
                 return;
             }
         }
@@ -332,11 +331,11 @@ function menuActionClick(data,evt)
     {
         if(data.requirement===1)
         {
-            alert(xl_strings_tabs_view_model.must_select_patient);
+            alert(jsGlobals['enable_group_therapy'] ? xl('You must first select or add a patient or therapy group.') : xl('You must first select or add a patient.'));
         }
         else if((data.requirement===2)||data.requirement===3)
         {
-            alert(xl_strings_tabs_view_model.must_select_encounter);
+            alert(xl('You must first select or create an encounter.'));
         }
     }
 

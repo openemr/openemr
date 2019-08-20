@@ -99,7 +99,6 @@ if (isset($_GET['starttimeh'])) {
 <?php $g_view = acl_check("groups", "gcalendar", false, 'view');?>
 
 <?php Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
-<script>alert(xl("Delete"));</script>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->

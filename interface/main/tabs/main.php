@@ -182,14 +182,6 @@ var jsGlobals = {};
 <script type="text/javascript" src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
-// Create translations to be used in the menuActionClick() function in below js/tabs_view_model.js script
-var xl_strings_tabs_view_model = <?php echo json_encode(array(
-    'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
-    'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
-    'must_select_encounter'    => xla('You must first select or create an encounter.'),
-    'new' => xla('New')
-));
-                                                                            ?>;
 // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
 var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
 // will fullfill json and return promise if needed
