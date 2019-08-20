@@ -223,7 +223,7 @@ jsFetchGlobals('top').then(globalJson => {
 function setupI18n(lang_id) {
     top.restoreSession();
     return new Promise((resolve, reject) => {
-        fetch(<?php echo js_escape($GLOBALS['webroot'])?> + "/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id), {
+        fetch(<?php echo js_escape($GLOBALS['webroot'])?> + "/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
             credentials: 'same-origin',
             method: 'GET'
         })

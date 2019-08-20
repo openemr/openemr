@@ -14,6 +14,12 @@
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
+}
+
 $sql = "SELECT c.constant_name, d.definition FROM lang_definitions as d
         JOIN lang_constants AS c ON d.cons_id = c.cons_id
         WHERE d.lang_id = ?";
