@@ -173,8 +173,8 @@ assets:
     i18next:
         basePath: %assets_static_relative%/i18next/dist/umd/
         script: i18next.min.js
-    js-translation:
-        basePath: %webroot%/library/js/xl/
-        script: translate.js
+    utility:
+        basePath: %webroot%/library/js/
+        script: utility.js
         autoload: true
         allowNoLoad: true
