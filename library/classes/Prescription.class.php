@@ -667,14 +667,6 @@ class Prescription extends ORDataObject
     {
         return $this->active;
     }
-    function get_dose_size_display()
-    {
-        $dsql = "SELECT title FROM `list_options` WHERE `list_id` LIKE ? AND option_id = ?";
-
-        $doseSize = sqlQuery($dsql, array('%drug_unit%',$this->size));
-        $displayDoseSize = $doseSize['title'];
-        return $displayDoseSize;
-    }
     function get_prescription_display()
     {
         $pconfig = $GLOBALS['oer_config']['prescriptions'];
