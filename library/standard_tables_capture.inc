@@ -52,10 +52,10 @@ function temp_unarchive($filename, $type)
         $zip = new ZipArchive;
         if ($zip->open($filename, ZipArchive::CREATE) === true) {
             // cms.gov added a subfolder to the archive :| filed a ticket with them 8-20-19 :)
-            for($i = 0; $i < $zip->numFiles; $i++) {
+            for ($i = 0; $i < $zip->numFiles; $i++) {
                 $full_file_name = $zip->getNameIndex($i);
                 $fileinfo = pathinfo($full_file_name);
-                if(!copy("zip://".$filename."#".$full_file_name, $GLOBALS['temporary_files_dir']."/".
+                if (!copy("zip://".$filename."#".$full_file_name, $GLOBALS['temporary_files_dir']."/".
                     $type."/".$fileinfo['basename'])) {
                     return false;
                 };
