@@ -2,9 +2,11 @@
 /**
  * Software version identification.
  *
- * @link http://open-emr.org/wiki
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package OpenEMR
+ * @link https://www.open-emr.org/wiki
  * @author Robert Down <robertdown@live.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
  */
 
 // Software version identification.
@@ -25,7 +27,7 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 299;
+$v_database = 300;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
