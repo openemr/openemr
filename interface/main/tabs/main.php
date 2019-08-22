@@ -172,8 +172,7 @@ var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']);
 var jsGlobals = {};
 </script>
 
-<?php Header::setupHeader(["knockout","tabs-theme",'jquery-ui']); ?>
-
+<?php Header::setupHeader(["knockout", "tabs-theme", "jquery-ui", "i18next"]); ?>
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
@@ -183,14 +182,6 @@ var jsGlobals = {};
 <script type="text/javascript" src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
-// Create translations to be used in the menuActionClick() function in below js/tabs_view_model.js script
-var xl_strings_tabs_view_model = <?php echo json_encode(array(
-    'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
-    'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
-    'must_select_encounter'    => xla('You must first select or create an encounter.'),
-    'new' => xla('New')
-));
-                                                                            ?>;
 // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
 var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
 // will fullfill json and return promise if needed
@@ -222,9 +213,33 @@ function jsFetchGlobals(scope) {
         })
     })
 }
-
 jsFetchGlobals('top').then(globalJson => {
     jsGlobals = globalJson;
+}).catch(error => {
+    console.log(error.message);
+});
+
+// set up global translations for js
+function setupI18n(lang_id) {
+    top.restoreSession();
+    return fetch(<?php echo js_escape($GLOBALS['webroot'])?> + "/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
+        credentials: 'same-origin',
+        method: 'GET'
+    })
+    .then(response => response.json())
+}
+setupI18n(<?php echo js_escape($_SESSION['language_choice']); ?>).then(translationsJson => {
+    i18next.init({
+        lng: 'selected',
+        debug: false,
+        nsSeparator: false,
+        keySeparator: false,
+        resources: {
+            selected: {
+                translation: translationsJson
+            }
+        }
+    });
 }).catch(error => {
     console.log(error.message);
 });
@@ -509,6 +524,5 @@ $('#anySearchBox').keypress(function(event){
 <script>
 document.addEventListener('touchstart', {}); //specifically added for iOS devices, especially in iframes
 </script>
-
 </body>
 </html>
