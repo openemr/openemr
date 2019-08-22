@@ -6608,9 +6608,9 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('CQM_VALUESET', 'NIH_VSAC', '2017-09-29', 'ep_ec_only_cms_20170929.xml.zip','38d2e1a27646f2f09fcc389fd2335c50');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', ''CMS'', ''2019-10-01'', ''2020-ICD-10-CM-Codes.zip'', ''745546b3c94af3401e84003e1b143b9b'');
+('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-CM-Codes.zip', '745546b3c94af3401e84003e1b143b9b');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', ''CMS'', ''2019-10-01'', ''2020-ICD-10-PCS-Order.zip'', ''8dc136d780ec60916e9e1fc999837bc8'');
+('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-PCS-Order.zip', '8dc136d780ec60916e9e1fc999837bc8');
 -----------------------------------------------------------
 
 --
