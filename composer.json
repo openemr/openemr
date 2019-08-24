@@ -57,6 +57,7 @@
         "omnipay/stripe": "3.0.1",
         "waryway/php-traits-library": "1.0.4",
         "paragonie/multi-factor": "0.2.2",
+        "twig/twig" : "^2.7.4",
         "zendframework/zend-mvc-i18n": "1.1.0",
         "zendframework/zend-json-server": "3.1.0",
         "zendframework/zend-mvc-console": "1.2.0",
