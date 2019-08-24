@@ -738,7 +738,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <button type='button' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel'
                             id="btn-cancel" onclick='doClose()'><?php echo xlt("Close"); ?></button>
                     </div>
-                    <?php if ($GLOBALS['new_tabs_layout'] && $from_posting) { ?>
+                    <?php if ($from_posting) { ?>
                         <button type='button' class="btn btn-default btn-view pull-right" name='form_goto' id="btn-goto"
                             onclick="goEncounterSummary(<?php echo attr_js($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
                     <?php } ?>

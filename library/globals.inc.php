@@ -115,7 +115,6 @@ $USER_SPECIFIC_TABS = array('Appearance',
     'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'default_second_tab',
-    'new_tabs_layout',
     'theme_tabs_layout',
     'css_header',
     'vertical_responsive_menu',
@@ -190,16 +189,6 @@ $GLOBALS_METADATA = array(
             ),
             '../../interface/main/messages/messages.php?form_active=1',    // default = messages
             xl('Default Second Tab')
-        ),
-
-        'new_tabs_layout' => array(
-            xl('Layout').'*',
-            array(
-                '0' => xl('Frame'),
-                '1' => xl('Tabs'),
-            ),
-            '1',
-            xl('Choose the layout (need to logout and then login to see this new setting).')
         ),
 
         'theme_tabs_layout' => array(

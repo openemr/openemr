@@ -33,9 +33,7 @@
 
  // Called to show patient notes related to this document in the "other" frame.
  function showpnotes(docid) {literal}{{/literal}
- {literal}
- if (top.tab_mode) {
-     let btnClose = {/literal}{xlj t="Done"}{literal};
+     let btnClose = {xlj t="Done"}{literal};
      let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid);
      dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
          buttons: [
@@ -48,13 +46,7 @@
          type: 'iframe'
      });
      return false;
- }
- {/literal}
-  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
-  parent.left_nav.forceDual();
-  parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid));
-  return false;
- {literal}}{/literal}
+ }{/literal}
 
  function submitNonEmpty( e ) {literal}{{/literal}
 	if ( e.elements['passphrase'].value.length == 0 ) {literal}{{/literal}

@@ -429,18 +429,12 @@ $(document).ready(function () {
 });
 
 function closeHow(e) {
-    if (top.tab_mode) {
-        top.activateTabByName('pat', true);
-        top.tabCloseByName(window.name);
-    } else {
-        if (opener) {
-            if (opener.name === "left_nav") {
-                dlgclose();
-                return;
-            }
-        }
-        window.history.back();
+    if (opener) {
+        dlgclose();
+        return;
     }
+    top.activateTabByName('pat', true);
+    top.tabCloseByName(window.name);
 }
 
 // This is action to take before printing and is called from restoreSession.php.
@@ -473,16 +467,7 @@ function imdeleted() {
 // This also closes the popup window.
 function toencounter(enc, datestr, topframe) {
     topframe.restoreSession();
-    // Hard-coding of RBot for this purpose is awkward, but since this is a
-    // pop-up and our openemr is left_nav, we have no good clue as to whether
-    // the top frame is more appropriate.
-    if(!top.tab_mode) {
-        topframe.left_nav.forceDual();
-        topframe.left_nav.setEncounter(datestr, enc, '');
-        topframe.left_nav.loadFrame('enc2', 'RBot', 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc));
-    } else {
-        top.goToEncounter(enc);
-    }
+    top.goToEncounter(enc);
     if (opener) dlgclose();
 }
 </script>
@@ -605,18 +590,12 @@ function toencounter(enc, datestr, topframe) {
 <script language="JavaScript">
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 function closeHow(e) {
-    if (top.tab_mode) {
-        top.activateTabByName('pat', true);
-        top.tabCloseByName(window.name);
-    } else {
-       if (opener) {
-            if (opener.name === "left_nav") {
-                dlgclose();
-                return;
-            }
-        }
-        window.history.back();
+    if (opener) {
+        dlgclose();
+        return;
     }
+    top.activateTabByName('pat', true);
+    top.tabCloseByName(window.name);
 }
 function calctotal() {
     var f = document.forms[0];

@@ -293,11 +293,7 @@ if (!isset($_GET['attachid'])) {
 function imdeleted(EncounterId) {
     top.window.parent.left_nav.removeOptionSelected(EncounterId);
     top.window.parent.left_nav.clearEncounter();
-    if (top.tab_mode) {
-        top.encounterList();
-    } else {
-        top.window.parent.left_nav.loadFrame('ens1', window.parent.name, 'patient_file/history/encounters.php');
-    }
+    top.encounterList();
 }
 
 // Called to open the data entry form a specified encounter form instance.

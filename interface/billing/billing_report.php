@@ -327,14 +327,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         encurl = 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc) +
             '&pid=' + encodeURIComponent(pid);
         parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
-        <?php if ($GLOBALS['new_tabs_layout']) { ?>
         parent.left_nav.setEncounter(datestr, enc, 'enc');
         parent.left_nav.loadFrame('enc2', 'enc', encurl);
-        <?php } else { ?>
-        var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
-        parent.left_nav.setEncounter(datestr, enc, othername);
-        parent.frames[othername].location.href = '../' + encurl;
-        <?php } ?>
     }
 
     // Process a click to go to an patient.
@@ -342,14 +336,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         top.restoreSession();
         paturl = 'patient_file/summary/demographics_full.php?pid=' + encodeURIComponent(pid);
         parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
-        <?php if ($GLOBALS['new_tabs_layout']) { ?>
         parent.left_nav.loadFrame('ens1', 'enc',
             'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
         parent.left_nav.loadFrame('dem1', 'pat', paturl);
-        <?php } else { ?>
-        var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
-        parent.frames[othername].location.href = '../' + paturl;
-        <?php } ?>
     }
 
     function popMBO(pid, enc, mboid) {
@@ -1110,7 +1099,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:
                                 window.toencounter(" . attr_js($iter['enc_pid']) . "," . attr_js($name['pubpid']) . "," . attr_js($ptname) . "," . attr_js($iter['enc_encounter']) . "," . attr_js(oeFormatShortDate($raw_encounter_date)) . "," . attr_js(" ".xl('DOB').": ".oeFormatShortDate($name['DOB_YMD'])." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])) . ");
                                 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['enc_pid']) . "],EncounterDateArray[" . attr($iter['enc_pid']) . "], CalendarCategoryArray[" . attr($iter['enc_pid']) . "]);
-                                if (top.tab_mode) { top.setEncounter(" . attr_js($iter['enc_encounter']) . "); }
+                                top.setEncounter(" . attr_js($iter['enc_encounter']) . ");
                             \">" . xlt('Encounter') . " " . text(oeFormatShortDate($raw_encounter_date)) . "</a>";
 
                                 // Changed "To xxx" buttons to allow room for encounter date display 2/17/09 JCH

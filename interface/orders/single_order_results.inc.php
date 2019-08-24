@@ -435,32 +435,16 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
 <script language="JavaScript">
     let mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-    if (typeof top.tab_mode === "undefined") {
-        if (typeof opener.top.tab_mode !== "undefined") {
-            top.tab_mode = opener.top.tab_mode;
+    if (typeof top.webroot_url === "undefined") {
+        if (typeof opener.top.webroot_url !== "undefined") {
             top.webroot_url = opener.top.webroot_url;
         }
     }
-    // Called to show patient notes related to this order in the "other" frame.
+
     // This works even if we are in a separate window.
     function showpnotes(orderid) {
-        // Find the top or bottom frame that contains or opened this page; return if none.
-        let w = window.opener ? window.opener : window;
-        if (!top.tab_mode) {
-            for (; w.name != 'RTop' && w.name != 'RBot'; w = w.parent) {
-                if (w.parent == w) {
-                    // This message is not translated because a developer will need to find it.
-                    alert('Internal error locating target frame in ' + (window.opener ? 'opener' : 'window'));
-                    return false;
-                }
-            }
-            var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
-            w.parent.left_nav.forceDual();
-            w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + <?php echo js_url($orderid); ?>);
-        } else {
-            let url = top.webroot_url + '/interface/patient_file/summary/pnotes_full.php?orderid=' + <?php echo js_url($orderid); ?>;
-            dlgopen(url, 'notes', 950, 750, false, '');
-        }
+        let url = top.webroot_url + '/interface/patient_file/summary/pnotes_full.php?orderid=' + <?php echo js_url($orderid); ?>;
+        dlgopen(url, 'notes', 950, 750, false, '');
         return false;
     }
 

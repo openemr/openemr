@@ -71,14 +71,6 @@ window.opener = null;
 // and is checked by handlers of beforeunload events.
 var timed_out = false;
 
-//  Include this variable for backward compatibility
-var loadedFrameCount = 0;
-var tab_mode=true;
-function allFramesLoaded() {
-// Stub function for backward compatibility with frame race condition mechanism
- return true;
-}
-
 function goRepeaterServices(){
     // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
     //  timing out mechanism in OpenEMR.
