@@ -223,7 +223,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         }
 
         if ($_POST["erxprid"]) {
-            sqlStatement("update users set weno_prov_id = '$erxprid' where id = ? ", array($_POST["erxprid"], $_POST["id"]));
+            sqlStatement("update users set weno_prov_id = ? where id = ? ", array($_POST["erxprid"], $_POST["id"]));
         }
 
         // Set the access control group of user
