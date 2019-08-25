@@ -667,7 +667,6 @@ class Prescription extends ORDataObject
     {
         return $this->active;
     }
-
     function get_prescription_display()
     {
         $pconfig = $GLOBALS['oer_config']['prescriptions'];

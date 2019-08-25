@@ -92,3 +92,221 @@ ALTER TABLE `facility` ADD `iban` varchar(50) default NULL;
 #IfNotRow2D list_options list_id apps option_id oeSignerRemote
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','oeSignerRemote','./../portal/sign/assets/signit.php',30,0,0);
 #EndIf
+
+#IfNotColumnType form_eye_neuro ACT5CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT5CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT1CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT1CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT2CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT2CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT3CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT3CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT4CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT4CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT6CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT6CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT7CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT7CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT8CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT8CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT9CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT9CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT10CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT10CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT11CCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT11CCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT1SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT1SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT2SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT2SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT3SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT3SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT4SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT4SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT5SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT5SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT6SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT6SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT7SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT7SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT8SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT8SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT9SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT9SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT10SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT10SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT11SCDIST text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT11SCDIST` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT1SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT1SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT2SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT2SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT3SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT3SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT4SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT4SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT5CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT5CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT6CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT6CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT7CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT7CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT8CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT8CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT9CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT9CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT10CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT10CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT11CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT11CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT5SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT5SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT6SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT6SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT7SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT7SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT8SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT8SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT9SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT9SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT10SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT10SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT11SCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT11SCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT1CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT1CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT2CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT2CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT3CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT3CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ACT4CCNEAR text
+ALTER TABLE `form_eye_neuro` MODIFY `ACT4CCNEAR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ODNPA text
+ALTER TABLE `form_eye_neuro` MODIFY `ODNPA` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro OSNPA text
+ALTER TABLE `form_eye_neuro` MODIFY `OSNPA` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro VERTFUSAMPS text
+ALTER TABLE `form_eye_neuro` MODIFY `VERTFUSAMPS` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro DIVERGENCEAMPS text
+ALTER TABLE `form_eye_neuro` MODIFY `DIVERGENCEAMPS` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ODCOLOR text
+ALTER TABLE `form_eye_neuro` MODIFY `ODCOLOR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro OSCOLOR text
+ALTER TABLE `form_eye_neuro` MODIFY `OSCOLOR` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro ODCOINS text
+ALTER TABLE `form_eye_neuro` MODIFY `ODCOINS` text;
+#EndIf
+
+#IfNotColumnType form_eye_neuro OSCOINS text
+ALTER TABLE `form_eye_neuro` MODIFY `OSCOINS` text;
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2019-10-01 load_filename 2020-ICD-10-CM-Codes.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-CM-Codes.zip', '745546b3c94af3401e84003e1b143b9b');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2019-10-01 load_filename 2020-ICD-10-PCS-Order.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-PCS-Order.zip', '8dc136d780ec60916e9e1fc999837bc8');
+#EndIf

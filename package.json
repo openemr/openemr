@@ -62,7 +62,7 @@
     "flot": "0.8.0-alpha",
     "font-awesome": "4.6.3",
     "gritter": "1.7.4",
-    "i18next": "9.0.1",
+    "i18next": "16.0.0",
     "i18next-browser-languagedetector": "2.0.0",
     "i18next-xhr-backend": "1.4.3",
     "jquery": "3.1.1",
