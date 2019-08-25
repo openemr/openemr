@@ -28,6 +28,9 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use Ramsey\Uuid\Uuid;
 
+//Add the appropriate templates directory to the twig loader
+$twig->getLoader()->addPath("../../src/Admin/templates/globals");
+
 // Set up crypto object
 $cryptoGen = new CryptoGen();
 
@@ -443,27 +446,22 @@ $vars = array(
 </nav>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-xs-12 col-md-2 sidebar sidebar-left sidebar-sm-show">
-            <ul class="nav navbar-stacked" id="sidebarList">
-                <?php
-                $i = 0;
-                foreach ($GLOBALS_METADATA as $grpname => $grparr):
-                    if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)):
-                        $current = ($i) ? "" : "active"; ?>
-                        <li class="<?php echo $current;?>"><a href="#<?php echo $grpname;?>" data-target="<?php echo $grpname;?>"><?php echo xlt($grpname);?></a></li>
-                    <?php
-                        ++$i;
-                    endif;
-                endforeach;
-                ?>
-            </ul>
-        </div>
-        <div class="col-xs-12 col-md-10 col-md-offset-2 main-area">
-            <?php if ($userMode) { ?>
-            <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>
-            <?php } else { ?>
-            <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
-            <?php } ?>
+        <?php
+        $sidebar_view_vars = [
+            'menu' => array_keys($GLOBALS_METADATA),
+            'user_mode' => $userMode,
+            'user_tabs' => $USER_SPECIFIC_TABS,
+        ];
+        echo $twig->render("partials/sidebar.html.twig", $sidebar_view_vars);
+        ?>
+<!--        Insert sidebar parital here-->
+        <div class="col-xs-12 col-md-9 col-md-offset-2 main-area">
+            <?php
+            $formAction = "edit_globals.php";
+            $formAction .= ($userMode) ? "?mode=user" : "";
+            ?>
+            <form method='post' name='theform' id='theform' class='form-horizontal' action="<?php echo $formAction;?>">
+            <div class="tab-content">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="hidden clearfix">
                     <div class="btn-group oe-margin-b-10">
@@ -488,10 +486,10 @@ $vars = array(
                 $srch_item = 0;
                 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
-                        $current = ($i) ? "" : "current";
+                        $current = ($i) ? "" : "active";
                         $addendum = ($grpname == 'Apearance') ? ' (*'. xl("need to logout/login after changing these settings") .')' : '';
                         ?>
-                        <div class="section-group <?php echo $current;?>" id="<?php echo $grpname;?>">
+                        <div class="tab-pane <?php echo $current;?>" id="<?php echo $grpname;?>" role="tabpanel">
                             <div class="page-header">
                                 <h1><?php echo xlt($grpname);?>&nbsp;<small><?php echo text($addendum);?></small></h1>
                             </div>
@@ -696,7 +694,7 @@ $vars = array(
                                         "maxlength='15' value='" . attr($fldvalue) . "' />" .
                                         "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
                                     } elseif ($fldtype == 'default_visit_category') {
-                                        $sql = "SELECT pc_catid, pc_catname, pc_cattype 
+                                        $sql = "SELECT pc_catid, pc_catname, pc_cattype
                                         FROM openemr_postcalendar_categories
                                         WHERE pc_active = 1 ORDER BY pc_seq";
                                         $result = sqlStatement($sql);
@@ -708,43 +706,7 @@ $vars = array(
                                             if ($catId < 9 && $catId != "5") {
                                                 continue;
                                             }
-                                                echo "  </select>\n";
-                                            } elseif ($fldtype == 'm_lang') {
-                                                $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
-                                                echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
-                                                while ($row = sqlFetchArray($res)) {
-                                                    echo "   <option value='" . attr($row['lang_description']) . "'";
-                                                    foreach ($glarr as $glrow) {
-                                                        if ($glrow['gl_value'] == $row['lang_description']) {
-                                                            echo " selected";
-                                                            break;
-                                                        }
-                                                    }
-                                                    echo ">";
-                                                    echo xlt($row['lang_description']);
-                                                    echo "</option>\n";
-                                                }
-                                                echo "  </select>\n";
-                                            } elseif ($fldtype == 'color_code') {
-                                                if ($userMode) {
-                                                    $globalTitle = $globalValue;
-                                                }
-                                                echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
-                                                "maxlength='15' value='" . attr($fldvalue) . "' />" .
-                                                "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
-                                            } elseif ($fldtype == 'default_visit_category') {
-                                                $sql = "SELECT pc_catid, pc_catname, pc_cattype 
-                                                FROM openemr_postcalendar_categories
-                                                WHERE pc_active = 1 ORDER BY pc_seq";
-                                                $result = sqlStatement($sql);
-                                                echo "<select class='form-control' name='form_{$i}' id='form_{$i}'>\n";
-                                                echo "<option value='_blank'>" . xlt('None{{Category}}') . "</option>";
-                                                while ($row = sqlFetchArray($result)) {
-                                                    $catId = $row['pc_catid'];
-                                                    $name = $row['pc_catname'];
-                                                    if ($catId < 9 && $catId != "5") {
-                                                        continue;
-                                                    }
+                                            echo "  </select>\n";
 
                                             if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
                                                 continue;
@@ -869,6 +831,7 @@ $vars = array(
                     }
                 }
                 ?>
+            </div>
             </form>
         </div>
     </div>
@@ -885,7 +848,15 @@ if (!empty($post_srch_desc) && $srch_item == 0) {
 
 <script>
 $(function() {
-    tabbify();
+    $("#theform").on("submit", function(){
+        return top.restoreSession();
+    });
+    $(".sidebar").on("click", "a", function(e) {
+        e.preventDefault();
+        console.log("here");
+        $(this).tab("show");
+    });
+    // tabbify();
     <?php // mdsupport - Highlight search results ?>
     $('.srch div.control-label').wrapInner("<mark></mark>");
     $('.tab .row.srch :first-child').closest('.tab').each(function() {

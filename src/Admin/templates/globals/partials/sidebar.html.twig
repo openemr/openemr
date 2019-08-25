@@ -1,0 +1,11 @@
+<div class="col-xs-12 col-md-2 sidebar sidebar-left sidebar-sm-show"> <!-- sidebar sidebar-left sidebar-sm-show -->
+    <ul class="nav nav-pills nav-stacked" role="tablist" id="sidebarList">
+        {% for m in menu if m in user_tabs or not user_mode %}
+            <li role="presentation">
+                <a href="#{{ m }}" aria-controls="{{ m }}" role="tab" data-toggle="pill">{{ m }}</a>
+            </li>
+        {% endfor %}
+                foreach ($GLOBALS_METADATA as $grpname => $grparr):
+        if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)):
+    </ul>
+</div>
