@@ -5,6 +5,11 @@ body {
 
 @import "core";
 
+:root {
+    --sidebar-link-color: #444;
+    --sidebar-link-active: #CCE3F8;
+}
+
 .menuBar{
 	width:100%;
 	height:auto;
@@ -290,11 +295,25 @@ ul.tabNav a:focus {
 
 .sidebar {
 	background-color: #f8f8f8;
-	font-size: 0.95em;
-}
 
-.sidebar .submenu {
-	font-size:0.9em;
+    a {
+        color: var(--sidebar-link-color);
+    }
+
+    .nav-pills > li.active > a,
+    .nav-pills > li.active > a:focus,
+    .nav-pills > li.active > a:hover {
+        background-color: var(--sidebar-link-active);
+        font-weight: bold;
+        color: var(--sidebar-link-color);
+
+        &::before {
+            font-family: "FontAwesome";
+            content: "\f054\00a0";
+            font-weight: 400;
+            display: inline-block;
+        }
+    }
 }
 
 .alert-danger-custom {

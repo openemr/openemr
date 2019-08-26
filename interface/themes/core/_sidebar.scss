@@ -1,0 +1,8 @@
+.navbar .navbar-toggle.toggle-sidebar, [data-toggle="sidebar"] {
+    // Fix an issue where the button to toggle the sidebar always shows
+    display: none !important;
+}
+
+.sidebar > .nav-pills > li > a {
+    border-radius: 0;
+}

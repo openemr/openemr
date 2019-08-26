@@ -368,28 +368,12 @@ html {
     scroll-padding-top: 70px;
 }
 
-.section-group:first-of-type {
-    padding-top: 70px;
+.main-area {
+    margin-top: 45px;
 }
 
-#Appearance {
-    margin-top: 70px;
-}
-#oe-nav-ul.tabNav {
-    display: flex !important;
-    flex-flow: column !important;
-}
-#oe-nav-ul.tabNav.tabWidthFull {
-    width: 10%;
-}
-#oe-nav-ul.tabNav.tabWidthUser {
-    width: 12%;
-}
-#oe-nav-ul.tabNav.tabWidthWide {
-    width: 15%;
-}
-#oe-nav-ul.tabNav.tabWidthVertical {
-    width: 25%;
+.page-header {
+    margin-top: 0;
 }
 </style>
 <?php
@@ -420,42 +404,23 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <?php } ?>
 
 <?php
-$vars = array(
-    'page-title' => ($userMode) ? xlt("Edit User Settings") : xlt("Edit Global Settings"),
+$header_view_vars = array(
+    'page_title' => ($userMode) ? xlt("Edit User Settings") : xlt("Edit Global Settings"),
 );
+
+$sidebar_view_vars = [
+    'menu' => array_keys($GLOBALS_METADATA),
+    'user_mode' => $userMode,
+    'user_tabs' => $USER_SPECIFIC_TABS,
+];
+
+echo $twig->render("partials/header.html.twig", $header_view_vars);
 ?>
 
-<nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a href="#" class="navbar-brand"><?php echo $vars['page-title'];?></a>
-        </div>
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="#" class="text-success"><i class="fa fa-check"></i>&nbsp;<?php echo xl("Save Changes");?></a></li>
-                <li><a href="#" class="text-muted"><i class="fa fa-times"></i>&nbsp;<?php echo xl("Cancel Changes");?></a></li>
-            </ul>
-            <form class="navbar-form navbar-left">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Search">
-                </div>
-                <button type="submit" class="btn btn-default btn-search"><?php echo xl("Search");?></button>
-            </form>
-        </div><!-- /.navbar-collapse -->
-    </div>
-</nav>
 <div class="container-fluid">
     <div class="row">
-        <?php
-        $sidebar_view_vars = [
-            'menu' => array_keys($GLOBALS_METADATA),
-            'user_mode' => $userMode,
-            'user_tabs' => $USER_SPECIFIC_TABS,
-        ];
-        echo $twig->render("partials/sidebar.html.twig", $sidebar_view_vars);
-        ?>
-<!--        Insert sidebar parital here-->
-        <div class="col-xs-12 col-md-9 col-md-offset-2 main-area">
+        <?php echo $twig->render("partials/sidebar.html.twig", $sidebar_view_vars);  ?>
+        <div class="col-xs-12 col-sm-9 col-sm-offset-2 main-area">
             <?php
             $formAction = "edit_globals.php";
             $formAction .= ($userMode) ? "?mode=user" : "";
@@ -463,10 +428,7 @@ $vars = array(
             <form method='post' name='theform' id='theform' class='form-horizontal' action="<?php echo $formAction;?>">
             <div class="tab-content">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <div class="hidden clearfix">
-                    <div class="btn-group oe-margin-b-10">
-                        <button type='submit' class='btn btn-default btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
-                    </div>
+                <div class="">
                     <div class="input-group col-sm-4 oe-pull-away">
                     <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
                     if (!$userMode) {
@@ -851,12 +813,7 @@ $(function() {
     $("#theform").on("submit", function(){
         return top.restoreSession();
     });
-    $(".sidebar").on("click", "a", function(e) {
-        e.preventDefault();
-        console.log("here");
-        $(this).tab("show");
-    });
-    // tabbify();
+    $(".sidebar a:first").tab('show');
     <?php // mdsupport - Highlight search results ?>
     $('.srch div.control-label').wrapInner("<mark></mark>");
     $('.tab .row.srch :first-child').closest('.tab').each(function() {
