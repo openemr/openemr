@@ -1,0 +1,28 @@
+dist: trusty
+language: php
+php:
+  - 7
+  - 5.6
+  - hhvm
+before_script:
+  - make install
+script:
+  - make test
+after_script:
+  - make coveralls
+matrix:
+  allow_failures:
+    - php:
+      - hhvm
+  fast_finish: true
+before_deploy:
+  - make phar
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file: ./dist/ringcentral.phar
+  skip_cleanup: true
+  on:
+    php: 7
+    tags: true
+    repo: ringcentral/ringcentral-php

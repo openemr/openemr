@@ -1,0 +1,20 @@
+<phpunit bootstrap="src/Test/bootstrap.php" colors="true" verbose="true">
+    <logging>
+        <log type="coverage-clover" target="dist/coverage/clover.xml"/>
+        <log type="coverage-html" target="dist/coverage"/>
+    </logging>
+    <testsuites>
+        <testsuite name="RingCentral">
+            <directory>src</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+            <exclude>
+                <directory suffix="Test.php">src</directory>
+                <directory>src/Test</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>

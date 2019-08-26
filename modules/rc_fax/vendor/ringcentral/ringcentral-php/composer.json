@@ -1,0 +1,42 @@
+{
+  "name": "ringcentral/ringcentral-php",
+  "type": "library",
+  "description": "RingCentral Connect Platform PHP SDK",
+  "keywords": [
+    "php",
+    "sdk",
+    "ringcentral",
+    "connect",
+    "platform",
+    "api"
+  ],
+  "homepage": "http://developers.ringcentral.com",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Kirill Konshin",
+      "email": "kirill.konshin@ringcentral.com"
+    },
+    {
+      "name": "RingCentral, Inc.",
+      "email": "devsupport@ringcentral.com"
+    }
+  ],
+  "require": {
+    "ext-curl": "*",
+    "php": ">=5.6.0",
+    "guzzlehttp/psr7": "^1.4.2",
+    "pubnub/pubnub": "^4.0.0",
+    "symfony/event-dispatcher": "^2.7|^3.3.2",
+    "guzzlehttp/guzzle": "^6.2.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.7.20",
+    "satooshi/php-coveralls": "2.0.x-dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "RingCentral\\SDK\\": "src/"
+    }
+  }
+}

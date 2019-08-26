@@ -1,0 +1,7 @@
+.idea
+demo/_cache
+demo/_credentials.php
+demo/_credentials.json
+demo/_credentials[0-9].json
+dist
+vendor

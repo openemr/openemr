@@ -1,0 +1,2 @@
+coverage_clover: dist/coverage/clover.xml
+json_path: dist/coverage/coveralls.json

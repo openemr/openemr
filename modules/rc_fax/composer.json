@@ -1,0 +1,7 @@
+{
+    "autoload": {
+        "psr-4": {
+            "RingCentral\\SDK\\": "vendor/ringcentral/ringcentral-php/src"
+        }
+    }
+}
