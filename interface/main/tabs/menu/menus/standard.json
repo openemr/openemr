@@ -1996,6 +1996,9 @@
         "acl_req": [
            "patients",
            "docs"
+        ],
+        "global_req": [
+            "oefax_enable_rc"
         ]
       },
       {

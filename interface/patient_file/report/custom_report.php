@@ -40,6 +40,10 @@ $facilityService = new FacilityService();
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 
 $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
+$PDF_FAX = empty($_POST['fax']) ? 0 : intval($_POST['fax']);
+if ($PDF_FAX) {
+    $PDF_OUTPUT = 1;
+}
 
 if ($PDF_OUTPUT) {
     $config_mpdf = array(
@@ -817,7 +821,10 @@ if ($printable && ! $PDF_OUTPUT) {// Patched out of pdf 04/20/2017 sjpadgett
 if ($PDF_OUTPUT) {
     $content = getContent();
     $ptd = getPatientData($pid, "fname,lname");
-    $fn = strtolower($ptd['fname'] . '_' . $ptd['lname'] . '_' . $pid . '_' . xl('report') . '.pdf');
+    // escape names for pesky periods hyphen etc.
+    $esc = $ptd['fname'] . '_' . $ptd['lname'];
+    $esc = preg_replace('/[^A-Za-z0-9,_\-]/', '', $esc);
+    $fn = strtolower($esc . '_' . $pid . '_' . xl('report') . '.pdf');
     $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
     $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
     if (! $isit_utf8) {
@@ -837,7 +844,15 @@ if ($PDF_OUTPUT) {
 
     if ($PDF_OUTPUT == 1) {
         try {
-            $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+            if ($PDF_FAX === 1) {
+                $fax_pdf = $pdf->Output($fn, 'S');
+                $tmp_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $fn;
+                file_put_contents($tmp_file, $fax_pdf);
+                echo $tmp_file;
+                exit();
+            } else {
+                $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+            }
         } catch (MpdfException $exception) {
             die(text($exception));
         }
