@@ -1987,6 +1987,21 @@
         ]
       },
       {
+        "label": "oeFaxSMS",
+        "menu_id": "fax",
+        "target": "msc",
+        "url": "/modules/rc_fax/messageUI.php",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+           "patients",
+           "docs"
+        ],
+        "global_req": [
+            "oefax_enable_rc"
+        ]
+      },
+      {
         "label": "Fax/Scan",
         "menu_id": "fax",
         "target": "msc",

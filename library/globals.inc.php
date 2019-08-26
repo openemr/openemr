@@ -2028,6 +2028,13 @@ $GLOBALS_METADATA = array(
     //
     'Notifications' => array(
 
+        'oefax_enable_rc' => array(
+            xl('Enable oeFaxSMS Module (RingCentral)'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Enable RingCentral Fax SMS Support')
+        ),
+
         'patient_reminder_sender_name' => array(
             xl('Patient Reminder Sender Name'),
             'text',                           // data type

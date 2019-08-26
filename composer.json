@@ -61,7 +61,11 @@
         "zendframework/zend-mvc-i18n": "1.1.0",
         "zendframework/zend-json-server": "3.1.0",
         "zendframework/zend-mvc-console": "1.2.0",
-        "ramsey/uuid": "3.8.0"
+        "ramsey/uuid": "3.8.0",
+        "ringcentral/ringcentral-php": "2.2"
+    },
+    "replace": {
+        "pubnub/pubnub": "*"
     },
     "config": {
         "platform": {
