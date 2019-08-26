@@ -1,12 +1,12 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Package:	rc_sms_cron_notification
-// Purpose:	to be run by cron every hour, look for appointments
-//		in the pre-notification period and send an sms reminder
+// Package: rc_sms_cron_notification
+// Purpose: to be run by cron every hour, look for appointments
+//      in the pre-notification period and send an sms reminder
 //
 // Created by:
-// Updated by:	Larry Lart on 11/03/2008
-// Updated by:	Jerry Padgett on 06/19/2018
+// Updated by:  Larry Lart on 11/03/2008
+// Updated by:  Jerry Padgett on 06/19/2018
 // Rework of original
 ////////////////////////////////////////////////////////////////////
 //hack add for command line version
@@ -129,8 +129,9 @@ for ($p = 0; $p < count($db_patient); $p++) {
         if (!$isValid) {
             $strMsg .= "<strong style='color:red'>\n* INVALID Mobile Phone# " . $prow['phone_cell'] . " SMS NOT SENT</strong> Patient: " . $prow['fname'] . " " . $prow['lname'] . "</b>";
             $db_sms_msg[message] = "ERROR: INVALID Mobile Phone# " . $prow['phone_cell'] . " SMS NOT SENT For: " . $prow['fname'] . " " . $prow['lname'];
-            if ($bTestRun == 0)
+            if ($bTestRun == 0) {
                 cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+            }
         } else {
             $strMsg .= " | SENT SUCCESSFULLY TO <strong>" . $prow['phone_cell'] . "</strong></b>";
             cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
@@ -154,28 +155,31 @@ echo "\n<br><h2>Done!</h2>
 function isValidPhone($phone)
 {
     $justNums = preg_replace("/[^0-9]/", '', $phone);
-    if (strlen($justNums) === 11)
+    if (strlen($justNums) === 11) {
         $justNums = preg_replace("/^1/", '', $justNums);
+    }
     //if we have 10 digits left, it's probably valid.
-    if (strlen($justNums) === 10)
+    if (strlen($justNums) === 10) {
         return $justNums;
-    else
+    } else {
         return false;
-
+    }
 }
 
 // integrate cron functions into this script.
 // borrowed from cron_functions.php
 //
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_updateentry
-// Purpose:	update status yes if alert send to patient
+// Function:    cron_updateentry
+// Purpose: update status yes if alert send to patient
 ////////////////////////////////////////////////////////////////////
 function cron_updateentry($type, $pid, $pc_eid, $recur = '')
 {
     global $bTestRun;
 
-    if ($bTestRun || (int)trim($recur) > 0) return 1;
+    if ($bTestRun || (int)trim($recur) > 0) {
+        return 1;
+    }
 
     $query = "UPDATE openemr_postcalendar_events SET ";
 
@@ -190,8 +194,8 @@ function cron_updateentry($type, $pid, $pc_eid, $recur = '')
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getAlertpatientData
-// Purpose:	get patient data for send to alert
+// Function:    cron_getAlertpatientData
+// Purpose: get patient data for send to alert
 ////////////////////////////////////////////////////////////////////
 function cron_getAlertpatientData($type)
 {
@@ -204,8 +208,8 @@ function cron_getAlertpatientData($type)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getNotificationData
-// Purpose:	get alert notification data
+// Function:    cron_getNotificationData
+// Purpose: get alert notification data
 ////////////////////////////////////////////////////////////////////
 function cron_getNotificationData($type)
 {
@@ -219,8 +223,8 @@ function cron_getNotificationData($type)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_InsertNotificationLogEntry
-// Purpose:	insert log entry in table
+// Function:    cron_InsertNotificationLogEntry
+// Purpose: insert log entry in table
 ////////////////////////////////////////////////////////////////////
 function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg)
 {
@@ -242,8 +246,8 @@ function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_setmessage
-// Purpose:	set the message
+// Function:    cron_setmessage
+// Purpose: set the message
 ////////////////////////////////////////////////////////////////////
 function cron_setmessage($prow, $db_sms_msg)
 {
@@ -266,8 +270,8 @@ function cron_setmessage($prow, $db_sms_msg)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_GetNotificationSettings
-// Purpose:	get notification settings
+// Function:    cron_GetNotificationSettings
+// Purpose: get notification settings
 ////////////////////////////////////////////////////////////////////
 function cron_GetNotificationSettings()
 {
