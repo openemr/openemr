@@ -111,13 +111,10 @@ if ($PDF_OUTPUT) {
 			'.$patientname.' DOB: '.$patientdob["DOB_TS"].' DOS: '. $dateofservice .'
 		</div>');
     $pdf->SetHTMLFooter('
-		<table width="100%">
-		<tr>
-			<td width="33%">'.date("F j, Y, g:i a").'</td>
-			<td width="33%" align="center">{PAGENO}/{nbpg}</td>
-			<td width="33%" style="text-align: right;">'.$patientname.'</td>
-		</tr>
-	</table>');
+			<div style="float: right; width:33% text-align: left;">'.date("F j, Y, g:i a").'</div>
+			<div style="float: right; width:33%; text-align: center; ">{PAGENO}/{nbpg}</div>
+			<div style="float: right; width:33%; text-align: right; ">'.$patientname.'</div>
+			');
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');

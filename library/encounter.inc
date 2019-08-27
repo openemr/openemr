@@ -56,5 +56,4 @@ function fetchDateService($encounter)
     $result = sqlQuery($sql, [$encounter]);
     $result = explode(" ", $result['date']);
     return $result[0];
-
 }
