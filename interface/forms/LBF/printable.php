@@ -18,6 +18,7 @@ require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/encounter.inc");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
@@ -32,9 +33,10 @@ $patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
 if ($patientid < 0) {
     $patientid = 0 + $pid; // -1 means current pid
 }
-
+// PDF header information
 $patientname = getPatientName($patientid);
-$patientdob = getPatientDoBonly($patientid);
+$patientdob = getPatientData($patientid, $given = "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+$dateofservice = fetchDateService($encounter);
 
 $visitid = empty($_REQUEST['visitid']) ? 0 : (0 + $_REQUEST['visitid']);
 if ($visitid < 0) {
@@ -106,12 +108,12 @@ if ($PDF_OUTPUT) {
     $pdf = new mPDF($config_mpdf);
     $pdf->SetHTMLHeader('
 		<div style="text-align: right; font-weight: bold;">
-			'.$patientname.' DOB: '.$patientdob.'
+			'.$patientname.' DOB: '.$patientdob["DOB_TS"].' DOS: '. $dateofservice .'
 		</div>');
     $pdf->SetHTMLFooter('
 		<table width="100%">
 		<tr>
-			<td width="33%">{DATE j-m-Y}</td>
+			<td width="33%">'.date("F j, Y, g:i a").'</td>
 			<td width="33%" align="center">{PAGENO}/{nbpg}</td>
 			<td width="33%" style="text-align: right;">'.$patientname.'</td>
 		</tr>

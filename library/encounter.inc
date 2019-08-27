@@ -45,3 +45,16 @@ function fetchCategoryIdByEncounter($encounter)
     $result = sqlQuery($sql, array($encounter));
     return $result['pc_catid'];
 }
+
+/**
+ * @param $encounter
+ * @return mixed
+ */
+function fetchDateService($encounter)
+{
+    $sql = "select date from form_encounter where encounter = ?";
+    $result = sqlQuery($sql, [$encounter]);
+    $result = explode(" ", $result['date']);
+    return $result[0];
+
+}
