@@ -10,7 +10,7 @@
         "source" : "https://github.com/openemr/openemr"
     },
     "require" : {
-        "php" : ">=7.1.0",
+        "php" : ">=7.2.0",
         "adldap2/adldap2" : "10.0.11",
         "adodb/adodb-php" : "5.20.14",
         "doctrine/common" : "2.10.0",
@@ -65,7 +65,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.1"
+            "php": "7.2"
         }
     },
     "require-dev" : {
