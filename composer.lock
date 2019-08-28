@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bb53c3935bf9f847d88f060571fb3e98",
+    "content-hash": "0b1b50d8e2b2df8f1c9cde4e008fb49b",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -3881,69 +3881,6 @@
                 "uuid"
             ],
             "time": "2018-07-19T23:38:55+00:00"
-        },
-        {
-            "name": "ringcentral/ringcentral-php",
-            "version": "2.2.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ringcentral/ringcentral-php.git",
-                "reference": "0d66ba28b104acafbfb58a4464dd9bcfcc8cb8c3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ringcentral/ringcentral-php/zipball/0d66ba28b104acafbfb58a4464dd9bcfcc8cb8c3",
-                "reference": "0d66ba28b104acafbfb58a4464dd9bcfcc8cb8c3",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-json": "*",
-                "guzzlehttp/guzzle": "^6.2.3",
-                "guzzlehttp/psr7": "^1.4.2",
-                "php": ">=5.6.0",
-                "pubnub/pubnub": "^4.0.0",
-                "symfony/event-dispatcher": "^2.7|^3.3.2|^4.0"
-            },
-            "require-dev": {
-                "php-coveralls/php-coveralls": "^2.1",
-                "phpunit/phpunit": "^5.7.26",
-                "symfony/event-dispatcher": "^2.7"
-            },
-            "suggest": {
-                "ext-openssl": "to decrypt PubNub messages"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "RingCentral\\SDK\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Kirill Konshin",
-                    "email": "kirill.konshin@ringcentral.com"
-                },
-                {
-                    "name": "RingCentral, Inc.",
-                    "email": "devsupport@ringcentral.com"
-                }
-            ],
-            "description": "RingCentral Connect Platform PHP SDK",
-            "homepage": "http://developers.ringcentral.com",
-            "keywords": [
-                "api",
-                "connect",
-                "php",
-                "platform",
-                "ringcentral",
-                "sdk"
-            ],
-            "time": "2019-06-07T20:44:56+00:00"
         },
         {
             "name": "rospdf/pdf-php",

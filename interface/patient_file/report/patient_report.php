@@ -36,8 +36,6 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
     $ptdata = getPatientData($pid, 'cmsportal_login');
     $cmsportal = $ptdata['cmsportal_login'] !== '';
 }
-
-$oefax = $GLOBALS['oefax_enable_rc'] ? (int)$GLOBALS['oefax_enable_rc'] : 0;
 ?>
 <html>
 <head>
@@ -258,14 +256,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <br>
             <button type="button" class="genreport btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
             <button type="button" class="genpdfrep btn btn-default btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
-            <?php if ($oefax) { ?>
-            <button type="button" class="genfax btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send Fax'); ?>" ><?php echo xlt('Send Fax'); ?></button><span id="waitplace"></span>
-            <?php } ?>
             <?php if ($cmsportal) { ?>
             <button type="button" class="genportal btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
             <?php } ?>
             <input type='hidden' name='pdf' value='0'>
-            <input type='hidden' name='fax' value='0'>
             <br>
 
             <!-- old ccr button position -->
@@ -568,7 +562,6 @@ $(document).ready(function(){
     $(".genreport").click(function() { top.restoreSession(); document.report_form.pdf.value = 0; $("#report_form").submit(); });
     $(".genpdfrep").click(function() { top.restoreSession(); document.report_form.pdf.value = 1; $("#report_form").submit(); });
     $(".genportal").click(function() { top.restoreSession(); document.report_form.pdf.value = 2; $("#report_form").submit(); });
-    $(".genfax").click(function() {getFaxContent();});
     $("#genfullreport").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
     //$("#printform").click(function() { PrintForm(); });
     $(".issuecheckbox").click(function() { issueClick(this); });
@@ -576,14 +569,14 @@ $(document).ready(function(){
     // check/uncheck all Forms of an encounter
     $(".encounter").click(function() { SelectForms($(this)); });
 
-        $(".generateCCR").click(
+    $(".generateCCR").click(
         function() {
-            if(document.getElementById('show_date').checked == true){
-                    if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                            alert(<?php echo xlj('Please select a start date and end date') ?>);
-                            return false;
-                    }
-            }
+                if(document.getElementById('show_date').checked == true){
+                        if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
+                                alert(<?php echo xlj('Please select a start date and end date') ?>);
+                                return false;
+                        }
+                }
         var ccrAction = document.getElementsByName('ccrAction');
         ccrAction[0].value = 'generate';
                 var raw = document.getElementsByName('raw');
@@ -592,7 +585,7 @@ $(document).ready(function(){
         ccr_form.setAttribute("target", "_blank");
         $("#ccr_form").submit();
                 ccr_form.setAttribute("target", "");
-        });
+    });
         $(".generateCCR_raw").click(
         function() {
                 var ccrAction = document.getElementsByName('ccrAction');
@@ -628,18 +621,17 @@ $(document).ready(function(){
                 top.restoreSession();
                 $("#ccr_form").submit();
         });
-
-        $(".viewCCD").click(
-        function() {
-            var ccrAction = document.getElementsByName('ccrAction');
-            ccrAction[0].value = 'viewccd';
-                    var raw = document.getElementsByName('raw');
-                    raw[0].value = 'no';
-            top.restoreSession();
-                    ccr_form.setAttribute("target", "_blank");
-            $("#ccr_form").submit();
-                    ccr_form.setAttribute("target", "");
-        });
+    $(".viewCCD").click(
+    function() {
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'viewccd';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'no';
+        top.restoreSession();
+                ccr_form.setAttribute("target", "_blank");
+        $("#ccr_form").submit();
+                ccr_form.setAttribute("target", "");
+    });
         $(".viewCCD_raw").click(
         function() {
                 var ccrAction = document.getElementsByName('ccrAction');
@@ -779,40 +771,6 @@ function issueClick(issue) {
         }
 
     });
-}
-
-function cleanUp(){
-    $("#wait").remove();
-}
-
-function getFaxContent() {
-    top.restoreSession();
-    document.report_form.fax.value = 1;
-    let url = 'custom_report.php';
-    let wait = '<span id="wait"><?php echo xlt("Building Document .. ");?><i class="fa fa-cog fa-spin fa-2x"></i></span>';
-    $("#waitplace").append(wait);
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: $("#report_form").serialize(),
-        success: function (content) {
-            document.report_form.fax.value = 0;
-            let btnClose = '<?php echo xlt("Cancel"); ?>';
-            let title = '<?php echo xlt("Send To Contact"); ?>';
-            let url = top.webroot_url + '/modules/rc_fax/contact.php?isContent=0&file=' + content;
-            dlgopen(url, '', 'modal-sm', 525, '', title, {
-                buttons: [
-                    {text: btnClose, close: true, style: 'default btn-xs'}
-                ],
-                onClosed: 'cleanUp'
-            });
-            return false;
-        }
-    }).always(function () {
-        $("#wait").remove();
-    });
-
-    return false;
 }
 
 var listId = '#' + <?php echo js_escape($list_id); ?>;

@@ -10,24 +10,6 @@
 
 <script language="JavaScript">
 
- function doFax(e, filePath) {literal}{
-     e.preventDefault();
-     let btnClose = '{/literal}{xl t="Cancel"|escape:"html"}{literal}';
-     let title = '{/literal}{xl t="Send To"|escape:"html"}{literal}';
-     let url = top.webroot_url + '/modules/rc_fax/contact.php?isDocuments=true&file=' + filePath;
-     dlgopen(url, 'faxto', 'modal-sm', 550, '', title, { // dialog restores session
-         buttons: [
-             {text: btnClose, close: true, style: 'default btn-sm'}
-         ],
-         sizeHeight: 'auto',
-         allowResize: true,
-         allowDrag: true,
-         dialogId: '',
-         type: 'iframe'
-     });
-     return false;
- }{/literal}
-
  function popoutcontent(othis) {literal}{{/literal}
     let popsrc = $(othis).parents('body').find('#DocContents iframe').attr("src");
     let wname = '_' + Math.random().toString(36).substr(2, 6);
@@ -150,7 +132,6 @@ function ImgProcedure() {literal}{{/literal}
                 <button class="btn btn-xs btn-primary active">{xlt t='Contents'}</button>
               </div>
             <span style="float:right;">
-            <a class="css_button" href="" onclick="return doFax(event,'{$file->get_url()}')"><span>{xl t='Fax'|escape:'html'}</span></a>
             <a class="css_button" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">
                 <span class="glyphicon glyphicon-fullscreen"></span></a>
             <a class="css_button" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()"><span>{xlt t='Download'}</span></a>
