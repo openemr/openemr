@@ -22,6 +22,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Core\Header;
 
 $facilityService = new FacilityService();
 
