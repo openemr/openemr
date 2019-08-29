@@ -36,8 +36,6 @@
 
 require_once("$webserver_root/custom/code_types.inc.php");
 
-use OpenEMR\Common\Logging\EventAuditLogger;
-
 function hl7Text($s)
 {
   // See http://www.interfaceware.com/hl7_escape_protocol.html:
@@ -525,12 +523,14 @@ function send_hl7_order($ppid, $out)
         } else {
             return xl('Cannot create file') . ' "' . "$filename" . '"';
         }
-    } else { // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.
+    } // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.
+
+    else {
         return xl('This protocol is not implemented') . ": '$protocol'";
     }
 
   // Falling through to here indicates success.
-    EventAuditLogger::instance()->newEvent(
+    newEvent(
         "proc_order_xmit",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
