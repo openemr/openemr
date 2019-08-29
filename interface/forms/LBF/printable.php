@@ -35,7 +35,7 @@ if ($patientid < 0) {
 }
 // PDF header information
 $patientname = getPatientName($patientid);
-$patientdob = getPatientData($patientid, $given = "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+$patientdob = getPatientData($patientid, $given = "DOB");
 $dateofservice = fetchDateService($encounter);
 
 $visitid = empty($_REQUEST['visitid']) ? 0 : (0 + $_REQUEST['visitid']);
@@ -108,7 +108,7 @@ if ($PDF_OUTPUT) {
     $pdf = new mPDF($config_mpdf);
     $pdf->SetHTMLHeader('
 		<div style="text-align: right; font-weight: bold;">
-			'.$patientname.' DOB: '.oeFormatShortDate($patientdob["DOB_TS"]).' DOS: '. $dateofservice .'
+			'.$patientname.' DOB: '.oeFormatShortDate($patientdob["DOB"]).' DOS: '. oeFormatShortDate($dateofservice) .'
 		</div>');
     $pdf->SetHTMLFooter('
 			<div style="float: right; width:33% text-align: left;">'.oeFormatDateTime(date("Y-m-d H:i:s")).'</div>

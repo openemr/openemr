@@ -814,15 +814,6 @@ function getPatientPID($args)
 
     return $returnval;
 }
-function getPatientDoBonly($pid)
-{
-    if (empty($pid)) {
-        return "";
-    }
-
-    $sql = sqlQuery("SELECT DOB FROM patient_data WHERE pid = ?", array($pid));
-    return $sql['DOB'];
-}
 
 /* return a patient's name in the format LAST, FIRST */
 function getPatientName($pid)
