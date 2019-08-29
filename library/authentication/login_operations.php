@@ -98,7 +98,7 @@ function validate_user_password($username, &$password, $provider)
             $_SESSION['authGroup'] = $authGroup['name'];
             $_SESSION['authUserID'] = $userInfo['id'];
             $_SESSION['authProvider'] = $provider;
-            $_SESSION['authId'] = $userInfo{'id'};
+            $_SESSION['authId'] = $userInfo['id'];
             $_SESSION['userauthorized'] = $userInfo['authorized'];
             // Some users may be able to authorize without being providers:
             if ($userInfo['see_auth'] > '2') {
