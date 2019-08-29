@@ -108,10 +108,10 @@ if ($PDF_OUTPUT) {
     $pdf = new mPDF($config_mpdf);
     $pdf->SetHTMLHeader('
 		<div style="text-align: right; font-weight: bold;">
-			'.$patientname.' DOB: '.$patientdob["DOB_TS"].' DOS: '. $dateofservice .'
+			'.$patientname.' DOB: '.oeFormatShortDate($patientdob["DOB_TS"]).' DOS: '. $dateofservice .'
 		</div>');
     $pdf->SetHTMLFooter('
-			<div style="float: right; width:33% text-align: left;">'.date("F j, Y, g:i a").'</div>
+			<div style="float: right; width:33% text-align: left;">'.oeFormatDateTime(date("Y-m-d H:i:s")).'</div>
 			<div style="float: right; width:33%; text-align: center; ">{PAGENO}/{nbpg}</div>
 			<div style="float: right; width:33%; text-align: right; ">'.$patientname.'</div>
 			');
