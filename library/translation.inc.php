@@ -230,7 +230,7 @@ function getLanguageTitle($val)
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $result[$iter] = $row;
     };
-    $languageTitle = $result[0]{"lang_description"};
+    $languageTitle = $result[0]["lang_description"];
     return $languageTitle;
 }
 
