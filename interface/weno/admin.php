@@ -18,10 +18,12 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\AdminProperties;
+use OpenEMR\Pharmacy\Services;
 
 $tableHasData = sqlQuery("SELECT count(drug_id) AS count FROM erx_weno_drugs");
 
 $tables   = new AdminProperties();
+
 
 ?>
 <!DOCTYPE html>
@@ -40,40 +42,80 @@ $tables   = new AdminProperties();
 
 <body class="body_top text-center">
 <div class="container center-block">
-<?php
+    <?php
 
-// check to make sure only administrators access this page.
-if (!acl_check('admin', 'super')) {
-    die(xlt("You are not authorized!"));
-}
+    // check to make sure only administrators access this page.
+    if (!acl_check('admin', 'super')) {
+        die(xlt("You are not authorized!"));
+    }
 
-if ($GLOBALS['weno_rx_enable'] != 1) {
-    print xlt("You must activate Weno first! Go to Administration, Globals, Connectors");
-    exit;
-} else {
-    print xlt("Weno Service is Enabled")."<br><br>";
-}
+    if ($GLOBALS['weno_rx_enable'] != 1) {
+        print xlt("You must activate Weno first! Go to Administration, Globals, Connectors");
+        exit;
+    } else {
+        print xlt("Weno Service is Enabled")."<br><br>";
+    }
 
-if ($tableHasData['count'] > 1) {
-    print xlt("Formularies are inserted into table")."<br>";
-} else {
-    echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
-}
+    if ($tableHasData['count'] > 1) {
+        print xlt("Formularies are inserted into table")."<br>";
+    } else {
+        echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
+    }
 
-?>
+    ?>
 
 <br><br>
 <?php
 if (file_exists('../../contrib/weno/pharmacyList.csv')) {
     echo "<a href='import_pharmacies.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-default'>" . xlt("Import Pharmacies Script") . "</a> <br>";
 }
+
 ?>
+    <form class="row text-center">
+        <div class="form-group row col-md-2">
+            <label for="text" class="col-4 col-form-label"><?php print xlt("City");?></label>
+            <div class="form-group">
+                <input type="text" id="city" name="city" class="form-control">
+            </div>
+            <label for="text" class="col-4 col-form-label"><?php print xlt("State");?></label>
+            <div class="form-group">
+                <input type="text" id="state" name="state" class="form-control">
+            </div>
+            <div class="offset-4 col-8">
+                <button name="submit" type="submit" class="btn btn-primary" onclick="importPharm()">Submit</button>
+            </div>
+        </div>
+        <div class="form-group row">
+
+        </div>
+    </form>
 
 </div>
 <script>
 $(function(){
     $("#addtolistid_state").hide();
+
  });
+function importPharm() {
+    var city = document.getElementById("city").value;
+    var state = document.getElementById("state").value;
+    $.ajax({
+        type: "GET",
+        dataType: "Text",
+        url: 'pharmacyHelper.php?',
+        data: {"textData": city,state},
+        success: function (response) {
+            alert(response);
+        },
+        error: function (xhr, status, error) {
+            console.log(xhr);
+            console.log(status);
+            console.log(error);
+            console.warn(xhr.responseText);
+        }
+    });
+}
+
 </script>
 </body>
 </html>
