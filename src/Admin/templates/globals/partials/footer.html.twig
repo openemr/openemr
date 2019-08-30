@@ -1,0 +1,55 @@
+
+<script>
+$(function() {
+    $("#theform").on("submit", function () {
+        return top.restoreSession();
+    });
+
+    // Ensure the first tab element is opened by default
+    $(".sidebar a:first").tab('show');
+
+    $('.srch div.control-label').wrapInner("<mark></mark>");
+    $('.tab .row.srch :first-child').closest('.tab').each(function () {
+        $('.tabNav li:nth-child(' + ($(this).index() + 1) + ') a').wrapInner("<mark></mark>");
+    });
+
+    $(".multi-lang").select2();
+
+    // Use the counter ($i) to make the form user friendly for user-specific globals use
+    if ({{ user_mode|e('js') }}) {
+        for (let j = 0; j <= i; j++) {
+            $("#form" + j).change(function () {
+                $("#toggle_" + j).prop('checked', false);
+            });
+            $("#toggle_" + j).change(function () {
+                if ($('#toggle_' + j).prop('checked')) {
+                    var defaultGlobal = $("#globaldefault_" + j).val();
+                    $("#form_" + j).val(defaultGlobal);
+                }
+            });
+        }
+    }
+
+    $(".color-code-button").on("click", function (e) {
+        e.preventDefault();
+        let default_color = $(this).data('default-color');
+        let field_name = $(this).data('field');
+        console.log(default_color);
+        console.log(field_name);
+    });
+
+    var userMode = {{ user_mode|e('js') }};
+
+    $('.scroll').click(function () {
+        window.parent.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+        return false;
+    });
+});
+</script>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {% include "partials/head.html.twig" %}
+</head>
+<body class="body_top">
+{% include "partials/header.html.twig" %}
+
+<div class="container-fluid">
+    <div class="row">
+        {% include "partials/sidebar.html.twig" %}
+        <div class="col-xs-12 col-sm-9 col-sm-offset-2 main-area">
+            <form method='post' name='theform' id='theform' class='form-horizontal' action="{{ form_action }}">
+                <div class="tab-content">
+                    <input type="hidden" name="csrf_token_form" value="{{ csrf|e('html_attr') }}" />
+                    <div class="">
+                        <div class="input-group col-sm-4 oe-pull-away">
+                            <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='{{ "Search for a setting"|translate }}' value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>'>
+                            <span class="input-group-btn">
+                            <button class="btn btn-default btn-search" type='submit' id='globals_form_search' name='form_search'><?php echo xlt('Search'); ?></button>
+                        </span>
+                        </div>
+                    </div>
+</body>
+</html>

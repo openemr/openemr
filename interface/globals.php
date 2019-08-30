@@ -17,6 +17,7 @@ if ($response !== true) {
 }
 
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\Header;
 use OpenEMR\Core\ModulesApplication;
 use Dotenv\Dotenv;
 
@@ -260,7 +261,7 @@ $GLOBALS["log_level"] = "OFF";
 // @TODO This needs to be broken out to it's own function, but for time's sake
 // @TODO putting it here until we land on a good place. RD 2017-05-02
 $twigOptions = [
-    'debug' => false,
+    'debug' => true,
 ];
 $twigLoader = new Twig_Loader_Filesystem();
 $twigEnv = new Twig_Environment($twigLoader, $twigOptions);
@@ -272,6 +273,9 @@ $twigEnv->addGlobal('srcdir', $GLOBALS['srcdir']);
 $twigEnv->addGlobal('rootdir', $GLOBALS['rootdir']);
 $twigEnv->addFilter(new Twig_SimpleFilter('translate', function ($string) {
     return xl($string);
+}));
+$twigEnv->addFunction(new Twig\TwigFunction('includeAsset', function($assets = array()) {
+    return Header::setupHeader($assets);
 }));
 /** Twig_Loader */
 $GLOBALS['twigLoader'] = $twigLoader;

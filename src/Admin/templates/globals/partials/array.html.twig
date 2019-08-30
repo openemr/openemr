@@ -1,0 +1,9 @@
+<select name="{{ field_name }}" id="{{ field_name }}" class="form-control {{ classes|default("") }}" {{ multi|default("") }}>
+    {% for k, v in options %}
+        {% set selected = "" %}
+        {% if (k == field_value) or (k in field_value) %}
+            {% set selected = 'selected="selected"' %}
+        {% endif %}
+        <option value="{{ v|e('html_attr') }}" {{ selected|raw }}>{{ v|e('html') }}</option>
+    {% endfor %}
+</select>

@@ -1,0 +1,42 @@
+<head>
+    <title>{{ title|translate }}</title>
+    {{ includeAsset(['common', 'jscolor', 'bootstrap-sidebar', 'select2']) }}
+
+    <script>
+        function validate_file() {
+            $.ajax({
+                type: "POST",
+                url: "{{ globals.webroot }}/library/ajax/offsite_portal_ajax.php",
+                data: {
+                    csrf_token_form: {{ csrfToken|raw }},
+                    action: 'check_file'
+                },
+                cache: false,
+                success: function(message) {
+                    if (message === 'OK') {
+                        document.getElementById('form_download').value = 1;
+                        document.getElementById('file_error_message').innerHTML = '';
+                        document.forms[0].submit();
+                    } else {
+                        document.getElementById('form_download').value = 0;
+                        document.getElementById('file_error_message').innerHTML = message;
+                        return false;
+                    }
+                }
+            });
+        }
+    </script>
+    <style>
+        html {
+            scroll-padding-top: 70px;
+        }
+
+        .main-area {
+            margin-top: 45px;
+        }
+
+        .page-header {
+            margin-top: 0;
+        }
+    </style>
+</head>

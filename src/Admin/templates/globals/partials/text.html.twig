@@ -1,0 +1,4 @@
+<input type="{{ type|default("text") }}" class="form-control {{ classes }}" name="{{ field_name }}" id="{{ field_name }}" maxlength="{{ maxlength|default("255") }}" value="{{ value|e('html_attr') }}">
+{% if field_type == "color_code" %}
+<button class="btn btn-primary color-code-button" data-field="{{ field_name }}" data-default-color="{{ field_def|e('html_attr') }}">{{ "Default"|translate }}</button>
+{% endif %}
