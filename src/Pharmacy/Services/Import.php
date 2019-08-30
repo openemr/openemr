@@ -54,9 +54,6 @@ class Import extends Pharmacy
                 ++$i;
             }
         }
-        return " Pharmacies imported " . $i;
+        return "{%i} Pharmacies imported ";
     }
 }
-
-
-
