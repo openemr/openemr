@@ -414,6 +414,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     ul > li {
         line-height: 1.86em;
     }
+    ul {
+        list-style-type: none;
+    }
     a, a:visited, a:hover {
         text-decoration: none;
         color: #000000;
@@ -624,7 +627,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <li><a class="link_submit"
                                        href="JavaScript:void(0);" onclick="select_all(); return false;"><strong><?php echo xlt('Select All'); ?></strong></a>
                                 </li>
-                                <li><a  id="clear-log" href="#" title='<?php xla('Clear the log'); ?>'><?php echo xlt('Clear Log') ?></a>
+                                <li><a  id="clear-log" href="#" title='<?php xla('Clear the log'); ?>'><strong><?php echo xlt('Clear Log') ?></strong></a>
                                 </li>
                             </ul>
                             <ul>
