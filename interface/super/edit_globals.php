@@ -30,9 +30,15 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use Ramsey\Uuid\Uuid;
 use OpenEMR\Admin\Service\SettingsService;
+use Symfony\Component\HttpFoundation\Request;
+
+/**
+ * @var Request
+ */
+$request = Request::createFromGlobals();
 
 //Add the appropriate templates directory to the twig loader
-$twig->getLoader()->addPath("../../src/Admin/templates/globals");
+$twig->getLoader()->addPath("../../src/Admin/templates/globals", "admin");
 
 // Set up crypto object
 $cryptoGen = new CryptoGen();
@@ -53,8 +59,9 @@ if (!$userMode) {
  * @todo Move to Admin Service class
  */
 function checkCreateCDB() {
-    $globalsres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
-  ('couchdb_host','couchdb_user','couchdb_pass','couchdb_port','couchdb_dbase','document_storage_method')");
+    $sql = "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN 
+            ('couchdb_host','couchdb_user','couchdb_pass','couchdb_port','couchdb_dbase','document_storage_method')";
+    $globalsres = sqlStatement($sql);
     $options = array();
     while ($globalsrow = sqlFetchArray($globalsres)) {
         $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
@@ -88,13 +95,11 @@ function checkCreateCDB() {
 /**
  * Update background_services table for a specific service following globals save.
  * @todo Move to Admin Service class
- * @author EMR Direct
  */
 function updateBackgroundService($name, $active, $interval) {
-   //order important here: next_run change dependent on _old_ value of execute_interval so it comes first
-    $sql = 'UPDATE background_services SET active=?, '
-    . 'next_run = next_run + INTERVAL (? - execute_interval) MINUTE, execute_interval=? WHERE name=?';
-    return sqlStatement($sql, array($active,$interval,$interval,$name));
+    //order important here: next_run change dependent on _old_ value of execute_interval so it comes first
+    $sql = "UPDATE background_services SET active=?, next_run = next_run + INTERVAL (? - execute_interval) MINUTE, execute_interval=? WHERE name=?";
+    return sqlStatement($sql, [$active, $interval, $interval, $name]);
 }
 
 /**
@@ -127,7 +132,7 @@ function checkBackgroundServices() {
 }
 
 // If we are saving user_specific globals.
-if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
+if ($request->request->has('form_save') && $userMode) {
     //verify csrf
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -160,7 +165,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
         }
     }
     echo <<<EOD
-        <script type='text/javascript'>
+        <script>
             if (parent.left_nav.location) {
               parent.left_nav.location.reload();
               parent.Title.location.reload();
@@ -175,7 +180,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
     EOD;
 }
 
-if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
+if ($request->request->has('form_download')) {
     //verify csrf
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -212,15 +217,15 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
     } else {//WEBSERVICE CALL FAILED AND RETURNED AN ERROR MESSAGE
         ob_end_clean();
         ?>
-      <script type="text/javascript">
-        alert(<?php echo xlj('Offsite Portal web Service Failed') ?> + ":\\n" + <?php echo js_escape($response['value']); ?>);
-    </script>
+        <script>
+            alert(<?php echo xlj('Offsite Portal web Service Failed') ?> + ":\\n" + <?php echo js_escape($response['value']); ?>);
+        </script>
         <?php
     }
 }
 
 // If we are saving main globals.
-if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
+if ($request->request->has('form_save') && !$userMode) {
     //verify csrf
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -282,10 +287,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 
                 // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
 
-                if (!isset($old_globals[$fldid]) // if the key not found in database - update database
-                    ||
-                   ( isset($old_globals[$fldid]) && $old_globals[ $fldid ]['gl_value'] !== $fldvalue ) // if the value in database is different
-                ) {
+                if (!isset($old_globals[$fldid]) || (isset($old_globals[$fldid]) && $old_globals[ $fldid ]['gl_value'] !== $fldvalue )) {
                     // special treatment for some vars
                     switch ($fldid) {
                         case 'first_day_week':
@@ -318,7 +320,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     }
 
     echo <<<EOD
-        <script type='text/javascript'>
+        <script>
             if (parent.left_nav.location) {
                 parent.left_nav.location.reload();
                 parent.Title.location.reload();
@@ -359,7 +361,7 @@ $viewVars = array_merge($head_view_vars, $header_view_vars, $sidebar_view_vars, 
     'form_action' => $formAction,
     'csrf' => CsrfUtils::collectCsrfToken(),
 ]);
-echo $twig->render("base.html.twig", $viewVars);
+echo $twig->render("@admin/base.html.twig", $viewVars);
 
 $i = 0;
 $srch_item = 0;
@@ -384,10 +386,9 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
                 if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
                     list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                    // mdsupport - Check for matches
                     $srch_cl = '';
 
-                    if (!empty($_POST['srch_desc']) && (stristr(($fldname.$flddesc), $_POST['srch_desc']) !== false)) {
+                    if ($request->request->has("search_query") && (stristr("{$fldname}{$flddesc}", $request->request->get("search_query")) !== false)) {
                         $srch_cl = ' srch';
                         $srch_item++;
                     }
@@ -420,7 +421,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                     $divClass = ($userMode) ? "col-sm-4" : "col-sm-6";
                     $label = text($fldname);
                     $title = attr($flddesc);
-                    echo "<div class='row form-group {$srch_cl}'><div class='{$divClass} control-label'>{$label}</div><div class='col-sm-6 oe-input'  title='$title'>\n";
+                    echo "<div class='row form-group {$srch_cl}'><div class='{$divClass} control-label'>{$label}</div><div class='col-sm-6'  title='$title'>\n";
 
                     $globalVars = [
                         "field_name" => "form_{$i}",
@@ -585,6 +586,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                             break;
                         case "tabs":
                         case "tabs_css":
+                        case "css":
                             if ($userMode) {
                                 $globalTitle = $globalValue;
                             }
@@ -655,7 +657,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                     }
 
                     if (!empty($template)) {
-                        echo $twig->render($template, $vars);
+                        echo $twig->render("@admin/{$template}", $vars);
                         $template = "";
                         $vars = [];
                     }
@@ -677,13 +679,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                 }
 
                 if (trim(strtolower($fldid)) == 'portal_offsite_address_patient_link' && !empty($GLOBALS['portal_offsite_enable']) && !empty($GLOBALS['portal_offsite_providerid'])) {
-                    echo "<div class='row'>";
-                    echo "<div class='col-sm-12'>";
-                    echo "<input type='hidden' name='form_download' id='form_download'>";
-                    echo "<button onclick=\"return validate_file()\" type='button'>" . xlt('Download Offsite Portal Connection Files') . "</button>";
-                    echo "<div id='file_error_message' class='alert alert-error'></div>";
-                    echo "</div>";
-                    echo "</div>";
+                    echo $twig->render("@admin/partials/portal_offside.html.twig");
                 }
             }
 
@@ -705,6 +701,6 @@ if (!empty($post_srch_desc) && $srch_item == 0) {
     echo "<script>alert(" . js_escape($post_srch_desc." - ".xl('search term was not found, please try another search')) . ");</script>";
 }
 
-echo $twig->render("partials/footer.html.twig", $footer_view_vars);
+echo $twig->render("@admin/partials/footer.html.twig", $footer_view_vars);
 ?>
 </html>

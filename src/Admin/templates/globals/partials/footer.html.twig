@@ -1,4 +1,3 @@
-
 <script>
 $(function() {
     $("#theform").on("submit", function () {
@@ -10,7 +9,7 @@ $(function() {
 
     $('.srch div.control-label').wrapInner("<mark></mark>");
     $('.tab .row.srch :first-child').closest('.tab').each(function () {
-        $('.tabNav li:nth-child(' + ($(this).index() + 1) + ') a').wrapInner("<mark></mark>");
+        $('#sidebarList li:nth-child(' + ($(this).index() + 1) + ') a').wrapInner("<mark></mark>");
     });
 
     $(".multi-lang").select2();
