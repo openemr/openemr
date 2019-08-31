@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com> contributed the header and footer only
  * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +18,7 @@ require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/encounter.inc");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
@@ -30,6 +33,10 @@ $patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
 if ($patientid < 0) {
     $patientid = 0 + $pid; // -1 means current pid
 }
+// PDF header information
+$patientname = getPatientName($patientid);
+$patientdob = getPatientData($patientid, "DOB");
+$dateofservice = fetchDateService($encounter);
 
 $visitid = empty($_REQUEST['visitid']) ? 0 : (0 + $_REQUEST['visitid']);
 if ($visitid < 0) {
@@ -99,6 +106,15 @@ if ($PDF_OUTPUT) {
         'keep_table_proportions' => true
     );
     $pdf = new mPDF($config_mpdf);
+    $pdf->SetHTMLHeader('
+		<div style="text-align: right; font-weight: bold;">
+			'.$patientname.' DOB: '.oeFormatShortDate($patientdob["DOB"]).' DOS: '. oeFormatShortDate($dateofservice) .'
+		</div>');
+    $pdf->SetHTMLFooter('
+			<div style="float: right; width:33% text-align: left;">'.oeFormatDateTime(date("Y-m-d H:i:s")).'</div>
+			<div style="float: right; width:33%; text-align: center; ">{PAGENO}/{nbpg}</div>
+			<div style="float: right; width:33%; text-align: right; ">'.$patientname.'</div>
+			');
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
