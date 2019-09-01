@@ -14,13 +14,23 @@ namespace pharmacyHelper;
 
 require_once('../globals.php');
 
-use Symfony\Component\HTTPFoundation\Request;
-use Symfony\Component\HTTPFoundation\Respone;
+
 use OpenEMR\Pharmacy\Service\Import;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 $loadPhar = new Import();
+
 $request = Request::createFromGlobals();
-$saved = $loadPhar->importPharmacies($request->request->get('city', ''), $request->request->get('state', ''));
+$content = $request->getContent();
+
+$input = explode("-", $content);
+$city = $input[0];
+$state = $input[1];
+
+//file_put_contents("api.txt", $city . "  " . $state);
+
+$saved = $loadPhar->importPharmacies($city, $state);
 
 $response = new Response($saved, Response::HTTP_OK, ['content-type' => 'application/json']);
 $response->send();

@@ -19,6 +19,10 @@ use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\AdminProperties;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
+use Symfony\Component\Form\Forms;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 
 $tableHasData = sqlQuery("SELECT count(drug_id) AS count FROM erx_weno_drugs");
 
@@ -96,10 +100,18 @@ function importPharm() {
     let city = document.getElementById("city").value;
     let state = document.getElementById("state").value;
     if (city.length === 0 || state.length ===0) {
-        return "City and state must both be filled out"  // Do some better error handling here
+        alert("City and state must both be filled out")  // Do some better error handling here
+        return false;
     }
-    let body = {"city": city, "state": state};
-    let req = new Request('pharmacyHelper.php', {method: "POST", body: body});
+    let body = city+'-'+state;
+    let req = new Request('pharmacyHelper.php', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/x-www-form-url-encoded',
+            'Accept': 'application/json'
+        },
+        body: body
+    });
     fetch(req)
         .then(response=> {
             if (response.status === 200) {
