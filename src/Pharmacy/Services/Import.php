@@ -46,16 +46,13 @@ class Import extends Pharmacy
                 $pharmacy->set_name($show['basic']['name']);
                 $pharmacy->set_ncpdp($show['identifiers']['identifer']);
                 $pharmacy->set_npi($show['number']);
-                $pharmacy->persist();
-                $fid = self::getForeignId();
-                $aid = self::getAddressId();
                 $pharmacy->set_address_line1($show['addresses'][0]['address_1']);
                 $pharmacy->set_city($show['addresses'][0]['city']);
                 $pharmacy->set_state($show['addresses'][0]['state']);
                 $pharmacy->set_zip(substr($show['addresses'][0]['postal_code'], 0, -4));
-                $pharmacy->_set_number($show['addresses'][0]['fax_number'], 5);
-                $pharmacy->_set_number($show['addresses'][0]['telephone_number'], 2);
-                $pharmacy->persist($aid, $fid);
+                $pharmacy->set_fax($show['addresses'][0]['fax_number']);
+                $pharmacy->set_phone($show['addresses'][0]['telephone_number']);
+                $pharmacy->persist();
                 ++$i;
             }
         }
