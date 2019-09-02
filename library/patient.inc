@@ -560,11 +560,11 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
     }
 
     if (!empty($GLOBALS['pt_restrict_field'])) {
-        if ($_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin']) {
+        if ($_SESSION["authUser"] != 'admin' || $GLOBALS['pt_restrict_admin']) {
             $where .= " AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
                 " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
                 add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
-            array_push($sqlBindArray, $_SESSION{"authUser"});
+            array_push($sqlBindArray, $_SESSION["authUser"]);
         }
     }
 
@@ -638,11 +638,11 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
     $where = "pubpid LIKE ? ";
     array_push($sqlBindArray, $pid."%");
     if (!empty($GLOBALS['pt_restrict_field']) && $GLOBALS['pt_restrict_by_id']) {
-        if ($_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin']) {
+        if ($_SESSION["authUser"] != 'admin' || $GLOBALS['pt_restrict_admin']) {
             $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
                     " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
                     add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
-            array_push($sqlBindArray, $_SESSION{"authUser"});
+            array_push($sqlBindArray, $_SESSION["authUser"]);
         }
     }
 
@@ -854,11 +854,11 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
     $where = "DOB like ? ";
     array_push($sqlBindArray, $DOB."%");
     if (!empty($GLOBALS['pt_restrict_field'])) {
-        if ($_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin']) {
+        if ($_SESSION["authUser"] != 'admin' || $GLOBALS['pt_restrict_admin']) {
             $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
                     " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
                     add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
-            array_push($sqlBindArray, $_SESSION{"authUser"});
+            array_push($sqlBindArray, $_SESSION["authUser"]);
         }
     }
 
