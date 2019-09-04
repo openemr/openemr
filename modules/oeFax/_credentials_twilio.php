@@ -1,5 +1,4 @@
 <?php
-<?php
 return array(
     'username'      => '',
     'extension'     => '',
