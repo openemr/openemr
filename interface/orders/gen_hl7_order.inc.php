@@ -213,10 +213,11 @@ function gen_hl7_order($orderid, &$out)
 
     $pcres = sqlStatement(
         "SELECT " .
-        "pc.procedure_code, pc.procedure_name, pc.procedure_order_seq, pc.diagnoses " .
-        "FROM procedure_order_code AS pc " .
+        "pc.procedure_code, pc.procedure_name, pc.procedure_order_seq, pc.diagnoses, pt.specimen " .
+        "FROM procedure_order_code AS pc, procedure_type as pt " .
         "WHERE " .
         "pc.procedure_order_id = ? AND " .
+        "pc.procedure_name = pt.name AND " .
         "pc.do_not_send = 0 " .
         "ORDER BY pc.procedure_order_seq",
         array($orderid)
@@ -378,6 +379,7 @@ function gen_hl7_order($orderid, &$out)
         $d1 .
         $d1 . hl7Time($porow['date_collected']) .     // Observation Date/Time
         str_repeat($d1, 8) .                          // OBR 8-15 not used
+        $dl . hl7Text($pcrow['specimen']) .           // Specimen source aka OBR-15
         $d1 . hl7Text($porow['docnpi']) .             // Physician ID
         $d2 . hl7Text($porow['doclname']) .         // Last Name
         $d2 . hl7Text($porow['docfname']) .         // First Name
