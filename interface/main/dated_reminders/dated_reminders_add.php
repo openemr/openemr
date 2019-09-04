@@ -470,7 +470,7 @@ if (isset($this_message['pid'])) {
     </div><!--end of container div-->
   </body>
   <script>
-    $( document ).ready(function() {
+    $(function() {
         $('#link-tooltip').tooltip({title: "<?php echo xla('This message need not necessarily be linked to a patient'); ?>"});
         $('#select-tooltip').tooltip({title: "<?php echo xla('If the checkbox is checked then each individual of a group receiving this message will have to sign off by clicking the Set As Completed button'); ?>"});
     });
