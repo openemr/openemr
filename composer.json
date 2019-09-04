@@ -60,11 +60,16 @@
         "zendframework/zend-servicemanager" : "3.4.0",
         "zendframework/zend-soap" : "2.8.0",
         "zendframework/zend-stdlib" : "3.2.1",
-        "zendframework/zend-xmlrpc" : "2.7.0"
+        "zendframework/zend-xmlrpc" : "2.7.0",
+        "ringcentral/ringcentral-php": "2.2.3",
+        "twilio/sdk": "5.34.4"
     },
     "config": {
         "platform": {
             "php": "7.2"
+        },
+        "replace": {
+            "pubnub/pubnub": "*"
         }
     },
     "require-dev" : {
@@ -95,7 +100,8 @@
             "library/translation.inc.php"
         ],
         "psr-4" : {
-            "OpenEMR\\" : "src"
+            "OpenEMR\\" : "src",
+            "Modules\\" : "modules"
         }
     }
 }

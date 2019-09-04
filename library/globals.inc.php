@@ -2028,6 +2028,17 @@ $GLOBALS_METADATA = array(
     //
     'Notifications' => array(
 
+        'oefax_enable' => array(
+            xl('Enable oeFaxSms Module'),
+            array(
+                0 => xl('Off No Service.'),
+                1 => xl('RingCentral'),
+                2 => xl('Twilio'),
+            ),
+            '0',
+            xl('Enable Fax SMS Support')
+        ),
+
         'patient_reminder_sender_name' => array(
             xl('Patient Reminder Sender Name'),
             'text',                           // data type
@@ -2789,9 +2800,9 @@ $GLOBALS_METADATA = array(
         'fhir_enable' => array(
             xl('Enable FHIR Provider Client Service'),
             array(
-                0 => xl('Off: No Service.'),
-                1 => xl('On: HAPI FHIR.'),
-                2 => xl('On: Smart on FHIR.'),
+                0 => xl('Off No Service.'),
+                1 => xl('HAPI FHIR'),
+                2 => xl('Smart on FHIR'),
             ),
             '0',
             xl('Enable FHIR Provider Client Service')
