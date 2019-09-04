@@ -7,9 +7,11 @@
 * @author    Terry Hill <terry@lilysystems.com>
 * @author    Brady Miller <brady.g.miller@gmail.com>
 * @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Sherwin Gaddis <sherwingaddis@gmail.com>
 * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
 * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
 * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
+* @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -520,6 +522,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     ul > li {
         line-height: 1.86em;
     }
+    ul {
+        list-style-type: none;
+    }
     a, a:visited, a:hover {
         text-decoration: none;
         color: #000000;
@@ -720,8 +725,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                            title='<?php echo xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
                                     </li>
                                 <?php } ?>
+                                <li><a href="<?php echo $webroot ?>/interface/billing/customize_log.php" rel="noopener" target="_blank" onclick="top.restoreSession()"><strong><?php  echo xlt('Tab Log') ?></strong></a>
+                                </li>
                                 <li><a class="link_submit"
                                        href="JavaScript:void(0);" onclick="select_all(); return false;"><strong><?php echo xlt('Select All'); ?></strong></a>
+                                </li>
+                                <li><a  id="clear-log" href="#" title='<?php xla('Clear the log'); ?>'><strong><?php echo xlt('Clear Log') ?></strong></a>
                                 </li>
                             </ul>
                             <ul>
@@ -1458,6 +1467,15 @@ $(function () {
     $("#view-log-link").click( function() {
         top.restoreSession();
         dlgopen('customize_log.php', '_blank', 750, 400);
+    });
+    $("#clear-log").click( function(){
+        var checkstr = confirm(<?php echo xlj("Do you really want to clear the log?"); ?>);
+        if(checkstr == true){
+            top.restoreSession();
+            dlgopen("clear_log.php?csrf_token_form=" + <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 400);
+        }else{
+            return false;
+        }
     });
 
     $('button[type="submit"]').click(function () {
