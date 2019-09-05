@@ -110,7 +110,7 @@ class Header
         /* adding custom assets in addition */
         if (is_file("{$GLOBALS['fileroot']}/custom/assets/custom.yaml")) {
             $customMap = self::readConfigFile("{$GLOBALS['fileroot']}/custom/assets/custom.yaml");
-            self::parseConfigFile($customMap);
+            self::parseConfigFile($customMap, $assets);
         }
 
         $linksStr = implode("", self::$links);
