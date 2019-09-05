@@ -2031,7 +2031,7 @@ $GLOBALS_METADATA = array(
         'oefax_enable' => array(
             xl('Enable oeFaxSms Module'),
             array(
-                0 => xl('Off No Service.'),
+                0 => xl('Disabled'),
                 1 => xl('RingCentral'),
                 2 => xl('Twilio'),
             ),
@@ -2800,7 +2800,7 @@ $GLOBALS_METADATA = array(
         'fhir_enable' => array(
             xl('Enable FHIR Provider Client Service'),
             array(
-                0 => xl('Off No Service.'),
+                0 => xl('Disabled'),
                 1 => xl('HAPI FHIR'),
                 2 => xl('Smart on FHIR'),
             ),

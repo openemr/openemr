@@ -8,10 +8,8 @@
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 namespace Modules\oeFax\Controller;
 
-$ignoreAuth = 0; //todo for debug comment production.
 require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Core\Header;
@@ -95,9 +93,10 @@ $file_name = pathinfo($the_file, PATHINFO_BASENAME);
 
         var getContactBook = function (e, rtnpid) {
             e.preventDefault();
+            let btnClose = <?php echo xlj("Cancel"); ?>;
             dlgopen('', '', 'modal-lg', 500, '', '', {
                 buttons: [
-                    {text: 'Close', close: true, style: 'primary  btn-sm'}
+                    {text: btnClose, close: true, style: 'primary  btn-sm'}
                 ],
                 url: top.webroot_url + '/interface/usergroup/addrbook_list.php?popup=2',
                 dialogId: 'fax'
@@ -134,7 +133,7 @@ $file_name = pathinfo($the_file, PATHINFO_BASENAME);
                     <div class="form-group">
                         <label for="form_email"><?php echo xlt('Email') ?></label>
                         <input id="form_email" type="email" name="email" class="form-control"
-                            placeholder="<?php echo xlt('Not required for fax') ?>">
+                            placeholder="<?php echo xla('Not required for fax') ?>">
                         <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">

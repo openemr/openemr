@@ -8,10 +8,9 @@
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-namespace Modules\oeFax\Controller;
-
 require_once(__DIR__ . "/../../interface/globals.php");
 
+use Modules\oeFax\Controller\AppDispatch;
 use OpenEMR\Core\Header;
 
 $clientApp = AppDispatch::getApiService();
@@ -217,7 +216,7 @@ $title = $service == "1" ? 'RingCentral' : 'Twilio';
                 // get call logs
                 getLogs();
             }).fail(function (xhr, status, error) {
-                alertMsg(<?php echo xlj('Not Authenticated. Restart from menu.') ?>, 5000)
+                alertMsg(<?php echo xlj('Not Authenticated. Restart from Miscellaneous menu or ensure credentials are setup from Activity menu.') ?>, 5000)
             }).always(function () {
                 $("#wait").remove();
             });

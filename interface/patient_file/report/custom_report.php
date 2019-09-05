@@ -823,8 +823,8 @@ if ($PDF_OUTPUT) {
     $ptd = getPatientData($pid, "fname,lname");
     // escape names for pesky periods hyphen etc.
     $esc = $ptd['fname'] . '_' . $ptd['lname'];
-    $esc = preg_replace('/[^A-Za-z0-9,_\-]/', '', $esc);
-    $fn = strtolower($esc . '_' . $pid . '_' . xl('report') . '.pdf');
+    $esc = str_replace(array('.', ',', ' '), '', $esc);
+    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report') . '.pdf'));
     $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
     $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
     if (! $isit_utf8) {

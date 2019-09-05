@@ -8,10 +8,7 @@
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 namespace Modules\oeFax\Controller;
-
-require_once(__DIR__ . "/../../../vendor/autoload.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use RingCentral\SDK\Http\ApiException;
@@ -129,9 +126,12 @@ class RCFaxClient extends AppDispatch
 
     public function authenticate($action_flg = '')
     {
-        // did construct happen...
-        if (empty($this->credentials)) {
+        // did construct happen or setup...
+        if (empty($this->credentials['username'])) {
             $this->credentials = $this->getCredentials();
+            if (empty($this->credentials['username'])) {
+                return 2;
+            }
         }
         $this->rcsdk = new SDK($this->credentials['appKey'], $this->credentials['appSecret'], $this->serverUrl, 'OpenEMR', '1.0.0');
         $this->platform = $this->rcsdk->platform();

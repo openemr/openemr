@@ -15,7 +15,6 @@ if (empty($_SESSION['url'])) {
     http_response_code(401);
     exit();
 }
-$ignoreAuth = 0;
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use RingCentral\SDK\SDK;

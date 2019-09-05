@@ -797,8 +797,8 @@ function getFaxContent() {
         data: $("#report_form").serialize(),
         success: function (content) {
             document.report_form.fax.value = 0;
-            let btnClose = '<?php echo xlt("Cancel"); ?>';
-            let title = '<?php echo xlt("Send To Contact"); ?>';
+            let btnClose = <?php echo xlj("Cancel"); ?>;
+            let title = <?php echo xlj("Send To Contact"); ?>;
             let url = top.webroot_url + '/modules/oeFax/contact.php?isContent=0&file=' + content;
             dlgopen(url, '', 'modal-sm', 525, '', title, {
                 buttons: [
@@ -806,6 +806,7 @@ function getFaxContent() {
                 ],
                 onClosed: 'cleanUp'
             });
+
             return false;
         }
     }).always(function () {
