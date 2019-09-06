@@ -52,7 +52,7 @@ $(function() {
     });
 });
 
-{% if includeReload is true %}
+{% if includeReload %}
 if (parent.left_nav.location) {
     parent.left_nav.location.reload();
     parent.Title.location.reload();
@@ -62,14 +62,14 @@ if (parent.left_nav.location) {
         parent.RTop.location.reload();
     }
 }
-self.location.href='edit_globals.php?{{ (isUser) ? "mode=user" : :""}}&unique=yes';
+self.location.href='edit_globals.php?{{ (isUser) ? "mode=user" : "" }}&unique=yes';
 {% endif %}
 
-{% if includeWebServiceFailure is true %}
+{% if includeWebServiceFailure %}
 alert("{{ 'Offsite Portal web Service Failed'|translate|e('js') }}\n{{ value }}");
 {% endif %}
 
-{% if noSearchResults is true %}
+{% if noSearchResults %}
 alert("{{ search_query|e("js") }} {{ "not found, please try another search"|translate }}")
 </script>
 {% endif %}

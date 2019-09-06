@@ -13,14 +13,6 @@
             <form method='post' name='theform' id='theform' class='form-horizontal' action="{{ form_action }}">
                 <div class="tab-content">
                     <input type="hidden" name="csrf_token_form" value="{{ csrf|e('html_attr') }}" />
-                    <div class="">
-                        <div class="input-group col-sm-4 oe-pull-away">
-                            <input name="search_query" id="search_query" class="form-control" type="text" placeholder='{{ "Search for a setting"|translate }}' value="{{ search_query|default("") }}">
-                            <span class="input-group-btn">
-                                <button class="btn btn-default btn-search" type='submit' id='globals_form_search' name='form_search'>{{ "Search"|translate }}</button>
-                            </span>
-                        </div>
-                    </div>
                     {% for section in sections %}
                         {% include "@admin/partials/tab_pane.html.twig" %}
                     {% endfor %}
