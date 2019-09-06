@@ -4,7 +4,7 @@
     {% include "@admin/partials/head.html.twig" %}
 </head>
 <body class="body_top">
-{% include "@admin/partials/header.html.twig" %}
+{% include "@admin/partials/contextbar.html.twig" %}
 
 <div class="container-fluid">
     <div class="row">
@@ -21,3 +21,16 @@
                             </span>
                         </div>
                     </div>
+                    {% for section in sections %}
+                        {% include "@admin/partials/tab_pane.html.twig" %}
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include "@admin/partials/footer.html.twig" %}
+
+</body>
+</html>

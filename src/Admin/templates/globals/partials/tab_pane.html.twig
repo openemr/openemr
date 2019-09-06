@@ -1,0 +1,62 @@
+{% block content %}
+
+<div class="tab-pane" id="{{ section.sectionName }}" role="tabpanel">
+    <div class="page-header">
+        <h1>{{ section.sectionName }} {% if addendum %}<small>({{ addendum }})</small>{% endif %}</h1>
+    </div>
+
+    {% if isUser %}
+        <div class="row">
+            <div class="col-sm-3 col-sm-offset-3">
+                <strong>{{ "User Specific Setting"|translate }}</strong>
+            </div>
+            <div class="col-sm-3">
+                <strong>{{ "Default Setting"|translate }}</strong>
+            </div>
+            <div class="col-sm-3">
+                <strong>{{ "Default"|translate }}</strong>
+            </div>
+        </div>
+    {% endif %}
+
+    {% for field in section.fields %}
+        <div class="row form-group {{ field.search_class }}">
+            <div class="control-label {{ (isUser) ? 'col-sm-3' : 'col-sm-6' }}">
+                {{ field.label }}
+            </div>
+
+            <div class="col-sm-3" title="{{ field.title|e('html_attr') }}">
+                {% if field.type == "bool" %}
+                    {% include "@admin/partials/bool.html.twig" %}
+                {% elseif (field.type == "Array") or (field.type in valid_array_inputs) or (field.options) %}
+                    {% include "@admin/partials/array.html.twig" %}
+                {% elseif field.type in valid_text_inputs %}
+                    {% include "@admin/partials/text.html.twig" %}
+                {% endif %}
+            </div>
+
+            {% if isUser %}
+                <div class="col-sm-3">
+                    {{ field.title }}
+                </div>
+                <div class="col-sm-3">
+                    <input type="checkbox" value="yes" name="toggle_{{ loop.index0 }}" id="toggle_{{ loop.index0 }}" {{ settingDefault }}>
+                    <input type="hidden" id="globaldefault_{{ loop.index0 }}" value="{{ (field.type == "encrypted") ? field.globalTitle|e("html_attr") : field.globalValue|e("html_attr") }}">
+                </div>
+
+            {% endif %}
+        </div>
+
+        {% if include_offsite_portal %}
+            {% include "@admin/partials/portal_offsite.html.twig" %}
+        {% endif %}
+    {% endfor %}
+
+    <div>
+        <div class="oe-pull-away oe-margin-t-10">
+            {{ section.sectionName }}&nbsp;<span class="fa fa-lg fa-arrow-circle-up oe-help-redirect scroll" aria-hidden="true"></span>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

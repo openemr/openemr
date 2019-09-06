@@ -167,7 +167,7 @@ $GLOBALS_METADATA = array(
     'Appearance' => array(
 
         'default_top_pane' => array(
-            xl('Main Top Pane Screen(Or Default First Tab)'),       // descriptive name
+            xl('Default First Tab'),       // descriptive name
             array(
                 'main_info.php' => xl('Calendar Screen'),
                 '../new/new.php' => xl('Patient Search/Add Screen'),

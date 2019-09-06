@@ -8,14 +8,14 @@ $(function() {
     $(".sidebar a:first").tab('show');
 
     $('.srch div.control-label').wrapInner("<mark></mark>");
-    $('.tab .row.srch :first-child').closest('.tab').each(function () {
-        $('#sidebarList li:nth-child(' + ($(this).index() + 1) + ') a').wrapInner("<mark></mark>");
+    $('.tab-pane .row.srch :first-child').closest('.tab-pane').each(function () {
+        $(`#sidebarList a[href="#${this.id}"]`).wrapInner("<mark></mark>");
     });
 
     $(".multi-lang").select2();
 
     // Use the counter ($i) to make the form user friendly for user-specific globals use
-    if ({{ user_mode|e('js') }}) {
+    if ("{{ isUser|e('js') }}") {
         for (let j = 0; j <= i; j++) {
             $("#form" + j).change(function () {
                 $("#toggle_" + j).prop('checked', false);
@@ -37,7 +37,7 @@ $(function() {
         console.log(field_name);
     });
 
-    var userMode = {{ user_mode|e('js') }};
+    var userMode = "{{ isUser|e('js') }}";
 
     $('.scroll').click(function () {
         window.parent.scrollTo({
@@ -51,4 +51,25 @@ $(function() {
         return false;
     });
 });
+
+{% if includeReload is true %}
+if (parent.left_nav.location) {
+    parent.left_nav.location.reload();
+    parent.Title.location.reload();
+    if (self.name === 'RTop') {
+        parent.RBot.location.reload();
+    } else {
+        parent.RTop.location.reload();
+    }
+}
+self.location.href='edit_globals.php?{{ (isUser) ? "mode=user" : :""}}&unique=yes';
+{% endif %}
+
+{% if includeWebServiceFailure is true %}
+alert("{{ 'Offsite Portal web Service Failed'|translate|e('js') }}\n{{ value }}");
+{% endif %}
+
+{% if noSearchResults is true %}
+alert("{{ search_query|e("js") }} {{ "not found, please try another search"|translate }}")
 </script>
+{% endif %}

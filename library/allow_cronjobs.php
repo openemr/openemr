@@ -35,7 +35,7 @@ if (!isset($_REQUEST['site'])) {
 
 // Simulate $_GET and $_POST for use by scripts
 $_GET = $_REQUEST;
-$_POST = $_REQUEST;
+$data = $_REQUEST;
 
 // Ignore auth checks
 $ignoreAuth = true;

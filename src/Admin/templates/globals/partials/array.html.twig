@@ -1,9 +1,9 @@
-<select name="{{ field_name }}" id="{{ field_name }}" class="form-control {{ classes|default("") }}" {{ multi|default("") }}>
-    {% for k, v in options %}
+<select name="{{ field.name }}" id="{{ field.name }}" class="form-control {{ field.classes|default("") }}" {{ field.multi|default("") }}>
+    {% for key, value in field.options %}
         {% set selected = "" %}
-        {% if (k == field_value) or (k in field_value) %}
+        {% if (key == field.value) or (key in field.value) %}
             {% set selected = 'selected="selected"' %}
         {% endif %}
-        <option value="{{ v|e('html_attr') }}" {{ selected|raw }}>{{ v|e('html') }}</option>
+        <option value="{{ value|e('html_attr') }}" {{ ((key == field.value) or (key in field.value)) ? "selected='selected'" : "" }}>{{ value|e('html') }}</option>
     {% endfor %}
 </select>
