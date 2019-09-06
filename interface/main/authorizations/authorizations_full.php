@@ -52,9 +52,9 @@ if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user from bil
 
     if ($result) {
         foreach ($result as $iter) {
-            $authorize{$iter{"pid"}}{"billing"} .= "<span class=small>" .
-              text($iter{"user"}) . ": </span><span class=text>" .
-              text($iter{"code_text"} . " " . date("n/j/Y", strtotime($iter{"date"}))) .
+            $authorize[$iter["pid"]]["billing"] .= "<span class=small>" .
+              text($iter["user"]) . ": </span><span class=text>" .
+              text($iter["code_text"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
               "</span><br>\n";
         }
     }
@@ -68,9 +68,9 @@ if ($res = sqlStatement("select * from transactions where authorized=0 and group
 
     if ($result2) {
         foreach ($result2 as $iter) {
-            $authorize{$iter{"pid"}}{"transaction"} .= "<span class=small>" .
-              text($iter{"user"}) . ": </span><span class=text>" .
-              text($iter{"title"} . ": " . strterm($iter{"body"}, 25) . " " . date("n/j/Y", strtotime($iter{"date"}))) .
+            $authorize[$iter["pid"]]["transaction"] .= "<span class=small>" .
+              text($iter["user"]) . ": </span><span class=text>" .
+              text($iter["title"] . ": " . strterm($iter["body"], 25) . " " . date("n/j/Y", strtotime($iter["date"]))) .
               "</span><br>\n";
         }
     }
@@ -85,9 +85,9 @@ if (empty($GLOBALS['ignore_pnotes_authorization'])) {
 
         if ($result3) {
             foreach ($result3 as $iter) {
-                $authorize{$iter{"pid"}}{"pnotes"} .= "<span class=small>" .
-                text($iter{"user"}) . ": </span><span class=text>" .
-                text(strterm($iter{"body"}, 25) . " " . date("n/j/Y", strtotime($iter{"date"}))) .
+                $authorize[$iter["pid"]]["pnotes"] .= "<span class=small>" .
+                text($iter["user"]) . ": </span><span class=text>" .
+                text(strterm($iter["body"], 25) . " " . date("n/j/Y", strtotime($iter["date"]))) .
                 "</span><br>\n";
             }
         }
@@ -102,9 +102,9 @@ if ($res = sqlStatement("select * from forms where authorized=0 and groupname=?"
 
     if ($result4) {
         foreach ($result4 as $iter) {
-            $authorize{$iter{"pid"}}{"forms"} .= "<span class=small>" .
-              text($iter{"user"}) . ": </span><span class=text>" .
-              text($iter{"form_name"} . " " . date("n/j/Y", strtotime($iter{"date"}))) .
+            $authorize[$iter["pid"]]["forms"] .= "<span class=small>" .
+              text($iter["user"]) . ": </span><span class=text>" .
+              text($iter["form_name"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
               "</span><br>\n";
         }
     }
@@ -117,22 +117,21 @@ if ($res = sqlStatement("select * from forms where authorized=0 and groupname=?"
 
 <?php
 if ($authorize) {
-    while (list($ppid,$patient) = each($authorize)) {
+    foreach ($authorize as $ppid => $patient) {
         $name = getPatientData($ppid);
 
-        echo "<tr><td valign=top><span class=bold>". text($name{"fname"} . " " . $name{"lname"}) .
+        echo "<tr><td valign=top><span class=bold>". text($name["fname"] . " " . $name["lname"]) .
              "</span><br><a class=link_submit href='authorizations_full.php?mode=authorize&pid=" .
              attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
         echo "<td valign=top><span class=bold>".xlt('Billing').
-             ":</span><span class=text><br>" . $patient{"billing"} . "</td>\n";
+             ":</span><span class=text><br>" . $patient["billing"] . "</td>\n";
         echo "<td valign=top><span class=bold>".xlt('Transactions').
-             ":</span><span class=text><br>" . $patient{"transaction"} . "</td>\n";
+             ":</span><span class=text><br>" . $patient["transaction"] . "</td>\n";
         echo "<td valign=top><span class=bold>".xlt('Patient Notes').
-             ":</span><span class=text><br>" . $patient{"pnotes"} . "</td>\n";
+             ":</span><span class=text><br>" . $patient["pnotes"] . "</td>\n";
         echo "<td valign=top><span class=bold>".xlt('Encounter Forms').
-             ":</span><span class=text><br>" . $patient{"forms"} . "</td>\n";
+             ":</span><span class=text><br>" . $patient["forms"] . "</td>\n";
         echo "</tr>\n";
-        $count++;
     }
 }
 ?>
