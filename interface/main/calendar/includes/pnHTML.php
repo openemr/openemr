@@ -281,7 +281,7 @@ class pnHTML
      */
     function GetOutput()
     {
-        return implode($this->header, "\n")."\n".$this->output;
+        return implode("\n", $this->header)."\n".$this->output;
     }
 
     /**

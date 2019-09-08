@@ -59,9 +59,9 @@ if ($result != null) {
     $disclosure_count = 0;//number of disclosures so far displayed
     foreach ($result as $iter) {
         $has_disclosure = 1;
-        $app_event=$iter{"event"};
+        $app_event=$iter["event"];
         $event=explode("-", $app_event);
-        $description=$iter{"description"};
+        $description=$iter["description"];
         //listing the disclosures
         echo "<tr style='border-bottom:1px dashed' class='text'>";
             echo "<td valign='top' class='text'>";
@@ -76,7 +76,7 @@ if ($result != null) {
             echo "</td>";
             echo "<td>" . text($iter['user_fullname']) . "</td>";
             echo "<td  valign='top'class='text'>";
-            echo text($iter{"date"}." (".xl('Recipient').":".$iter{"recipient"}.")");
+            echo text($iter["date"]." (".xl('Recipient').":".$iter["recipient"].")");
                     echo " " . nl2br(text($description));
             echo "</td>";
         echo "</tr>";
