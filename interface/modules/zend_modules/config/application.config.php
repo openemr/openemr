@@ -26,7 +26,7 @@ $core_modules = [
 function oemr_zend_load_modules_from_db()
 {
     // we skip the audit log as it has no bearing on user activity and is core system related...
-    $resultSet = sqlStatementNoLog($statement = "SELECT mod_name FROM modules WHERE mod_active = 1 ORDER BY `mod_ui_order`, `date`");
+    $resultSet = sqlStatementNoLog($statement = "SELECT mod_name FROM modules WHERE mod_active = 1 AND type = 1 ORDER BY `mod_ui_order`, `date`");
     $db_modules = [];
     while ($row = sqlFetchArray($resultSet)) {
         $db_modules[] = $row["mod_name"];
