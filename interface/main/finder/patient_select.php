@@ -415,18 +415,18 @@ if ($result) {
         echo  "<td class='srGender'>" . text(getListItemTitle("sex", $iter['sex'])) . "</td>\n";
         //other phone number display setup for tooltip
         $phone_biz = '';
-        if ($iter{"phone_biz"} != "") {
-            $phone_biz = " [business phone ".$iter{"phone_biz"}."] ";
+        if ($iter["phone_biz"] != "") {
+            $phone_biz = " [business phone ".$iter["phone_biz"]."] ";
         }
 
         $phone_contact = '';
-        if ($iter{"phone_contact"} != "") {
-            $phone_contact = " [contact phone ".$iter{"phone_contact"}."] ";
+        if ($iter["phone_contact"] != "") {
+            $phone_contact = " [contact phone ".$iter["phone_contact"]."] ";
         }
 
         $phone_cell = '';
-        if ($iter{"phone_cell"} != "") {
-            $phone_cell = " [cell phone ".$iter{"phone_cell"}."] ";
+        if ($iter["phone_cell"] != "") {
+            $phone_cell = " [cell phone ".$iter["phone_cell"]."] ";
         }
 
         $all_other_phones = $phone_biz.$phone_contact.$phone_cell;
@@ -439,7 +439,7 @@ if ($result) {
             text($iter['phone_home']) . "</td>\n";
 
         echo "<td class='srSS'>" . text($iter['ss']) . "</td>";
-        if ($iter{"DOB"} != "0000-00-00 00:00:00") {
+        if ($iter["DOB"] != "0000-00-00 00:00:00") {
             echo "<td class='srDOB'>" . text(oeFormatShortDate($iter['DOB'])) . "</td>";
         } else {
             echo "<td class='srDOB'>&nbsp;</td>";
@@ -469,7 +469,7 @@ if ($result) {
                   "billing.pid = form_encounter.pid and billing.activity = 1 and " .
                   "billing.code_type not like 'COPAY' where ".
                   "form_encounter.pid = ?";
-            $statement= sqlStatement($query, array($iter{"pid"}));
+            $statement= sqlStatement($query, array($iter["pid"]));
             if ($results = sqlFetchArray($statement)) {
                 $last_date_seen = $results['mydate'];
                 $day_diff = $results['day_diff'];
@@ -485,7 +485,7 @@ if ($result) {
                   escape_limit($add_days) .
                   " day) as next_appt_day from form_encounter " .
                   " where form_encounter.pid = ?";
-            $statement= sqlStatement($query, array($iter{"pid"}));
+            $statement= sqlStatement($query, array($iter["pid"]));
             if ($results = sqlFetchArray($statement)) {
                 $last_date_seen = $results['mydate'];
                 $day_diff = $results['day_diff'];
@@ -498,7 +498,7 @@ if ($result) {
                    " from billing ".
                    " where code_type not like 'COPAY' and activity = 1 " .
                    " and pid = ?";
-            $statement= sqlStatement($query, array($iter{"pid"}));
+            $statement= sqlStatement($query, array($iter["pid"]));
             if ($results = sqlFetchArray($statement)) {
                 $encounter_count_billed = $results['encounter_count'];
             }
@@ -507,7 +507,7 @@ if ($result) {
             $query = "select count(date) as encounter_count ".
                       " from form_encounter where ".
                       " pid = ?";
-            $statement= sqlStatement($query, array($iter{"pid"}));
+            $statement= sqlStatement($query, array($iter["pid"]));
             if ($results = sqlFetchArray($statement)) {
                 $encounter_count = $results['encounter_count'];
             }

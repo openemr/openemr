@@ -626,7 +626,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                         <?php
                                         foreach ($insurancei as $iid => $iname) {
                                             echo "<option value='" . attr($iid) . "'";
-                                            if (strtolower($iid) == strtolower($result3{"provider"})) {
+                                            if (strtolower($iid) == strtolower($result3["provider"])) {
                                                 echo " selected";
                                             }
                                             echo ">" . text($iname) . "</option>\n";
@@ -644,7 +644,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                                 <span class='required'><?php echo xlt('Plan Name'); ?>: </span>
                                             </td>
                                             <td>
-                                                <input type='entry' class='form-control' size='20' name='i<?php echo attr($i); ?>plan_name' value="<?php echo attr($result3{"plan_name"}); ?>"
+                                                <input type='entry' class='form-control' size='20' name='i<?php echo attr($i); ?>plan_name' value="<?php echo attr($result3["plan_name"]); ?>"
                                                 onchange="capitalizeMe(this);" />&nbsp;&nbsp;
                                             </td>
                                         </tr>
@@ -662,14 +662,14 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                                         <tr>
                                             <td><span class=required><?php echo xlt('Policy Number'); ?>: </span></td>
-                                            <td><input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>policy_number' value="<?php echo attr($result3{"policy_number"}); ?>"
+                                            <td><input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>policy_number' value="<?php echo attr($result3["policy_number"]); ?>"
                                                 onkeyup='policykeyup(this)'>
                                             </td>
                                         </tr>
 
                                         <tr>
                                             <td><span class=required><?php echo xlt('Group Number'); ?>: </span></td>
-                                            <td><input type=entry class='form-control' size=16 name='i<?php echo attr($i); ?>group_number' value="<?php echo attr($result3{"group_number"}); ?>" onkeyup='policykeyup(this)'></td>
+                                            <td><input type=entry class='form-control' size=16 name='i<?php echo attr($i); ?>group_number' value="<?php echo attr($result3["group_number"]); ?>" onkeyup='policykeyup(this)'></td>
                                         </tr>
 
                                         <tr <?php echo ($GLOBALS['omit_employers']) ? " style='display:none'" : ""; ?>>
@@ -677,7 +677,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                               (<?php echo xlt('if unemployed enter Student'); ?>,<br><?php echo xlt('PT Student, or leave blank'); ?>): </span>
                                             </td>
                                             <td><input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_employer
-                                                value="<?php echo attr($result3{"subscriber_employer"}); ?>"
+                                                value="<?php echo attr($result3["subscriber_employer"]); ?>"
                                                 onchange="capitalizeMe(this);" />
                                            </td>
                                         </tr>
@@ -685,7 +685,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                         <tr <?php echo ($GLOBALS['omit_employers']) ? " style='display:none'" : ""; ?>>
                                             <td><span class=required><?php echo xlt('SE Address'); ?>: </span></td>
                                             <td><input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_employer_street
-                                            value="<?php echo attr($result3{"subscriber_employer_street"}); ?>"
+                                            value="<?php echo attr($result3["subscriber_employer_street"]); ?>"
                                             onchange="capitalizeMe(this);" /></td>
                                         </tr>
 
@@ -695,7 +695,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                                     <tr>
                                                         <td><span class=required><?php echo xlt('SE City'); ?>: </span></td>
                                                         <td><input type=entry class='form-control' size=15 name=i<?php echo attr($i); ?>subscriber_employer_city
-                                                            value="<?php echo attr($result3{"subscriber_employer_city"}); ?>"
+                                                            value="<?php echo attr($result3["subscriber_employer_city"]); ?>"
                                                             onchange="capitalizeMe(this);" />
                                                         </td>
                                                         <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE State') : xlt('SE Locality') ?>: </span></td>
@@ -708,7 +708,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                                     </tr>
                                                     <tr>
                                                         <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </span></td>
-                                                        <td><input type=entry class='form-control' size=10 name=i<?php echo $i?>subscriber_employer_postal_code value="<?php echo attr($result3{"subscriber_employer_postal_code"}); ?>"></td>
+                                                        <td><input type=entry class='form-control' size=10 name=i<?php echo $i?>subscriber_employer_postal_code value="<?php echo attr($result3["subscriber_employer_postal_code"]); ?>"></td>
                                                         <td><span class=required><?php echo xlt('SE Country'); ?>: </span></td>
                                                         <td>
                                                             <?php
@@ -726,13 +726,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 <td valign=top>
                                     <span class=required><?php echo xlt('Subscriber'); ?>: </span>
                                     <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_fname
-                                    value="<?php echo attr($result3{"subscriber_fname"}); ?>"
+                                    value="<?php echo attr($result3["subscriber_fname"]); ?>"
                                     onchange="capitalizeMe(this);" />
                                     <input type=entry class='form-control' size=3 name=i<?php echo attr($i); ?>subscriber_mname
-                                    value="<?php echo attr($result3{"subscriber_mname"}); ?>"
+                                    value="<?php echo attr($result3["subscriber_mname"]); ?>"
                                     onchange="capitalizeMe(this);" />
                                     <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_lname
-                                    value="<?php echo attr($result3{"subscriber_lname"}); ?>"
+                                    value="<?php echo attr($result3["subscriber_lname"]); ?>"
                                     onchange="capitalizeMe(this);" />
                                     <br>
                                     <span class=required><?php echo xlt('Relationship'); ?>: </span>
@@ -748,7 +748,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                     value='<?php echo attr($result3['subscriber_DOB']); ?>' />
 
                                     <span class=bold><?php echo xlt('S.S.'); ?>: </span>
-                                    <input type=entry class='form-control' size=11 name=i<?php echo attr($i); ?>subscriber_ss value="<?php echo attr($result3{"subscriber_ss"}); ?>">&nbsp;
+                                    <input type=entry class='form-control' size=11 name=i<?php echo attr($i); ?>subscriber_ss value="<?php echo attr($result3["subscriber_ss"]); ?>">&nbsp;
                                     <span class=bold><?php echo xlt('Sex'); ?>: </span>
                                     <?php
                                     // Modified 6/2009 by BM to use list_options and function
@@ -757,11 +757,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                     <br>
                                     <span class=required><?php echo xlt('Subscriber Address'); ?>: </span>
                                     <input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_street
-                                    value="<?php echo attr($result3{"subscriber_street"}); ?>"
+                                    value="<?php echo attr($result3["subscriber_street"]); ?>"
                                     onchange="capitalizeMe(this);" /><br>
                                     <span class=required><?php echo xlt('City'); ?>: </span>
                                     <input type=entry class='form-control' size=15 name=i<?php echo attr($i); ?>subscriber_city
-                                    value="<?php echo attr($result3{"subscriber_city"}); ?>"
+                                    value="<?php echo attr($result3["subscriber_city"]); ?>"
                                     onchange="capitalizeMe(this);" />
                                     <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('State') : xlt('Locality') ?>: </span>
                                     <?php
@@ -770,7 +770,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                     ?>
                                     <br />
                                     <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Zip Code') : xlt('Postal Code') ?>: </span>
-                                    <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_postal_code value="<?php echo attr($result3{"subscriber_postal_code"}); ?>">
+                                    <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_postal_code value="<?php echo attr($result3["subscriber_postal_code"]); ?>">
                                     <span class='required'<?php echo ($GLOBALS['omit_employers']) ? " style='display:none'" : ""; ?>>
                                     <?php echo xlt('Country'); ?>: </span>
                                     <?php
@@ -781,12 +781,12 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                     <span class=bold><?php echo xlt('Subscriber Phone'); ?>:
                                     <input type='text' class='form-control' size='20' name='i<?php echo attr($i); ?>subscriber_phone' value='<?php echo attr($result3["subscriber_phone"]); ?>' onkeyup='phonekeyup(this,mypcc)' />
                                     </span><br />
-                                    <span class=bold><?php echo xlt('CoPay'); ?>: <input type=text class='form-control' size="6" name=i<?php echo attr($i); ?>copay value="<?php echo attr($result3{"copay"}); ?>">
+                                    <span class=bold><?php echo xlt('CoPay'); ?>: <input type=text class='form-control' size="6" name=i<?php echo attr($i); ?>copay value="<?php echo attr($result3["copay"]); ?>">
                                     </span><br />
                                     <span class='required'><?php echo xlt('Accept Assignment'); ?>: </span>
                                     <select class='form-control' name=i<?php echo attr($i); ?>accept_assignment>
-                                        <option value="TRUE" <?php echo (strtoupper($result3{"accept_assignment"}) == "TRUE") ? "selected" : ""; ?>><?php echo xlt('YES'); ?></option>
-                                        <option value="FALSE" <?php echo (strtoupper($result3{"accept_assignment"}) == "FALSE") ? "selected" : ""; ?>><?php echo xlt('NO'); ?></option>
+                                        <option value="TRUE" <?php echo (strtoupper($result3["accept_assignment"]) == "TRUE") ? "selected" : ""; ?>><?php echo xlt('YES'); ?></option>
+                                        <option value="FALSE" <?php echo (strtoupper($result3["accept_assignment"]) == "FALSE") ? "selected" : ""; ?>><?php echo xlt('NO'); ?></option>
                                     </select>
                                 </td>
                             </tr>

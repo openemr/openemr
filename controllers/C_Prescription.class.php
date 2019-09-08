@@ -549,7 +549,7 @@ class C_Prescription extends Controller
     function multiprint_footer(& $pdf)
     {
         if ($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax )) {
-            $sigfile = str_replace('{userid}', $_SESSION{"authUser"}, $this->pconfig['signature']);
+            $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
             if (file_exists($sigfile)) {
                 $pdf->ezText(xl('Signature') . ": ", 12);
                 // $pdf->ezImage($sigfile, "", "", "none", "left");
