@@ -3,7 +3,8 @@ namespace OpenEMR\Events\PatientReport;
 
 use Symfony\Component\EventDispatcher\Event;
 
-class PatientReportEvent extends Event {
+class PatientReportEvent extends Event
+{
 
     /**
      * This event fires after the action buttons for the report have rendered.

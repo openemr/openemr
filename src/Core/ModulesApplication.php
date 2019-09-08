@@ -69,7 +69,8 @@ class ModulesApplication
         $this->bootstrapCustomModules($kernel->getEventDispatcher(), $customModulePath);
     }
 
-    private function bootstrapCustomModules($eventDispatcher, $customModulePath) {
+    private function bootstrapCustomModules($eventDispatcher, $customModulePath)
+    {
         // we skip the audit log as it has no bearing on user activity and is core system related...
         $resultSet = sqlStatementNoLog($statement = "SELECT mod_name, mod_directory FROM modules WHERE mod_active = 1 AND type != 1 ORDER BY `mod_ui_order`, `date`");
         $db_modules = [];
@@ -82,10 +83,11 @@ class ModulesApplication
         // TODO: stephen we should fire an event saying we've now loaded all the modules here.
     }
 
-    private function loadCustomModule($module, $eventDispatcher) {
+    private function loadCustomModule($module, $eventDispatcher)
+    {
         if (!is_readable($module['path'] . DIRECTORY_SEPARATOR . self::CUSTOM_MODULE_BOOSTRAP_NAME)) {
             // TODO: stephen need to escape filename here.
-            error_log("Custom module file path " . errorLogEscape($module['path'] )
+            error_log("Custom module file path " . errorLogEscape($module['path'])
                 . DIRECTORY_SEPARATOR . self::CUSTOM_MODULE_BOOSTRAP_NAME
                 . " is not readable.  Check directory permissions");
         }
@@ -94,8 +96,7 @@ class ModulesApplication
             // do we really want to just include a file??  Should we go all zend and actually force a class instantiation
             // here and then inject the EventDispatcher or even possibly the Symfony Kernel here?
             include $module['path'] . DIRECTORY_SEPARATOR . self::CUSTOM_MODULE_BOOSTRAP_NAME;
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             error_log(errorLogEscape($exception->getMessage()));
         }
     }
