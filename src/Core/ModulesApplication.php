@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MainMenuRole class.
+ * ModuleApplication class.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -13,18 +13,17 @@
 
 namespace OpenEMR\Core;
 
-use OpenEMR\Core\Kernel;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Zend\Mvc\Application;
 use Zend\Mvc\Service\ServiceManagerConfig;
 use Zend\ServiceManager\ServiceManager;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ModulesApplication
 {
-
     /**
      * The application reference pointer for the zend mvc modules application
-     * @var \Zend\Mvc\Application
+     * @var Application
+     *
      */
     private $application;
 
@@ -32,8 +31,9 @@ class ModulesApplication
 
     public function __construct(Kernel $kernel, $webRootPath, $modulePath, $zendModulePath)
     {
-        $zendConfigurationPath = $webRootPath . DIRECTORY_SEPARATOR . $modulePath . DIRECTORY_SEPARATOR . $zendModulePath;
-        $customModulePath = $webRootPath . DIRECTORY_SEPARATOR . $modulePath . DIRECTORY_SEPARATOR . "custom_modules" . DIRECTORY_SEPARATOR;
+        // Beware: default module path ends in a slash. Really should not but have to refactor to change..
+        $zendConfigurationPath = $webRootPath . DIRECTORY_SEPARATOR . $modulePath . $zendModulePath;
+        $customModulePath = $webRootPath . DIRECTORY_SEPARATOR . $modulePath . "custom_modules" . DIRECTORY_SEPARATOR;
         $configuration = require $zendConfigurationPath . DIRECTORY_SEPARATOR . 'config/application.config.php';
 
         // Prepare the service manager
@@ -51,8 +51,8 @@ class ModulesApplication
         $serviceManager->get('ModuleManager')->loadModules();
 
         // Prepare list of listeners to bootstrap
-        $listenersFromAppConfig     = isset($configuration['listeners']) ? $configuration['listeners'] : [];
-        $config                     = $serviceManager->get('config');
+        $listenersFromAppConfig = isset($configuration['listeners']) ? $configuration['listeners'] : [];
+        $config = $serviceManager->get('config');
         $listenersFromConfigService = isset($config['listeners']) ? $config['listeners'] : [];
 
         $listeners = array_unique(array_merge($listenersFromConfigService, $listenersFromAppConfig));
@@ -75,7 +75,7 @@ class ModulesApplication
         $resultSet = sqlStatementNoLog($statement = "SELECT mod_name, mod_directory FROM modules WHERE mod_active = 1 AND type != 1 ORDER BY `mod_ui_order`, `date`");
         $db_modules = [];
         while ($row = sqlFetchArray($resultSet)) {
-            $db_modules[] = ["name" => $row["mod_name"], "directory" => $row['mod_directory'], "path" => $customModulePath . $row['mod_directory'] ];
+            $db_modules[] = ["name" => $row["mod_name"], "directory" => $row['mod_directory'], "path" => $customModulePath . $row['mod_directory']];
         }
         foreach ($db_modules as $module) {
             $this->loadCustomModule($module, $eventDispatcher);
@@ -87,6 +87,7 @@ class ModulesApplication
     {
         if (!is_readable($module['path'] . DIRECTORY_SEPARATOR . self::CUSTOM_MODULE_BOOSTRAP_NAME)) {
             // TODO: stephen need to escape filename here.
+            // TODO: normal escaping will break windows. need normalized paths first. Do we have?
             error_log("Custom module file path " . errorLogEscape($module['path'])
                 . DIRECTORY_SEPARATOR . self::CUSTOM_MODULE_BOOSTRAP_NAME
                 . " is not readable.  Check directory permissions");
