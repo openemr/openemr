@@ -17,12 +17,15 @@ require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Rx\Weno\TransmitData;
+use OpenEMR\Services\FacilityService;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
+    
+$facilityService = new FacilityService();
+$facility = $facilityService->getPrimaryBillingLocation();
 
-$facility = getFacilities($first = '');
 $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];
 
@@ -31,37 +34,37 @@ $validation = new TransmitData();
 $patient = $validation->validatePatient($pid);
 $pharmacy = $validation->patientPharmacyInfo($pid);
 
-if (empty($facility[0]['name']) || $facility[0]['name'] == "Your clinic name here") {
+if (empty($facility['name']) || $facility[0]['name'] == "Your clinic name here") {
     print xlt("Please fill out facility name properly");
     exit;
 }
 
-if (empty($facility[0]['phone'])) {
+if (empty($facility['phone'])) {
     print xlt("Please fill out facility phone properly");
     exit;
 }
 
-if (empty($facility[0]['fax'])) {
+if (empty($facility['fax'])) {
     print xlt("Please fill out facility fax properly");
     exit;
 }
 
-if (empty($facility[0]['street'])) {
+if (empty($facility['street'])) {
     print xlt("Please fill out facility street properly");
     exit;
 }
 
-if (empty($facility[0]['city'])) {
+if (empty($facility['city'])) {
     print xlt("Please fill out facility city properly");
     exit;
 }
 
-if (empty($facility[0]['state'])) {
+if (empty($facility['state'])) {
     print xlt("Please fill out facility state properly");
     exit;
 }
 
-if (empty($facility[0]['postal_code'])) {
+if (empty($facility['postal_code'])) {
     print xlt("Please fill out facility postal code properly");
     exit;
 }
