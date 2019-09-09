@@ -821,12 +821,15 @@ fieldset {
                                 $Table='yes';
                                 ?>
                     <input id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr(round($RemainderJS, 2)); ?>">
+                <br>
+                <br>
+                <div class="col-xs-12">
                 <div class = "table-responsive">
                 <table class="table-condensed" id="TableDistributePortion" >
                 <thead bgcolor="#DDDDDD" class="text">
                     <td class="left top" >&nbsp;</td>
                     <td class="left top" ><?php echo xlt('Patient Name'); ?></td>
-                    <td class="left top" ><?php echo xlt('Post For'); ?></td>
+                    <td class="left top" style="width:75px"><?php echo xlt('Post For'); ?></td>
                     <td class="left top" ><?php echo xlt('Service Date'); ?></td>
                     <td class="left top" ><?php echo xlt('Encounter'); ?></td>
                     <td class="left top" ><?php echo xlt('Service Code'); ?></td>
@@ -1071,15 +1074,19 @@ fieldset {
                 }//End of if($RowSearchSub = sqlFetchArray($ResultSearchSub))
                 ?>
                 </div>
+                </div>
+                <div class="col-sm-12">
                     <?php
                         require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
                     ?>
+                 </div>
                 <?php
             }//End of if($payment_id*1>0)
             ?>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
             <div class="form-group clearfix">
                 <div class="col-sm-12 text-left position-override">
+                <br>
                     <div class="btn-group" role="group">
                         <a class="btn btn-default btn-save" href="#" onclick="javascript:return ModifyPayments();"><span><?php echo xlt('Modify Payments');?></span></a>
                         <a class="btn btn-default btn-save" href="#" onclick="javascript:return FinishPayments();"><span><?php echo xlt('Finish Payments');?></span></a>
@@ -1104,4 +1111,14 @@ fieldset {
     </div>
     </div><!-- End of container div-->
 </body>
+<script>
+     function ResetForm()
+    {//Resets form used in the 'Cancel Changes' button in the master screen.
+     document.forms[0].reset();
+     document.getElementById('TdUnappliedAmount').innerHTML='0.00';
+     document.getElementById('div_insurance_or_patient').innerHTML='&nbsp;';
+     CheckVisible('yes');//Payment Method is made 'Check Payment' and the Check box is made visible.
+     PayingEntityAction();//Paying Entity is made 'insurance' and Payment Category is 'Insurance Payment'
+    }                                                                
+</script>
 </html>
