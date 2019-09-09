@@ -6,6 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2019 Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -268,7 +272,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <button type="button" class="genportal btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
             <?php } ?>
             <?php
-            $eventDispatcher->dispatch(OpenEMR\Events\PatientReport::ACTIONS_RENDER_POST, new GenericEvent());
+            $eventDispatcher->dispatch(PatientReportEvent::ACTIONS_RENDER_POST, new GenericEvent());
             ?>
             <input type='hidden' name='pdf' value='0'>
             <br>
