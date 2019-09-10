@@ -9,20 +9,22 @@
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *}
-{php}
-use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
 
-$oefax = !empty($GLOBALS['oefax_enable']) ? $GLOBALS['oefax_enable'] : 0;
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-{/php}
 <script language="JavaScript">
- {php}
- if ($oefax) {
-     $eventDispatcher->dispatch(PatientDocumentEvent::JAVASCRIPT_READY_FAX_DIALOG, new GenericEvent());
- }
- {/php}
+
+ function doFax(e, filePath) {literal}{
+     e.preventDefault();
+     let btnClose = {/literal}{xlj t="Cancel"}{literal};
+     let title = {/literal}{xlj t="Send To"}{literal};
+     let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=true&file=' + filePath;
+     dlgopen(url, 'faxto', 'modal-sm', 550, '', title, {
+         buttons: [
+             {text: btnClose, close: true, style: 'default btn-sm'}
+         ]
+     });
+     return false;
+ }{/literal}
+
  function popoutcontent(othis) {literal}{{/literal}
     let popsrc = $(othis).parents('body').find('#DocContents iframe').attr("src");
     let wname = '_' + Math.random().toString(36).substr(2, 6);
@@ -51,12 +53,7 @@ $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
      dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
          buttons: [
              {text: btnClose, close: true, style: 'default btn-xs'}
-         ],
-         sizeHeight: 'auto',
-         allowResize: true,
-         allowDrag: true,
-         dialogId: '',
-         type: 'iframe'
+         ]
      });
      return false;
  }{/literal}
@@ -145,12 +142,9 @@ function ImgProcedure() {literal}{{/literal}
                 <button class="btn btn-xs btn-primary active">{xlt t='Contents'}</button>
               </div>
             <span style="float:right;">
-            <script>var file = '{$file->get_url()}';</script>
-            {php}
-            if ($oefax) {
-                $eventDispatcher->dispatch(PatientDocumentEvent::ACTIONS_RENDER_FAX_ANCHOR, new GenericEvent());
-            }
-            {/php}
+            {if $GLOBALS.oefax_enable}
+            <a class="css_button btn btn-send-msg" href="" onclick="return doFax(event,{$file->get_url()|attr_js})"><span>{xlt t='Send Fax'}</span></a>
+            {/if}
             <a class="css_button" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
             <a class="css_button" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()"><span>{xlt t='Download'}</span></a>
             <a class="css_button" href='' onclick='return showpnotes({$file->get_id()|attr_js})'><span>{xlt t='Show Notes'}</span></a>

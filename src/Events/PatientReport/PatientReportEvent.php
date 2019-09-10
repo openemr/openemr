@@ -1,6 +1,6 @@
 <?php
 /**
- * MainMenuRole class.
+ * PatientReportEvent class.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

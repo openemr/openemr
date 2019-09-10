@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ModuleApplication class.
+ * ModulesApplication class.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

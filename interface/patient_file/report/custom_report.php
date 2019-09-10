@@ -846,11 +846,7 @@ if ($PDF_OUTPUT) {
         try {
             if ($PDF_FAX === 1) {
                 $fax_pdf = $pdf->Output($fn, 'S');
-                $tmp_path = $GLOBALS['OE_SITE_DIR'] . '/messageStore/send/';
-                if (!file_exists($tmp_path)) {
-                    mkdir($tmp_path, 0777, true);
-                }
-                $tmp_file = $tmp_path . $fn; // is deleted in sendFax...
+                $tmp_file = $GLOBALS['temporary_files_dir'] . '/' . $fn; // is deleted in sendFax...
                 file_put_contents($tmp_file, $fax_pdf);
                 echo $tmp_file;
                 exit();
