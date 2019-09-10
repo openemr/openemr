@@ -11,20 +11,9 @@
  *}
 
 <script language="JavaScript">
-
- function doFax(e, filePath) {literal}{
-     e.preventDefault();
-     let btnClose = {/literal}{xlj t="Cancel"}{literal};
-     let title = {/literal}{xlj t="Send To"}{literal};
-     let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=true&file=' + filePath;
-     dlgopen(url, 'faxto', 'modal-sm', 550, '', title, {
-         buttons: [
-             {text: btnClose, close: true, style: 'default btn-sm'}
-         ]
-     });
-     return false;
- }{/literal}
-
+ {if $GLOBALS.oefax_enable}
+ {dispatchPatientDocumentEvent event="javascript_ready_fax_dialog"}
+ {/if}
  function popoutcontent(othis) {literal}{{/literal}
     let popsrc = $(othis).parents('body').find('#DocContents iframe').attr("src");
     let wname = '_' + Math.random().toString(36).substr(2, 6);
@@ -142,8 +131,9 @@ function ImgProcedure() {literal}{{/literal}
                 <button class="btn btn-xs btn-primary active">{xlt t='Contents'}</button>
               </div>
             <span style="float:right;">
+            <script>var file = {$file->get_url()|js_escape};</script>
             {if $GLOBALS.oefax_enable}
-            <a class="css_button btn btn-send-msg" href="" onclick="return doFax(event,{$file->get_url()|attr_js})"><span>{xlt t='Send Fax'}</span></a>
+            {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
             {/if}
             <a class="css_button" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
             <a class="css_button" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()"><span>{xlt t='Download'}</span></a>
