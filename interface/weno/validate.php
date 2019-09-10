@@ -34,7 +34,7 @@ $validation = new TransmitData();
 $patient = $validation->validatePatient($pid);
 $pharmacy = $validation->patientPharmacyInfo($pid);
 
-if (empty($facility['name']) || $facility[0]['name'] == "Your clinic name here") {
+if (empty($facility['name']) || $facility['name'] == "Your clinic name here") {
     print xlt("Please fill out facility name properly");
     exit;
 }
