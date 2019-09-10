@@ -14,11 +14,14 @@ use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
+$oefax = !empty($GLOBALS['oefax_enable']) ? $GLOBALS['oefax_enable'] : 0;
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 {/php}
 <script language="JavaScript">
  {php}
-    $eventDispatcher->dispatch(PatientDocumentEvent::JAVASCRIPT_READY_FAX_DIALOG, new GenericEvent());
+ if ($oefax) {
+     $eventDispatcher->dispatch(PatientDocumentEvent::JAVASCRIPT_READY_FAX_DIALOG, new GenericEvent());
+ }
  {/php}
  function popoutcontent(othis) {literal}{{/literal}
     let popsrc = $(othis).parents('body').find('#DocContents iframe').attr("src");
@@ -144,7 +147,9 @@ function ImgProcedure() {literal}{{/literal}
             <span style="float:right;">
             <script>var file = '{$file->get_url()}';</script>
             {php}
+            if ($oefax) {
                 $eventDispatcher->dispatch(PatientDocumentEvent::ACTIONS_RENDER_FAX_ANCHOR, new GenericEvent());
+            }
             {/php}
             <a class="css_button" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
             <a class="css_button" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()"><span>{xlt t='Download'}</span></a>

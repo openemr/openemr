@@ -38,6 +38,7 @@ $auth_relaxed  = acl_check('encounters', 'relaxed');
 $auth_med      = acl_check('patients', 'med');
 $auth_demo     = acl_check('patients', 'demo');
 
+$oefax = !empty($GLOBALS['oefax_enable']) ? $GLOBALS['oefax_enable'] : 0;
 /**
  * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
  */
@@ -272,7 +273,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <button type="button" class="genportal btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
             <?php } ?>
             <?php
-            $eventDispatcher->dispatch(PatientReportEvent::ACTIONS_RENDER_POST, new GenericEvent());
+            if ($oefax) {
+                $eventDispatcher->dispatch(PatientReportEvent::ACTIONS_RENDER_POST, new GenericEvent());
+            }
             ?>
             <input type='hidden' name='pdf' value='0'>
             <br>
@@ -755,7 +758,9 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
 <?php } ?>
 
     <?php
-    $eventDispatcher->dispatch(PatientReportEvent::JAVASCRIPT_READY_POST, new GenericEvent());
+    if ($oefax) {
+        $eventDispatcher->dispatch(PatientReportEvent::JAVASCRIPT_READY_POST, new GenericEvent());
+    }
     ?>
 
 });
