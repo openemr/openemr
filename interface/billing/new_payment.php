@@ -449,7 +449,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                 <form action="new_payment.php" id="new_payment" method='post' name='new_payment' onsubmit="
                 <?php
                 if ($payment_id*1==0) {
-                   echo 'top.restoreSession();';
+                    echo 'top.restoreSession();';
                 } else {
                     echo 'return false;';
                 }?>" style="display:inline">
