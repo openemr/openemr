@@ -48,7 +48,7 @@ $obj = formFetch("form_dictation", $_GET["id"]);
                     <legend class=""><?php echo xlt('Dictation')?></legend>
                     <div class="form-group">
                         <div class="col-sm-10 col-sm-offset-1">
-                            <textarea name="dictation" class="form-control" cols="80" rows="15" ><?php echo text($obj{"dictation"});?></textarea>
+                            <textarea name="dictation" class="form-control" cols="80" rows="15" ><?php echo text($obj["dictation"]);?></textarea>
                         </div>
                     </div>
                 </fieldset>
@@ -56,7 +56,7 @@ $obj = formFetch("form_dictation", $_GET["id"]);
                     <legend class=""><?php echo xlt('Additional Notes'); ?></legend>
                     <div class="form-group">
                         <div class="col-sm-10 col-sm-offset-1">
-                            <textarea name="additional_notes" class="form-control" cols="80" rows="5" ><?php echo text($obj{"additional_notes"});?></textarea>
+                            <textarea name="additional_notes" class="form-control" cols="80" rows="5" ><?php echo text($obj["additional_notes"]);?></textarea>
                         </div>
                     </div>
                 </fieldset>

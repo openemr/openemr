@@ -54,19 +54,19 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
             $html = "<tr>";
             $html .= "<td valign=\"middle\"></td>" .
                 "<td><div><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter{"code"}) . "</b> " . text(ucwords(strtolower($iter{"code_text"}))) .
+                text($iter["code"]) . "</b> " . text(ucwords(strtolower($iter["code_text"]))) .
                 "</a></div></td>\n";
             $billing_html[$iter["code_type"]] .= $html;
             $counter++;
         } elseif ($iter["code_type"] == "COPAY") {
             $billing_html[$iter["code_type"]] .= "<tr><td></td>" .
                 "<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter{"code"})."</b> " . text(ucwords(strtolower($iter{"code_text"}))) .
+                text($iter["code"])."</b> " . text(ucwords(strtolower($iter["code_text"]))) .
                 "</a></td>\n";
         } else {
             $billing_html[$iter["code_type"]] .= "<tr><td></td>" .
                 "<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter{"code"}) . "</b> " . text(ucwords(strtolower($iter{"code_text"}))) .
+                text($iter["code"]) . "</b> " . text(ucwords(strtolower($iter["code_text"]))) .
                 "</a><span class=\"small\">";
             $js = explode(":", $iter['justify']);
             $counter = 0;
@@ -85,13 +85,13 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
             $billing_html[$iter["code_type"]] .= "</span></td>";
             $billing_html[$iter["code_type"]] .= "<td>" .
                 "<a class=\"link_submit\" href='diagnosis_full.php?mode=clear&id=" .
-                attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[" . xlt('Clear Justification') .
+                attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[" . xlt('Clear Justification') .
                 "]</a></td>";
         }
 
         $billing_html[$iter["code_type"]] .= "<td>" .
             "<a class=\"link_submit\" href='diagnosis_full.php?mode=delete&id=" .
-            attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
+            attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
         $billing_html[$iter["code_type"]] .= "</tr>\n";
     }
 

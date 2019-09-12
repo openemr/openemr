@@ -59,14 +59,14 @@ if (file_exists($practice_logo)) {
 
 </p>
 
-<a href="javascript:window.close();"><font class=title><?php print text($titleres{"fname"}) . " " . text($titleres{"lname"}); ?></font></a><br><br>
+<a href="javascript:window.close();"><font class=title><?php print text($titleres["fname"]) . " " . text($titleres["lname"]); ?></font></a><br><br>
 
 <table>
 <tr><td><?php echo xlt('Generated on'); ?>:</td><td> <?php print text(oeFormatShortDate(date("Y-m-d")));?></td></tr>
 <?php
 if ($date_result = sqlQuery("select date from form_encounter where encounter=? and pid=?", array($encounter, $pid))) {
-    $encounter_date = date("D F jS", strtotime($date_result{"date"}));
-    $raw_encounter_date = date("Y-m-d", strtotime($date_result{"date"}));
+    $encounter_date = date("D F jS", strtotime($date_result["date"]));
+    $raw_encounter_date = date("Y-m-d", strtotime($date_result["date"]));
 }
 ?>
 <tr><td><?php echo xlt('Date Of Service'); ?>: </td><td> <?php print text(oeFormatShortDate($raw_encounter_date));?></td></tr>
@@ -79,7 +79,7 @@ if ($date_result = sqlQuery("select date from form_encounter where encounter=? a
 
  $inclookupres = sqlStatement("select distinct formdir from forms where pid=?", array($pid));
 while ($result = sqlFetchArray($inclookupres)) {
-    include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
+    include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
 }
 
  $printed = false;

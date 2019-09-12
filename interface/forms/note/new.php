@@ -20,7 +20,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 formHeader("Form: note");
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION{"authUser"}));
+$provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION["authUser"]));
 /* name of this form */
 $form_name = "note";
 ?>

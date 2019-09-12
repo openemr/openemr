@@ -449,7 +449,7 @@ while ($prow = sqlFetchArray($pres)) {
     }
 
     while ($result = sqlFetchArray($res)) {
-        if ($result{"form_name"} == "New Patient Encounter") {
+        if ($result["form_name"] == "New Patient Encounter") {
             if ($isfirst == 0) {
                 foreach ($registry_form_name as $var) {
                     if ($toprint = $html_strings[$var]) {
@@ -468,9 +468,9 @@ while ($prow = sqlFetchArray($pres)) {
             $isfirst = 0;
             echo "<div class='encounter_data'>\n";
             echo "<input type=checkbox ".
-                " name='" . attr($result{"formdir"}) . "_" .  attr($result{"form_id"}) . "'".
-                " id='" . attr($result{"formdir"}) . "_" .  attr($result{"form_id"}) . "'".
-                " value='" . attr($result{"encounter"}) . "'" .
+                " name='" . attr($result["formdir"]) . "_" .  attr($result["form_id"]) . "'".
+                " id='" . attr($result["formdir"]) . "_" .  attr($result["form_id"]) . "'".
+                " value='" . attr($result["encounter"]) . "'" .
                 " class='encounter'".
                 " >";
 
@@ -481,12 +481,12 @@ while ($prow = sqlFetchArray($pres)) {
                 $result['reason'] = substr($result['reason'], 0, $maxReasonLength) . " ... ";
             }
 
-            echo attr($result{"reason"}) .
-                " (" . date("Y-m-d", strtotime($result{"date"})) .
+            echo attr($result["reason"]) .
+                " (" . date("Y-m-d", strtotime($result["date"])) .
                 ")\n";
             echo "<div class='encounter_forms'>\n";
         } else {
-            $form_name = trim($result{"form_name"});
+            $form_name = trim($result["form_name"]);
             //if form name is not in registry, look for the closest match by
             // finding a registry name which is  at the start of the form name.
             //this is to allow for forms to put additional helpful information
@@ -513,11 +513,11 @@ while ($prow = sqlFetchArray($pres)) {
             }
 
             array_push($html_strings[$form_name], "<input type='checkbox' ".
-                                                " name='" . attr($result{"formdir"}) . "_" . attr($result{"form_id"}) . "'".
-                                                " id='" . attr($result{"formdir"}) . "_" . attr($result{"form_id"}) . "'".
-                                                " value='" . attr($result{"encounter"}) . "'" .
+                                                " name='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'".
+                                                " id='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'".
+                                                " value='" . attr($result["encounter"]) . "'" .
                                                 " class='encounter_form' ".
-                                                ">" . text(xl_form_title($result{"form_name"})) . "<br>\n");
+                                                ">" . text(xl_form_title($result["form_name"])) . "<br>\n");
         }
     }
 

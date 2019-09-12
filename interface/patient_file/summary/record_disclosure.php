@@ -113,10 +113,10 @@ if ($editlid) {
         <?php
         if ($editlid) {
             $dres=sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid));
-            $description=$dres{"description"};
-            $app_event=$dres{"event"};
-            $disc_date=$dres{"date"};
-            $recipient_name=$dres{"recipient"};
+            $description=$dres["description"];
+            $app_event=$dres["event"];
+            $disc_date=$dres["date"];
+            $recipient_name=$dres["recipient"];
             ?>
             <input type=hidden name=disclosure_id value="<?php echo attr($editlid); ?>">
             <input type=hidden name=updatemode value="disclosure_update">

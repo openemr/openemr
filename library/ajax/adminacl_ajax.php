@@ -260,8 +260,8 @@ function username_listings_xml($err)
 
     foreach ($result4 as $iter) {
         $message .= "\t<user>\n" .
-          "\t\t<username>" . $iter{"username"} . "</username>\n";
-        $username_acl_groups = acl_get_group_titles($iter{"username"});
+          "\t\t<username>" . $iter["username"] . "</username>\n";
+        $username_acl_groups = acl_get_group_titles($iter["username"]);
         if (!$username_acl_groups) {
             //not joined to any group, so send alert
             $message .= "\t\t<alert>no membership</alert>\n";

@@ -33,13 +33,13 @@ class PQRIXml extends XmlWriterOemr
     function add_file_audit_data()
     {
 
-        $res = sqlQuery("select * from users where username=?", array($_SESSION{"authUser"}));
+        $res = sqlQuery("select * from users where username=?", array($_SESSION["authUser"]));
 
 
         $this->push('file_audit_data');
         $this->element('create-date', date("m-d-Y"));
         $this->element('create-time', date("H:i"));
-        $this->element('create-by', $res{"fname"}.' '.$res{"lname"});
+        $this->element('create-by', $res["fname"].' '.$res["lname"]);
         $this->element('version', '1.0');
         $this->element('file-number', '1');
         $this->element('number-of-files', '1');

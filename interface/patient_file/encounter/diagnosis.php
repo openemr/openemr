@@ -270,7 +270,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                     attr($iter["code"]) . ']" type="checkbox" value="' . attr($iter["code"]) . '">' .
                     "</td><td><div><a target='" . attr($target) . "' class='small' " .
             "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                    text($iter{"code"}) . "</b> " . text($iter{"code_text"}) .
+                    text($iter["code"]) . "</b> " . text($iter["code_text"]) .
                     "</a></div></td></tr>\n";
                 $billing_html[$iter["code_type"]] .= $html;
                 $counter++;
@@ -288,8 +288,8 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
                 attr($iter["code"]) . ']" type="checkbox" value="' . attr($iter["code"]) . '">' .
                 "</td><td><a target='$target' class='small' " .
             "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter{"code"}) . ' ' . text($iter['modifier']) . "</b> " .
-                text(ucwords(strtolower($iter{"code_text"}))) . ' ' . text(oeFormatMoney($iter['fee'])) .
+                text($iter["code"]) . ' ' . text($iter['modifier']) . "</b> " .
+                text(ucwords(strtolower($iter["code_text"]))) . ' ' . text(oeFormatMoney($iter['fee'])) .
                 "</a><span class=\"small\">";
             $total += $iter['fee'];
             $js = explode(":", $iter['justify']);

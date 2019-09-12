@@ -148,7 +148,7 @@ function getBillsListBetween(
     $res = sqlStatement($sql, array($code_type));
     $array = array();
     for ($iter=0; $row=sqlFetchArray($res); $iter++) {
-        array_push($array, $row{"id"});
+        array_push($array, $row["id"]);
     }
 
     return $array;

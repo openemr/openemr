@@ -86,7 +86,7 @@ function User_Id_Look($thisField)
     $rlist= sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", array($thisField));
     $rrow= sqlFetchArray($rlist);
     if ($rrow) {
-        $ret = $rrow{'lname'}.', '.$rrow{'fname'}.' '.$rrow{'mname'};
+        $ret = $rrow['lname'].', '.$rrow['fname'].' '.$rrow['mname'];
     }
 
     return $ret;
@@ -108,7 +108,7 @@ function List_Look($thisData, $thisList)
         "AND option_id = ? AND activity = 1", array($thisList, $thisData));
     if ($fres) {
         $rret=sqlFetchArray($fres);
-        $dispValue= xl_list_label($rret{'title'});
+        $dispValue= xl_list_label($rret['title']);
         if ($thisList == 'occurrence' && $dispValue == '') {
             $dispValue = xl('Unknown or N/A');
         }
@@ -678,19 +678,19 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         <div id="report_header">
             <table width="98%"  border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td class="title" ><?php echo text($facility{'name'}); ?></td>
+                    <td class="title" ><?php echo text($facility['name']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo text($facility{'street'}); ?></td>
+                    <td class="title" ><?php echo text($facility['street']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo text($facility{'city'}).", ".text($facility{'state'})." ".text($facility{'postal_code'}); ?></td>
+                    <td class="title" ><?php echo text($facility['city']).", ".text($facility['state'])." ".text($facility['postal_code']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo xlt('Phone').': ' .text($facility{'phone'}); ?></td>
+                    <td class="title" ><?php echo xlt('Phone').': ' .text($facility['phone']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo xlt('Tax Id').': ' .text($facility{'federal_ein'}); ?></td>
+                    <td class="title" ><?php echo xlt('Tax Id').': ' .text($facility['federal_ein']); ?></td>
                 </tr>
                 <tr><td>&nbsp;</td></tr>
                 <tr>
@@ -786,9 +786,9 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                 if (count($credits) > 0) {
                     if (!$hdr_printed) {
                         PrintEncHeader(
-                            $prev_row{'date'},
-                            $prev_row{'reason'},
-                            $prev_row{'provider_id'}
+                            $prev_row['date'],
+                            $prev_row['reason'],
+                            $prev_row['provider_id']
                         );
                     }
 
@@ -805,13 +805,13 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             $enc_units = $enc_chg = $enc_pmt = $enc_adj = $enc_bal = 0;
         }
 
-        if ($erow{'id'}) {
+        if ($erow['id']) {
             // Now print an encounter heading line -
             if (!$hdr_printed) {
                 PrintEncHeader(
-                    $erow{'date'},
-                    $erow{'reason'},
-                    $erow{'provider_id'}
+                    $erow['date'],
+                    $erow['reason'],
+                    $erow['provider_id']
                 );
                 $hdr_printed = true;
             }
@@ -852,7 +852,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             }
         }
 
-        $prev_encounter_id = $erow{'encounter'};
+        $prev_encounter_id = $erow['encounter'];
         $prev_row = $erow;
     }
 
@@ -861,9 +861,9 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         if (count($credits) > 0) {
             if (!$hdr_printed) {
                 PrintEncHeader(
-                    $prev_row{'date'},
-                    $prev_row{'reason'},
-                    $prev_row{'provider_id'}
+                    $prev_row['date'],
+                    $prev_row['reason'],
+                    $prev_row['provider_id']
                 );
             }
 

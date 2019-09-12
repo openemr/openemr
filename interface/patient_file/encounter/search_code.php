@@ -116,16 +116,16 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
                 echo "<div class='oneresult' style='padding: 3px 0px 3px 0px;'>";
                 echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
                     "&type="     . attr_url($code_type) .
-                    "&code="     . attr_url($iter{"code"}) .
-                    "&modifier=" . attr_url($iter{"modifier"}) .
-                    "&units="    . attr_url($iter{"units"}) .
-                    // "&fee="      . attr_url($iter{"fee"}) .
+                    "&code="     . attr_url($iter["code"]) .
+                    "&modifier=" . attr_url($iter["modifier"]) .
+                    "&units="    . attr_url($iter["units"]) .
+                    // "&fee="      . attr_url($iter["fee"]) .
                     "&fee="      . attr_url($iter['pr_price']) .
-                    "&text="     . attr_url($iter{"code_text"}) .
+                    "&text="     . attr_url($iter["code_text"]) .
                     "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
                     "' onclick='top.restoreSession()'>";
-                echo ucwords("<b>" . text(strtoupper($iter{"code"})) . "&nbsp;" . text($iter['modifier']) .
-                    "</b>" . " " . text(strtolower($iter{"code_text"})));
+                echo ucwords("<b>" . text(strtoupper($iter["code"])) . "&nbsp;" . text($iter['modifier']) .
+                    "</b>" . " " . text(strtolower($iter["code_text"])));
                 echo "</a><br>\n";
                 echo "</div>";
 

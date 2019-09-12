@@ -20,8 +20,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
 //retrieve the user name
-$res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}));
-$uname=$res{"username"};
+$res = sqlQuery("select username from users where username=?", array($_SESSION["authUser"]));
+$uname=$res["username"];
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
 if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -127,14 +127,14 @@ if ($n>0) {?>
         <!-- List the recipient name, description, date and edit and delete options-->
         <tr  class="noterow" height='25'>
             <!--buttons for edit and delete.-->
-            <td valign='top'><a href='record_disclosure.php?editlid=<?php echo attr_url($iter{'id'}); ?>'
+            <td valign='top'><a href='record_disclosure.php?editlid=<?php echo attr_url($iter['id']); ?>'
             class='css_button_small iframe' onclick='top.restoreSession()'><span><?php echo xlt('Edit');?></span></a>
             <a href='#' class='deletenote css_button_small'
-            id='<?php echo attr($iter{'id'}); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
-            <td class="text" valign='top'><?php echo text($iter{'recipient'});?>&nbsp;</td>
+            id='<?php echo attr($iter['id']); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
+            <td class="text" valign='top'><?php echo text($iter['recipient']);?>&nbsp;</td>
             <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type', $iter['event'])); ?>&nbsp;</td>
-            <td class='text'><?php echo text($iter{'date'}) . " " . nl2br(text($iter{'description'}));?>&nbsp;</td>
-            <td class='text'><?php echo text($iter{'user_fullname'});?></td>
+            <td class='text'><?php echo text($iter['date']) . " " . nl2br(text($iter['description']));?>&nbsp;</td>
+            <td class='text'><?php echo text($iter['user_fullname']);?></td>
         </tr>
         <?php
     }

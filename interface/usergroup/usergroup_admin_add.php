@@ -242,7 +242,7 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
 }
 
 foreach ($result2 as $iter) {
-    print "<option value='" . attr($iter{"name"}). "'>" . text($iter{"name"}) . "</option>\n";
+    print "<option value='" . attr($iter["name"]). "'>" . text($iter["name"]) . "</option>\n";
 }
 ?>
 </select></td>
@@ -268,7 +268,7 @@ if ($fres) {
 
     foreach ($result as $iter) {
         ?>
-    <option value="<?php echo attr($iter{'id'}); ?>"><?php echo text($iter{'name'}); ?></option>
+    <option value="<?php echo attr($iter['id']); ?>"><?php echo text($iter['name']); ?></option>
         <?php
     }
 }
@@ -423,7 +423,7 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
 }
 
 foreach ($result as $iter) {
-    print "<option value='" . attr($iter{"username"}) . "'>" . text($iter{"username"}) . "</option>\n";
+    print "<option value='" . attr($iter["username"]) . "'>" . text($iter["username"]) . "</option>\n";
 }
 ?>
 </select>
@@ -454,7 +454,7 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
 }
 
 foreach ($result3 as $iter) {
-    print "<option value='" . attr($iter{"username"}) . "'>" . text($iter{"username"}) . "</option>\n";
+    print "<option value='" . attr($iter["username"]) . "'>" . text($iter["username"]) . "</option>\n";
 }
 ?>
 </select>
@@ -469,7 +469,7 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
 }
 
 foreach ($result2 as $iter) {
-    print "<option value='" . attr($iter{"name"}) . "'>" . text($iter{"name"}) . "</option>\n";
+    print "<option value='" . attr($iter["name"]) . "'>" . text($iter["name"]) . "</option>\n";
 }
 ?>
 </select>
@@ -489,9 +489,9 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
     }
 
     foreach ($result5 as $iter) {
-        $grouplist{$iter{"name"}} .= $iter{"user"} .
+        $grouplist[$iter["name"]] .= $iter["user"] .
         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-        attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
+        attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
     }
 
     foreach ($grouplist as $groupname => $list) {
