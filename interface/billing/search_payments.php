@@ -464,11 +464,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                             <div class="forms col-xs-2">
                                 <label class="control-label" for="FromDate"><?php echo xlt('From'); ?>:</label>
-                                <input class="form-control datepicker" id='FromDate' name='FromDate'  type='text' value='<?php echo attr($FromDate); ?>'>
+                                <input class="form-control datepicker" id='FromDate' name='FromDate'  type='text' value='<?php echo attr($FromDate); ?>' autocomplete="off">
                             </div>
                             <div class="forms col-xs-2">
                                 <label class="control-label" for="ToDate"><?php echo xlt('To'); ?>:</label>
-                                <input class="form-control datepicker" id='ToDate' name='ToDate' type='text' value='<?php echo attr($ToDate); ?>'>
+                                <input class="form-control datepicker" id='ToDate' name='ToDate' type='text' value='<?php echo attr($ToDate); ?>' autocomplete="off">
                             </div>
                             <div class="forms col-xs-3">
                                 <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
@@ -592,13 +592,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <a href="#" onclick="javascript:return DeletePayments(<?php echo attr_js($RowSearch['session_id']); ?>);"><img border="0" src="../pic/Delete.gif"></a>
                             </td>
                             <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text($RowSearch['session_id']); ?></a>
+                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text($RowSearch['session_id']); ?></a>
                             </td>
                             <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : text(oeFormatShortDate($RowSearch['check_date'])); ?></a>
+                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : text(oeFormatShortDate($RowSearch['check_date'])); ?></a>
                             </td>
                             <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')">
+                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')">
                                 <?php
                                     $frow['data_type']=1;
                                     $frow['list_id']='payment_type';
@@ -615,10 +615,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </td>
                                 <td class="<?php echo attr($StringClass); ?>">
                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php echo  $Payer=='' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a>-->
-                                <a class="" data-target="#myModal" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo  $Payer=='' ? '&nbsp;' : text($Payer) ;?></a><!--link to iframe-->
+                                <a class="" data-target="#myModal1" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo  $Payer=='' ? '&nbsp;' : text($Payer) ;?></a><!--link to iframe-->
                                 </td>
                                 <td class="<?php echo attr($StringClass); ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['payer_id']*1 >0 ? text($RowSearch['payer_id']) : '&nbsp;'; ?></a>
+                                <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['payer_id']*1 >0 ? text($RowSearch['payer_id']) : '&nbsp;'; ?></a>
                                 </td>
                                 <td align="left" class="<?php echo attr($StringClass); ?>">
                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php
@@ -626,7 +626,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                         $frow['list_id']='payment_method';
                                                         generate_print_field($frow, $RowSearch['payment_method']);
                                 ?></a>-->
-                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')">
+                                        <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')">
                                         <?php
                                         $frow['data_type']=1;
                                         $frow['list_id']='payment_method';
@@ -635,10 +635,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </td>
                                     <td align="left" class="<?php echo attr($StringClass); ?>">
                                     <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : text($RowSearch['reference']); ?></a>-->
-                                    <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : text($RowSearch['reference']); ?></a>
+                                    <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : text($RowSearch['reference']); ?></a>
                                     </td>
                                     <td align="left" class="<?php echo attr($StringClass); ?>">
-                                       <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php
+                                       <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php
                                                         $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$RowSearch['session_id']]);
                                                         $row=sqlFetchArray($rs);
                                                         $pay_total=$row['pay_total'];
@@ -650,10 +650,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                         echo $UndistributedAmount*1==0 ? xlt('Fully Paid') : xlt('Unapplied'); ?></a>
                                     </td>
                                     <td align="right" class="<?php echo attr($StringClass); ?>">
-                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text($RowSearch['pay_total']); ?></a>
+                                        <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text($RowSearch['pay_total']); ?></a>
                                     </td>
                                     <td align="right" class="<?php echo attr($StringClass); ?>right">
-                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text(number_format($UndistributedAmount, 2)); ?></a>
+                                        <a class="" data-toggle="modal"  data-target="#myModal1" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text(number_format($UndistributedAmount, 2)); ?></a>
                                     </td>
                                 </tr>
                                 <?php
@@ -685,5 +685,27 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div><!--end of container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModal1Label" aria-hidden="true">
+                <div class="modal-dialog oe-modal-dialog modal-lg">
+                    <div class="modal-content oe-modal-content">
+                        <!--<div class="modal-header" style="border:hidden"></div>-->
+                        <div class="modal-body">
+                            <iframe src="" id="targetiframe1" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>
+                        </div>
+                        <div class="modal-footer" style="margin-top:0px;">
+                           <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    function loadiframe(htmlHref) { //load iframe
+         document.getElementById('targetiframe1').src = htmlHref;
+    }
+    </script>
 </body>
 </html>

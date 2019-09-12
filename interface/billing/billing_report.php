@@ -307,14 +307,14 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         f.bn_x12_support.disabled = !can_generate;
             <?php if ($GLOBALS['support_encounter_claims']) { ?>
         f.bn_x12_encounter.disabled = !can_generate;
-        <?php } ?>
+            <?php } ?>
         f.bn_process_hcfa_support.disabled = !can_generate;
             <?php if ($GLOBALS['preprinted_cms_1500']) { ?>
         f.bn_process_hcfa_form.disabled = !can_generate;
-        <?php } ?>
+            <?php } ?>
             <?php if ($GLOBALS['ub04_support']) { ?>
         f.bn_process_ub04_support.disabled = !can_generate;
-        <?php } ?>
+            <?php } ?>
         f.bn_hcfa_txt_file.disabled = !can_generate;
         f.bn_reopen.disabled = !can_bill;
         <?php } ?>
@@ -1344,7 +1344,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $rhtml .= text(oeFormatMoney($iter['fee']));
                             }
                             $rhtml .= "</span></td>\n";
-                            $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+                            $rhtml .= '<td><span style="font-size:8pt; font-weight:900; background:#ffff9e">&nbsp;&nbsp;&nbsp;';
                             if ($iter['id']) {
                                 $rhtml .= getProviderName(empty($iter['provider_id']) ? text($iter['enc_provider_id']) : text($iter['provider_id']));
                             }
