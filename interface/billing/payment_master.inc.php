@@ -145,11 +145,11 @@ if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && 
                     <div class="col-xs-12 oe-custom-line">
                         <div class="forms col-xs-3">
                             <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
-                            <input class="form-control datepicker" id='check_date' name='check_date' type='text' value="<?php echo attr(oeFormatShortDate($CheckDate));?>">
+                            <input class="form-control datepicker" id='check_date' name='check_date' type='text' value="<?php echo attr(oeFormatShortDate($CheckDate));?>" autocomplete="off">
                         </div>
                         <div class="forms col-xs-3">
                             <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
-                            <input class="form-control datepicker" id='post_to_date' name='post_to_date' type='text' value="<?php echo ($screen=='new_payment') ? attr(oeFormatShortDate(date('Y-m-d'))) : attr(oeFormatShortDate($PostToDate));?>">
+                            <input class="form-control datepicker" id='post_to_date' name='post_to_date' type='text' value="<?php echo ($screen=='new_payment') ? attr(oeFormatShortDate(date('Y-m-d'))) : attr(oeFormatShortDate($PostToDate));?>" autocomplete="off">
                         </div>
                         <div class="forms col-xs-3">
                             <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
@@ -238,7 +238,7 @@ if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && 
                     <div class="col-xs-12 oe-custom-line">
                         <div class="col-xs-3">
                             <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-                            <input type='text' class='form-control datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"  value="<?php echo attr(oeFormatShortDate($DepositDate));?>"/>
+                            <input type='text' class='form-control datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"  value="<?php echo attr(oeFormatShortDate($DepositDate));?>" autocomplete="off"/>
                         </div>
                         <div class="col-xs-6">
                             <label class="control-label" for="description"><?php echo xlt('Description'); ?>:</label>
@@ -285,10 +285,11 @@ if ($screen=='new_payment' && $payment_id*1>0) {//After saving from the New Paym
                             <input class="form-control" id='post_to_date' name='post_to_date' type='text' value="<?php echo ($screen=='new_payment') ? attr(oeFormatShortDate(date('Y-m-d'))) : attr(oeFormatShortDate($PostToDate));?>"disabled>
                         </div>
                         <div class="forms col-xs-3">
-                            <label class="control-label" for="payment_method1"><?php echo xlt('Payment Method'); ?>:</label>
-                            <input type="text" class="form-control" name="payment_method1" id="payment_method1" value="<?php $frow['data_type']=1;
-                            $frow['list_id']='payment_method';
-                            generate_print_field($frow, $PaymentMethod);?>" disabled />
+                            <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
+                            <input type="text" class="form-control" name="payment_method1" id="payment_method" value="<?php
+                            $list='payment_method';
+                            $option=$PaymentMethod;
+                            echo getListItemTitle($list, $option);?>" disabled />
                             <input type="hidden" name="payment_method" value="<?php echo attr($PaymentMethod);?>"/>
                         </div>
                         <div class="forms col-xs-3">
@@ -304,16 +305,18 @@ if ($screen=='new_payment' && $payment_id*1>0) {//After saving from the New Paym
                         </div>
                         <div class="forms col-xs-3">
                             <label class="control-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
-                            <input type="text" class="form-control" name="type_name1" id="type_name1" value="<?php  $frow['data_type']=1;
-                            $frow['list_id']='payment_type';
-                            generate_print_field($frow, $PaymentType);?>" disabled />
+                            <input type="text" class="form-control" name="type_name1" id="type_name1" value="<?php
+                            $list='payment_type';
+                            $option=$PaymentType;
+                            echo getListItemTitle($list, $option);?>" disabled />
                             <input type="hidden" name="type_name" id="type_name" value="<?php echo attr($PaymentType);?>"/>
                         </div>
                         <div class="forms col-xs-3">
                             <label class="control-label" for="adjustment_code"><?php echo xlt('Payment Category'); ?>:</label>
-                            <input type="text" class="form-control" name="adjustment_code1" id="adjustment_code1" value="<?php $frow['data_type']=1;
-                            $frow['list_id']='payment_adjustment_code';
-                            generate_print_field($frow, $AdjustmentCode);?>" disabled />
+                            <input type="text" class="form-control" name="adjustment_code1" id="adjustment_code1" value="<?php
+                            $list='payment_adjustment_code';
+                            $option=$AdjustmentCode;
+                            echo getListItemTitle($list, $option);?>" disabled />
                             <input type="hidden" name="adjustment_code" value="<?php echo attr($AdjustmentCode);?>"/>
                         </div>
                     </div>

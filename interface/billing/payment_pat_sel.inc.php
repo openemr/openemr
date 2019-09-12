@@ -47,6 +47,7 @@ if (isset($_POST["mode"])) {
 }
 //===============================================================================
 ?>
+                    <br>
                     <fieldset>
                     <legend class=""><?php echo xlt('Distribute')?></legend>
                     <div class="col-xs-12" style="padding-bottom:5px">
@@ -91,6 +92,7 @@ if (isset($_POST["mode"])) {
                 $PreviousPID=0;
                 if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     ?>
+                <div class="col-xs-12">
                 <div class = "table-responsive">
                 <table class="table-condensed"   id="TableDistributePortion">
                   <thead class="" bgcolor="#dddddd">
@@ -258,11 +260,8 @@ if (isset($_POST["mode"])) {
                   </tr>
                 </table>
                 </div>
+                </div>
                 <br>
                     <?php
                 }//if($RowSearch = sqlFetchArray($ResultSearchNew))
                 ?>
-        <!--</td>
-    </tr>
-</table>
-</div>-->
