@@ -501,51 +501,51 @@ class X12_5010_837P
             "*" . "QC" .
             "*" . "1" .
             "*";
-            if ($claim->patientLastName()) {
-                $out .= $claim->patientLastName();
+            if ($claim->insuredLastName()) {
+                $out .= $claim->insuredLastName();
             } else {
-                $log .= "*** Missing patient last name.\n";
+                $log .= "*** Missing insured last name.\n";
             }
             $out .=  "*";
-            if ($claim->patientFirstName) {
-                $out .= $claim->patientFirstName();
+            if ($claim->insuredFirstName()) {
+                $out .= $claim->insuredFirstName();
             } else {
-                $log .= "*** Missing patient first name.\n";
+                $log .= "*** Missing insured first name.\n";
             }
-            if ($claim->patientMiddleName() !== '') {
-                $out .= "*" . $claim->patientMiddleName();
+            if ($claim->insuredMiddleName() !== '') {
+                $out .= "*" . $claim->insuredMiddleName();
             }
             $out .= "~\n";
 
             ++$edicount;
             $out .= "N3" .
             "*";
-            if ($claim->patientStreet()) {
+            if ($claim->insuredStreet()) {
                 $out .= $claim->patientStreet();
             } else {
-                $log .= "*** Missing patient street.\n";
+                $log .= "*** Missing insured street.\n";
             }
             $out .= "~\n";
 
             ++$edicount;
             $out .= "N4" .
             "*";
-            if ($claim->patientCity()) {
-                $out .= $claim->patientCity();
+            if ($claim->insuredCity()) {
+                $out .= $claim->insuredCity();
             } else {
-                $log .= "*** Missing patient city.\n";
+                $log .= "*** Missing insured city.\n";
             }
             $out .= "*";
-            if ($claim->patientState()) {
-                $out .= $claim->patientState();
+            if ($claim->insuredState()) {
+                $out .= $claim->insuredState();
             } else {
-                $log .= "*** Missing patient state.\n";
+                $log .= "*** Missing insured state.\n";
             }
             $out .= "*";
-            if ($claim->x12Zip($claim->patientZip())) {
-                $out .= $claim->x12Zip($claim->patientZip());
+            if ($claim->x12Zip($claim->insuredZip())) {
+                $out .= $claim->x12Zip($claim->insuredZip());
             } else {
-                $log .= "*** Missing patient zip.\n";
+                $log .= "*** Missing insured zip.\n";
             }
             $out .= "~\n";
 
@@ -553,16 +553,16 @@ class X12_5010_837P
             $out .= "DMG" .
             "*" . "D8" .
             "*";
-            if ($claim->patientDOB()) {
-                $out .= $claim->patientDOB();
+            if ($claim->insuredDOB()) {
+                $out .= $claim->insuredDOB();
             } else {
-                $log .= "*** Missing patient DOB.\n";
+                $log .= "*** Missing insured DOB.\n";
             }
             $out .= "*";
-            if ($claim->patientSex()) {
-                $out .= $claim->patientSex();
+            if ($claim->insuredSex()) {
+                $out .= $claim->insuredSex();
             } else {
-                $log .= "*** Missing patient sex.\n";
+                $log .= "*** Missing insured sex.\n";
             }
             $out .= "~\n";
 
