@@ -771,13 +771,13 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         array($formname, $formid)
                     );
                     $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
-                    $form_provider_id = empty($firow['provider_id']) ? 0 : intval($firow['provider_id']);
+                    $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
 
                     // Provider selector.
                     echo "&nbsp;&nbsp;";
                     echo xlt('Provider') . ": ";
                     // TBD: Refactor this function out of the FeeSheetHTML class as that is not the best place for it.
-                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $form_provider_id);
+                    echo FeeSheetHtml::genProviderSelect('form_provider_id', '-- ' . xl("Please Select") . ' --', $default);
 
                     // If appropriate build a drop-down selector of issues of this type for this patient.
                     // We skip this if in an issue form tab because removing and adding visit form tabs is

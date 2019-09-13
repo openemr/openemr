@@ -1,11 +1,21 @@
 <?php
+/**
+ * PatientReportEvent class.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2019 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Events\PatientReport;
 
 use Symfony\Component\EventDispatcher\Event;
 
 class PatientReportEvent extends Event
 {
-
     /**
      * This event fires after the action buttons for the report have rendered.
      * It allows listeners to render additional content or buttons.
