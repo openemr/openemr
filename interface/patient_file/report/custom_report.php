@@ -352,7 +352,7 @@ foreach ($ar as $key => $val) {
             //print the recurring days to screen
             if (empty($recurrences)) { //if there are no recurrent appointments:
                 echo "<div class='text' >";
-                echo "<span>" . xlt('None{{Appointment}}') . "</span>";
+                echo "<span>" . xlt('None') . "</span>";
                 echo "</div>";
                 echo "<br>";
             } else {
