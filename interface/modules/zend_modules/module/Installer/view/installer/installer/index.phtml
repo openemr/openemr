@@ -192,7 +192,7 @@ $depObj 	= $this->dependencyObject;
 	        			<?php
 	                		$form_title_file = @file($GLOBALS['srcdir']."/../{$baseModuleDir}{$customDir}/$fname/info.txt");
 				            if ($form_title_file)
-	                        	$form_title = $form_title_file[0];
+	                        	$form_title = trim($form_title_file[0]);
 	                        else
 	                            $form_title = $fname;
 	                		echo $listener->z_xlt($form_title);
