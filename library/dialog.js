@@ -65,7 +65,7 @@ function dlgOpenWindow(url, winname, width, height) {
     }
     top.modaldialog = cascwin(url, winname, width, height,
         "resizable=1,scrollbars=1,location=0,toolbar=0");
-    grabfocus(top);
+    // grabfocus(top); // cross origin issues. leave as placeholder for a bit.
     return false;
 }
 
@@ -232,27 +232,25 @@ if (typeof alertMsg !== "function") {
             console.log(error.message)
         });
     }
+    const persistUserOption = function (option, value) {
+        return $.ajax({
+            url: top.webroot_url + "/library/ajax/user_settings.php",
+            type: 'post',
+            contentType: 'application/x-www-form-urlencoded',
+            data: {
+                csrf_token_form: top.csrf_token_js,
+                target: option,
+                setting: value
+            },
+            beforeSend: function () {
+                top.restoreSession;
+            },
+            error: function (jqxhr, status, errorThrown) {
+                console.log(errorThrown);
+            }
+        });
+    };
 }
-
-const persistUserOption = function (option, value) {
-    return $.ajax({
-        url: top.webroot_url + "/library/ajax/user_settings.php",
-        type: 'post',
-        contentType: 'application/x-www-form-urlencoded',
-        data: {
-            csrf_token_form: top.csrf_token_js,
-            target: option,
-            setting: value
-        },
-        beforeSend: function () {
-            top.restoreSession;
-        },
-        error: function (jqxhr, status, errorThrown) {
-            console.log(errorThrown);
-        }
-    });
-};
-
 
 // Test if supporting dialog callbacks and close dependencies are in scope.
 // This is useful when opening and closing the dialog is in the same scope. Still use include_opener.js
