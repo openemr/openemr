@@ -507,7 +507,7 @@ class X12_5010_837P
                 $log .= "*** Missing patient last name.\n";
             }
             $out .=  "*";
-            if ($claim->patientFirstName) {
+            if ($claim->patientFirstName()) {
                 $out .= $claim->patientFirstName();
             } else {
                 $log .= "*** Missing patient first name.\n";
