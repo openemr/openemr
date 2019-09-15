@@ -48,8 +48,11 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "ORDER BY group_id, seq");
 while ($frow = sqlFetchArray($fres)) {
     $field_id  = $frow['field_id'];
-  //get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
+    // get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
     if (isset($_POST["form_$field_id"])) {
+        $newdata[$field_id] = get_layout_form_value($frow);
+    // php fix for risk factor checkboxes unchecked after one was checked
+    } else if ($field_id == 'usertext11') {
         $newdata[$field_id] = get_layout_form_value($frow);
     }
 }
