@@ -28,7 +28,7 @@ formHeader("Form: intakeverslag");
 $returnurl = 'encounter_top.php';
 
 $result = getPatientData($pid, "fname,lname,pid,pubpid,phone_home,pharmacy_id,DOB,DATE_FORMAT(DOB,'%Y%m%d') as DOB_YMD");
-$provider_results = sqlQuery("select * from users where username=?", array($_SESSION{"authUser"}));
+$provider_results = sqlQuery("select * from users where username=?", array($_SESSION["authUser"]));
 $age = getPatientAge($result["DOB_YMD"]);
 
 ////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ $vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_
 
 $obj = formFetch("form_intakeverslag", $vectAutosave['id']);
 
-$tmpDate = $obj{"intakedatum"};
+$tmpDate = $obj["intakedatum"];
 if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') {
     $m_strEventDate = $tmpDate;
 }
@@ -216,49 +216,49 @@ function autosave( )
 </table>
 
 <br><span class=text><?php echo xlt('Reason for Visit'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj{"reden_van_aanmelding"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj["reden_van_aanmelding"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Problem List'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="klachten_probleemgebieden" id="klachten_probleemgebieden"><?php echo text($obj{"klachten_probleemgebieden"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="klachten_probleemgebieden" id="klachten_probleemgebieden"><?php echo text($obj["klachten_probleemgebieden"]);?></textarea><br>
 
 <br><span class=text><?php echo xlt('Psychiatric History'); ?></span><br>
-<textarea cols=80 rows=10 wrap=virtual name="hulpverlening_onderzoek" id="hulpverlening_onderzoek"><?php echo text($obj{"hulpverlening_onderzoek"});?></textarea><br>
+<textarea cols=80 rows=10 wrap=virtual name="hulpverlening_onderzoek" id="hulpverlening_onderzoek"><?php echo text($obj["hulpverlening_onderzoek"]);?></textarea><br>
 
 <br><span class=text><?php echo xlt('Treatment Goals'); ?></span><br>
-<textarea cols=80 rows=10 wrap=virtual name="hulpvraag_en_doelen" id="hulpvraag_en_doelen"><?php echo text($obj{"hulpvraag_en_doelen"});?></textarea><br>
+<textarea cols=80 rows=10 wrap=virtual name="hulpvraag_en_doelen" id="hulpvraag_en_doelen"><?php echo text($obj["hulpvraag_en_doelen"]);?></textarea><br>
 
 <br><span class=text><?php echo xlt('Specialty Systems'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="bijzonderheden_systeem" id="bijzonderheden_systeem"><?php echo text($obj{"bijzonderheden_systeem"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="bijzonderheden_systeem" id="bijzonderheden_systeem"><?php echo text($obj["bijzonderheden_systeem"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Work/ Education/ Hobbies'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="werk_opleiding_vrije_tijdsbesteding" id="werk_opleiding_vrije_tijdsbesteding"><?php echo text($obj{"werk_opleiding_vrije_tijdsbesteding"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="werk_opleiding_vrije_tijdsbesteding" id="werk_opleiding_vrije_tijdsbesteding"><?php echo text($obj["werk_opleiding_vrije_tijdsbesteding"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Relation(s) / Children'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="relatie_kinderen" id="relatie_kinderen"><?php echo text($obj{"relatie_kinderen"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="relatie_kinderen" id="relatie_kinderen"><?php echo text($obj["relatie_kinderen"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Somatic Context'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="somatische_context" id="somatische_context"><?php echo text($obj{"somatische_context"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="somatische_context" id="somatische_context"><?php echo text($obj["somatische_context"]);?></textarea><br>
 
 <br>
 <table>
 <tr>
 <td align="right"  class=text><?php echo xlt('Alcohol'); ?></td>
-<td><input type="text" name="alcohol" size="60" value="<?php echo attr($obj{"alcohol"});?>" id="alcohol"></input></td>
+<td><input type="text" name="alcohol" size="60" value="<?php echo attr($obj["alcohol"]);?>" id="alcohol"></input></td>
 </tr><tr>
 <td align="right" class=text><?php echo xlt('Drugs'); ?></td>
-<td><input type="text" name="drugs" size="60" value="<?php echo attr($obj{"drugs"});?>" id="drugs"></input></td>
+<td><input type="text" name="drugs" size="60" value="<?php echo attr($obj["drugs"]);?>" id="drugs"></input></td>
 </tr><tr>
 <td align="right" class=text><?php echo xlt('Tobacco'); ?></td>
-<td><input type="text" name="roken" size="60" value="<?php echo attr($obj{"roken"});?>" id="roken"></input></td>
+<td><input type="text" name="roken" size="60" value="<?php echo attr($obj["roken"]);?>" id="roken"></input></td>
 </tr>
 </table>
 
 <br><span class=text><?php echo xlt('Medications'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj{"medicatie"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj["medicatie"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Family History'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="familieanamnese" id="familieanamnese"><?php echo text($obj{"familieanamnese"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="familieanamnese" id="familieanamnese"><?php echo text($obj["familieanamnese"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Assessment'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="indruk_observaties" id="indruk_observaties"><?php echo text($obj{"indruk_observaties"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="indruk_observaties" id="indruk_observaties"><?php echo text($obj["indruk_observaties"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Conclusions'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj{"beschrijvende_conclusie"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj["beschrijvende_conclusie"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Treatment Plan'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj{"behandelvoorstel"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj["behandelvoorstel"]);?></textarea><br>
 
 <table><tr>
 

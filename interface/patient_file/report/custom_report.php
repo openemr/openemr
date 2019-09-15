@@ -317,7 +317,7 @@ if ($printable) {
 // include ALL form's report.php files
 $inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", array($pid));
 while ($result = sqlFetchArray($inclookupres)) {
-  // include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
+  // include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
     $formdir = $result['formdir'];
     if (substr($formdir, 0, 3) == 'LBF') {
         include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
@@ -524,7 +524,7 @@ foreach ($ar as $key => $val) {
             // echo $sql;
             $result = sqlStatement($sql, array($pid));
             while ($row=sqlFetchArray($result)) {
-                echo text($row{'batchcom_data'}) . ", By: " . text($row{'user_name'}) . "<br>Text:<br> " . text($row{'msg_txt'}) . "<br>\n";
+                echo text($row['batchcom_data']) . ", By: " . text($row['user_name']) . "<br>Text:<br> " . text($row['msg_txt']) . "<br>\n";
             }
 
             echo "</div>\n";

@@ -360,7 +360,7 @@ class Userforms extends UserAudit
             $sql = "select i1.immunization_id as immunization_id, if(i1.administered_date,concat(i1.administered_date,' - ') ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 where i1.patient_id = ? order by administered_date desc";
             $result = sqlStatement($sql, array($pid));
             while ($row=sqlFetchArray($result)) {
-                echo htmlspecialchars($row{'immunization_data'}, ENT_QUOTES);
+                echo htmlspecialchars($row['immunization_data'], ENT_QUOTES);
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
                 ?>
               <br>
@@ -378,9 +378,9 @@ class Userforms extends UserAudit
             $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id=?";
             $result = sqlStatement($sql, array($pid));
             while ($row=sqlFetchArray($result)) {
-                echo htmlspecialchars($row{'batchcom_data'}.", ".xl('By').": ".$row{'user_name'}, ENT_QUOTES);
+                echo htmlspecialchars($row['batchcom_data'].", ".xl('By').": ".$row['user_name'], ENT_QUOTES);
                 ?>
-            <br><?php echo htmlspecialchars(xl('Text'), ENT_QUOTES);?>:<br><?php echo htmlspecialchars($row{'msg_txt'}, ENT_QUOTES);?><br>
+            <br><?php echo htmlspecialchars(xl('Text'), ENT_QUOTES);?>:<br><?php echo htmlspecialchars($row['msg_txt'], ENT_QUOTES);?><br>
                 <?php
             }
             ?>

@@ -1350,13 +1350,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
                             if ($GLOBALS['display_units_in_billing'] != 0) {
                                 if ($iter['id']) {
-                                    $rhtml .= xlt("Units") . ":" . text($iter{"units"});
+                                    $rhtml .= xlt("Units") . ":" . text($iter["units"]);
                                 }
                             }
                             $rhtml .= "</span></td>\n";
                             $rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
                             if ($iter['id']) {
-                                $rhtml .= text(oeFormatSDFT(strtotime($iter{"date"})));
+                                $rhtml .= text(oeFormatSDFT(strtotime($iter["date"])));
                             }
                             $rhtml .= "</span></td>\n";
                             // This error message is generated if the authorized check box is not checked

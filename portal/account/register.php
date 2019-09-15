@@ -35,8 +35,8 @@ for ($iter = 0; $row = sqlFetchArray($res2); $iter ++) {
     $result2[$iter] = $row;
 }
 if (count($result2) == 1) {
-    $defaultLangID = $result2[0]{"lang_id"};
-    $defaultLangName = $result2[0]{"lang_description"};
+    $defaultLangID = $result2[0]["lang_id"];
+    $defaultLangName = $result2[0]["lang_description"];
 } else {
     // default to english if any problems
     $defaultLangID = 1;

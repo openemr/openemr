@@ -2996,7 +2996,7 @@ function canvas_select($zone, $encounter, $pid)
     $side="OU";
     $type_name = $side."_".$zone."_VIEW";
     $canvi=[];
-    if (!empty($documents['zones'][$zone])) {
+    if (!empty($documents['zones'][$zone]) && !empty($documents['docs_in_name']['Drawings'])) {
         foreach ($documents['docs_in_name']['Drawings'] as $doc) {
             if (!preg_match("/" . $zone . "_VIEW/", $doc['url'])) {
                 continue;

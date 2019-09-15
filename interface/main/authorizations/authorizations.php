@@ -203,7 +203,7 @@ if ($imauthorized && $see_auth > 1) {
           // added below 4 lines to add provider to authorizations for ez reference.
           $providerID = sqlFetchArray(sqlStatement(
             "select providerID from patient_data where pid=?", array($ppid) ));
-          $userID=$providerID{"providerID"};
+          $userID=$providerID["providerID"];
           $providerName = sqlFetchArray(sqlStatement(
             "select lname from users where id=?", array($userID) ));
             ****/

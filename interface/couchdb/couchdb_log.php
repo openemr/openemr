@@ -16,6 +16,11 @@ use OpenEMR\Common\Crypto\CryptoGen;
 
 $filename = $GLOBALS['OE_SITE_DIR'] . '/documents/couchdb/log.txt';
 
+if (!file_exists($filename)) {
+    echo xlt("CouchDB error log is empty");
+    exit;
+}
+
 $fh = file_get_contents($filename);
 
 $cryptoGen = new CryptoGen();

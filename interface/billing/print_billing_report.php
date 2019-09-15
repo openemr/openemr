@@ -161,8 +161,8 @@ if ($ret = getBillsBetweenReport($code_type)) {
     $first_time = 1;
     $encid = 0;
     foreach ($ret as $iter) {
-        if ($old_pid != $iter{"pid"}) {
-            $name = getPatientData($iter{"pid"});
+        if ($old_pid != $iter["pid"]) {
+            $name = getPatientData($iter["pid"]);
             if (!$first_time) {
                 print "</tr></table>\n";
                 print "</td><td>";
@@ -172,31 +172,31 @@ if ($ret = getBillsBetweenReport($code_type)) {
                 $first_time=0;
             }
 
-            print "<tr><td colspan=5><hr><span class=bold>" . text($name{"fname"}) . " " . text($name{"lname"}) . "</span><br><br>\n";
+            print "<tr><td colspan=5><hr><span class=bold>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br><br>\n";
             //==================================
 
 
             print "<font class=bold>" . xlt("Patient Data") . ":</font><br>";
-            printRecDataOne($patient_data_array, getRecPatientData($iter{"pid"}), $COLS);
+            printRecDataOne($patient_data_array, getRecPatientData($iter["pid"]), $COLS);
 
             print "<font class=bold>" . xlt("Employer Data") . ":</font><br>";
-            printRecDataOne($employer_data_array, getRecEmployerData($iter{"pid"}), $COLS);
+            printRecDataOne($employer_data_array, getRecEmployerData($iter["pid"]), $COLS);
 
             print "<font class=bold>" . xlt("Primary Insurance Data") . ":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData($iter{"pid"}, "primary"), $COLS);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "primary"), $COLS);
 
             print "<font class=bold>" . xlt("Secondary Insurance Data") . ":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData($iter{"pid"}, "secondary"), $COLS);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "secondary"), $COLS);
 
             print "<font class=bold>" . xlt("Tertiary Insurance Data") . ":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData($iter{"pid"}, "tertiary"), $COLS);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "tertiary"), $COLS);
 
             //==================================
             print "</td></tr><tr>\n";
-            $old_pid = $iter{"pid"};
+            $old_pid = $iter["pid"];
         }
 
-        print "<td width=100><span class=text>" . text($iter{"code_type"}) . ": </span></td><td width=100><span class=text>" . text($iter{"code"}) . "</span></td><td width=100><span class=small>(" . text(date("Y-m-d", strtotime($iter{"date"}))) . ")</span></td>\n";
+        print "<td width=100><span class=text>" . text($iter["code_type"]) . ": </span></td><td width=100><span class=text>" . text($iter["code"]) . "</span></td><td width=100><span class=small>(" . text(date("Y-m-d", strtotime($iter["date"]))) . ")</span></td>\n";
         $res_count++;
         if ($res_count == $N) {
             print "</tr><tr>\n";

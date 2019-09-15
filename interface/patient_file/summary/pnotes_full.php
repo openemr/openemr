@@ -474,7 +474,7 @@ if ($result != "") {
             ' (' . text($iter['user']) . ') ' . nl2br(text(oeFormatPatientNote($body)));
         }
 
-        if (($iter{"activity"}) && ($iter['message_status'] != "Done")) {
+        if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
             $checked = "checked";
         } else {
             $checked = "";
@@ -642,7 +642,7 @@ if ($result_sent != "") {
         }
 
         $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
-        if (($iter{"activity"}) && ($iter['message_status'] != "Done")) {
+        if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
             $checked = "checked";
         } else {
             $checked = "";
