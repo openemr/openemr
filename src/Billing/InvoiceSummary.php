@@ -32,7 +32,7 @@
 //  dsc - for tax charges, a description of the tax
 //  arseq - ar_activity.sequence_no when it applies.
 
-require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
+require_once(dirname(__FILE__) . "/../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\SLEOB;
 
