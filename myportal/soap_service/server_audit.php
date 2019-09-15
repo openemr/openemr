@@ -191,7 +191,6 @@ class UserAudit extends UserMail
                         }
                     }
 
-                    require_once("../../library/invoice_summary.inc.php");
                     require_once("../../library/options.inc.php");
                     require_once("../../library/acl.inc");
                     require_once("../../library/patient.inc");

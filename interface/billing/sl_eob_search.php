@@ -22,7 +22,6 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/api.inc");
@@ -34,6 +33,7 @@ require_once("$srcdir/acl.inc");
 require_once "$srcdir/user.inc";
 
 use Mpdf\Mpdf;
+use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -463,7 +463,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         //    amount  = charge less adjustments
         //    paid    = amount paid
         //    notice  = 1 for first notice, 2 for second, etc.
-        //    detail  = array of details, see invoice_summary.inc.php
+        //    detail  = array of details, see InvoiceSummary.php
         //
         if ($stmt['cid'] != $row['pid']) {
             if (!empty($stmt)) {
@@ -509,7 +509,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
 
-        $invlines = ar_get_invoice_summary($row['pid'], $row['encounter'], true);
+        $invlines = InvoiceSummary::ar_get_invoice_summary($row['pid'], $row['encounter'], true);
         foreach ($invlines as $key => $value) {
             $line = array();
             $line['dos'] = $svcdate;

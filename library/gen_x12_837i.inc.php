@@ -9,8 +9,6 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/invoice_summary.inc.php");
-
 use OpenEMR\Billing\Claim;
 
 function x12date($frmdate)

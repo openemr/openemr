@@ -22,10 +22,10 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/user.inc";
 
+use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -430,7 +430,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
 }
 
 // Get invoice charge details.
-$codes = ar_get_invoice_summary($patient_id, $encounter_id, true);
+$codes = InvoiceSummary::ar_get_invoice_summary($patient_id, $encounter_id, true);
 $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1", array($patient_id));
 ?>
 
