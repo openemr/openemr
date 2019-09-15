@@ -44,7 +44,7 @@ require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
-use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Crypto\CryptoGen;
 
 $cryptoGen = new CryptoGen();
