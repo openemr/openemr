@@ -40,7 +40,7 @@ use OpenEMR\Billing\SLEOB;
 //
 class InvoiceSummary
 {
-    public function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false)
+    public static function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false)
     {
         $codes = array();
         $keysuff1 = 1000;
@@ -205,7 +205,7 @@ class InvoiceSummary
 // Returns: -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3.
 // for Integrated A/R.
 //
-    public function ar_responsible_party($patient_id, $encounter_id)
+    public static function ar_responsible_party($patient_id, $encounter_id)
     {
         $row = sqlQuery("SELECT date, last_level_billed, last_level_closed " .
             "FROM form_encounter WHERE " .
