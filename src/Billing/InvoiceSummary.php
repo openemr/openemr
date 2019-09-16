@@ -31,6 +31,7 @@
 //  plv - provided for "integrated A/R" only: 0=pt, 1=Ins1, etc.
 //  dsc - for tax charges, a description of the tax
 //  arseq - ar_activity.sequence_no when it applies.
+namespace OpenEMR\Billing;
 
 require_once(dirname(__FILE__) . "/../../custom/code_types.inc.php");
 
