@@ -18,6 +18,11 @@ use OpenEMR\Common\Crypto\CryptoGen;
 
 $filename = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/process_bills.log';
 
+if (!file_exists($filename)) {
+    echo xlt("Billing log is empty");
+    exit;
+}
+
 $fh = file_get_contents($filename);
 
 $cryptoGen = new CryptoGen();

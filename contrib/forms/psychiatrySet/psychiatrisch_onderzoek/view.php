@@ -27,7 +27,7 @@ require_once("$srcdir/patient.inc");
 $returnurl = 'encounter_top.php';
 
 $result = getPatientData($pid, "fname,lname,pid,pubpid,phone_home,pharmacy_id,DOB,DATE_FORMAT(DOB,'%Y%m%d') as DOB_YMD");
-$provider_results = sqlQuery("select * from users where username=?", array($_SESSION{"authUser"}));
+$provider_results = sqlQuery("select * from users where username=?", array($_SESSION["authUser"]));
 
 ////////////////////////////////////////////////////////////////////
 // Function:    getPatientDateOfLastEncounter
@@ -67,7 +67,7 @@ if ($vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0)
     $obj = formFetch("form_psychiatrisch_onderzoek", $_GET["id"]);
 }
 
-$tmpDate = stripslashes($obj{"datum_onderzoek"});
+$tmpDate = stripslashes($obj["datum_onderzoek"]);
 if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') {
     $m_strEventDate = $tmpDate;
 }
@@ -209,19 +209,19 @@ require_once("$srcdir/api.inc");
 </table>
 
 <br><span class=text><?php echo xlt('Reason for Visit'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj{"reden_van_aanmelding"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj["reden_van_aanmelding"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Intake Conclusion'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="conclusie_van_intake" id="conclusie_van_intake"><?php echo text($obj{"conclusie_van_intake"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="conclusie_van_intake" id="conclusie_van_intake"><?php echo text($obj["conclusie_van_intake"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Medications'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj{"medicatie"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj["medicatie"]);?></textarea><br>
 <br><span class=text><?php echo xlt('History'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="anamnese" id="anamnese"><?php echo text($obj{"anamnese"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="anamnese" id="anamnese"><?php echo text($obj["anamnese"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Psychiatric Examination'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo text($obj{"psychiatrisch_onderzoek"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo text($obj["psychiatrisch_onderzoek"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Conclusions'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj{"beschrijvende_conclusie"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj["beschrijvende_conclusie"]);?></textarea><br>
 <br><span class=text><?php echo xlt('Treatment Plan'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj{"behandelvoorstel"});?></textarea><br>
+<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj["behandelvoorstel"]);?></textarea><br>
 
 <table><tr>
 <?php

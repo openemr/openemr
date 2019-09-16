@@ -150,9 +150,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </script>
 <script type="text/javascript">
     // Array of skip conditions for the checkSkipConditions() function.
-    var skipArray = [
-        <?php echo js_escape($condition_str); ?>
-    ];
+    var skipArray = [<?php echo !empty($condition_str) ? js_escape($condition_str) : ''; ?>];
     checkSkipConditions();
 </script>
 

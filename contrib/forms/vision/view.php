@@ -30,14 +30,14 @@ $obj = formFetch("form_vision", $_GET["id"]);
 
 <table>
 <tr>
-<td><span class=text>OD K1: </span></td><td><input size=3 type=entry name="od_k1" value="<?php echo attr($obj{"od_k1"});?>" ></td>
-<td><span class=text>OD K1 Axis: </span></td><td><input size=3 type=entry name="od_k1_axis" value="<?php echo attr($obj{"od_k1_axis"});?>" ></td>
-<td><span class=text>OD K2: </span></td><td><input size=3 type=entry name="od_k2" value="<?php echo attr($obj{"od_k2"});?>" ></td>
-<td><span class=text>OD K2 Axis: </span></td><td><input size=3 type=entry name="od_k2_axis" value="<?php echo attr($obj{"od_k2_axis"});?>" ></td>
+<td><span class=text>OD K1: </span></td><td><input size=3 type=entry name="od_k1" value="<?php echo attr($obj["od_k1"]);?>" ></td>
+<td><span class=text>OD K1 Axis: </span></td><td><input size=3 type=entry name="od_k1_axis" value="<?php echo attr($obj["od_k1_axis"]);?>" ></td>
+<td><span class=text>OD K2: </span></td><td><input size=3 type=entry name="od_k2" value="<?php echo attr($obj["od_k2"]);?>" ></td>
+<td><span class=text>OD K2 Axis: </span></td><td><input size=3 type=entry name="od_k2_axis" value="<?php echo attr($obj["od_k2_axis"]);?>" ></td>
 </tr>
 <tr>
 <td colspan=8>
-<span class=text>OD Testing Status: </span><input type=entry name="od_testing_status" value="<?php echo attr($obj{"od_testing_status"});?>" >
+<span class=text>OD Testing Status: </span><input type=entry name="od_testing_status" value="<?php echo attr($obj["od_testing_status"]);?>" >
 </td>
 </tr>
 </table>
@@ -45,20 +45,20 @@ $obj = formFetch("form_vision", $_GET["id"]);
 
 <table>
 <tr>
-<td><span class=text>OS K1: </span></td><td><input size=3 type=entry name="os_k1" value="<?php echo attr($obj{"os_k1"});?>" ></td>
-<td><span class=text>OS K1 Axis: </span></td><td><input size=3 type=entry name="os_k1_axis" value="<?php echo attr($obj{"os_k1_axis"});?>" ></td>
-<td><span class=text>OS K2: </span></td><td><input size=3 type=entry name="os_k2" value="<?php echo attr($obj{"os_k2"});?>" ></td>
-<td><span class=text>OS K2 Axis: </span></td><td><input size=3 type=entry name="os_k2_axis" value="<?php echo attr($obj{"os_k2_axis"});?>" ></td>
+<td><span class=text>OS K1: </span></td><td><input size=3 type=entry name="os_k1" value="<?php echo attr($obj["os_k1"]);?>" ></td>
+<td><span class=text>OS K1 Axis: </span></td><td><input size=3 type=entry name="os_k1_axis" value="<?php echo attr($obj["os_k1_axis"]);?>" ></td>
+<td><span class=text>OS K2: </span></td><td><input size=3 type=entry name="os_k2" value="<?php echo attr($obj["os_k2"]);?>" ></td>
+<td><span class=text>OS K2 Axis: </span></td><td><input size=3 type=entry name="os_k2_axis" value="<?php echo attr($obj["os_k2_axis"]);?>" ></td>
 </tr>
 <tr>
 <td colspan=8>
-<span class=text>OS Testing Status: </span><input type=entry name="os_testing_status" value="<?php echo attr($obj{"os_testing_status"});?>" >
+<span class=text>OS Testing Status: </span><input type=entry name="os_testing_status" value="<?php echo attr($obj["os_testing_status"]);?>" >
 </td>
 </tr>
 </table>
 
 
-<span class=text>Additional Notes: </span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ><?php echo text($obj{"additional_notes"});?></textarea>
+<span class=text>Additional Notes: </span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ><?php echo text($obj["additional_notes"]);?></textarea>
 <br>
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>

@@ -83,7 +83,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
     }
 </style>
 
-<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
+<?php include_once($GLOBALS['srcdir'] . "/options.js.php"); ?>
 
 <script type="text/javascript">
 
@@ -564,7 +564,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <?php
                 foreach ($insurancei as $iid => $iname) {
                     echo "<option value='" . attr($iid) . "'";
-                    if (strtolower($iid) == strtolower($result3{"provider"})) {
+                    if (strtolower($iid) == strtolower($result3["provider"])) {
                         echo " selected";
                     }
 
@@ -582,7 +582,7 @@ echo xlt($CapInstype); ?></a></li><?php
              </td>
              <td class='required'>:</td>
              <td>
-              <input type='entry' class='form-control' size='20' name='i<?php echo attr($i); ?>plan_name' value="<?php echo attr($result3{"plan_name"}); ?>"
+              <input type='entry' class='form-control' size='20' name='i<?php echo attr($i); ?>plan_name' value="<?php echo attr($result3["plan_name"]); ?>"
                onchange="capitalizeMe(this);" />&nbsp;&nbsp;
              </td>
             </tr>
@@ -602,14 +602,14 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
              <td><label class=required><?php echo xlt('Policy Number'); ?></label></td>
              <td class='required'>:</td>
-             <td><input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>policy_number' value="<?php echo attr($result3{"policy_number"}); ?>"
+             <td><input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>policy_number' value="<?php echo attr($result3["policy_number"]); ?>"
               onkeyup='policykeyup(this)'></td>
             </tr>
 
             <tr>
              <td><label class=required><?php echo xlt('Group Number'); ?></label></td>
              <td class='required'>:</td>
-             <td><input type=entry class='form-control' size=16 name=i<?php echo attr($i); ?>group_number value="<?php echo attr($result3{"group_number"}); ?>" onkeyup='policykeyup(this)'></td>
+             <td><input type=entry class='form-control' size=16 name=i<?php echo attr($i); ?>group_number value="<?php echo attr($result3["group_number"]); ?>" onkeyup='policykeyup(this)'></td>
             </tr>
 
             <tr<?php if ($GLOBALS['omit_employers']) {
@@ -619,7 +619,7 @@ echo xlt($CapInstype); ?></a></li><?php
               (<?php echo xlt('if unemployed enter Student'); ?>,<br><?php echo xlt('PT Student, or leave blank'); ?>) </label></td>
               <td class='required'>:</td>
              <td><input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_employer
-              value="<?php echo attr($result3{"subscriber_employer"}); ?>"
+              value="<?php echo attr($result3["subscriber_employer"]); ?>"
                onchange="capitalizeMe(this);" /></td>
             </tr>
 
@@ -629,7 +629,7 @@ echo xlt($CapInstype); ?></a></li><?php
              <td><label class=required><?php echo xlt('SE Address'); ?></label></td>
              <td class='required'>:</td>
              <td><input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_employer_street
-              value="<?php echo attr($result3{"subscriber_employer_street"}); ?>"
+              value="<?php echo attr($result3["subscriber_employer_street"]); ?>"
                onchange="capitalizeMe(this);" /></td>
             </tr>
 
@@ -641,7 +641,7 @@ echo xlt($CapInstype); ?></a></li><?php
                <tr>
                 <td><label class=required><?php echo xlt('SE City'); ?>: </label></td>
                 <td><input type=entry class='form-control' size=15 name=i<?php echo attr($i); ?>subscriber_employer_city
-               value="<?php echo attr($result3{"subscriber_employer_city"}); ?>"
+               value="<?php echo attr($result3["subscriber_employer_city"]); ?>"
                 onchange="capitalizeMe(this);" /></td>
                 <td><label class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE State') : xlt('SE Locality') ?>: </label></td>
             <td>
@@ -653,7 +653,7 @@ echo xlt($CapInstype); ?></a></li><?php
                </tr>
                <tr>
                 <td><label class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </label></td>
-                <td><input type=entry class='form-control' size=15 name=i<?php echo attr($i); ?>subscriber_employer_postal_code value="<?php echo attr($result3{"subscriber_employer_postal_code"}); ?>"></td>
+                <td><input type=entry class='form-control' size=15 name=i<?php echo attr($i); ?>subscriber_employer_postal_code value="<?php echo attr($result3["subscriber_employer_postal_code"]); ?>"></td>
                 <td><label class=required><?php echo xlt('SE Country'); ?>: </label></td>
             <td>
                     <?php
@@ -685,9 +685,9 @@ echo xlt($CapInstype); ?></a></li><?php
                       <tr>
                 <td width=120><label class=required><?php echo xlt('Subscriber'); ?> </label></td>
                 <td class=required>:</td>
-                <td colspan=3><input type=entry class='form-control'size=10 name=i<?php echo attr($i); ?>subscriber_fname   value="<?php echo attr($result3{"subscriber_fname"}); ?>" onchange="capitalizeMe(this);" />
-                <input type=entry class='form-control' size=3 name=i<?php echo attr($i); ?>subscriber_mname value="<?php echo attr($result3{"subscriber_mname"}); ?>" onchange="capitalizeMe(this);" />
-                <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_lname value="<?php echo attr($result3{"subscriber_lname"}); ?>" onchange="capitalizeMe(this);" /></td>
+                <td colspan=3><input type=entry class='form-control'size=10 name=i<?php echo attr($i); ?>subscriber_fname   value="<?php echo attr($result3["subscriber_fname"]); ?>" onchange="capitalizeMe(this);" />
+                <input type=entry class='form-control' size=3 name=i<?php echo attr($i); ?>subscriber_mname value="<?php echo attr($result3["subscriber_mname"]); ?>" onchange="capitalizeMe(this);" />
+                <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_lname value="<?php echo attr($result3["subscriber_lname"]); ?>" onchange="capitalizeMe(this);" /></td>
                 <td></td><td></td><td></td><td></td>
             </tr>
             <tr>
@@ -706,13 +706,13 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
                 <td class=leftborder><label class=bold><?php echo xlt('S.S.'); ?> </label></td>
                 <td class=required>:</td>
-                <td><input type=entry class='form-control' size=11 name=i<?php echo attr($i); ?>subscriber_ss value="<?php echo attr(trim($result3{"subscriber_ss"})); ?>"></td>
+                <td><input type=entry class='form-control' size=11 name=i<?php echo attr($i); ?>subscriber_ss value="<?php echo attr(trim($result3["subscriber_ss"])); ?>"></td>
             </tr>
 
             <tr>
                 <td><label class=required><?php echo xlt('Subscriber Address'); ?> </label></td>
                 <td class=required>:</td>
-                <td><input type=entry class='form-control' size=20 name=i<?php echo attr($i); ?>subscriber_street value="<?php echo attr($result3{"subscriber_street"}); ?>" onchange="capitalizeMe(this);" /></td>
+                <td><input type=entry class='form-control' size=20 name=i<?php echo attr($i); ?>subscriber_street value="<?php echo attr($result3["subscriber_street"]); ?>" onchange="capitalizeMe(this);" /></td>
 
                 <td><label class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('State') : xlt('Locality') ?>: </label></td>
                 <td>
@@ -725,7 +725,7 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
                 <td class=leftborder><label class=required><?php echo xlt('City'); ?></label></td>
                 <td class=required>:</td>
-                <td><input type=entry class='form-control' size=11 name=i<?php echo attr($i); ?>subscriber_city value="<?php echo attr($result3{"subscriber_city"}); ?>" onchange="capitalizeMe(this);" /></td><td class=leftborder><label class='required'<?php if ($GLOBALS['omit_employers']) {
+                <td><input type=entry class='form-control' size=11 name=i<?php echo attr($i); ?>subscriber_city value="<?php echo attr($result3["subscriber_city"]); ?>" onchange="capitalizeMe(this);" /></td><td class=leftborder><label class='required'<?php if ($GLOBALS['omit_employers']) {
                     echo " style='display:none'";
                                                                          } ?>><?php echo xlt('Country'); ?>: </label></td><td>
                     <?php
@@ -736,7 +736,7 @@ echo xlt($CapInstype); ?></a></li><?php
 </tr>
             <tr>
                 <td><label class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Zip Code') : xlt('Postal Code') ?> </label></td>
-                <td class=required>:</td><td><input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_postal_code value="<?php echo attr($result3{"subscriber_postal_code"}); ?>"></td>
+                <td class=required>:</td><td><input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_postal_code value="<?php echo attr($result3["subscriber_postal_code"]); ?>"></td>
 
                 <td colspan=2>
                 </td><td></td>
@@ -745,7 +745,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td><label class=bold><?php echo xlt('Subscriber Phone'); ?></label></td>
                 <td class=required>:</td>
                 <td><input type='text' class='form-control' size='20' name='i<?php echo attr($i); ?>subscriber_phone' value='<?php echo attr($result3["subscriber_phone"]); ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
-                <td colspan=2><label class=bold><?php echo xlt('CoPay'); ?>: <input type=text class='form-control' size="6" name=i<?php echo attr($i); ?>copay value="<?php echo attr($result3{"copay"}); ?>"></label></td>
+                <td colspan=2><label class=bold><?php echo xlt('CoPay'); ?>: <input type=text class='form-control' size="6" name=i<?php echo attr($i); ?>copay value="<?php echo attr($result3["copay"]); ?>"></label></td>
                 <td colspan=2>
                 </td><td></td><td></td>
             </tr>
@@ -754,10 +754,10 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td class=required>:</td>
                 <td colspan=2>
                     <select class='form-control' name=i<?php echo attr($i); ?>accept_assignment>
-                     <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") {
+                     <option value="TRUE" <?php if (strtoupper($result3["accept_assignment"]) == "TRUE") {
                             echo "selected";
                                           }?>><?php echo xlt('YES'); ?></option>
-                     <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") {
+                     <option value="FALSE" <?php if (strtoupper($result3["accept_assignment"]) == "FALSE") {
                             echo "selected";
                                            }?>><?php echo xlt('NO'); ?></option>
                     </select>

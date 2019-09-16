@@ -449,9 +449,9 @@ tr.selected {
 
                 $result = sqlStatement($sql);
                 while ($row = sqlFetchArray($result)) {
-                    echo '<OPTION VALUE=' . attr($row{'id'});
-                    echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $_SESSION['authId']) == $row{'id'} ? ' selected>' : '>';
-                    echo text($row{'full_name'}) . '</OPTION>';
+                    echo '<OPTION VALUE=' . attr($row['id']);
+                    echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $_SESSION['authId']) == $row['id'] ? ' selected>' : '>';
+                    echo text($row['full_name']) . '</OPTION>';
                 }
                 ?>
             </select>          </td>
@@ -531,9 +531,9 @@ tr.selected {
 
                 $result = sqlStatement($sql);
                 while ($row = sqlFetchArray($result)) {
-                    echo '<OPTION VALUE=' . attr($row{'id'});
-                    echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $_SESSION['authId']) == $row{'id'} ? ' selected>' : '>';
-                    echo text($row{'full_name'}) . '</OPTION>';
+                    echo '<OPTION VALUE=' . attr($row['id']);
+                    echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $_SESSION['authId']) == $row['id'] ? ' selected>' : '>';
+                    echo text($row['full_name']) . '</OPTION>';
                 }
                 ?>
             </select>

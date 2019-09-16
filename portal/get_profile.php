@@ -137,7 +137,7 @@ $N = 7;
         echo "<div class='immunizations'><h4>" . xlt('Patient Immunization') . '</h4>';
         $result = FetchSection::getImmunizations($pid);
         foreach ($result as $row) {
-            echo text($row{'administered_formatted'}) . ' : ';
+            echo text($row['administered_formatted']) . ' : ';
             echo text($row['code_text']) . ' : ';
             echo text($row['note']) . ' : ';
             echo text($row['completion_status']) . '<br>';

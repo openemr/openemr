@@ -94,13 +94,13 @@ echo "<form method='post' name='my_form' " .
   <td align="left" class="forms"><?php echo xlt('Admit Date'); ?>:</td>
         <td class="forms">
                <input type='text' size='10' class='datepicker' name='admit_date' id='admission_date' <?php echo attr($disabled); ?>;
-               value='<?php echo attr($obj{"admit_date"}); ?>'
+               value='<?php echo attr($obj["admit_date"]); ?>'
                title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
         </td>
         <td align="left" class="forms"><?php echo xlt('Discharged'); ?>:</td>
         <td class="forms">
                <input type='text' size='10' class='datepicker' name='discharged' id='discharge_date' <?php echo attr($disabled); ?>;
-      value='<?php echo attr($obj{"discharged"}); ?>'
+      value='<?php echo attr($obj["discharged"]); ?>'
        title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
         </td>
     </tr>
@@ -122,17 +122,17 @@ echo "<form method='post' name='my_form' " .
     </tr>
     <tr>
         <td align="right" class="forms">1.</td>
-        <td colspan="3"><textarea name="goal_a_acute_intoxication" rows="2" cols="80" wrap="virtual name"><?php echo text($obj{"goal_a_acute_intoxication"});?></textarea></td>
+        <td colspan="3"><textarea name="goal_a_acute_intoxication" rows="2" cols="80" wrap="virtual name"><?php echo text($obj["goal_a_acute_intoxication"]);?></textarea></td>
 
     </tr>
     <tr>
         <td align="right" class="forms">2.</td>
-        <td colspan="3"><textarea name="goal_a_acute_intoxication_I" rows="2" cols="80" wrap="virtual name"><?php echo text($obj{"goal_a_acute_intoxication_I"});?></textarea></td>
+        <td colspan="3"><textarea name="goal_a_acute_intoxication_I" rows="2" cols="80" wrap="virtual name"><?php echo text($obj["goal_a_acute_intoxication_I"]);?></textarea></td>
 
     </tr>
     <tr>
         <td align="right" class="forms">3.</td>
-        <td colspan="3"><textarea name="goal_a_acute_intoxication_II" rows="2" cols="80" wrap="virtual name"><?php echo text($obj{"goal_a_acute_intoxication_II"});?></textarea></td>
+        <td colspan="3"><textarea name="goal_a_acute_intoxication_II" rows="2" cols="80" wrap="virtual name"><?php echo text($obj["goal_a_acute_intoxication_II"]);?></textarea></td>
 
 
     <tr>
@@ -142,12 +142,12 @@ echo "<form method='post' name='my_form' " .
     </tr>
     <tr>
         <td align="right" class="forms">1.</td>
-        <td colspan="3"><textarea name="goal_b_emotional_behavioral_conditions" rows="2" cols="80" wrap="virtual name"><?php echo text($obj{"goal_b_emotional_behavioral_conditions"});?></textarea></td>
+        <td colspan="3"><textarea name="goal_b_emotional_behavioral_conditions" rows="2" cols="80" wrap="virtual name"><?php echo text($obj["goal_b_emotional_behavioral_conditions"]);?></textarea></td>
 
     </tr>
     <tr>
         <td align="right" class="forms">2.</td>
-        <td colspan="3"><textarea name="goal_b_emotional_behavioral_conditions_I" rows="2" cols="80" wrap="virtual name"><?php echo text($obj{"goal_b_emotional_behavioral_conditions_I"});?></textarea></td>
+        <td colspan="3"><textarea name="goal_b_emotional_behavioral_conditions_I" rows="2" cols="80" wrap="virtual name"><?php echo text($obj["goal_b_emotional_behavioral_conditions_I"]);?></textarea></td>
 
     </tr>
 
@@ -157,12 +157,12 @@ echo "<form method='post' name='my_form' " .
     </tr>
     <tr>
         <td align="right" class="forms">1.</td>
-        <td colspan="3"><textarea name="goal_c_relapse_potential" rows="2" cols="80" wrap="virtual name"><?php echo text($obj{"goal_c_relapse_potential"});?></textarea></td>
+        <td colspan="3"><textarea name="goal_c_relapse_potential" rows="2" cols="80" wrap="virtual name"><?php echo text($obj["goal_c_relapse_potential"]);?></textarea></td>
 
     </tr>
     <tr>
         <td align="right" class="forms">2.</td>
-        <td colspan="3"><textarea name="goal_c_relapse_potential_I" rows="2" cols="80" wrap="virtual name"><?php echo text($obj{"goal_c_relapse_potential_I"});?></textarea></td>
+        <td colspan="3"><textarea name="goal_c_relapse_potential_I" rows="2" cols="80" wrap="virtual name"><?php echo text($obj["goal_c_relapse_potential_I"]);?></textarea></td>
 
     </tr>
 

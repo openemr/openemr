@@ -288,9 +288,9 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         $res =sqlStatement($res_query, $sqlBindArray);
 
     while ($result = sqlFetchArray($res)) {
-        if ($result{"form_name"} == "New Patient Encounter") {
-            $newpatient[] = $result{"form_id"}.":".$result{"encounter"};
-            $pids[] = $result{"pid"};
+        if ($result["form_name"] == "New Patient Encounter") {
+            $newpatient[] = $result["form_id"].":".$result["encounter"];
+            $pids[] = $result["pid"];
         }
     }
 
@@ -315,7 +315,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         /*
         $inclookupres = sqlStatement("select distinct formdir from forms where pid='".$pids[$iCounter]."'");
         while($result = sqlFetchArray($inclookupres)) {
-        include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
+        include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
         }
         */
 

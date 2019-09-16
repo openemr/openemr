@@ -385,7 +385,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             while ($result = sqlFetchArray($res)) {
-                                if ($result{"form_name"} == "New Patient Encounter") {
+                                if ($result["form_name"] == "New Patient Encounter") {
                                     if ($isfirst == 0) {
                                         foreach ($registry_form_name as $var) {
                                             if ($toprint = $html_strings[$var]) {
@@ -402,9 +402,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $isfirst = 0;
                                     echo "<div class='encounter_data'>\n";
                                     echo "<input type=checkbox ".
-                                    " name='" . attr($result{"formdir"}) . "_" .  attr($result{"form_id"}) . "'".
-                                    " id='" . attr($result{"formdir"}) . "_" .  attr($result{"form_id"}) . "'".
-                                    " value='" . attr($result{"encounter"}) . "'" .
+                                    " name='" . attr($result["formdir"]) . "_" .  attr($result["form_id"]) . "'".
+                                    " id='" . attr($result["formdir"]) . "_" .  attr($result["form_id"]) . "'".
+                                    " value='" . attr($result["encounter"]) . "'" .
                                     " class='encounter'".
                                     " >";
                                     // show encounter reason, not just 'New Encounter'
@@ -414,12 +414,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         // The default encoding for this mb_substr() call is set near top of globals.php
                                         $result['reason'] = mb_substr($result['reason'], 0, $maxReasonLength) . " ... ";
                                     }
-                                    echo text($result{"reason"}) .
-                                    " (" . text(date("Y-m-d", strtotime($result{"date"}))) .
+                                    echo text($result["reason"]) .
+                                    " (" . text(date("Y-m-d", strtotime($result["date"]))) .
                                     ")\n";
                                     echo "<div class='encounter_forms'>\n";
                                 } else {
-                                    $form_name = trim($result{"form_name"});
+                                    $form_name = trim($result["form_name"]);
                                     //if form name is not in registry, look for the closest match by
                                     // finding a registry name which is  at the start of the form name.
                                     //this is to allow for forms to put additional helpful information
@@ -443,11 +443,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $html_strings[$form_name] = array();
                                     }
                                     array_push($html_strings[$form_name], "<input type='checkbox' ".
-                                        " name='" . attr($result{"formdir"}) . "_" . attr($result{"form_id"}) . "'".
-                                        " id='" . attr($result{"formdir"}) . "_" . attr($result{"form_id"}) . "'".
-                                        " value='" . attr($result{"encounter"}) . "'" .
+                                        " name='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'".
+                                        " id='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'".
+                                        " value='" . attr($result["encounter"]) . "'" .
                                         " class='encounter_form' ".
-                                        ">" . text(xl_form_title($result{"form_name"})) . "<br>\n");
+                                        ">" . text(xl_form_title($result["form_name"])) . "<br>\n");
                                 }
                             }
 
