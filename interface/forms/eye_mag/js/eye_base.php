@@ -369,7 +369,7 @@ function create_task(to_id,task,to_type) {
     var url = "../../forms/eye_mag/taskman.php";
     var formData = {
         'action'            : "make_task",
-        'from_id'           : '<?php echo $providerID; ?>',
+        'from_id'           : '<?php echo htmlspecialchars($providerID); ?>',
         'to_id'             : to_id,
         'pid'               : $('#pid').val(),
         'doc_type'          : task,
@@ -3404,10 +3404,12 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 //Copy the Eye_Defaults_for_GENERAL to Eye_defaults_$providerID
                                                 $sql="SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start= sqlStatement($sql);
+                                                $add_fields = array();
                                                 while ($val= sqlFetchArray($start)) {
-                                                    $add_fields .= "('Eye_defaults_".$providerID."','".$val['option_id']."','".$val['title']."','".$val['notes']."','1','".$val['seq']."'),";
+                                                    $parameters .= "(?, ?, ?, ?, ?, ?),";
+                                                    array_push($add_fields, "Eye_defaults_".$providerID, $val['option_id'], $val['title'], $val['notes'], '1', $val['seq']);
                                                 }
-                                                $add_fields = rtrim($add_fields, ",");
+                                                $parameters = rtrim($parameters, ",");
                                                 $query = "SELECT max(seq) as maxseq FROM list_options WHERE list_id= 'lists'";
                                                 $pres = sqlStatement($query);
                                                 $maxseq = sqlFetchArray($pres);
@@ -3419,8 +3421,8 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 $providerNAME = getProviderName($providerID);
 
                                                 sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
-                                                $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES ".$add_fields;
-                                                sqlStatement($query);
+                                                $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES ".$parameters;
+                                                sqlStatement($query, $add_fields);
                                             }
 
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
