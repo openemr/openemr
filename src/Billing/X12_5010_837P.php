@@ -1370,52 +1370,14 @@ class X12_5010_837P
             // Segment NM1 (Loop 2420D Supervising Provider Name) omitted.
             // Segment REF (Loop 2420D Supervising Provider Secondary Identification) omitted.
 
-            // Loop 2420E, Ordering Provider.
-            // for Medicare DME claims esp @joe on chat.open-emr.org :)
-
-            if (!empty($claim->Box17Qualifier()) && ($claim->claimType() === 'MB')) {
-                ++$edicount;
-                $out .= "NM1" .
-                    "*" . $claim->Box17Qualifier() .
-                    "*" . "1" .
-                    "*" . $claim->billingProviderLastName() .
-                    "*" . $claim->billingProviderFirstName() .
-                    "*" . $claim->billingProviderMiddleName() .
-                    "*" .
-                    "*";
-                if ($claim->billingProviderNPI()) {
-                    $out .=
-                        "*" . "XX" .
-                        "*" . $claim->billingProviderNPI();
-                } else {
-                    $log .= "*** Ordering provider has no NPI.\n";
-                }
-                $out .= "~\n";
-
-                ++$edicount;
-                $out .= "N3" .
-                    "*" . $claim->billingProviderStreet() .
-                    "*" . $claim->billingProviderStreetB() .
-                    "~\n";
-
-                ++$edicount;
-                $out .= "N4" .
-                    "*" . $claim->billingProviderCity() .
-                    "*" . $claim->billingProviderState() .
-                    "*" . $claim->x12Zip($claim->billingProviderZip()) .
-                    "~\n";
-                // Segment REF (Ordering Provider Secondary Identification) omitted.
-                // Segment PER (Ordering Provider Contact Information) omitted.
-            }
-
+            // Loop 2420E, Ordering Provider omitted.
 
             // Segment NM1 (Referring Provider Name) omitted.
             // Segment REF (Referring Provider Secondary Identification) omitted.
             // Segments NM1*PW, N3, N4 (Ambulance Pick-Up Location) omitted.
             // Segments NM1*45, N3, N4 (Ambulance Drop-Off Location) omitted.
 
-        // Loop 2430, adjudication by previous payers.
-        //
+            // Loop 2430, adjudication by previous payers.
 
             for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
                 if ($claim->payerSequence($ins) > $claim->payerSequence()) {
