@@ -3407,7 +3407,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 $add_fields = array();
                                                 while ($val= sqlFetchArray($start)) {
                                                     $parameters .= "(?, ?, ?, ?, ?, ?),";
-                                                    array_push($add_fields, "Eye_defaults_".$providerID, $val['option_id'], $val['title'], $val['notes'],'1', $val['seq']);
+                                                    array_push($add_fields, "Eye_defaults_".$providerID, $val['option_id'], $val['title'], $val['notes'], '1', $val['seq']);
                                                 }
                                                 $parameters = rtrim($parameters, ",");
                                                 $query = "SELECT max(seq) as maxseq FROM list_options WHERE list_id= 'lists'";
