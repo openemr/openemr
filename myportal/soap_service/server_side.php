@@ -26,7 +26,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-
+use OpenEMR\Billing\InvoiceSummary;
 
 global $ISSUE_TYPES;
 $ignoreAuth=true;
@@ -539,14 +539,13 @@ class UserService extends Userforms
     {
         global $pid;
         if (UserService::valid($data_credentials)) {
-            require_once("../../library/invoice_summary.inc.php");
             require_once("../../library/options.inc.php");
             require_once("../../library/acl.inc");
             require_once("../../library/patient.inc");
-            if ($func=='ar_responsible_party') {
+            if ($func=='InvoiceSummary::ar_responsible_party') {
                 $patient_id=$pid;
                 $encounter_id=$var['encounter'];
-                $x['ar_responsible_party']=ar_responsible_party($patient_id, $encounter_id);
+                $x['ar_responsible_party'] = InvoiceSummary::ar_responsible_party($patient_id, $encounter_id);
                 return UserService::function_return_to_xml($x);
             } elseif ($func=='getInsuranceData') {
                 $type=$var['type'];

@@ -11,14 +11,13 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) Z&H Consultancy Services Private Limited <sam@zhservices.com>
- * @copyright Copyright (C) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
 require_once("../globals.php");
-require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/auth.inc");
 require_once("../../custom/code_types.inc.php");

@@ -13,6 +13,7 @@
 namespace OpenEMR\Billing;
 
 use InsuranceCompany;
+use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Services\FacilityService;
 
 class Claim
@@ -130,7 +131,7 @@ class Claim
         //
         $this->invoice = array();
         if ($this->payerSequence() != 'P') {
-            $this->invoice = ar_get_invoice_summary($this->pid, $this->encounter_id, true);
+            $this->invoice = InvoiceSummary::ar_get_invoice_summary($this->pid, $this->encounter_id, true);
             // Secondary claims might not have modifiers in SQL-Ledger data.
             // In that case, note that we should not try to match on them.
             $this->using_modifiers = false;

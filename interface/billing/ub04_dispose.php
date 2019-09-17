@@ -10,7 +10,6 @@
  */
 require_once("../globals.php");
 require_once("$srcdir/gen_x12_837i.inc.php");
-require_once("$srcdir/invoice_summary.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;

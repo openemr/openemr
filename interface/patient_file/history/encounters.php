@@ -17,13 +17,13 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../../custom/code_types.inc.php");
 if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
 }
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -646,7 +646,7 @@ while ($result4 = sqlFetchArray($res4)) {
                                 "pid = ? AND encounter = ?", array($pid,$result4['encounter']));
                     $arid = 0 + $tmp['id'];
                 if ($arid) {
-                    $arinvoice = ar_get_invoice_summary($pid, $result4['encounter'], true);
+                    $arinvoice = InvoiceSummary::ar_get_invoice_summary($pid, $result4['encounter'], true);
                 }
                 if ($arid) {
                     $arlinkbeg = "<a onclick='editInvoice(event, " . attr_js($arid) . ")" . "'" . " class='text' style='color:#00cc00'>";
@@ -762,7 +762,7 @@ while ($result4 = sqlFetchArray($res4)) {
         if ($auth_demo) {
             $responsible = -1;
             if ($arid) {
-                    $responsible = ar_responsible_party($pid, $result4['encounter']);
+                    $responsible = InvoiceSummary::ar_responsible_party($pid, $result4['encounter']);
             }
             $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
             if ($subresult5 && $subresult5["provider_name"]) {

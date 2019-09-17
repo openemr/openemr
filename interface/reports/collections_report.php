@@ -22,9 +22,9 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("../../library/invoice_summary.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -837,7 +837,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       // This computes the invoice's total original charges and adjustments,
       // date of last activity, and determines if insurance has responded to
       // all billing items.
-        $invlines = ar_get_invoice_summary($patient_id, $encounter_id, true);
+        $invlines = InvoiceSummary::ar_get_invoice_summary($patient_id, $encounter_id, true);
 
       // if ($encounter_id == 185) { // debugging
       //   echo "\n<!--\n";

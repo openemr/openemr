@@ -17,9 +17,9 @@
 ob_start();
 
 require_once("../globals.php");
-require_once("$srcdir/invoice_summary.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -244,7 +244,7 @@ function era_callback(&$out)
                   $invnumber = $out['our_claim_id'];
             } else {
                   $inverror = false;
-                  $codes = ar_get_invoice_summary($pid, $encounter, true);
+                  $codes = InvoiceSummary::ar_get_invoice_summary($pid, $encounter, true);
                   // $svcdate = substr($ferow['date'], 0, 10);
             }
         }
