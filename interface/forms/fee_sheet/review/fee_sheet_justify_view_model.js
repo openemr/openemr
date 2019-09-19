@@ -159,12 +159,14 @@ function update_justify(data,event)
 
     );
     data.show(false);
+    $(display_table_selector).parent().css('min-height', '');
 }
 
 function cancel_justify(data,event)
 {
     event.preventDefault();
     data.show(false);
+    $(display_table_selector).parent().css('min-height', '');
 }
 function sort_justify(data,event)
 {

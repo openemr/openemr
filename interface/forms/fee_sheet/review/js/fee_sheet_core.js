@@ -143,9 +143,11 @@ function justify_start(evt) {
             template_div.attr("data-bind", "template: {name: 'justify-display', data: justify}");
             jqElem.after(template_div);
         }
-        $(".cancel_dialog").click();
+        $(".cancel_dialog").click(); // this just ensures a dialog is not in view.
+        $(display_table_selector).parent().css('min-height', '500px');
         let current_justify_choices = parse_row_justify(parent.parent());
         let justify_model = new fee_sheet_justify_view_model(parent.attr("billing_id"), enc, pid, current_justify_choices);
+        ko.cleanNode(template_div.get(0));
         ko.applyBindings(justify_model, template_div.get(0));
     });
 }
