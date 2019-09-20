@@ -6,7 +6,6 @@ use Address;
 use OpenEMR\Common\Http\oeHttp;
 use Pharmacy;
 
-
 /**
  * Class Import
  * @package Import
@@ -75,7 +74,6 @@ class Import extends Pharmacy
                     $pharmacy->set_phone($show['addresses'][0]['telephone_number']);
                     $pharmacy->persist();
                     ++$i;
-
             }
         }
         $response = $i;
@@ -93,7 +91,6 @@ class Import extends Pharmacy
             if ($element['key'] == $val) {
             }
         }
-
     }
 
     /**
@@ -112,6 +109,5 @@ class Import extends Pharmacy
             return false;
         }
     }
-
 
 }
