@@ -109,5 +109,4 @@ class Import extends Pharmacy
             return false;
         }
     }
-
 }
