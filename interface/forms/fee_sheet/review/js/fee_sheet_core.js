@@ -117,21 +117,39 @@ function parse_row_justify(row)
     return retval;
 }
 
-function justify_start(evt)
-{
-    var jqElem=$(this);
-    var parent=jqElem.parent()
-    var template_div=parent.find("div.justify_template");
-    if(template_div.length==0)
-    {
-        var template_div=$("<div class='justify_template'></div>");
-        template_div.attr("data-bind","template: {name: 'justify-display', data: justify}");
-        jqElem.after(template_div);
-    }
-    $(".cancel_dialog").click();
-    var current_justify_choices=parse_row_justify(parent.parent());
-    var justify_model=new fee_sheet_justify_view_model(parent.attr("billing_id"),enc,pid,current_justify_choices);
-    ko.applyBindings(justify_model,template_div.get(0));
+function justify_start(evt) {
+    const jqElem = $(this); // make sure is in scope after save.
+    let myForm = document.getElementById('fee_sheet_form');
+    let formData = new FormData(myForm);
+    formData.append('running_as_ajax', "1");
+    formData.append('dx_update', "1");
+    // save current form
+    $.ajax({
+        url: fee_sheet_new,
+        processData: false,
+        contentType: false,
+        cache: false,
+        type: 'POST',
+        data: formData,
+        beforeSend: function () {
+            top.restoreSession();
+        }
+    }).done(function (data) {
+        // now init justify
+        let parent = jqElem.parent()
+        let template_div = parent.find("div.justify_template");
+        if (template_div.length == 0) {
+            template_div = $("<div class='justify_template'></div>");
+            template_div.attr("data-bind", "template: {name: 'justify-display', data: justify}");
+            jqElem.after(template_div);
+        }
+        $(".cancel_dialog").click(); // this just ensures a dialog is not in view.
+        $(display_table_selector).parent().css('min-height', '500px');
+        let current_justify_choices = parse_row_justify(parent.parent());
+        let justify_model = new fee_sheet_justify_view_model(parent.attr("billing_id"), enc, pid, current_justify_choices);
+        ko.cleanNode(template_div.get(0));
+        ko.applyBindings(justify_model, template_div.get(0));
+    });
 }
 
 function tag_justify_rows(display)
