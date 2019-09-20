@@ -501,6 +501,12 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control"
                                value='<?php echo attr((0 + $ferow['stmt_count'])); ?>'/>
                     </div>
+                    <div class="col-xs-2">
+                        <label class="control-label" for="form_last_bill"><?php echo xlt('Last Bill Date'); ?>
+                        :</label>
+                        <input type='text' name="form_last_bill" id='form_last_bill' class="form-control"
+                               value ='<?php echo attr($billdate); ?>' disabled/>
+                    </div>
                     <div class="col-xs-3">
                         <label class="control-label" for="form_reference"><?php echo xlt('Check/EOB No.'); ?>:</label>
                         <input type='text' name='form_reference' id='form_reference' class="form-control" value=''/>
