@@ -143,7 +143,7 @@ if (isset($_POST['drR'])) {
 
             function openLogScreen(){
                top.restoreSession();
-               dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_log.php', '_drLog', 700, 500);
+               dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_log.php', '_drLog', 'modal-mlg', 850);
             }
 
 
