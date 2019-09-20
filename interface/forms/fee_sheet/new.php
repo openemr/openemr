@@ -453,6 +453,26 @@ if (!empty($_POST['pricelevel'])) {
 }
 
 $current_checksum = $fs->visitChecksum();
+
+// this is for a save before we open justify dialog.
+// otherwise current form state is over written in justify process.
+if ($_POST['running_as_ajax'] && $_POST['dx_update']) {
+    $main_provid = 0 + $_POST['ProviderID'];
+    $main_supid = 0 + (int)$_POST['SupervisorID'];
+    $fs->save(
+        $_POST['bill'],
+        $_POST['prod'],
+        $main_provid,
+        $main_supid,
+        $_POST['default_warehouse'],
+        $_POST['bn_save_close']
+    );
+
+    unset($_POST['dx_update']);
+    unset($_POST['bill']);
+    unset($_POST['prod']);
+}
+
 // It's important to look for a checksum mismatch even if we're just refreshing
 // the display, otherwise the error goes undetected on a refresh-then-save.
 if (isset($_POST['form_checksum'])) {

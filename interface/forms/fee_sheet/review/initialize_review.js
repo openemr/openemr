@@ -19,7 +19,7 @@ var justify_ajax=review_path+"fee_sheet_justify.php";
 
 var ajax_fee_sheet_search=review_path+"fee_sheet_search_ajax.php";
 
-var display_table_selector="table[cellspacing='5']";
+var display_table_selector="table[name='selected_codes']";
 
 function add_review_button()
 {
