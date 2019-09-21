@@ -19,7 +19,6 @@ require_once "../globals.php";
 require_once "../../library/acl.inc";
 require_once "../../custom/code_types.inc.php";
 require_once "$srcdir/patient.inc";
-require_once "$srcdir/../interface/reports/report.inc.php"; // Criteria Section common php page
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Billing\BillingReport;
@@ -669,7 +668,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // The below section is needed if there is any 'include' type in the $ThisPageSearchCriteriaDataTypeMaster
                 // Function name is added here.Corresponding include files need to be included in the respective pages as done in this page.
                 // It is labled(Included for Insurance ajax criteria)(Line:-279-299).
-                $ThisPageSearchCriteriaIncludeMaster[1] = "InsuranceCompanyDisplay"; // This is php function defined in the file 'report.inc.php'
+                $ThisPageSearchCriteriaIncludeMaster[1] = "BillingReport::InsuranceCompanyDisplay"; // This is php function defined in OpenEMR\Billing\BillingReport
 
                 if (!isset($_REQUEST['mode'])) {// default case
                     $_REQUEST['final_this_page_criteria'][0] = "(form_encounter.date between '" . date("Y-m-d 00:00:00") . "' and '" . date("Y-m-d 23:59:59") . "')";

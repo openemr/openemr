@@ -31,6 +31,9 @@
 * @param $strSortType String containing either asc or desc [default to asc]
 * @desc Naturally sorts an array using by the column $strSortBy
 */
+
+use OpenEMR\Billing\BillingReport;
+
 function array_natsort($aryData, $strIndex, $strSortBy, $strSortType = false)
 {
     //    if the parameters are invalid
@@ -83,7 +86,7 @@ function GenerateTheQueryPart()
 
     if (isset($_REQUEST['final_this_page_criteria'])) {
         foreach ($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value) {
-            $criteria_value=PrepareSearchItem($criteria_value); // this escapes for sql
+            $criteria_value = BillingReport::PrepareSearchItem($criteria_value); // this escapes for sql
             $SplitArray=array();
           //---------------------------------------------------------
             if (strpos($criteria_value, "billing.billed = '1'")!== false) {
