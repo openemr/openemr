@@ -73,9 +73,7 @@ class BillingReport
     public static function getBillsBetween(
         $code_type,
         $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id"
-    )
-    {
-
+    ) {
         self::GenerateTheQueryPart();
         global $query_part, $billstring, $auth;
         // Selecting by the date in the billing table is wrong, because that is
@@ -108,9 +106,7 @@ class BillingReport
     public static function getBillsBetweenReport(
         $code_type,
         $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id"
-    )
-    {
-
+    ) {
         self::GenerateTheQueryPart();
         global $query_part, $query_part2, $billstring, $auth;
         // Selecting by the date in the billing table is wrong, because that is
@@ -150,9 +146,7 @@ class BillingReport
     public static function getBillsListBetween(
         $code_type,
         $cols = "billing.id, form_encounter.date, billing.pid, billing.code_type, billing.code, billing.user"
-    )
-    {
-
+    ) {
         self::GenerateTheQueryPart();
         global $query_part, $billstring, $auth;
         // See above comment in self::getBillsBetween().

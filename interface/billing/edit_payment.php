@@ -25,7 +25,6 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
-use OpenEMR\Billing\BillingReport;
 use OpenEMR\Core\Header;
 
 $screen='edit_payment';
