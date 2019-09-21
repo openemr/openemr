@@ -16,7 +16,7 @@
 
 namespace OpenEMR\Billing;
 
-require_once(dirname(__FILE__) . "/../interface/reports/report.inc.php");
+require_once(dirname(__FILE__) . "/../../interface/reports/report.inc.php");
 
 class BillingReport
 {
