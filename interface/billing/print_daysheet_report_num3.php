@@ -19,7 +19,6 @@ require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
 
-
 //global variables:
 if (!isset($_GET["mode"])) {
     if (!isset($_GET["from_date"])) {

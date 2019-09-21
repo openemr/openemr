@@ -21,6 +21,7 @@ use OpenEMR\Billing\BillingReport;
 .criteria_class2{padding-left:5px;}
 </style>
 <?php
+
 $ThisPageSearchCriteriaKey=array();
 $ThisPageSearchCriteriaDataType=array();
 $ThisPageSearchCriteriaDisplay=array();
@@ -175,7 +176,7 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                     <div class= "col-xs-12">
                         <label class="control-label" for=""><?php echo text($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]); ?>:</label>
                         <div <?php //Don't Use class =  'form-control'?>>
-                            <?php $FunctionName=$ThisPageSearchCriteriaIncludeMaster[$ThisPageSearchCriteriaInclude[$ThisPageSearchCriteriaIndex]];
+                            <?php $FunctionName = "OpenEMR\\Billing\\" . $ThisPageSearchCriteriaIncludeMaster[$ThisPageSearchCriteriaInclude[$ThisPageSearchCriteriaIndex]];
                             $FunctionName();?>
                         </div>
                     </div>
