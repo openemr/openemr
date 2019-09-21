@@ -22,10 +22,10 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/auth.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/billrep.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
+use OpenEMR\Billing\BillingReport;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;

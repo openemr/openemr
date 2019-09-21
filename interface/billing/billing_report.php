@@ -20,9 +20,9 @@ require_once "../../library/acl.inc";
 require_once "../../custom/code_types.inc.php";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/../interface/reports/report.inc.php"; // Criteria Section common php page
-require_once "$srcdir/billrep.inc";
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Billing\BillingReport;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -55,7 +55,7 @@ if (isset($_POST['mode'])) {
     }
 
     if ($_POST['mode'] == 'export') {
-        $sql = ReturnOFXSql();
+        $sql = BillingReport::ReturnOFXSql();
         $db = get_db();
         $results = $db->Execute($sql);
         $billings = array();
@@ -875,7 +875,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             } else {
                 $unbilled = "%";
             }
-            $list = getBillsListBetween("%");
+            $list = BillingReport::getBillsListBetween("%");
             ?>
             <?php
             if (!isset($_POST["mode"])) {
@@ -932,7 +932,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <table class="table table-condensed">
                     <?php
                     $divnos = 0;
-                    if ($ret = getBillsBetween("%")) {
+                    if ($ret = BillingReport::getBillsBetween("%")) {
                         if (is_array($ret)) {
                             ?>
                             <tr>
