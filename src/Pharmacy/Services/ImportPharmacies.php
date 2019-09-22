@@ -47,7 +47,7 @@ class ImportPharmacies
             'state' => $state,
             'postal_code' => '',
             'country_code' => '',
-            'limit' => '10',
+            'limit' => '100',
             'skip' => '',
             'version' => '2.1',
         ];
