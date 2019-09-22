@@ -19,10 +19,9 @@ require_once "../globals.php";
 require_once "../../library/acl.inc";
 require_once "../../custom/code_types.inc.php";
 require_once "$srcdir/patient.inc";
-require_once "$srcdir/../interface/reports/report.inc.php"; // Criteria Section common php page
-require_once "$srcdir/billrep.inc";
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Billing\BillingReport;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -55,7 +54,7 @@ if (isset($_POST['mode'])) {
     }
 
     if ($_POST['mode'] == 'export') {
-        $sql = ReturnOFXSql();
+        $sql = BillingReport::ReturnOFXSql();
         $db = get_db();
         $results = $db->Execute($sql);
         $billings = array();
@@ -669,7 +668,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // The below section is needed if there is any 'include' type in the $ThisPageSearchCriteriaDataTypeMaster
                 // Function name is added here.Corresponding include files need to be included in the respective pages as done in this page.
                 // It is labled(Included for Insurance ajax criteria)(Line:-279-299).
-                $ThisPageSearchCriteriaIncludeMaster[1] = "InsuranceCompanyDisplay"; // This is php function defined in the file 'report.inc.php'
+                $ThisPageSearchCriteriaIncludeMaster[1] = "OpenEMR\Billing\BillingReport::InsuranceCompanyDisplay";
 
                 if (!isset($_REQUEST['mode'])) {// default case
                     $_REQUEST['final_this_page_criteria'][0] = "(form_encounter.date between '" . date("Y-m-d 00:00:00") . "' and '" . date("Y-m-d 23:59:59") . "')";
@@ -875,7 +874,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             } else {
                 $unbilled = "%";
             }
-            $list = getBillsListBetween("%");
+            $list = BillingReport::getBillsListBetween("%");
             ?>
             <?php
             if (!isset($_POST["mode"])) {
@@ -932,7 +931,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <table class="table table-condensed">
                     <?php
                     $divnos = 0;
-                    if ($ret = getBillsBetween("%")) {
+                    if ($ret = BillingReport::getBillsBetween("%")) {
                         if (is_array($ret)) {
                             ?>
                             <tr>
