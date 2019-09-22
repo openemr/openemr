@@ -15,7 +15,6 @@ use Address;
 use OpenEMR\Common\Http\oeHttp;
 use Pharmacy;
 
-
 /**
  * @package Import
  * This class extends the Pharmacy class to import pharmacies listed with CMS.
@@ -86,7 +85,6 @@ class ImportPharmacies
                     $pharmacy->set_phone($show['addresses'][0]['telephone_number']);
                     $pharmacy->persist();
                     ++$i;
-
             }
         }
         $response = $i;
@@ -123,6 +121,4 @@ class ImportPharmacies
             return false;
         }
     }
-
-
 }
