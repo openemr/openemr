@@ -29,11 +29,13 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 //
 class EDI_270
 {
-    private $X12info;
-
 // SEGMENT FUNCTION START
-
 // ISA Segment  - EDI-270 format
+
+    // @sjpadgett's recommendation to try singleton class, see _rest_config.php
+    private function __construct()
+    {
+    }
 
     public static function create_ISA($row, $X12info, $segTer, $compEleSep)
     {
