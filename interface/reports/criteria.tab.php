@@ -176,7 +176,7 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                     <div class= "col-xs-12">
                         <label class="control-label" for=""><?php echo text($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]); ?>:</label>
                         <div <?php //Don't Use class =  'form-control'?>>
-                            <?php $FunctionName = "OpenEMR\\Billing\\" . $ThisPageSearchCriteriaIncludeMaster[$ThisPageSearchCriteriaInclude[$ThisPageSearchCriteriaIndex]];
+                            <?php $FunctionName = $ThisPageSearchCriteriaIncludeMaster[$ThisPageSearchCriteriaInclude[$ThisPageSearchCriteriaIndex]];
                             $FunctionName();?>
                         </div>
                     </div>
