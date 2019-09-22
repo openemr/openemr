@@ -1,13 +1,22 @@
 <?php
+/**
+ * Class ImportPharmacies
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ */
 
-namespace OpenEMR\Pharmacy\Service;
+namespace OpenEMR\Pharmacy\Services;
 
 use Address;
 use OpenEMR\Common\Http\oeHttp;
 use Pharmacy;
 
+
 /**
- * Class Import
  * @package Import
  * This class extends the Pharmacy class to import pharmacies listed with CMS.
  * It can be adapted to work in other countries if a similar API is available.
@@ -15,7 +24,7 @@ use Pharmacy;
  * However, if the pharmacy gets a new NPI number, there could be two entries with the same address and different
  * NPI numbers. I have discovered that some times erroneous entries can be retrieved.
  */
-class Import extends Pharmacy
+class ImportPharmacies
 {
     /**
      * @param $city
@@ -38,7 +47,7 @@ class Import extends Pharmacy
             'state' => $state,
             'postal_code' => '',
             'country_code' => '',
-            'limit' => '100',
+            'limit' => '10',
             'skip' => '',
             'version' => '2.1',
         ];
@@ -61,10 +70,13 @@ class Import extends Pharmacy
                     $zip = substr($zipCode, 0, -4);
                 }
                 /******************************************************/
+                $identifiers = $show['identifiers'];
+                $ncpdp = self::findNcpdp($identifiers);
+
                     $pharmacy = new Pharmacy();
                     $pharmacy->set_id();
                     $pharmacy->set_name($show['basic']['name']);
-                    $pharmacy->set_ncpdp($show['identifiers'][0]['identifer']);
+                    $pharmacy->set_ncpdp($ncpdp);
                     $pharmacy->set_npi($show['number']);
                     $pharmacy->set_address_line1($show['addresses'][0]['address_1']);
                     $pharmacy->set_city($show['addresses'][0]['city']);
@@ -74,6 +86,7 @@ class Import extends Pharmacy
                     $pharmacy->set_phone($show['addresses'][0]['telephone_number']);
                     $pharmacy->persist();
                     ++$i;
+
             }
         }
         $response = $i;
@@ -81,16 +94,17 @@ class Import extends Pharmacy
     }
 
     /**
-     * get the NCPDP number from the sub array of idenifiers.
-     * @param $identifier
+     * @param $identifiers
+     * @return mixed
      */
-    private function findNcpdp($identifier)
+    private function findNcpdp($identifiers)
     {
-        $val = "Other";
-        foreach ($identifier as $element) {
-            if ($element['key'] == $val) {
+        foreach ($identifiers as $identifier => $value) {
+            if ($value['desc'] == 'Other') {
+                    return $value['identifier'];
             }
         }
+        return null;
     }
 
     /**
@@ -109,4 +123,6 @@ class Import extends Pharmacy
             return false;
         }
     }
+
+
 }

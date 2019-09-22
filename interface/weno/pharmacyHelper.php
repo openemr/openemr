@@ -10,19 +10,16 @@
  *
  */
 
-namespace OpenEMR\Rx\Weno;
-
 require_once('../globals.php');
 
-
-use OpenEMR\Pharmacy\Service\Import;
+use OpenEMR\Pharmacy\Services\ImportPharmacies;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$loadPhar = new Import();
+$loadPhar = new ImportPharmacies();
 
 if (isset($_GET)) {
     $city = $_GET['textData'][0];

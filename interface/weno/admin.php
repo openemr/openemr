@@ -87,7 +87,7 @@ if ($tableHasData['count'] > 1) {
 
 
 ?>
-    <h2>Pharmacy Import / Update </h2><br>
+    <h2><?php echo xlt("Pharmacy Import / Update"); ?></h2><br>
     <form class="form-inline" id="addpharmacies">
         <div class="form-group">
             <label for="city" ><?php print xlt("City");?></label>
@@ -98,15 +98,15 @@ if ($tableHasData['count'] > 1) {
             <input type="text" class="form-control" id="state">
         </div>
         <div class="form-group" id="form_btn">
-            <button type="submit"  class="btn btn-primary" >Submit</button>
+            <button type="submit"  class="btn btn-primary" ><?php echo xlt("Submit"); ?></button>
         </div>
         <div class="form-group" id="loader"></div>
 
     </form>
     <p>
-        <h4>Disclaimer:</h4>
-        This is public information maintained by HHS/CMS. We cannot be responsible for the data received.<br>
-        Utilize at your own risk. Always verify data received.
+        <h4><?php echo xlt("Disclaimer"); ?>:</h4>
+    <?php echo xlt("This is public information maintained by HHS/CMS. We cannot be responsible for the data received"); ?>.<br>
+    <?php echo xlt("Utilize at your own risk. Always verify data received"); ?>.
     </p>
 </div>
 <script>
@@ -120,7 +120,7 @@ function importPharm(e) {
     let city = document.getElementById("city").value;
     let state = document.getElementById("state").value;
     if (city.length === 0 || state.length ===0) {
-        alert("City and state must both be filled out");
+        alert(<?php echo xlj("City and state must both be filled out"); ?>);
         e.preventDefault();
         return false;
     }
@@ -131,10 +131,10 @@ function importPharm(e) {
     $.ajax({
         type: 'GET',
         dataType: 'JSON',
-        url: 'pharmacyHelper.php?csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
+        url: 'pharmacyHelper.php?csrf_token_form=' + <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
         data: {"textData": [city, state] },
         success: function (response) {
-            let msg =  response.saved + " Pharmacies Imported";
+            let msg =  response.saved + <?php echo xlj(" Pharmacies Imported"); ?>;
             alert(msg);
             $('#loader').hide();
             $('#form_btn').show();
