@@ -22,12 +22,12 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
-require_once("$srcdir/edi.inc");
 require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 
+use OpenEMR\Billing\EDI_270;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
@@ -1110,18 +1110,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 if ($_POST['status_update'] === 'true') {
                                                     unset($_POST['status_update']);
                                                     $showEligibility = true;
-                                                    $ok = requestEligibleTransaction($pid);
+                                                    $ok = EDI_270::requestEligibleTransaction($pid);
                                                     if ($ok === true) {
-                                                        show_eligibility_information($pid, false);
+                                                        EDI_270::show_eligibility_information($pid, false);
                                                     } else {
                                                         echo $ok;
                                                     }
                                                 } else {
-                                                    show_eligibility_information($pid, true);
+                                                    EDI_270::show_eligibility_information($pid, true);
                                                 }
                                                 echo "</form>";
                                             } else {
-                                                show_eligibility_information($pid, true);
+                                                EDI_270::show_eligibility_information($pid, true);
                                             }
                                             echo "</div></div>";
 

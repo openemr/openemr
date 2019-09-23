@@ -1526,7 +1526,7 @@
             "label": "Eligibility",
             "menu_id": "rep0",
             "target": "rep",
-            "url": "/interface/reports/edi_270.php",
+            "url": "/interface/billing/edi_270.php",
             "children": [],
             "requirement": 0,
             "acl_req": [
@@ -1538,7 +1538,7 @@
             "label": "Eligibility Response",
             "menu_id": "rep0",
             "target": "rep",
-            "url": "/interface/reports/edi_271.php",
+            "url": "/interface/billing/edi_271.php",
             "children": [],
             "requirement": 0,
             "acl_req": [

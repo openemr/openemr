@@ -266,20 +266,26 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
             <label for="final_this_page_criteria" class="col-xs-12"><?php echo xlt('Criteria'); ?>  <?php echo xlt('Set To'); ?>: <i class="fa fa-times-circle fa-2x text-danger pull-right" style="margin-top:-7px" aria-hidden="true" onclick="removeOptionSelected()" title="<?php echo xla('Click here to delete the selection'); ?>"></i></label>
             <select name='final_this_page_criteria[]' id='final_this_page_criteria' size='8' class='text col-xs-12'  title='Criteria' multiple="multiple" >
                 <?php
-                for ($final_this_page_criteria_index=0; $final_this_page_criteria_index<sizeof($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {
-                    ?>
-                    <option value="<?php echo attr($_REQUEST['final_this_page_criteria'][$final_this_page_criteria_index]) ?>" >
-                    <?php echo xlt($_REQUEST['final_this_page_criteria_text'][$final_this_page_criteria_index]) ?></option>
-                    <?php
+                if ($_REQUEST['final_this_page_criteria']) {
+                    for ($final_this_page_criteria_index=0; $final_this_page_criteria_index<sizeof($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {
+                        ?>
+                        <option value="<?php echo attr($_REQUEST['final_this_page_criteria'][$final_this_page_criteria_index]) ?>" >
+                        <?php echo xlt($_REQUEST['final_this_page_criteria_text'][$final_this_page_criteria_index]) ?></option>
+                        <?php
+                    }
                 }
                 ?>
                 </select>
                 <select name='final_this_page_criteria_text[]' id='final_this_page_criteria_text' style="display:none" multiple="multiple" >
                 <?php
-                for ($final_this_page_criteria_index=0; $final_this_page_criteria_index<sizeof($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {
-                    ?>
-                    <option value="<?php echo attr($_REQUEST['final_this_page_criteria_text'][$final_this_page_criteria_index]) ?>" >1</option>
-                    <?php
+                if ($_REQUEST['final_this_page_criteria']) {
+                    for ($final_this_page_criteria_index = 0; $final_this_page_criteria_index < sizeof($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {
+                        ?>
+                        <option value="<?php echo attr($_REQUEST['final_this_page_criteria_text'][$final_this_page_criteria_index]) ?>">
+                            1
+                        </option>
+                        <?php
+                    }
                 }
                 ?>
             </select>
