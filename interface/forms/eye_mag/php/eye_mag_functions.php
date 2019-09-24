@@ -225,7 +225,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
     }
 
      $query = "SELECT  *
-               from form_eye_base, 
+               from form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
                 form_eye_acuity,form_eye_refraction,form_eye_biometrics,
                 form_eye_external, form_eye_antseg,form_eye_postseg,
@@ -3058,7 +3058,7 @@ function canvas_select($zone, $encounter, $pid)
                     data-target="SELECT_CANVAS_' . attr($zone) . '"
                     data-direction="newest"
                     title="' . xla('Forward to current canvas') . '"></span>
-                    
+
         </div>';
         }
     }
@@ -3187,8 +3187,8 @@ function copy_forward($zone, $copy_from, $copy_to, $pid)
     global $form_id;
 
     $query = "select  *,form_encounter.date as encounter_date
-              
-               from forms,form_encounter,form_eye_base, 
+
+               from forms,form_encounter,form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
                 form_eye_acuity,form_eye_refraction,form_eye_biometrics,
                 form_eye_external,form_eye_antseg,form_eye_postseg,
@@ -3926,7 +3926,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><span style="margin-right:15px;color:black;"  onclick="editScripts('/openemr/controller.php?prescription&list&id=<?php echo $pid; ?>');">eRx</button>
+                    <li><span style="margin-right:15px;color:black;"  onclick="editScripts('/openemr/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>');">eRx</button>
                         </span></li>
                     <li ><span id="active_flag" name="active_flag" style="margin-right:15px;color:red;"> <?php echo xlt('Active Chart'); ?> </span>
                         <span name="active_icon" id="active_icon" style="color:black;"><i class='fa fa-toggle-on'></i></span></li>
@@ -5091,7 +5091,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                         ';
                                 } else {
                                     $old_OCTs .= '<tr><td class="hideme_OCTs nodisplay GFS_td_1">
-                                                <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($OCT['id']).'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a> 
+                                                <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($OCT['id']).'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                                 </td><td class="hideme_OCTs nodisplay GFS_td_1">'.$OCT['docdate'].'</td></tr>';
                                 }
                                 $count++;
@@ -6244,10 +6244,10 @@ function getIOPTARGETS($pid, $id, $provider_id)
             return array($row['ODIOPTARGET'], $row['OSIOPTARGET']);
         }
     }
-    $query = "SELECT * FROM `list_options` 
-            WHERE 
-            `list_id` LIKE ? AND 
-            (   option_id = 'ODIOPTARGET' OR  
+    $query = "SELECT * FROM `list_options`
+            WHERE
+            `list_id` LIKE ? AND
+            (   option_id = 'ODIOPTARGET' OR
                 option_id = 'OSIOPTARGET'  )
              ";
     $result = sqlQuery($query, array("Eye_defaults_".$provider_id));
