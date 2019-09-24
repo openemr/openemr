@@ -56,7 +56,7 @@ $setting_NEURO      = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1')
 $setting_IMPPLAN    = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
 
 $query10 = "select  *,form_encounter.date as encounter_date
-              
+
                from forms,form_encounter,form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
                 form_eye_acuity,form_eye_refraction,form_eye_biometrics,
@@ -715,7 +715,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <div id="PMSFH_sections" name="PMSFH_sections">
                           <div id="Enter_PMH" name="Enter_PMH" class="PMH_class">
                               <iframe id="iframe" name="iframe"
-                                src="../../forms/eye_mag/a_issue.php?uniqueID=<?php echo $uniqueID; ?>&form_type=POH&pid=<?php echo $pid; ?>&encounter=<?php echo $encounter; ?>&form_id=<?php echo $form_id; ?>"
+                                src="../../forms/eye_mag/a_issue.php?uniqueID=<?php echo attr_url($uniqueID); ?>&form_type=POH&pid=<?php echo attr_url($pid); ?>&encounter=<?php echo attr_url($encounter); ?>&form_id=<?php echo attr_url($form_id); ?>"
                                 width="510" height="363" scrolling= "yes" frameBorder= "0" >
                               </iframe>
                           </div>
