@@ -254,7 +254,7 @@ foreach (explode(',', $given) as $item) {
           //change resolved to Completed
           document.getElementById('onset'             ).textContent = "<?php echo xlt('Start').':'; ?>";
           document.getElementById('resolved'          ).textContent = "<?php echo xlt('Finish').':'; ?>";
-    
+
       } else if (index == 'Eye Meds')  {
          document.getElementById('title_diagnosis'   ).textContent ="<?php echo xlt('Medication').":"; ?>";
          document.getElementById('row_begindate'     ).style.display = '';
@@ -262,12 +262,12 @@ foreach (explode(',', $given) as $item) {
          document.getElementById('row_comments'      ).style.display = '';
          document.getElementById('row_eye_med'       ).style.display = '';
          document.getElementById('form_eye_subtype'  ).checked = true;
-    
+
           //change Onset to started
          //change resolved to Completed
          document.getElementById('onset'             ).textContent = "<?php echo xlt('Start').':'; ?>";
          document.getElementById('resolved'          ).textContent = "<?php echo xlt('Finish').':'; ?>";
-    
+
      } else if ((index == 'Surgery')||(index =='POS')) {
         document.getElementById('title_diagnosis'   ).textContent ="<?php echo xlt('Procedure').':'; ?>";
         document.getElementById('row_diagnosis'     ).style.display = '';
@@ -679,7 +679,7 @@ foreach (explode(',', $given) as $item) {
                     $key_short_title = "Surg";
                     $title = "Past Surgical History";
                 }
-    
+
                 if ($key == "SOCH") {
                     $key_short_title = "Soc";
                     $title = "Social History";
@@ -692,7 +692,7 @@ foreach (explode(',', $given) as $item) {
                     $key_short_title = "EyeM";
                     $title = "Eye Medications";
                 }
-    
+
                 $HELLO[attr($key)] = '<input type="radio" name="form_type" id="PMSFH_'.attr($key).'" value="'.attr($key).'" '.$checked.' onclick="top.restoreSession();newtype(\''.attr($key).'\');" /><span>'.
                             '<label class="input-helper input-helper--checkbox" for="PMSFH_'.attr($key).'" title="'.xla($title).'">' . xlt($key_short_title) . '</label></span>&nbsp;';
             }
@@ -965,7 +965,7 @@ foreach (explode(',', $given) as $item) {
                       <table >
                         <tr>
                           <td><input type="text" name="form_text_tobacco" id="form_box" size="20" value="<?php echo attr($PMSFH[0]['SOCH']['tobacco']['resnote']); ?>">&nbsp;</td>
-                          
+
                           <td class="text">
                             <input type="radio" name="radio_tobacco" id="radio_tobacco[current]" value="currenttobacco" onclick="smoking_statusClicked(this) " <?php if ($result2['tobacco']['restype'] =='currenttobacco') {
                                 echo " checked";
@@ -999,7 +999,7 @@ foreach (explode(',', $given) as $item) {
                         <tbody>
                           <tr>
                             <td><input type="text" name="form_coffee" id="form_box" size="20" value="<?php echo attr($result2['coffee']['resnote']); ?>">&nbsp;</td>
-                         
+
                             <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[current]" value="currentcoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='currentcoffee') {
                                 echo " checked";
                                                                                                                                       } ?>><?php echo xlt('Current'); ?>&nbsp;</td>
@@ -1358,7 +1358,7 @@ foreach (explode(',', $given) as $item) {
       </div>
         <p class="text-center" style="width:100%;margin-top:0px;">
           <input type="hidden" id="issue_js" name="issue_js" value="test">
-          <input type="hidden" id="pid" name="pid" value="<?php echo $pid; ?>">
+          <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>">
           <input type='button' id='form_save' name='form_save'
           class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only navy"
           onclick='top.restoreSession();submit_this_form();' value='<?php echo xla('Save'); ?>' />
@@ -1397,4 +1397,3 @@ foreach (explode(',', $given) as $item) {
       $('[title]').tooltip();
   </script>
 </html>
-
