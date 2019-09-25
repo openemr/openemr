@@ -102,13 +102,15 @@ function echoServiceLines()
         $pricelevel = $li['pricelevel'];
         $justify  = $li['justify'];
 
-        $strike1 = $li['del'] ? "<strike>" : "";
-        $strike2 = $li['del'] ? "</strike>" : "";
+        $strike1 = $strike2 = "";
+        if ($li['del']) {
+            $strike1 = "<del>";
+            $strike2 = "</del>";
+        }
 
         echo " <tr>\n";
 
-        echo "  <td class='billcell'>$strike1" .
-        ($codetype == 'COPAY' ? xlt($codetype) : text($codetype)) . $strike2;
+        echo "  <td class='billcell'>$strike1" . ($codetype == 'COPAY' ? xlt('COPAY') : text($codetype)) . $strike2;
         // if the line to ouput is copay, show the date here passed as $ndc_info,
         // since this variable is not applicable in the case of copay.
         if ($codetype == 'COPAY') {
@@ -1484,7 +1486,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <button type='submit' class='btn btn-default btn-add' name='bn_addmore' onclick='return this.clicked = true;' value='<?php echo xla('Add More Items'); ?>'>
                                         <?php echo xlt('Add More Items'); ?></button>
                                 <?php } // end billed ?>
-                                    <button type='button' class='btn btn-link btn-cancel btn-separate-left'onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
+                                    <button type='button' class='btn btn-link btn-cancel btn-separate-left' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
                                     <?php echo xlt('Cancel');?></button>
                                     <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
                                     <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
