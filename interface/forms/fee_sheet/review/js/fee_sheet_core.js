@@ -119,6 +119,8 @@ function parse_row_justify(row)
 
 function justify_start(evt) {
     const jqElem = $(this); // make sure is in scope after save.
+    const wait = '<i id="wait" class="fa fa-refresh fa-spin fa-1x"></i>';
+    jqElem.after().append(wait); // for the slow pokes..
     let myForm = document.getElementById('fee_sheet_form');
     let formData = new FormData(myForm);
     formData.append('running_as_ajax', "1");
@@ -136,7 +138,7 @@ function justify_start(evt) {
         }
     }).done(function (data) {
         // now init justify
-        let parent = jqElem.parent()
+        let parent = jqElem.parent();
         let template_div = parent.find("div.justify_template");
         if (template_div.length == 0) {
             template_div = $("<div class='justify_template'></div>");
@@ -149,31 +151,37 @@ function justify_start(evt) {
         let justify_model = new fee_sheet_justify_view_model(parent.attr("billing_id"), enc, pid, current_justify_choices);
         ko.cleanNode(template_div.get(0));
         ko.applyBindings(justify_model, template_div.get(0));
+        $("#wait").remove();
     });
 }
 
-function tag_justify_rows(display)
-{
-    var justify_selectors=display.find("select[onchange^='setJustify']").parent();
-    var justify_rows=justify_selectors.parent("tr")
-    var justify_td=justify_rows.children("td:first-child").addClass("has_justify");
-    justify_td.each(function(idx,elem){
+function tag_justify_rows(display) {
+    var justify_selectors = display.find("select[onchange^='setJustify']").parent();
+    var justify_rows = justify_selectors.parent("tr");
+    var justify_td = justify_rows.children("td:first-child").addClass("has_justify");
+    justify_td.each(function (idx, elem) {
         // This code takes the label text and "wraps it around a span for e"
-        var jqElem=$(elem);
-        if(jqElem.find("a.justify_label").length==0)
-        {
-            var label=jqElem.text();
-            var html=jqElem.html().substr(label.length);
+        var jqElem = $(elem);
+        if (jqElem.find("a.justify_label").length == 0) {
+            var pre_label = jqElem.html();
+            if (pre_label.indexOf('<del>') !== -1) {
+                // lets not add an anchor for justify if we are going to delete
+                // procedure anyway so, continue onwards...
+                return true;
+            }
+            var label = jqElem.text();
+            var html = jqElem.html().substr(label.length);
             jqElem.html(html);
-            $("<a class='justify_label'>"+label+"</a>").appendTo(jqElem).on({click:justify_start}).attr("title",justify_click_title);;
+            $("<a class='justify_label'>" + label + "</a>").appendTo(jqElem).on({click: justify_start}).attr("title", justify_click_title);
+            ;
         }
     });
-    var id_fields=justify_rows.find("input[type='hidden'][name$='[id]']");
-    id_fields.each(function(idx,elem){
-        var jqElem=$(elem);
-        var td=jqElem.parent();
+    var id_fields = justify_rows.find("input[type='hidden'][name$='[id]']");
+    id_fields.each(function (idx, elem) {
+        var jqElem = $(elem);
+        var td = jqElem.parent();
         td.addClass("has_id");
-        td.attr("billing_id",jqElem.attr("value"));
+        td.attr("billing_id", jqElem.attr("value"));
     });
 
 }
