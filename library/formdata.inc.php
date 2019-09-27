@@ -242,13 +242,14 @@ function escape_identifier($s, $whitelist_items, $mode_if_no_match = "die", $cas
                     die("<br><span style='color:red;font-weight:bold;'>".xlt("There was an OpenEMR SQL Escaping ERROR of the following string")." ".text($s)."</span><br>");
                 } else if ($mode_if_no_match == "first") {
                     // No match and 'first' mode is set, so return first token
-                    return $ok[0];
+                    $key = 0;
                 } else { // $mode_if_no_match == "boolean"
                     // No match and 'boolean' mode is set, so return false
                     return false;
                 }
             }
         }
+        return $ok[$key];
     } else {
         // Return an item that has been "cleaned" up
         // (this is currently experimental and goal is to avoid using this)
