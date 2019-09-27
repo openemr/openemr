@@ -325,12 +325,12 @@ class C_Prescription extends Controller
             $this->template_mod . "_send.html");
     }
 
-    function multiprintfax_header(& $pdf, $p)
+    function multiprintfax_header(&$pdf, $p)
     {
         return $this->multiprint_header($pdf, $p);
     }
 
-    function multiprint_header(& $pdf, $p)
+    function multiprint_header(&$pdf, $p)
     {
         $this->providerid = $p->provider->id;
         //print header
@@ -541,12 +541,12 @@ class C_Prescription extends Controller
         echo ("<body>\n");
     }
 
-    function multiprintfax_footer(& $pdf)
+    function multiprintfax_footer(&$pdf)
     {
         return $this->multiprint_footer($pdf);
     }
 
-    function multiprint_footer(& $pdf)
+    function multiprint_footer(&$pdf)
     {
         if ($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax )) {
             $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
@@ -624,12 +624,12 @@ class C_Prescription extends Controller
         return $body;
     }
 
-    function multiprintfax_body(& $pdf, $p)
+    function multiprintfax_body(&$pdf, $p)
     {
         return $this->multiprint_body($pdf, $p);
     }
 
-    function multiprint_body(& $pdf, $p)
+    function multiprint_body(&$pdf, $p)
     {
         $pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
         $pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
@@ -823,7 +823,7 @@ class C_Prescription extends Controller
         return;
     }
 
-    function _print_prescription($p, & $toFile)
+    function _print_prescription($p, &$toFile)
     {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
         $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
@@ -849,7 +849,7 @@ class C_Prescription extends Controller
         return;
     }
 
-    function _print_prescription_css($p, & $toFile)
+    function _print_prescription_css($p, &$toFile)
     {
 
         $this->multiprintcss_preheader();
@@ -859,7 +859,7 @@ class C_Prescription extends Controller
         $this->multiprintcss_postfooter();
     }
 
-    function _print_prescription_old($p, & $toFile)
+    function _print_prescription_old($p, &$toFile)
     {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
         $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
