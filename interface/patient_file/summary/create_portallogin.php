@@ -25,7 +25,7 @@ if ($portalsite != "off" && $portalsite != "on") {
     $portalsite = "off";
 }
 
-$row = sqlQuery("SELECT pd.*,pao.portal_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?", array($pid));
+$row = sqlQuery("SELECT pd.*,pao.portal_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . escape_identifier($portalsite, array("on","off")) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?", array($pid));
 
 function generatePassword($length = 6, $strength = 1)
 {
@@ -142,7 +142,7 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
 
     $clear_pass=$_POST['pwd'];
 
-    $res = sqlStatement("SELECT * FROM patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site WHERE pid=?", array($pid));
+    $res = sqlStatement("SELECT * FROM patient_access_" . escape_identifier($portalsite, array("on","off")) . "site WHERE pid=?", array($pid));
     $query_parameters=array($_POST['uname']);
     $salt_clause="";
     if ($portalsite=='on') {
@@ -158,9 +158,9 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
 
     array_push($query_parameters, $pid);
     if (sqlNumRows($res)) {
-        sqlStatement("UPDATE patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?", $query_parameters);
+        sqlStatement("UPDATE patient_access_" . escape_identifier($portalsite, array("on","off")) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?", $query_parameters);
     } else {
-        sqlStatement("INSERT INTO patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?", $query_parameters);
+        sqlStatement("INSERT INTO patient_access_" . escape_identifier($portalsite, array("on","off")) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?", $query_parameters);
     }
 
     // Create the message

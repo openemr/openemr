@@ -485,7 +485,7 @@ $communication = trim($_POST["communication"]);
                 if ($_POST['sortby'] =="communications") {
                     $odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) ".escape_sort_order($_POST['sortorder']).", communications ".escape_sort_order($_POST['sortorder']);
                 } else {
-                    $odrstmt = "ORDER BY ".escape_identifier($_POST['sortby'], $sort, true)." ".escape_sort_order($_POST['sortorder']);
+                    $odrstmt = "ORDER BY ".escape_identifier($_POST['sortby'], $sort)." ".escape_sort_order($_POST['sortorder']);
                 }
             }
 

@@ -56,7 +56,7 @@ function escape_limit($s)
  */
 function escape_sort_order($s)
 {
-    return escape_identifier(strtolower($s), array("asc","desc"));
+    return escape_identifier(strtolower($s), array("asc","desc"), "first");
 }
 
 /**
@@ -85,15 +85,17 @@ function process_cols_escape($s)
  * This will escape/sanitize the sql column name for a sql query. It is done by whitelisting
  * all of the current sql column names in the openemr database from a table(s). Note that if
  * there is no match, then it will die() and a error message will be sent to the screen and
- * the error log. This function should not be used for escaping tables outside the openemr
+ * the error log (if $die_if_no_match is true) or it will return false (if $die_if_no_match is false).
+ * This function should not be used for escaping tables outside the openemr
  * database (should use escape_identifier() function below for that scenario)
  *
- * @param   string|array        $s       sql column name(s) variable to be escaped/sanitized.
- * @param   array         $tables  The table(s) that the sql columns is from (in an array).
- * @param   boolean       $long    Use long form (ie. table.colname) vs short form (ie. colname).
- * @return  string                 Escaped table name variable.
+ * @param   string|array  $s               sql column name(s) variable to be escaped/sanitized.
+ * @param   array         $tables          The table(s) that the sql columns is from (in an array).
+ * @param   boolean       $long            Use long form (ie. table.colname) vs short form (ie. colname).
+ * @param   boolean       $die_if_no_match If true, then will die if no match. If false, then will return false if no match.
+ * @return  string                         Escaped table name variable.
  */
-function escape_sql_column_name($s, $tables, $long = false)
+function escape_sql_column_name($s, $tables, $long = false, $die_if_no_match = true)
 {
     // If $s is asterisk return asterisk to select all columns
     if ($s === "*") {
@@ -139,7 +141,8 @@ function escape_sql_column_name($s, $tables, $long = false)
     }
 
     // Now can escape(via whitelisting) the sql column name
-    return escape_identifier($s, $columns_options, true);
+    $noMatchMode = ($die_if_no_match) ? "die" : "boolean";
+    return escape_identifier($s, $columns_options, $noMatchMode);
 }
 
 /**
@@ -172,7 +175,7 @@ function escape_table_name($s)
     }
 
     // Now can escape(via whitelisting) the sql table name
-    return escape_identifier($s, $tables_array, true, false);
+    return escape_identifier($s, $tables_array, "die", false);
 }
 
 /**
@@ -194,12 +197,13 @@ function mitigateSqlTableUpperCase($s)
  * This will escape/sanitize a sql identifier. There are two options provided by this
  * function.
  * The first option is done by whitelisting ($whitelist_items is used) and in this case
- * only certain identifiers (listed in the $whitelist_items array) can be used; if
- * there is no match, then it will either default to the first item in the $whitelist_items
- * (if $die_if_no_match is FALSE) or it will die() and send an error message to the screen
- * and log (if $die_if_no_match is TRUE). Note there is an option to allow case insensitive
- * matching; if this option is chosen, it will first attempt a case sensitive match and if this
- * fails, then attempt a case insensitive match.
+ * only certain identifiers (listed in the $whitelist_items array) can be used. If
+ * there is no match, then there are 3 modes:
+ *                                         'die'     (die and echo an error to screen and log; this is default)
+ *                                         'boolean' (return false)
+ *                                         'first'   (return the first whitelist token)
+ * Note there is an option to allow case insensitive matching; if this option is chosen,
+ * it will first attempt a case sensitive match and if this fails, then attempt a case insensitive match.
  * The second option is done by sanitizing ($whitelist_items is not used) and in this case
  * only US alphanumeric,'_' and '.' items are kept in the returned string. Note
  * the second option is still experimental as we figure out the ideal items to
@@ -208,11 +212,14 @@ function mitigateSqlTableUpperCase($s)
  *
  * @param   string   $s                Sql identifier variable to be escaped/sanitized.
  * @param   array    $whitelist_items  Items used in whitelisting method (See function description for details of whitelisting method).
- * @param   boolean  $die_if_no_match  If there is no match in the whitelist, then die and echo an error to screen and log.
+ * @param   boolean  $mode_if_no_match Mode for when there is no match. Options are:
+ *                                         'die'     (die and echo an error to screen and log; this is default)
+ *                                         'boolean' (return false)
+ *                                         'first'   (return the first whitelist token)
  * @param   boolean  $case_sens_match  Use case sensitive match (this is default).
- * @return  string                     Escaped/sanitized sql identifier variable.
+ * @return  string|boolean             Escaped/sanitized sql identifier variable or false.
  */
-function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case_sens_match = true)
+function escape_identifier($s, $whitelist_items, $mode_if_no_match = "die", $case_sens_match = true)
 {
     if (is_array($whitelist_items)) {
         // Only return an item within the whitelist_items
@@ -229,18 +236,19 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
 
             if ($key === false) {
                 // Still no match
-                if ($die_if_no_match) {
-                    // No match and $die_if_no_match is set, so die() and send error messages to screen and log
+                if ($mode_if_no_match == "die") {
+                    // No match and 'die' mode is set, so die() and send error messages to screen and log
                     error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: ".$s, 0);
                     die("<br><span style='color:red;font-weight:bold;'>".xlt("There was an OpenEMR SQL Escaping ERROR of the following string")." ".text($s)."</span><br>");
-                } else {
-                    // Return first token since no match
-                    $key = 0;
+                } else if ($mode_if_no_match == "first") {
+                    // No match and 'first' mode is set, so return first token
+                    return $ok[0];
+                } else { // $mode_if_no_match == "boolean"
+                    // No match and 'boolean' mode is set, so return false
+                    return false;
                 }
             }
         }
-
-        return $ok[$key];
     } else {
         // Return an item that has been "cleaned" up
         // (this is currently experimental and goal is to avoid using this)

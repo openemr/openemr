@@ -146,7 +146,7 @@ if ($_POST['form_action']=='process') {
         endswitch;
 
         // sort by
-        $sql .= ' ORDER BY ' . escape_identifier($_POST['sort_by'], array_values($sort_by_choices), true);
+        $sql .= ' ORDER BY ' . escape_identifier($_POST['sort_by'], array_values($sort_by_choices));
         // send query for results.
         //echo $sql;exit();
         $res = sqlStatement($sql, $params);
