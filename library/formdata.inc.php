@@ -238,7 +238,7 @@ function escape_identifier($s, $whitelist_items, $mode_if_no_match = "die", $cas
                 // Still no match
                 if ($mode_if_no_match == "die") {
                     // No match and 'die' mode is set, so die() and send error messages to screen and log
-                    error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: ".$s, 0);
+                    error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: ".errorLogEscape($s), 0);
                     die("<br><span style='color:red;font-weight:bold;'>".xlt("There was an OpenEMR SQL Escaping ERROR of the following string")." ".text($s)."</span><br>");
                 } else if ($mode_if_no_match == "first") {
                     // No match and 'first' mode is set, so return first token
