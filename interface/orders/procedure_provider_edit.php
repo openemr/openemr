@@ -272,7 +272,7 @@ function invalue($name)
                                         class='form-control' />
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type='text' name='form_recv_app_id' id='form_recv_app_id' maxlength='100'
+                                        <input type='text' name='form_recv_fac_id' id='form_recv_fac_id' maxlength='100'
                                         value='<?php echo attr($row['recv_fac_id']); ?>'
                                         title='<?php echo xla('HL7 - MSH-6.1 - Receiving facility'); ?>'
                                         placeholder='<?php echo xla('Enter Facility Name'); ?>'
