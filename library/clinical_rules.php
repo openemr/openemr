@@ -2117,6 +2117,8 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
     $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   // Collect pertinent history data
+    // If illegal value in $lifestyle, then will die and report error (to prevent security vulnerabilities)
+    escape_sql_column_name($lifestyle, ['history_data']);
     $history = getHistoryData($patient_id, $lifestyle, '', $dateTarget);
 
   // See if match
