@@ -11,7 +11,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Medical Information Integration, LLC
  * @author    Ensofttek, LLC
- * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Medical Information Integration, LLC
  * @copyright Copyright (c) 2011 Ensofttek, LLC
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -1550,7 +1550,7 @@ function set_rule_activity_patient($rule, $type, $setting, $patient_id)
     }
 
   // Update patient specific row
-    $query = "UPDATE `clinical_rules` SET `" . add_escape_custom($type) . "_flag`= ?, `access_control` = ? WHERE id = ? AND pid = ?";
+    $query = "UPDATE `clinical_rules` SET `" . escape_sql_column_name($type."_flag", ["clinical_rules"]) . "`= ?, `access_control` = ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, array($setting,$patient_rule_original['access_control'],$rule,$patient_id));
 }
 
@@ -1919,9 +1919,9 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
     if (empty($column)) {
         // simple search for any table entries
         $sql = sqlStatementCdrEngine("SELECT * " .
-        "FROM `" . add_escape_custom($table)  . "` " .
+        "FROM `" . escape_table_name($table)  . "` " .
         " ". $whereTables. " ".
-        "WHERE " . add_escape_custom($patient_id_label)  . "=? " . $customSQL, array($patient_id));
+        "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL, array($patient_id));
     } else {
         // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
         if ((substr($data, -2)=='**') && (($compSql == "=") || ($compSql == "!="))) {
@@ -1935,13 +1935,13 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
             //To handle standard forms starting with form_
             //In this case, we are assuming the date field is "date"
             $sql =sqlStatementCdrEngine(
-                "SELECT b.`" . add_escape_custom($column) . "` " .
+                "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
                 "FROM forms a ".
-                "LEFT JOIN `" . add_escape_custom($table) . "` " . " b ".
+                "LEFT JOIN `" . escape_table_name($table) . "` " . " b ".
                 "ON (a.form_id=b.id AND a.formdir LIKE '".add_escape_custom(substr($table, 5))."') ".
                 "WHERE a.deleted != '1' ".
-                "AND b.`" .add_escape_custom($column) ."`" . $compSql .
-                "AND b."  . add_escape_custom($patient_id_label)  . "=? " . $customSQL
+                "AND b.`" . escape_sql_column_name($column, [$table]) ."`" . $compSql .
+                "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
                 . str_replace("`date`", "b.`date`", $dateSql),
                 array($data, $patient_id)
             );
@@ -1953,10 +1953,10 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
             }
 
             // search for number of specific items
-            $sql = sqlStatementCdrEngine("SELECT `" . add_escape_custom($column) . "` " .
-              "FROM `" . add_escape_custom($table) . "` " .
+            $sql = sqlStatementCdrEngine("SELECT `" . escape_sql_column_name($column, [$table]) . "` " .
+              "FROM `" . escape_table_name($table) . "` " .
               " " . $whereTables . " " .
-              "WHERE `" . add_escape_custom($column) . "`" . $compSql .
+              "WHERE `" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
               "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
               $dateSql, array($data, $patient_id));
         }
@@ -2090,7 +2090,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
 
   // search for number of specific items
     $sql = sqlStatementCdrEngine("SELECT `result` " .
-    "FROM `" . add_escape_custom($table)  . "` " .
+    "FROM `" . escape_table_name($table)  . "` " .
     "WHERE `category`=? " .
     "AND `item`=? " .
     "AND `complete`=? " .
@@ -2251,43 +2251,43 @@ function sql_interval_string($table, $intervalType, $intervalValue, $dateTarget)
             case "year":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                 " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-                "', INTERVAL " . add_escape_custom($intervalValue) .
+                "', INTERVAL " . escape_limit($intervalValue) .
                 " YEAR) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "month":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                 " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-                "', INTERVAL " . add_escape_custom($intervalValue) .
+                "', INTERVAL " . escape_limit($intervalValue) .
                 " MONTH) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "week":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                 " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-                "', INTERVAL " . add_escape_custom($intervalValue) .
+                "', INTERVAL " . escape_limit($intervalValue) .
                 " WEEK) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "day":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                 " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-                "', INTERVAL " . add_escape_custom($intervalValue) .
+                "', INTERVAL " . escape_limit($intervalValue) .
                 " DAY) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "hour":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                 " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-                "', INTERVAL " . add_escape_custom($intervalValue) .
+                "', INTERVAL " . escape_limit($intervalValue) .
                 " HOUR) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "minute":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                 " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-                "', INTERVAL " . add_escape_custom($intervalValue) .
+                "', INTERVAL " . escape_limit($intervalValue) .
                 " MINUTE) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "second":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                 " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-                "', INTERVAL " . add_escape_custom($intervalValue) .
+                "', INTERVAL " . escape_limit($intervalValue) .
                 " SECOND) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "flu_season":
