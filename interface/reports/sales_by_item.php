@@ -83,12 +83,11 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
             // Print product total.
             if ($_POST['form_csvexport']) {
                 if (! $_POST['form_details']) {
-                    echo '"' . display_desc($category) . '",';
-                    echo '"' . display_desc($product)  . '",';
-                    echo '"' . $productqty             . '",';
-                    echo '"';
-                    echo bucks($producttotal);
-                    echo '"' . "\n";
+                    echo csvEscape(display_desc($category)) . ',';
+                    echo csvEscape(display_desc($product))  . ',';
+                    echo csvEscape($productqty)             . ',';
+                    echo csvEscape(bucks($producttotal));
+                    echo "\n";
                 }
             } else {
                 ?>
@@ -171,26 +170,25 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 
     if ($_POST['form_details']) {
         if ($_POST['form_csvexport']) {
-            echo '"' . display_desc($category) . '",';
-            echo '"' . display_desc($product) . '",';
-            echo '"' . oeFormatShortDate(display_desc($transdate)) . '",';
+            echo csvEscape(display_desc($category)) . ',';
+            echo csvEscape(display_desc($product)) . ',';
+            echo csvEscape(oeFormatShortDate(display_desc($transdate))) . ',';
             if ($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2) {
-                echo '"' . $pat_name . '",';
+                echo csvEscape($pat_name) . ',';
             }
 
             if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {
-                echo '"' . display_desc($invnumber) . '",';
+                echo csvEscape(display_desc($invnumber)) . ',';
             }
 
             if ($GLOBALS['sales_report_invoice'] == 1) {
-                echo '"' . $patient_id . '",';
+                echo csvEscape($patient_id) . ',';
             }
 
            // echo '"' . display_desc($invnumber) . '",';
-            echo '"' . display_desc($qty) . '",';
-            echo '"';
-            echo bucks($rowamount);
-            echo '"' . "\n";
+            echo csvEscape(display_desc($qty)) . ',';
+            echo csvEscape(bucks($rowamount));
+            echo "\n";
         } else {
             ?>
 
@@ -621,11 +619,10 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     if ($_POST['form_csvexport']) {
         if (! $_POST['form_details']) {
-            echo '"' . display_desc($product) . '",';
-            echo '"' . $productqty            . '",';
-            echo '"';
-            echo bucks($producttotal);
-            echo '"' . "\n";
+            echo csvEscape(display_desc($product)) . ',';
+            echo csvEscape($productqty)            . ',';
+            echo csvEscape(bucks($producttotal));
+            echo "\n";
         }
     } else {
         ?>

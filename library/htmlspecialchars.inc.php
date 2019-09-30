@@ -52,6 +52,30 @@ function errorLogEscape($text)
 }
 
 /**
+ * Escape variables that are outputted into csv and spreadsheet files.
+ * See here: https://www.owasp.org/index.php/CSV_Injection
+ * Based mitigation strategy on this report: https://asecurityz.blogspot.com/2017/12/csv-injection-mitigations.html
+ *  1. Remove all the following characters:  = + " |
+ *  2. Only remove leading - characters (since need in dates)
+ *  3. Only remove leading @ characters (since need in email addresses)
+ *  4. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
+ * If needed in future, will add a second parameter called 'options' which will be an array of option tokens that will allow
+ * less stringent (or more stringent) mechanisms to escape for csv.
+ */
+function csvEscape($text)
+{
+    // 1. Remove all the following characters:  = + " |
+    $text = preg_replace('/[=+"|]/', '', $text);
+
+    // 2. Only remove leading - characters (since need in dates)
+    // 3. Only remove leading @ characters (since need in email addresses)
+    $text = preg_replace('/^[\-@]+/', '', $text);
+
+    // 4. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
+    return '"' . $text . '"';
+}
+
+/**
  * Escape a PHP string for use as (part of) an HTML / XML text node.
  *
  * It only escapes a few special chars: the ampersand (&) and both the left-
