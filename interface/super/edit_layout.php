@@ -244,11 +244,11 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
         return;
     }
     // Check if the column currently exists.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `$tablename` LIKE ?", array($field_id));
+    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE ?", array($field_id));
     $column_exists = !empty($tmp);
 
     if ($add && !$column_exists) {
-        sqlStatement("ALTER TABLE `$tablename` ADD `" . add_escape_custom($field_id) . "` TEXT");
+        sqlStatement("ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT");
         EventAuditLogger::instance()->newEvent(
             "alter_table",
             $_SESSION['authUser'],
@@ -258,10 +258,10 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
         );
     } elseif (!$add && $column_exists) {
         // Do not drop a column that has any data.
-        $tmp = sqlQuery("SELECT `" . add_escape_custom($field_id) . "` FROM `$tablename` WHERE " .
-        "`" . add_escape_custom($field_id) . "` IS NOT NULL AND `" . add_escape_custom($field_id) . "` != '' LIMIT 1");
+        $tmp = sqlQuery("SELECT `" . escape_sql_column_name($field_id, [$tablename]) . "` FROM `" . escape_table_name($tablename) . "` WHERE " .
+        "`" . escape_sql_column_name($field_id, [$tablename]) . "` IS NOT NULL AND `" . escape_sql_column_name($field_id, [$tablename]) . "` != '' LIMIT 1");
         if (!isset($tmp['field_id'])) {
-            sqlStatement("ALTER TABLE `$tablename` DROP `" . add_escape_custom($field_id) . "`");
+            sqlStatement("ALTER TABLE `" . escape_table_name($tablename) . "` DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`");
             EventAuditLogger::instance()->newEvent(
                 "alter_table",
                 $_SESSION['authUser'],
@@ -287,13 +287,13 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
         return -1; // Indicate rename is not relevant.
     }
     // Make sure old column exists.
-    $colarr = sqlQuery("SHOW COLUMNS FROM `$tablename` LIKE ?", array($old_field_id));
+    $colarr = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE ?", array($old_field_id));
     if (empty($colarr)) {
         // Error, old name does not exist.
         return 2;
     }
     // Make sure new column does not exist.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `$tablename` LIKE ?", array($new_field_id));
+    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE ?", array($new_field_id));
     if (!empty($tmp)) {
         // Error, new name already in use.
         return 3;
@@ -309,7 +309,7 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     if ($colarr['Extra']) {
         $colstr .= " " . add_escape_custom($colarr['Extra']);
     }
-    $query = "ALTER TABLE `$tablename` CHANGE `" . add_escape_custom($old_field_id) . "` `" . add_escape_custom($new_field_id) . "` $colstr";
+    $query = "ALTER TABLE `" . escape_table_name($tablename) . "` CHANGE `" . escape_sql_column_name($old_field_id, [$tablename]) . "` `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
     sqlStatement($query);
     EventAuditLogger::instance()->newEvent(
         "alter_table",
