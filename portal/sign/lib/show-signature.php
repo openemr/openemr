@@ -13,7 +13,7 @@
 
 //Need to unwrap data to ensure user/patient is authorized
 $data = (array)(json_decode(file_get_contents("php://input")));
-$pid = $data['pid'];
+$req_pid = $data['pid'];
 $user = $data['user'];
 $type = $data['type'];
 $isPortal = $data['is_portal'];
@@ -27,7 +27,7 @@ if ($isPortal) {
 
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         // authorized by patient portal
-        $pid = $_SESSION['pid'];
+        $req_pid = $_SESSION['pid'];
         $ignoreAuth = true;
     } else {
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
@@ -43,10 +43,10 @@ $status = 'filed';
 $info_query = array();
 $isAdmin = ($type === 'admin-signature');
 if ($isAdmin) {
-    $pid = 0;
+    $req_pid = 0;
 }
 
-if ($pid === 0 || empty($user)) {
+if ($req_pid === 0 || empty($user)) {
     if (!$isAdmin || empty($user)) {
         echo(js_escape('error'));
         exit();
@@ -57,7 +57,7 @@ if ($data['mode'] === 'fetch_info') {
     $stmt = "Select CONCAT(IFNULL(fname,''), ' ',IFNULL(lname,'')) as userName From users Where id = ?";
     $user_result = sqlQuery($stmt, array($user));
     $stmt = "Select CONCAT(IFNULL(fname,''), ' ',IFNULL(lname,'')) as ptName From patient_data Where pid = ?";
-    $pt_result = sqlQuery($stmt, array($pid));
+    $pt_result = sqlQuery($stmt, array($req_pid));
     $signature = [];
     if ($pt_result) {
         $info_query = array_merge($pt_result, $user_result, $signature);
@@ -77,16 +77,16 @@ if ($data['mode'] === 'fetch_info') {
 }
 
 if ($isAdmin) {
-    $pid = 0;
+    $req_pid = 0;
     $row = sqlQuery("SELECT pid,status,sig_image,type,user FROM onsite_signatures WHERE user=? && type=?", array($user, $type));
 } else {
-    $row = sqlQuery("SELECT pid,status,sig_image,type,user FROM onsite_signatures WHERE pid=? And user=?", array($pid, $user));
+    $row = sqlQuery("SELECT pid,status,sig_image,type,user FROM onsite_signatures WHERE pid=? And user=?", array($req_pid, $user));
 }
 
 if (!$row['pid'] && !$row['user']) {
     $status = 'waiting';
     $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator,created) VALUES (?,?,?,?,?,?,?)";
-    sqlStatement($qstr, array($pid, $lastmod, $status, $type, $user, $signer, $created));
+    sqlStatement($qstr, array($req_pid, $lastmod, $status, $type, $user, $signer, $created));
 }
 
 if ($row['status'] == 'filed') {

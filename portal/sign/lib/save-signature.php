@@ -13,7 +13,7 @@
 
 //Need to unwrap data to ensure user/patient is authorized
 $data = (array)(json_decode(file_get_contents("php://input")));
-$pid = $data['pid'];
+$req_pid = $data['pid'];
 $user = $data['user'];
 $signer = !empty($data['signer']) ? $data['signer'] : '';
 $type = $data['type'];
@@ -28,7 +28,7 @@ if ($isPortal) {
 
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         // authorized by patient portal
-        $pid = $_SESSION['pid'];
+        $req_pid = $_SESSION['pid'];
         $ignoreAuth = true;
     } else {
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
@@ -40,22 +40,22 @@ require_once("../../../interface/globals.php");
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($type == 'admin-signature') {
-        $pid = 0;
+        $req_pid = 0;
     }
     $sig_hash = sha1($output);
     $created = time();
     $ip = $_SERVER['REMOTE_ADDR'];
     $status = 'filed';
     $lastmod = date('Y-m-d H:i:s');
-    $r = sqlStatement("SELECT COUNT( DISTINCT TYPE ) x FROM onsite_signatures where pid = ? and user = ? ", array($pid, $user));
+    $r = sqlStatement("SELECT COUNT( DISTINCT TYPE ) x FROM onsite_signatures where pid = ? and user = ? ", array($req_pid, $user));
     $c = sqlFetchArray($r);
     $isit = $c['x'] * 1;
     if ($isit) {
         $qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
-        $rcnt = sqlStatement($qstr, array($pid, $lastmod, $status, $user, null, $sig_hash, $ip, $output, $pid, $user));
+        $rcnt = sqlStatement($qstr, array($req_pid, $lastmod, $status, $user, null, $sig_hash, $ip, $output, $req_pid, $user));
     } else {
         $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
-        sqlStatement($qstr, array($pid, $lastmod, $status, $type, $user, $signer, null, $sig_hash, $ip, $created, $output));
+        sqlStatement($qstr, array($req_pid, $lastmod, $status, $type, $user, $signer, null, $sig_hash, $ip, $created, $output));
     }
 
     echo json_encode('Done');
