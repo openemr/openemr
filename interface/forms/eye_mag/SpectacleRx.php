@@ -916,7 +916,7 @@ if ($REFTYPE == "CTL") {
     <input type="hidden" name="REFTYPE" value="<?php echo attr($REFTYPE); ?>"/>
     <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
     <input type="hidden" name="id" id="id" value="<?php echo attr($insert_this_id); ?>">
-    <input type="hidden" name="encounter" id="encounter" value="<?php echo $encounter; ?>">
+    <input type="hidden" name="encounter" id="encounter" value="<?php echo attr($encounter); ?>">
 
     <div style="width: 650px;">
 
