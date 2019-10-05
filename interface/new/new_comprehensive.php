@@ -917,7 +917,11 @@ $(function () {
                 url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
             }
         }
-        url+="&close"
+        if (flds == '') {
+            url += "?close";
+        } else {
+            url+="&close";
+        }
         dlgopen(url, '_blank', 700, 500);
         } // end function
     } // end function
