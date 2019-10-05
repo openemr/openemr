@@ -51,8 +51,8 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     }
 
     if (count($result2) == 1) {
-        $defaultLangID = $result2[0]{"lang_id"};
-        $defaultLangName = $result2[0]{"lang_description"};
+        $defaultLangID = $result2[0]["lang_id"];
+        $defaultLangName = $result2[0]["lang_description"];
     } else {
         //default to english if any problems
         $defaultLangID = 1;
