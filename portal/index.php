@@ -172,31 +172,31 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             <table style="width:100%">
                 <tr>
                     <td class="algnRight"><?php echo xlt('User Name'); ?></td>
-                    <td><input name="uname" id="uname" type="text" autocomplete="off" value="<?php echo attr($_SESSION['portal_username']); ?>"/></td>
+                    <td><input name="uname" id="uname" type="text" readonly autocomplete="off" value="<?php echo attr($_SESSION['portal_username']); ?>"/></td>
                 </tr>
                 <tr>
                     <td class="algnRight"><?php echo xlt('Current Password');?></td>
                     <td>
-                        <input name="pass" id="pass" type="password" autocomplete="off" value="" />
+                        <input name="pass" id="pass" type="password" autocomplete="off" value="" required />
                     </td>
                 </tr>
                 <tr>
                     <td class="algnRight"><?php echo xlt('New Password');?></td>
                     <td>
-                        <input name="pass_new" id="pass_new" type="password" />
+                        <input name="pass_new" id="pass_new" type="password" required />
                     </td>
                 </tr>
                 <tr>
                     <td class="algnRight"><?php echo xlt('Confirm New Password');?></td>
                     <td>
-                        <input name="pass_new_confirm" id="pass_new_confirm" type="password" />
+                        <input name="pass_new_confirm" id="pass_new_confirm" type="password" required />
                     </td>
                 </tr>
                 <?php if ($GLOBALS['enforce_signin_email']) { ?>
                      <tr>
                         <td class="algnRight"><?php echo xlt('Confirm Email Address');?></td>
                         <td>
-                            <input name="passaddon" id="passaddon" placeholder="<?php echo xla('Your on file email address'); ?>" type="email" autocomplete="off" value=""  />
+                            <input name="passaddon" id="passaddon" required placeholder="<?php echo xla('Your on file email address'); ?>" type="email" autocomplete="off" value=""  />
                         </td>
                     </tr>
                 <?php } ?>
@@ -209,7 +209,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
       </div>
     <?php } elseif (isset($_GET['requestNew'])) { ?>
     <div id="wrapper" class="centerwrapper" style="text-align:center;" >
-        <form  class="form-inline" id="resetPass" action="" method="" >
+        <form  class="form-inline" id="resetPass" action="#" method="post" >
             <div class="row">
                 <div class="col-sm-10 col-md-offset-1 text-center">
                     <fieldset>
@@ -217,7 +217,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                         <div class="well">
                         <div class="row">
                             <div class="form-group inline">
-                                <label class="control-label" for="fname"><?php echo xlt('First')?></label>
+                                <label class="control-label" for="fname"><?php echo xlt('First{{Name}}')?></label>
                                 <div class="controls inline-inputs">
                                     <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>">
                                 </div>
@@ -246,7 +246,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 </div>
                             </div>
                         </div>
-                        <button id="submitRequest" class="btn btn-primary nextBtn btn-sm pull-right" type="button"><?php echo xlt('Verify') ?></button>
+                        <button id="submitRequest" class="btn btn-primary nextBtn btn-sm pull-right" type="submit"><?php echo xlt('Verify') ?></button>
                     </fieldset>
                 </div>
             </div>
@@ -355,8 +355,10 @@ if (isset($_GET['requestNew'])) {
     $(document.body).on('hidden.bs.modal', function () {
         callServer('cleanup');
     });
-    $("#submitRequest").click(function () {
+    $("#resetPass").on('submit', function (e) {
+        e.preventDefault();
         callServer('is_new', '');
+        return false;
     });
 <?php } ?>
 <?php if (isset($_GET['w'])) { ?>
