@@ -40,11 +40,11 @@ if ($_POST['form_csvexport']) {
     header("Content-Description: File Transfer");
     // CSV headers:
     if (true) {
-        echo '"Insurance",';
-        echo '"Charges",';
-        echo '"Visits",';
-        echo '"Patients",';
-        echo '"Pt Pct"' . "\n";
+        echo csvEscape("Insurance") . ',';
+        echo csvEscape("Charges") . ',';
+        echo csvEscape("Visits") . ',';
+        echo csvEscape("Patients") . ',';
+        echo csvEscape("Pt Pct") . "\n";
     }
 } else {
     ?>
@@ -221,11 +221,11 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     foreach ($insarr as $key => $val) {
         if ($_POST['form_csvexport']) {
-            echo '"' . $key                                                . '",';
-            echo '"' . oeFormatMoney($val['charges'])                      . '",';
-            echo '"' . $val['visits']                                      . '",';
-            echo '"' . $val['patients']                                    . '",';
-            echo '"' . sprintf("%.1f", $val['patients'] * 100 / $patcount) . '"' . "\n";
+            echo csvEscape($key)                                                . ',';
+            echo csvEscape(oeFormatMoney($val['charges']))                      . ',';
+            echo csvEscape($val['visits'])                                      . ',';
+            echo csvEscape($val['patients'])                                    . ',';
+            echo csvEscape(sprintf("%.1f", $val['patients'] * 100 / $patcount)) . "\n";
         } else {
             ?>
      <tr>
