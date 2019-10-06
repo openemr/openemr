@@ -961,7 +961,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             echo csvEscape(xl('Invoice')) . ',';
             echo csvEscape(xl('DOS')) . ',';
             echo csvEscape(xl('Referrer')) . ',';
-            echo csvEscape(xl('Provider')) . '';
+            echo csvEscape(xl('Provider')) . ',';
             echo csvEscape(xl('Adjust')) . ',';
             echo csvEscape(xl('Paid')) . ',';
             echo csvEscape(xl('Balance')) . ',';
