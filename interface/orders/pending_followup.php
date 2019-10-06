@@ -40,13 +40,13 @@ function thisLineItem($row, $codetype, $code)
     $code_text = $crow['code_text'];
 
     if ($_POST['form_csvexport']) {
-        echo '"' . addslashes($row['patient_name'  ]) . '",';
-        echo '"' . addslashes($row['pubpid'        ]) . '",';
-        echo '"' . addslashes($row['date_ordered'  ]) . '",';
-        echo '"' . addslashes($row['procedure_name']) . '",';
-        echo '"' . addslashes($provname) . '",';
-        echo '"' . addslashes($code) . '",';
-        echo '"' . addslashes($code_text) . '"' . "\n";
+        echo csvEscape($row['patient_name'  ]) . ',';
+        echo csvEscape($row['pubpid'        ]) . ',';
+        echo csvEscape($row['date_ordered'  ]) . ',';
+        echo csvEscape($row['procedure_name']) . ',';
+        echo csvEscape($provname) . ',';
+        echo csvEscape($code) . ',';
+        echo csvEscape($code_text) . "\n";
     } else {
         ?>
    <tr>
@@ -82,13 +82,13 @@ if ($_POST['form_csvexport']) {
     header("Content-Disposition: attachment; filename=pending_followup.csv");
     header("Content-Description: File Transfer");
   // CSV headers:
-    echo '"' . xl('Patient') . '",';
-    echo '"' . xl('ID') . '",';
-    echo '"' . xl('Ordered') . '",';
-    echo '"' . xl('Procedure') . '",';
-    echo '"' . xl('Provider') . '",';
-    echo '"' . xl('Code') . '",';
-    echo '"' . xl('Service') . '"' . "\n";
+    echo csvEscape(xl('Patient')) . ',';
+    echo csvEscape(xl('ID')) . ',';
+    echo csvEscape(xl('Ordered')) . ',';
+    echo csvEscape(xl('Procedure')) . ',';
+    echo csvEscape(xl('Provider')) . ',';
+    echo csvEscape(xl('Code')) . ',';
+    echo csvEscape(xl('Service')) . "\n";
 } else { // not export
     ?>
 <html>

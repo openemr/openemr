@@ -31,13 +31,13 @@ function thisLineItem($row)
     }
 
     if ($_POST['form_csvexport']) {
-        echo '"' . addslashes($row['patient_name'  ]) . '",';
-        echo '"' . addslashes($row['pubpid'        ]) . '",';
-        echo '"' . addslashes(oeFormatShortDate($row['date_ordered'  ])) . '",';
-        echo '"' . addslashes($row['organization'  ]) . '",';
-        echo '"' . addslashes($provname) . '",';
-        echo '"' . addslashes($row['priority_name' ]) . '",';
-        echo '"' . addslashes($row['status_name'   ]) . '"' . "\n";
+        echo csvEscape($row['patient_name'  ]) . ',';
+        echo csvEscape($row['pubpid'        ]) . ',';
+        echo csvEscape(oeFormatShortDate($row['date_ordered'  ])) . ',';
+        echo csvEscape($row['organization'  ]) . ',';
+        echo csvEscape($provname) . ',';
+        echo csvEscape($row['priority_name' ]) . ',';
+        echo csvEscape($row['status_name'   ]) . "\n";
     } else {
         ?>
    <tr>
@@ -73,14 +73,14 @@ if ($_POST['form_csvexport']) {
     header("Content-Disposition: attachment; filename=pending_orders.csv");
     header("Content-Description: File Transfer");
   // CSV headers:
-    echo '"' . xl('Patient') . '",';
-    echo '"' . xl('ID') . '",';
-    echo '"' . xl('Ordered') . '",';
-    echo '"' . xl('From') . '",';
-    echo '"' . xl('Procedure') . '",';
-    echo '"' . xl('Provider') . '",';
-    echo '"' . xl('Priority') . '",';
-    echo '"' . xl('Status') . '"' . "\n";
+    echo csvEscape(xl('Patient')) . ',';
+    echo csvEscape(xl('ID')) . ',';
+    echo csvEscape(xl('Ordered')) . ',';
+    echo csvEscape(xl('From')) . ',';
+    echo csvEscape(xl('Procedure')) . ',';
+    echo csvEscape(xl('Provider')) . ',';
+    echo csvEscape(xl('Priority')) . ',';
+    echo csvEscape(xl('Status')) . "\n";
 } else { // not export
     ?>
 <html>

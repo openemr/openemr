@@ -932,46 +932,45 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     } else if ($_POST['form_csvexport']) {
         # CSV headers added conditions if they are checked to display then export them (TLH)
         if (true) {
-            echo '"' . xl('Insurance') . '",';
-            echo '"' . xl('Name') . '",';
+            echo csvEscape(xl('Insurance')) . ',';
+            echo csvEscape(xl('Name')) . ',';
             if ($form_cb_ssn) {
-                echo '"' . xl('SSN') . '",';
+                echo csvEscape(xl('SSN')) . ',';
             }
 
             if ($form_cb_dob) {
-                echo '"' . xl('DOB') . '",';
+                echo csvEscape(xl('DOB')) . ',';
             }
 
             if ($form_cb_pubpid) {
-                echo '"' . xl('Pubpid') . '",';
+                echo csvEscape(xl('Pubpid')) . ',';
             }
 
             if ($form_cb_policy) {
-                echo '"' . xl('Policy') . '",';
+                echo csvEscape(xl('Policy')) . ',';
             }
 
             if ($form_cb_phone) {
-                echo '"' . xl('Phone') . '",';
+                echo csvEscape(xl('Phone')) . ',';
             }
 
             if ($form_cb_city) {
-                echo '"' . xl('City') . '",';
+                echo csvEscape(xl('City')) . ',';
             }
 
-            echo '"' . xl('Invoice') . '",';
-            echo '"' . xl('DOS') . '",';
-            echo '"' . xl('Referrer') . '",';
-            echo '"' . xl('Provider') . '",';
-            echo '"' . xl('Charge') . '",';
-            echo '"' . xl('Adjust') . '",';
-            echo '"' . xl('Paid') . '",';
-            echo '"' . xl('Balance') . '",';
-            echo '"' . xl('IDays') . '",';
+            echo csvEscape(xl('Invoice')) . ',';
+            echo csvEscape(xl('DOS')) . ',';
+            echo csvEscape(xl('Referrer')) . ',';
+            echo csvEscape(xl('Provider')) . '';
+            echo csvEscape(xl('Adjust')) . ',';
+            echo csvEscape(xl('Paid')) . ',';
+            echo csvEscape(xl('Balance')) . ',';
+            echo csvEscape(xl('IDays')) . ',';
             if ($form_cb_err) {
-                echo '"' . xl('LADate') . '",';
-                echo '"' . xl('Error') . '"' . "\n";
+                echo csvEscape(xl('LADate')) . ',';
+                echo csvEscape(xl('Error')) . "\n";
             } else {
-                echo '"' . xl('LADate') . '"' . "\n";
+                echo csvEscape(xl('LADate')) . "\n";
             }
         }
     } else {
@@ -1235,46 +1234,46 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
           // Added zero balances for a complete spreadsheet view
             $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
             if ($balance > 0 || $_POST['form_zero_balances']) {
-                echo '"' . $row['ins1']                         . '",'; // insname
-                echo '"' . $ptname                              . '",';
+                echo csvEscape($row['ins1'])                         . ','; // insname
+                echo csvEscape($ptname)                              . ',';
                 if ($form_cb_ssn) {
-                    echo '"' . $row['ss']                          . '",';
+                    echo csvEscape($row['ss'])                          . ',';
                 }
 
                 if ($form_cb_dob) {
-                    echo '"' . oeFormatShortDate($row['DOB'])       . '",';
+                    echo csvEscape(oeFormatShortDate($row['DOB']))       . ',';
                 }
 
                 if ($form_cb_pubpid) {
-                    echo '"' . $row['pubpid']                       . '",';
+                    echo csvEscape($row['pubpid'])                       . ',';
                 }
 
                 if ($form_cb_policy) {
-                    echo '"' . $row['policy']                       . '",';
+                    echo csvEscape($row['policy'])                       . ',';
                 }
 
                 if ($form_cb_phone) {
-                    echo '"' . $row['phone']                       . '",';
+                    echo csvEscape($row['phone'])                       . ',';
                 }
 
                 if ($form_cb_city) {
-                    echo '"' . $row['city']                       . '",';
+                    echo csvEscape($row['city'])                       . ',';
                 }
 
-                echo '"' . (empty($row['irnumber']) ? $row['invnumber'] : $row['irnumber']) . '",';
-                echo '"' . oeFormatShortDate($row['dos'])       . '",';
-                echo '"' . $row['referrer']                     . '",';
-                echo '"' . $row['provider']                     . '",';
-                echo '"' . oeFormatMoney($row['charges'])       . '",';
-                echo '"' . oeFormatMoney($row['adjustments'])   . '",';
-                echo '"' . oeFormatMoney($row['paid'])          . '",';
-                echo '"' . oeFormatMoney($balance)              . '",';
-                echo '"' . $row['inactive_days']                . '",';
+                echo (empty($row['irnumber']) ? csvEscape($row['invnumber']) : csvEscape($row['irnumber'])) . ',';
+                echo csvEscape(oeFormatShortDate($row['dos']))       . ',';
+                echo csvEscape($row['referrer'])                     . ',';
+                echo csvEscape($row['provider'])                     . ',';
+                echo csvEscape(oeFormatMoney($row['charges']))       . ',';
+                echo csvEscape(oeFormatMoney($row['adjustments']))   . ',';
+                echo csvEscape(oeFormatMoney($row['paid']))          . ',';
+                echo csvEscape(oeFormatMoney($balance))              . ',';
+                echo csvEscape($row['inactive_days'])                . ',';
                 if ($form_cb_err) {
-                    echo '"' . oeFormatShortDate($row['ladate'])    . '",';
-                    echo '"' . $row['billing_errmsg']               . '"' . "\n";
+                    echo csvEscape(oeFormatShortDate($row['ladate']))    . ',';
+                    echo csvEscape($row['billing_errmsg'])               . "\n";
                 } else {
-                    echo '"' . oeFormatShortDate($row['ladate'])    . '"' . "\n";
+                    echo csvEscape(oeFormatShortDate($row['ladate']))    . "\n";
                 }
             }
         } // end $form_csvexport

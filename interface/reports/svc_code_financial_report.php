@@ -266,12 +266,12 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($_POST['form_csvexport']) {
       // CSV headers:
         if (true) {
-            echo '"Procedure codes",';
-            echo '"Units",';
-            echo '"Amt Billed",';
-            echo '"Paid Amt",';
-            echo '"Adjustment Amt",';
-            echo '"Balance Amt",' . "\n";
+            echo csvEscape("Procedure codes") . ',';
+            echo csvEscape("Units") . ',';
+            echo csvEscape("Amt Billed") . ',';
+            echo csvEscape("Paid Amt") . ',';
+            echo csvEscape("Adjustment Amt") . ',';
+            echo csvEscape("Balance Amt") . "\n";
         }
     } else {
         ?> <div id="report_results">
@@ -313,7 +313,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
         $print = "<tr bgcolor='". attr($bgcolor) . "'><td class='detail'>".text($row['Procedure codes'])."</td><td class='detail'>".text($row['Units'])."</td><td class='detail'>".text(oeFormatMoney($row['Amt Billed']))."</td><td class='detail'>".text(oeFormatMoney($row['Paid Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Adjustment Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Balance Amt']))."</td>";
 
-        $csv = '"' . text($row['Procedure codes']) . '","' . text($row['Units']) . '","' . text(oeFormatMoney($row['Amt Billed'])) . '","' . text(oeFormatMoney($row['Paid Amt'])) . '","' . text(oeFormatMoney($row['Adjustment Amt'])) . '","' . text(oeFormatMoney($row['Balance Amt'])) . '"' . "\n";
+        $csv = csvEscape($row['Procedure codes']) . ',' . csvEscape($row['Units']) . ',' . csvEscape(oeFormatMoney($row['Amt Billed'])) . ',' . csvEscape(oeFormatMoney($row['Paid Amt'])) . ',' . csvEscape(oeFormatMoney($row['Adjustment Amt'])) . ',' . csvEscape(oeFormatMoney($row['Balance Amt'])) . "\n";
 
         $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
                        $grand_total_units  += $row['Units'];

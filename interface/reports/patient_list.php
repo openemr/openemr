@@ -26,13 +26,6 @@ if (!empty($_POST)) {
     }
 }
 
-// Prepare a string for CSV export.
-function qescape($str)
-{
-    $str = str_replace('\\', '\\\\', $str);
-    return str_replace('"', '\\"', $str);
-}
-
 $from_date = DateToYYYYMMDD($_POST['form_from_date']);
 $to_date   = DateToYYYYMMDD($_POST['form_to_date']);
 if (empty($to_date) && !empty($from_date)) {
@@ -200,17 +193,17 @@ $(function() {
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($_POST['form_csvexport']) {
         // CSV headers:
-        echo '"' . xl('Last Visit') . '",';
-        echo '"' . xl('First') . '",';
-        echo '"' . xl('Last') . '",';
-        echo '"' . xl('Middle') . '",';
-        echo '"' . xl('ID') . '",';
-        echo '"' . xl('Street') . '",';
-        echo '"' . xl('City') . '",';
-        echo '"' . xl('State') . '",';
-        echo '"' . xl('Zip') . '",';
-        echo '"' . xl('Home Phone') . '",';
-        echo '"' . xl('Work Phone') . '"' . "\n";
+        echo csvEscape(xl('Last Visit')) . ',';
+        echo csvEscape(xl('First')) . ',';
+        echo csvEscape(xl('Last')) . ',';
+        echo csvEscape(xl('Middle')) . ',';
+        echo csvEscape(xl('ID')) . ',';
+        echo csvEscape(xl('Street')) . ',';
+        echo csvEscape(xl('City')) . ',';
+        echo csvEscape(xl('State')) . ',';
+        echo csvEscape(xl('Zip')) . ',';
+        echo csvEscape(xl('Home Phone')) . ',';
+        echo csvEscape(xl('Work Phone')) . "\n";
     } else {
         ?>
 
@@ -295,17 +288,17 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         }
 
         if ($_POST['form_csvexport']) {
-            echo '"' . oeFormatShortDate(substr($row['edate'], 0, 10)) . '",';
-            echo '"' . qescape($row['lname']) . '",';
-            echo '"' . qescape($row['fname']) . '",';
-            echo '"' . qescape($row['mname']) . '",';
-            echo '"' . qescape($row['pubpid']) . '",';
-            echo '"' . qescape(xl($row['street'])) . '",';
-            echo '"' . qescape(xl($row['city'])) . '",';
-            echo '"' . qescape(xl($row['state'])) . '",';
-            echo '"' . qescape($row['postal_code']) . '",';
-            echo '"' . qescape($row['phone_home']) . '",';
-            echo '"' . qescape($row['phone_biz']) . '"' . "\n";
+            echo csvEscape(oeFormatShortDate(substr($row['edate'], 0, 10))) . ',';
+            echo csvEscape($row['lname']) . ',';
+            echo csvEscape($row['fname']) . ',';
+            echo csvEscape($row['mname']) . ',';
+            echo csvEscape($row['pubpid']) . ',';
+            echo csvEscape(xl($row['street'])) . ',';
+            echo csvEscape(xl($row['city'])) . ',';
+            echo csvEscape(xl($row['state'])) . ',';
+            echo csvEscape($row['postal_code']) . ',';
+            echo csvEscape($row['phone_home']) . ',';
+            echo csvEscape($row['phone_biz']) . "\n";
         } else {
             ?>
        <tr>

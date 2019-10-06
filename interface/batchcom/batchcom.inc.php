@@ -42,7 +42,7 @@ function where_or_and($and)
 
     return $and;
 }
-    
+
 function register_email($patient_id, $sent_by, $msg_type, $msg_subject, $msg_text)
 {
 
@@ -65,7 +65,7 @@ function generate_csv($sql_result)
         if (!$flag_on) {
             $flag_on = true;
             foreach ($row as $key => $value) {
-                $file .= "$key,";
+                $file .= csvEscape($key) . ",";
             }
 
             $file = substr($file, 0, -1);
@@ -74,7 +74,7 @@ function generate_csv($sql_result)
         }
 
         foreach ($row as $key => $value) {
-            $line .= "$value,";
+            $line .= csvEscape($value) . ",";
         }
 
         $line = substr($line, 0, -1);
