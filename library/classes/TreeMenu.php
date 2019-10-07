@@ -678,7 +678,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
             "\t %s = %s.addItem(new TreeNode('%s', %s, %s, %s, %s, '%s', '%s', %s));\n",
             $return,
             $prefix,
-            str_replace("'", "\\'", $nodeObj->text),
+            attr($nodeObj->text),
             !empty($nodeObj->icon) ? "'" . $nodeObj->icon . "'" : 'null',
             !empty($nodeObj->link) ? "'" . attr($nodeObj->link) . "'" : 'null',
             $expanded,
