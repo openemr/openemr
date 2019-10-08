@@ -1021,11 +1021,11 @@ function editScripts(url) {
     var pid = $('#pid').val();
         var AddScript = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = "/openemr/controller.php?prescription&edit&id=&pid="+pid
+            iam.location.href = "/openemr/controller.php?prescription&edit&id=&pid="+encodeURIComponent(pid)
         };
         var ListScripts = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = "/openemr/controller.php?prescription&list&id="+pid
+            iam.location.href = "/openemr/controller.php?prescription&list&id="+encodeURIComponent(pid)
         };
 
         let title = 'Prescriptions';
