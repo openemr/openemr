@@ -2109,7 +2109,7 @@ function generate_display_field($frow, $currvalue)
                     $s .= '; ';
                 }
                 if (!empty($tmp)) {
-                    $s .= $tmp;
+                    $s .= text($tmp);
                 } else {
                     $s .= text($codestring) . ' (' . xlt('not found') . ')';
                 }
