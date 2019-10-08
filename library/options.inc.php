@@ -654,7 +654,7 @@ function generate_form_field($frow, $currvalue)
         if (!empty($frow['description']) && isset($code_types[$frow['description']])) {
             $codetype = $frow['description'];
         }
-        $fldlength = htmlspecialchars($frow['fld_length'], ENT_QUOTES);
+        $fldlength = attr($frow['fld_length']);
         $maxlength = $frow['max_length'];
         $string_maxlength = "";
         // if max_length is set to zero, then do not set a maxlength
@@ -703,7 +703,7 @@ function generate_form_field($frow, $currvalue)
             " title='$description'" .
             " value='$currdescstring'";
             if (!$disabled) {
-                echo " onclick='sel_related(this,\"$codetype\")'";
+                echo " onclick='sel_related(this," . attr_js($codetype) . ")'";
             }
 
             echo "class='form-control'";
@@ -717,7 +717,7 @@ function generate_form_field($frow, $currvalue)
             " title='$description'" .
             " value='$currescaped'";
             if (!$disabled) {
-                echo " onclick='sel_related(this,\"$codetype\")'";
+                echo " onclick='sel_related(this," . attr_js($codetype) . ")'";
             }
 
             echo "class='form-control'";
@@ -2111,7 +2111,7 @@ function generate_display_field($frow, $currvalue)
                 if (!empty($tmp)) {
                     $s .= $tmp;
                 } else {
-                    $s .= $codestring . ' (' . xl('not found') . ')';
+                    $s .= text($codestring) . ' (' . xlt('not found') . ')';
                 }
             }
         }
