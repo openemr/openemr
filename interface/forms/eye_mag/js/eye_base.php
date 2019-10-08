@@ -2159,7 +2159,7 @@ function color_IOP(IOP){
 }
 function showpnotes(docid) {
     let btnClose = 'Done';
-    let url = base+'/interface/patient_file/summary/pnotes.php?docid=' + docid;
+    let url = base+'/interface/patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid);
     dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
         buttons: [
                 {text: btnClose, close: true, style: 'default btn-xs'}
