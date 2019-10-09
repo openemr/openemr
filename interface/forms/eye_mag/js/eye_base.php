@@ -1021,11 +1021,11 @@ function editScripts(url) {
     var pid = $('#pid').val();
         var AddScript = function () {
             var iam = top.tab_mode ? top.frames.editScripts : window[0];
-            iam.location.href = "/openemr/controller.php?prescription&edit&id=&pid="+pid
+            iam.location.href = "/openemr/controller.php?prescription&edit&id=&pid="+encodeURIComponent(pid)
         };
         var ListScripts = function () {
             var iam = top.tab_mode ? top.frames.editScripts : window[0];
-            iam.location.href = "/openemr/controller.php?prescription&list&id="+pid
+            iam.location.href = "/openemr/controller.php?prescription&list&id="+encodeURIComponent(pid)
         };
         
         let title = 'Prescriptions';
@@ -2160,7 +2160,7 @@ function color_IOP(IOP){
 function showpnotes(docid) {
     if (top.tab_mode) {
         let btnClose = 'Done';
-        let url = base+'/interface/patient_file/summary/pnotes.php?docid=' + docid;
+        let url = base+'/interface/patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid);
         dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
             buttons: [
                     {text: btnClose, close: true, style: 'default btn-xs'}
