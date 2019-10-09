@@ -3306,7 +3306,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   <tr>
                                       <td class="right bold" style="width:75px;padding-right:10px;vertical-align:top;"><?php echo  xlt('New Dx{{new diagnosis}}'); ?>: </td>
                                       <td><textarea name="IMP" id="IMP"><?php echo text($IMP); ?></textarea></td>
-                                  </tr>f
+                                  </tr>
                               </table>
                           </div>
                           <div id="IMPPLAN_text" name="IMPPLAN_text">
