@@ -3874,7 +3874,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                         if ($FAX_PCP['ID']) { //it is here already, make them print and manually fax it.  Show icon
                                                             echo text($pcp_data['fax'])."</span>&nbsp;&nbsp;
                                                                 <span id='status_Fax_pcp'>
-                                                                    <a href='".$webroot."/controller.php?document&view&patient_id=".$pid."&doc_id=".$FAX_PCP['DOC_ID']."'
+                                                                    <a href='".$webroot."/controller.php?document&view&patient_id=".attr_url($pid)."&doc_id=".attr_url($FAX_PCP['DOC_ID'])."'
                                                                     target='_blank' title='".xla('View the Summary Report sent via Fax Server on')." ".$FAX_PCP['COMPLETED_DATE'].".'>
                                                                     <i class='fa fa-file-pdf-o fa-fw'></i></a>
                                                                     <i class='fa fa-repeat fa-fw' onclick=\"top.restoreSession(); create_task('".attr($pat_data['providerID'])."','Fax-resend','ref'); return false;\"></i>
@@ -3897,7 +3897,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                         if ($FAX_REF['ID']) { //it is here already, make them print and manually fax it.  Show icon
                                                             echo text($ref_data['fax'])."&nbsp;&nbsp;
                                                               <span id='status_Fax_ref'>
-                                                                  <a href='".$webroot."/controller.php?document&view&patient_id=".$pid."&doc_id=".$FAX_REF['DOC_ID']."'
+                                                                  <a href='".$webroot."/controller.php?document&view&patient_id=".attr_url($pid)."&doc_id=".$FAX_REF['DOC_ID']."'
                                                                   target='_blank' title='".xla('View the Summary Report sent via Fax Server on')." ".$FAX_REF['COMPLETED_DATE'].".'>
                                                                   <i class='fa fa-file-pdf-o fa-fw'></i></a>
                                                                   <i class='fa fa-repeat fa-fw'
