@@ -3293,7 +3293,7 @@ if ($refresh and $refresh != 'fullscreen') {
                 <div class="size50 clear_both" id="IMPPLAN_1">
                   <div id="IMPPLAN_left" name="IMPPLAN_left" class="clear_both exam_section_left borderShadow">
                       <span class="anchor" id="IMPPLAN_anchor"></span>
-                      <a class="closeButton_5 fa fa-file-pdf-o" title="<?php echo xla('Once completed, view and store this encounter as a PDF file'); ?>" target="_report" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=1&<?php echo $form_folder."_".$form_id."=".$encounter; ?>&"></a>
+                      <a class="closeButton_5 fa fa-file-pdf-o" title="<?php echo xla('Once completed, view and store this encounter as a PDF file'); ?>" target="_report" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=1&<?php echo attr_url($form_folder)."_".attr_url($form_id)."=".attr_url($encounter); ?>&"></a>
                       <span class="closeButton_2 fa fa-paint-brush" id="BUTTON_DRAW_IMPPLAN" title="<?php echo xla('Open/Close the Imp/Plan drawing panel'); ?>"  name="BUTTON_DRAW_IMPPLAN"></span>
                       <i class="closeButton_3 fa fa-database" title="<?php echo xla('Show the Impression/Plan Builder panel'); ?>" id="BUTTON_QP_IMPPLAN" name="BUTTON_QP_IMPPLAN"></i>
                       <i class="closeButton_4 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
