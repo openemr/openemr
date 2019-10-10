@@ -35,7 +35,10 @@ if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_
     echo xlt('Patient Portal is turned off');
     exit;
 }
-
+if (isset($_GET['woops'])) {
+    unset($_GET['woops']);
+    unset($_SESSION['password_update']);
+}
 // security measure -- will check on next page.
 $_SESSION['itsme'] = 1;
 //
@@ -101,10 +104,11 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/js/jquery.gritter.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/css/jquery.gritter.css" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js"></script>
+
     <link rel="stylesheet" type="text/css" href="assets/css/base.css?v=<?php echo $v_js_includes; ?>" />
     <link rel="stylesheet" type="text/css" href="assets/css/register.css?v=<?php echo $v_js_includes; ?>" />
 <script type="text/javascript">
+    var landing = <?php echo js_url($landingpage) ?>;
     function process() {
         if (!(validate())) {
             alert (<?php echo xlj('Field(s) are missing!'); ?>);
@@ -159,6 +163,11 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
         return pass;
     }
 </script>
+<style>
+    .table > tbody > tr > td {
+        border-top: 0px;
+    }
+</style>
 </head>
 <body class="skin-blue">
 <br><br>
@@ -166,46 +175,59 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {
         $_SESSION['password_update']=1;
         ?>
-      <div id="wrapper" class="centerwrapper" style="text-align:center;">
-        <h2 class="title"><?php echo xlt('Please Enter a New Password'); ?></h2>
+      <div id="wrapper" class="centerwrapper text-center">
+        <h2 class="title"><?php echo xlt('Please Enter New Credentials'); ?></h2>
         <form action="get_patient_info.php" method="POST" onsubmit="return process_new_pass()" >
-            <table style="width:100%">
+            <input style="display:none" type="text" name="fakeusername"/>
+            <input style="display:none" type="password" name="fakepassword"/>
+            <table class="table table-condensed" style="border-bottom:0px;width:100%">
                 <tr>
-                    <td class="algnRight"><?php echo xlt('User Name'); ?></td>
-                    <td><input name="uname" id="uname" type="text" readonly autocomplete="off" value="<?php echo attr($_SESSION['portal_username']); ?>"/></td>
+                    <td width="35%"><strong><?php echo xlt('Account Name'); ?><strong></td>
+                    <td><input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none"
+                            value="<?php echo attr($_SESSION['portal_username']); ?>"/></td>
                 </tr>
                 <tr>
-                    <td class="algnRight"><?php echo xlt('Current Password');?></td>
-                    <td>
-                        <input name="pass" id="pass" type="password" autocomplete="off" value="" required />
+                    <td><strong><?php echo xlt('New User Name'); ?><strong></td>
+                    <td><input class="form-control" name="login_uname" id="login_uname" type="text" required autocomplete="none"
+                            placeholder="<?php echo xla('Must be 8 to 20 characters'); ?>" pattern=".{8,20}"
+                            value="<?php echo attr($_SESSION['portal_login_username']); ?>" />
                     </td>
                 </tr>
                 <tr>
-                    <td class="algnRight"><?php echo xlt('New Password');?></td>
+                    <td><strong><?php echo xlt('Current Password');?><strong></td>
                     <td>
-                        <input name="pass_new" id="pass_new" type="password" required />
+                        <input class="form-control" name="pass" id="pass" type="password" autocomplete="none" value="" required />
                     </td>
                 </tr>
                 <tr>
-                    <td class="algnRight"><?php echo xlt('Confirm New Password');?></td>
+                    <td><strong><?php echo xlt('New Password');?><strong></td>
                     <td>
-                        <input name="pass_new_confirm" id="pass_new_confirm" type="password" required />
+                        <input class="form-control" name="pass_new" id="pass_new" type="password" required
+                            placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong><?php echo xlt('Confirm New Password');?><strong></td>
+                    <td>
+                        <input class="form-control" name="pass_new_confirm" id="pass_new_confirm" type="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
                     </td>
                 </tr>
                 <?php if ($GLOBALS['enforce_signin_email']) { ?>
                      <tr>
-                        <td class="algnRight"><?php echo xlt('Confirm Email Address');?></td>
+                        <td><strong><?php echo xlt('Confirm Email Address');?><strong></td>
                         <td>
-                            <input name="passaddon" id="passaddon" required placeholder="<?php echo xla('Your on file email address'); ?>" type="email" autocomplete="off" value=""  />
+                            <input class="form-control" name="passaddon" id="passaddon" required placeholder="<?php echo xla('Current on record trusted email'); ?>" type="email" autocomplete="none" value=""  />
                         </td>
                     </tr>
                 <?php } ?>
                 <tr>
-                    <td colspan=2><br><input class="pull-right" type="submit" value="<?php echo xla('Log In');?>" /></td>
+
                 </tr>
             </table>
+            <input class="btn btn-primary pull-right" type="submit" value="<?php echo xla('Log In');?>" />
+            <input class="btn pull-right" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel');?>" />
         </form>
-        <div class="copyright"><?php echo xlt('Powered by');?> OpenEMR</div>
+        <div class="copyright"><?php echo xlt('Powered by');?> OpenEMR Since 2004</div>
       </div>
     <?php } elseif (isset($_GET['requestNew'])) { ?>
     <div id="wrapper" class="centerwrapper" style="text-align:center;" >
@@ -232,7 +254,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 <label class="control-label" for="dob"><?php echo xlt('Birth Date')?></label>
                                 <div class="controls inline-inputs">
                                     <div class="input-group">
-                                        <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
+                                        <input id="dob" type="date" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
                                     </div>
                                 </div>
                             </div></div>
@@ -241,7 +263,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                     <label class="control-label" for="emailInput"><?php echo xlt('Enter E-Mail Address')?></label>
                                     <div class="controls inline-inputs">
                                         <input id="emailInput" type="email" class="form-control" style="width: 100%" required
-                                            placeholder="<?php echo xla('Must be current email address on file.'); ?>" maxlength="100">
+                                            placeholder="<?php echo xla('Current trusted email address on record.'); ?>" maxlength="100">
                                     </div>
                                 </div>
                             </div>
@@ -267,13 +289,13 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                     <div class="form-group inline">
                                         <label class="control-label" for="uname"><?php echo xlt('Username')?></label>
                                         <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" name="uname" id="uname" type="text" autocomplete="on" required>
+                                            <input type="text" class="form-control" name="uname" id="uname" type="text" autocomplete="none" required>
                                         </div>
                                     </div>
                                     <div class="form-group inline">
                                         <label class="control-label" for="pass"><?php echo xlt('Password')?></label>
                                         <div class="controls inline-inputs">
-                                            <input class="form-control" name="pass" id="pass" type="password" required autocomplete="on">
+                                            <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none">
                                         </div>
                                     </div>
                                 </div>
@@ -283,7 +305,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                     <div class="col-sm-12 form-group">
                                         <label class="control-label" for="passaddon"><?php echo xlt('E-Mail Address')?></label>
                                         <div class="controls inline-inputs">
-                                            <input class="form-control" style="width: 100%" name="passaddon" id="passaddon" placeholder="<?php echo xla('on file email'); ?>" type="email" autocomplete="on" />
+                                            <input class="form-control" style="width: 100%" name="passaddon" id="passaddon" placeholder="<?php echo xla('Current on file trusted email'); ?>" type="email" autocomplete="none" />
                                         </div>
                                     </div>
                                 <?php } ?>

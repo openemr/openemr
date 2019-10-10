@@ -75,18 +75,35 @@ DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
 DEFINE("COL_PID", "pid");
 DEFINE("COL_POR_PWD", "portal_pwd");
 DEFINE("COL_POR_USER", "portal_username");
+DEFINE("COL_POR_LOGINUSER", "portal_login_username");
 DEFINE("COL_POR_SALT", "portal_salt");
 DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
+
+// This is now an account id. Legacy username. Will force case sensitive regardless of collation
 $sql = "SELECT " . implode(",", array(
-    COL_ID,
-    COL_PID,
-    COL_POR_PWD,
-    COL_POR_SALT,
-    COL_POR_PWD_STAT
-)) . " FROM " . TBL_PAT_ACC_ON . " WHERE " . COL_POR_USER . "=?";
+        COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
+    " WHERE BINARY " . COL_POR_USER . "= ?";
 $auth = privQuery($sql, array(
     $_POST['uname']
 ));
+
+// real username
+if ($auth !== false && !empty($auth[COL_POR_LOGINUSER])) {
+    $sql = "SELECT " . implode(",", array(
+            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
+        " WHERE BINARY " . COL_POR_LOGINUSER . "= ?";
+    $auth = privQuery($sql, array(
+        $_POST['uname']
+    ));
+} elseif ($auth === false) {
+    $sql = "SELECT " . implode(",", array(
+            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
+        " WHERE BINARY " . COL_POR_LOGINUSER . "= ?";
+    $auth = privQuery($sql, array(
+        $_POST['uname']
+    ));
+}
+
 if ($auth === false) {
     $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
@@ -101,13 +118,13 @@ if (empty($auth[COL_POR_SALT])) {
         header('Location: ' . $landingpage . '&w&p');
         exit();
     }
-
     $new_salt = oemr_password_salt();
     $new_hash = oemr_password_hash($plain_code, $new_salt);
-    $sqlUpdatePwd = " UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_PWD . "=?, " . COL_POR_SALT . "=? " . " WHERE " . COL_ID . "=?";
+    $sqlUpdatePwd = " UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_PWD . "=?, " . COL_POR_SALT . "=? " . COL_POR_LOGINUSER . "=?" . " WHERE " . COL_ID . "=?";
     privStatement($sqlUpdatePwd, array(
         $new_hash,
         $new_salt,
+        $_POST['login_uname'],
         $auth[COL_ID]
     ));
 } else {
@@ -120,7 +137,9 @@ if (empty($auth[COL_POR_SALT])) {
     }
 }
 
-$_SESSION['portal_username'] = $_POST['uname'];
+$_SESSION['portal_username'] = $auth[COL_POR_USER];
+$_SESSION['portal_login_username'] = $auth[COL_POR_LOGINUSER];
+
 $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
 if ($userData = sqlQuery($sql, array(
@@ -164,18 +183,19 @@ if ($userData = sqlQuery($sql, array(
 
             // Update the password and continue (patient is authorized)
             privStatement(
-                "UPDATE " . TBL_PAT_ACC_ON . "  SET " . COL_POR_PWD . "=?," . COL_POR_SALT . "=?," . COL_POR_PWD_STAT . "=1 WHERE id=?",
+                "UPDATE " . TBL_PAT_ACC_ON . "  SET " . COL_POR_LOGINUSER . "=?," . COL_POR_PWD . "=?," . COL_POR_SALT . "=?," . COL_POR_PWD_STAT . "=1 WHERE id=?",
                 array(
-                        $new_hash,
-                        $new_salt,
-                        $auth['id']
+                    $_POST['login_uname'],
+                    $new_hash,
+                    $new_salt,
+                    $auth['id']
                 )
             );
             $authorizedPortal = true;
             $logit->portalLog(
                 'password update',
                 $auth['pid'],
-                ($_SESSION['portal_username'] . ': ' . $_SESSION['ptName'] . ':success')
+                ($_POST['login_uname'] . ': ' . $_SESSION['ptName'] . ':success')
             );
         }
     }

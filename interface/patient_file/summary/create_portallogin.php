@@ -24,10 +24,10 @@ $portalsite = isset($_GET['portalsite']) ? $_GET['portalsite'] : $portalsite = "
 if ($portalsite != "off" && $portalsite != "on") {
     $portalsite = "off";
 }
-
+$trustedEmail = sqlQuery("SELECT email_direct FROM `patient_data` WHERE `pid`=?", array($pid));
 $row = sqlQuery("SELECT pd.*,pao.portal_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?", array($pid));
 
-function generatePassword($length = 6, $strength = 1)
+function generatePassword($length = 12, $strength = 1)
 {
     $consonants = 'bdghjmnpqrstvzacefiklowxy';
     $numbers = '0234561789';
@@ -60,6 +60,8 @@ function validEmail($email)
 
 function messageCreate($uname, $pass, $site)
 {
+    global $trustedEmail;
+
     $message = xlt("Patient Portal Web Address") . ":<br>";
     if ($site == "on") {
         if ($GLOBALS['portal_onsite_two_enable']) {
@@ -69,17 +71,22 @@ function messageCreate($uname, $pass, $site)
 
         $message .= "<br>";
     } else { // $site == "off"
-        $offsite_portal_patient_link = $GLOBALS['portal_offsite_address_patient_link'] ?  $GLOBALS['portal_offsite_address_patient_link'] : "https://mydocsportal.com";
+        $offsite_portal_patient_link = $GLOBALS['portal_offsite_address_patient_link'] ? $GLOBALS['portal_offsite_address_patient_link'] : "https://mydocsportal.com";
         $message .= "<a href='" . attr($offsite_portal_patient_link) . "'>" .
             text($offsite_portal_patient_link) . "</a><br><br>";
         $message .= xlt("Provider Id") . ": " .
             text($GLOBALS['portal_offsite_providerid']) . "<br><br>";
     }
-
-        $message .= xlt("User Name") . ": " .
-            text($uname) . "<br><br>" .
-            xlt("Password") . ": " .
-            text($pass) . "<br><br>";
+    $sub = '';
+    if ($GLOBALS['enforce_signin_email']) {
+        $sub = xlt("Login Trusted Email") . ":" .
+            (!empty(trim($trustedEmail['email_direct'])) ? text(trim($trustedEmail['email_direct'])) : xlt("Is Required. Contact Provider."));
+        $sub .= "<br><br>";
+    }
+    $message .= xlt("User Name") . ": " .
+        text($uname) . "<br><br>" .
+        xlt("Password") . ": " .
+        text($pass) . "<br><br>" . $sub;
     return $message;
 }
 
@@ -143,7 +150,7 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
     $clear_pass=$_POST['pwd'];
 
     $res = sqlStatement("SELECT * FROM patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site WHERE pid=?", array($pid));
-    $query_parameters=array($_POST['uname']);
+    $query_parameters=array($_POST['uname'],$_POST['uname']);
     $salt_clause="";
     if ($portalsite=='on') {
         // For onsite portal create a blowfish based hash and salt.
@@ -158,7 +165,7 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
 
     array_push($query_parameters, $pid);
     if (sqlNumRows($res)) {
-        sqlStatement("UPDATE patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?", $query_parameters);
+        sqlStatement("UPDATE patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?", $query_parameters);
     } else {
         sqlStatement("INSERT INTO patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?", $query_parameters);
     }
@@ -208,18 +215,25 @@ function transmit(){
     }
     ?>
         <tr class="text">
-            <td><?php echo text(xl('User Name').':');?></td>
+            <td><strong><?php echo text(xl('User Name').':');?></strong></td>
             <td><input type="text" name="uname" value="<?php echo ($row['portal_username']) ? attr($row['portal_username']) : attr($row['fname'].$row['id']); ?>" size="10" readonly></td>
         </tr>
         <tr class="text">
-            <td><?php echo text(xl('Password').':');?></td>
+            <td><strong><?php echo text(xl('Password').':');?></strong></td>
             <?php
             $pwd = generatePassword();
             ?>
-            <td><input type="text" name="pwd" id="pwd" value="<?php echo attr($pwd); ?>" size="10"/>
-            </td>
+            <td><input type="text" name="pwd" id="pwd" value="<?php echo attr($pwd); ?>" size="14"/></td>
             <td><a href="#" class="css_button" onclick="top.restoreSession(); javascript:document.location.reload()"><span><?php echo xlt('Change'); ?></span></a></td>
         </tr>
+        <?php if ($GLOBALS['enforce_signin_email']) { ?>
+        <tr class="text">
+            <td><strong><?php echo xlt("Login Trusted Email") . ":" ?></strong></td>
+            <td><?php echo (!empty(trim($trustedEmail['email_direct'])) ? text(trim($trustedEmail['email_direct'])) : xlt("Is Required. Please Add in Contacts.")) ?></td>
+        </tr>
+        <?php } ?>
+        <tr align="center"><td>&nbsp;</td><td><hr></td></tr>
+
         <tr class="text">
             <td><input type="hidden" name="form_save" id="form_save"></td>
             <td colspan="5" align="center">

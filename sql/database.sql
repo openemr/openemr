@@ -5317,12 +5317,16 @@ CREATE TABLE `openemr_postcalendar_events` (
 
 DROP TABLE IF EXISTS `patient_access_onsite`;
 CREATE TABLE `patient_access_onsite`(
-  `id` INT NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `pid` bigint(20),
-  `portal_username` VARCHAR(100) ,
-  `portal_pwd` VARCHAR(100) ,
+  `portal_username` VARCHAR(100),
+  `portal_pwd` VARCHAR(100),
   `portal_pwd_status` TINYINT DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
-  `portal_salt` VARCHAR(100) ,
+  `portal_salt` VARCHAR(100),
+  `portal_login_username` varchar(100) DEFAULT NULL COMMENT 'User entered username',
+  `question1_answer` varchar(255) DEFAULT NULL,
+  `question2_answer` varchar(255) DEFAULT NULL,
+  `question3_answer` varchar(255) DEFAULT NULL
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB AUTO_INCREMENT=1;
 
