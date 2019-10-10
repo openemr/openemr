@@ -259,3 +259,7 @@ ALTER TABLE `form_eye_neuro` MODIFY `ODCOINS` text;
 #IfNotColumnType form_eye_neuro OSCOINS text
 ALTER TABLE `form_eye_neuro` MODIFY `OSCOINS` text;
 #EndIf
+
+#IfMissingColumn patient_access_onsite portal_login_username
+ALTER TABLE `patient_access_onsite`  ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username',  ADD `question1_answer` VARCHAR(255) DEFAULT NULL,  ADD `question2_answer` VARCHAR(255) DEFAULT NULL,  ADD `question3_answer` VARCHAR(255) DEFAULT NULL;
+#EndIf

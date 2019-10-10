@@ -98,7 +98,7 @@ use OpenEMR\Core\Header;
                             <?php if ($GLOBALS['allow_portal_chat']) { ?>
                                 <a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
                                 <?php } ?>
-                                <a href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
+                                <a href="javascript:changeCredentials(event)"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Change Credentials'); ?></a></li>
 
                             <li class="divider"></li>
 
