@@ -732,7 +732,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
                 </td>
                 <td nowrap style='font-size:8pt'>
                 </td>
-                <td><input type='button' class='btn btn-danger btn-sm' value='<?php echo xla('Openings'); ?>' onclick='find_available()' /></td>
+                <td><input type='button' class='btn btn-success btn-sm' value='<?php echo xla('Openings'); ?>' onclick='find_available()' /></td>
                 <td></td>
             </tr>
             <tr>
@@ -745,9 +745,12 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
             </tr>
         </table>
         <div class="form-group">
-            <input type='button' name='form_save' class='btn btn-success btn-md' onsubmit='return false' value='<?php echo xla('Save'); ?>' onclick="validate()" />
-            <input type='button' id='form_cancel' class='btn btn-danger btn-md' onsubmit='return false' value='<?php echo xla('Cancel Appointment'); ?>' onclick="cancel_appointment()" />
-            &nbsp;
+            <br />
+            <?php if ($_GET['eid'] && $row['pc_apptstatus'] !== 'x') { ?>
+                <input type='button' id='form_cancel' class='btn btn-danger' onsubmit='return false' value='<?php echo xla('Cancel Appointment'); ?>' onclick="cancel_appointment()" />
+            <?php } ?>
+            <input type='button' name='form_save' class='btn btn-success' onsubmit='return false' value='<?php echo xla('Save'); ?>' onclick="validate()" />
+
         </div>
     </form>
     <script>
