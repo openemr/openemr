@@ -82,7 +82,7 @@ select{
   dlgopen('interface/drugs/dispense_drug.php' +
    {/literal}'?drug_id=' + {$prescription->get_drug_id()|js_url} +{literal}
    '&prescription=' + encodeURIComponent(f.id.value) +
-   '&quantity=' + f.encodeURIComponent(disp_quantity.value) +
+   '&quantity=' + encodeURIComponent(f.disp_quantity.value) +
    '&fee=' + encodeURIComponent(f.disp_fee.value),
    '_blank', 400, 200);
  }
