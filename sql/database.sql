@@ -5326,7 +5326,7 @@ CREATE TABLE `patient_access_onsite`(
   `portal_login_username` varchar(100) DEFAULT NULL COMMENT 'User entered username',
   `question1_answer` varchar(255) DEFAULT NULL,
   `question2_answer` varchar(255) DEFAULT NULL,
-  `question3_answer` varchar(255) DEFAULT NULL
+  `question3_answer` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB AUTO_INCREMENT=1;
 

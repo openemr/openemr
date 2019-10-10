@@ -108,7 +108,6 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     <link rel="stylesheet" type="text/css" href="assets/css/base.css?v=<?php echo $v_js_includes; ?>" />
     <link rel="stylesheet" type="text/css" href="assets/css/register.css?v=<?php echo $v_js_includes; ?>" />
 <script type="text/javascript">
-    var landing = <?php echo js_url($landingpage) ?>;
     function process() {
         if (!(validate())) {
             alert (<?php echo xlj('Field(s) are missing!'); ?>);
@@ -178,8 +177,8 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
       <div id="wrapper" class="centerwrapper text-center">
         <h2 class="title"><?php echo xlt('Please Enter New Credentials'); ?></h2>
         <form action="get_patient_info.php" method="POST" onsubmit="return process_new_pass()" >
-            <input style="display:none" type="text" name="fakeusername"/>
-            <input style="display:none" type="password" name="fakepassword"/>
+            <input style="display:none" type="text" name="dummyuname"/>
+            <input style="display:none" type="password" name="dummypass"/>
             <table class="table table-condensed" style="border-bottom:0px;width:100%">
                 <tr>
                     <td width="35%"><strong><?php echo xlt('Account Name'); ?><strong></td>
