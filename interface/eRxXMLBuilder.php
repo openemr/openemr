@@ -732,7 +732,7 @@ class eRxXMLBuilder
                     'doctorName'        => $prescription['docname'],
                     'drug'              => $this->trimData($this->stripSpecialCharacter($prescription['drug']), 80),
                     'dispenseNumber'    => intval($prescription['quantity']),
-                    'sig'               => $this->trimData($this->stripSpecialCharacter($prescription['quantity'][1].$prescription['size'].' '.$prescription['title4'].' '.$prescription['dosage'].' In '.$prescription['title1'].' '.$prescription['title2'].' '.$prescription['title3'], 140)),
+                    'sig'               => $this->trimData($this->stripSpecialCharacter($prescription['quantity'][1].$prescription['size'].' '.$prescription['title4'].' '.$prescription['dosage'].' In '.$prescription['title1'].' '.$prescription['title2'].' '.$prescription['title3']), 140),
                     'refillCount'       => intval($prescription['per_refill']),
                     'prescriptionType'  => 'reconcile'
                 ));
