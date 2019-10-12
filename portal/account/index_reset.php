@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
+$ignoreAuth_onsite_portal_two = $ignoreAuth = 0;
 // Will start the (patient) portal OpenEMR session/cookie.
 require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
@@ -16,7 +16,7 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 $landingpage = "./../index.php?site=" . urlencode($_SESSION['site_id']);
 // kick out if patient not authenticated
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $ignoreAuth = 1;
+    $ignoreAuth_onsite_portal_two = true;
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
@@ -24,9 +24,11 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 }
 require_once(dirname(__FILE__) . '/../../interface/globals.php');
 require_once("$srcdir/authentication/common_operations.php");
+require_once(dirname(__FILE__) . "/../lib/appsql.class.php");
 
 use OpenEMR\Core\Header;
 
+$logit = new ApplicationTable();
 //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');
@@ -44,7 +46,15 @@ DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
 
 $sql = "SELECT " . implode(",", array(COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) .
     " FROM " . TBL_PAT_ACC_ON . " WHERE pid = ?";
+
 $auth = privQuery($sql, array($_SESSION['pid']));
+$code_current = trim($_POST['pass_current']);
+$current_encoded = oemr_password_hash($code_current, $auth[COL_POR_SALT]);
+if (isset($_POST['pass_current']) && $current_encoded != $auth[COL_POR_PWD]) {
+    $errmsg = xlt("Invalid Current Credentials Error.") . xlt("Current password.");
+    $logit->portalLog('Credential update attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
+    die($errmsg);
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -76,13 +86,14 @@ $auth = privQuery($sql, array($_SESSION['pid']));
         }
     </style>
 </head>
-<body>
+<body
+phpmailer>
     <br><br>
     <div class="container">
         <?php if (empty($_POST['submit'])) { ?>
             <form action="" method="POST" onsubmit="return process_new_pass()">
-                <input style="display:none" type="text" name="dummyuname"/>
-                <input style="display:none" type="password" name="dummypassword"/>
+                <input style="display:none" type="text" name="dummyuname" />
+                <input style="display:none" type="password" name="dummypassword" />
                 <table class="table table-condensed" style="border-bottom:0px;width:100%">
                     <tr>
                         <td width="35%"><strong><?php echo xlt('Account Name'); ?><strong></td>
@@ -106,11 +117,20 @@ $auth = privQuery($sql, array($_SESSION['pid']));
                     </tr>
                     </tr>
                     <tr>
+                        <td><strong><?php echo xlt('Current Password'); ?><strong></td>
+                        <td>
+                            <input class="form-control" name="pass_current" id="pass_current" type="password" required
+                                placeholder="<?php echo xla('Current password to authorize changes.'); ?>"
+                                title="<?php echo xla('Enter your existing current password used to login.'); ?>"
+                                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
+                        </td>
+                    </tr>
+                    <tr>
                         <td><strong><?php echo xlt('New or Current Password'); ?><strong></td>
                         <td>
-                            <input class="form-control" name="pass_new" id="pass_new" type="text" required
+                            <input class="form-control" name="pass_new" id="pass_new" type="password" required
                                 placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>"
-                                title="<?php echo xla('You must enter a new or reenter current password to keep it.'); ?>"
+                                title="<?php echo xla('You must enter a new or reenter current password to keep it. Even for Username change.'); ?>"
                                 pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
                         </td>
                     </tr>
@@ -125,13 +145,14 @@ $auth = privQuery($sql, array($_SESSION['pid']));
                         <td colspan="2"><br><input class="btn btn-primary pull-right" type="submit" name="submit" value="<?php echo xla('Save'); ?>" /></td>
                     </tr>
                 </table>
-                <div><?php echo '* ' . xlt("All credential fields are case sensitive!") ?></div>
+                <div><strong><?php echo '* ' . xlt("All credential fields are case sensitive!") ?></strong></div>
             </form>
         <?php } elseif (isset($_POST['submit'])) {
             if ($auth === false) {
                 unset($_POST['submit']);
                 header("Location: " . $_SERVER['PHP_SELF']);
             }
+            $code_current = trim($_POST['pass_current']);
             $plain_code = trim($_POST['pass_new']);
             $new_salt = oemr_password_salt();
             $new_hash = oemr_password_hash($plain_code, $new_salt);

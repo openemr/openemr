@@ -1,4 +1,7 @@
 <?php
+
+use OpenEMR\Common\Crypto\CryptoGen;
+
 /**
  * Ajax Library for Register
  *
@@ -6,7 +9,7 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -26,10 +29,10 @@ function notifyAdmin($pid, $provider)
 
 function isNew($dob = '', $lname = '', $fname = '', $email = '')
 {
-    $last = '%' . trim($lname) . '%';
-    $first = '%' . trim($fname) . '%';
-    $dob = '%' . trim($dob) . '%';
-    $semail = '%' . trim($email) . '%';
+    $last = trim($lname);
+    $first = trim($fname);
+    $dob = trim($dob);
+    $semail = trim($email);
     $sql = "select pid from patient_data Where patient_data.lname LIKE ? And patient_data.fname LIKE ? And patient_data.DOB LIKE ? order by date limit 0,1";
     $data = array(
         $last,
@@ -130,19 +133,15 @@ function validEmail($email)
     return false;
 }
 
-function messageCreate($uname, $pass)
+function messageCreate($uname, $pass, $encoded_link = '')
 {
-    $message = xlt("Patient Portal Web Address") . ":<br>";
-
-    if ($GLOBALS['portal_onsite_two_enable']) {
-        $message .= "<a href='" . attr($GLOBALS['portal_onsite_two_address']) . "'>" .
-            text($GLOBALS['portal_onsite_two_address']) . "</a><br>";
-    }
-
-    $message .= "<br>";
-
-    $message .= xlt("User Name") . ": " . text($uname) .
-    "<br><br>" . xlt("Password") . ": " . text($pass) . "<br><br>";
+    $message = '<p>' . xlt("We recieved a credentials reset request. The link to reset your credentials is below.") . '</p>';
+    $message .= '<p>' . xlt("Please ignore this email if you did not make this request") . '</p>';
+    $message .= '<p><strong>' . xlt("Credentials Reset. Live time is one hour.") . ": </strong></p>";
+    $message .= sprintf('<a href="%s">%s</a>', attr($encoded_link), text($encoded_link));
+    $message .= "<p><strong>" . xlt("Your Portal Login Web Address. Bookmark for future logins.") . ": </strong></p>";
+    $message .= '<a href=' . attr($GLOBALS['portal_onsite_two_address']) . '>' . text($GLOBALS['portal_onsite_two_address']) . "</a><br>";
+    $message .= "<p>" . xlt("Thank You.") . "</p>";
 
     return $message;
 }
@@ -152,42 +151,52 @@ function doCredentials($pid)
     global $srcdir;
     require_once("$srcdir/authentication/common_operations.php");
 
-    $newpd = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array(
+    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct FROM `patient_data` WHERE `pid`=?", array(
         $pid
     ));
+
+    $uname = $newpd['fname'] . $newpd['id'];
+    // Token expiry 1 hour
+    $expiry = new DateTime('NOW');
+    $expiry->add(new DateInterval('PT01H'));
 
     $clear_pass = generatePassword();
 
-    $uname = $newpd['fname'] . $newpd['id'];
+    $token = openssl_random_pseudo_bytes(32);
+    $one_time = hash('sha256', $token);
 
-    $res = sqlStatement("SELECT * FROM patient_access_onsite WHERE pid=?", array(
-        $pid
-    ));
-    $query_parameters = array(
-        $uname
-    );
-    $salt_clause = "";
-    // For onsite portal create a blowfish based hash and salt.
+    $encoded_link = sprintf("%s?%s", attr($GLOBALS['portal_onsite_two_address']), http_build_query([
+        'forward' => bin2hex($token),
+        'validate' => bin2hex($expiry->format('U')),
+        'site' => $_SESSION['site_id']
+    ]));
+
+    $res = sqlStatement("SELECT * FROM patient_access_onsite WHERE pid=?", array($pid));
+    $query_parameters = array($uname,$one_time);
     $new_salt = oemr_password_salt();
     $salt_clause = ",portal_salt=? ";
     array_push($query_parameters, oemr_password_hash($clear_pass, $new_salt), $new_salt);
     array_push($query_parameters, $pid);
     if (sqlNumRows($res)) {
-        sqlStatement("UPDATE patient_access_onsite SET portal_username=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?", $query_parameters);
+        sqlStatement("UPDATE patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?", $query_parameters);
     } else {
-        sqlStatement("INSERT INTO patient_access_onsite SET portal_username=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?", $query_parameters);
+        sqlStatement("INSERT INTO patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?", $query_parameters);
     }
 
-    if (! (validEmail($newpd['email']))) {
-        $sent = false;
+    if (!validEmail($newpd['email_direct'])) {
+        if (!validEmail($newpd['email'])) {
+            $sent = false;
+        } else {
+            $newpd['email_direct'] = $newpd['email'];
+        }
     }
 
-    $message = messageCreate($uname, $clear_pass);
+    $message = messageCreate($uname, $clear_pass, $encoded_link);
 
     $mail = new MyMailer();
-    $pt_name = $newpd['fname'] . ' ' . $newpd['lname'];
-    $pt_email = $newpd['email'];
-    $email_subject = xl('Access Your Patient Portal');
+    $pt_name = text($newpd['fname'] . ' ' . $newpd['lname']);
+    $pt_email = text($newpd['email_direct']);
+    $email_subject = xlt('Access Your Patient Portal');
     $email_sender = $GLOBALS['patient_reminder_sender_email'];
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
