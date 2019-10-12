@@ -224,10 +224,9 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 <tr>
                     <td><strong><?php echo xlt('Current Password');?><strong></td>
                     <td>
-                        <input class="form-control" name="pass" id="pass" type="password" <?php echo $_SESSION['onetime'] ? 'readonly ':''; ?>
-                            autocomplete="none" value="<?php echo attr($_SESSION['onetime']);
-                            unset($_SESSION['onetime']);
-                            $_SESSION['password_update']=2; ?>" required />
+                        <input class="form-control" name="pass" id="pass" type="password" <?php echo $_SESSION['onetime'] ? ' readonly ': ''; ?>
+                            autocomplete="none" value="<?php echo attr($_SESSION['onetime']); $_SESSION['password_update']=$_SESSION['onetime'] ? 2 : 1;
+                            unset($_SESSION['onetime']); ?>" required />
                     </td>
                 </tr>
                 <tr>
@@ -299,7 +298,8 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 </div>
                             </div>
                         </div>
-                        <button id="submitRequest" class="btn btn-primary nextBtn btn-sm pull-right" type="submit"><?php echo xlt('Verify') ?></button>
+                        <button id="submitRequest" class="btn btn-primary nextBtn pull-right" type="submit"><?php echo xlt('Verify') ?></button>
+                        <input class="btn pull-right" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel');?>" />
                     </fieldset>
                 </div>
             </div>
@@ -436,11 +436,6 @@ if (isset($_GET['logout'])) { ?>
 
 return false;
 });
-/* Test Data
-$("#emailInput").val("me@me.com");
-$("#fname").val("Jerry");
-$("#lname").val("Padgett");
-$("#dob").val("1919-03-03"); */
 
 function callServer(action, value, value2, last, first) {
     var data = {
@@ -478,7 +473,7 @@ function callServer(action, value, value2, last, first) {
             window.location.href = "./index.php" // Goto landing page.
         }
         else if (action == "is_new") {
-            if (parseInt(rtn) > 0) {
+            if (parseInt(rtn) !== 0) {
                 var yes = confirm(<?php echo xlj("Account is validated. Send new credentials?") ?>);
                 if(!yes)
                     callServer('cleanup');
@@ -487,19 +482,23 @@ function callServer(action, value, value2, last, first) {
             }
             else {
                 // After error alert app exit to landing page.
-                var message = <?php echo xlj('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record. If you have opted out of email with none on file then leave blank.'); ?>;
+                var message = <?php echo xlj('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record.') ?>;
+                message += "<br>" + <?php echo xlj('All search inputs are case sensitive and must match entries in your profile.'); ?>;
                 eModal.alert(message);
+                return false;
             }
         }
         else if (action == 'do_signup') {
-            if (rtn == "") {
+            if (rtn.indexOf('ERROR') !== -1) {
                 var message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
-                alert(message);
+                message += "<br><br>" + <?php echo xlj('Here is what we do know.'); ?> + ": " + rtn + "<br>";
+                eModal.alert(message);
                 return false;
             }
             //alert(rtn); // sync alert.. rtn holds username and password for testing.
             var message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
             eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
+            return false;
         }
     }).fail(function (err) {
         var message = <?php echo xlj('Something went wrong.') ?>;

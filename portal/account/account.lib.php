@@ -1,7 +1,4 @@
 <?php
-
-use OpenEMR\Common\Crypto\CryptoGen;
-
 /**
  * Ajax Library for Register
  *
@@ -14,12 +11,13 @@ use OpenEMR\Common\Crypto\CryptoGen;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 /* Library functions for register*/
+use OpenEMR\Common\Utils\RandomGenUtils;
 
 function notifyAdmin($pid, $provider)
 {
 
-    $note = xl("New patient registration received from patient portal. Reminder to check for possible new appointment");
-    $title = xl("New Patient");
+    $note = xlt("New patient registration received from patient portal. Reminder to check for possible new appointment");
+    $title = xlt("New Patient");
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($provider));
 
     $rtn = addPnote($pid, $note, 1, 1, $title, $user['username'], '', 'New');
@@ -162,7 +160,7 @@ function doCredentials($pid)
 
     $clear_pass = generatePassword();
 
-    $token = openssl_random_pseudo_bytes(32);
+    $token = RandomGenUtils::createUniqueToken(32);
     $one_time = hash('sha256', $token);
 
     $encoded_link = sprintf("%s?%s", attr($GLOBALS['portal_onsite_two_address']), http_build_query([
@@ -184,9 +182,7 @@ function doCredentials($pid)
     }
 
     if (!validEmail($newpd['email_direct'])) {
-        if (!validEmail($newpd['email'])) {
-            $sent = false;
-        } else {
+        if (validEmail($newpd['email'])) {
             $newpd['email_direct'] = $newpd['email'];
         }
     }
@@ -207,14 +203,14 @@ function doCredentials($pid)
     $mail->AltBody = $message;
 
     if ($mail->Send()) {
-        $sent = true;
+        $sent = 1;
     } else {
         $email_status = $mail->ErrorInfo;
         error_log("EMAIL ERROR: " . errorLogEscape($email_status), 0);
-        $sent = false;
+        return xlt("EMAIL ERROR") . ": " . errorLogEscape($email_status) . ': ' . xlt("Contact your provider administrator.");
     }
-    if ($sent) {
-        $sent = "User : " . $uname . " Password : " . $clear_pass;
+    if ($sent === 1) {
+        //$sent = "User : " . $uname . " Password : " . $clear_pass; // debug
     }
     return $sent;
 }
