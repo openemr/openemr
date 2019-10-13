@@ -225,7 +225,8 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                     <td><strong><?php echo xlt('Current Password');?><strong></td>
                     <td>
                         <input class="form-control" name="pass" id="pass" type="password" <?php echo $_SESSION['onetime'] ? ' readonly ': ''; ?>
-                            autocomplete="none" value="<?php echo attr($_SESSION['onetime']); $_SESSION['password_update']=$_SESSION['onetime'] ? 2 : 1;
+                            autocomplete="none" value="<?php echo attr($_SESSION['onetime']);
+                            $_SESSION['password_update']=$_SESSION['onetime'] ? 2 : 1;
                             unset($_SESSION['onetime']); ?>" required />
                     </td>
                 </tr>
