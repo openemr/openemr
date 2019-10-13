@@ -299,7 +299,8 @@ function checkRegistration(pid) {
 }
 
 function callServer(action, value, value2, last, first) {
-    var data = {
+    let message = '';
+    let data = {
         'action' : action,
         'value' : value,
         'dob' : value2,
@@ -349,9 +350,10 @@ function callServer(action, value, value2, last, first) {
             }
         }
         else if (action == 'do_signup') {
-            if (rtn == "") {
-                let message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
-                alert(message);
+            if (rtn.indexOf('ERROR') !== -1) {
+                message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
+                message += "<br><br>" + <?php echo xlj('Here is what we do know.'); ?> + ": " + rtn + "<br>";
+                eModal.alert(message);
                 return false;
             }
             // For production. Here we're finished so do signup closing alert and then cleanup.
@@ -359,11 +361,12 @@ function callServer(action, value, value2, last, first) {
             // alert below for ease of testing.
             //alert(rtn); // sync alert.. rtn holds username and password for testing.
 
-            let message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
+            message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
             eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
+            return false;
         }
     }).fail(function (err) {
-        let message = <?php echo xlj('Something went wrong.') ?>;
+        message = <?php echo xlj('Something went wrong.') ?>;
         alert(message);
     });
 }
@@ -430,13 +433,13 @@ function callServer(action, value, value2, last, first) {
                         <div class="row">
                                 <div class="col-sm-12">
                                     <div class="form-group inline">
-                                        <label class="control-label" for="fname"><?php echo xlt('First')?></label>
+                                        <label class="control-label" for="fname"><?php echo xlt('First{{Name}}')?></label>
                                         <div class="controls inline-inputs">
                                             <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>">
                                         </div>
                                     </div>
                                     <div class="form-group inline">
-                                        <label class="control-label" for="mname"><?php echo xlt('Middle')?></label>
+                                        <label class="control-label" for="mname"><?php echo xlt('Middle{{Name}}')?></label>
                                         <div class="controls inline-inputs">
                                             <input type="text" class="form-control" id="mname" placeholder="<?php echo xla('Full or Initial'); ?>">
                                         </div>

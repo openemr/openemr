@@ -66,7 +66,7 @@ require_once(dirname(__FILE__) . "/lib/appsql.class.php");
 $logit = new ApplicationTable();
 require_once("$srcdir/authentication/common_operations.php");
 require_once("$srcdir/user.inc");
-$password_update = isset($_SESSION['password_update']);
+$password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
 unset($_SESSION['password_update']);
 $plain_code = $_POST['pass'];
 
@@ -86,7 +86,9 @@ $sql = "SELECT " . implode(",", array(
 $auth = privQuery($sql, array(
     $_POST['uname']
 ));
-
+if ($password_update === 2) {
+    $auth[COL_POR_LOGINUSER] = '';
+}
 // real username
 if ($auth !== false && !empty($auth[COL_POR_LOGINUSER])) {
     $sql = "SELECT " . implode(",", array(
@@ -129,6 +131,9 @@ if (empty($auth[COL_POR_SALT])) {
     ));
 } else {
     $tmp = oemr_password_hash($plain_code, $auth[COL_POR_SALT]);
+    if ($password_update === 2) {
+        $tmp = $plain_code;
+    }
     if ($tmp != $auth[COL_POR_PWD]) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();

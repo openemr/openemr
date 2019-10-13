@@ -8,7 +8,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -19,6 +19,7 @@
 require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
+
 //don't require standard openemr authorization in globals.php
 $ignoreAuth = 1;
 
@@ -27,6 +28,8 @@ $landingpage = "index.php?site=" . urlencode($_GET['site']);
 
 //includes
 require_once('../interface/globals.php');
+require_once(dirname(__FILE__) . "/lib/appsql.class.php");
+$logit = new ApplicationTable();
 
 use OpenEMR\Core\Header;
 
@@ -35,9 +38,35 @@ if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_
     echo xlt('Patient Portal is turned off');
     exit;
 }
+$auth['portal_pwd'] = '';
 if (isset($_GET['woops'])) {
     unset($_GET['woops']);
     unset($_SESSION['password_update']);
+}
+if (isset($_GET['forward']) && isset($_GET['validate'])) {
+    $validate = hex2bin($_GET['validate']);
+    if ($validate <= time()) {
+        error_log("PORTAL ERROR: " . errorLogEscape('One time reset link expired. Dying.'), 0);
+        $logit->portalLog('password reset attempt', '', ($_POST['uname'] . ':link expired'), '', '0');
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        die(xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:".time());
+    }
+    $aReset = $_GET['forward'];
+    $aReset = substr($_GET['forward'], 0, 64);
+    $aReset = hex2bin($aReset);
+    $token = hash('sha256', $aReset);
+    $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_login_username = ?", array($token));
+    if ($auth === false) {
+        error_log("PORTAL ERROR: " . errorLogEscape('One time reset:' . $aReset), 0);
+        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+    $_SESSION['portal_username'] = $auth['portal_username'];
+    $_SESSION['portal_login_username'] = '';
+    $_SESSION['password_update'] = 2;
+    $_SESSION['onetime'] = $auth['portal_pwd'];
 }
 // security measure -- will check on next page.
 $_SESSION['itsme'] = 1;
@@ -104,7 +133,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/js/jquery.gritter.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/css/jquery.gritter.css" />
-
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js"></script>
     <link rel="stylesheet" type="text/css" href="assets/css/base.css?v=<?php echo $v_js_includes; ?>" />
     <link rel="stylesheet" type="text/css" href="assets/css/register.css?v=<?php echo $v_js_includes; ?>" />
 <script type="text/javascript">
@@ -195,7 +224,10 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 <tr>
                     <td><strong><?php echo xlt('Current Password');?><strong></td>
                     <td>
-                        <input class="form-control" name="pass" id="pass" type="password" autocomplete="none" value="" required />
+                        <input class="form-control" name="pass" id="pass" type="password" <?php echo $_SESSION['onetime'] ? ' readonly ': ''; ?>
+                            autocomplete="none" value="<?php echo attr($_SESSION['onetime']);
+                            $_SESSION['password_update']=$_SESSION['onetime'] ? 2 : 1;
+                            unset($_SESSION['onetime']); ?>" required />
                     </td>
                 </tr>
                 <tr>
@@ -253,7 +285,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 <label class="control-label" for="dob"><?php echo xlt('Birth Date')?></label>
                                 <div class="controls inline-inputs">
                                     <div class="input-group">
-                                        <input id="dob" type="date" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
+                                        <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
                                     </div>
                                 </div>
                             </div></div>
@@ -267,7 +299,8 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 </div>
                             </div>
                         </div>
-                        <button id="submitRequest" class="btn btn-primary nextBtn btn-sm pull-right" type="submit"><?php echo xlt('Verify') ?></button>
+                        <button id="submitRequest" class="btn btn-primary nextBtn pull-right" type="submit"><?php echo xlt('Verify') ?></button>
+                        <input class="btn pull-right" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel');?>" />
                     </fieldset>
                 </div>
             </div>
@@ -404,11 +437,6 @@ if (isset($_GET['logout'])) { ?>
 
 return false;
 });
-/* Test Data
-$("#emailInput").val("me@me.com");
-$("#fname").val("Jerry");
-$("#lname").val("Padgett");
-$("#dob").val("1919-03-03"); */
 
 function callServer(action, value, value2, last, first) {
     var data = {
@@ -446,7 +474,7 @@ function callServer(action, value, value2, last, first) {
             window.location.href = "./index.php" // Goto landing page.
         }
         else if (action == "is_new") {
-            if (parseInt(rtn) > 0) {
+            if (parseInt(rtn) !== 0) {
                 var yes = confirm(<?php echo xlj("Account is validated. Send new credentials?") ?>);
                 if(!yes)
                     callServer('cleanup');
@@ -455,19 +483,23 @@ function callServer(action, value, value2, last, first) {
             }
             else {
                 // After error alert app exit to landing page.
-                var message = <?php echo xlj('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record. If you have opted out of email with none on file then leave blank.'); ?>;
+                var message = <?php echo xlj('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record.') ?>;
+                message += "<br>" + <?php echo xlj('All search inputs are case sensitive and must match entries in your profile.'); ?>;
                 eModal.alert(message);
+                return false;
             }
         }
         else if (action == 'do_signup') {
-            if (rtn == "") {
+            if (rtn.indexOf('ERROR') !== -1) {
                 var message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
-                alert(message);
+                message += "<br><br>" + <?php echo xlj('Here is what we do know.'); ?> + ": " + rtn + "<br>";
+                eModal.alert(message);
                 return false;
             }
             //alert(rtn); // sync alert.. rtn holds username and password for testing.
             var message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
             eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
+            return false;
         }
     }).fail(function (err) {
         var message = <?php echo xlj('Something went wrong.') ?>;
