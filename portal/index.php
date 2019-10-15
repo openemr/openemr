@@ -43,25 +43,22 @@ if (isset($_GET['woops'])) {
     unset($_GET['woops']);
     unset($_SESSION['password_update']);
 }
-if (isset($_GET['forward']) && isset($_GET['validate'])) {
-    $validate = hex2bin($_GET['validate']);
+if (isset($_GET['forward'])) {
+    $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_login_username = ?", array($_GET['forward']));
+    if ($auth === false) {
+        error_log("PORTAL ERROR: " . errorLogEscape('One time reset:' . $_GET['forward']), 0);
+        $logit->portalLog('login attempt', '', ($_GET['forward']. ':invalid one time'), '', '0');
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+    $aToken = substr($auth['portal_login_username'], 0, 64);
+    $validate = hex2bin(substr($auth['portal_login_username'], 64));
     if ($validate <= time()) {
         error_log("PORTAL ERROR: " . errorLogEscape('One time reset link expired. Dying.'), 0);
         $logit->portalLog('password reset attempt', '', ($_POST['uname'] . ':link expired'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         die(xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:".time());
-    }
-    $aReset = $_GET['forward'];
-    $aReset = substr($_GET['forward'], 0, 64);
-    $aReset = hex2bin($aReset);
-    $token = hash('sha256', $aReset);
-    $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_login_username = ?", array($token));
-    if ($auth === false) {
-        error_log("PORTAL ERROR: " . errorLogEscape('One time reset:' . $aReset), 0);
-        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w&u');
-        exit();
     }
     $_SESSION['portal_username'] = $auth['portal_username'];
     $_SESSION['portal_login_username'] = '';
@@ -83,8 +80,8 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     }
 
     if (count($result2) == 1) {
-        $defaultLangID = $result2[0]["lang_id"];
-        $defaultLangName = $result2[0]["lang_description"];
+        $defaultLangID = $result2[0]{"lang_id"};
+        $defaultLangName = $result2[0]{"lang_description"};
     } else {
         //default to english if any problems
         $defaultLangID = 1;
@@ -137,14 +134,38 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     <link rel="stylesheet" type="text/css" href="assets/css/base.css?v=<?php echo $v_js_includes; ?>" />
     <link rel="stylesheet" type="text/css" href="assets/css/register.css?v=<?php echo $v_js_includes; ?>" />
 <script type="text/javascript">
+    function checkUserName() {
+        let vacct = document.getElementById('uname').value;
+        let vsuname = document.getElementById('login_uname').value;
+        let data = {
+            'action': 'userIsUnique',
+            'account': vacct,
+            'loginUname': vsuname
+        };
+        $.ajax({
+            type: 'GET',
+            url: './account/account.php',
+            data: data
+        }).done(function (rtn) {
+            if (rtn === '1') {
+                return true;
+            }
+            alert (<?php echo xlj('Log In Name is unavailable. Try again!'); ?>);
+            document.getElementById('login_uname').value = '';
+            document.getElementById('login_uname').focus();
+            return false;
+        });
+    }
     function process() {
         if (!(validate())) {
             alert (<?php echo xlj('Field(s) are missing!'); ?>);
             return false;
         }
+        return true;
     }
     function validate() {
-            var pass=true;
+        let pass=true;
+
         if (document.getElementById('uname').value == "") {
         document.getElementById('uname').style.border = "1px solid red";
                 pass=false;
@@ -218,7 +239,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                     <td><strong><?php echo xlt('New User Name'); ?><strong></td>
                     <td><input class="form-control" name="login_uname" id="login_uname" type="text" required autocomplete="none"
                             placeholder="<?php echo xla('Must be 8 to 20 characters'); ?>" pattern=".{8,20}"
-                            value="<?php echo attr($_SESSION['portal_login_username']); ?>" />
+                            value="<?php echo attr($_SESSION['portal_login_username']); ?>" onchange="checkUserName()" />
                     </td>
                 </tr>
                 <tr>
@@ -446,7 +467,7 @@ function callServer(action, value, value2, last, first) {
         'last' : $("#lname").val(),
         'first' : $("#fname").val(),
         'email' : $("#emailInput").val()
-    }
+    };
     if (action == 'do_signup') {
         data = {
             'action': action,
@@ -472,6 +493,9 @@ function callServer(action, value, value2, last, first) {
     }).done(function (rtn) {
         if (action == "cleanup") {
             window.location.href = "./index.php" // Goto landing page.
+        }
+        else if (action == "userIsUnique") {
+            return rtn === '1' ? true : false;
         }
         else if (action == "is_new") {
             if (parseInt(rtn) !== 0) {

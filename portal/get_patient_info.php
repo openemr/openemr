@@ -70,6 +70,8 @@ $password_update = isset($_SESSION['password_update']) ? $_SESSION['password_upd
 unset($_SESSION['password_update']);
 $plain_code = $_POST['pass'];
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 $authorizedPortal = false; // flag
 DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
 DEFINE("COL_PID", "pid");
@@ -232,6 +234,11 @@ if ($userData = sqlQuery($sql, array(
         $_SESSION['sessionUser'] = '-patient-'; // $_POST['uname'];
         $_SESSION['providerId'] = $userData['providerID'] ? $userData['providerID'] : 'undefined';
         $_SESSION['ptName'] = $userData['fname'] . ' ' . $userData['lname'];
+
+        // Set up the csrf private_key (for the paient portal)
+        //  Note this key always remains private and never leaves server session. It is used to create
+        //  the csrf tokens.
+        CsrfUtils::setupCsrfKey();
 
         $logit->portalLog('login', $_SESSION['pid'], ($_SESSION['portal_username'] . ': ' . $_SESSION['ptName'] . ':success'));
     } else {

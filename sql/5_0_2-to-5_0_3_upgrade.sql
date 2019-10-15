@@ -312,5 +312,5 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #EndIf
 
 #IfMissingColumn patient_access_onsite portal_login_username
-ALTER TABLE `patient_access_onsite`  ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username',  ADD `question1_answer` VARCHAR(255) DEFAULT NULL,  ADD `question2_answer` VARCHAR(255) DEFAULT NULL,  ADD `question3_answer` VARCHAR(255) DEFAULT NULL;
+ALTER TABLE `patient_access_onsite`  ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username';
 #EndIf

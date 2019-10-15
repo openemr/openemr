@@ -133,7 +133,7 @@ function validEmail($email)
 
 function messageCreate($uname, $pass, $encoded_link = '')
 {
-    $message = '<p>' . xlt("We recieved a credentials reset request. The link to reset your credentials is below.") . '</p>';
+    $message = '<p>' . xlt("We received a credentials reset request. The link to reset your credentials is below.") . '</p>';
     $message .= '<p>' . xlt("Please ignore this email if you did not make this request") . '</p>';
     $message .= '<p><strong>' . xlt("Credentials Reset. Live time is one hour.") . ": </strong></p>";
     $message .= sprintf('<a href="%s">%s</a>', attr($encoded_link), text($encoded_link));
@@ -161,11 +161,10 @@ function doCredentials($pid)
     $clear_pass = generatePassword();
 
     $token = RandomGenUtils::createUniqueToken(32);
-    $one_time = hash('sha256', $token);
+    $one_time = hash('sha256', $token) . bin2hex($expiry->format('U'));
 
     $encoded_link = sprintf("%s?%s", attr($GLOBALS['portal_onsite_two_address']), http_build_query([
-        'forward' => bin2hex($token),
-        'validate' => bin2hex($expiry->format('U')),
+        'forward' => $one_time,
         'site' => $_SESSION['site_id']
     ]));
 
