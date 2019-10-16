@@ -319,34 +319,44 @@ foreach($this->status_details as $row_status){
                                                         </tr>
                                                         <?php
                                                         $slno_sub   = 0;
-                                                        foreach($status_details[$row['pid']] as $row_status){
+                                                        if (is_array($status_details[$row['pid']])) {
+                                                            foreach ($status_details[$row['pid']] as $row_status) {
                                                                 $slno_sub++;
                                                                 ?>
                                                                 <tr>
-                                                                        <td><?php echo $slno_sub;?>)</td>
-                                                                        <td><?php echo $this->escapeHtml($row_status['encounter']);?></td>
-                                                                        <td><?php echo $this->commonplugin->date_format($row_status['dos'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?></td>
-                                                                        <td><?php echo $this->commonplugin->date_format(date('Y-m-d H:i:s',$row_status['time']), $GLOBALS['date_display_format'], 'yyyy-mm-dd');?></td>
-                                                                        <td><?php echo ($row_status['user_id'] == 'Scheduler' ? $this->listenerObject->z_xlt('Auto Transfer') : $this->escapeHtml($row_status['user_name']));?></td>
-                                                                        <td>
-                                                                                <?php
-                                                                                if($row_status['emr_transfer'] == 1)
-                                                                                        echo $this->listenerObject->z_xlt($status_title[2]);
-                                                                                else {
-                                                                                  if($row_status['view'] == 1)
-                                                                                          echo $this->listenerObject->z_xlt($status_title[3]);
-                                                                                  else
-                                                                                          echo $this->listenerObject->z_xlt($status_title[$row_status['status']]);
-                                                                                }
-                                                                                ?>
-                                                                                </td>
-                                                                        <td title="<?php echo $this->listenerObject->z_xlt('Download CCDA file');?>">
-                                                                                <a rel="noopener" target="_blank" href="<?php echo $this->basePath();?>/encountermanager/download?id=<?php echo $this->escapeHtml($row_status['id']);?>">
-                                                                                        <img src="<?php echo $this->basePath();?>/css/icons/request.png" width="17px">
-                                                                                </a>
-                                                                        </td>
+                                                                    <td><?php echo $slno_sub; ?>)</td>
+                                                                    <td><?php echo $this->escapeHtml($row_status['encounter']); ?></td>
+                                                                    <td><?php echo $this->commonplugin->date_format($row_status['dos'],
+                                                                            $GLOBALS['date_display_format'],
+                                                                            'yyyy-mm-dd'); ?></td>
+                                                                    <td><?php echo $this->commonplugin->date_format(date('Y-m-d H:i:s',
+                                                                            $row_status['time']),
+                                                                            $GLOBALS['date_display_format'],
+                                                                            'yyyy-mm-dd'); ?></td>
+                                                                    <td><?php echo($row_status['user_id'] == 'Scheduler' ? $this->listenerObject->z_xlt('Auto Transfer') : $this->escapeHtml($row_status['user_name'])); ?></td>
+                                                                    <td>
+                                                                        <?php
+                                                                        if ($row_status['emr_transfer'] == 1) {
+                                                                            echo $this->listenerObject->z_xlt($status_title[2]);
+                                                                        } else {
+                                                                            if ($row_status['view'] == 1) {
+                                                                                echo $this->listenerObject->z_xlt($status_title[3]);
+                                                                            } else {
+                                                                                echo $this->listenerObject->z_xlt($status_title[$row_status['status']]);
+                                                                            }
+                                                                        }
+                                                                        ?>
+                                                                    </td>
+                                                                    <td title="<?php echo $this->listenerObject->z_xlt('Download CCDA file'); ?>">
+                                                                        <a rel="noopener" target="_blank"
+                                                                           href="<?php echo $this->basePath(); ?>/encountermanager/download?id=<?php echo $this->escapeHtml($row_status['id']); ?>">
+                                                                            <img src="<?php echo $this->basePath(); ?>/css/icons/request.png"
+                                                                                 width="17px">
+                                                                        </a>
+                                                                    </td>
                                                                 </tr>
                                                                 <?php
+                                                            }
                                                         }
                                                         ?>
                                                 </table>

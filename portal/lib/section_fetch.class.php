@@ -107,7 +107,7 @@ class FetchSection
  * @param    pid       Integer     patient id
  * @return   records   Array       list of immunizations
  */
-    public function getImmunizations($pid)
+    public static function getImmunizations($pid)
     {
         $appTable = new ApplicationTable();
         $query         = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,

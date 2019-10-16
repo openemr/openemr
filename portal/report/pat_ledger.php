@@ -626,7 +626,7 @@ function checkSubmit() {
                         $events = fetchNextXAppts($current_date2, $pid);
                         $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
                         $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
-                if (strlen(umname) != 0) {
+                if (strlen($events[0]['umname']) != 0) {
                     $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
                 } else {
                     $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
