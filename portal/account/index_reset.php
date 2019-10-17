@@ -66,7 +66,6 @@ if (isset($_POST['submit'])) {
         $logit->portalLog('Credential update attempt', '', ($_POST['uname'] . ':unknown'), '', '0');
         die($errmsg);
     }
-    $code_current = trim($_POST['pass_current']);
     $plain_code = trim($_POST['pass_new']);
     $new_salt = oemr_password_salt();
     $new_hash = oemr_password_hash($plain_code, $new_salt);
@@ -124,7 +123,7 @@ if (isset($_POST['submit'])) {
                 alert(<?php echo xlj('The new password fields are not the same.'); ?>);
                 return false;
             }
-            if (document.getElementById('pass_new').value == document.getElementById('pass_new_confirm').value) {
+            if (document.getElementById('pass_current').value == document.getElementById('pass_new_confirm').value) {
                 if (!confirm(<?php echo xlj('The new password is the same as the current password. Click Okay to accept anyway.'); ?>)) {
                     return false;
                 }
@@ -153,8 +152,8 @@ if (isset($_POST['submit'])) {
                 </tr>
                 <tr>
                     <td><strong><?php echo xlt('New or Current Username'); ?><strong></td>
-                    <td><input class="form-control" name="login_uname" id="login_uname" type="text" required onchange="checkUserName()"
-                            title="<?php echo xla('Change or keep current. Enter 8 to 20 characters'); ?>" pattern=".{8,20}"
+                    <td><input class="form-control" name="login_uname" id="login_uname" type="text" required onblur="checkUserName()"
+                            title="<?php echo xla('Change or keep current. Enter 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>" pattern=".{12,80}"
                             value="<?php echo attr($auth['portal_login_username']); ?>" />
                     </td>
                 </tr>

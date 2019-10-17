@@ -150,7 +150,7 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
     $clear_pass=$_POST['pwd'];
 
     $res = sqlStatement("SELECT * FROM patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site WHERE pid=?", array($pid));
-    $query_parameters=array($_POST['uname'],'');
+    $query_parameters=array($_POST['uname'],$_POST['uname']);
     $salt_clause="";
     if ($portalsite=='on') {
         // For onsite portal create a blowfish based hash and salt.

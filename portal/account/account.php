@@ -38,7 +38,12 @@ if ($action == 'set_lang') {
         echo "0";
         exit;
     }
-    $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_login_username = ?", array(trim($_REQUEST['loginUname'])));
+    $tmp = trim($_REQUEST['loginUname']);
+    if (empty($tmp)) {
+        echo "0";
+        exit;
+    }
+    $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_login_username = ? Or portal_username = ?", array($tmp, $tmp));
     if ($auth === false) {
         echo "1";
         exit;

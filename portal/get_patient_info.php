@@ -63,14 +63,20 @@ $ignoreAuth = 1;
 // Authentication
 require_once('../interface/globals.php');
 require_once(dirname(__FILE__) . "/lib/appsql.class.php");
-$logit = new ApplicationTable();
 require_once("$srcdir/authentication/common_operations.php");
 require_once("$srcdir/user.inc");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+$logit = new ApplicationTable();
 $password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
 unset($_SESSION['password_update']);
 $plain_code = $_POST['pass'];
-
-use OpenEMR\Common\Csrf\CsrfUtils;
+$lookup = $_POST['uname'];
+if ($password_update === 2 && !empty($_SESSION['forward'])) {
+    $lookup = $_SESSION['forward'];
+    unset($_SESSION['forward']);
+}
 
 $authorizedPortal = false; // flag
 DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
@@ -81,38 +87,21 @@ DEFINE("COL_POR_LOGINUSER", "portal_login_username");
 DEFINE("COL_POR_SALT", "portal_salt");
 DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
 
+
 // This is now an account id. Legacy username. Will force case sensitive regardless of collation
 $sql = "SELECT " . implode(",", array(
         COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
-    " WHERE BINARY " . COL_POR_USER . "= ?";
-$auth = privQuery($sql, array(
-    $_POST['uname']
-));
-if ($password_update === 2) {
-    $auth[COL_POR_LOGINUSER] = '';
-}
-// real username
-if ($auth !== false && !empty($auth[COL_POR_LOGINUSER])) {
-    $sql = "SELECT " . implode(",", array(
-            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
-        " WHERE BINARY " . COL_POR_LOGINUSER . "= ?";
-    $auth = privQuery($sql, array(
-        $_POST['uname']
-    ));
-} elseif ($auth === false) {
-    $sql = "SELECT " . implode(",", array(
-            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
-        " WHERE BINARY " . COL_POR_LOGINUSER . "= ?";
-    $auth = privQuery($sql, array(
-        $_POST['uname']
-    ));
-}
-
+    " WHERE BINARY " . COL_POR_LOGINUSER . "= ?";
+$auth = privQuery($sql, array($lookup));
 if ($auth === false) {
     $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w&u');
     exit();
+}
+
+if ($password_update === 2) {
+    $auth[COL_POR_LOGINUSER] = '';
 }
 
 if (empty($auth[COL_POR_SALT])) {

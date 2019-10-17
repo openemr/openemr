@@ -60,6 +60,7 @@ if (isset($_GET['forward'])) {
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         die(xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:".time());
     }
+    $_SESSION['forward'] = $_GET['forward'];
     $_SESSION['portal_username'] = $auth['portal_username'];
     $_SESSION['portal_login_username'] = '';
     $_SESSION['password_update'] = 2;
@@ -80,8 +81,8 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     }
 
     if (count($result2) == 1) {
-        $defaultLangID = $result2[0]{"lang_id"};
-        $defaultLangName = $result2[0]{"lang_description"};
+        $defaultLangID = $result2[0]["lang_id"];
+        $defaultLangName = $result2[0]["lang_description"];
     } else {
         //default to english if any problems
         $defaultLangID = 1;
@@ -137,6 +138,11 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     function checkUserName() {
         let vacct = document.getElementById('uname').value;
         let vsuname = document.getElementById('login_uname').value;
+        if (vsuname.length < 12) {
+            alert (<?php echo xlj('User Name must be at least 12 characters!'); ?>);
+            document.getElementById('login_uname').focus();
+            return false;
+        }
         let data = {
             'action': 'userIsUnique',
             'account': vacct,
@@ -237,9 +243,10 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 </tr>
                 <tr>
                     <td><strong><?php echo xlt('New User Name'); ?><strong></td>
-                    <td><input class="form-control" name="login_uname" id="login_uname" type="text" required autocomplete="none"
-                            placeholder="<?php echo xla('Must be 8 to 20 characters'); ?>" pattern=".{8,20}"
-                            value="<?php echo attr($_SESSION['portal_login_username']); ?>" onchange="checkUserName()" />
+                    <td><input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none"
+                            title="<?php echo xla('Please enter a username of 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>"
+                            placeholder="<?php echo xla('Must be 12 to 80 characters'); ?>" pattern=".{12,80}"
+                            value="<?php echo attr($_SESSION['portal_login_username']); ?>" onblur="checkUserName()" />
                     </td>
                 </tr>
                 <tr>
