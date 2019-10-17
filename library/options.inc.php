@@ -474,7 +474,12 @@ function generate_form_field($frow, $currvalue)
             echo " title='$description'";
         }
 
-        echo " $onchange_string $lbfonchange $disabled />";
+        // help chrome users avoid autocomplete interfere with datepicker widget display
+        if ($frow['field_id'] == 'DOB') {
+            echo " autocomplete='off' $onchange_string $lbfonchange $disabled />";
+        } else {
+            echo " $onchange_string $lbfonchange $disabled />";
+        }
 
         // Optional display of age or gestational age.
         if ($agestr) {
