@@ -272,4 +272,5 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 
 #IfMissingColumn patient_access_onsite portal_login_username
 ALTER TABLE `patient_access_onsite`  ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username';
+UPDATE `patient_access_onsite` SET `portal_pwd_status` = '0', `portal_login_username` = `portal_username`;
 #EndIf
