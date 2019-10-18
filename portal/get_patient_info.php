@@ -27,29 +27,29 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 //
 
 // checking whether the request comes from index.php
-if (! isset($_SESSION['itsme'])) {
+if (!isset($_SESSION['itsme'])) {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
 
 // some validation
-if (! isset($_POST['uname']) || empty($_POST['uname'])) {
+if (!isset($_POST['uname']) || empty($_POST['uname'])) {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w&c');
     exit();
 }
 
-if (! isset($_POST['pass']) || empty($_POST['pass'])) {
+if (!isset($_POST['pass']) || empty($_POST['pass'])) {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w&c');
     exit();
 }
 
 // set the language
-if (! empty($_POST['languageChoice'])) {
-    $_SESSION['language_choice'] = (int) $_POST['languageChoice'];
-} else if (empty($_SESSION['language_choice'])) {
+if (!empty($_POST['languageChoice'])) {
+    $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
+} elseif (empty($_SESSION['language_choice'])) {
     // just in case both are empty, then use english
     $_SESSION['language_choice'] = 1;
 } else {
@@ -71,9 +71,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 $logit = new ApplicationTable();
 $password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
 unset($_SESSION['password_update']);
-$plain_code = $_POST['pass'];
 $lookup = $_POST['uname'];
 if ($password_update === 2 && !empty($_SESSION['forward'])) {
+    // a one time auth token
     $lookup = $_SESSION['forward'];
     unset($_SESSION['forward']);
 }
@@ -93,26 +93,36 @@ $sql = "SELECT " . implode(",", array(
         COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
     " WHERE BINARY " . COL_POR_LOGINUSER . "= ?";
 $auth = privQuery($sql, array($lookup));
+
+if ($password_update === 2) {
+    $validate = substr($auth[COL_POR_LOGINUSER], 32, 6);
+    $move_on = ($validate === $_SESSION['pin']) === ($_POST['token_pin'] === $validate);
+    $move_on = $move_on === (!empty($validate) === !empty($_POST['token_pin']));
+    if (!$move_on) {
+        $auth = false;
+    }
+}
 if ($auth === false) {
     $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w&u');
     exit();
 }
-
+// 2 is flag for one time credential reset else 1 = normal reset.
+// one time reset requires a PIN where normal uses a new temp pass sent to user.
 if ($password_update === 2) {
     $auth[COL_POR_LOGINUSER] = '';
 }
 
 if (empty($auth[COL_POR_SALT])) {
-    if (SHA1($plain_code) != $auth[COL_POR_PWD]) {
+    if (SHA1($_POST['pass']) != $auth[COL_POR_PWD]) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':pass not salted'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&p');
         exit();
     }
     $new_salt = oemr_password_salt();
-    $new_hash = oemr_password_hash($plain_code, $new_salt);
+    $new_hash = oemr_password_hash($_POST['pass'], $new_salt);
     $sqlUpdatePwd = " UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_PWD . "=?, " . COL_POR_SALT . "=? " . COL_POR_LOGINUSER . "=?" . " WHERE " . COL_ID . "=?";
     privStatement($sqlUpdatePwd, array(
         $new_hash,
@@ -121,9 +131,9 @@ if (empty($auth[COL_POR_SALT])) {
         $auth[COL_ID]
     ));
 } else {
-    $tmp = oemr_password_hash($plain_code, $auth[COL_POR_SALT]);
+    $tmp = oemr_password_hash($_POST['pass'], $auth[COL_POR_SALT]);
     if ($password_update === 2) {
-        $tmp = $plain_code;
+        $tmp = $_POST['pass'];
     }
     if ($tmp != $auth[COL_POR_PWD]) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
@@ -173,7 +183,7 @@ if ($userData = sqlQuery($sql, array(
     if ($password_update) {
         $code_new = $_POST['pass_new'];
         $code_new_confirm = $_POST['pass_new_confirm'];
-        if (! (empty($_POST['pass_new'])) && ! (empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
+        if (!(empty($_POST['pass_new'])) && !(empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
             $new_salt = oemr_password_salt();
             $new_hash = oemr_password_hash($code_new, $new_salt);
 
@@ -197,7 +207,7 @@ if ($userData = sqlQuery($sql, array(
     }
 
     if ($auth['portal_pwd_status'] == 0) {
-        if (! $authorizedPortal) {
+        if (!$authorizedPortal) {
             // Need to enter a new password in the index.php script
             $_SESSION['password_update'] = 1;
             header('Location: ' . $landingpage);

@@ -12,6 +12,7 @@
  */
 /* Library functions for register*/
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 function notifyAdmin($pid, $provider)
 {
@@ -135,8 +136,9 @@ function messageCreate($uname, $pass, $encoded_link = '')
 {
     $message = '<p>' . xlt("We received a credentials reset request. The link to reset your credentials is below.") . '</p>';
     $message .= '<p>' . xlt("Please ignore this email if you did not make this request") . '</p>';
-    $message .= '<p><strong>' . xlt("Credentials Reset. Live time is one hour.") . ": </strong></p>";
+    $message .= '<p><strong>' . xlt("Credentials Reset. Below link is only valid for one hour.") . ": </strong></p>";
     $message .= sprintf('<a href="%s">%s</a>', attr($encoded_link), text($encoded_link));
+    $message .= "<p><strong>" . xlt("One Time verification PIN") . ": </strong>$pass</p>";
     $message .= "<p><strong>" . xlt("Your Portal Login Web Address. Bookmark for future logins.") . ": </strong></p>";
     $message .= '<a href=' . attr($GLOBALS['portal_onsite_two_address']) . '>' . text($GLOBALS['portal_onsite_two_address']) . "</a><br>";
     $message .= "<p>" . xlt("Thank You.") . "</p>";
@@ -153,18 +155,20 @@ function doCredentials($pid)
         $pid
     ));
 
+    $crypto = new CryptoGen();
     $uname = $newpd['fname'] . $newpd['id'];
     // Token expiry 1 hour
     $expiry = new DateTime('NOW');
     $expiry->add(new DateInterval('PT01H'));
 
     $clear_pass = generatePassword();
+    $token_new = RandomGenUtils::createUniqueToken(32);
+    $pin = RandomGenUtils::createUniqueToken(6);
 
-    $token = RandomGenUtils::createUniqueToken(32);
-    $one_time = hash('sha256', $token) . bin2hex($expiry->format('U'));
-
+    $token = $crypto->encryptStandard($token_new, '', 'database');
+    $one_time = $token_new . $pin . bin2hex($expiry->format('U'));
     $encoded_link = sprintf("%s?%s", attr($GLOBALS['portal_onsite_two_address']), http_build_query([
-        'forward' => $one_time,
+        'forward' => $token,
         'site' => $_SESSION['site_id']
     ]));
 
@@ -186,7 +190,7 @@ function doCredentials($pid)
         }
     }
 
-    $message = messageCreate($uname, $clear_pass, $encoded_link);
+    $message = messageCreate($uname, $pin, $encoded_link);
 
     $mail = new MyMailer();
     $pt_name = text($newpd['fname'] . ' ' . $newpd['lname']);
@@ -208,8 +212,6 @@ function doCredentials($pid)
         error_log("EMAIL ERROR: " . errorLogEscape($email_status), 0);
         return xlt("EMAIL ERROR") . ": " . errorLogEscape($email_status) . ': ' . xlt("Contact your provider administrator.");
     }
-    if ($sent === 1) {
-        //$sent = "User : " . $uname . " Password : " . $clear_pass; // debug
-    }
+
     return $sent;
 }
