@@ -316,12 +316,19 @@ if (!isset($phpgacl_location)) {
                 control = temparray[1];
                 action = temparray[2];
                 return_value = temparray[3];
-                if (control == "membership") {
+                // Membership stuff needs special treatment because username may have underscores.
+                temparray = cthis.id.match(/^(.*)_membership_([a-z]+)$/);
+                if (temparray) {
+                    identity = temparray[1];
                     identityFormatted = identity;
-                    contentPointer = "#" + identity.replace(/([ .])/g,"\\$1");
-                    linkPointer = "#link_" + identity.replace(/([ .])/g,"\\$1");
-                    linkPointerPost ="";
-                    errorPointer = "#error_" + identity.replace(/([ .])/g,"\\$1");
+                    control = 'membership';
+                    action = temparray[2];
+                    return_value = null;
+                    tempid = identity.replace(/([ .])/g,"\\$1");
+                    contentPointer = "#" + tempid;
+                    linkPointer = "#link_" + tempid;
+                    linkPointerPost = "";
+                    errorPointer = "#error_" + tempid;
                 }
                 if (control == "acl" || control == "aco") {
                     contentPointer = "#acl_" + identity + "_" + return_value;
