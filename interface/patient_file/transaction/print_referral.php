@@ -52,7 +52,10 @@ $TEMPLATE_LABELS = array(
   'label_scripts_and_referrals' => xlt('Prescriptions and other referrals'),
   'label_subhead_clinic'        => xlt('Clinic Copy'),
   'label_subhead_patient'       => xlt('Client Copy'),
-  'label_subhead_referred'      => xlt('For Referred Organization/Practitioner')
+  'label_subhead_referred'      => xlt('For Referred Organization/Practitioner'),
+  'label_subhead_referred'      => xlt('For Referred Organization/Practitioner'),
+  'label_insurance_name'        => xlt('Insurance Name'),
+  'label_insurance_date'        => xlt('Insurance Date')
 );
 
 if (!is_file($template_file)) {
@@ -82,6 +85,7 @@ if ($transid) {
 
 if ($patient_id) {
     $patdata = getPatientData($patient_id);
+    $insurancedata=getInsuranceData($patient_id); // New line included to fetch data - visolve
     $patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
 } else {
     $patdata = array('DOB' => '');
@@ -205,6 +209,10 @@ foreach ($vrow as $key => $value) {
 
 foreach ($TEMPLATE_LABELS as $key => $value) {
     $s = str_replace("{".$key."}", $value, $s);
+}
+
+foreach ($insurancedata as $key => $value) {
+    $s = str_replace("{insurance_$key}", text($value), $s);
 }
 
 // A final pass to clear any unmatched variables:
