@@ -53,8 +53,8 @@ $TEMPLATE_LABELS = array(
   'label_subhead_clinic'        => xlt('Clinic Copy'),
   'label_subhead_patient'       => xlt('Client Copy'),
   'label_subhead_referred'      => xlt('For Referred Organization/Practitioner'),
-  'label_subhead_referred'      => xlt('For Referred Organization/Practitioner'),
   'label_insurance_name'        => xlt('Insurance Name'),
+  'label_insurance_id'          => xlt('Insurance ID'),
   'label_insurance_date'        => xlt('Insurance Date')
 );
 
@@ -85,12 +85,14 @@ if ($transid) {
 
 if ($patient_id) {
     $patdata = getPatientData($patient_id);
-    $insurancedata=getInsuranceData($patient_id); // New line included to fetch data - visolve
+    $insurancedata = getInsuranceData($patient_id);
     $patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
 } else {
     $patdata = array('DOB' => '');
     $patient_age = '';
 }
+
+var_dump($insurancedata);
 
 if (empty($trow['refer_from'])) {
     $trow['refer_from'] = 0;
@@ -169,6 +171,8 @@ $s = str_replace("{fac_facility_npi}", text($facrow['facility_npi']), $s);
 $s = str_replace("{ref_id}", text($trow['id']), $s);
 $s = str_replace("{ref_pid}", text($patient_id), $s);
 $s = str_replace("{pt_age}", text($patient_age), $s);
+$s = str_replace("{insurance_data}", text($insurance_data), $s);
+
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'LBTref' ORDER BY group_id, seq");
@@ -212,8 +216,11 @@ foreach ($TEMPLATE_LABELS as $key => $value) {
 }
 
 foreach ($insurancedata as $key => $value) {
+    error_log("here's insurancedata keys " . $key . " and value $value");
+
     $s = str_replace("{insurance_$key}", text($value), $s);
 }
+
 
 // A final pass to clear any unmatched variables:
 $s = preg_replace('/\{\S+\}/', '', $s);
