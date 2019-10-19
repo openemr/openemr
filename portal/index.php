@@ -47,8 +47,8 @@ if (isset($_GET['forward'])) {
     $auth = false;
     if (strlen($_GET['forward']) >= 64) {
         $crypto = new CryptoGen();
-        $one_time = $crypto->decryptStandard($_GET['forward'], '', 'database');
-        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_login_username Like BINARY ?", array(($one_time . '%')));
+        $one_time = $crypto->decryptStandard($_GET['forward'], '', 'file');
+        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", array(($one_time . '%')));
     }
     if ($auth === false) {
         error_log("PORTAL ERROR: " . errorLogEscape('One time reset:' . $_GET['forward']), 0);
@@ -57,7 +57,7 @@ if (isset($_GET['forward'])) {
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
-    $parse = str_replace($one_time, '', $auth['portal_login_username']);
+    $parse = str_replace($one_time, '', $auth['portal_onetime']);
     $validate = hex2bin(substr($parse, 6));
     if ($validate <= time()) {
         error_log("PORTAL ERROR: " . errorLogEscape('One time reset link expired. Dying.'), 0);
@@ -66,7 +66,7 @@ if (isset($_GET['forward'])) {
         die(xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:" . time());
     }
     $_SESSION['pin'] = substr($parse, 0, 6);
-    $_SESSION['forward'] = $auth['portal_login_username'];
+    $_SESSION['forward'] = $auth['portal_onetime'];
     $_SESSION['portal_username'] = $auth['portal_username'];
     $_SESSION['portal_login_username'] = '';
     $_SESSION['password_update'] = 2;

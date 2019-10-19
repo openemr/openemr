@@ -165,7 +165,7 @@ function doCredentials($pid)
     $token_new = RandomGenUtils::createUniqueToken(32);
     $pin = RandomGenUtils::createUniqueToken(6);
 
-    $token = $crypto->encryptStandard($token_new, '', 'database');
+    $token = $crypto->encryptStandard($token_new, '', 'file');
     $one_time = $token_new . $pin . bin2hex($expiry->format('U'));
     $encoded_link = sprintf("%s?%s", attr($GLOBALS['portal_onsite_two_address']), http_build_query([
         'forward' => $token,
@@ -179,9 +179,9 @@ function doCredentials($pid)
     array_push($query_parameters, oemr_password_hash($clear_pass, $new_salt), $new_salt);
     array_push($query_parameters, $pid);
     if (sqlNumRows($res)) {
-        sqlStatement("UPDATE patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?", $query_parameters);
+        sqlStatement("UPDATE patient_access_onsite SET portal_username=?,portal_onetime=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?", $query_parameters);
     } else {
-        sqlStatement("INSERT INTO patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?", $query_parameters);
+        sqlStatement("INSERT INTO patient_access_onsite SET portal_username=?,portal_onetime=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?", $query_parameters);
     }
 
     if (!validEmail($newpd['email_direct'])) {

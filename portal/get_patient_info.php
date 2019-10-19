@@ -71,12 +71,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 $logit = new ApplicationTable();
 $password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
 unset($_SESSION['password_update']);
-$lookup = $_POST['uname'];
-if ($password_update === 2 && !empty($_SESSION['forward'])) {
-    // a one time auth token
-    $lookup = $_SESSION['forward'];
-    unset($_SESSION['forward']);
-}
 
 $authorizedPortal = false; // flag
 DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
@@ -86,21 +80,36 @@ DEFINE("COL_POR_USER", "portal_username");
 DEFINE("COL_POR_LOGINUSER", "portal_login_username");
 DEFINE("COL_POR_SALT", "portal_salt");
 DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
+DEFINE("COL_POR_ONETIME", "portal_onetime");
 
-
-// This is now an account id. Legacy username. Will force case sensitive regardless of collation
-$sql = "SELECT " . implode(",", array(
-        COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
-    " WHERE BINARY " . COL_POR_LOGINUSER . "= ?";
-$auth = privQuery($sql, array($lookup));
-
-if ($password_update === 2) {
-    $validate = substr($auth[COL_POR_LOGINUSER], 32, 6);
-    $move_on = ($validate === $_SESSION['pin']) === ($_POST['token_pin'] === $validate);
-    $move_on = $move_on === (!empty($validate) === !empty($_POST['token_pin']));
-    if (!$move_on) {
-        $auth = false;
+// 2 is flag for one time credential reset else 1 = normal reset.
+// one time reset requires a PIN where normal uses a new temp pass sent to user.
+if ($password_update === 2 && !empty($_SESSION['pin'])) {
+    $sql = "SELECT " . implode(",", array(
+            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT, COL_POR_ONETIME)) . " FROM " . TBL_PAT_ACC_ON .
+        " WHERE BINARY " . COL_POR_ONETIME . "= ?";
+    $auth = privQuery($sql, array($_SESSION['forward']));
+    if ($auth !== false) {
+        $validate = substr($auth[COL_POR_ONETIME], 32, 6);
+        if (!empty($validate) && !empty($_POST['token_pin'])) {
+            if ($_SESSION['pin'] !== $_POST['token_pin']) {
+                $auth = false;
+            } elseif ($validate !== $_POST['token_pin']) {
+                $auth = false;
+            }
+        } else {
+            $auth = false;
+        }
+        unset($_SESSION['forward']);
+        unset($_SESSION['pin']);
+        unset($_POST['token_pin']);
     }
+} else {
+    // normal login
+    $sql = "SELECT " . implode(",", array(
+            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
+        " WHERE BINARY " . COL_POR_LOGINUSER . "= ?";
+    $auth = privQuery($sql, array($_POST['uname']));
 }
 if ($auth === false) {
     $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
@@ -108,12 +117,6 @@ if ($auth === false) {
     header('Location: ' . $landingpage . '&w&u');
     exit();
 }
-// 2 is flag for one time credential reset else 1 = normal reset.
-// one time reset requires a PIN where normal uses a new temp pass sent to user.
-if ($password_update === 2) {
-    $auth[COL_POR_LOGINUSER] = '';
-}
-
 if (empty($auth[COL_POR_SALT])) {
     if (SHA1($_POST['pass']) != $auth[COL_POR_PWD]) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':pass not salted'), '', '0');
