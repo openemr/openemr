@@ -8,9 +8,9 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
@@ -92,8 +92,6 @@ if ($patient_id) {
     $patient_age = '';
 }
 
-var_dump($insurancedata);
-
 if (empty($trow['refer_from'])) {
     $trow['refer_from'] = 0;
 }
@@ -165,14 +163,11 @@ fclose($fh);
 
 $s = str_replace("{header1}", genFacilityTitle($TEMPLATE_LABELS['label_form1_title'], -1, $logo), $s);
 $s = str_replace("{header2}", genFacilityTitle($TEMPLATE_LABELS['label_form2_title'], -1, $logo), $s);
-
 $s = str_replace("{fac_name}", text($facrow['name']), $s);
 $s = str_replace("{fac_facility_npi}", text($facrow['facility_npi']), $s);
 $s = str_replace("{ref_id}", text($trow['id']), $s);
 $s = str_replace("{ref_pid}", text($patient_id), $s);
 $s = str_replace("{pt_age}", text($patient_age), $s);
-$s = str_replace("{insurance_data}", text($insurance_data), $s);
-
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'LBTref' ORDER BY group_id, seq");
@@ -216,11 +211,8 @@ foreach ($TEMPLATE_LABELS as $key => $value) {
 }
 
 foreach ($insurancedata as $key => $value) {
-    error_log("here's insurancedata keys " . $key . " and value $value");
-
     $s = str_replace("{insurance_$key}", text($value), $s);
 }
-
 
 // A final pass to clear any unmatched variables:
 $s = preg_replace('/\{\S+\}/', '', $s);
