@@ -53,9 +53,11 @@ $TEMPLATE_LABELS = array(
   'label_subhead_clinic'        => xlt('Clinic Copy'),
   'label_subhead_patient'       => xlt('Client Copy'),
   'label_subhead_referred'      => xlt('For Referred Organization/Practitioner'),
-  'label_insurance_name'        => xlt('Insurance Name'),
-  'label_insurance_id'          => xlt('Insurance ID'),
-  'label_insurance_date'        => xlt('Insurance Date')
+  'label_ins_name'              => xlt('Insurance'),
+  'label_ins_plan_name'         => xlt('Plan'),
+  'label_ins_policy'            => xlt('Policy'),
+  'label_ins_group'             => xlt('Group'),
+  'label_ins_date'              => xlt('Effective Date')
 );
 
 if (!is_file($template_file)) {
@@ -85,11 +87,13 @@ if ($transid) {
 
 if ($patient_id) {
     $patdata = getPatientData($patient_id);
-    $insurancedata = getInsuranceData($patient_id);
     $patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
+    $insurancedata = getInsuranceData($patient_id);
+    $ins_name = getInsuranceProvider($insurancedata['provider']);
 } else {
     $patdata = array('DOB' => '');
     $patient_age = '';
+    $ins_name = '';
 }
 
 if (empty($trow['refer_from'])) {
@@ -168,6 +172,8 @@ $s = str_replace("{fac_facility_npi}", text($facrow['facility_npi']), $s);
 $s = str_replace("{ref_id}", text($trow['id']), $s);
 $s = str_replace("{ref_pid}", text($patient_id), $s);
 $s = str_replace("{pt_age}", text($patient_age), $s);
+$s = str_replace("{ins_name}", text($ins_name), $s);
+
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'LBTref' ORDER BY group_id, seq");
