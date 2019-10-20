@@ -21,8 +21,6 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\HeaderExtension;
 
-
-
 class FinancialSummaryByInsuranceController extends Controller
 {
     /**
@@ -63,7 +61,5 @@ class FinancialSummaryByInsuranceController extends Controller
             'name' => 'Fabien Roger'
 
         ]);
-
     }
-
 }
