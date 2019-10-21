@@ -89,7 +89,6 @@ if ($patient_id) {
     $patdata = getPatientData($patient_id);
     $patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
     $insurancedata = getInsuranceData($patient_id);
-    $ins_name = getInsuranceProvider($insurancedata['provider']);
 } else {
     $patdata = array('DOB' => '');
     $patient_age = '';
@@ -172,7 +171,6 @@ $s = str_replace("{fac_facility_npi}", text($facrow['facility_npi']), $s);
 $s = str_replace("{ref_id}", text($trow['id']), $s);
 $s = str_replace("{ref_pid}", text($patient_id), $s);
 $s = str_replace("{pt_age}", text($patient_age), $s);
-$s = str_replace("{ins_name}", text($ins_name), $s);
 
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
