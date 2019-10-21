@@ -100,10 +100,10 @@ pnInit();
 list($module,
      $func,
      $type) = pnVarCleanFromInput(
-         'module',
-         'func',
-         'type'
-     );
+    'module',
+    'func',
+    'type'
+);
 
 if ($module != "PostCalendar") {
     // exit if not using PostCalendar module
