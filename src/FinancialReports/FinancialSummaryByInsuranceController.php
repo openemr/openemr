@@ -57,7 +57,6 @@ class FinancialSummaryByInsuranceController extends Controller
         $twig->addExtension( new HeaderExtension());
 
         return $twig->render('summaryinsurancepaid.html.twig', [
-            'header' => new HeaderExtension('header_setup'),
             'name' => 'Fabien Roger'
 
         ]);
