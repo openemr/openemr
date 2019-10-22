@@ -1096,8 +1096,7 @@ function generate_receipt($patient_id, $encounter = 0)
                         <div class="form-group">
                             <div class="col-sm-12 text-left position-override">
                                 <div class="btn-group btn-group-pinch" role="group">
-                                    <!--<input type='submit' class="btn btn-default btn-save"  name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />-->
-                                    <button type='submit' class="btn btn-default btn-save"  name='form_save' id='form_save' ><?php echo xla('Save'); ?></button>
+                                    <button type='submit' class="btn btn-default btn-save"  name='form_save' id='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save');?></button>
                                     <?php if (empty($_GET['framed'])) { ?>
                                     <button type='button' class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()'><?php echo xlt('Cancel'); ?></button>
                                     <?php } ?>
