@@ -74,9 +74,11 @@ class CryptoGen
      * @param  string  $value           This is the data to encrypt.
      * @param  string  $customPassword  If provide a password, then will derive keys from this.(and will not use the standard keys)
      * @param  string  $keySource       This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param  int     $minimumVersion  This is the minimum encryption version supported (useful if accepting encrypted data
+     *                                   from outside OpenEMR to ensure bad actor is not trying to use an older version).
      *
      */
-    public function decryptStandard($value, $customPassword = null, $keySource = 'drive')
+    public function decryptStandard($value, $customPassword = null, $keySource = 'drive', $minimumVersion = null)
     {
         if (empty($value)) {
             return "";
@@ -85,6 +87,13 @@ class CryptoGen
         # Collect the encrypt/decrypt version and remove it from the value
         $encryptionVersion = intval(mb_substr($value, 0, 3, '8bit'));
         $trimmedValue = mb_substr($value, 3, null, '8bit');
+
+        if (!empty($minimumVersion)) {
+            if ($encryptionVersion < $minimumVersion) {
+                error_log("OpenEMR Error : Decryption is not working because the encrypt/decrypt version is lower than allowed.");
+                return false;
+            }
+        }
 
         # Map the encrypt/decrypt version to the correct decryption function
         if ($encryptionVersion == 6) {
