@@ -1682,7 +1682,19 @@
               "acct",
               "rep_a"
             ]
-          }
+          },
+            {
+                "label": "Insurance Payment Summary",
+                "menu_id": "rep0",
+                "target": "rep",
+                "url": "/interface/reports/insurance.php",
+                "children": [],
+                "requirement": 0,
+                "acl_req": [
+                    "acct",
+                    "rep_a"
+                ]
+            }
         ],
         "requirement": 0
       },

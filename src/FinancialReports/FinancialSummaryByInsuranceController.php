@@ -9,17 +9,15 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Finance\Reports;   //This will function as my controller event though not named controller
-
-require_once "../../vendor/autoload.php";
-
+namespace OpenEMR\FinancialReports;   //This will function as my controller event though not named controller
 
 //use OpenEMR\Common\Database\Connector;
-use OpenEMR\Core\Header;
+
 use OpenEMR\Core\Controller;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\HeaderExtension;
+
 
 class FinancialSummaryByInsuranceController extends Controller
 {
@@ -49,7 +47,6 @@ class FinancialSummaryByInsuranceController extends Controller
      */
     public function insurancepaid()
     {
-
         $loader = new FilesystemLoader('../../templates/financialreports/insurance');
         $twig = new Environment($loader, [
             'cache' => 'C:\tempt',
