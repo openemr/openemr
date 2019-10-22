@@ -17,4 +17,3 @@ $page = new FinancialSummaryByInsuranceController();
 echo $page->insurancepaid();
 
 
-?>

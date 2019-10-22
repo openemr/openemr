@@ -18,7 +18,6 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\HeaderExtension;
 
-
 class FinancialSummaryByInsuranceController extends Controller
 {
     /**
@@ -51,7 +50,7 @@ class FinancialSummaryByInsuranceController extends Controller
         $twig = new Environment($loader, [
             'cache' => 'C:\tempt',
         ]);
-        $twig->addExtension( new HeaderExtension());
+        $twig->addExtension(new HeaderExtension());
 
         return $twig->render('summaryinsurancepaid.html.twig', [
             'name' => 'Fabien Roger'
