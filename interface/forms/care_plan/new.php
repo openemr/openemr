@@ -122,6 +122,7 @@ endforeach;
                     });
                 });
             });
+
         </script>
     </head>
     <body class="body_top">
@@ -229,5 +230,14 @@ endforeach;
             </form>
             </div>
         </div>
+    <script>
+        //pin tab when something was changed
+        $('input,textarea,select').on('input', function () {
+            //pin main tab and block replacing patient
+            top.pinTab('enc', <?php echo xlj('are you sure you want to cancel your changes?') ?>, 1);
+            //pin form tab
+            top.pinTab(window.name, <?php echo xlj('are you sure you want to cancel your changes?') ?>, 1);
+        })
+    </script>
     </body>
 </html>

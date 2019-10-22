@@ -81,7 +81,7 @@ function cleanPatientSwitchBlock(){
 //open confirm popup
 function openConfirm(alert,confirmFn,okCancelLabels){
     var parms={
-        html:"<div id='close_tab_msg' style='padding:10px'><span>"+alert+"</span></div>",
+        html:"<div id='close_tab_msg' style='padding:10px'><span style='font-size: 20px'>"+alert+"</span></div>",
         type:"alert",
         buttons: [
             { text: okCancelLabels['cancel'], close: true, style: 'danger' },
