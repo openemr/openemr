@@ -152,8 +152,12 @@ function editAppointment(mode,deid){
     };
 
     dlgopen('', 'apptModal', 675, 325, '', title, params);
-};
+}
 
+function changeCredentials(e) {
+    title = <?php echo xlj('Please Enter New Credentials'); ?>;
+    dlgopen("./account/index_reset.php", '', 600, 360, null, title, {});
+}
 </script>
     <!-- Right side column. Contains content of the page -->
     <aside class="right-side">
