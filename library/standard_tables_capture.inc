@@ -9,8 +9,10 @@
  * @author    (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -49,10 +51,15 @@ function temp_unarchive($filename, $type)
     //
         $zip = new ZipArchive;
         if ($zip->open($filename, ZipArchive::CREATE) === true) {
-            if (!($zip->extractTo($GLOBALS['temporary_files_dir']."/".$type))) {
-                return false;
+            // cms.gov added a subfolder to the archive :| filed a ticket with them 8-20-19 :)
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $full_file_name = $zip->getNameIndex($i);
+                $fileinfo = pathinfo($full_file_name);
+                if (!copy("zip://".$filename."#".$full_file_name, $GLOBALS['temporary_files_dir']."/".
+                    $type."/".$fileinfo['basename'])) {
+                    return false;
+                };
             }
-
             $zip->close();
             return true;
         } else {
@@ -679,7 +686,6 @@ function handle_zip_file($mode, $file)
         temp_dir_cleanup($mode);
         exit;
     }
-
         // 2. unarchive the file
     if (!temp_unarchive($file, $mode)) {
         echo htmlspecialchars(xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES)."<br>";
