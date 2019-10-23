@@ -51,18 +51,20 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 } else {
     $isLocalApi = false;
     $token = $gbl::get_bearer_token();
-    if (strlen($token) > 40) {
-        // token is a 32 character hash followed by hex encoded 4 char api flag and site id.
-        $api_token = substr($token, 0, 32);
-        $rest = hex2bin(substr($token, 32));
-        $api = substr($rest, 0, 4);
-        $api_site = substr($rest, 4);
-        $gbl::verify_api_request($resource, $api);
-        $_SERVER["HTTP_X_API_TOKEN"] = $api_token; // set hash to further the adventure.
-        $_GET['site'] = $api_site; // site id
+    $tokenParts = json_decode(base64_decode($token), true);
+    // token needs to have be an array and have something, api needs to be 4 characters, site id needs to be something.
+    if ((is_array($tokenParts)) &&
+        (!empty($tokenParts)) &&
+        (!empty($tokenParts['token'])) &&
+        (!empty($tokenParts['api'])) &&
+        (strlen($tokenParts['api']) == 4) &&
+        (!empty($tokenParts['site_id']))) {
+        $gbl::verify_api_request($resource, $tokenParts['api']);
+        $_SERVER["HTTP_X_API_TOKEN"] = $tokenParts['token']; // set token to further the adventure.
+        $_GET['site'] = $tokenParts['site_id']; // site id
         $ignoreAuth = true;
     } else {
-        // token should always return with embedded site id
+        // something not right, so exit
         http_response_code(401);
         exit();
     }

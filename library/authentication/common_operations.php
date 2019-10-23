@@ -90,7 +90,7 @@ function confirm_user_password($username, &$password)
     $userSecure=privQuery($getUserSecureSQL, array($username));
     if (is_array($userSecure)) {
         $phash=oemr_password_hash($password, $userSecure[COL_SALT]);
-        if ($phash==$userSecure[COL_PWD]) {
+        if (hash_equals($phash, $userSecure[COL_PWD])) {
             return true;
         }
     }
