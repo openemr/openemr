@@ -107,8 +107,6 @@ if (isset($_POST['submit'])) {
                     return true;
                 }
                 alert(<?php echo xlj('Log In Name is unavailable. Try again!'); ?>);
-                document.getElementById('login_uname').value = '';
-                document.getElementById('login_uname').focus();
                 return false;
             });
         }
