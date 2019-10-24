@@ -15,5 +15,3 @@ use OpenEMR\FinancialReports\FinancialSummaryByInsuranceController;
 
 $page = new FinancialSummaryByInsuranceController();
 echo $page->insurancepaid();
-
-

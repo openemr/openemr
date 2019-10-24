@@ -15,7 +15,8 @@ use Twig\Extension\AbstractExtension;
 
 class HeaderExtension extends AbstractExtension
 {
-    public function getFunctions() {
+    public function getFunctions()
+    {
         return [
             new TwigFunction(
                 'header_setup',
