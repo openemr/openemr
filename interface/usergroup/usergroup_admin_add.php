@@ -5,6 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -218,11 +219,11 @@ function authorized_clicked() {
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">
 <tr>
 <td style="width:150px;"><span class="text"><?php echo xlt('Username'); ?>: </span></td><td  style="width:220px;"><input type=entry name="rumple" style="width:120px;" class="form-control"><span class="mandatory"></span></td>
-    <?php if (!$GLOBALS['use_active_directory']) { ?>
+<?php if(empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
 <td style="width:150px;"><span class="text"><?php echo xlt('Password'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin" class="form-control"><span class="mandatory"></span></td>
-    <?php } else { ?>
+<?php } else { ?>
         <td> <input type="hidden" value="124" name="stiltskin" /></td>
-    <?php } ?>
+<?php } ?>
 </tr>
 <tr>
     <td style="width:150px;"></td><td  style="width:220px;"></span></td>

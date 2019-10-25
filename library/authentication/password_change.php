@@ -18,6 +18,7 @@
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Rod Roark <rod@sunsetsystems.com>
  * @link    https://www.open-emr.org
  */
 require_once("$srcdir/authentication/common_operations.php");
@@ -92,7 +93,7 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
         }
     } else {
         // If this is an administrator changing someone else's password, then check that they have the password right
-        if ($GLOBALS['use_active_directory']) {
+        if (useActiveDirectory()) {
             $valid = active_directory_validation($_SESSION['authUser'], $currentPwd);
             if (!$valid) {
                 $errMsg=xl("Incorrect password!");
@@ -122,7 +123,7 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
 
     
     //Test password validity
-    if (strlen($newPwd)==0) {
+    if (strlen($newPwd) == 0 && empty($GLOBALS['gbl_ldap_enabled'])) {
         $errMsg=xl("Empty Password Not Allowed");
         return false;
     }

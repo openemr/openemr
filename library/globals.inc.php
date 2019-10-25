@@ -1994,32 +1994,29 @@ $GLOBALS_METADATA = array(
             xl('Key for multiple database credentials encryption')
         ),
 
-        'use_active_directory' => array(
-            xl('Use Active Directory'),
+        'gbl_ldap_enabled' => array(
+            xl('Use LDAP for Authentication'),
             'bool',
             '0',
-            xl('If enabled, uses the specified active directory for login and authentication.')
+            xl('If enabled, use LDAP for login and authentication.')
         ),
-
-        'account_suffix' => array(
-            xl('Active Directory - Suffix Of Account'),
+        'gbl_ldap_host' => array(
+            xl('LDAP - Server Name or URI'),
             'text',
             '',
-            xl('The suffix of the account.')
-        ),
-
-        'base_dn' => array(
-            xl('Active Directory - Domains Base'),
+            xl('The hostname or URI of your LDAP or Active Directory server.')
+        ), 
+        'gbl_ldap_dn' => array(
+            xl('LDAP - Distinguished Name of User'),
             'text',
             '',
-            xl('Users is the standard windows CN, replace the DC stuff with your domain.')
+            xl('Embed {login} where the OpenEMR login name of the user is to be; for example: uid={login},dc=example,dc=com')
         ),
-
-        'domain_controllers' => array(
-            xl('Active Directory - Domains Controllers'),
+        'gbl_ldap_exclusions' => array(
+            xl('LDAP - Login Exclusions'),
             'text',
             '',
-            xl('The IP address of your domain controller(s).')
+            xl('Comma-separated list of login names to use normal authentication instead of LDAP; useful for setup and debugging.')
         ),
 
     ),
