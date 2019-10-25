@@ -151,7 +151,6 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             let vsuname = document.getElementById('login_uname').value;
             if (vsuname.length < 12) {
                 alert(<?php echo xlj('User Name must be at least 12 characters!'); ?>);
-                document.getElementById('login_uname').focus();
                 return false;
             }
             let data = {
@@ -168,8 +167,6 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                     return true;
                 }
                 alert(<?php echo xlj('Log In Name is unavailable. Try again!'); ?>);
-                document.getElementById('login_uname').value = '';
-                document.getElementById('login_uname').focus();
                 return false;
             });
         }
