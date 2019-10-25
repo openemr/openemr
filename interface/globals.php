@@ -622,7 +622,8 @@ function strterm($string, $length)
 }
 
 // Check if the current or a specified user logs in with LDAP.
-function useActiveDirectory($user='') {
+function useActiveDirectory($user = '')
+{
     if (empty($GLOBALS['gbl_ldap_enabled'])) {
         return false;
     }

@@ -2005,7 +2005,7 @@ $GLOBALS_METADATA = array(
             'text',
             '',
             xl('The hostname or URI of your LDAP or Active Directory server.')
-        ), 
+        ),
         'gbl_ldap_dn' => array(
             xl('LDAP - Distinguished Name of User'),
             'text',
