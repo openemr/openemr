@@ -319,7 +319,7 @@ $html .= "<title>" . text($frow['name']) . "</title>
 <script language=\"JavaScript\">";
 
 $html .= "
-$(document).ready(function() {
+$(function() {
  var win = top.printLogSetup ? top : opener.top;
  win.printLogSetup(document.getElementById('printbutton'));
 });

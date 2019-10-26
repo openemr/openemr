@@ -172,7 +172,7 @@ if ($n >= $N && $noOfRecordsLeft!=$N) {
 </body>
 
 <script type="text/javascript">
-$(document).ready(function () {
+$(function() {
     // todo, move this to a common library
     //for row highlight.
     $(".noterow").mouseover(function () {

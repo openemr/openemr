@@ -568,7 +568,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <script language="javascript">
 
 // jQuery stuff to make the page a little easier to use
-$(document).ready(function(){
+$(function(){
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -798,7 +798,7 @@ function issueClick(issue) {
 }
 
 var listId = '#' + <?php echo js_escape($list_id); ?>;
-$(document).ready(function(){
+$(function(){
     $(listId).addClass("active");
 });
 
