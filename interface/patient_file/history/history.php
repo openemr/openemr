@@ -28,7 +28,7 @@ use OpenEMR\OeUI\OemrUI;
     <?php Header::setupHeader('common'); ?>
 
 <script type="text/javascript">
-$(document).ready(function(){
+$(function(){
     tabbify();
 });
 <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
@@ -144,7 +144,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <?php $oemr_ui->oeBelowContainerDiv();?>
 <script>
     var listId = '#' + <?php echo js_escape($list_id); ?>;
-    $(document).ready(function(){
+    $(function(){
         $(listId).addClass("active");
     });
 </script>

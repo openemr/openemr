@@ -178,7 +178,7 @@ if ($result != null) {
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function(){
     $(".noterow").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".noterow").on("mouseout", function() { $(this).toggleClass("highlight"); });
 });

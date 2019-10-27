@@ -168,7 +168,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
-        $(document).ready(function(){
+        $(function(){
             $(listId).addClass("active");
         });
     </script>

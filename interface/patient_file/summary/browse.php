@@ -33,7 +33,7 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
     <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
 
     <script language="javascript">
-        $(document).ready(function(){
+        $(function(){
             $('[name="findBy"').on('change', function () {
                 if($(this).val() === 'DOB'){
                     $('#searchparm').datetimepicker({
