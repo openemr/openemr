@@ -51,7 +51,12 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 } else {
     $isLocalApi = false;
     $token = $gbl::get_bearer_token();
-    $tokenParts = json_decode(base64_decode($token, true), true);
+    $token_decoded = base64_decode($token, true);
+    if (!empty($token_decoded)) {
+        $tokenParts = json_decode($token_decoded, true);
+    } else {
+        $tokenParts = '';
+    }
     // token needs to have be an array and have something, api needs to be 4 characters, site id needs to be something.
     if ((is_array($tokenParts)) &&
         (!empty($tokenParts)) &&
