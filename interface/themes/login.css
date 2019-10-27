@@ -55,3 +55,8 @@ body.login {
     height: 43px;
     margin-bottom: 10px;
 }
+
+#ui-id-1 > .message {
+    color: #ff0400;
+    font-weight: bold;
+}
