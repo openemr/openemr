@@ -157,6 +157,9 @@ function active_directory_validation($user, $pass)
         if (!ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3)) {
             error_log("Setting LDAP v3 protocol failed");
         }
+        if (!ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0)) {
+            error_log("Disabling LDAP referrals failed");
+        }
         $ldapbind = ldap_bind(
             $ldapconn,
             str_replace('{login}', $user, $GLOBALS['gbl_ldap_dn']),
