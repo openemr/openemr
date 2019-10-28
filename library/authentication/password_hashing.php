@@ -29,6 +29,8 @@
  * @link    https://www.open-emr.org
  */
 
+use OpenEMR\Common\Utils\RandomGenUtils;
+
 define("SALT_PREFIX_SHA1", '$SHA1$');
 
 /**
@@ -48,15 +50,10 @@ define("SALT_PREFIX_SHA1", '$SHA1$');
  */
 function oemr_password_salt()
 {
-    $Allowed_Chars ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./';
-    $Chars_Len = 63;
-
-    $Salt_Length = 22;
-
-    $salt = "";
-
-    for ($i=0; $i<$Salt_Length; $i++) {
-        $salt .= $Allowed_Chars[mt_rand(0, $Chars_Len)];
+    $salt = RandomGenUtils::produceRandomString(22, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./');
+    if (empty($salt)) {
+        error_log("FATAL ERROR: Unable to create random salt in OpenEMR");
+        die("FATAL ERROR: Unable to create random salt in OpenEMR");
     }
 
     // This is the preferred hashing mechanism

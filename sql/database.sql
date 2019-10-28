@@ -10552,6 +10552,8 @@ CREATE TABLE `api_token` (
     `id`           bigint(20) NOT NULL AUTO_INCREMENT,
     `user_id`      bigint(20) NOT NULL,
     `token`        varchar(256) DEFAULT NULL,
+    `token_auth_salt` varchar(255),
+    `token_auth` varchar(255),
     `expiry`       datetime NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
