@@ -522,8 +522,8 @@ foreach ($providers as $provider) {
                     // than was was previously set
                     if (!isset($eventPositions[$eid]->width))
                     {
-                    $eventPositions[$eid] = new stdClass();
-                    $eventPositions[$eid]->width = $width;
+                        $eventPositions[$eid] = new stdClass();
+                        $eventPositions[$eid]->width = $width;
                     } else if ($eventPositions[$eid]->width > $width)
                     {
                         $eventPositions[$eid]->width = $width;
