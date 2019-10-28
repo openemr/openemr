@@ -517,10 +517,13 @@ foreach ($providers as $provider) {
             if (!empty($events_in_timeslot)) {
                 $width = 100 / count($events_in_timeslot);
 
-                // loop over the events in this timeslot and adjust their width
+                // create the $eventPositions object to be used below
                 foreach ($events_in_timeslot as $eid) {
                     $eventPositions[$eid] = new stdClass();
+                }
 
+                // loop over the events in this timeslot and adjust their width
+                foreach ($events_in_timeslot as $eid) {
                     // set the width if not already set or if the current width is smaller
                     // than was was previously set
                     if (!isset($eventPositions[$eid]->width))
