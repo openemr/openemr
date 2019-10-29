@@ -15,7 +15,7 @@ If node is not already installed then do the following:
 - cd ~
 - apt-get remove --purge nodejs npm // Ensures clean install and will allow chance to cleanup.
 - curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
-- sudo apt-get install -y nodejs.
+- sudo apt-get install -y nodejs
 
 Navigate to: openemr/ccdaservice and run the following to install requires dependencies.
 - sudo npm install --production
