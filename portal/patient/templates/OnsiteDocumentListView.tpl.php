@@ -240,30 +240,14 @@ hr {
     margin-bottom: 0px;
 }
 body {
-    margin-top: 70px;
-}
-@media ( min-width : 979px) {
-    #sidebar.affix-top {
-        position: static;
-        margin-top: 10px;
-        width: 150px;
-    }
-    #sidebar.affix {
-        position: fixed;
-        top: 70px;
-        width: 150px;
-    }
-}
-.affix, affix-top {
-    position: static;
-}
-.nopadding {
-   padding: 0 !important;
-   margin: 0 !important;
+    margin-top: 10px;
+    overflow-y: scroll;
+    touch-action: auto;
 }
 </style>
 <script type="text/template" id="onsiteDocumentModelTemplate">
-    <aside class="col-sm-2 col-xs-3" id="sidebar-pills">
+<div class="container-fluid">
+    <aside class="col-lg-2 col-sm-2 col-xs-2 container-fluid" id="sidebar-pills">
         <ul class="nav nav-pills  nav-stacked" id="sidebar">
             <li data-toggle="pill" class="bg-info"><a id="signTemplate" href="#openSignModal"
                 data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><span><?php echo xlt('Signature');?></span></a></li>
@@ -284,7 +268,7 @@ body {
             <?php } ?>
         </ul>
     </aside>
-    <div class="col-md-8 col-sm-8 col-xs-8 nopadding">
+    <div class="col-md-8 col-xs-10 col-xs-10">
         <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
         <div class="panel panel-primary" id="docpanel">
             <header class="panel-heading" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>
@@ -318,21 +302,21 @@ body {
 </form>
 </div>
 </div>
-</div>
+    </div></div>
 </div>
 </div>
 </script>
 <script type="text/template" id="onsiteDocumentCollectionTemplate">
-        <nav class="nav navbar-fixed-top" id="topnav">
-            <div class="container-fluid">
+    <div class="container-fluid">
+        <nav class="nav navbar-nav" id="topnav">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xla('Pending Documents') ?></a>
+                    <a class="navbar-brand" href="#"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xla('Pending') ?></a>
                 </div>
-                <ul class="nav navbar-nav" style='margin-top:5px;font-size:16px;font-weight:600'>
+                <ul class="nav navbar-nav" style='margin:5px;font-weight:600'>
                     <?php require_once(dirname(__FILE__) . '/../../lib/template_menu.php'); ?>
                     <?php if (!$is_module) { ?>
                         <li class="bg-warning">
-                            <a href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home'); ?></a>
+                            <a href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Exit'); ?></a>
                         </li>
                     <?php } else { ?>
                         <li class="bg-warning">
@@ -343,7 +327,7 @@ body {
             </div>
             <div id="collectionAlert"></div>
         </nav>
-        <div class="container">
+        <div class="container-fluid">
         <table class="collection table table-condensed table-hover">
         <thead>
             <tr class='bg-primary' style='cursor:pointer'>
