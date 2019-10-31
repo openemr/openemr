@@ -344,10 +344,21 @@ function displayAlert()
                 <input type="entry" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>">
             </td>
         </tr>
+
+
+        <tr>
+            <td>
+                <label><?php echo xlt('Info'); ?>: </label>
+            </td>
+            <td>
+                <textarea style="width: 97.8%;" size="20" name="info" ><?php echo attr($facility["info"]) ?></textarea>
+            </td>
+        </tr>
         <tr height="25" style="valign:bottom;">
             <td><font class="mandatory">*</font><span class="text"> <?php echo xlt('Required'); ?></span></td><td>&nbsp;</td><td>&nbsp;</td>
             <td>&nbsp;</td><td>&nbsp;</td>
         </tr>
+
     </table>
 </form>
 
