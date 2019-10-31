@@ -1,6 +1,6 @@
 # About
 This module/service will provide the necessary template engine to create a Patient Summary CCD.
-CCD's can be generated from Patient Portal Two or the Carecoordination Module.
+CCD's can be generated from the Onsite Patient Portal or the Carecoordination Module.
 ## Prepare
 * If not already completed, you must install/initialize the CCM features by going to the Modules->Manage Modules top menu then click Unregistered tab and install the necessary components.
 * The Carecoordination module setting for Mirth IP must be set to localhost. Menu item: Modules->Manage Modules click in Carecoordination Config, the settings tab. Also add any other appropriate settings like granting Access Control for the appropriate users. Menu item: Modules->Manage Modules->Access Control->General->Care Coordination.
@@ -35,5 +35,5 @@ Navigate to: openemr/ccdaservice and run the following from an elevated PowerShe
 ### Tools
 * The nodejs ccda service now starts on demand.
 #### License
-   		Copyright 2018 sjpadgett@gmail.com
-		GNU GPL
+   	    Copyright 2018-2019 sjpadgett@gmail.com
+        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
