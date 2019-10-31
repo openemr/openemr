@@ -148,7 +148,7 @@ function verify_user_gacl_group($user, $provider)
 function active_directory_validation($user, $pass)
 {
     // Make sure the connection is not anonymous.
-    if ($pass === '' || preg_match('/^\0/', $pass) || !preg_match('/^[\w]+$/', $user)) {
+    if ($pass === '' || preg_match('/^\0/', $pass) || !preg_match('/^[\w.-]+$/', $user)) {
         error_log("Empty user or password for active_directory_validation()");
         return false;
     }
