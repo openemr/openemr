@@ -91,11 +91,9 @@ function recursive_writable_directory_test($dir)
     }
 }
 
-// Bring in standard libraries/classes
+// Include standard libraries/classes and password hashing functions
 require_once dirname(__FILE__) ."/vendor/autoload.php";
-
 require_once(dirname(__FILE__) . '/library/authentication/password_hashing.php');
-require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 
 use OpenEMR\Common\Utils\RandomGenUtils;
 
