@@ -76,10 +76,8 @@
 // This exit is to avoid malicious use of this script.
 exit;
 
-// Bring in standard libraries/classes
+// Include standard libraries/classes and password hashing functions
 require_once dirname(__FILE__) .'/../../../vendor/autoload.php';
-
-require_once(dirname(__FILE__).'/../../../library/classes/Installer.class.php');
 require_once(dirname(__FILE__).'/../../../library/authentication/password_hashing.php');
 
 // Set up default configuration settings
