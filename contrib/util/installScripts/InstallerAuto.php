@@ -76,8 +76,10 @@
 // This exit is to avoid malicious use of this script.
 exit;
 
-require_once(dirname(__FILE__).'/../../../library/classes/Installer.class.php');
+// Include standard libraries/classes and password hashing functions
+require_once dirname(__FILE__) .'/../../../vendor/autoload.php';
 require_once(dirname(__FILE__).'/../../../library/authentication/password_hashing.php');
+
 // Set up default configuration settings
 $installSettings = array();
 $installSettings['iuser']                    = 'admin';
