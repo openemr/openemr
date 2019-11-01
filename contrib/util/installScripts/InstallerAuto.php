@@ -78,6 +78,10 @@ exit;
 
 require_once(dirname(__FILE__).'/../../../library/classes/Installer.class.php');
 require_once(dirname(__FILE__).'/../../../library/authentication/password_hashing.php');
+require_once(dirname(__FILE__).'/../../../src/Common/Utils/RandomGenUtils.php');
+
+use OpenEMR\Common\Utils\RandomGenUtils;
+
 // Set up default configuration settings
 $installSettings = array();
 $installSettings['iuser']                    = 'admin';
