@@ -9,7 +9,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -35,6 +35,11 @@ function validate_user_password($username, &$password, $provider)
     if (useActiveDirectory($username)) {
         $valid = active_directory_validation($username, $password);
         $_SESSION['active_directory_auth'] = $valid;
+        if (!$valid) {
+            EventAuditLogger::instance()->newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user failed ldap authentication");
+            $password='';
+            return false;
+        }
     } else {
         $getUserSecureSQL= " SELECT " . implode(",", array(COL_ID,COL_PWD,COL_SALT))
                         ." FROM ".TBL_USERS_SECURE
@@ -167,10 +172,7 @@ function active_directory_validation($user, $pass)
         );
         if ($ldapbind) {
             ldap_unbind($ldapconn);
-            error_log("ldap_bind() for user $user successful"); // debugging
             return true;
-        } else {
-            error_log("ldap_bind() for user $user failed"); // debugging
         }
     } else {
         error_log("ldap_connect() failed");
