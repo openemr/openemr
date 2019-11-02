@@ -12,7 +12,6 @@
     "require" : {
         "php" : ">=7.2.0",
         "academe/omnipay-authorizenetapi": "3.1.2",
-        "adldap2/adldap2" : "10.0.11",
         "adodb/adodb-php" : "5.20.14",
         "doctrine/common" : "2.10.0",
         "doctrine/couchdb" : "1.0-beta4",

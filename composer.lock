@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0b94d877824a29706a55ed0ab62c7e8",
+    "content-hash": "4fa00d4e5227505bd3481c9a6cac6b16",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -123,63 +123,6 @@
             "time": "2019-08-20T22:09:44+00:00"
         },
         {
-            "name": "adldap2/adldap2",
-            "version": "v10.0.11",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Adldap2/Adldap2.git",
-                "reference": "beb3c9cc28de752d6c3b0221605035659eccc42e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Adldap2/Adldap2/zipball/beb3c9cc28de752d6c3b0221605035659eccc42e",
-                "reference": "beb3c9cc28de752d6c3b0221605035659eccc42e",
-                "shasum": ""
-            },
-            "require": {
-                "ext-ldap": "*",
-                "illuminate/contracts": "~5.0",
-                "php": ">=7.0",
-                "psr/log": "~1.0",
-                "tightenco/collect": "~5.0"
-            },
-            "require-dev": {
-                "mockery/mockery": "~1.0",
-                "phpunit/phpunit": "~6.0"
-            },
-            "suggest": {
-                "ext-fileinfo": "fileinfo is required when retrieving user encoded thumbnails"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Adldap\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Steve Bauman",
-                    "role": "Developer",
-                    "email": "steven_bauman@outlook.com"
-                }
-            ],
-            "description": "A PHP LDAP Package for humans.",
-            "keywords": [
-                "active directory",
-                "ad",
-                "adLDAP",
-                "adldap2",
-                "directory",
-                "ldap",
-                "windows"
-            ],
-            "time": "2019-05-24T14:15:58+00:00"
-        },
-        {
             "name": "adodb/adodb-php",
             "version": "v5.20.14",
             "source": {
@@ -210,8 +153,8 @@
             "authors": [
                 {
                     "name": "John Lim",
-                    "role": "Author",
-                    "email": "jlim@natsoft.com"
+                    "email": "jlim@natsoft.com",
+                    "role": "Author"
                 },
                 {
                     "name": "Damien Regad",
@@ -270,9 +213,9 @@
             "authors": [
                 {
                     "name": "Ben Scholzen 'DASPRiD'",
-                    "role": "Developer",
                     "email": "mail@dasprids.de",
-                    "homepage": "http://www.dasprids.de"
+                    "homepage": "http://www.dasprids.de",
+                    "role": "Developer"
                 }
             ],
             "description": "BaconQrCode is a QR code generator for PHP.",
@@ -1590,50 +1533,6 @@
             "time": "2019-07-01T23:21:34+00:00"
         },
         {
-            "name": "illuminate/contracts",
-            "version": "v5.8.34",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/illuminate/contracts.git",
-                "reference": "00fc6afee788fa07c311b0650ad276585f8aef96"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/contracts/zipball/00fc6afee788fa07c311b0650ad276585f8aef96",
-                "reference": "00fc6afee788fa07c311b0650ad276585f8aef96",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1.3",
-                "psr/container": "^1.0",
-                "psr/simple-cache": "^1.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.8-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Illuminate\\Contracts\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Taylor Otwell",
-                    "email": "taylor@laravel.com"
-                }
-            ],
-            "description": "The Illuminate Contracts package.",
-            "homepage": "https://laravel.com",
-            "time": "2019-07-30T13:57:21+00:00"
-        },
-        {
             "name": "kamermans/guzzle-oauth2-subscriber",
             "version": "v1.0.6",
             "source": {
@@ -1993,9 +1892,9 @@
             "authors": [
                 {
                     "name": "Serban Ghita",
-                    "role": "Developer",
                     "email": "serbanghita@gmail.com",
-                    "homepage": "http://mobiledetect.net"
+                    "homepage": "http://mobiledetect.net",
+                    "role": "Developer"
                 }
             ],
             "description": "Mobile_Detect is a lightweight PHP class for detecting mobile devices. It uses the User-Agent string combined with specific HTTP headers to detect the mobile environment.",
@@ -2448,9 +2347,9 @@
             "authors": [
                 {
                     "name": "Paragon Initiative Enterprises",
-                    "role": "Developer",
                     "email": "security@paragonie.com",
-                    "homepage": "https://paragonie.com"
+                    "homepage": "https://paragonie.com",
+                    "role": "Developer"
                 }
             ],
             "description": "Vendor-agnostic two-factor authentication library",
@@ -2557,13 +2456,13 @@
             "authors": [
                 {
                     "name": "Berry Langerak",
-                    "role": "Developer",
-                    "email": "berry@berryllium.nl"
+                    "email": "berry@berryllium.nl",
+                    "role": "Developer"
                 },
                 {
                     "name": "Rick van der Staaij",
-                    "role": "Developer",
-                    "homepage": "http://rickvanderstaaij.nl"
+                    "homepage": "http://rickvanderstaaij.nl",
+                    "role": "Developer"
                 }
             ],
             "description": "Flexible and highly usable validation library with no dependencies.",
@@ -2670,18 +2569,18 @@
             "authors": [
                 {
                     "name": "Greg Beaver",
-                    "role": "Helper",
-                    "email": "cellog@php.net"
+                    "email": "cellog@php.net",
+                    "role": "Helper"
                 },
                 {
                     "name": "Andrei Zmievski",
-                    "role": "Lead",
-                    "email": "andrei@php.net"
+                    "email": "andrei@php.net",
+                    "role": "Lead"
                 },
                 {
                     "name": "Stig Bakken",
-                    "role": "Developer",
-                    "email": "stig@php.net"
+                    "email": "stig@php.net",
+                    "role": "Developer"
                 }
             ],
             "description": "More info available on: http://pear.php.net/package/Console_Getopt",
@@ -2724,8 +2623,8 @@
             "authors": [
                 {
                     "name": "Christian Weiske",
-                    "role": "Lead",
-                    "email": "cweiske@php.net"
+                    "email": "cweiske@php.net",
+                    "role": "Lead"
                 }
             ],
             "description": "Minimal set of PEAR core files to be used as composer dependency",
@@ -3474,28 +3373,28 @@
             "authors": [
                 {
                     "name": "Jim Wigginton",
-                    "role": "Lead Developer",
-                    "email": "terrafrost@php.net"
+                    "email": "terrafrost@php.net",
+                    "role": "Lead Developer"
                 },
                 {
                     "name": "Patrick Monnerat",
-                    "role": "Developer",
-                    "email": "pm@datasphere.ch"
+                    "email": "pm@datasphere.ch",
+                    "role": "Developer"
                 },
                 {
                     "name": "Andreas Fischer",
-                    "role": "Developer",
-                    "email": "bantu@phpbb.com"
+                    "email": "bantu@phpbb.com",
+                    "role": "Developer"
                 },
                 {
                     "name": "Hans-Jürgen Petrich",
-                    "role": "Developer",
-                    "email": "petrich@tronic-media.com"
+                    "email": "petrich@tronic-media.com",
+                    "role": "Developer"
                 },
                 {
                     "name": "Graham Campbell",
-                    "role": "Developer",
-                    "email": "graham@alt-three.com"
+                    "email": "graham@alt-three.com",
+                    "role": "Developer"
                 }
             ],
             "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
@@ -3717,16 +3616,16 @@
         },
         {
             "name": "psr/log",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd"
+                "reference": "bf73deb2b3b896a9d9c75f3f0d88185d2faa27e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
-                "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/bf73deb2b3b896a9d9c75f3f0d88185d2faa27e2",
+                "reference": "bf73deb2b3b896a9d9c75f3f0d88185d2faa27e2",
                 "shasum": ""
             },
             "require": {
@@ -3735,7 +3634,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -3760,7 +3659,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2018-11-20T15:27:04+00:00"
+            "time": "2019-10-25T08:06:51+00:00"
         },
         {
             "name": "psr/simple-cache",
@@ -3973,28 +3872,28 @@
             "authors": [
                 {
                     "name": "Ole Koeckemann",
-                    "role": "Project Head / Developer",
-                    "email": "ole.k@web.de"
+                    "email": "ole.k@web.de",
+                    "role": "Project Head / Developer"
                 },
                 {
                     "name": "Lars Olesen",
-                    "role": "Developer",
-                    "email": "lars@intraface.dk"
+                    "email": "lars@intraface.dk",
+                    "role": "Developer"
                 },
                 {
                     "name": "Sune Jensen",
-                    "role": "Developer",
-                    "email": "sj@sunet.dk"
+                    "email": "sj@sunet.dk",
+                    "role": "Developer"
                 },
                 {
                     "name": "Nicola Asuni",
-                    "role": "Developer",
-                    "email": "info@tecnick.com"
+                    "email": "info@tecnick.com",
+                    "role": "Developer"
                 },
                 {
                     "name": "Wayne Munro",
-                    "role": "Founder / Inactive",
-                    "email": "pdf@ros.co.nz"
+                    "email": "pdf@ros.co.nz",
+                    "role": "Founder / Inactive"
                 }
             ],
             "description": "The R&OS Pdf class supports the creation of PDF documents without any adiditional modules or extensions.",
@@ -4843,61 +4742,6 @@
             "time": "2019-08-06T08:03:45+00:00"
         },
         {
-            "name": "symfony/polyfill-php72",
-            "version": "v1.12.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/polyfill-php72.git",
-                "reference": "04ce3335667451138df4307d6a9b61565560199e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php72/zipball/04ce3335667451138df4307d6a9b61565560199e",
-                "reference": "04ce3335667451138df4307d6a9b61565560199e",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.12-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Polyfill\\Php72\\": ""
-                },
-                "files": [
-                    "bootstrap.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony polyfill backporting some PHP 7.2+ features to lower PHP versions",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "compatibility",
-                "polyfill",
-                "portable",
-                "shim"
-            ],
-            "time": "2019-08-06T08:03:45+00:00"
-        },
-        {
             "name": "symfony/process",
             "version": "v4.3.4",
             "source": {
@@ -5014,82 +4858,6 @@
             "time": "2019-08-26T08:26:39+00:00"
         },
         {
-            "name": "symfony/var-dumper",
-            "version": "v4.3.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "641043e0f3e615990a0f29479f9c117e8a6698c6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/641043e0f3e615990a0f29479f9c117e8a6698c6",
-                "reference": "641043e0f3e615990a0f29479f9c117e8a6698c6",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1.3",
-                "symfony/polyfill-mbstring": "~1.0",
-                "symfony/polyfill-php72": "~1.5"
-            },
-            "conflict": {
-                "phpunit/phpunit": "<4.8.35|<5.4.3,>=5.0",
-                "symfony/console": "<3.4"
-            },
-            "require-dev": {
-                "ext-iconv": "*",
-                "symfony/console": "~3.4|~4.0",
-                "symfony/process": "~3.4|~4.0",
-                "twig/twig": "~1.34|~2.4"
-            },
-            "suggest": {
-                "ext-iconv": "To convert non-UTF-8 strings to UTF-8 (or symfony/polyfill-iconv in case ext-iconv cannot be used).",
-                "ext-intl": "To show region name in time zone dump",
-                "symfony/console": "To use the ServerDumpCommand and/or the bin/var-dump-server script"
-            },
-            "bin": [
-                "Resources/bin/var-dump-server"
-            ],
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.3-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "Resources/functions/dump.php"
-                ],
-                "psr-4": {
-                    "Symfony\\Component\\VarDumper\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony mechanism for exploring and dumping PHP variables",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "debug",
-                "dump"
-            ],
-            "time": "2019-08-26T08:26:39+00:00"
-        },
-        {
             "name": "symfony/yaml",
             "version": "v3.4.30",
             "source": {
@@ -5149,56 +4917,6 @@
             "time": "2019-07-24T13:01:31+00:00"
         },
         {
-            "name": "tightenco/collect",
-            "version": "v5.8.34",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/tightenco/collect.git",
-                "reference": "957e430c26c51b65c80acc87896023229dc05a21"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/tightenco/collect/zipball/957e430c26c51b65c80acc87896023229dc05a21",
-                "reference": "957e430c26c51b65c80acc87896023229dc05a21",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1.3",
-                "symfony/var-dumper": ">=3.4 <5"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.0",
-                "nesbot/carbon": "^1.26.3",
-                "phpunit/phpunit": "^7.0"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/Collect/Support/helpers.php",
-                    "src/Collect/Support/alias.php"
-                ],
-                "psr-4": {
-                    "Tightenco\\Collect\\": "src/Collect"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Taylor Otwell",
-                    "email": "taylorotwell@gmail.com"
-                }
-            ],
-            "description": "Collect - Illuminate Collections as a separate package.",
-            "keywords": [
-                "collection",
-                "laravel"
-            ],
-            "time": "2019-07-30T19:16:47+00:00"
-        },
-        {
             "name": "twig/twig",
             "version": "v2.11.3",
             "source": {
@@ -5243,19 +4961,19 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "role": "Lead Developer",
                     "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org"
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
                 },
                 {
                     "name": "Armin Ronacher",
-                    "role": "Project Founder",
-                    "email": "armin.ronacher@active-4.com"
+                    "email": "armin.ronacher@active-4.com",
+                    "role": "Project Founder"
                 },
                 {
                     "name": "Twig Team",
-                    "role": "Contributors",
-                    "homepage": "https://twig.symfony.com/contributors"
+                    "homepage": "https://twig.symfony.com/contributors",
+                    "role": "Contributors"
                 }
             ],
             "description": "Twig, the flexible, fast, and secure template language for PHP",
