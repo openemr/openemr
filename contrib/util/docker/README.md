@@ -229,6 +229,17 @@ at Administration->Globals->Documents:
 - CouchDB Password->password
 - CouchDB Database can be set to any name you want
 
+##### OpenLDAP
+In OpenEMR, LDAP is an option for user authentication. You can configure OpenEMR to use the
+OpenLDAP docker patient authentication in OpenEMR at Administration->Globals->Security:
+- LDAP - Server Name or URI : openldap
+- LDAP - Distinguished Name of User : cn={login},dc=example,dc=org
+- LDAP - Login Exclusions : (place whatever your admin login is; warning, do not use "admin" for your openemr admin login)
+
+(note that using 'cn' rather than 'uid' in this case for the distinguished name since the default openldap docker hasn't assigned a uid to the "admin" user)
+
+Then create a user named “admin” in OpenEMR. When you log in as that user, the password is “admin”.
+
 #### Ongoing Development
 
 ##### Orthanc
