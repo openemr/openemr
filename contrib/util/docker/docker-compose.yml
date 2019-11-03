@@ -343,3 +343,6 @@ services:
   redis:
     restart: always
     image: redis
+  openldap:
+    restart: always
+    image: osixia/openldap
