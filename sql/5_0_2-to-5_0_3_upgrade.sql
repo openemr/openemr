@@ -310,3 +310,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-PCS-Order.zip', '8dc136d780ec60916e9e1fc999837bc8');
 #EndIf
+
+#IfMissingColumn facility info
+ALTER TABLE `facility` ADD `info`  TEXT  default NULL;
+#EndIf
