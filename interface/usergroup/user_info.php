@@ -9,7 +9,7 @@
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
- * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
@@ -18,11 +18,12 @@ require_once("../globals.php");
 require_once("$srcdir/auth.inc");
 require_once("$srcdir/user.inc");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
-if (useActiveDirectory()) {
+if (AuthUtils::useActiveDirectory()) {
     exit();
 }
 $userid = $_SESSION['authId'];

@@ -5,31 +5,23 @@ namespace ESign;
 /**
  * Form controller implementation
  *
- * Copyright (C) 2013 OEMR 501c3 www.oemr.org
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Ken Chapple <ken@mi-squared.com>
- * @author  Medical Information Integration, LLC
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Medical Information Integration, LLC
  * @author    Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013 OEMR 501c3 www.oemr.org
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  **/
 
 require_once $GLOBALS['srcdir'].'/ESign/Abstract/Controller.php';
 require_once $GLOBALS['srcdir'].'/ESign/Form/Configuration.php';
 require_once $GLOBALS['srcdir'].'/ESign/Form/Factory.php';
 require_once $GLOBALS['srcdir'].'/ESign/Form/Log.php';
-require_once $GLOBALS['srcdir'].'/authentication/login_operations.php';
+
+use OpenEMR\Common\Auth\AuthUtils;
 
 class Form_Controller extends Abstract_Controller
 {
@@ -57,7 +49,7 @@ class Form_Controller extends Abstract_Controller
         $this->setViewScript('form/esign_form.php');
         $this->render();
     }
-    
+
     public function esign_log_view()
     {
         $formId = $this->getRequest()->getParam('formId', '');
@@ -70,7 +62,7 @@ class Form_Controller extends Abstract_Controller
         echo $html;
         exit;
     }
-    
+
     /**
      *
      * @return multitype:string
@@ -91,11 +83,7 @@ class Form_Controller extends Abstract_Controller
 
         $amendment = $this->getRequest()->getParam('amendment', '');
 
-        if (useActiveDirectory()) {
-            $valid = active_directory_validation($_SESSION['authUser'], $password);
-        } else {
-            $valid = confirm_user_password($_SESSION['authUser'], $password);
-        }
+        $valid = (new AuthUtils)->confirmUserPassword($_SESSION['authUser'], $password);
 
         if ($valid) {
             $factory = new Form_Factory($formId, $formDir, $encounterId);

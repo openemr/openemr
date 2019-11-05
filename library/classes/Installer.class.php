@@ -3,13 +3,15 @@
  *
  * Installer class.
  *
- * @package OpenEMR
- * @link    https://www.open-emr.org
- * @author Andrew Moore <amoore@cpan.org>
- * @author Ranganath Pathak <pathak@scrs1.org>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Andrew Moore <amoore@cpan.org>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Andrew Moore <amoore@cpan.org>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 class Installer
@@ -356,17 +358,19 @@ class Installer
             return false;
         }
 
-        $password_hash = "NoLongerUsed";  // This is the value to insert into the password column in the "users" table. password details are now being stored in users_secure instead.
-        $salt=oemr_password_salt();     // Uses the functions defined in library/authentication/password_hashing.php
-        $hash=oemr_password_hash($this->iuserpass, $salt);
-        if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($password_hash) . "',1,'" . $this->escapeSql($this->iuname) . "','" . $this->escapeSql($this->iufname) . "',3,1,3)") == false) {
+        if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'" . $this->escapeSql($this->iuser) . "','NoLongerUsed',1,'" . $this->escapeSql($this->iuname) . "','" . $this->escapeSql($this->iufname) . "',3,1,3)") == false) {
             $this->error_message = "ERROR. Unable to add initial user\n" .
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
         }
 
-        // Create the new style login credentials with blowfish and salt
-        if ($this->execute_sql("INSERT INTO users_secure (id, username, password, salt) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($hash) . "','" . $this->escapeSql($salt) . "')") == false) {
+        $hash = password_hash($this->iuserpass, PASSWORD_DEFAULT);
+        if (empty($hash)) {
+            // Something is seriously wrong
+            error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+            die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+        }
+        if ($this->execute_sql("INSERT INTO users_secure (id, username, password, last_update_password) VALUES (1,'" . $this->escapeSql($this->iuser) . "','" . $this->escapeSql($hash) . "',NOW())") == false) {
             $this->error_message = "ERROR. Unable to add initial user login credentials\n" .
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
