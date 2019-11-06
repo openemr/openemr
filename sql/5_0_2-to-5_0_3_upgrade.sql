@@ -323,3 +323,8 @@ ALTER TABLE `api_token` ADD `token_auth_salt` varchar(255);
 #IfMissingColumn api_token token_auth
 ALTER TABLE `api_token` ADD `token_auth` varchar(255);
 #EndIf
+
+#IfMissingColumn facility info
+ALTER TABLE `facility` ADD `info` TEXT;
+#EndIf
+

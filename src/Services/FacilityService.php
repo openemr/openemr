@@ -170,7 +170,8 @@ class FacilityService
 
     public function update($data)
     {
-        $sql = " UPDATE facility SET name=?,
+        $sql = " UPDATE facility SET 
+            name=?,
             phone=?,
             fax=?,
             street=?,
@@ -198,7 +199,10 @@ class FacilityService
             mail_city=?,
             mail_state=?,
             mail_zip=?,
-            oid=?, iban=? WHERE id=?";
+            oid=?,
+            iban=?,
+            info=? 
+            WHERE id=?";
 
         return sqlStatement(
             $sql,
@@ -233,6 +237,7 @@ class FacilityService
                 $data["mail_zip"],
                 $data["oid"],
                 $data["iban"],
+                $data['info'],
                 $data["fid"]
             )
         );
@@ -270,7 +275,8 @@ class FacilityService
              mail_state=?,
              mail_zip=?,
              oid=?,
-             iban=? ";
+             iban=?,
+             info=? ";
         return sqlInsert(
             $sql,
             array(
@@ -303,7 +309,8 @@ class FacilityService
                 $data["mail_state"],
                 $data["mail_zip"],
                 $data["oid"],
-                $data["iban"]
+                $data["iban"],
+                $data["info"]
             )
         );
     }
@@ -357,7 +364,8 @@ class FacilityService
         $sql .= "        FAC.mail_state,";
         $sql .= "        FAC.mail_zip,";
         $sql .= "        FAC.oid,";
-        $sql .= "        FAC.iban";
+        $sql .= "        FAC.iban,";
+        $sql .= "        FAC.info";
         $sql .= " FROM facility FAC";
 
 

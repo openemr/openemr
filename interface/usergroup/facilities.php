@@ -60,7 +60,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
         "mail_state" => trim(isset($_POST["mail_state"]) ? $_POST["mail_state"] : ''),
         "mail_zip" => trim(isset($_POST["mail_zip"]) ? $_POST["mail_zip"] : ''),
         "oid" => trim(isset($_POST["oid"]) ? $_POST["oid"] : ''),
-        "iban" => trim(isset($_POST["iban"]) ? $_POST["iban"] : '')
+        "iban" => trim(isset($_POST["iban"]) ? $_POST["iban"] : ''),
+        "info" => trim(isset($_POST["info"]) ? $_POST["info"] : '')
     );
 
     $insert_id = $facilityService->insert($newFacility);
@@ -100,7 +101,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
         "mail_state" => trim(isset($_POST["mail_state"]) ? $_POST["mail_state"] : ''),
         "mail_zip" => trim(isset($_POST["mail_zip"]) ? $_POST["mail_zip"] : ''),
         "oid" => trim(isset($_POST["oid"]) ? $_POST["oid"] : ''),
-        "iban" => trim(isset($_POST["iban"]) ? $_POST["iban"] : '')
+        "iban" => trim(isset($_POST["iban"]) ? $_POST["iban"] : ''),
+        "info" => trim(isset($_POST["info"]) ? $_POST["info"] : '')
     );
 
     $facilityService->update($newFacility);

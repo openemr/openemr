@@ -369,6 +369,14 @@ if (isset($_GET["fid"])) {
                 <input type="entry" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>">
             </td>
         </tr>
+        <tr>
+            <td>
+                <label><?php echo xlt('Info'); ?>: </label>
+            </td>
+            <td>
+                <textarea style="width: 97.8%;" size="20" name="info" ><?php echo attr($facility["info"]) ?></textarea>
+            </td>
+        </tr>
         <tr height="20" valign="bottom">
             <td colspan=2><span class="text"><font class="mandatory">*</font> <?php echo xlt('Required'); ?></span></td>
         </tr>
