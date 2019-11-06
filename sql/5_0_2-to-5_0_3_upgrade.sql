@@ -311,6 +311,20 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-PCS-Order.zip', '8dc136d780ec60916e9e1fc999837bc8');
 #EndIf
 
-#IfMissingColumn facility info
-ALTER TABLE `facility` ADD `info`  TEXT  default NULL;
+#IfMissingColumn patient_access_onsite portal_login_username
+ALTER TABLE `patient_access_onsite`  ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username', ADD `portal_onetime` VARCHAR(255) DEFAULT NULL;
+UPDATE `patient_access_onsite` SET `portal_pwd_status` = '0', `portal_login_username` = `portal_username`;
 #EndIf
+
+#IfMissingColumn api_token token_auth_salt
+ALTER TABLE `api_token` ADD `token_auth_salt` varchar(255);
+#EndIf
+
+#IfMissingColumn api_token token_auth
+ALTER TABLE `api_token` ADD `token_auth` varchar(255);
+#EndIf
+
+#IfMissingColumn facility info
+ALTER TABLE `facility` ADD `info` TEXT;
+#EndIf
+

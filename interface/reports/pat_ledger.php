@@ -659,11 +659,11 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     if ($_REQUEST['form_csvexport']) {
       // CSV headers:
         if (true) {
-            echo '"Code/Enc Dt",';
-            echo '"Description",';
-            echo '"Billed/Who",';
-            echo '"Type/Units",';
-            echo '"Chg/Pmt Amount",'."\n";
+            echo csvEscape("Code/Enc Dt") . ',';
+            echo csvEscape("Description") . ',';
+            echo csvEscape("Billed/Who") . ',';
+            echo csvEscape("Type/Units") . ',';
+            echo csvEscape("Chg/Pmt Amount") . "\n";
         }
     } else {
         if (!$form_facility) {

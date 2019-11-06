@@ -307,7 +307,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function(){
     $(".statrow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".statrow").mouseout(function() { $(this).toggleClass("highlight"); });
 
@@ -341,7 +341,7 @@ var GoBack = function () {
 }
 
 var listId = '#' + <?php echo js_escape($list_id); ?>;
-$(document).ready(function(){
+$(function(){
     $(listId).addClass("active");
 });
 </script>

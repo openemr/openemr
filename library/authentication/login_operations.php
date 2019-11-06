@@ -6,9 +6,10 @@
  * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -31,9 +32,14 @@ function validate_user_password($username, &$password, $provider)
     $valid=false;
 
     //Active Directory Authentication added by shachar zilbershlag <shaharzi@matrix.co.il>
-    if ($GLOBALS['use_active_directory']) {
+    if (useActiveDirectory($username)) {
         $valid = active_directory_validation($username, $password);
         $_SESSION['active_directory_auth'] = $valid;
+        if (!$valid) {
+            EventAuditLogger::instance()->newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user failed ldap authentication");
+            $password='';
+            return false;
+        }
     } else {
         $getUserSecureSQL= " SELECT " . implode(",", array(COL_ID,COL_PWD,COL_SALT))
                         ." FROM ".TBL_USERS_SECURE
@@ -42,7 +48,7 @@ function validate_user_password($username, &$password, $provider)
         $userSecure=privQuery($getUserSecureSQL, array($username));
         if (is_array($userSecure)) {
             $phash=oemr_password_hash($password, $userSecure[COL_SALT]);
-            if ($phash!=$userSecure[COL_PWD]) {
+            if (!hash_equals($phash, $userSecure[COL_PWD])) {
                 EventAuditLogger::instance()->newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user password incorrect");
                 incrementLoginFailedCounter($username);
                 return false;
@@ -142,43 +148,36 @@ function verify_user_gacl_group($user, $provider)
     return true;
 }
 
-/* Validation of user and password using active directory. */
+/* Validation of user and password using LDAP. */
+
 function active_directory_validation($user, $pass)
 {
-    $valid = false;
-
-    // Create class instance
-    $ad = new Adldap\Adldap();
-
-    // Create a configuration array.
-    $config = array(
-        // Your account suffix, for example: jdoe@corp.acme.org
-        'account_suffix'        => $GLOBALS['account_suffix'],
-
-        // You can use the host name or the IP address of your controllers.
-        'hosts'    => [$GLOBALS['domain_controllers']],
-
-        // Your base DN.
-        'base_dn'               => $GLOBALS['base_dn'],
-
-        // The account to use for querying / modifying users. This
-        // does not need to be an actual admin account.
-        'username'        => $user,
-        'password'        => $pass,
-    );
-
-    // Add a connection provider to Adldap.
-    $ad->addProvider($config);
-
-    // If a successful connection is made, the provider will be returned.
-    try {
-        $prov = $ad->connect('', $user.$GLOBALS['account_suffix'], $pass);
-        $valid = $prov->auth()->attempt($user, $pass, true);
-    } catch (Exception $e) {
-        error_log(errorLogEscape($e->getMessage()));
+    // Make sure the connection is not anonymous.
+    if ($pass === '' || preg_match('/^\0/', $pass) || !preg_match('/^[\w.-]+$/', $user)) {
+        error_log("Empty user or password for active_directory_validation()");
+        return false;
     }
-
-    return $valid;
+    $ldapconn = ldap_connect($GLOBALS['gbl_ldap_host']);
+    if ($ldapconn) {
+        if (!ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3)) {
+            error_log("Setting LDAP v3 protocol failed");
+        }
+        if (!ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0)) {
+            error_log("Disabling LDAP referrals failed");
+        }
+        $ldapbind = ldap_bind(
+            $ldapconn,
+            str_replace('{login}', $user, $GLOBALS['gbl_ldap_dn']),
+            $pass
+        );
+        if ($ldapbind) {
+            ldap_unbind($ldapconn);
+            return true;
+        }
+    } else {
+        error_log("ldap_connect() failed");
+    }
+    return false;
 }
 
 function resetLoginFailedCounter($user)
@@ -193,7 +192,7 @@ function incrementLoginFailedCounter($user)
 
 function checkLoginFailedCounter($user)
 {
-    if ($GLOBALS['password_max_failed_logins'] == 0 || $GLOBALS['use_active_directory']) {
+    if ($GLOBALS['password_max_failed_logins'] == 0 || useActiveDirectory($user)) {
         // skip the check if turned off or using active directory for login
         return true;
     }

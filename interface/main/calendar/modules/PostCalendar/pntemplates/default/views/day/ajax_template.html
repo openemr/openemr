@@ -391,7 +391,7 @@ echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-
     </div>
 </div> <!-- end bottomLeft -->
 
-    <div id="bigCal">
+    <div id="bigCal" style="overflow-x: auto;">
 [-php-]
 /* used in debugging
     foreach ($A_EVENTS as $date => $events) {
@@ -461,7 +461,6 @@ foreach ($providers as $provider) {
         // determine if events overlap and adjust their width and left position as needed
         // 26 Feb 2008 - This needs fine tuning or total replacement
         //             - it doesn't work as well as I'd like - JRM
-        $eventPositions = array();
         foreach ($times as $slottime) {
             $starttimeh = $slottime['hour'];
             $starttimem = $slottime['minute'];
@@ -519,12 +518,11 @@ foreach ($providers as $provider) {
 
                 // loop over the events in this timeslot and adjust their width
                 foreach ($events_in_timeslot as $eid) {
-                    $eventPositions[$eid] = new stdClass();
-
                     // set the width if not already set or if the current width is smaller
                     // than was was previously set
                     if (!isset($eventPositions[$eid]->width))
                     {
+                        $eventPositions[$eid] = new stdClass();
                         $eventPositions[$eid]->width = $width;
                     } else if ($eventPositions[$eid]->width > $width)
                     {

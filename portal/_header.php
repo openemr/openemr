@@ -22,22 +22,23 @@ use OpenEMR\Core\Header;
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
+<?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
 
 <script type="text/javascript" src="../interface/main/tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 
-<script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
-
 <script type="text/javascript">
+    var tab_mode = true;
     function restoreSession(){
         //dummy functions so the dlgopen function will work in the patient portal
         return true;
     }
     var isPortal = 1;
 </script>
+
+<script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
 
 <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
     <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
@@ -97,7 +98,7 @@ use OpenEMR\Core\Header;
                             <?php if ($GLOBALS['allow_portal_chat']) { ?>
                                 <a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
                                 <?php } ?>
-                                <a href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
+                                <a href="javascript:changeCredentials(event)"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Change Credentials'); ?></a></li>
 
                             <li class="divider"></li>
 

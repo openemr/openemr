@@ -144,7 +144,6 @@ function editAppointment(mode,deid){
         dialogId: 'editpop',
         buttons: [
             { text: <?php echo xlj('Cancel'); ?>, close: true, style: 'default' }
-            //{ text: 'Print', close: false, style: 'success', click: showCustom }
         ],
         type:'GET',
         dataType: 'text',
@@ -152,9 +151,13 @@ function editAppointment(mode,deid){
         data: mdata
     };
 
-    dlgopen('', 'apptModal', 610, 300, '', title, params);
-};
+    dlgopen('', 'apptModal', 675, 325, '', title, params);
+}
 
+function changeCredentials(e) {
+    title = <?php echo xlj('Please Enter New Credentials'); ?>;
+    dlgopen("./account/index_reset.php", '', 600, 360, null, title, {});
+}
 </script>
     <!-- Right side column. Contains content of the page -->
     <aside class="right-side">

@@ -7,6 +7,7 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
@@ -21,7 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
-if ($GLOBALS['use_active_directory']) {
+if (useActiveDirectory()) {
     exit();
 }
 $userid = $_SESSION['authId'];

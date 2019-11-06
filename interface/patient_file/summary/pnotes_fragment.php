@@ -239,7 +239,7 @@ if (isset($_GET['docUpdateId'])) {
 
 tabbify();
 
-$(document).ready(function(){
+$(function(){
     $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
 

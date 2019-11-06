@@ -56,7 +56,7 @@ $list_id = $_REQUEST['list_id'];
                 dataType: "html",
                 data: {
                      templateid: document.getElementById('template_name').value,
-                     list_id: <?php echo $list_id;?>,
+                     list_id: <?php echo js_escape($list_id);?>,
                      multi: val,
                      source: "add_template"
                 },

@@ -3,24 +3,20 @@
  * Function used when changing a user's password
  * (either the user's own password or an administrator updating a different user)
  *
- * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @link    https://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 require_once("$srcdir/authentication/common_operations.php");
+
+use OpenEMR\Common\Utils\RandomGenUtils;
 
 /**
  * Does the new password meet the security requirements?
@@ -47,7 +43,7 @@ function test_password_strength($pwd, &$errMsg)
         }
 
         if ($features<3) {
-            $errMsg=xl("Password does not meet minimum requirements and should contain at least three of the four following items: A number, a lowercase letter, an uppercase letter, a special character (Not a leter or number).");
+            $errMsg=xl("Password does not meet minimum requirements and should contain at least three of the four following items: A number, a lowercase letter, an uppercase letter, a special character (Not a letter or number).");
             return false;
         }
     }
@@ -74,7 +70,7 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
             ." FROM ".TBL_USERS_SECURE
             ." WHERE ".COL_ID."=?";
     $userInfo=privQuery($userSQL, array($targetUser));
-    
+
     // Verify the active user's password
     $changingOwnPassword = $activeUser==$targetUser;
     // True if this is the current user changing their own password
@@ -86,19 +82,24 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
 
         // If this user is changing his own password, then confirm that they have the current password correct
         $hash_current = oemr_password_hash($currentPwd, $userInfo[COL_SALT]);
-        if (($hash_current!=$userInfo[COL_PWD])) {
+        if (!hash_equals($hash_current, $userInfo[COL_PWD])) {
             $errMsg=xl("Incorrect password!");
             return false;
         }
     } else {
         // If this is an administrator changing someone else's password, then check that they have the password right
-        if ($GLOBALS['use_active_directory']) {
+        if (useActiveDirectory()) {
             $valid = active_directory_validation($_SESSION['authUser'], $currentPwd);
             if (!$valid) {
                 $errMsg=xl("Incorrect password!");
                 return false;
             } else {
-                $newPwd = md5(uniqid());
+                $newPwd = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+                if (empty($newPwd)) {
+                    // Something is seriously wrong with the random generator
+                    error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
+                    die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
+                }
             }
         } else {
             $adminSQL=" SELECT ".implode(",", array(COL_PWD,COL_SALT))
@@ -106,7 +107,7 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
                       ." WHERE ".COL_ID."=?";
             $adminInfo=privQuery($adminSQL, array($activeUser));
             $hash_admin = oemr_password_hash($currentPwd, $adminInfo[COL_SALT]);
-            if ($hash_admin!=$adminInfo[COL_PWD]) {
+            if (!hash_equals($hash_admin, $adminInfo[COL_PWD])) {
                 $errMsg=xl("Incorrect password!");
                 return false;
             }
@@ -120,9 +121,9 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
 
     // End active user check
 
-    
-    //Test password validity
-    if (strlen($newPwd)==0) {
+
+    //Test password validity (note that even for ldap a random password is created above)
+    if (strlen($newPwd) == 0) {
         $errMsg=xl("Empty Password Not Allowed");
         return false;
     }
@@ -131,7 +132,7 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
         return false;
     }
 
-    // End password validty checks
+    // End password validity checks
 
     if ($userInfo===false) {
         // No userInfo means either a new user, or an existing user who has not been migrated to blowfish yet
@@ -162,7 +163,7 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
             $errMsg=xl("Trying to create user with existing username!");
             return false;
         }
-        
+
         $forbid_reuse=$GLOBALS['password_history'] != 0;
         if ($forbid_reuse) {
             // password reuse disallowed
@@ -176,7 +177,7 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
                 return false;
             }
         }
-        
+
         // Everything checks out at this point, so update the password record
         $newSalt = oemr_password_salt();
         $newHash = oemr_password_hash($newPwd, $newSalt);
@@ -197,13 +198,13 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
         $updateSQL.=" WHERE ".COL_ID."=?";
         array_push($updateParams, $targetUser);
         privStatement($updateSQL, $updateParams);
-        
+
         // If the user is changing their own password, we need to update the session
         if ($changingOwnPassword) {
             $_SESSION['authPass']=$newHash;
         }
     }
-   
+
     if ($GLOBALS['password_expiration_days'] != 0) {
             $exp_days=$GLOBALS['password_expiration_days'];
             $exp_date = date('Y-m-d', strtotime("+$exp_days days"));

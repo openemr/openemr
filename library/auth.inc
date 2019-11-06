@@ -111,7 +111,7 @@ function authCheckSession()
 {
     if (isset($_SESSION['authId'])) {
          // If active directory was used, check a different session variable (as there is no password in database).
-        if ($GLOBALS['use_active_directory']) {
+        if (useActiveDirectory()) {
             if ($_SESSION['active_directory_auth']) {
                 return true;
             } else {

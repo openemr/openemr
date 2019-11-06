@@ -216,7 +216,7 @@ $result_sent = getSentPnotesByDate(
 <script type="text/javascript">
 /// todo, move this to a common library
 
-$(document).ready(function(){
+$(function(){
 
     $("#dem_view").click( function() {
         toggle( $(this), "#DEM" );
@@ -777,7 +777,7 @@ if ($noteid /* && $title == 'New Document' */) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function(){
     $("#appendnote").click(function() { AppendNote(); });
     $("#newnote").click(function() { NewNote(); });
     $("#printnote").click(function() { PrintNote(); });

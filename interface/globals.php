@@ -5,6 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -618,6 +619,24 @@ function strterm($string, $length)
     } else {
         return $string;
     }
+}
+
+// Check if the current or a specified user logs in with LDAP.
+function useActiveDirectory($user = '')
+{
+    if (empty($GLOBALS['gbl_ldap_enabled'])) {
+        return false;
+    }
+    if ($user == '') {
+        $user = $_SESSION['authUser'];
+    }
+    $exarr = explode(',', $GLOBALS['gbl_ldap_exclusions']);
+    foreach ($exarr as $ex) {
+        if ($user == trim($ex)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // Override temporary_files_dir

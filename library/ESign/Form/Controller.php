@@ -21,6 +21,7 @@ namespace ESign;
  * @package OpenEMR
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Medical Information Integration, LLC
+ * @author    Rod Roark <rod@sunsetsystems.com>
  * @link    http://www.open-emr.org
  **/
 
@@ -90,7 +91,7 @@ class Form_Controller extends Abstract_Controller
 
         $amendment = $this->getRequest()->getParam('amendment', '');
 
-        if ($GLOBALS['use_active_directory']) {
+        if (useActiveDirectory()) {
             $valid = active_directory_validation($_SESSION['authUser'], $password);
         } else {
             $valid = confirm_user_password($_SESSION['authUser'], $password);

@@ -358,7 +358,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <?php $oemr_ui->oeBelowContainerDiv();?>
 <script language="javascript">
 
-$(document).ready(function(){
+$(function(){
 
   tabbify();
 

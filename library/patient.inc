@@ -6,11 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Sherwin Gaddis <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 use OpenEMR\Services\FacilityService;
 
@@ -53,6 +52,8 @@ $policy_types = array(
  *               If no subsection was given, returns everything, with the
  *               date of birth as the last field.
  */
+// To prevent sql injection on this function, if a variable is used for $given parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getPatientData($pid, $given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS")
 {
     $sql = "select $given from patient_data where pid=? order by date DESC limit 0,1";
@@ -449,6 +450,8 @@ function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
 }
 
 // function getInsuranceData($pid, $type = "primary", $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
+// To prevent sql injection on this function, if a variable is used for $given parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getInsuranceData($pid, $type = "primary", $given = "insd.*, ic.name as provider_name")
 {
     $sql = "select $given from insurance_data as insd " .
@@ -457,6 +460,8 @@ function getInsuranceData($pid, $type = "primary", $given = "insd.*, ic.name as 
     return sqlQuery($sql, array($pid, $type));
 }
 
+// To prevent sql injection on this function, if a variable is used for $given parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getInsuranceDataByDate(
     $pid,
     $date,
@@ -474,6 +479,8 @@ function getInsuranceDataByDate(
     return sqlQuery($sql, array($pid,$date,$type));
 }
 
+// To prevent sql injection on this function, if a variable is used for $given parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getEmployerData($pid, $given = "*")
 {
     $sql = "select $given from employer_data where pid=? order by date DESC limit 0,1";
@@ -510,6 +517,8 @@ function _set_patient_inc_count($limit, $count, $where, $whereBindArray = array(
  * @param string $start
  * @return array
  */
+// To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $names = getPatientNameSplit($term);
@@ -634,6 +643,8 @@ function getPatientNameSplit($term)
     return $n; // associative array containing names
 }
 
+// To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
 
@@ -663,6 +674,8 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
     return $returnval;
 }
 
+// To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $layoutCols = sqlStatement(
@@ -695,6 +708,8 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
     return $returnval;
 }
 
+// To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getByPatientDemographicsFilter(
     $searchFields,
     $searchTerm = "%",
@@ -765,6 +780,8 @@ function getByPatientDemographicsFilter(
 // return a collection of Patient PIDs
 // new arg style by JRM March 2008
 // orig function getPatientPID($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
+// To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getPatientPID($args)
 {
     $pid = "%";
@@ -851,6 +868,8 @@ function getPatientNameFirstLast($pid)
 }
 
 /* find patient data by DOB */
+// To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $sqlBindArray = array();
@@ -881,6 +900,8 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
 }
 
 /* find patient data by SSN */
+// To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $sqlBindArray = array();
@@ -901,6 +922,8 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 }
 
 //(CHEMED) Search by phone number
+// To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $phone = preg_replace("/[[:punct:]]/", "", $phone);
@@ -921,6 +944,8 @@ function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, p
     return $returnval;
 }
 
+// To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
+// it needs to be escaped via whitelisting prior to using this function.
 function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id ASC", $limit = "all", $start = "0")
 {
     $sql="select $given from patient_data order by $orderby";
@@ -1457,7 +1482,7 @@ function getPatientAge($dobYMD, $nowYMD = null)
     $dobYMD = preg_replace("/-/", "", $dobYMD);
     $dobDay = substr($dobYMD, 6, 2);
     $dobMonth = substr($dobYMD, 4, 2);
-    $dobYear = substr($dobYMD, 0, 4);
+    $dobYear = (int) substr($dobYMD, 0, 4);
 
     // set the 'now' date values
     if ($nowYMD == null) {

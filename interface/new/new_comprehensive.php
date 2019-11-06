@@ -7,7 +7,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2017 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -917,7 +917,11 @@ $(function () {
                 url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
             }
         }
-        url+="&close"
+        if (flds == '') {
+            url += "?close";
+        } else {
+            url+="&close";
+        }
         dlgopen(url, '_blank', 700, 500);
         } // end function
     } // end function
