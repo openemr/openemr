@@ -819,7 +819,7 @@ foreach ($providers as $provider) {
           // output the DIV and content
           // For "OUT" events, applying the background color in CSS.
 
-            if ($event['catid']!="6" && $event['catid']!="4" ){
+            if ($event['catid'] != "6") {
               $background_string= ($event['catid'] == 3) ? "" : ";background-color:" . attr($color);
               echo "<div class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
@@ -828,16 +828,15 @@ foreach ($providers as $provider) {
               "' title='" . attr($divTitle) . "'".
               " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
               ">";
-            }
-            else{
-             $background_string= ";background-color:" . attr($color);
-            echo "<div class='" . attr($evtClass) . " hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
+            } else {
+              $background_string= ";background-color:" . attr($color);
+              echo "<div class='" . attr($evtClass) . " hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
               "; $divWidth".
               "; $divLeft".
               "' title='" . attr($divTitle) . "'".
-            " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
-            ">";
+              " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
+              ">";
             }
           // second part for the special IN event
           if ($event['catid'] != 2) { echo $content; }
