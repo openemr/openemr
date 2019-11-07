@@ -42,9 +42,6 @@ function get_history_codes($pid)
         array('medical_problem', $pid)
     );
     while ($diag = sqlFetchArray($dres)) {
-        if (strpos($diag['codes'], 'ICD') === false) {
-            continue;
-        }
         $bld .= $diag['codes'] . ';';
     }
     $diags = explode(';', $bld);
@@ -203,7 +200,7 @@ $dxcodes = get_history_codes($pid);
                         "<td>" . $pc['origin'] . "</td>\n" .
                         "<td><button class='btn btn-xs btn-default' onclick='rtnCode(this)' value='" . attr($pc['code']) . "'>" .
                         text(explode(':', $pc['code'])[1]) . "</button></td>\n" .
-                        "<td>" . $pc['desc'] . "</td>\n" .
+                        "<td>" . text($pc['desc']) . "</td>\n" .
                         "</tr>\n";
                 }
                 ?>
