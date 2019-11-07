@@ -15,7 +15,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
@@ -386,7 +385,9 @@ function addProcLine(flag = false) {
         "<input type='text' class='form-control' name='form_proc_type_desc[" + i + "]' onclick='sel_proc_type(" + i + ")' " +
         "onfocus='this.blur()' title='<?php echo xla('Click to select the desired procedure'); ?>' style='cursor:pointer;cursor:hand' readonly /> " +
         "<input type='hidden' name='form_proc_type[" + i + "]' value='-1' /></td>" +
-        "<td class='diagnosis-div'><input type='text' class='form-control' name='form_proc_type_diag[" + i + "]' onclick='sel_related(this.name)'" +
+        "<td class='diagnosis-div input-group'><span class='input-group-addon'>" +
+        "<i onclick='current_diagnoses(this)' class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i></span>" +
+        "<input type='text' class='form-control' name='form_proc_type_diag[" + i + "]' onclick='sel_related(this.name)'" +
         "title='<?php echo xla('Click to add a diagnosis'); ?>' onfocus='this.blur()' style='cursor:pointer;cursor:hand' readonly /></td>" +
         "<td><div id='qoetable[" + i + "]'></div></td></tr></table>";
 
@@ -401,8 +402,20 @@ function addProcLine(flag = false) {
 }
 
 // The name of the form field for find-code popup results.
-var rcvarname;
+var rcvarname, targetElement;
 
+function current_diagnoses(whereElement) {
+    targetElement = whereElement.parentElement.nextElementSibling;
+    let title = <?php echo xlj("Diagnosis Codes History"); ?>;
+    dlgopen('find_code_history.php', 'dxDialog', 800, 450, '', title, {
+        buttons: [
+            {text: '<?php echo xlt('Cancel'); ?>', close: true, style: 'link btn-cancel'},
+            {text: '<?php echo xlt('Help'); ?>', id: 'showTips', style: 'default btn-show'},
+            {text: '<?php echo xlt('Save'); ?>', id: 'saveDx', style: 'default btn-save'}
+        ],
+        type: 'iframe'
+    });
+}
 // This is for callback by the find-code popup.
 // Appends to or erases the current list of related codes.
 function set_related(codetype, code, selector, codedesc) {
@@ -475,6 +488,11 @@ $(function () {
     margin-bottom: 0px;
 }
 
+.qoe-div {
+    width: 30%;
+    max-width: 33%;
+}
+
 .proc-table {
     margin-bottom: 5px;
 }
@@ -487,14 +505,14 @@ $(function () {
     cursor:hand;
 }
 
-/* leave below styles. may use future */
-/*.proc-table .procedure-div {
-    min-width: 20%;
+.proc-table .fa-search{
+    cursor:pointer;
+    cursor:hand;
 }
 
-.proc-table .diagnosis-div{
-    min-width: 20%;
-}*/
+.procedure-div {
+    max-width: 33%;
+}
 </style>
 <?php
 $name = $enrow['fname'] . ' ';
@@ -692,14 +710,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             ?>
                             <table class="table table-condensed proc-table" id="procedures_item_<?php echo (string) attr($i) ?>">
-                                <thead>
-                                <tr>
-                                    <th>&nbsp;</th>
-                                    <th><?php echo xlt('Procedure Test'); ?></th>
-                                    <th><?php echo xlt('Diagnosis Codes'); ?></th>
-                                    <th><?php echo xlt("Order Questions"); ?></th>
-                                </tr>
-                                </thead>
+                                <?php if ($i < 1) { ?>
+                                    <thead>
+                                    <tr>
+                                        <th>&nbsp;</th>
+                                        <th><?php echo xlt('Procedure Test'); ?></th>
+                                        <th><?php echo xlt('Diagnosis Codes'); ?></th>
+                                        <th><?php echo xlt("Order Questions"); ?></th>
+                                    </tr>
+                                    </thead>
+                                <?php } ?>
                                 <tbody>
                             <tr>
                                 <td class="itemDelete"><i class="fa fa-remove fa-lg"></i></td>
@@ -718,14 +738,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                            style='cursor:pointer;cursor:hand' class='form-control' readonly/>
                                     <input type='hidden' name='form_proc_type[<?php echo attr($i); ?>]' value='<?php echo attr($ptid); ?>'/>
                                 </td>
-                                <td class="diagnosis-div">
+                                <td class="diagnosis-div input-group"><span class="input-group-addon"><i onclick='current_diagnoses(this)' class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i></span>
                                     <input class='form-control' type='text' name='form_proc_type_diag[<?php echo attr($i); ?>]'
                                            value='<?php echo attr($oprow['diagnoses']) ?>' onclick='sel_related(this.name)'
                                            title='<?php echo xla('Click to add a diagnosis'); ?>'
                                            onfocus='this.blur()'
                                            style='cursor:pointer;cursor:hand' readonly/>
                                 </td>
-                                <td>
+                                <td class="qoe-div">
                                     <!-- MSIE innerHTML property for a TABLE element is read-only, so using a DIV here. -->
                                     <div class="table-responsive" id='qoetable[<?php echo attr($i); ?>]'>
                                         <?php

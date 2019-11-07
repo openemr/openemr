@@ -434,7 +434,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 
     <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
 <script language="JavaScript">
-    let mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+    var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
     if (typeof top.tab_mode === "undefined") {
         if (typeof opener.top.tab_mode !== "undefined") {
             top.tab_mode = opener.top.tab_mode;
