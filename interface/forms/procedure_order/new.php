@@ -402,12 +402,13 @@ function addProcLine(flag = false) {
 }
 
 // The name of the form field for find-code popup results.
-var rcvarname, targetElement;
+var rcvarname, targetElement, targetProcedure;
 
 function current_diagnoses(whereElement) {
+    targetProcedure = whereElement.parentElement.parentElement.previousElementSibling;
     targetElement = whereElement.parentElement.nextElementSibling;
     let title = <?php echo xlj("Diagnosis Codes History"); ?>;
-    dlgopen('find_code_history.php', 'dxDialog', 800, 450, '', title, {
+    dlgopen('find_code_history.php', 'dxDialog', 'modal-mlg', 450, '', title, {
         buttons: [
             {text: '<?php echo xlt('Cancel'); ?>', close: true, style: 'link btn-cancel'},
             {text: '<?php echo xlt('Help'); ?>', id: 'showTips', style: 'default btn-show'},

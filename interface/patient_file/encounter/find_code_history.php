@@ -15,70 +15,50 @@ require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 use OpenEMR\Core\Header;
 
-function unique_array_by_key($array, $key)
-{
-    $temp_array = array();
-    $i = 0;
-    $key_array = array();
-
-    foreach ($array as $val) {
-        if (!in_array($val[$key], $key_array)) {
-            $key_array[$i] = $val[$key];
-            $temp_array[$i] = $val;
-        }
-        $i++;
-    }
-    return $temp_array;
-}
-
 function get_history_codes($pid)
 {
-    $origin = xlt('Patient Problems');
+    $origin = xlt('Problems');
     $probcodes = array();
-    $bld = '';
     $dres = sqlStatementNoLog(
-        "SELECT diagnosis as codes FROM lists " .
-        "Where activity = 1 And type = ? And pid = ?",
+        "SELECT diagnosis as codes, title FROM lists " .
+        "Where activity = 1 And type = ? And pid = ? Group By lists.diagnosis",
         array('medical_problem', $pid)
     );
     while ($diag = sqlFetchArray($dres)) {
-        $bld .= $diag['codes'] . ';';
-    }
-    $diags = explode(';', $bld);
-    $diags = array_unique($diags);
-    foreach ($diags as $d) {
-        if (!$d) {
-            continue;
+        $diag['codes'] = preg_replace('/^;+|;+$/', '', $diag['codes']);
+        $bld = explode(';', $diag['codes']);
+        foreach ($bld as $cde) {
+            $probcodes[] = array(
+                'origin' => $origin,
+                'code' => $cde,
+                'desc' => lookup_code_descriptions($cde),
+                'procedure' => $diag['title']
+            );
         }
-        $r['origin'] = $origin;
-        $r['code'] = $d;
-        $r['desc'] = lookup_code_descriptions($d);
-        $probcodes[] = $r;
     }
     // well that's problems history, now procedure history
     $dres = sqlStatementNoLog(
-        "Select procedure_order_code.diagnoses as codes From procedure_order " .
+        "Select procedure_order_code.diagnoses as codes, procedure_order_code.procedure_name as proc From procedure_order " .
         "Inner Join procedure_order_code On procedure_order_code.procedure_order_id = procedure_order.procedure_order_id " .
         "Where procedure_order_code.diagnoses > '' Group By procedure_order_code.diagnoses"
     );
-    $origin = xlt('Procedures History');
+    $origin = xlt('Procedures');
     $dxcodes = array();
-    $bld = '';
     while ($diag = sqlFetchArray($dres)) {
-        $bld .= $diag['codes'] . ';';
-    }
-    $diags = explode(';', $bld);
-    $diags = array_unique($diags);
-    foreach ($diags as $d) {
-        if (!$d) {
-            continue;
+        $diag['codes'] = preg_replace('/^;+|;+$/', '', $diag['codes']);
+        $bld = explode(';', $diag['codes']);
+        foreach ($bld as $cde) {
+            $dxcodes[] = array(
+                'origin' => $origin,
+                'code' => $cde,
+                'desc' => lookup_code_descriptions($cde),
+                'procedure' => $diag['proc']
+            );
         }
-        $r['origin'] = $origin;
-        $r['code'] = $d;
-        $r['desc'] = lookup_code_descriptions($d);
-        $dxcodes[] = $r;
     }
-    return unique_array_by_key(array_merge($probcodes, $dxcodes), 'code');
+
+    ksort($dxcodes);
+    return array_merge($probcodes, $dxcodes);
 }
 
 $dxcodes = get_history_codes($pid);
@@ -154,11 +134,31 @@ $dxcodes = get_history_codes($pid);
             targetTipsButton.onclick = function () {
                 $("#tips").toggle();
             };
+            // search table to find a match for procedure we are seeking dx for.
+            let src = opener.targetProcedure.children[1].value;
+            let rows = $("#historyTable tr td").filter(":contains(" + src + ")");
+            let i = 0;
+            while (i < rows.length) {
+                rows[i].innerHTML = '<mark>' + rows[i].innerHTML + '</mark>';
+                $(rows[i]).closest('tr').addClass('text-danger');
+                i++;
+            }
+            if (rows.length) {
+                // scroll to first match and make active
+                $(rows[0]).closest('tr').addClass('active');
+                $(window).scrollTop($(rows[0]).offset().top - ($(window).height() / 2));
+            }
         });
     </script>
 </head>
+
 <body>
-    <div class="container-fluid">
+    <div class="container-fluid" style="position:fixed;width:100%;margin-right:10px;">
+        <div class="input-group" style="background:white;">
+            <span class="input-group-addon" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></span>
+            <input class='form-control text-danger' type='text' id='workingDx' style="color:#a94442;"
+                title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
+        </div>
         <div id="tips" class="tips">
             <section class="panel panel-default">
                 <header class="panel-heading panel-heading-sm">
@@ -167,40 +167,43 @@ $dxcodes = get_history_codes($pid);
                 <div class="panel-body panel-body-sm">
                     <ul>
                         <?php
-                        echo "<li>" . xlt("This dialog is generated from patients problems diagnoses and the accumulated diagnoses of past procedures.") . "</li>";
+                        echo "<li>" . xlt("This dialog is generated from patient problem diagnoses and the accumulated diagnoses of all past procedures.") . "</li>";
+                        echo "<li>" . xlt("The finder table is grouped by past procedures then diagnosis code. Although there may be duplicate dx codes, they will be grouped with the appropriate procedure making building diagnoses list easier.") . "</li>";
+                        echo "<li>" . xlt("On opening, all dx code rows that match the new procedure from procedure order form will be marked and then will scroll to the first match.") . "</li>";
                         echo "<li>" . xlt("Build diagnoses list by clicking appropriate code button.") . "</li>";
-                        echo "<li>" . xlt("Duplicate codes are deleted from list, otherwise; appends to list.") . "</li>";
-                        echo "<li>" . xlt("Once finished editing, click Save. Procedure forms procedure diagnoses will fill exactly as built in this dialog.") . "</li>";
-                        echo "<li>" . xlt("The legacy code finder is still available for codes not found in this finder or codes list editing.") . "</li>";
+                        echo "<li>" . xlt("Duplicate codes are deleted from editor list otherwise, code will append to list.") . "</li>";
+                        echo "<li>" . xlt("Once finished editing, click Save. The procedure forms current procedure diagnoses will fill exactly as built in this dialog.") . "</li>";
+                        echo "<li>" . xlt("The legacy code finder is still available for codes not found in this finder or code list editing.") . "</li>";
                         ?>
                     </ul>
                     <button class='btn btn-xs btn-success pull-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss') ?></button>
                 </div>
             </section>
         </div>
-        <div class="input-group">
-            <span class="input-group-addon" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></span>
-            <input class='form-control' type='text' id='workingDx'
-                title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
-        </div>
-        <br>
-        <div>
-            <table class="table table-condensed table-striped">
+    </div>
+    <div class="container-fluid">
+        <div style="margin-top:45px;">
+            <table class="table table-condensed table-hover" id="historyTable">
                 <thead>
                 <tr>
                     <th><?php echo xlt('Origin'); ?></th>
                     <th><?php echo xlt('Code'); ?></th>
-                    <th><?php echo xlt('Description'); ?></th>
+                    <th><?php echo xlt('Code Description'); ?></th>
+                    <th><?php echo xlt('Origin Description'); ?></th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php
                 foreach ($dxcodes as $pc) {
+                    $code = explode(':', $pc['code']);
+                    $code[0] = text($code[0]);
+                    $code[1] = text($code[1]);
                     echo "<tr>\n" .
                         "<td>" . $pc['origin'] . "</td>\n" .
-                        "<td><button class='btn btn-xs btn-default' onclick='rtnCode(this)' value='" . attr($pc['code']) . "'>" .
-                        text(explode(':', $pc['code'])[1]) . "</button></td>\n" .
+                        "<td><button class='btn btn-xs btn-default' onclick='rtnCode(this)'" .
+                        "value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u style='color:red;'>" . $code[1] . "</u></button></td>\n" .
                         "<td>" . text($pc['desc']) . "</td>\n" .
+                        "<td>" . text($pc['procedure']) . "</td>\n" .
                         "</tr>\n";
                 }
                 ?>
