@@ -1,6 +1,7 @@
 [-*Smarty*-]
 [-*****************************************************************************-]
 [-* Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com> and others      *-]
+[-* Copyright (C) 2019 Jerry Padgett <sjpadgett@gmail.com>                    *-]
 [-*                                                                           *-]
 [-* This program is free software; you can redistribute it and/or             *-]
 [-* modify it under the terms of the GNU General Public License               *-]
@@ -35,22 +36,22 @@ $timeslotHeightUnit="px";
    '&date=' + encodeURIComponent(eventdate) + '&catid=' + encodeURIComponent(catid)[-php-]
     if(isset($_SESSION['pid']))
         {
-            if($_SESSION['pid']>0)
+            if($_SESSION['pid'] > 0)
                 {
                     echo "+'&patientid=" . attr_url($_SESSION['pid']) . "'";
                 }
         }
     [-/php-]
-   ,'_blank', 775, 500);
+   ,'_blank', 650, 675);
  }
 
  function oldEvt(eventdate, eventid, pccattype) {
-  dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 775, 500);
+  dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 650, 650);
  }
 
  function oldGroupEvt(eventdate, eventid, pccattype){
   top.restoreSession();
-  dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 775, 500);
+  dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 650, 675);
  }
 
  function goPid(pid) {
@@ -156,31 +157,30 @@ if ( $_SESSION['pc_facility'] ) {
 
 $chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
 $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
-
 [-/php-]
-<div id="topToolbarRight" class="bgcolor2">  <!-- this wraps some of the top toolbar items -->
-<div id="functions">
-<!-- stuff form element here to avoid the margin padding it introduces into the page in some browsers -->
+<div id="wrapper">
 <form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
+<div id="topToolbarRight" class="bgcolor2">
+<a id="menu-toggle" class="pull-left btn btn-calendar"></a>
+<div id="functions">
 <input type="hidden" name="jumpdate" id="jumpdate" value="">
 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo attr($viewtype);[-/php-]">
 [-php-]
-echo "   <a href='#' title='" . xla("New Appointment") . "' onclick='newEvt(1, 9, 00, " . attr_js($Date) . ", 0, 0)' class='css_button css_button_icon'>
+echo "<a href='#' title='" . xla("New Appointment") . "' onclick='newEvt(1, 9, 00, " . attr_js($Date) . ", 0, 0)' class='css_button'>
             <i class='fa fa-plus' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xla("Search Appointment") . "'
-            onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button css_button_icon'>
+echo "<a href='#' title='" . xla("Search Appointment") . "'
+            onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button'>
             <i class='fa fa-search' aria-hidden='true'></i></a>\n";
+    if ($Date <> date('Ymd')) {
+    [-/php-]
+    <a href='#' name='bnsubmit' value='[-xla t="Today"-]' onClick='GoToToday(theform);' class='css_button'><span>[-xlt t='Today'-]</span></a>
+    [-php-]
+    }
 [-/php-]
+
 </div>
-
-
-<div id="dateNAV"">
+<div id="dateNAV">
 [-php-]
-if ($Date <> date('Ymd')) {
-[-/php-]
-<a href='#' name='bnsubmit' value='[-xla t="Today"-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-xlt t='Today'-]</span></a>
-[-php-]
-}
 echo "   <a id='prevday' href='$PREV_DAY_URL' onclick='top.restoreSession()' title='" . xla("Previous Day") . "'>
             <i class='fa " . attr($chevron_icon_left) . " chevron_color' aria-hidden='true'></i></a>\n";
 $atmp = array_keys($A_EVENTS);
@@ -189,12 +189,11 @@ echo "   <a id='nextday' href='$NEXT_DAY_URL' onclick='top.restoreSession()' tit
             <i class= 'fa " . attr($chevron_icon_right) . " chevron_color' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
-
 <div id="viewPicker">
 [-php-]
-echo "   <a href='#' id='printview' title='" . xla("View Printable Version") . "' class='css_button css_button_icon'>
+echo "   <a href='#' id='printview' title='" . xla("View Printable Version") . "' class='css_button'>
             <i class='fa fa-print' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xla("Refresh") . "' onclick='javascript:refreshme()' class='css_button css_button_icon'>
+echo "   <a href='#' title='" . xla("Refresh") . "' onclick='javascript:refreshme()' class='css_button'>
             <i class='fa fa-refresh' aria-hidden='true'></i></a>\n";
 echo "   <a href='#' type='button' id='dayview' title='" . xla('Day View') . "' class='css_button'/><span>" . xlt('Day') . "</span></a>\n";
 echo "   <a href='#' type='button' id='weekview' title='" . xla('Week View') . "' class='css_button'/><span>" . xlt('Week') . "</span></a>\n";
@@ -202,8 +201,7 @@ echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') .
 [-/php-]
 </div>
 </div> <!-- end topToolbarRight -->
-<div id="bottom">
-<div id="bottomLeft">
+<div id="bottomLeft" class="sidebar-wrapper">
 <div id="datePicker">
 [-php-]
 $atmp = array_keys($A_EVENTS);
@@ -213,9 +211,10 @@ $cYear = date("Y", $caldate);
 $cDay = date("d", $caldate);
 
 include_once($GLOBALS['fileroot'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
+echo "\n";
 [-/php-]
 <table border="0" cellpadding="0" cellspacing="0">
-<tr>
+<tbody><tr>
 [-php-]
 
 // compute the previous month date
@@ -243,7 +242,7 @@ echo xl(date('F', $caldate));
 [-/php-]
 </td>
 <td class="tdDOW-small tdDatePicker" id="[-php-]echo attr($nextMonth)[-/php-]" title="[-php-]echo xla(date("F", strtotime($nextMonth)));[-/php-]">&gt;</td>
-<tr>
+</tr><tr>
 [-php-]
 foreach ($DOWlist as $dow) {
     echo "<td class='tdDOW-small'>" . text($this->_tpl_vars['A_SHORT_DAY_NAMES'][$dow]) . "</td>";
@@ -312,6 +311,7 @@ while ($currdate <= $enddate) {
     ////////
 }
 [-/php-]
+</tbody>
 </table>
 </div>
 
@@ -359,7 +359,6 @@ if (count($facilities) > 1) {
     echo ">" . text($doc['lname']) . ", " . text($doc['fname']) . "</option>\n";
  }
  echo "   </select>\n";
-
 [-/php-]
 </div>
 [-php-]
@@ -369,7 +368,7 @@ if($_SESSION['pc_facility'] == 0){
  <table>
 [-php-]
 foreach ($facilities as $f){
-echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-weight:bold>" . text($f['name']) . "</div></td></tr>";
+echo "\n<tr><td><div class='view1' style=background-color:".$f['color'].";font-weight:bold>" . text($f['name']) . "</div></td></tr>\n";
 }
 [-/php-]
  </table>
@@ -377,21 +376,21 @@ echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-
 [-php-]
 }
 [-/php-]
-
-</form>
-
 [-assign var="dayname" value=$DATE|date_format:"%w"-]
 [-assign var="day"     value=$DATE|date_format:"%d"|string_format:"%1d"-]
 [-assign var="month"   value=$DATE|date_format:"%m"|string_format:"%1d"-]
 [-assign var="year"    value=$DATE|date_format:"%Y"|string_format:"%4d"-]
 
 [-pc_sort_events var="S_EVENTS" sort="time" order="asc" value=$A_EVENTS-]
-    <div id="popup" class="pop-up">
-        <img id="popupImage" alt="" />
-    </div>
-</div> <!-- end bottomLeft -->
 
-    <div id="bigCal" style="overflow-x: auto;">
+<div id="popup" class="pop-up">
+    <img id="popupImage" alt="" />
+</div>
+</div><!-- end bottomLeft -->
+
+<div class="page-content-wrapper">
+<div class="container-fluid calsearch_body">
+<div id="bigCal" style="overflow-x: auto;">
 [-php-]
 /* used in debugging
     foreach ($A_EVENTS as $date => $events) {
@@ -408,8 +407,8 @@ echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
 
 // output the TD with the times DIV
 echo "<tr>";
-echo "<td id='times'><div><table>\n";
-echo "<td class='timeslot providerXbtn' data-username='__PC_ALL__'><i class='fa fa-lg fa-user-md'></i></td>";
+echo "<td id='times'><div><table><tr>\n";
+echo "<td class='timeslot providerXbtn' data-username='__PC_ALL__'><i class='fa fa-lg fa-user-md'></i></td></tr>";
 //============================================================================================================================
 foreach ($times as $slottime) {
     $startampm = ($slottime['mer']) == "pm" ? 2 : 1;
@@ -914,11 +913,13 @@ foreach ($providers as $provider) {
 //============================================================================================================================
 echo " </tr>\n";
 echo "</table>\n";
-echo "<P>";
 
 [-/php-]
 </div>  <!-- end bigCal DIV -->
 </div>  <!-- end bottom DIV -->
+</div>
+</form>
+</div>
 </body>
 
 <script language='JavaScript'>
@@ -1015,10 +1016,9 @@ echo "<P>";
      */
     var ChangeProviders = function (eventObject) {
         $('#theform').submit();
-    }
+    };
 
-    /* change the calendar view
-     */
+    /* change the calendar view */
     var ChangeView = function (eventObject) {
         if (eventObject.id == "dayview") {
             $("#viewtype").val('day');
@@ -1033,9 +1033,12 @@ echo "<P>";
             $("#viewtype").val('year');
         }
         $('#theform').submit();
-    }
+    };
 
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
 </script>
-
 
 </html>
