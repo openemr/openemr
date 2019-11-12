@@ -49,7 +49,6 @@ if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
     $framesrc = "calendar/index.php?module=PostCalendar&func=view&viewtype=" . attr_url($viewtype);
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -65,19 +64,12 @@ if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
     object-fit: contain;
     object-position: left top;
 }
-.calMain {
-    position: fixed;
-    vertical-align: top;
-    margin: 0px;
-}
 body {
     margin: 0px;
 }
 </style>
 </head>
 <body>
-    <div class="calMain" name="Main">
     <iframe class="calFrame" name="Calendar" src="<?php echo $framesrc; ?>"></iframe>
-    </div>
 </body>
 </html>
