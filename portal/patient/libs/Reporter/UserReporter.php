@@ -145,9 +145,6 @@ class UserReporter extends Reporter
 			,`users`.`taxonomy` as Taxonomy
 			,`users`.`calendar` as Calendar
 			,`users`.`abook_type` as AbookType
-			,`users`.`pwd_expiration_date` as PwdExpirationDate
-			,`users`.`pwd_history1` as PwdHistory1
-			,`users`.`pwd_history2` as PwdHistory2
 			,`users`.`default_warehouse` as DefaultWarehouse
 			,`users`.`irnpool` as Irnpool
 			,`users`.`state_license_number` as StateLicenseNumber

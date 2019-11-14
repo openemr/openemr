@@ -2,27 +2,18 @@
 /**
  * Login screen.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @author  Scott Wakefield <scott.wakefield@gmail.com>
- * @author  ViCarePlus <visolve_emr@visolve.com>
- * @author  Julia Longtin <julialongtin@diasp.org>
- * @author  cfapress
- * @author  markleeds
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Scott Wakefield <scott.wakefield@gmail.com>
+ * @author    ViCarePlus <visolve_emr@visolve.com>
+ * @author    Julia Longtin <julialongtin@diasp.org>
+ * @author    cfapress
+ * @author    markleeds
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -175,17 +166,6 @@ if (count($emr_app)) {
                         <input type='hidden' name='new_login_session_management' value='1' />
 
                         <?php
-                        // collect groups
-                        $res = sqlStatement("select distinct name from `groups`");
-                        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-                              $result[$iter] = $row;
-                        }
-
-                        if (count($result) == 1) {
-                              $resvalue = $result[0]["name"];
-                              echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
-                        }
-
                         // collect default language id
                         $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
                         for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
@@ -301,20 +281,6 @@ if (count($emr_app)) {
                         endif;
                         ?>
                     </div>
-                    <?php if (count($result) > 1) : // Begin Display check for groups ?>
-                        <div class="form-group">
-                            <label for="group" class="control-label text-right"><?php echo xlt('Group:'); ?></label>
-                            <div>
-                                <select name="authProvider" class="form-control">
-                                    <?php
-                                    foreach ($result as $iter) {
-                                        echo "<option value='".attr($iter["name"])."'>".text($iter["name"])."</option>\n";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        </div>
-                    <?php endif; // End Display check for groups ?>
                     <div class="form-group">
                         <label for="authUser" class="control-label text-right"><?php echo xlt('Username:'); ?></label>
                         <input type="text" class="form-control" id="authUser" name="authUser" placeholder="<?php echo xla('Username:'); ?>">

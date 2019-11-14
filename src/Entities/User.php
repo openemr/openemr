@@ -2,13 +2,13 @@
 /**
  * User entity.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Matthew Vita <matthewvita48@gmail.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Entities;
@@ -85,21 +85,6 @@ class User
      * @Column(name="default_warehouse", type="string")
      */
     private $defaultWarehouse;
-
-    /**
-     * @Column(name="pwd_history2", type="text")
-     */
-    private $pwdHistory2;
-
-    /**
-     * @Column(name="pwd_history1", type="text")
-     */
-    private $pwdHistory1;
-
-    /**
-     * @Column(name="pwd_expiration_date", type="string")
-     */
-    private $pwdExpirationDate;
 
     /**
      * @Column(name="abook_type", type="string")

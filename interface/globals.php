@@ -621,24 +621,6 @@ function strterm($string, $length)
     }
 }
 
-// Check if the current or a specified user logs in with LDAP.
-function useActiveDirectory($user = '')
-{
-    if (empty($GLOBALS['gbl_ldap_enabled'])) {
-        return false;
-    }
-    if ($user == '') {
-        $user = $_SESSION['authUser'];
-    }
-    $exarr = explode(',', $GLOBALS['gbl_ldap_exclusions']);
-    foreach ($exarr as $ex) {
-        if ($user == trim($ex)) {
-            return false;
-        }
-    }
-    return true;
-}
-
 // Override temporary_files_dir
 $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(), '/');
 

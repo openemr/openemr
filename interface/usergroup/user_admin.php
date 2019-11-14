@@ -6,7 +6,7 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -41,6 +41,11 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
 }
 
 $iter = $result[0];
+
+if ($GLOBALS['password_expiration_days'] != 0) {
+    $userSecure = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE `id` = ?", [$_GET["id"]]);
+    $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
+}
 
 ?>
 
@@ -261,16 +266,15 @@ function authorized_clicked() {
 
 <input type=hidden name="pwd_expires" value="<?php echo attr($GLOBALS['password_expiration_days']); ?>" >
 <input type=hidden name="pre_active" value="<?php echo attr($iter["active"]); ?>" >
-<input type=hidden name="exp_date" value="<?php echo attr($iter["pwd_expiration_date"]); ?>" >
+<input type=hidden name="exp_date" value="<?php echo attr($pwd_expires); ?>" >
 <input type=hidden name="get_admin_id" value="<?php echo attr($GLOBALS['Emergency_Login_email']); ?>" >
 <input type=hidden name="admin_id" value="<?php echo attr($GLOBALS['Emergency_Login_email_id']); ?>" >
 <input type=hidden name="check_acl" value="">
 <?php
 //Calculating the grace time
 $current_date = date("Y-m-d");
-$password_exp=$iter["pwd_expiration_date"];
-if ($password_exp != "0000-00-00") {
-    $grace_time1 = date("Y-m-d", strtotime($password_exp . "+".$GLOBALS['password_grace_time'] ."days"));
+if ($GLOBALS['password_expiration_days'] != 0) {
+    $grace_time1 = date("Y-m-d", strtotime($pwd_expires . "+".$GLOBALS['password_grace_time'] ."days"));
 }
 ?>
 <input type=hidden name="current_date" value="<?php echo attr(strtotime($current_date)); ?>" >
@@ -505,7 +509,7 @@ foreach ($list_acl_groups as $value) {
     }
     ?>
 <!--
-Display red alert if entered password matched one of last three passwords/Display red alert if user password was expired and the user was inactivated previously
+Display red alert if entered password matched one of last three passwords/Display red alert if user password is expired
 -->
   <div class="redtext" id="error_message">&nbsp;</div>
   </td>

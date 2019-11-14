@@ -3,15 +3,17 @@
  *
  * Installation script.
  *
- * @package OpenEMR
- * @link    https://www.open-emr.org
- * @author Roberto Vasquez <robertogagliotta@gmail.com>
- * @author Scott Wakefield <scott@npclinics.com.au>
- * @author Ranganath Pathak <pathak@scrs1.org>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Scott Wakefield <scott@npclinics.com.au>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2016 Scott Wakefield <scott@npclinics.com.au>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
@@ -91,9 +93,8 @@ function recursive_writable_directory_test($dir)
     }
 }
 
-// Include standard libraries/classes and password hashing functions
+// Include standard libraries/classes
 require_once dirname(__FILE__) ."/vendor/autoload.php";
-require_once(dirname(__FILE__) . '/library/authentication/password_hashing.php');
 
 use OpenEMR\Common\Utils\RandomGenUtils;
 
