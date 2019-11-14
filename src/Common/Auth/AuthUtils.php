@@ -4,10 +4,10 @@
  *
  *   Authentication:
  *     1. This class can be run in 1 of 3 modes:
- *       -loginAuth: Authentication of users during standard login.
- *       -apiAuth:   Authentication of users when requesting api token.
- *       -otherAuth: Other Authentication when already logged into OpenEMR such as
- *                    when doing Esign or changing mfa setting
+ *       -login: Authentication of users during standard login.
+ *       -api:   Authentication of users when requesting api token.
+ *       -other: Default setting. Other Authentication when already logged into OpenEMR such as when
+ *                doing Esign or changing mfa setting.
  *     2. LDAP (Active Directory) is also supported. In these cases, the login counter and
  *         expired password mechanisms are ignored.
  *     3. Timing attack prevention. The time will be the same for a user that does not exist versus a user
@@ -280,7 +280,7 @@ class AuthUtils
      * @param type $create          Are we creating a new user or
      * @param type $insert_sql      SQL to run to create the row in "users" (and generate a new id) when needed.
      * @param type $new_username    The username for a new user
-     * @return boolean              Was the password successfully updated/created? If false, then $errMsg will tell you why it failed.
+     * @return boolean              Was the password successfully updated/created? If false, then $this->errorMessage will tell you why it failed.
      */
     public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, $insert_sql = "", $new_username = null)
     {

@@ -49,17 +49,15 @@ class AuthHash
         // Set the mode and collect the pertinent algorithm setting from globals
         if ($mode == 'auth') {
             $this->mode = 'auth';
-            $this->algo = $GLOBALS['gbl_'.$this->mode.'_hash_algo'];
         } else if ($mode == 'token') {
             $this->mode = 'token';
-            $this->algo = $GLOBALS['gbl_'.$this->mode.'_hash_algo'];
         } else {
             // if no mode or other mode is given, then will default to 'auth' mode
             $this->mode = 'auth';
-            $this->algo = $GLOBALS['gbl_'.$this->mode.'_hash_algo'];
         }
+        $this->algo = $GLOBALS['gbl_'.$this->mode.'_hash_algo'];
 
-        // If set to php default algorithm, then figure out what it is
+        // If set to php default algorithm, then figure out what it is.
         //  This basically resolves what PHP is using as PASSWORD_DEFAULT,
         //  which has been PASSWORD_BCRYPT since PHP 5.5. In future PHP versions,
         //  though, it will likely change to one of the Argon2 algorithms. And
@@ -75,7 +73,7 @@ class AuthHash
             } else {
                 // $this->algo will stay "DEFAULT", which should never happen.
                 // But if this does happen, will then not support any custom
-                // options since not sure what the algorithm is.
+                // options in below code since not sure what the algorithm is.
             }
         }
 
