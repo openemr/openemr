@@ -16,6 +16,7 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
@@ -124,18 +125,19 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
         CsrfUtils::csrfNotVerified();
     }
 
-    require_once("$srcdir/authentication/common_operations.php");
-
     $clear_pass=$_POST['pwd'];
 
     $res = sqlStatement("SELECT * FROM patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site WHERE pid=?", array($pid));
     $query_parameters=array($_POST['uname'],$_POST['uname']);
-    $salt_clause="";
     if ($portalsite=='on') {
-        // For onsite portal create a blowfish based hash and salt.
-        $new_salt = oemr_password_salt();
-        $salt_clause = ",portal_salt=? ";
-        array_push($query_parameters, oemr_password_hash($clear_pass, $new_salt), $new_salt);
+        // For onsite portal create a modern hash
+        $hash = (new AuthHash('auth'))->passwordHash($clear_pass);
+        if (empty($hash)) {
+            // Something is seriously wrong
+            error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+            die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+        }
+        array_push($query_parameters, $hash);
     } else {
         // For offsite portal still create and SHA1 hashed password
         // When offsite portal is updated to handle blowfish, then both portals can use the same execution path.
@@ -144,9 +146,9 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
 
     array_push($query_parameters, $pid);
     if (sqlNumRows($res)) {
-        sqlStatementNoLog("UPDATE patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?", $query_parameters);
+        sqlStatementNoLog("UPDATE patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0 WHERE pid=?", $query_parameters);
     } else {
-        sqlStatementNoLog("INSERT INTO patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?", $query_parameters);
+        sqlStatementNoLog("INSERT INTO patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0,pid=?", $query_parameters);
     }
 
     // Create the message

@@ -2,13 +2,15 @@
 /*
  * This program sets the global variables.
  *
- * @package OpenEMR
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
- * @link https://github.com/openemr/openemr/tree/master
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // $GLOBALS['print_command'] is the
@@ -1910,12 +1912,6 @@ $GLOBALS_METADATA = array(
             '0',                              // default
             xl('Means none of last three passwords are allowed when changing a password.')
         ),
-        'password_compatibility' => array(
-            xl('Permit unsalted passwords'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('After migration from the old password mechanisms where passwords are stored in the users table without salt is complete, this flag should be set to false so that only authentication by the new method is possible')
-        ),
 
         'password_expiration_days' => array(
             xl('Default Password Expiration Days'),
@@ -2019,6 +2015,246 @@ $GLOBALS_METADATA = array(
             xl('Comma-separated list of login names to use normal authentication instead of LDAP; useful for setup and debugging.')
         ),
 
+        'gbl_debug_hash_verify_execution_time' => array(
+            xl('Debug Hash Verification Time'),
+            'bool',
+            '0',
+            xl('If enabled, this will send the execution time it took to verify hash to the php error log.')
+        ),
+
+        'gbl_auth_hash_algo' => array(
+            xl('Hash Algorithm for Authentication'),
+            array(
+                'DEFAULT' => xl('PHP Default'),
+                'BCRYPT' => xl('Bcrypt'),
+                'ARGON2I' => xl('Argon2I'),
+                'ARGON2ID' => xl('Argon2ID'),
+            ),
+            'DEFAULT',                // default
+            xl('Hashing algorithm for authentication. Suggest PHP Default unless you know what you are doing')
+        ),
+
+        'gbl_auth_bcrypt_hash_cost' => array(
+            xl('Authentication Token Bcrypt Hash Cost'),
+            array(
+                'DEFAULT' => xl('PHP Default'),
+                '5' => '5',
+                '6' => '6',
+                '7' => '7',
+                '8' => '8',
+                '9' => '9',
+                '10' => '10',
+                '11' => '11',
+                '12' => '12',
+                '13' => '13',
+                '14' => '14',
+                '15' => '15',
+                '16' => '16',
+                '17' => '17',
+                '18' => '18',
+                '19' => '19',
+                '20' => '20',
+            ),
+            'DEFAULT',                // default
+            xl('Authentication bcrypt hash cost. Suggest PHP Default unless you know what you are doing')
+        ),
+
+        'gbl_auth_argon_hash_memory_cost' => array(
+            xl('Authentication Argon Hash Memory Cost'),
+            array(
+                'DEFAULT' => xl('PHP Default'),
+                '512' => '512',
+                '1024' => '1024',
+                '2048' => '2048',
+                '4096' => '4096',
+                '8192' => '8192',
+                '16384' => '16384',
+                '32768' => '32768',
+                '65536' => '65536',
+                '131072' => '131072',
+                '262144' => '262144',
+                '524288' => '524288',
+                '1048576' => '1048576',
+                '2097152' => '2097152',
+            ),
+            'DEFAULT',                // default
+            xl('Authentication argon hash memory cost (bytes). Suggest PHP Default unless you know what you are doing')
+        ),
+
+        'gbl_auth_argon_hash_time_cost' => array(
+            xl('Authentication Argon Hash Time Cost'),
+            array(
+                'DEFAULT' => xl('PHP Default'),
+                '1' => '1',
+                '2' => '2',
+                '3' => '3',
+                '4' => '4',
+                '5' => '5',
+                '6' => '6',
+                '7' => '7',
+                '8' => '8',
+                '9' => '9',
+                '10' => '10',
+                '11' => '11',
+                '12' => '12',
+                '13' => '13',
+                '14' => '14',
+                '15' => '15',
+                '16' => '16',
+                '17' => '17',
+                '18' => '18',
+                '19' => '19',
+                '20' => '20',
+            ),
+            'DEFAULT',                // default
+            xl('Authentication argon hash time cost. Suggest PHP Default unless you know what you are doing')
+        ),
+
+        'gbl_auth_argon_hash_thread_cost' => array(
+            xl('Authentication Argon Hash Thread Number'),
+            array(
+                'DEFAULT' => xl('PHP Default'),
+                '1' => '1',
+                '2' => '2',
+                '3' => '3',
+                '4' => '4',
+                '5' => '5',
+                '6' => '6',
+                '7' => '7',
+                '8' => '8',
+                '9' => '9',
+                '10' => '10',
+                '11' => '11',
+                '12' => '12',
+                '13' => '13',
+                '14' => '14',
+                '15' => '15',
+                '16' => '16',
+                '17' => '17',
+                '18' => '18',
+                '19' => '19',
+                '20' => '20',
+            ),
+            'DEFAULT',                // default
+            xl('Authentication argon hash thread number. Suggest PHP Default unless you know what you are doing')
+        ),
+
+        'gbl_token_hash_algo' => array(
+            xl('Hash Algorithm for Token'),
+            array(
+                'DEFAULT' => xl('PHP Default'),
+                'BCRYPT' => xl('Bcrypt'),
+                'ARGON2I' => xl('Argon2I'),
+                'ARGON2ID' => xl('Argon2ID'),
+            ),
+            'DEFAULT',                // default
+            xl('Hashing algorithm for token. Suggest PHP Default unless you know what you are doing')
+        ),
+
+        'gbl_token_bcrypt_hash_cost' => array(
+            xl('Token Bcrypt Hash Cost'),
+            array(
+                'DEFAULT' => xl('PHP Default'),
+                '5' => '5',
+                '6' => '6',
+                '7' => '7',
+                '8' => '8',
+                '9' => '9',
+                '10' => '10',
+                '11' => '11',
+                '12' => '12',
+                '13' => '13',
+                '14' => '14',
+                '15' => '15',
+                '16' => '16',
+                '17' => '17',
+                '18' => '18',
+                '19' => '19',
+                '20' => '20',
+            ),
+            'DEFAULT',                // default
+            xl('Token bcrypt hash cost. Suggest PHP Default unless you know what you are doing')
+        ),
+
+        'gbl_token_argon_hash_memory_cost' => array(
+            xl('Token Argon Hash Memory Cost'),
+            array(
+                'DEFAULT' => xl('PHP Default'),
+                '512' => '512',
+                '1024' => '1024',
+                '2048' => '2048',
+                '4096' => '4096',
+                '8192' => '8192',
+                '16384' => '16384',
+                '32768' => '32768',
+                '65536' => '65536',
+                '131072' => '131072',
+                '262144' => '262144',
+                '524288' => '524288',
+                '1048576' => '1048576',
+                '2097152' => '2097152',
+            ),
+            'DEFAULT',                // default
+            xl('Token argon hash memory cost (bytes). Suggest PHP Default unless you know what you are doing')
+        ),
+
+        'gbl_token_argon_hash_time_cost' => array(
+            xl('Token Argon Hash Time Cost'),
+            array(
+                'DEFAULT' => xl('PHP Default'),
+                '1' => '1',
+                '2' => '2',
+                '3' => '3',
+                '4' => '4',
+                '5' => '5',
+                '6' => '6',
+                '7' => '7',
+                '8' => '8',
+                '9' => '9',
+                '10' => '10',
+                '11' => '11',
+                '12' => '12',
+                '13' => '13',
+                '14' => '14',
+                '15' => '15',
+                '16' => '16',
+                '17' => '17',
+                '18' => '18',
+                '19' => '19',
+                '20' => '20',
+            ),
+            'DEFAULT',                // default
+            xl('Token argon hash time cost. Suggest PHP Default unless you know what you are doing')
+        ),
+
+        'gbl_token_argon_hash_thread_cost' => array(
+            xl('Token Argon Hash Thread Number'),
+            array(
+                'DEFAULT' => xl('PHP Default'),
+                '1' => '1',
+                '2' => '2',
+                '3' => '3',
+                '4' => '4',
+                '5' => '5',
+                '6' => '6',
+                '7' => '7',
+                '8' => '8',
+                '9' => '9',
+                '10' => '10',
+                '11' => '11',
+                '12' => '12',
+                '13' => '13',
+                '14' => '14',
+                '15' => '15',
+                '16' => '16',
+                '17' => '17',
+                '18' => '18',
+                '19' => '19',
+                '20' => '20',
+            ),
+            'DEFAULT',                // default
+            xl('Token argon hash thread number. Suggest PHP Default unless you know what you are doing')
+        ),
     ),
 
     // Notifications Tab

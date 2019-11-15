@@ -2,13 +2,13 @@
 /**
  * This script Assign acl 'Emergency login'.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Roberto Vasquez <robertogagliotta@gmail.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -16,6 +16,7 @@ require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/auth.inc");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
@@ -167,14 +168,11 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         }
 
         if ($_POST["adminPass"] && $_POST["clearPass"]) {
-              require_once("$srcdir/authentication/password_change.php");
-              $clearAdminPass=$_POST['adminPass'];
-              $clearUserPass=$_POST['clearPass'];
-              $password_err_msg="";
-              $success=update_password($_SESSION['authId'], $_POST['id'], $clearAdminPass, $clearUserPass, $password_err_msg);
+            $authUtilsUpdatePassword = new AuthUtils();
+            $success = $authUtilsUpdatePassword->updatePassword($_SESSION['authId'], $_POST['id'], $_POST['adminPass'], $_POST['clearPass']);
             if (!$success) {
-                error_log(errorLogEscape($password_err_msg));
-                $alertmsg.=$password_err_msg;
+                error_log(errorLogEscape($authUtilsUpdatePassword->getErrorMessage()));
+                $alertmsg .= $authUtilsUpdatePassword->getErrorMessage();
             }
         }
 
@@ -256,14 +254,6 @@ if (isset($_POST["mode"])) {
         }
 
         if ($doit == true) {
-            require_once("$srcdir/authentication/password_change.php");
-
-          //if password expiration option is enabled,  calculate the expiration date of the password
-            if ($GLOBALS['password_expiration_days'] != 0) {
-                $exp_days = $GLOBALS['password_expiration_days'];
-                $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
-            }
-
             $insertUserSQL=
             "insert into users set " .
             "username = '"         . add_escape_custom(trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))) .
@@ -290,26 +280,20 @@ if (isset($_POST["mode"])) {
             "', default_warehouse = '" . add_escape_custom(trim((isset($_POST['default_warehouse']) ? $_POST['default_warehouse'] : ''))) .
             "', irnpool = '"       . add_escape_custom(trim((isset($_POST['irnpool']) ? $_POST['irnpool'] : ''))) .
             "', calendar = '"      . add_escape_custom($calvar) .
-            "', pwd_expiration_date = '" . add_escape_custom(trim($exp_date)) .
             "'";
 
-            $clearAdminPass=$_POST['adminPass'];
-            $clearUserPass=$_POST['stiltskin'];
-            $password_err_msg="";
-            $prov_id="";
-            $success = update_password(
+            $authUtilsNewPassword = new AuthUtils();
+            $success = $authUtilsNewPassword->updatePassword(
                 $_SESSION['authId'],
                 0,
-                $clearAdminPass,
-                $clearUserPass,
-                $password_err_msg,
+                $_POST['adminPass'],
+                $_POST['stiltskin'],
                 true,
                 $insertUserSQL,
-                trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')),
-                $prov_id
+                trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
             );
-            error_log(errorLogEscape($password_err_msg));
-            $alertmsg .=$password_err_msg;
+            error_log(errorLogEscape($authUtilsNewPassword->getErrorMessage()));
+            $alertmsg .=$authUtilsNewPassword->getErrorMessage();
             if ($success) {
                 //set the facility name from the selected facility_id
                 sqlStatement(

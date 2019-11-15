@@ -328,3 +328,47 @@ ALTER TABLE `api_token` ADD `token_auth` varchar(255);
 ALTER TABLE `facility` ADD `info` TEXT;
 #EndIf
 
+#IfNotColumnType patient_access_onsite portal_pwd varchar(255)
+ALTER TABLE `patient_access_onsite` MODIFY `portal_pwd` varchar(255);
+#EndIf
+
+#IfColumn patient_access_onsite portal_salt
+ALTER TABLE `patient_access_onsite` DROP COLUMN `portal_salt`;
+#EndIf
+
+#IfNotColumnType patient_access_offsite portal_pwd varchar(255)
+ALTER TABLE `patient_access_offsite` MODIFY `portal_pwd` varchar(255) NOT NULL;
+#EndIf
+
+#IfColumn users pwd_expiration_date
+ALTER TABLE users DROP COLUMN `pwd_expiration_date`;
+#EndIf
+
+#IfColumn users pwd_history1
+ALTER TABLE users DROP COLUMN `pwd_history1`;
+#EndIf
+
+#IfColumn users pwd_history2
+ALTER TABLE users DROP COLUMN `pwd_history2`;
+#EndIf
+
+#IfMissingColumn users_secure last_update_password
+ALTER TABLE `users_secure` ADD `last_update_password` datetime DEFAULT NULL;
+UPDATE `users_secure` SET `last_update_password` = NOW();
+#EndIf
+
+#IfColumn users_secure salt
+ALTER TABLE `users_secure` DROP COLUMN `salt`;
+#EndIf
+
+#IfColumn users_secure salt_history1
+ALTER TABLE `users_secure` DROP COLUMN `salt_history1`;
+#EndIf
+
+#IfColumn users_secure salt_history2
+ALTER TABLE `users_secure` DROP COLUMN `salt_history2`;
+#EndIf
+
+#IfColumn api_token token_auth_salt
+ALTER TABLE `api_token` DROP COLUMN `token_auth_salt`;
+#EndIf

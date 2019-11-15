@@ -63,9 +63,9 @@ $ignoreAuth = 1;
 // Authentication
 require_once('../interface/globals.php');
 require_once(dirname(__FILE__) . "/lib/appsql.class.php");
-require_once("$srcdir/authentication/common_operations.php");
 require_once("$srcdir/user.inc");
 
+use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 $logit = new ApplicationTable();
@@ -74,11 +74,11 @@ unset($_SESSION['password_update']);
 
 $authorizedPortal = false; // flag
 DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
+DEFINE("COL_ID", "id");
 DEFINE("COL_PID", "pid");
 DEFINE("COL_POR_PWD", "portal_pwd");
 DEFINE("COL_POR_USER", "portal_username");
 DEFINE("COL_POR_LOGINUSER", "portal_login_username");
-DEFINE("COL_POR_SALT", "portal_salt");
 DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
 DEFINE("COL_POR_ONETIME", "portal_onetime");
 
@@ -86,12 +86,12 @@ DEFINE("COL_POR_ONETIME", "portal_onetime");
 // one time reset requires a PIN where normal uses a new temp pass sent to user.
 if ($password_update === 2 && !empty($_SESSION['pin'])) {
     $sql = "SELECT " . implode(",", array(
-            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT, COL_POR_ONETIME)) . " FROM " . TBL_PAT_ACC_ON .
+            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT, COL_POR_ONETIME)) . " FROM " . TBL_PAT_ACC_ON .
         " WHERE BINARY " . COL_POR_ONETIME . "= ?";
     $auth = privQuery($sql, array($_SESSION['forward']));
     if ($auth !== false) {
         // remove the token from database
-        sqlStatementNoLog("UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_ONETIME . "=NULL WHERE BINARY " . COL_POR_ONETIME . " = ?", [$auth['portal_onetime']]);
+        privStatement("UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_ONETIME . "=NULL WHERE BINARY " . COL_POR_ONETIME . " = ?", [$auth['portal_onetime']]);
         // validation
         $validate = substr($auth[COL_POR_ONETIME], 32, 6);
         if (!empty($validate) && !empty($_POST['token_pin'])) {
@@ -110,7 +110,7 @@ if ($password_update === 2 && !empty($_SESSION['pin'])) {
 } else {
     // normal login
     $sql = "SELECT " . implode(",", array(
-            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
+            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
         " WHERE BINARY " . COL_POR_LOGINUSER . "= ?";
     $auth = privQuery($sql, array($_POST['uname']));
 }
@@ -120,34 +120,42 @@ if ($auth === false) {
     header('Location: ' . $landingpage . '&w&u');
     exit();
 }
-if (empty($auth[COL_POR_SALT])) {
-    if (SHA1($_POST['pass']) != $auth[COL_POR_PWD]) {
-        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':pass not salted'), '', '0');
+
+if ($password_update === 2) {
+    if ($_POST['pass'] != $auth[COL_POR_PWD]) {
+        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&p');
         exit();
     }
-    $new_salt = oemr_password_salt();
-    $new_hash = oemr_password_hash($_POST['pass'], $new_salt);
-    $sqlUpdatePwd = " UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_PWD . "=?, " . COL_POR_SALT . "=? " . COL_POR_LOGINUSER . "=?" . " WHERE " . COL_ID . "=?";
-    privStatement($sqlUpdatePwd, array(
-        $new_hash,
-        $new_salt,
-        $_POST['login_uname'],
-        $auth[COL_ID]
-    ));
 } else {
-    $tmp = oemr_password_hash($_POST['pass'], $auth[COL_POR_SALT]);
-    if ($password_update === 2) {
-        $tmp = $_POST['pass'];
-    }
-    if ($tmp != $auth[COL_POR_PWD]) {
+    if (AuthHash::passwordVerify($_POST['pass'], $auth[COL_POR_PWD])) {
+        $authHashPortal = new AuthHash('auth');
+        if ($authHashPortal->passwordNeedsRehash($auth[COL_POR_PWD])) {
+            // If so, create a new hash, and replace the old one (this will ensure always using most modern hashing)
+            $reHash = $authHashPortal->passwordHash($_POST['pass']);
+            if (empty($reHash)) {
+                // Something is seriously wrong
+                error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+                die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+            }
+            privStatement(
+                "UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_PWD . " = ? WHERE " . COL_ID . " = ?",
+                [
+                    $reHash,
+                    $auth[COL_ID]
+                ]
+            );
+        }
+    } else {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&p');
         exit();
     }
 }
+
+
 
 $_SESSION['portal_username'] = $auth[COL_POR_USER];
 $_SESSION['portal_login_username'] = $auth[COL_POR_LOGINUSER];
@@ -190,16 +198,18 @@ if ($userData = sqlQuery($sql, array(
         $code_new = $_POST['pass_new'];
         $code_new_confirm = $_POST['pass_new_confirm'];
         if (!(empty($_POST['pass_new'])) && !(empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
-            $new_salt = oemr_password_salt();
-            $new_hash = oemr_password_hash($code_new, $new_salt);
-
+            $new_hash = (new AuthHash('auth'))->passwordHash($code_new);
+            if (empty($new_hash)) {
+                // Something is seriously wrong
+                error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+                die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+            }
             // Update the password and continue (patient is authorized)
             privStatement(
-                "UPDATE " . TBL_PAT_ACC_ON . "  SET " . COL_POR_LOGINUSER . "=?," . COL_POR_PWD . "=?," . COL_POR_SALT . "=?," . COL_POR_PWD_STAT . "=1 WHERE id=?",
+                "UPDATE " . TBL_PAT_ACC_ON . "  SET " . COL_POR_LOGINUSER . "=?," . COL_POR_PWD . "=?," . COL_POR_PWD_STAT . "=1 WHERE id=?",
                 array(
                     $_POST['login_uname'],
                     $new_hash,
-                    $new_salt,
                     $auth['id']
                 )
             );

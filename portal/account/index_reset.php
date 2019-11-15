@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 $ignoreAuth_onsite_portal_two = $ignoreAuth = 0;
@@ -23,11 +25,11 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     exit;
 }
 require_once(dirname(__FILE__) . '/../../interface/globals.php');
-require_once("$srcdir/authentication/common_operations.php");
 require_once(dirname(__FILE__) . "/../lib/appsql.class.php");
 
-use OpenEMR\Core\Header;
+use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $logit = new ApplicationTable();
 //exit if portal is turned off
@@ -43,14 +45,14 @@ if (!empty($_POST)) {
 $_SESSION['credentials_update'] = 1;
 
 DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
+DEFINE("COL_ID", "id");
 DEFINE("COL_PID", "pid");
 DEFINE("COL_POR_PWD", "portal_pwd");
 DEFINE("COL_POR_USER", "portal_username");
 DEFINE("COL_POR_LOGINUSER", "portal_login_username");
-DEFINE("COL_POR_SALT", "portal_salt");
 DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
 
-$sql = "SELECT " . implode(",", array(COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_SALT, COL_POR_PWD_STAT)) .
+$sql = "SELECT " . implode(",", array(COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) .
     " FROM " . TBL_PAT_ACC_ON . " WHERE pid = ?";
 
 $auth = privQuery($sql, array($_SESSION['pid']));
@@ -59,19 +61,22 @@ $valid = ((!empty(trim($_POST['uname']))) &&
     (!empty(trim($_POST['pass_current']))) &&
     (!empty(trim($_POST['pass_new']))) &&
     (trim($_POST['uname']) == $auth[COL_POR_USER]) &&
-    (hash_equals(oemr_password_hash(trim($_POST['pass_current']), $auth[COL_POR_SALT]), $auth[COL_POR_PWD])));
+    (AuthHash::passwordVerify(trim($_POST['pass_current']), $auth[COL_POR_PWD])));
 if (isset($_POST['submit'])) {
     if (!$valid) {
         $errmsg = xlt("Invalid Current Credentials Error.") . xlt("Unknown.");
         $logit->portalLog('Credential update attempt', '', ($_POST['uname'] . ':unknown'), '', '0');
         die($errmsg);
     }
-    $new_salt = oemr_password_salt();
-    $new_hash = oemr_password_hash(trim($_POST['pass_new']), $new_salt);
-    $sqlUpdatePwd = " UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_PWD . "=?, " . COL_POR_SALT . "=?, " . COL_POR_LOGINUSER . "=?" . " WHERE " . COL_ID . "=?";
+    $new_hash = (new AuthHash('auth'))->passwordHash(trim($_POST['pass_new']));
+    if (empty($new_hash)) {
+        // Something is seriously wrong
+        error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+        die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+    }
+    $sqlUpdatePwd = " UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_PWD . "=?, " . COL_POR_LOGINUSER . "=?" . " WHERE " . COL_ID . "=?";
     privStatement($sqlUpdatePwd, array(
         $new_hash,
-        $new_salt,
         $_POST['login_uname'],
         $auth[COL_ID]
     ));

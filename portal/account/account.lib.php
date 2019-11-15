@@ -12,6 +12,7 @@
  */
 /* Library functions for register*/
 
+use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -161,14 +162,18 @@ function doCredentials($pid)
     $one_time = $token_new . $pin . bin2hex($expiry->format('U'));
     $res = sqlStatement("SELECT * FROM patient_access_onsite WHERE pid=?", array($pid));
     $query_parameters = array($uname,$one_time);
-    $new_salt = oemr_password_salt();
-    $salt_clause = ",portal_salt=? ";
-    array_push($query_parameters, oemr_password_hash($clear_pass, $new_salt), $new_salt);
+    $newHash = (new AuthHash('auth'))->passwordHash($clear_pass);
+    if (empty($newHash)) {
+        // Something is seriously wrong
+        error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+        die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+    }
+    array_push($query_parameters, $newHash);
     array_push($query_parameters, $pid);
     if (sqlNumRows($res)) {
-        sqlStatementNoLog("UPDATE patient_access_onsite SET portal_username=?,portal_onetime=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?", $query_parameters);
+        sqlStatementNoLog("UPDATE patient_access_onsite SET portal_username=?,portal_onetime=?,portal_pwd=?,portal_pwd_status=0 WHERE pid=?", $query_parameters);
     } else {
-        sqlStatementNoLog("INSERT INTO patient_access_onsite SET portal_username=?,portal_onetime=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?", $query_parameters);
+        sqlStatementNoLog("INSERT INTO patient_access_onsite SET portal_username=?,portal_onetime=?,portal_pwd=?,portal_pwd_status=0,pid=?", $query_parameters);
     }
 
     if (!validEmail($newpd['email_direct'])) {

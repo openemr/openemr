@@ -105,7 +105,6 @@ function generate_html_top()
 function generate_html_middle()
 {
     posted_to_hidden('new_login_session_management');
-    posted_to_hidden('authProvider');
     posted_to_hidden('languageChoice');
     posted_to_hidden('authUser');
     posted_to_hidden('clearPass');
@@ -391,29 +390,27 @@ if ($GLOBALS['login_into_facility']) {
 // Fetch the password expiration date
 $is_expired=false;
 if ($GLOBALS['password_expiration_days'] != 0) {
-    $is_expired=false;
-    $q= (isset($_POST['authUser'])) ? $_POST['authUser'] : '';
-    $result = sqlStatement("select pwd_expiration_date from users where username = ?", array($q));
+    $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
     $current_date = date('Y-m-d');
-    $pwd_expires_date = $current_date;
-    if ($row = sqlFetchArray($result)) {
-        $pwd_expires_date = $row['pwd_expiration_date'];
+    if (!empty($result['last_update_password'])) {
+        $pwd_last_update = $result['last_update_password'];
+    } else {
+        error_log("OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table");
+        $pwd_last_update = $current_date;
     }
 
-  // Display the password expiration message (starting from 7 days before the password gets expired)
-    $pwd_alert_date = date('Y-m-d', strtotime($pwd_expires_date . '-7 days'));
+    // Display the password expiration message (starting from 7 days before the password gets expired)
+    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . ($GLOBALS['password_expiration_days'] - 7) . ' days'));
 
-    if (strtotime($pwd_alert_date) != '' &&
-      strtotime($current_date) >= strtotime($pwd_alert_date) &&
-      (!isset($_SESSION['expiration_msg'])
-      or $_SESSION['expiration_msg'] == 0)) {
+    if (empty(strtotime($pwd_alert_date))) {
+        error_log("OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table");
+    } else if (strtotime($current_date) >= strtotime($pwd_alert_date)) {
         $is_expired = true;
-        $_SESSION['expiration_msg'] = 1; // only show the expired message once
     }
 }
 
 if ($is_expired) {
-  //display the php file containing the password expiration message.
+    //display the php file containing the password expiration message.
     $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken());
     $frame1target = "adm";
 } elseif (!empty($_POST['patientID'])) {

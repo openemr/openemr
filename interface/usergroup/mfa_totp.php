@@ -9,7 +9,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Anthony Zullo <anthonykzullo@gmail.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
@@ -18,6 +18,7 @@ require_once('../globals.php');
 require_once("$srcdir/classes/Totp.class.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -138,7 +139,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             }
 
                             // Redirect back to step 1 if user password is incorrect
-                            if (!confirm_user_password($_SESSION['authUser'], $_POST['clearPass'])) {
+                            if (!(new AuthUtils)->confirmUserPassword($_SESSION['authUser'], $_POST['clearPass'])) {
                                 header("Location: mfa_totp.php?action=reg1&error=auth");
                                 exit();
                             }
