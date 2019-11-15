@@ -5,10 +5,11 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -43,7 +44,7 @@ if (isset($_SESSION['pc_username'])) {
 // different frame source page depending on session vars
 if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view";
-} else if ($_SESSION['userauthorized']) {
+} elseif ($_SESSION['userauthorized']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view&" . $pcuStr;
 } else {
     $framesrc = "calendar/index.php?module=PostCalendar&func=view&viewtype=" . attr_url($viewtype);
@@ -52,24 +53,28 @@ if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
 <!DOCTYPE html>
 <html>
 <head>
-<title><?php echo xlt('Calendar'); ?></title>
-<style>
-.calFrame {
-    border: none;
-    margin: 0px;
-    padding: 0px;
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    object-fit: contain;
-    object-position: left top;
-}
-body {
-    margin: 0px;
-}
-</style>
+    <title><?php echo xlt('Calendar'); ?></title>
+    <style>
+        iframe {
+            display: table;
+            empty-cells: show;
+            border-collapse: collapse;
+            border: 0;
+            min-height: 100vh;
+            width: 100%;
+            height: 100%;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
 </head>
 <body>
-    <iframe class="calFrame" name="Calendar" src="<?php echo $framesrc; ?>"></iframe>
+    <iframe name="Calendar" src="<?php echo $framesrc; ?>" allowfullscreen></iframe>
 </body>
 </html>

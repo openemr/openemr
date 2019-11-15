@@ -53,8 +53,6 @@ form {
 #searchCriteria {
     text-align: center;
     width: 100%;
-    /*font-size: 0.8em;*/
-    background-color: #ddddff;
     font-weight: bold;
     padding: 3px;
 }
@@ -93,9 +91,6 @@ form {
     color: black;
     text-align: center;
 }
-.noResults { background-color: #ccc; }
-.tooManyResults { background-color: #fc0; }
-.howManyResults { background-color: #9f6; }
 #searchspinner {
     display: inline;
     visibility: hidden;
@@ -113,11 +108,11 @@ form {
 if (isset($_GET["res"])) {
     echo '
 <script language="Javascript">
-			// Pass the variable to parent hidden type and submit
-			opener.document.theform.resname.value = "noresult";
-			opener.document.theform.submit();
-			// Close the window
-			window.self.close();
+    // Pass the variable to parent hidden type and submit
+    opener.document.theform.resname.value = "noresult";
+    opener.document.theform.submit();
+    // Close the window
+    window.self.close();
 </script>';
 }
 ?>
@@ -135,12 +130,11 @@ if (isset($_GET["res"])) {
  }
 
 </script>
-
 </head>
 
 <body class="body_top">
 <div class="container-responsive">
-<div id="searchCriteria">
+<div id="searchCriteria" class="bg-info">
 <form class="form-inline" method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) {
     echo "pflag=0";
                                                                                                    } ?>'>
@@ -173,7 +167,7 @@ if (isset($_GET["res"])) {
 <?php if (! isset($_REQUEST['searchparm'])) : ?>
 <div id="searchstatus"><?php echo htmlspecialchars(xl('Enter your search criteria above'), ENT_NOQUOTES); ?></div>
 <?php elseif (count($result) == 0) : ?>
-<div id="searchstatus" class="noResults"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
+<div id="searchstatus" class="bg-info"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
 <br>
 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
 <a class="noresult" href='find_patient_popup.php?res=noresult' 
@@ -186,9 +180,9 @@ if (isset($_GET["res"])) {
     <?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
 </div>
 <?php elseif (count($result)>=100) : ?>
-<div id="searchstatus" class="tooManyResults"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
+<div id="searchstatus" class="bg-warning"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
 <?php elseif (count($result)<100) : ?>
-<div id="searchstatus" class="howManyResults"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
+<div id="searchstatus" class="bg-success"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
 <?php endif; ?>
 
 <?php if (isset($result)) : ?>
@@ -253,7 +247,7 @@ $(function(){
     //$(".event").dblclick(function() { EditEvent(this); });
     $("#theform").submit(function() { SubmitForm(this); });
 
-    $('[name="searchby"').on('change', function () {
+    $('select[name="searchby"').on('change', function () {
         if($(this).val() === 'DOB'){
             $('#searchparm').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
@@ -266,7 +260,6 @@ $(function(){
             $('#searchparm').datetimepicker("destroy");
         }
     });
-
 });
 
 // show the 'searching...' status and submit the form
