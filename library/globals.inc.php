@@ -2031,7 +2031,7 @@ $GLOBALS_METADATA = array(
                 'ARGON2ID' => xl('Argon2ID'),
             ),
             'DEFAULT',                // default
-            xl('Hashing algorithm for authentication. Suggest PHP Default unless you know what you are doing')
+            xl('Hashing algorithm for authentication. Suggest PHP Default unless you know what you are doing.')
         ),
 
         'gbl_auth_bcrypt_hash_cost' => array(
@@ -2056,7 +2056,7 @@ $GLOBALS_METADATA = array(
                 '20' => '20',
             ),
             'DEFAULT',                // default
-            xl('Authentication bcrypt hash cost. Suggest PHP Default unless you know what you are doing')
+            xl('Authentication bcrypt hash cost. Suggest PHP Default unless you know what you are doing.')
         ),
 
         'gbl_auth_argon_hash_memory_cost' => array(
@@ -2078,7 +2078,7 @@ $GLOBALS_METADATA = array(
                 '2097152' => '2097152',
             ),
             'DEFAULT',                // default
-            xl('Authentication argon hash memory cost (bytes). Suggest PHP Default unless you know what you are doing')
+            xl('Authentication argon hash memory cost. Suggest PHP Default unless you know what you are doing.')
         ),
 
         'gbl_auth_argon_hash_time_cost' => array(
@@ -2107,7 +2107,7 @@ $GLOBALS_METADATA = array(
                 '20' => '20',
             ),
             'DEFAULT',                // default
-            xl('Authentication argon hash time cost. Suggest PHP Default unless you know what you are doing')
+            xl('Authentication argon hash time cost. Suggest PHP Default unless you know what you are doing.')
         ),
 
         'gbl_auth_argon_hash_thread_cost' => array(
@@ -2136,7 +2136,7 @@ $GLOBALS_METADATA = array(
                 '20' => '20',
             ),
             'DEFAULT',                // default
-            xl('Authentication argon hash thread number. Suggest PHP Default unless you know what you are doing')
+            xl('Authentication argon hash thread number. Suggest PHP Default unless you know what you are doing.')
         ),
 
         'gbl_token_hash_algo' => array(
@@ -2148,7 +2148,7 @@ $GLOBALS_METADATA = array(
                 'ARGON2ID' => xl('Argon2ID'),
             ),
             'DEFAULT',                // default
-            xl('Hashing algorithm for token. Suggest PHP Default unless you know what you are doing')
+            xl('Hashing algorithm for token. Suggest PHP Default unless you know what you are doing.')
         ),
 
         'gbl_token_bcrypt_hash_cost' => array(
@@ -2173,7 +2173,7 @@ $GLOBALS_METADATA = array(
                 '20' => '20',
             ),
             'DEFAULT',                // default
-            xl('Token bcrypt hash cost. Suggest PHP Default unless you know what you are doing')
+            xl('Token bcrypt hash cost. Suggest PHP Default unless you know what you are doing.')
         ),
 
         'gbl_token_argon_hash_memory_cost' => array(
@@ -2195,7 +2195,7 @@ $GLOBALS_METADATA = array(
                 '2097152' => '2097152',
             ),
             'DEFAULT',                // default
-            xl('Token argon hash memory cost (bytes). Suggest PHP Default unless you know what you are doing')
+            xl('Token argon hash memory cost. Suggest PHP Default unless you know what you are doing.')
         ),
 
         'gbl_token_argon_hash_time_cost' => array(
@@ -2224,7 +2224,7 @@ $GLOBALS_METADATA = array(
                 '20' => '20',
             ),
             'DEFAULT',                // default
-            xl('Token argon hash time cost. Suggest PHP Default unless you know what you are doing')
+            xl('Token argon hash time cost. Suggest PHP Default unless you know what you are doing.')
         ),
 
         'gbl_token_argon_hash_thread_cost' => array(
@@ -2253,7 +2253,7 @@ $GLOBALS_METADATA = array(
                 '20' => '20',
             ),
             'DEFAULT',                // default
-            xl('Token argon hash thread number. Suggest PHP Default unless you know what you are doing')
+            xl('Token argon hash thread number. Suggest PHP Default unless you know what you are doing.')
         ),
     ),
 
