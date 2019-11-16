@@ -508,7 +508,7 @@ class AuthUtils
     // This function is static since requires no class specific defines
     public static function authCheckSession()
     {
-        if (isset($_SESSION['authUserID'])) {
+        if ((!empty($_SESSION['authUserID'])) && (!empty($_SESSION['authUser'])) && (!empty($_SESSION['authPass']))) {
             $authDB = privQuery("SELECT `users`.`username`, `users_secure`.`password`" .
                 " FROM `users`, `users_secure`" .
                 " WHERE `users`.`id` = ? ".
