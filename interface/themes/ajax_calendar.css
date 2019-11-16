@@ -28,7 +28,6 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     transition: margin .25s ease-out;
 }
 .page-content-wrapper {
-    min-width: 100vw;
 }
 #wrapper.toggled .sidebar-wrapper {
     margin-left: 0;
@@ -37,12 +36,10 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     .sidebar-wrapper {
         margin-left: 0;
     }
-
     .page-content-wrapper {
         min-width: 0;
         width: 100%;
     }
-
     #wrapper.toggled .sidebar-wrapper {
         margin-left: -30rem;
     }
@@ -56,7 +53,6 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .rtl #functions{
     float: right;
 }
-
 #topToolbarRight {
     float: right;
     width: 100%;

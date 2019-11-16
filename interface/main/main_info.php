@@ -60,17 +60,15 @@ if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
             empty-cells: show;
             border-collapse: collapse;
             border: 0;
-            min-height: 100vh;
             width: 100%;
-            height: 100%;
+            min-height: 100%;
+            height: 100vh;
         }
         body {
             margin: 0;
             padding: 0;
             min-width: 100%;
             min-height: 100%;
-            width: 100vw;
-            height: 100vh;
         }
     </style>
 </head>

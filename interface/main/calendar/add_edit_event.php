@@ -1055,184 +1055,181 @@ while ($crow = sqlFetchArray($cres)) {
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
- // This is for callback by the find-patient popup.
- function setpatient(pid, lname, fname, dob) {
-  var f = document.forms[0];
-  f.form_patient.value = lname + ', ' + fname;
-  f.form_pid.value = pid;
-  dobstyle = (dob == '' || dob.substr(5, 10) == '00-00') ? '' : 'none';
-  document.getElementById('dob_row').style.display = dobstyle;
- }
+// This is for callback by the find-patient popup.
+function setpatient(pid, lname, fname, dob) {
+    var f = document.forms[0];
+    f.form_patient.value = lname + ', ' + fname;
+    f.form_pid.value = pid;
+    dobstyle = (dob == '' || dob.substr(5, 10) == '00-00') ? '' : 'none';
+    document.getElementById('dob_row').style.display = dobstyle;
+}
 
- // This invokes the find-patient popup.
- function sel_patient() {
-  let title = '<?php echo xlt('Patient Search'); ?>';
-  dlgopen('find_patient_popup.php', 'findPatient', 650, 300, '', title);
- }
+// This invokes the find-patient popup.
+function sel_patient() {
+    let title = '<?php echo xlt('Patient Search'); ?>';
+    dlgopen('find_patient_popup.php', 'findPatient', 650, 300, '', title);
+}
 
- // This is for callback by the find-group popup.
- function setgroup(gid, name, end_date) {
-     var f = document.forms[0];
-     f.form_group.value = name;
-     f.form_gid.value = gid;
-     if(f.form_enddate.value == ""){
+// This is for callback by the find-group popup.
+function setgroup(gid, name, end_date) {
+    var f = document.forms[0];
+    f.form_group.value = name;
+    f.form_gid.value = gid;
+    if (f.form_enddate.value == "") {
         f.form_enddate.value = end_date;
-     }
+    }
 
- }
+}
 
- // This invokes the find-group popup.
- function sel_group() {
-     top.restoreSession();
-     let title = '<?php echo xlt('Group Search'); ?>';
-     dlgopen('find_group_popup.php', '_blank', 650, 300, '', title);
- }
+// This invokes the find-group popup.
+function sel_group() {
+    top.restoreSession();
+    let title = '<?php echo xlt('Group Search'); ?>';
+    dlgopen('find_group_popup.php', '_blank', 650, 300, '', title);
+}
 
- // Do whatever is needed when a new event category is selected.
- // For now this means changing the event title and duration.
- function set_display() {
-  var f = document.forms[0];
-  var s = f.form_category;
-  if (s.selectedIndex >= 0) {
-   var catid = s.options[s.selectedIndex].value;
-   var style_apptstatus = document.getElementById('title_apptstatus').style;
-   var style_prefcat = document.getElementById('title_prefcat').style;
-   if (catid == '2') { // In Office
-    style_apptstatus.display = 'none';
-    style_prefcat.display = '';
-    f.form_apptstatus.style.display = 'none';
-    f.form_prefcat.style.display = '';
-   } else {
-    style_prefcat.display = 'none';
-    style_apptstatus.display = '';
-    f.form_prefcat.style.display = 'none';
-    f.form_apptstatus.style.display = '';
-   }
-  }
- }
+// Do whatever is needed when a new event category is selected.
+// For now this means changing the event title and duration.
+function set_display() {
+    var f = document.forms[0];
+    var s = f.form_category;
+    if (s.selectedIndex >= 0) {
+        var catid = s.options[s.selectedIndex].value;
+        var style_apptstatus = document.getElementById('title_apptstatus').style;
+        var style_prefcat = document.getElementById('title_prefcat').style;
+        if (catid == '2') { // In Office
+            style_apptstatus.display = 'none';
+            style_prefcat.display = '';
+            f.form_apptstatus.style.display = 'none';
+            f.form_prefcat.style.display = '';
+        } else {
+            style_prefcat.display = 'none';
+            style_apptstatus.display = '';
+            f.form_prefcat.style.display = 'none';
+            f.form_apptstatus.style.display = '';
+        }
+    }
+}
 
- // Do whatever is needed when a new event category is selected.
- // For now this means changing the event title and duration.
- function set_category() {
-  var f = document.forms[0];
-  var s = f.form_category;
-  if (s.selectedIndex >= 0) {
-   var catid = s.options[s.selectedIndex].value;
-   f.form_title.value = s.options[s.selectedIndex].text;
-   f.form_duration.value = durations[catid];
-   set_display();
-  }
- }
+// Do whatever is needed when a new event category is selected.
+// For now this means changing the event title and duration.
+function set_category() {
+    var f = document.forms[0];
+    var s = f.form_category;
+    if (s.selectedIndex >= 0) {
+        var catid = s.options[s.selectedIndex].value;
+        f.form_title.value = s.options[s.selectedIndex].text;
+        f.form_duration.value = durations[catid];
+        set_display();
+    }
+}
 
- // Modify some visual attributes when the all-day or timed-event
- // radio buttons are clicked.
- function set_allday() {
-  var f = document.forms[0];
-  var color1 = '#777777';
-  var color2 = '#777777';
-  var disabled2 = true;
-  if (document.getElementById('rballday1').checked) {
-   color1 = '#000000';
-  }
-  if (document.getElementById('rballday2').checked) {
-   color2 = '#000000';
-   disabled2 = false;
-  }
-  document.getElementById('tdallday1').style.color = color1;
-  document.getElementById('tdallday2').style.color = color2;
-  document.getElementById('tdallday3').style.color = color2;
-  document.getElementById('tdallday4').style.color = color2;
-  document.getElementById('tdallday5').style.color = color2;
-  f.form_hour.disabled     = disabled2;
-  f.form_minute.disabled   = disabled2;
-  f.form_ampm.disabled     = disabled2;
-  f.form_duration.disabled = disabled2;
- }
+// Modify some visual attributes when the all-day or timed-event
+// radio buttons are clicked.
+function set_allday() {
+    var f = document.forms[0];
+    var color1 = '#777777';
+    var color2 = '#777777';
+    var disabled2 = true;
+    if (document.getElementById('rballday1').checked) {
+        color1 = '#000000';
+    }
+    if (document.getElementById('rballday2').checked) {
+        color2 = '#000000';
+        disabled2 = false;
+    }
+    document.getElementById('tdallday1').style.color = color1;
+    document.getElementById('tdallday2').style.color = color2;
+    document.getElementById('tdallday3').style.color = color2;
+    document.getElementById('tdallday4').style.color = color2;
+    document.getElementById('tdallday5').style.color = color2;
+    f.form_hour.disabled = disabled2;
+    f.form_minute.disabled = disabled2;
+    f.form_ampm.disabled = disabled2;
+    f.form_duration.disabled = disabled2;
+}
 
- // Modify some visual attributes when the Repeat checkbox is clicked.
- function set_repeat() {
-  var f = document.forms[0];
-  var isdisabled = true;
-  var mycolor = '#777777';
-  var myvisibility = 'hidden';
-  if (f.form_repeat.checked) {
-      f.days_every_week.checked = false;
-      document.getElementById("days_label").style.color = mycolor;
-      var days = document.getElementById("days").getElementsByTagName('input');
-      var labels = document.getElementById("days").getElementsByTagName('label');
-      for(var i=0; i < days.length; i++){
-          days[i].disabled = isdisabled;
-          labels[i].style.color = mycolor;
-      }
-      isdisabled = false;
-      mycolor = '#000000';
-      myvisibility = 'visible';
-  }
-  f.form_repeat_type.disabled = isdisabled;
-  f.form_repeat_freq.disabled = isdisabled;
-  f.form_enddate.disabled = isdisabled;
-  document.getElementById('tdrepeat1').style.color = mycolor;
-  document.getElementById('tdrepeat2').style.color = mycolor;
- }
+// Modify some visual attributes when the Repeat checkbox is clicked.
+function set_repeat() {
+    var f = document.forms[0];
+    var isdisabled = true;
+    var mycolor = '#777777';
+    var myvisibility = 'hidden';
+    if (f.form_repeat.checked) {
+        f.days_every_week.checked = false;
+        document.getElementById("days_label").style.color = mycolor;
+        var days = document.getElementById("days").getElementsByTagName('input');
+        var labels = document.getElementById("days").getElementsByTagName('label');
+        for (var i = 0; i < days.length; i++) {
+            days[i].disabled = isdisabled;
+            labels[i].style.color = mycolor;
+        }
+        isdisabled = false;
+        mycolor = '#000000';
+        myvisibility = 'visible';
+    }
+    f.form_repeat_type.disabled = isdisabled;
+    f.form_repeat_freq.disabled = isdisabled;
+    f.form_enddate.disabled = isdisabled;
+    document.getElementById('tdrepeat1').style.color = mycolor;
+    document.getElementById('tdrepeat2').style.color = mycolor;
+}
 
- // Event when days_every_week is checked.
- function set_days_every_week() {
-     var f = document.forms[0];
-     if (f.days_every_week.checked) {
-         //disable regular repeat
-         f.form_repeat.checked = false;
-         f.form_repeat_type.disabled = true;
-         f.form_repeat_freq.disabled = true;
-         document.getElementById('tdrepeat1').style.color = '#777777';
+// Event when days_every_week is checked.
+function set_days_every_week() {
+    var f = document.forms[0];
+    if (f.days_every_week.checked) {
+        //disable regular repeat
+        f.form_repeat.checked = false;
+        f.form_repeat_type.disabled = true;
+        f.form_repeat_freq.disabled = true;
+        document.getElementById('tdrepeat1').style.color = '#777777';
 
-         //enable end_date setting
-         document.getElementById('tdrepeat2').style.color = '#000000';
-         f.form_enddate.disabled = false;
+        //enable end_date setting
+        document.getElementById('tdrepeat2').style.color = '#000000';
+        f.form_enddate.disabled = false;
 
-         var isdisabled = false;
-         var mycolor = '#000000';
-         var myvisibility = 'visible';
-     }
-     else{
-         var isdisabled = true;
-         var mycolor = '#777777';
-         var myvisibility = 'hidden';
-     }
-     document.getElementById("days_label").style.color = mycolor;
-     var days = document.getElementById("days").getElementsByTagName('input');
-     var labels = document.getElementById("days").getElementsByTagName('label');
-     for(var i=0; i < days.length; i++){
-         days[i].disabled = isdisabled;
-         labels[i].style.color = mycolor;
-     }
+        var isdisabled = false;
+        var mycolor = '#000000';
+        var myvisibility = 'visible';
+    } else {
+        var isdisabled = true;
+        var mycolor = '#777777';
+        var myvisibility = 'hidden';
+    }
+    document.getElementById("days_label").style.color = mycolor;
+    var days = document.getElementById("days").getElementsByTagName('input');
+    var labels = document.getElementById("days").getElementsByTagName('label');
+    for (var i = 0; i < days.length; i++) {
+        days[i].disabled = isdisabled;
+        labels[i].style.color = mycolor;
+    }
 
-     //If no repetition is checked, disable end_date setting.
-     if(!f.days_every_week.checked  && !f.form_repeat.checked){
-         //disable end_date setting
-         document.getElementById('tdrepeat2').style.color = mycolor;
-         f.form_enddate.disabled = isdisabled;
-     }
+    //If no repetition is checked, disable end_date setting.
+    if (!f.days_every_week.checked && !f.form_repeat.checked) {
+        //disable end_date setting
+        document.getElementById('tdrepeat2').style.color = mycolor;
+        f.form_enddate.disabled = isdisabled;
+    }
+}
 
-
- }
-
- // Constants used by dateChanged() function.
- var occurNames = new Array(
-  '<?php echo xls("1st{{nth}}"); ?>',
-  '<?php echo xls("2nd{{nth}}"); ?>',
-  '<?php echo xls("3rd{{nth}}"); ?>',
-  '<?php echo xls("4th{{nth}}"); ?>'
- );
+// Constants used by dateChanged() function.
+var occurNames = new Array(
+    '<?php echo xls("1st{{nth}}"); ?>',
+    '<?php echo xls("2nd{{nth}}"); ?>',
+    '<?php echo xls("3rd{{nth}}"); ?>',
+    '<?php echo xls("4th{{nth}}"); ?>'
+);
 
 var weekDays = new Array(
-  '<?php echo xls("Sunday"); ?>',
-  '<?php echo xls("Monday"); ?>',
-  '<?php echo xls("Tuesday"); ?>',
-  '<?php echo xls("Wednesday"); ?>',
-  '<?php echo xls("Thursday"); ?>',
-  '<?php echo xls("Friday"); ?>',
-  '<?php echo xls("Saturday"); ?>'
- );
+    '<?php echo xls("Sunday"); ?>',
+    '<?php echo xls("Monday"); ?>',
+    '<?php echo xls("Tuesday"); ?>',
+    '<?php echo xls("Wednesday"); ?>',
+    '<?php echo xls("Thursday"); ?>',
+    '<?php echo xls("Friday"); ?>',
+    '<?php echo xls("Saturday"); ?>'
+);
 
  // Monitor start date changes to adjust repeat type options.
 function dateChanged() {
@@ -1268,55 +1265,55 @@ function dateChanged() {
     } // Added by epsdky 2016 (details in commit)
 }
 
-    // This is for callback by the find-available popup.
-    function setappt(year,mon,mday,hours,minutes) {
-        var f = document.forms[0];
-        <?php
-        $currentDateFormat = $GLOBALS['date_display_format'];
-        if ($currentDateFormat == 0) { ?>
-        f.form_date.value =  '' + year + '-' +
-            ('' + (mon  + 100)).substring(1) + '-' +
-            ('' + (mday + 100)).substring(1);
-        <?php } elseif ($currentDateFormat == 1) { ?>
-        f.form_date.value = ('' + (mon  + 100)).substring(1) + '/' +
-            ('' + (mday + 100)).substring(1) + '/' +
-            '' + year;
-        <?php } elseif ($currentDateFormat == 2) { ?>
-        f.form_date.value = ('' + (mday + 100)).substring(1) + '/' +
-            ('' + (mon  + 100)).substring(1) + '/' +
-            '' + year;
-        <?php } ?>
-        f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
-        f.form_hour.value = (hours > 12) ? hours - 12 : hours;
-        f.form_minute.value = ('' + (minutes + 100)).substring(1);
-    }
+// This is for callback by the find-available popup.
+function setappt(year,mon,mday,hours,minutes) {
+    var f = document.forms[0];
+    <?php
+    $currentDateFormat = $GLOBALS['date_display_format'];
+    if ($currentDateFormat == 0) { ?>
+    f.form_date.value =  '' + year + '-' +
+        ('' + (mon  + 100)).substring(1) + '-' +
+        ('' + (mday + 100)).substring(1);
+    <?php } elseif ($currentDateFormat == 1) { ?>
+    f.form_date.value = ('' + (mon  + 100)).substring(1) + '/' +
+        ('' + (mday + 100)).substring(1) + '/' +
+        '' + year;
+    <?php } elseif ($currentDateFormat == 2) { ?>
+    f.form_date.value = ('' + (mday + 100)).substring(1) + '/' +
+        ('' + (mon  + 100)).substring(1) + '/' +
+        '' + year;
+    <?php } ?>
+    f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
+    f.form_hour.value = (hours > 12) ? hours - 12 : hours;
+    f.form_minute.value = ('' + (minutes + 100)).substring(1);
+}
 
-    // Invoke the find-available popup.
-    function find_available(extra) {
-        top.restoreSession();
-        // (CHEMED) Conditional value selection, because there is no <select> element
-        // when making an appointment for a specific provider
-        var s = document.forms[0].form_provider;
-        var f = document.forms[0].facility;
-        <?php if ($userid != 0) { ?>
-            s = document.forms[0].form_provider.value;
-            f = document.forms[0].facility.value;
-        <?php } else {?>
-            s = document.forms[0].form_provider.options[s.selectedIndex].value;
-            f = document.forms[0].facility.options[f.selectedIndex].value;
-        <?php }?>
-        var c = document.forms[0].form_category;
-        var formDate = document.forms[0].form_date;
-        let title = <?php echo xlj('Available Appointments Calendar'); ?>;
-        dlgopen('<?php echo $GLOBALS['web_root']; ?>/interface/main/calendar/find_appt_popup.php' +
-            '?providerid=' + s +
-            '&catid=' + c.options[c.selectedIndex].value +
-            '&facility=' + f +
-            '&startdate=' + formDate.value +
-            '&evdur=' + document.forms[0].form_duration.value +
-            '&eid=<?php echo 0 + $eid; ?>' + extra,
-            '', 725, 200, '', title);
-    }
+// Invoke the find-available popup.
+function find_available(extra) {
+    top.restoreSession();
+    // (CHEMED) Conditional value selection, because there is no <select> element
+    // when making an appointment for a specific provider
+    var s = document.forms[0].form_provider;
+    var f = document.forms[0].facility;
+    <?php if ($userid != 0) { ?>
+        s = document.forms[0].form_provider.value;
+        f = document.forms[0].facility.value;
+    <?php } else {?>
+        s = document.forms[0].form_provider.options[s.selectedIndex].value;
+        f = document.forms[0].facility.options[f.selectedIndex].value;
+    <?php }?>
+    var c = document.forms[0].form_category;
+    var formDate = document.forms[0].form_date;
+    let title = <?php echo xlj('Available Appointments Calendar'); ?>;
+    dlgopen('<?php echo $GLOBALS['web_root']; ?>/interface/main/calendar/find_appt_popup.php' +
+        '?providerid=' + s +
+        '&catid=' + c.options[c.selectedIndex].value +
+        '&facility=' + f +
+        '&startdate=' + formDate.value +
+        '&evdur=' + document.forms[0].form_duration.value +
+        '&eid=<?php echo 0 + $eid; ?>' + extra,
+        '', 725, 200, '', title);
+}
 </script>
 <style>
     .navbar {
@@ -1342,6 +1339,7 @@ function dateChanged() {
         width: 12%;
     }
     #days_every_week_row div input {
+        width: 100%;
     }
     input[type="button"] {
         margin-bottom: 3px;
@@ -1509,6 +1507,21 @@ if ($_GET['prov'] != true && $_GET['group'] != true) { ?>
             }
             ?>
             </span>
+        </div>
+    </div>
+    <?php
+    // DOB is important for the clinic, so if it's missing give them a chance
+    // to enter it right here.  We must display or hide this row dynamically
+    // in case the patient-select popup is used.
+    $patient_dob = trim($prow['DOB']);
+    $is_group = $groupname;
+    $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
+        '' : 'none';
+    ?>
+    <div class="row" id='dob_row' style='display:<?php echo $dobstyle ?>'>
+        <div class="form-group">
+            <span class="text-danger"><?php echo xlt('DOB is missing, please enter if possible'); ?>:</span>
+            <input class="form-control datepicker" type='text' size='10' name='form_dob' id='form_dob' title='<?php echo xla('yyyy-mm-dd date of birth'); ?>' />
         </div>
     </div>
 <?php } ?>
@@ -1767,6 +1780,17 @@ function isRegularRepeat($repeat)
         </div>
     </div>
 </div>
+    <div class="row">
+    <div id="recurr_popup" class="button-group alert bg-danger text-left" style="display: none; position: absolute; left: 15%; right: 15%; max-width:400px;">
+        <p class="lead small" style="font-size:16px;"><strong><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></strong></p>
+        <br>
+        <?php if ($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
+            <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
+        <?php } ?>
+        <input type="button" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
+        <input type="button" id="future_events" value="<?php echo xla('Future'); ?>">
+        <input type="button" id="current_event" value="<?php echo xla('Current'); ?>">
+    </div></div>
 <div class="row">
     <div class="form-group">
         <label id='title_apptstatus'><?php echo xlt('Status'); ?>:</label>
@@ -1785,66 +1809,40 @@ function isRegularRepeat($repeat)
         </select>
     </div>
 </div>
-    <?php
-    if ($_GET['prov'] != true) { ?>
-        <div class="row">
-            <div class="form-group">
-                <label><?php echo xlt('Room Number'); ?>:</label>
-                <?php
-                    echo generate_select_list('form_room', 'patient_flow_board_rooms', $pcroom, xl('Room Number'));
-                ?>
-            </div>
-        </div>
-        <?php } ?>
+<?php
+if ($_GET['prov'] != true) { ?>
     <div class="row">
         <div class="form-group">
-            <label><?php echo xlt('Comments'); ?>:</label>
-            <input class='form-control' type='text' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
+            <label><?php echo xlt('Room Number'); ?>:</label>
+            <?php
+                echo generate_select_list('form_room', 'patient_flow_board_rooms', $pcroom, xl('Room Number'));
+            ?>
         </div>
     </div>
-    <?php
-     // DOB is important for the clinic, so if it's missing give them a chance
-     // to enter it right here.  We must display or hide this row dynamically
-     // in case the patient-select popup is used.
-     $patient_dob = trim($prow['DOB']);
-     $is_group = $groupname;
-     $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
-      '' : 'none';
-    ?>
-    <div class="row" id='dob_row' style='display:<?php echo $dobstyle ?>'>
-        <div class="form-control">
-            <span class="text-danger"><?php echo xlt('DOB is missing, please enter if possible'); ?>:</span>
-            <input class="form-control datepicker" type='text' size='10' name='form_dob' id='form_dob' title='<?php echo xla('yyyy-mm-dd date of birth'); ?>' />
-        </div>
+    <?php } ?>
+<div class="row">
+    <div class="form-group">
+        <label><?php echo xlt('Comments'); ?>:</label>
+        <input class='form-control' type='text' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
     </div>
-    <div class='row '>
-        <div class="button-group buttonbar">
-            <input type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
-            <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
-                <input type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
-            <?php } ?>
-            <input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
-            <input type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' />
-            <input type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate'); ?>' />
-        </div>
+</div>
+<div class='row'>
+    <div class="button-group buttonbar">
+        <input type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
+        <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
+            <input type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
+        <?php } ?>
+        <input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
+        <input type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' />
+        <input type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate'); ?>' />
     </div>
+</div>
 <?php if ($informant) {
     echo "<p class='text'>" . xlt('Last update by') . " " .
     text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n";
 } ?>
-<!-- This ends our form the rest is action items-->
-</form>
 
-<div id="recurr_popup" style="visibility: hidden; position: absolute; top: 50px; left: 50px; width: 400px; border: 3px outset yellow; background-color: yellow; padding: 5px;">
-    <?php echo xlt('Apply the changes to the Current event only, to this and all Future occurrences, or to All occurrences?') ?>
-    <br>
-    <?php if ($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
-        <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
-    <?php } ?>
-    <input type="button" name="recurr_cancel" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
-    <input type="button" name="future_events" id="future_events" value="<?php echo xla('Future'); ?>">
-    <input type="button" name="current_event" id="current_event" value="<?php echo xla('Current'); ?>">
-</div>
+</form><!-- This ends our form. The rest is action items-->
 
 </div> <!-- top wrapper row -->
 </div> <!-- top container wrapper -->
@@ -1995,7 +1993,7 @@ function validateform(event,valu){
     if ($("#recurr_affect").val() == "") {
         DisableForm();
         // show the current/future/all DIV for the user to choose one
-        $("#recurr_popup").css("visibility", "visible");
+        $("#recurr_popup").css("display", "");
         $('#form_save').attr('disabled', false);
         return false;
     }
@@ -2015,7 +2013,7 @@ function EnableForm() {
 
 // hide the recurring popup DIV
 function HideRecurrPopup() {
-    $("#recurr_popup").css("visibility", "hidden");
+    $("#recurr_popup").css("display", "none");
 }
 
 function deleteEvent() {
@@ -2027,7 +2025,7 @@ function deleteEvent() {
         if ($("#recurr_affect").val() == "") {
             DisableForm();
             // show the current/future/all DIV for the user to choose one
-            $("#recurr_popup").css("visibility", "visible");
+            $("#recurr_popup").css("display", "");
             return false;
         }
         <?php endif; ?>
