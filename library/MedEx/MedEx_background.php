@@ -34,10 +34,6 @@ function start_MedEx()
     $MedEx = new MedExApi\MedEx('MedExBank.com');
     $logged_in = $MedEx->login('1');
     if ($logged_in) {
-        $token      = $logged_in['token'];
-        $MedEx->practice->sync($token);
-        $campaigns  = $MedEx->campaign->events($token);
-        $MedEx->events->generate($token, $campaigns['events']);
         echo "Completed @ ". date("Y-m-d H:i:s") . "\n";
     } else {
         echo $MedEx->getLastError();

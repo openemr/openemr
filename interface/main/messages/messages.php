@@ -44,7 +44,7 @@ $MedEx = new MedExApi\MedEx('MedExBank.com');
 
 if ($GLOBALS['medex_enable'] == '1') {
     if ($_REQUEST['SMS_bot']) {
-        $result = $MedEx->login('1');
+        $result = $MedEx->login('');
         $MedEx->display->SMS_bot($result);
         exit();
     }
@@ -156,13 +156,13 @@ if (!empty($_REQUEST['go'])) { ?>
         echo "<title>" . xlt('Recall Board') . "</title></head><body class='body_top'>";
         $MedEx->display->display_recalls($logged_in);
     } elseif ((($_REQUEST['go'] == "setup") || ($_REQUEST['go'] == 'Preferences')) && ($logged_in)) {
-        echo "<title>MedEx" . xlt('Preferences') . "</title></head><body class='body_top'>";
+        echo "<title>MedEx: " . xlt('Preferences') . "</title></head><body class='body_top'>";
         $MedEx->display->preferences();
     } elseif ($_REQUEST['go'] == 'icons') {
-        echo "<title>MedEx" . xlt('Icons') . "</title></head><body class='body_top'>";
+        echo "<title>MedEx: " . xlt('Icons') . "&#x24B8;</title></head><body class='body_top'>";
         $MedEx->display->icon_template();
     } elseif ($_REQUEST['go'] == 'SMS_bot') {
-        echo "<title>MedEx" . xlt('SMS') . "</title></head><body class='body_top'>";
+        echo "<title>MedEx: SMS Bot&#x24B8;</title></head><body class='body_top'>";
         $MedEx->display->SMS_bot($logged_in);
         exit;
     } else {
@@ -171,7 +171,7 @@ if (!empty($_REQUEST['go'])) { ?>
     }
 } else {
     //original message.php stuff
-
+    
     if ($GLOBALS['enable_help'] == 1) {
         $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
@@ -183,7 +183,7 @@ if (!empty($_REQUEST['go'])) { ?>
     if ($GLOBALS['disable_rcb'] != '1') {
         $heading_caption .= ', ' . xlt('Recalls');
     }
-
+    
     $arrOeUiSettings = array(
         'heading_title' => $heading_caption,
         'include_patient_name' => false,// use only in appropriate pages

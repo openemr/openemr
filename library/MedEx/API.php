@@ -11,6 +11,8 @@
 
     namespace MedExApi;
 
+    use OpenEMR\Services\VersionService;
+
     error_reporting(0);
 
 class CurlRequest
@@ -82,7 +84,8 @@ class CurlRequest
         }
 
         if (!file_exists(dirname($this->sessionFile))) {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */mkdir(dirname($this->sessionFile, 0755, true));
+            /** @noinspection PhpMethodParametersCountMismatchInspection */
+            mkdir(dirname($this->sessionFile, 0755, true));
         }
 
         file_put_contents($this->sessionFile, json_encode($this->cookies));
@@ -125,7 +128,6 @@ class Practice extends Base
         $callback = "https://".$GLOBALS['_SERVER']['SERVER_NAME'].$GLOBALS['_SERVER']['PHP_SELF'];
         $callback = str_replace('ajax/execute_background_services.php', 'MedEx/MedEx.php', $callback);
         $fields2['callback_url'] = $callback;
-        //get the providers list:
         $sqlQuery = "SELECT * FROM medex_prefs";
         $my_status = sqlQuery($sqlQuery);
         $providers = explode('|', $my_status['ME_providers']);
@@ -136,7 +138,6 @@ class Practice extends Base
                 $fields2['providers'][] = $urow;
             }
         }
-        //get the facilities list and flag which we do messaging for (checkboxes in Preferences)
         $facilities = explode('|', $my_status['ME_facilities']);
         $runQuery = "SELECT * FROM facility WHERE service_location='1'";
         $ures = sqlStatement($runQuery);
@@ -146,26 +147,22 @@ class Practice extends Base
                 $fields2['facilities'][] = $urow;
             }
         }
-        //get the categories list:
         $runQuery = "SELECT pc_catid, pc_catname, pc_catdesc, pc_catcolor, pc_seq
                          FROM openemr_postcalendar_categories WHERE pc_active = 1 AND pc_cattype='0' ORDER BY pc_catid";
         $ures = sqlStatement($runQuery);
         while ($urow = sqlFetchArray($ures)) {
             $fields2['categories'][] = $urow;
         }
-        //get apptstats
         $runQuery = "SELECT * FROM `list_options` WHERE `list_id` LIKE 'apptstat' AND activity='1'";
         $ures = sqlStatement($runQuery);
         while ($urow = sqlFetchArray($ures)) {
             $fields2['apptstats'][] = $urow;
         }
-        //get definition for "Checked Out"
         $runQuery = "SELECT option_id FROM list_options WHERE toggle_setting_2='1' AND list_id='apptstat' AND activity='1'";
         $ures = sqlStatement($runQuery);
         while ($urow = sqlFetchArray($ures)) {
             $fields2['checkedOut'][] = $urow;
         }
-        //get clinical reminders for practice
         $sql = "SELECT * FROM `clinical_rules`,`list_options`,`rule_action`,`rule_action_item`
                     WHERE
                     `clinical_rules`.`pid`=0 AND
@@ -190,18 +187,6 @@ class Practice extends Base
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
 
-        //Practice: Since the last MedEx login, who has responded to one of our messages and do we know about these responses?
-        //Have we deleted, cancelled or changed an appointment that we thought we were supposed to send, and now don't want to?
-        //1. Check to see if anything pending was cancelled/changed.
-        //2. Make sure any recalls don't have appointments just scheduled. If so no Recall message needed.
-        //3. Sync any responses received on MedEx that we didn't see already.
-        //     Send and Receive everything since last timestamp/update noted in medex_prefs and check.
-        //Finally we may have manually made an appointment (which deletes a Recall) or manually confirmed an appt too.
-        //4. We need to send this data to MedEx so it stops processing events that are confirmed/completed.
-
-        //1. Check to see if anything pending was cancelled/changed.
-        //for appts, we are just looking for appts that are flagged as 'To Send' BUT
-        // were confirmed, cancelled, moved by the staff since the appt was added to table medex_outgoing...
         $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid != 'recall_%' AND msg_reply LIKE 'To Send'";
         $test = sqlStatement($sql);
         while ($result1 = sqlFetchArray($test)) {
@@ -214,46 +199,36 @@ class Practice extends Base
                 $result2['pc_apptstatus'] =='x' ) { //cancelled
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
                 sqlQuery($sqlUPDATE, array($result2['pc_apptstatus'],$result2['msg_uid']));
-                //we need to update MedEx regarding actions to try to cancel
                 $tell_MedEx['DELETE_MSG'][] = $result1['msg_pc_eid'];
             }
         }
 
-        // 2. Make sure any recalls don't have appointments, ie. just a recall is scheduled
-        //   Go through each recall event in medex_outgoing and check to see if it is scheduled.  If so tell MedEx.
-        //   We do this when we load the Recall Board........ and now when running a cron job/background_service
         $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid LIKE 'recall_%' GROUP BY msg_pc_eid";
         $result = sqlStatement($sql);
         while ($row = sqlFetchArray($result)) {
             $pid = trim($row['msg_pc_eid'], "recall_");
-            //if there is a future appointment now in calendar, stop this recall message from going out
             $query  = "SELECT pc_eid FROM openemr_postcalendar_events WHERE (pc_eventDate > CURDATE()) AND pc_pid=?";
             $test3 = sqlStatement($query, array($pid));
             $result3 = sqlFetchArray($test3);
             if ($result3) {
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'SCHEDULED', msg_extra_text=? WHERE msg_uid = ?";
                 sqlQuery($sqlUPDATE, array($result3['pc_eid'],$result2['msg_uid']));
-                //we need to update MedEx regarding actions to try to cancel
                 $tell_MedEx['DELETE_MSG'][] = $row['msg_pc_eid'];
             }
         }
 
-        //3. Sync any responses received on MedEx that we didn't see already.
-        //   get last update
         $sqlQuery = "SELECT * FROM medex_prefs";
         $my_status = sqlStatement($sqlQuery);
         while ($urow = sqlFetchArray($my_status)) {
             $fields3['MedEx_lastupdated']   = $urow['MedEx_lastupdated'];
             $fields3['ME_providers']        = $urow['ME_providers'];
         }
-        // send notes
-        $this->curl->setUrl($this->MedEx->getUrl('custom/sync_responses&token='.$token));
+        $this->curl->setUrl($this->MedEx->getUrl('custom/sync_responses&token='.$token.'&id='.$urow['MedEx_id']));
         $this->curl->setData($fields3);
         $this->curl->makeRequest();
         $responses = $this->curl->getResponse();
 
         foreach ($responses['messages'] as $data) {
-            //check to see if this response is present already
             $data['msg_extra'] = $data['msg_extra']?:'';
             $sqlQuery ="SELECT * FROM medex_outgoing WHERE medex_uid=?";
             $checker = sqlStatement($sqlQuery, array($data['msg_uid']));
@@ -263,9 +238,8 @@ class Practice extends Base
         }
         $sqlUPDATE = "UPDATE medex_prefs SET MedEx_lastupdated=utc_timestamp()";
         sqlStatement($sqlUPDATE);
-        //4.  sync notes
         if ($tell_MedEx['DELETE_MSG']) {
-            $this->curl->setUrl($this->MedEx->getUrl('custom/remMessaging&token='.$token));
+            $this->curl->setUrl($this->MedEx->getUrl('custom/remMessaging&token='.$token.'&id='.$urow['MedEx_id']));
             $this->curl->setData($tell_MedEx['DELETE_MSG']);
             $this->curl->makeRequest();
             $response = $this->curl->getResponse();
@@ -289,55 +263,28 @@ class Campaign extends Base
 {
     public function events($token)
     {
-        $this->curl->setUrl($this->MedEx->getUrl('custom/showEvents&token='.$token));
-        $this->curl->makeRequest();
-        $response = $this->curl->getResponse();
-
-        if (isset($response['success'])) {
-            return $response;
-        } else if (isset($response['error'])) {
-            $this->lastError = $response['error'];
+        $info= array();
+        $query = "SELECT * FROM medex_prefs";
+        $info = sqlFetchArray(sqlStatement($query));
+        
+        if (empty($info) ||
+            empty($info['ME_username']) ||
+            empty($info['ME_api_key']) ||
+            empty($info['MedEx_id'])) {
+            return false;
         }
-        return false;
+        $results = json_decode($info['status'], true);
+        return $results['status']['campaigns'];
     }
 }
 
 class Events extends Base
 {
-    /**
-     *  In this function we are generating all appts that match scheduled campaign events so MedEx can conduct the campaign events.
-     *
-     *  This is run via MedEx_background.php or MedEx.php to find appointments that match our Campaign events and rules.
-     *  Messaging Campaigns are categorized by function:
-     *      There are RECALLs, REMINDERs, CLINICAL_REMINDERs, SURVEYs and ANNOUNCEments (and later whatever comes down the pike).
-     *  To meet a campaign's goals, we schedule campaign events.
-     *  REMINDER and RECALL campaigns each have their own events which the user creates and personalizes.
-     *      There is only one REMINDER Campaign and one RECALL Campaign, each with unlimited events.
-     *
-     *      SURVEYs and ANNOUNCEments can have unlimited campaigns, each with their own events...
-     *          You can ANNOUNCE a weather related closure (campaign) by SMS and AVM (events) going out now/ASAP
-     *      AND
-     *          at the same time also ANNOUNCE that in two months Dr. X will be out of the office and patient needs to reschedule (campaign)
-     *          using SMS and email and voice (events) with messages going out 2 days from now, spread out over 6 business days...
-     *
-     *  So SURVEY AND ANNOUNCE events have parent Campaigns they are attached to
-     *  but RECALLS and REMINDERS do not (they are a RECALL or a REMINDER).
-     *  Clinical Reminders can be handled locally in full, some parts local, some on MedEx or all on MedEx.
-     *  ie.  some practices may want to send emails themselves,
-     *       but have MedEx handle the SMS and phone arms of the campaign, etc.
-     *  Whatever is decided, MedEx events are created on MedEx and we are notified it exists in $MedEx->campaign->events($token).
-     *  We are taking those events to build our list of recipients, they are logged in local medex_outgoing table,
-     *  and are sent to MedEx to process the event.
-     * @param $token
-     * @param $events
-     * @return mixed
-     */
     public function generate($token, $events)
     {
         global $info;
         if (empty($events)) {
             return false; //throw new InvalidDataException("You have no Campaign Events on MedEx at this time.");
-            //You have no campaign events on MedEx!
         }
         $appt3 = array();
         $count_appts = 0;
@@ -348,25 +295,27 @@ class Events extends Base
         $count_clinical_reminders = 0;
         $count_gogreen = 0;
         
-        // For future appts, we don't want to run anything on the weekend so do them Friday.
-        // There is a GLOBALS value for weekend days, maybe use that LTR.
-        // -->If Friday, send all appts matching campaign fire_Time + 2 days
-        // For past appts, we also don't want to send messages on the weekend, so do them Monday.
+        $sqlQuery = "SELECT * FROM medex_icons";
+        $result = sqlStatement($sqlQuery);
+        while ($icons = sqlFetchArray($result)) {
+            $title = preg_match('/title=\"(.*)\"/', $icons['i_html']);
+            $xl_title = xla($title);
+            $icons['i_html'] = str_replace($title, $xl_title, $icons['i_html']);
+            $icon[$icons['msg_type']][$icons['msg_status']] = $icons['i_html'];
+        }
+        $sql2= "SELECT ME_facilities FROM medex_prefs";
+        $pref_facilities = sqlQuery($sql2);
+        
         foreach ($events as $event) {
             $escClause=[];
-            $escapedArr = []; //will hold prepared statement items for query.
+            $escapedArr = [];
             $build_langs ='';
-            $lang ='';
-            $langs = '';
             $target_lang = '';
             $no_dupes = '';
-            $this->MedEx->logging->log_this("event['E_language'] =".$event['E_language']);
             if (($event['E_language'] > '') && ($event['E_language'] != "all")) {
                 $langs = explode("|", $event['E_language']);
                 foreach ($langs as $lang) {
-                    $this->MedEx->logging->log_this("language here MUST be something: ".$lang);
                     if ($lang =='No preference') {
-                        //this is MedEx value for the patient's preference and the openemr DB stores it as blank
                         $build_langs .= "pat.language = '' OR ";
                     } else {
                         $build_langs .= "pat.language=? OR ";
@@ -375,7 +324,6 @@ class Events extends Base
                 }
                 $build_langs = rtrim($build_langs, "OR ");
                 $target_lang = "(". $build_langs .") AND ";
-                $this->MedEx->logging->log_this($escapedArr);
             }
             
             if ($event['M_group'] == 'REMINDER') {
@@ -393,35 +341,23 @@ class Events extends Base
                         $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                     }
                 } else {
-                    // Past appts -> appts that are completed.
-                    // Need to exclude appts that were cancelled or noshowed
-                    // Granular Functionality - select out via appt_stats/Visit Types/Doc/Fac is in Go Green Messaging
-                    // Use the flag in the list_options to note that the appointment is completed
-                    $interval ='-';// appts completed - this is defined by list_option->toggle_setting2=1 for Flow Board
-                    $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat')
+                     $interval ='-';
+                     $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat')
                                          and pc_apptstatus != '%'
                                          and pc_apptstatus != 'x' ";
                 }
                 
-                $timing = (int)$event['E_fire_time']-1;//the minus one is a critical change
-                // if it is Friday do stuff as scheduled + 2 days more
-                // for future appts, widen the net to get Timing2 = $timing +2.":1:1";
-                // eg an event/message is scheduled to go out 2 days in advance - reminder SMS.
-                // It is Friday.  2 days ahead is Sunday, but Monday's would run on Saturday and Tuesday's on Sunday.
-                // We should run them all on Friday...  So load them that way now.
+                $timing = (int)$event['E_fire_time']-1;
                 $today=date("l");
-
                 if (($today =="Sunday")||($today =="Saturday")) {
                     continue;
                 }
                 if ($today == "Friday") {
-                    $timing2 = ($timing + 3).":0:1"; //this is + 3 day, 0 hour and 1 minute...
+                    $timing2 = ($timing + 3).":0:1";
                 } else {
-                    $timing2 = ($timing + 1).":1:1"; //this is + 1 day, 1 hour and 1 minute...
+                    $timing2 = ($timing + 1).":1:1";
                 }
-                $sql2= "SELECT ME_facilities FROM medex_prefs";
-                $pref_facilities = sqlQuery($sql2);
-
+                
                 if (!empty($pref_facilities['ME_facilities'])) {
                     $places = str_replace("|", ",", $pref_facilities['ME_facilities']);
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
@@ -441,13 +377,14 @@ class Events extends Base
                                       )
                                     )
                                     ". $appt_status."
+                                     and pat.pid > ''
                                     AND pc_facility IN (".$places.")
                                     AND pat.pid=cal.pc_pid  ORDER BY pc_eventDate,pc_startTime";
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt= sqlFetchArray($result)) {
-                        list($response,$results) = $this->MedEx->checkModality($event, $appt);
+                        list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
                         if ($results==false) {
-                            continue; //not happening - either not allowed or not possible
+                            continue;
                         }
                         if (($appt['pc_recurrtype'] !='0') && ($interval =="+")) {
                             $recurrents = $this->addRecurrent($appt, $interval, $timing, $timing2);
@@ -488,7 +425,10 @@ class Events extends Base
                         $appt3[] = $appt2;
                     }
                 }
-            } else if ($event['M_group'] == 'RECALL') {
+               
+
+            }
+            else if ($event['M_group'] == 'RECALL') {
                 if ($event['time_order'] > '0') {
                     $interval ="+";
                 } else {
@@ -501,39 +441,21 @@ class Events extends Base
                                 WHERE (recall.r_eventDate < CURDATE() ".$interval." INTERVAL ".$timing." DAY)
                                 ORDER BY recall.r_eventDate";
                 $result = sqlStatement($query);
-
+                
                 while ($recall = sqlFetchArray($result)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $recall);
+                    list($response,$results) = $this->MedEx->checkModality($event, $recall, $icon);
                     if ($results==false) {
-                        continue; //not happening - either not allowed or not possible
+                        continue;
                     }
                     $show = $this->MedEx->display->show_progress_recall($recall, $event);
                     if ($show['DONE'] == '1') {
-                        // Appointment was made -the Recall about to be deleted, so don't process this RECALL
-                        // MedEx needs to delete this RECALL!
                         $RECALLS_completed[] = $recall;
                         continue;
                     }
-
-                    if ($show['status']!=="reddish") {
-                        // OK there is status for this recall.  Something happened.  Maybe something was sent/postcard/phone call
-                        // But despite what transpired there has been no appointment yet (yellowish) or it was just
-                        // made today (greenish)?  Either way, we don't want to regenerate this - don't add it to our Appt list.
+                    if ($show['status']=="reddish") {
                         continue;
                     }
-
-                    // OK the list of recalls may include "older than today" recalls, they should only be included once...
-                    // Otherwise you'll be sending messages every day to recalls that have passed.  Not the intended work flow...
-                    // If a recall date has passed but no MedEx messages have been sent yet, we want to do something.
-                    // ie. loading recalls for the first time CAN include recalls that are already due, not just upcoming.
-                    // If there is more than one campaign event that could fire for these "old recalls",
-                    // we are only going to do the first one.  Generate one thing for MedEx to do for this event.
-                    // Maybe the practice schedules 2 RECALL Campaign Event Messages for the same day?  We would want to run both right?
-                    // Yes, and for new ones, ones just due today, we will follow that directive.
-                    // However we will limit recalls that are in the past to one event!
-                    // Note:  This only is an issue the first time loading a recall whose due date has already passed.
-                    // If a new recall is added for this patient eg. two years from now we need a new one,
-                    // the old one will be deleted from memory.
+                    
                     if (strtotime($recall['r_eventDate']) < mktime(0, 0, 0)) {
                         if ($this->recursive_array_search("recall_".$recall['r_pid'], $appt3)) {
                             continue;
@@ -569,7 +491,8 @@ class Events extends Base
 
                     $appt3[] = $recall2;
                 }
-            } else if ($event['M_group'] == 'ANNOUNCE') {
+            }
+            else if ($event['M_group'] == 'ANNOUNCE') {
                 if (empty($event['start_date'])) {
                     continue;
                 }
@@ -580,7 +503,6 @@ class Events extends Base
                     continue;
                 }
                 if ($start >= $today) {
-                    //we need recurrents because it is a future date or today
                     if (empty($event['appts_end'])) {
                         $event['appts_end'] = $event['appts_start'];
                     }
@@ -601,11 +523,10 @@ class Events extends Base
                     $escapedArr[]=$event['appts_end'];
                     $escapedArr[]=$event['appts_start'];
                 } else {
-                    //it is a past date or today so we do not need recurrents
-                    if (empty($event['appts_end'])) { //a single date
+                    if (empty($event['appts_end'])) {
                             $target_dates = "pc_eventDate = ?";
                             $escapedArr[]=$event['appts_start'];
-                    } else { //a date range, start and end
+                    } else {
                         $target_dates = "(pc_eventDate >= ? and pc_eventDate <= ?)";
                         $escapedArr[]=$event['appts_start'];
                         $escapedArr[]=$event['appts_end'];
@@ -672,9 +593,8 @@ class Events extends Base
                                     ".$visit_types."
                                 ORDER BY pc_eventDate,pc_startTime";
                 $result = sqlStatement($sql_ANNOUNCE, $escapedArr);
-
                 while ($appt= sqlFetchArray($result)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $appt);
+                    list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
                     if ($results==false) {
                         continue; //not happening - either not allowed or not possible
                     }
@@ -716,17 +636,13 @@ class Events extends Base
                     $appt2['to']            = $results;
                     $appt3[] = $appt2;
                 }
-            } else if ($event['M_group'] == 'SURVEY') {
-                    // Look at appts on a per-provider basis for now...
-                    //and Retrospectively only - so no recurrents
+            }
+            else if ($event['M_group'] == 'SURVEY') {
                 if (empty($event['timing'])) {
                     $event['timing'] = "180";
                 }
-                    // appts completed - this is defined by list_option->toggle_setting2=1 for Flow Board
-                    $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat') ";
-                    //if we are to refine further, to not limit by completed status but with a specific appt_stats
-                    // eg survey people who left without appt or
-                    //T_appt_stats = array -> list of appstat(s) to restrict event to in a ',' separated list
+                // appts completed - this is defined by list_option->toggle_setting2=1 for Flow Board
+                $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat') ";
                 if (!empty($event['T_appt_stats'])) {
                     foreach ($event['T_appt_stats'] as $stat) {
                         $escapedArr[] = $stat;
@@ -736,10 +652,9 @@ class Events extends Base
                     $appt_status = " and pc_appstatus in (".$escClause['Stat'].") ";
                 }
 
-                    $sql2= "SELECT * FROM medex_prefs";
-                    $pref = sqlQuery($sql2);
-                    //if we are refining survey by facility
-                    $facility_clause = '';
+                $sql2= "SELECT * FROM medex_prefs";
+                $pref = sqlQuery($sql2);
+                $facility_clause = '';
                 if (!empty($event['T_facilities'])) {
                     foreach ($event['T_facilities'] as $fac) {
                         $escapedArr[] = $fac;
@@ -748,7 +663,7 @@ class Events extends Base
                     rtrim($escFac, ",");
                     $facility_clause = " AND cal.pc_facility in (".$escClause['Fac'].") ";
                 }
-                    $all_providers = explode('|', $pref['ME_providers']);
+                $all_providers = explode('|', $pref['ME_providers']);
                 foreach ($event['survey'] as $k => $v) {
                     if (($v <= 0) || (empty($event['providers'])) || (!in_array($k, $all_providers))) {
                         continue;
@@ -770,11 +685,9 @@ class Events extends Base
                                             GROUP BY pc_pid
                                             ORDER BY pc_eventDate,pc_startTime
                                             LIMIT ".$v;
-                    //Survey opt-out option should feed into here also but there is no field for it in patient_data
-                    //MedEx tracks opt-out requests however so unless there are a lot, it won't matter here.
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt= sqlFetchArray($result)) {
-                        list($response,$results) = $this->MedEx->checkModality($event, $appt);
+                        list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
                         if ($results==false) {
                             continue; //not happening - either not allowed or not possible
                         }
@@ -814,50 +727,35 @@ class Events extends Base
                         $count_surveys++;
                     }
                 }
-            } else if ($event['M_group'] == 'CLINICAL_REMINDER') {
-                    $sql = "SELECT * FROM `patient_reminders`,`patient_data`
+            }
+            else if ($event['M_group'] == 'CLINICAL_REMINDER') {
+                $sql = "SELECT * FROM `patient_reminders`,`patient_data`
                                   WHERE
                                 `patient_reminders`.pid ='".$event['PID']."' AND
                                 `patient_reminders`.active='1' AND
                                 `patient_reminders`.date_sent IS NULL AND
                                 `patient_reminders`.pid=`patient_data`.pid
                                   ORDER BY `due_status`, `date_created`";
-                    $ures = sqlStatementCdrEngine($sql);
-                    $returnval=array();
+                $ures = sqlStatementCdrEngine($sql);
                 while ($urow = sqlFetchArray($ures)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $urow);
+                    list($response,$results) = $this->MedEx->checkModality($event, $urow, $icon);
                     if ($results==false) {
                         continue; //not happening - either not allowed or not possible
                     }
                     $fields2['clinical_reminders'][] = $urow;
                     $count_clinical_reminders++;
                 }
-            } else if ($event['M_group'] == 'GOGREEN') {
+            }
+            else if ($event['M_group'] == 'GOGREEN') {
                 if (!empty($event['appt_stats'])) {
                     $prepare_me ='';
                     $no_fu = '';
                     if ($event['appt_stats'] =="?") {
-                        // "?" is a NoShow patient calendar appointment status
-                        //
-                        // If no appt is made now+ $no_interval send this GOGREEN message.
-                        // Change $no_interval (unit is days) to suit your needs.
-                        // If you have frequent appts, consider setting this to "1".
-                        // If your schedule is booked and a reschedule might be 2 months out,
-                        //   consider setting this to "90".
-                        // If any future appointment means the NoShow was rescheduled,
-                        //   consider setting this to "365" or higher.
-                        
-                        //how far from today are we looking in the calendar?
                         $no_fu= $event['E_fire_time'];
-                        //how many days from that date out are we going to search for a new appointment?
                         $no_interval = "30";
                         $prepare_me .= "?,";
                         $escapedArr[]= "?";
                     } elseif ($event['appt_stats'] =="p") {
-                        // "p" is a PROSPECTIVE patient calendar appointment status
-                        // If you need this feature you must add it as an appointment status.
-                        // if no appt is made now+ 365 (=$no_interval) send
-                        // change $no_interval (unit is days) to suit your needs
                         $no_fu= $event['E_fire_time'];
                         $no_interval = "365";
                         $prepare_me .= "?,";
@@ -916,14 +814,12 @@ class Events extends Base
 
                 $frequency ='';
                 if ($event['E_instructions'] == 'once') {
-                    //once - this patient only gets one
                     $frequency = " AND cal.pc_pid NOT in (
                             SELECT msg_pid from medex_outgoing where
                                 campaign_uid =?  and msg_date >= curdate() )";
                      $escapedArr[] = (int)$event['C_UID'];
                 } else {
                     if ($event['E_instructions'] == 'yearly') {
-                    //yearly - this patient only gets this once a year
                         $frequency = " AND cal.pc_pid NOT in (
                             SELECT msg_pid from medex_outgoing where
                                 campaign_uid =? and
@@ -932,26 +828,17 @@ class Events extends Base
                     }
                 }
                 if ($event['E_instructions'] == 'all') {
-                    // get pc_eids that were just made
-                    //otherwise Campaign was set to send with each appointment...
                     $frequency = " AND cal.pc_eid NOT in (
                                     SELECT DISTINCT msg_pc_eid from medex_outgoing where
                                         campaign_uid=? and
-                                        msg_date > curdate()
+                                        msg_date > curdate() )
                                     AND
-                                        cal.pc_time >= NOW() - interval 6 hour ) ";
+                                        cal.pc_time >= NOW() - interval 6 hour ";
                      $escapedArr[] = $event['C_UID'];
-                     
-                     //$info = sqlQuery("select MedEx_lastupdated from medex_prefs");
-                     //$escapedArr[] =  $info['MedEx_lastupdated'];
                 } else {
-                    //make sure this only gets sent once for this campaign
                     $no_dupes = " AND cal.pc_eid NOT IN (
                                     SELECT DISTINCT msg_pc_eid from medex_outgoing where
                                     campaign_uid=? and msg_date >= curdate() ) ";
-                    // This will screen for repeat messages sent on this day only by this Campaign,
-                    //  which covers this Campaign's search period.
-                    //  Tomorrow will not include today's search criteria.
                     $escapedArr[] = $event['C_UID'];
                 }
                 
@@ -964,8 +851,6 @@ class Events extends Base
                     }
                     $timing = (int)$event['E_fire_time'];
                     if (($event['E_timing'] == '1') || ($event['E_timing'] == '2')) {
-                        //then this is X days prior to appt
-                        //we need to include recurrents
                         $target_dates = "(
                                       (
                                         cal.pc_eventDate = CURDATE() + INTERVAL ".$timing." DAY
@@ -996,8 +881,6 @@ class Events extends Base
                         }
                     } else {
                         if (($event['E_timing'] == '3') || ($event['E_timing'] == '4')) {
-                            //then this is X days post appt
-                            //no recurrent needed
                             $target_dates = "cal.pc_eventDate = curdate() - interval ".$timing." day";
                             if ($today == "Monday") {
                                 $timing2 = ($timing + 3);
@@ -1026,7 +909,7 @@ class Events extends Base
                     exit;
                 }
                 while ($appt = sqlFetchArray($result)) {
-                    list($response,$results) = $this->MedEx->checkModality($event, $appt);
+                    list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
                     if ($results==false) {
                             continue; //not happening - either not allowed or not possible
                     }
@@ -1076,7 +959,7 @@ class Events extends Base
                     $appt2['to']            = $results;
                     $appt3[] = $appt2;
                 }
-            }
+             }
         }
         if (!empty($RECALLS_completed)) {
             $deletes = $this->process_deletes($token, $RECALLS_completed);
@@ -1099,17 +982,6 @@ class Events extends Base
 
     /**
      * This function will check recurring appt entries in calendar.
-     * REMINDERS, GOGREEN, ANNOUNCEMENTS and SURVEYS run off the calendar.
-     * Only REMINDERS however will alter the entry in postcalendar_events
-     *  If there is a match, it will check to see if the postCalendar_events table already has an entry for this appt.
-     *  If a recurrent appointment exists but nothing has been done to it yet, there will not be an entry for it in this table.
-     *  Then we need to create an entry into the postcalendar_events table and return this appt.
-     *  If something has happened, eg set appt status, there will already be an entry and this recurring
-     *  appointment will list this as "exclude_date" in pc_recurrspec serialized field.
-     *  Either way, for appts, return false.  Next time this runs the appts will be seen as appts
-     *  and not part of a recurring event - so they will be generated on their own.
-     * For the non-REMINDERS, if there is an appointment match, just return true.
-     *
      * @param $appt
      * @param $result
      * @return array|bool
@@ -1208,12 +1080,12 @@ class Events extends Base
     }
 
     /**
-         *  This function deletes Recalls from MedEx when they are completed and no further processing is
-         *   needed. They are in an array = $data.
-         * @param $token
-         * @param $data
-         * @return bool
-         */
+     *  This function deletes Recalls from MedEx when they are completed and no further processing is
+     *   needed. They are in an array = $data.
+     * @param $token
+     * @param $data
+     * @return bool
+     */
     private function process_deletes($token, $data)
     {
         $this->curl->setUrl($this->MedEx->getUrl('custom/remRecalls&token='.$token));
@@ -1230,18 +1102,17 @@ class Events extends Base
     }
 
     /**
-    *  This function processes appointments/recalls that meet the timimg requirements for a MedEx Campaign Event
-    * @param $token
-    * @param $appts
-    * @return bool
-    */
+     *  This function processes appointments/recalls that meet the timimg requirements for a MedEx Campaign Event
+     * @param $token
+     * @param $appts
+     * @return bool
+     */
     private function process($token, $appts)
     {
         if (empty($appts)) {
             throw new InvalidDataException("You have no appointments that need processing at this time.");
         }
         $data= array();
-
         foreach ($appts as $appt) {
             $data['appts'][] = $appt;
             $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply=?, msg_extra_text=?, msg_date=NOW()
@@ -1256,7 +1127,6 @@ class Events extends Base
                 sleep(1);
             }
         }
-        //finish those $data < 100.
         $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token='.$token));
         $this->curl->setData($data);
         $this->curl->makeRequest();
@@ -1451,7 +1321,7 @@ class Events extends Base
                             VALUES (?,?,?,?,?)
                             ON DUPLICATE KEY
                             UPDATE r_reason=?, r_eventDate=?, r_provider=?,r_facility=?";
-        $result = sqlStatement($queryINS, array($_REQUEST['new_pid'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility']));
+        sqlStatement($queryINS, array($_REQUEST['new_pid'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility']));
         $query = "UPDATE patient_data
                         SET phone_home=?,phone_cell=?,email=?,
                             hipaa_allowemail=?,hipaa_voice=?,hipaa_allowsms=?,
@@ -1461,7 +1331,7 @@ class Events extends Base
                             $_REQUEST['new_email_allow'],$_REQUEST['new_voice'],$_REQUEST['new_allowsms'],
                             $_REQUEST['new_address'],$_REQUEST['new_postal_code'],$_REQUEST['new_city'],$_REQUEST['new_state'],
                             $_REQUEST['new_pid']);
-        $result = sqlStatement($query, $sqlValues);
+        sqlStatement($query, $sqlValues);
         return;
     }
 
@@ -1523,45 +1393,39 @@ class Callback extends Base
           //  throw new InvalidDataException("There must be a Campaign to update...");
             $response['success'] = "No campaigns to process.";
         }
-         //why aren't they the same??
-        if (!$data['patient_id']) {  //process AVM responses??
+        if (!$data['patient_id']) {
             if ($data['e_pid']) {
                 $data['patient_id'] = $data['e_pid'];
-            } else if ($data['pc_eid']) {  //process responses from callback into MedEx.php - no pid just pc_eid
-                $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_eid=?"; //assume one patient per appointment pc_eid/slot...
-                $patient = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));  //otherwise this will need to be a loop
+            } else if ($data['pc_eid']) {
+                $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_eid=?";
+                $patient = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));
                 $data['patient_id'] = $patient['pid'];
             }
         }
         if ($data['patient_id']) {
-            //Store responses in TABLE medex_outgoing
             $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid)
                                 VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
             if (!$data['M_type']) {
-                $data['M_type'] ='pending'; }
+                $data['M_type'] ='pending';
+            }
             sqlQuery($sqlINSERT, array($data['pc_eid'],$data['patient_id'], $data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']));
 
             if ($data['msg_reply']=="CONFIRMED") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid=?";
                 sqlStatement($sqlUPDATE, array($data['msg_type'],$data['pc_eid']));
-                //need to insert this into patient_tracker
                 $query = "SELECT * FROM patient_tracker WHERE eid=?";
-                $tracker = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));  //otherwise this will need to be a loop
-                #Update lastseq in tracker.
+                $tracker = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));
                 if (!empty($tracker['id'])) {
                     sqlStatement(
                         "UPDATE `patient_tracker` SET  `lastseq` = ? WHERE eid=?",
                         array(($tracker['lastseq']+1),$data['pc_eid'])
                     );
-                    #Add a tracker item.
                     $datetime = date("Y-m-d H:i:s");
-                    sqlInsert(
-                        "INSERT INTO `patient_tracker_element` " .
+                    sqlInsert("INSERT INTO `patient_tracker_element` " .
                                 "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `seq`) " .
                                 "VALUES (?,?,?,?,?)",
                         array($tracker['id'],$datetime,'MedEx',$data['msg_type'],($tracker['lastseq']+1))
                     );
-                } else {
                 }
             } elseif ($data['msg_reply']=="CALL") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'CALL' WHERE pc_eid=?";
@@ -1569,7 +1433,6 @@ class Callback extends Base
                 //this requires attention.  Send up the FLAG!
                 //$this->MedEx->logging->new_message($data);
             } elseif (($data['msg_type']=="AVM") && ($data['msg_reply']=="STOP")) {
-                //if reply = "STOP" update patient demographics to disallow this mode of communication
                 $sqlUPDATE = "UPDATE patient_data SET hipaa_voice = 'NO' WHERE pid=?";
                 sqlQuery($sqlUPDATE, array($data['patient_id']));
             } elseif (($data['msg_type']=="SMS") && ($data['msg_reply']=="STOP")) {
@@ -1578,10 +1441,6 @@ class Callback extends Base
             } elseif (($data['msg_type']=="EMAIL") && ($data['msg_reply']=="STOP")) {
                 $sqlUPDATE = "UPDATE patient_data SET hipaa_allowemail = 'NO' WHERE pid=?";
                 sqlQuery($sqlUPDATE, array($data['patient_id']));
-            }
-            if (($data['msg_type']=="SMS")&&($data['msg_reply']=="Other")) {
-                //ideally we would be incrementing the "new Message Icon", perhaps using:
-                //$this->MedEx->logging->new_message($data);
             }
             if (($data['msg_reply']=="SENT")||($data['msg_reply']=="READ")) {
                 $sqlDELETE = "DELETE FROM medex_outgoing WHERE msg_pc_eid=? AND msg_reply='To Send'";
@@ -1604,8 +1463,8 @@ class Logging extends base
         //truly a debug function, that we will probably find handy to keep on end users' servers;)
         return;
         $log = "/tmp/medex.log" ;
-        $std_log = fopen($log, 'a');// or die(print_r(error_get_last(), true));
-        $timed = date(DATE_RFC2822);
+        $std_log = fopen($log, 'a');
+        $timed = date('Y-m-d H:i:s');
         fputs($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
         if (is_array($data)) {
             $dumper = print_r($data, true);
@@ -1647,12 +1506,9 @@ class Display extends base
                         }
                     });
                 }
-            $("#patient_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
+                $("#patient_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
             }
 
-            /**
-             * @return {boolean}
-             */
             function SMS_bot_list() {
                 top.restoreSession();
                 var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=383,height=600,resizable=0');
@@ -1775,7 +1631,7 @@ class Display extends base
                                     }
                                     ?>
                             </ul>
-                        </div><!-- /.navbar-collapse -->
+                        </div><!-- //navbar-collapse -->
                     </div>
                 </nav>
             </div>
@@ -1934,21 +1790,6 @@ class Display extends base
                                                         <textarea rows=3 columns=70 id="postcard_top" name="postcard_top" class="update form-control" style="font-weight:400;"><?php echo nl2br(text($prefs['postcard_top'])); ?></textarea>
                                                     </div>
                                                 </div>
-                                                <?php
-                                             /*      <!--
-                                                These options are for future use...
-
-                                                <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('Combine Reminders'); ?></div>
-                                                <div class="divTableCell indent20">
-
-                                                    <label for="combine_time" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='If a patient has two or more future appointments scheduled within X days, combine reminders.  eg. If you indicate "7" for this value, for a yearly physical with two appointments 3 days apart, or a surgical appointment with a follow-up 6 days post-op, these appointment reminds will be combined into one message, because they are less than "7" days apart.'>
-                                                    for appts within <input type="text" class="flow_time update" name="combine_time" id="combine_time" value="<?php echo xla($prefs['combine_time']); ?>" /> <?php echo xlt('days of each other'); ?></label>
-                                                </div>
-                                                </div>
-                                                -->
-                                            */
-                                                ?>
                                             <input type="hidden" name="ME_username" id="ME_username" value="<?php echo attr($prefs['ME_username']);?>" />
                                             <input type="hidden" name="ME_api_key" id="ME_api_key" value="<?php echo attr($prefs['ME_api_key']);?>" />
                                             </div>
@@ -1965,12 +1806,7 @@ class Display extends base
                                                             <?php
                                                             foreach ($logged_in['products']['ordered'] as $service) {
                                                                 ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
-                                                                <?php
-                                                                if ($service['product_id'] =='54') {
-                                                                    ?>
-                                                                    <div style="margin-left:10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br />Go Green Messages</div>
-                                                                    <?php
-                                                                }
+                                                                <?php echo $service['list'];
                                                             } ?>
                                                         </ul>
                                                     </div>
@@ -2037,7 +1873,6 @@ class Display extends base
 
         $recalls = $this->get_recalls($from_date, $to_date);
 
-             // if all we don't use MedEx, there is no need to display the progress tabs, all recall processing is manual.
         if (!$logged_in) {
             $reminder_bar = "nodisplay";
             $events='';
@@ -2267,9 +2102,6 @@ class Display extends base
                 $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
             }
 
-            /**
-             * @return {boolean}
-             */
             function SMS_bot(pid) {
                 top.restoreSession();
                 pid = pid.replace('recall_','');
@@ -2439,30 +2271,12 @@ class Display extends base
     }
 
     /**
-         *   This function looks at a single recall and assesses its status.
-         *   Has it been worked on yet?  Any phone calls made, labels printed or postcards printed?
-         *   If they are a MedEx subscriber, do they have any scheduled Recall Campaign Events and if so when?
-         *   Have any of these MedEx events happened?  Given all the variables, what is the status of this recall at this moment?
-         *   We also use color coding in the Recall Board -
-         *       -- whitish for pending, nothing happed yet.
-         *       -- yellowish for in process, something happened but no appointment was made yet!
-         *       -- reddish for manual processing needed.
-         *       -- greenish for completed and an appointment was made.
-         *   In the ideal workflow, the secretary would be going through the Recall Board line by line once per day/week/month (per practice needs).
-         *       They can then just delete the Recall by clicking the X on the right.  Done move on to the next.
-         *       However a patient may have called in randomly to make this appointment - the secretary may be unaware that the Recall even exists.
-         *       In this work-flow, the secretary does not have to open the Recall Board, nor should they waste their time when we can do it for them...
-         *       Let the Recall Board look to see if there is an appointment for this patient in the future.
-         *       If there is, and it was made more than 16 hours ago, it deletes the Recall altogether.  It is never displayed again.
-         *       If an appointment was created less than 16 hours ago, it turns the row greenish, signaling anyone who looks that it was just taken care of,
-         *       and display in the "progress" column what has transpired.
-         *       Thanks, move on, nothing to see here.
-         *       This also allows anyone (management?) a tool to see what Recall work was performed over the last 16 hours.
-         * @param $recall
-         * @param string $events
-         * @return mixed
-         * @internal param string $possibleModalities
-         */
+     *  This function looks at a single recall and assesses its status.
+     * @param $recall
+     * @param string $events
+     * @return mixed
+     * @internal param string $possibleModalities
+     */
     public function show_progress_recall($recall, $events = '')
     {
         global $logged_in;
@@ -2497,15 +2311,7 @@ class Display extends base
             // Just cleaning up the Recall Board for you. Move along, nothing to see.
             // If you need to look at the track of action, look in the log?
         }
-
-        // Did anything happen yet?
-        // Table medex_outgoing is our log for current activities.
-        // It includes records of local manual things your office did and the MedEx reports.
-        // For non-MedEx subscribers, the local functionality will still work just fine...
-        // Unless the RECALL is completed (appt made) more than 16 hours ago, the RECALL's data will be present.
-
-        // We need to output the correct text and icon to visually display the appt status
-
+        
         $sql ="SELECT * FROM medex_outgoing WHERE msg_pc_eid = ?  ORDER BY msg_date ASC";
         $result = sqlStatement($sql, array('recall_'.$recall['pid']));
         $something_happened='';
@@ -2533,9 +2339,6 @@ class Display extends base
                 }
             } else {
                 $who_name = "MedEx";
-                // MedEx related actions
-                // Recalls can't be confirmed through MedEx - we don't make appointments (yet)...
-                // They disappear 16 hours after an appt is made (they glow green for those 16 hours).
                 if (($progress['msg_reply'] == "READ")||($show[$progress['msg_type']]['stage']=="READ")) {
                     $show[$progress['msg_type']]['stage']   = "READ";
                     $icon = $this->get_icon($progress['msg_type'], "READ");
@@ -2575,21 +2378,9 @@ class Display extends base
             $something_happened=true;
         }
         $show['progression'] .= $show['EMAIL']['text'].$show['SMS']['text'].$show['AVM']['text'];
-
-
-        // Let's look at the MedEx events:
-        // Show the DATE when a Campaign event will be run for a given patient
-        /*
-         * E_fire_tire = number of days before/after recall date that a MedEx campaign event will run
-         * MedEx E_timing options:
-         * 1 = days before
-         * 2 = days before PM
-         * 3 = days after
-         * 4 = days after PM
-         */
+        
         $camps='0';
-        /** @var TYPE_NAME $events */
-        foreach ($events as $event) {
+         foreach ($events as $event) {
             if ($event['M_group'] != "RECALL") {
                 continue;
             }
@@ -2630,14 +2421,6 @@ class Display extends base
                                         $show['campaign'][$event['C_UID']]['icon']." ".text($show['campaign'][$event['C_UID']]['executed'])."</a><br />";
         }
 
-
-
-        // Show recall row status via background color.
-        // If an appt was made < 16hrs ago, make it green(completed) and $show['DONE'] = 1
-        //   o/w yellow(in progress) if something happened or Campaign fired
-        //   o/w red (manual needed) if no more MedEx Recall Events are scheduled to be done and no appt was made yet.
-        //      ie. we struck out and need to process this manually
-        //      or write it off or delete it or do soemthing else?  Have to know what to do to write that. ;)
         $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate > CURDATE() AND pc_pid =? AND pc_time >  CURDATE()- INTERVAL 16 HOUR";
         $result = sqlFetchArray(sqlStatement($query, array($recall['pid'])));
 
@@ -2685,7 +2468,6 @@ class Display extends base
         $pat = array();
         $sqlQuery = "SELECT * FROM medex_icons";
         $result = sqlStatement($sqlQuery);
-        //the text fields in DB are set by user and sql sscripts. Is translation/escaping needed here? How?
         while ($icons = sqlFetchArray($result)) {
             $icon[$icons['msg_type']][$icons['msg_status']] = $icons['i_html'];
         }
@@ -2715,21 +2497,20 @@ class Display extends base
         } else {
             $pat['EMAIL'] = $icon['EMAIL']['ALLOWED'];
         }
-        // If the practice is a MedEx practice, is this facility and/or this provider signed up for MedEx?
-        //  In this scenario, not all providers or locations for this practice are enrolled in MedEx.
-        //  Don't report that something MedEx-related is going to happen for these folks, cause it shouldn't.
-        $sql = "SELECT * FROM medex_prefs";
-        $prefs = sqlFetchArray(sqlStatement($sql));
-        $facs = explode('|', $prefs['ME_facilities']);
-        foreach ($facs as $place) {
-            if (isset($appt['r_facility']) && ($appt['r_facility']==$place)) {
-                $pat['facility']['status'] = 'ok';
+        if ($GLOBALS['medex_enable'] =='1') {
+            $sql = "SELECT * FROM medex_prefs";
+            $prefs = sqlFetchArray(sqlStatement($sql));
+            $facs = explode('|', $prefs['ME_facilities']);
+            foreach ($facs as $place) {
+                if (isset($appt['r_facility']) && ($appt['r_facility']==$place)) {
+                    $pat['facility']['status'] = 'ok';
+                }
             }
-        }
-        $providers = explode('|', $prefs['ME_providers']);
-        foreach ($providers as $provider) {
-            if (isset($appt['r_provider']) && ($appt['r_provider']==$provider)) {
-                $pat['provider']['status'] = 'ok';
+            $providers = explode('|', $prefs['ME_providers']);
+            foreach ($providers as $provider) {
+                if (isset($appt['r_provider']) && ($appt['r_provider']==$provider)) {
+                    $pat['provider']['status'] = 'ok';
+                }
             }
         }
         return $pat;
@@ -3041,26 +2822,6 @@ class Display extends base
                           <div class="divTableCell text-center"><?php echo $icons['AVM']['EXTRA']; ?></div>
                           <div class="divTableCell text-center"><?php echo $icons['AVM']['STOP']; ?></div>
                         </div>
-                        <?php
-                        //When we have added PostCards to MedEx, we can display this.
-                        //Until then this would just add confusion.
-                    /*
-                        <div class="divTableRow">
-                      <div class="divTableCell text-center"><?php echo xlt('POSTCARD'); ?></div>
-                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['ALLOWED']; ?></div>
-                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['NotAllowed']; ?></div>
-                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['SCHEDULED']; ?></div>
-                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['SENT']; ?></div>
-                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['READ']; ?></div>
-                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['CONFIRMED']; ?></div>
-                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['CALL']; ?></div>
-                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['FAILURE']; ?></div>
-                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['EXTRA']; ?></div>
-                      <div class="divTableCell text-center"><?php echo $icons['POSTCARD']['STOP']; ?></div>
-                        </div>
-                      </div>
-                      */
-                        ?>
                     </div>
               </div>
 
@@ -3069,12 +2830,6 @@ class Display extends base
 
     /**
      *  This function displays a bootstrap responsive pop-up window containing an image of a phone with a record of our messaging activity.
-     *  It is fired from the Flow board.
-     *  It enables two-way SMS texting between logged_in users and patients, if desired.
-     *  It may also end up on the Recall Board.
-     *  It may also allow playback of AVM audio files.
-     *  It may also do other things that haven't been written yet.
-     *  It may open to a messaging status board on large screens.
      * @param $logged_in
      * @return bool
      */
@@ -3094,7 +2849,7 @@ class Display extends base
         $this->curl->setData($fields);
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
-
+        //exit;
         if (isset($response['success'])) {
             echo $response['success'];
         } else if (isset($response['error'])) {
@@ -3122,7 +2877,6 @@ class Display extends base
                 $sqlSync = "SELECT * FROM patient_data WHERE fname LIKE ? OR lname LIKE ? LIMIT 20";
                 $datas = sqlStatement($sqlSync, array("%".$values."%","%".$values."%"));
             }
-            
             
             while ($hit = sqlFetchArray($datas)) {
                 $data['list'][] = $hit;
@@ -3531,14 +3285,22 @@ class MedEx
     private function just_login($info)
     {
         if (empty($info)) {
-            return; }
+            return;
+        }
         
+        $versionService = new VersionService();
+        $version = $versionService->fetch();
         $this->curl->setUrl($this->getUrl('login'));
         $this->curl->setData(array(
-            'username' => $info['ME_username'],
-            'key' => $info['ME_api_key'],
-            'UID' =>  $info['MedEx_id'],
-            'MedEx' => 'openEMR',
+            'username'  => $info['ME_username'],
+            'key'       => $info['ME_api_key'],
+            'UID'       => $info['MedEx_id'],
+            'MedEx'     => 'OpenEMR',
+            'major'     => attr($version->getMajor()),
+            'minor'     => attr($version->getMinor()),
+            'patch'     => attr($version->getPatch()),
+            'database'  => attr($version->getDatabase()),
+            'acl'       => attr($version->getAcl()),
             'callback_key' => $info['callback_key']
         ));
 
@@ -3551,13 +3313,10 @@ class MedEx
         }
         $sql = "UPDATE medex_prefs set status = ?";
         sqlQuery($sql, array(json_encode($response)));
-        $this->logging->log_this("response: ");
-            $response['campaigns']  = $this->campaign->events($response['token']);
-        $this->logging->log_this($response);
         return $response;
     }
     
-    public function login($force = '1')
+    public function login($force='')
     {
         $info= array();
         $query = "SELECT * FROM medex_prefs";
@@ -3566,7 +3325,8 @@ class MedEx
         if (empty($info) ||
             empty($info['ME_username']) ||
             empty($info['ME_api_key']) ||
-            empty($info['MedEx_id'])) {
+            empty($info['MedEx_id']) ||
+            ($GLOBALS['medex_enable'] !=='1')) {
             return false;
         }
         $info['callback_key'] = $_POST['callback_key'];
@@ -3579,37 +3339,28 @@ class MedEx
                 $expired ='1';
             }
         }
+        
         if (($expired =='1') || ($force=='1')) {
             $info = $this->just_login($info);
         } else {
             $info['status'] = json_decode($info['status'], true);
         }
         
-        if (isset($info['status']['success']) && isset($info['status']['token'])) {
-            return $info['status'];
-        } else if (isset($info['error'])) {
+        if (isset($info['error'])) {
             $this->lastError = $info['error'];
             sqlQuery("UPDATE `background_services` SET `active`='0' WHERE `name`='MedEx'");
             return $info['status'];
+        } else {
+            return $info['status'];
         }
-        return false;
     }
 
     public function getUrl($method)
     {
         return $this->url . $method; }
 
-    public function checkModality($event, $appt)
+    public function checkModality($event, $appt, $icon='')
     {
-        $sqlQuery = "SELECT * FROM medex_icons";
-        $result = sqlStatement($sqlQuery);
-        while ($icons = sqlFetchArray($result)) {
-            //substitute data-toggle="tooltip" data-placement="auto" title="..." with data-toggle="tooltip" data-placement="auto" title="'.xla('...').'" in $icons['i_html']
-            $title = preg_match('/title=\"(.*)\"/', $icons['i_html']);
-            $xl_title = xla($title);
-            $icons['i_html'] = str_replace($title, $xl_title, $icons['i_html']);
-            $icon[$icons['msg_type']][$icons['msg_status']] = $icons['i_html'];
-        }
         if ($event['M_type'] =="SMS") {
             if (empty($appt['phone_cell']) || ($appt["hipaa_allowsms"]=="NO")) {
                 return array($icon['SMS']['NotAllowed'],false);

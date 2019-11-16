@@ -249,6 +249,7 @@ if (!$_REQUEST['flb_table']) {
 <body class="body_top">
     <?php
     if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
+        $logged_in = $MedEx->login();
         $MedEx->display->navigation($logged_in);
     }
     ?>
