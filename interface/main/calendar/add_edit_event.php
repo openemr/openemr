@@ -1780,17 +1780,6 @@ function isRegularRepeat($repeat)
         </div>
     </div>
 </div>
-    <div class="row">
-    <div id="recurr_popup" class="button-group alert bg-danger text-left" style="display: none; position: absolute; left: 15%; right: 15%; max-width:400px;">
-        <p class="lead small" style="font-size:16px;"><strong><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></strong></p>
-        <br>
-        <?php if ($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
-            <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
-        <?php } ?>
-        <input type="button" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
-        <input type="button" id="future_events" value="<?php echo xla('Future'); ?>">
-        <input type="button" id="current_event" value="<?php echo xla('Current'); ?>">
-    </div></div>
 <div class="row">
     <div class="form-group">
         <label id='title_apptstatus'><?php echo xlt('Status'); ?>:</label>
@@ -1824,6 +1813,18 @@ if ($_GET['prov'] != true) { ?>
     <div class="form-group">
         <label><?php echo xlt('Comments'); ?>:</label>
         <input class='form-control' type='text' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
+    </div>
+</div>
+<div class="row">
+    <div id="recurr_popup" class="input-group alert bg-warning text-left" style="display: none;position: relative; max-width:400px;">
+        <p class="lead small" style="font-size:16px;"><strong><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></strong></p>
+        <br>
+        <?php if ($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
+            <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
+        <?php } ?>
+        <input type="button" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
+        <input type="button" id="future_events" value="<?php echo xla('Future'); ?>">
+        <input type="button" id="current_event" value="<?php echo xla('Current'); ?>">
     </div>
 </div>
 <div class='row'>
