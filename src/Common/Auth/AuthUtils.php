@@ -245,13 +245,12 @@ class AuthUtils
             }
 
             // Set up session environment
-            $_SESSION['authUser'] = $username;
-            $_SESSION['authPass'] = $hash;
-            $_SESSION['authGroup'] = $authGroup['name'];
-            $_SESSION['authUserID'] = $userInfo['id'];
-            $_SESSION['authProvider'] = $authGroup['name'];
-            $_SESSION['authId'] = $userInfo['id'];
-            $_SESSION['userauthorized'] = $userInfo['authorized'];
+            $_SESSION['authUser'] = $username;                     // username
+            $_SESSION['authPass'] = $hash;                         // user hash used to confirm session in authCheckSession()
+            $_SESSION['authUserID'] = $userInfo['id'];             // user id
+            $_SESSION['authId'] = $userInfo['id'];                 // user id
+            $_SESSION['authProvider'] = $authGroup['name'];        // user group
+            $_SESSION['userauthorized'] = $userInfo['authorized']; // user authorized setting
             // Some users may be able to authorize without being providers:
             if ($userInfo['see_auth'] > '2') {
                 $_SESSION['userauthorized'] = '1';
