@@ -836,7 +836,7 @@ class FeeSheet
                             "(payer_id, user_id, pay_total, payment_type, description, patient_id, payment_method, " .
                             "adjustment_code, post_to_date) " .
                             "VALUES ('0',?,?,'patient','COPAY',?,'','patient_payment',now())",
-                            array($_SESSION['authId'], $fee, $this->pid)
+                            array($_SESSION['authUserID'], $fee, $this->pid)
                         );
                         sqlBeginTrans();
                         $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
@@ -846,7 +846,7 @@ class FeeSheet
                             "payer_type, post_time, post_user, session_id, " .
                             "pay_amount, account_code) VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
                             array($this->pid, $this->encounter, $sequence_no['increment'], $ct0, $cod0, $mod0,
-                            $_SESSION['authId'],
+                                $_SESSION['authUserID'],
                             $session_id,
                             $fee)
                         );
@@ -861,12 +861,12 @@ class FeeSheet
                         if ($fee != $res_amount['pay_amount']) {
                               sqlStatement(
                                   "UPDATE ar_session SET user_id=?,pay_total=?,modified_time=now(),post_to_date=now() WHERE session_id=?",
-                                  array($_SESSION['authId'], $fee, $session_id)
+                                  array($_SESSION['authUserID'], $fee, $session_id)
                               );
                                   sqlStatement(
                                       "UPDATE ar_activity SET code_type=?, code=?, modifier=?, post_user=?, post_time=now(),".
                                       "pay_amount=?, modified_time=now() WHERE pid=? AND encounter=? AND account_code='PCP' AND session_id=?",
-                                      array($ct0, $cod0, $mod0, $_SESSION['authId'], $fee, $this->pid, $this->encounter, $session_id)
+                                      array($ct0, $cod0, $mod0, $_SESSION['authUserID'], $fee, $this->pid, $this->encounter, $session_id)
                                   );
                         }
                     }

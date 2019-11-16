@@ -66,8 +66,8 @@ if (isset($_GET['mode'])) {
             trim($_GET['vis_date']), trim($_GET['vis_date']),
             trim($_GET['note']),
             $pid,
-            $_SESSION['authId'],
-            $_SESSION['authId'],
+            $_SESSION['authUserID'],
+            $_SESSION['authUserID'],
             trim($_GET['immuniz_amt_adminstrd']),
             trim($_GET['form_drug_units']),
             trim($_GET['immuniz_exp_date']), trim($_GET['immuniz_exp_date']),
@@ -187,7 +187,7 @@ if (!$administered_by && !$administered_by_id) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name ".
             " from users where ".
             " id=?";
-    $row = sqlQuery($stmt, array($_SESSION['authId']));
+    $row = sqlQuery($stmt, array($_SESSION['authUserID']));
     $administered_by = $row['full_name'];
 }
 
@@ -312,7 +312,7 @@ function saveImmunizationObservationResults($id, $immunizationdata)
                                         )
                                         VALUES
                                           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $res                      = sqlQuery($sql, array($id,$_SESSION["pid"],$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$_SESSION['authId'],$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval));
+            $res                      = sqlQuery($sql, array($id,$_SESSION["pid"],$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$_SESSION['authUserID'],$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval));
         }
     }
 
@@ -450,7 +450,7 @@ tr.selected {
                 $result = sqlStatement($sql);
                 while ($row = sqlFetchArray($result)) {
                     echo '<OPTION VALUE=' . attr($row['id']);
-                    echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $_SESSION['authId']) == $row['id'] ? ' selected>' : '>';
+                    echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $_SESSION['authUserID']) == $row['id'] ? ' selected>' : '>';
                     echo text($row['full_name']) . '</OPTION>';
                 }
                 ?>
@@ -532,7 +532,7 @@ tr.selected {
                 $result = sqlStatement($sql);
                 while ($row = sqlFetchArray($result)) {
                     echo '<OPTION VALUE=' . attr($row['id']);
-                    echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $_SESSION['authId']) == $row['id'] ? ' selected>' : '>';
+                    echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $_SESSION['authUserID']) == $row['id'] ? ' selected>' : '>';
                     echo text($row['full_name']) . '</OPTION>';
                 }
                 ?>

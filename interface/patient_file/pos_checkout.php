@@ -637,7 +637,7 @@ function generate_receipt($patient_id, $encounter = 0)
                   "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total,".
                   " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) ".
                   " VALUES ('0',?,?,now(),?,?,'','patient','COPAY',?,?,'patient_payment',now())",
-                  array($_SESSION['authId'],$form_source,$dosdate,$amount,$form_pid,$paydesc)
+                  array($_SESSION['authUserID'],$form_source,$dosdate,$amount,$form_pid,$paydesc)
               );
 
               sqlBeginTrans();
@@ -645,7 +645,7 @@ function generate_receipt($patient_id, $encounter = 0)
               $insrt_id=sqlInsert(
                   "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
                   " VALUES (?,?,?,?,?,?,0,?,?,?,?,'PCP')",
-                  array($form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$dosdate,$_SESSION['authId'],$session_id,$amount)
+                  array($form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$dosdate,$_SESSION['authUserID'],$session_id,$amount)
               );
               sqlCommitTrans();
         }

@@ -149,7 +149,7 @@ $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-cir
 
  //==================================
  //FACILITY FILTERING (CHEMED)
- $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+ $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
  if ( $_SESSION['pc_facility'] ) {
     $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
  } else {
@@ -341,7 +341,7 @@ while ($currdate <= $enddate) {
 if ($_SESSION['authorizeduser'] == 1) {
   $facilities = getFacilities();
 } else {
-  $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+  $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
  	if (count($facilities) == 1)
     $_SESSION['pc_facility'] = key($facilities);
 }

@@ -26,7 +26,7 @@ use OpenEMR\OeUI\OemrUI;
 if (AuthUtils::useActiveDirectory()) {
     exit();
 }
-$userid = $_SESSION['authId'];
+$userid = $_SESSION['authUserID'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 ?>
@@ -84,7 +84,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 <?php
 
-$res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION["authId"]));
+$res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION['authUserID']));
 $row = sqlFetchArray($res);
       $iter=$row;
 ?>

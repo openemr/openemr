@@ -197,7 +197,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                                         <option
                                             value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
                                         <?php
-                                        $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", array($_SESSION['authId'], $rowContext['cl_list_id']));
+                                        $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", array($_SESSION['authUserID'], $rowContext['cl_list_id']));
                                         while ($rowTemplates = sqlFetchArray($resTemplates)) {
                                             echo "<option value='" . htmlspecialchars($rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars(xl($rowTemplates['cl_list_item_long']), ENT_QUOTES) . "</option>";
                                         }
@@ -222,7 +222,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                                        title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('SPACE'), ENT_QUOTES); ?></span></a>
                                     <?php
                                     $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno=tu.tu_template_id
-WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_order", array($_SESSION['authId']));
+WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
                                     while ($row = sqlFetchArray($res)) {
                                         ?>
                                         <a href="#"

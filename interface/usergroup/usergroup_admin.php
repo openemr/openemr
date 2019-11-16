@@ -169,7 +169,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
 
         if ($_POST["adminPass"] && $_POST["clearPass"]) {
             $authUtilsUpdatePassword = new AuthUtils();
-            $success = $authUtilsUpdatePassword->updatePassword($_SESSION['authId'], $_POST['id'], $_POST['adminPass'], $_POST['clearPass']);
+            $success = $authUtilsUpdatePassword->updatePassword($_SESSION['authUserID'], $_POST['id'], $_POST['adminPass'], $_POST['clearPass']);
             if (!$success) {
                 error_log(errorLogEscape($authUtilsUpdatePassword->getErrorMessage()));
                 $alertmsg .= $authUtilsUpdatePassword->getErrorMessage();
@@ -284,7 +284,7 @@ if (isset($_POST["mode"])) {
 
             $authUtilsNewPassword = new AuthUtils();
             $success = $authUtilsNewPassword->updatePassword(
-                $_SESSION['authId'],
+                $_SESSION['authUserID'],
                 0,
                 $_POST['adminPass'],
                 $_POST['stiltskin'],

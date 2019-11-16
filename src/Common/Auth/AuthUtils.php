@@ -248,7 +248,6 @@ class AuthUtils
             $_SESSION['authUser'] = $username;                     // username
             $_SESSION['authPass'] = $hash;                         // user hash used to confirm session in authCheckSession()
             $_SESSION['authUserID'] = $userInfo['id'];             // user id
-            $_SESSION['authId'] = $userInfo['id'];                 // user id
             $_SESSION['authProvider'] = $authGroup['name'];        // user group
             $_SESSION['userauthorized'] = $userInfo['authorized']; // user authorized setting
             // Some users may be able to authorize without being providers:
@@ -509,13 +508,13 @@ class AuthUtils
     // This function is static since requires no class specific defines
     public static function authCheckSession()
     {
-        if (isset($_SESSION['authId'])) {
+        if (isset($_SESSION['authUserID'])) {
             $authDB = privQuery("SELECT `users`.`username`, `users_secure`.`password`" .
                 " FROM `users`, `users_secure`" .
                 " WHERE `users`.`id` = ? ".
                 " AND `users`.`id` = `users_secure`.`id` ".
                 " AND BINARY `users`.`username` = `users_secure`.`username`" .
-                " AND `users`.`active` = 1", [$_SESSION['authId']]);
+                " AND `users`.`active` = 1", [$_SESSION['authUserID']]);
             if ((!empty($authDB)) &&
                 (!empty($authDB['username'])) &&
                 (!empty($authDB['password'])) &&

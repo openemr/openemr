@@ -151,7 +151,7 @@ function create_diags($req_pid, $req_encounter, $diags)
             $bound_params=array();
             array_push($bound_params, $req_encounter);
             $diag->addArrayParams($bound_params);
-            array_push($bound_params, $req_pid, $authorized, $_SESSION['authId'], $_SESSION['authProvider'], $provid);
+            array_push($bound_params, $req_pid, $authorized, $_SESSION['authUserID'], $_SESSION['authProvider'], $provid);
             $res=sqlInsert($sqlCreateDiag, $bound_params);
         } else {
             // update the code_text;
@@ -195,7 +195,7 @@ function create_procs($req_pid, $req_encounter, $procs)
         $insert_params=array();
         array_push($insert_params, $req_encounter);
         $proc->addArrayParams($insert_params);
-        array_push($insert_params, $req_pid, $authorized, $_SESSION['authId'], $_SESSION['authProvider'], $provid);
+        array_push($insert_params, $req_pid, $authorized, $_SESSION['authUserID'], $_SESSION['authProvider'], $provid);
         $proc->addProcParameters($insert_params);
         sqlStatement($sql.$param, $insert_params);
     }

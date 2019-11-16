@@ -24,7 +24,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
-$userid = $_SESSION['authId'];
+$userid = $_SESSION['authUserID'];
 $action = $_REQUEST['action'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
