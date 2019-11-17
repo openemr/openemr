@@ -1935,9 +1935,16 @@ $GLOBALS_METADATA = array(
 
         'password_history' => array(
             xl('Require Unique Passwords'),
-            'bool',                           // data type
+            array(
+                '0' => xl('No'),
+                '1' => '1',
+                '2' => '2',
+                '3' => '3',
+                '4' => '4',
+                '5' => '5',
+            ),
             '0',                              // default
-            xl('Means none of last three passwords are allowed when changing a password.')
+            xl('Set to the number of prior passwords that are not allowed to use when changing a password.')
         ),
 
         'password_expiration_days' => array(

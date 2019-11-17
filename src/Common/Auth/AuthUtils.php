@@ -298,7 +298,7 @@ class AuthUtils
             return false;
         }
 
-        $userSQL = "SELECT `password`, `password_history1`, `password_history2`" .
+        $userSQL = "SELECT `password`, `password_history1`, `password_history2`, `password_history3`, `password_history4`" .
             " FROM `users_secure`" .
             " WHERE `id` = ?";
         $userInfo = privQuery($userSQL, [$targetUser]);
@@ -455,12 +455,26 @@ class AuthUtils
                 return false;
             }
 
-            if ($GLOBALS['password_history']) {
+            if (($GLOBALS['password_history'] != 0) && (preg_match('/[0-9]/', $GLOBALS['password_history']))) {
                 // password reuse disallowed
-                if ((AuthHash::passwordVerify($newPwd, $userInfo['password'])) ||
-                    (AuthHash::passwordVerify($newPwd, $userInfo['password_history1'])) ||
-                    (AuthHash::passwordVerify($newPwd, $userInfo['password_history2']))) {
-                    $this->errorMessage = xl("Reuse of three previous passwords not allowed!");
+                $pass_reuse_fail = false;
+                if (($GLOBALS['password_history'] > 0) && (AuthHash::passwordVerify($newPwd, $userInfo['password']))) {
+                    $pass_reuse_fail = true;
+                }
+                if (($GLOBALS['password_history'] > 1) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history1']))) {
+                    $pass_reuse_fail = true;
+                }
+                if (($GLOBALS['password_history'] > 2) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history2']))) {
+                    $pass_reuse_fail = true;
+                }
+                if (($GLOBALS['password_history'] > 3) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history3']))) {
+                    $pass_reuse_fail = true;
+                }
+                if (($GLOBALS['password_history'] > 4) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history4']))) {
+                    $pass_reuse_fail = true;
+                }
+                if ($pass_reuse_fail) {
+                    $this->errorMessage = xl("Reuse of previous passwords not allowed!");
                     $this->clearFromMemory($newPwd);
                     return false;
                 }
@@ -485,6 +499,10 @@ class AuthUtils
                 array_push($updateParams, $userInfo['password']);
                 $updateSQL.=", `password_history2` = ?";
                 array_push($updateParams, $userInfo['password_history1']);
+                $updateSQL.=", `password_history3` = ?";
+                array_push($updateParams, $userInfo['password_history2']);
+                $updateSQL.=", `password_history4` = ?";
+                array_push($updateParams, $userInfo['password_history3']);
             }
 
             $updateSQL .= " WHERE `id` = ?";
