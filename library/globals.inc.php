@@ -1903,7 +1903,7 @@ $GLOBALS_METADATA = array(
         'secure_password' => array(
             xl('Require Strong Passwords'),
             'bool',                           // data type
-            '0',                              // default
+            '1',                              // default
             xl('Strong password means at least one of each: a number, a lowercase letter, an uppercase letter, a special character.')
         ),
 
@@ -1929,7 +1929,7 @@ $GLOBALS_METADATA = array(
                 '19' => '19',
                 '20' => '20',
             ),
-            '0',                              // default
+            '9',                              // default
             xl('Minimum length of password.')
         ),
 
@@ -1943,21 +1943,21 @@ $GLOBALS_METADATA = array(
                 '4' => '4',
                 '5' => '5',
             ),
-            '0',                              // default
+            '5',                              // default
             xl('Set to the number of prior passwords that are not allowed to use when changing a password.')
         ),
 
         'password_expiration_days' => array(
             xl('Default Password Expiration Days'),
             'num',                            // data type
-            '0',                              // default
+            '180',                            // default
             xl('Default password expiration period in days. 0 means this feature is disabled.')
         ),
 
         'password_grace_time' => array(
             xl('Password Expiration Grace Period'),
             'num',                            // data type
-            '0',                              // default
+            '30',                             // default
             xl('Period in days where a user may login with an expired password.')
         ),
 
