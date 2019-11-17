@@ -184,6 +184,15 @@ class AuthUtils
             }
         } else {
             // standard authentication
+            // First, ensure the user hash is a valid hash
+            $hash_info = password_get_info($userSecure['password']);
+            if (empty($hash_info['algo'])) {
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
+                $this->clearFromMemory($password);
+                $this->preventTimingAttack();
+                return false;
+            }
+            // Second, authentication
             if (!AuthHash::passwordVerify($password, $userSecure['password'])) {
                 if ($this->loginAuth || $this->apiAuth) {
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
