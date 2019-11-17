@@ -393,8 +393,14 @@ class AuthUtils
             return false;
         }
 
+        // Ensure password is long enough, if this option is on (note LDAP skips this)
+        if ((!self::useActiveDirectory()) && (!$this->testPasswordLength($newPwd))) {
+            $this->clearFromMemory($newPwd);
+            return false;
+        }
+
         // Ensure new password is strong enough, if this option is on (note LDAP skips this)
-        if (!$this->testPasswordStrength($newPwd)) {
+        if ((!self::useActiveDirectory()) && (!$this->testPasswordStrength($newPwd))) {
             $this->clearFromMemory($newPwd);
             return false;
         }
@@ -622,19 +628,33 @@ class AuthUtils
     }
 
     /**
-     * Does the new password meet the security requirements?
+     * Does the new password meet the length requirements?
      *
      * @param type $pwd     the password to test - passed by reference to prevent storage of pass in memory
-     * @return boolean      is the password good enough?
+     * @return boolean      is the password long enough?
+     */
+    private function testPasswordLength(&$pwd)
+    {
+        if (($GLOBALS['gbl_minimum_password_length'] != 0) && (preg_match('/[0-9]/', $GLOBALS['gbl_minimum_password_length']))) {
+            if (strlen($pwd) < $GLOBALS['gbl_minimum_password_length']) {
+                $this->errorMessage = xl("Password too short. Minimum characters required" . ": " . $GLOBALS['gbl_minimum_password_length']);
+                return false;
+            }
+
+        }
+
+        return true;
+    }
+
+    /**
+     * Does the new password meet the strength requirements?
+     *
+     * @param type $pwd     the password to test - passed by reference to prevent storage of pass in memory
+     * @return boolean      is the password strong enough?
      */
     private function testPasswordStrength(&$pwd)
     {
         if ($GLOBALS['secure_password']) {
-            if (strlen($pwd)<8) {
-                $this->errorMessage = xl("Password too short. Minimum 8 characters required.");
-                return false;
-            }
-
             $features=0;
             $reg_security=array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
             foreach ($reg_security as $expr) {
@@ -643,8 +663,8 @@ class AuthUtils
                 }
             }
 
-            if ($features<3) {
-                $this->errorMessage = xl("Password does not meet minimum requirements and should contain at least three of the four following items: A number, a lowercase letter, an uppercase letter, a special character (Not a letter or number).");
+            if ($features < 4) {
+                $this->errorMessage = xl("Password does not meet minimum requirements and should contain at least each of the following items: A number, a lowercase letter, an uppercase letter, a special character (not a letter or number).");
                 return false;
             }
         }

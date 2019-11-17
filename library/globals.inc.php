@@ -1904,8 +1904,35 @@ $GLOBALS_METADATA = array(
             xl('Require Strong Passwords'),
             'bool',                           // data type
             '0',                              // default
-            xl('Strong password means at least 8 characters, and at least three of: a number, a lowercase letter, an uppercase letter, a special character.')
+            xl('Strong password means at least one of each: a number, a lowercase letter, an uppercase letter, a special character.')
         ),
+
+        'gbl_minimum_password_length' => array(
+            xl('Minimum Password Length'),
+            array(
+                '0' => xl('No Minimum'),
+                '4' => '4',
+                '5' => '5',
+                '6' => '6',
+                '7' => '7',
+                '8' => '8',
+                '9' => '9',
+                '10' => '10',
+                '11' => '11',
+                '12' => '12',
+                '13' => '13',
+                '14' => '14',
+                '15' => '15',
+                '16' => '16',
+                '17' => '17',
+                '18' => '18',
+                '19' => '19',
+                '20' => '20',
+            ),
+            '0',                              // default
+            xl('Minimum length of password.')
+        ),
+
         'password_history' => array(
             xl('Require Unique Passwords'),
             'bool',                           // data type
