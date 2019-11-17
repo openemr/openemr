@@ -335,33 +335,19 @@ class AuthUtils
                 return false;
             }
 
-            // If this is an administrator changing someone else's password, then check that they have the password right
+            // If this is an administrator changing someone else's password, then authenticate the administrator
             if (self::useActiveDirectory()) {
-                // Use case here is for when an administrator is adding a new user that will be using LDAP for authentication
-                // (note that in this case, a random password is prepared for the new user below that is stored in OpenEMR
-                //  and used only for session confirmations; the primary authentication for the new user will be done via
-                //  LDAP)
                 if (empty($_SESSION['authUser'])) {
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
                     return false;
                 }
-                $valid = $this->activeDirectoryValidation($_SESSION['authUser'], $currentPwd);
-                if (!$valid) {
+                if (!$this->activeDirectoryValidation($_SESSION['authUser'], $currentPwd)) {
                     $this->errorMessage = xl("Incorrect password!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
                     return false;
-                } else {
-                    $newPwd = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-                    if (empty($newPwd)) {
-                        // Something is seriously wrong with the random generator
-                        $this->clearFromMemory($currentPwd);
-                        $this->clearFromMemory($newPwd);
-                        error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
-                        die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-                    }
                 }
             } else {
                 $adminSQL = "SELECT `password`" .
@@ -386,7 +372,23 @@ class AuthUtils
         // End active user check (can now clear $currentPwd since no longer used)
         $this->clearFromMemory($currentPwd);
 
-        // Ensure new password is not blank (note that even for ldap a random password is created above)
+        // Use case here is for when an administrator is adding a new user that will be using LDAP for authentication
+        // (note that in this case, a random password is prepared for the new user below that is stored in OpenEMR
+        //  and used only for session confirmations; the primary authentication for the new user will be done via
+        //  LDAP)
+        $ldapDummyPassword = false;
+        if ($create && ($userInfo===false) && (!empty($new_username)) && (self::useActiveDirectory($new_username))) {
+            $ldapDummyPassword = true;
+            $newPwd = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+            if (empty($newPwd)) {
+                // Something is seriously wrong with the random generator
+                $this->clearFromMemory($newPwd);
+                error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
+                die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
+            }
+        }
+
+        // Ensure new password is not blank
         if (empty($newPwd)) {
             $this->errorMessage = xl("Empty Password Not Allowed");
             $this->clearFromMemory($newPwd);
@@ -394,13 +396,13 @@ class AuthUtils
         }
 
         // Ensure password is long enough, if this option is on (note LDAP skips this)
-        if ((!self::useActiveDirectory()) && (!$this->testPasswordLength($newPwd))) {
+        if ((!$ldapDummyPassword) && (!$this->testPasswordLength($newPwd))) {
             $this->clearFromMemory($newPwd);
             return false;
         }
 
         // Ensure new password is strong enough, if this option is on (note LDAP skips this)
-        if ((!self::useActiveDirectory()) && (!$this->testPasswordStrength($newPwd))) {
+        if ((!$ldapDummyPassword) && (!$this->testPasswordStrength($newPwd))) {
             $this->clearFromMemory($newPwd);
             return false;
         }
@@ -494,7 +496,7 @@ class AuthUtils
             $updateSQL .= " SET `last_update_password` = NOW()";
             $updateSQL .= ", `password` = ?";
             array_push($updateParams, $newHash);
-            if ($GLOBALS['password_history']) {
+            if ($GLOBALS['password_history'] != 0) {
                 $updateSQL.=", `password_history1` = ?";
                 array_push($updateParams, $userInfo['password']);
                 $updateSQL.=", `password_history2` = ?";
@@ -658,7 +660,6 @@ class AuthUtils
                 $this->errorMessage = xl("Password too short. Minimum characters required" . ": " . $GLOBALS['gbl_minimum_password_length']);
                 return false;
             }
-
         }
 
         return true;

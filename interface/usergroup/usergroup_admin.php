@@ -556,7 +556,7 @@ function authorized_clicked() {
                                 } else if (strtotime($current_date) > strtotime($pwd_expires)) {
                                     echo '<div class="alert alert-warning" role="alert">' . xlt('Grace Period') . '</div>';
                                 } else {
-                                    echo '<div class="alert alert-success" role="alert">' . oeFormatShortDate($pwd_expires) . '</div>';
+                                    echo '<div class="alert alert-success" role="alert">' . text(oeFormatShortDate($pwd_expires)) . '</div>';
                                 }
                                 echo '</td>';
                             }

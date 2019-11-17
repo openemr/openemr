@@ -2061,8 +2061,8 @@ $GLOBALS_METADATA = array(
             array(
                 'DEFAULT' => xl('PHP Default'),
                 'BCRYPT' => xl('Bcrypt'),
-                'ARGON2I' => xl('Argon2I'),
-                'ARGON2ID' => xl('Argon2ID'),
+                'ARGON2I' => xl('Argon2I') . ' (PHP 7.3 or greater)',
+                'ARGON2ID' => xl('Argon2ID') . ' (PHP 7.3 or greater)',
             ),
             'DEFAULT',                // default
             xl('Hashing algorithm for authentication. Suggest PHP Default unless you know what you are doing.')
@@ -2178,8 +2178,8 @@ $GLOBALS_METADATA = array(
             array(
                 'DEFAULT' => xl('PHP Default'),
                 'BCRYPT' => xl('Bcrypt'),
-                'ARGON2I' => xl('Argon2I'),
-                'ARGON2ID' => xl('Argon2ID'),
+                'ARGON2I' => xl('Argon2I') . ' (PHP 7.3 or greater)',
+                'ARGON2ID' => xl('Argon2ID') . ' (PHP 7.3 or greater)',
             ),
             'DEFAULT',                // default
             xl('Hashing algorithm for token. Suggest PHP Default unless you know what you are doing.')
