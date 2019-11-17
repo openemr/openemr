@@ -41,12 +41,6 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
 }
 
 $iter = $result[0];
-
-if ($GLOBALS['password_expiration_days'] != 0) {
-    $userSecure = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE `id` = ?", [$_GET["id"]]);
-    $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
-}
-
 ?>
 
 <html>
@@ -123,15 +117,6 @@ function submitform() {
 
     }//If pwd null ends here
 <?php } ?>
-    //Request to reset the user password if the user was deactived once the password expired.
-    if((document.forms[0].pwd_expires.value != 0) && (document.forms[0].clearPass.value == "")) {
-        if((document.forms[0].user_type.value != "Emergency Login") && (document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
-        {
-            flag=1;
-            document.getElementById('error_message').innerHTML=<?php echo xlj('Please reset the password.') ?>;
-        }
-    }
-
   if (document.forms[0].access_group_id) {
     var sel = getSelected(document.forms[0].access_group_id.options);
     for (var item in sel) {
@@ -264,21 +249,10 @@ function authorized_clicked() {
 <FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<input type=hidden name="pwd_expires" value="<?php echo attr($GLOBALS['password_expiration_days']); ?>" >
 <input type=hidden name="pre_active" value="<?php echo attr($iter["active"]); ?>" >
-<input type=hidden name="exp_date" value="<?php echo attr($pwd_expires); ?>" >
 <input type=hidden name="get_admin_id" value="<?php echo attr($GLOBALS['Emergency_Login_email']); ?>" >
 <input type=hidden name="admin_id" value="<?php echo attr($GLOBALS['Emergency_Login_email_id']); ?>" >
 <input type=hidden name="check_acl" value="">
-<?php
-//Calculating the grace time
-$current_date = date("Y-m-d");
-if ($GLOBALS['password_expiration_days'] != 0) {
-    $grace_time1 = date("Y-m-d", strtotime($pwd_expires . "+".$GLOBALS['password_grace_time'] ."days"));
-}
-?>
-<input type=hidden name="current_date" value="<?php echo attr(strtotime($current_date)); ?>" >
-<input type=hidden name="grace_time" value="<?php echo attr(strtotime($grace_time1)); ?>" >
 <input type=hidden name="user_type" value="<?php echo attr($bg_name); ?>" >
 
 <TABLE border=0 cellpadding=0 cellspacing=0>

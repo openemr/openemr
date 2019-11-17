@@ -389,7 +389,7 @@ if ($GLOBALS['login_into_facility']) {
 
 // Fetch the password expiration date
 $is_expired=false;
-if ($GLOBALS['password_expiration_days'] != 0) {
+if (($GLOBALS['password_expiration_days'] != 0) && (preg_match('/[0-9]/', $GLOBALS['password_expiration_days']))) {
     $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
     $current_date = date('Y-m-d');
     if (!empty($result['last_update_password'])) {
@@ -399,11 +399,11 @@ if ($GLOBALS['password_expiration_days'] != 0) {
         $pwd_last_update = $current_date;
     }
 
-    // Display the password expiration message (starting from 7 days before the password gets expired)
-    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . ($GLOBALS['password_expiration_days'] - 7) . ' days'));
+    // Display the password expiration message (will show during the grace time)
+    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . $GLOBALS['password_expiration_days'] . ' days'));
 
     if (empty(strtotime($pwd_alert_date))) {
-        error_log("OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table");
+        error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
     } else if (strtotime($current_date) >= strtotime($pwd_alert_date)) {
         $is_expired = true;
     }

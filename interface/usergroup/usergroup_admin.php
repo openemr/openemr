@@ -496,6 +496,13 @@ function authorized_clicked() {
                         <th><?php echo xlt('Additional Info'); ?></th>
                         <th><?php echo xlt('Authorized'); ?></th>
                         <th><?php echo xlt('MFA'); ?></th>
+                        <?php
+                        $checkPassExp = false;
+                        if (($GLOBALS['password_expiration_days'] != 0) && (preg_match('/[0-9]/', $GLOBALS['password_expiration_days'])) && (preg_match('/[0-9]/', $GLOBALS['password_grace_time']))) {
+                            $checkPassExp = true;
+                            echo '<th>' . xlt('Password Expiration') . '</th>';
+                        }
+                        ?>
                     </tr>
                     <tbody>
                         <?php
@@ -528,6 +535,13 @@ function authorized_clicked() {
                                 $isMfa = xl('no');
                             }
 
+                            if ($checkPassExp) {
+                                $current_date = date("Y-m-d");
+                                $userSecure = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE `id` = ?", [$iter['id']]);
+                                $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
+                                $grace_time = date("Y-m-d", strtotime($pwd_expires . "+".$GLOBALS['password_grace_time'] ." days"));
+                            }
+
                             print "<tr>
                                 <td><b><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
                                 "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a></b>" ."&nbsp;</td>
@@ -535,6 +549,17 @@ function authorized_clicked() {
                                 <td>" . text($iter["info"]) . "&nbsp;</td>
                                 <td align='left'><span>" .text($iter["authorized"]) . "</td>
                                 <td align='left'><span>" .text($isMfa) . "</td>";
+                            if ($checkPassExp) {
+                                echo '<td>';
+                                if (strtotime($current_date) > strtotime($grace_time)) {
+                                    echo '<div class="alert alert-danger" role="alert">' . xlt('Expired') . '</div>';
+                                } else if (strtotime($current_date) > strtotime($pwd_expires)) {
+                                    echo '<div class="alert alert-warning" role="alert">' . xlt('Grace Period') . '</div>';
+                                } else {
+                                    echo '<div class="alert alert-success" role="alert">' . oeFormatShortDate($pwd_expires) . '</div>';
+                                }
+                                echo '</td>';
+                            }
                             print "</tr>\n";
                         }
                         ?>

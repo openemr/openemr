@@ -650,14 +650,14 @@ class AuthUtils
             return true;
         }
         $query = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
-        if ((!empty($query)) && (!empty($query['last_update_password']))) {
+        if ((!empty($query)) && (!empty($query['last_update_password'])) && (preg_match('/[0-9]/', $GLOBALS['password_expiration_days'])) && (preg_match('/[0-9]/', $GLOBALS['password_grace_time']))) {
             $current_date = date("Y-m-d");
             $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . ($GLOBALS['password_expiration_days'] + $GLOBALS['password_grace_time']) . " days"));
             if (strtotime($current_date) > strtotime($expiredPlusGraceTime)) {
                 return false;
             }
         } else {
-            error_log("OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table");
+            error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
         }
         return true;
     }
