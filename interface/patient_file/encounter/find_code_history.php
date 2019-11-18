@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../globals.php");
+require_once(dirname(_DIR_) . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 use OpenEMR\Core\Header;
@@ -56,12 +56,20 @@ function get_history_codes($pid)
             );
         }
     }
+    // make unique
+    $dxcodes = array_intersect_key($dxcodes, array_unique(array_map('serialize', $dxcodes)));
+    // the king of sort
+    array_multisort(
+        array_column($dxcodes, 'procedure'),
+        SORT_ASC,
+        array_column($dxcodes, 'code'),
+        SORT_ASC,
+        $dxcodes
+    );
 
-    ksort($dxcodes);
+    // problems on top then our sorted dx/procedure array
     return array_merge($probcodes, $dxcodes);
 }
-
-$dxcodes = get_history_codes($pid);
 ?>
 <!DOCTYPE html>
 <html>
@@ -71,9 +79,18 @@ $dxcodes = get_history_codes($pid);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php Header::setupHeader(['opener']); ?>
     <style>
+        body {
+            height: 100%;
+            width: 100%;
+        }
         .tips {
             display: none;
         }
+        .loading {
+             position: relative;
+             top: 40vh;
+             background: #fff;
+         }
     </style>
     <script>
         const errorMsg = '' + <?php echo xlj("Error finding diagnosis element. Try again."); ?>;
@@ -143,6 +160,7 @@ $dxcodes = get_history_codes($pid);
                 $(rows[i]).closest('tr').addClass('text-danger');
                 i++;
             }
+            $('.loading').fadeOut();
             if (rows.length) {
                 // scroll to first match and make active
                 $(rows[0]).closest('tr').addClass('active');
@@ -164,7 +182,7 @@ $dxcodes = get_history_codes($pid);
                 <header class="panel-heading panel-heading-sm">
                     <h4 class="panel-title"><?php echo xlt('Usage Tips') ?></h4>
                 </header>
-                <div class="panel-body panel-body-sm">
+                <div class="panel-body bg-warning">
                     <ul>
                         <?php
                         echo "<li>" . xlt("This dialog is generated from patient problem diagnoses and the accumulated diagnoses of all past procedures.") . "</li>";
@@ -180,6 +198,7 @@ $dxcodes = get_history_codes($pid);
                 </div>
             </section>
         </div>
+        <div class="loading text-center"><i class="fa fa-refresh fa-3x fa-spin"></i></div>
     </div>
     <div class="container-fluid">
         <div style="margin-top:45px;">
@@ -194,14 +213,15 @@ $dxcodes = get_history_codes($pid);
                 </thead>
                 <tbody>
                 <?php
+                $dxcodes = get_history_codes($pid);
                 foreach ($dxcodes as $pc) {
                     $code = explode(':', $pc['code']);
                     $code[0] = text($code[0]);
                     $code[1] = text($code[1]);
                     echo "<tr>\n" .
                         "<td>" . $pc['origin'] . "</td>\n" .
-                        "<td><button class='btn btn-xs btn-default' onclick='rtnCode(this)'" .
-                        "value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u style='color:red;'>" . $code[1] . "</u></button></td>\n" .
+                        "<td><button class='btn btn-xs btn-default' onclick='rtnCode(this)' " .
+                        " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u style='color:red;'>" . $code[1] . "</u></button></td>\n" .
                         "<td>" . text($pc['desc']) . "</td>\n" .
                         "<td>" . text($pc['procedure']) . "</td>\n" .
                         "</tr>\n";
@@ -211,5 +231,8 @@ $dxcodes = get_history_codes($pid);
             </table>
         </div>
     </div>
+<script>
+
+</script>
 </body>
 </html>
