@@ -343,6 +343,8 @@ if (count($emr_app)) {
                         <button type="submit" class="btn btn-default btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
                     </div>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-sm-12 text-center">
                     <p class="small">
                         <a href="../../acknowledge_license_cert.html" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
