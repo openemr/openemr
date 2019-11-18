@@ -353,6 +353,9 @@ body
 {
     cursor: pointer;
     padding: 5px 12px 5px;
+    transition: background-color 0.1s ease;
+    width: 100%;
+    float: none;
 }
 .menuDisabled
 {
@@ -425,7 +428,7 @@ body
     float: left;
 }
 
-/* main.php*/
+/* main.php */
 .body_main{
   background-color:#C9DBF2;
 }
@@ -436,4 +439,22 @@ body
 #menu_icon {
     margin: 12px 25px;
     cursor: pointer;
+}
+#patient_caret {
+    font-size: 2em;
+    margin-top: -5px;
+}
+@media (max-width: 768px) {
+    .mainFrames {
+        margin: 0;
+        padding-left: 1px;
+    }
+    #tabs_div > div :first-child {
+        width: 25px !important;
+    }
+    #framesDisplay > div
+    {
+        height: 100vh;
+        width: 100%;
+    }
 }

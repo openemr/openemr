@@ -148,7 +148,7 @@ if ($eventCount == 0) {
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function(){
     $("#pc_keywords").focus();
     $("#theform").submit(function() { SubmitForm(this); });
     $(".calsearch_event").mouseover(function() { $(this).toggleClass("highlight"); });
@@ -170,7 +170,7 @@ $(document).ready(function(){
 var EditEvent = function (eObj) {
     objID = eObj.id;
     var parts = objID.split("~");
-    dlgopen('add_edit_event.php?date=' + encodeURIComponent(parts[1]) + '&eid=' + encodeURIComponent(parts[0]), '_blank', 650, 675);
+    dlgopen('add_edit_event.php?date=' + encodeURIComponent(parts[1]) + '&eid=' + encodeURIComponent(parts[0]), '_blank', 780, 675);
 }
 
 // show the 'searching...' status and submit the form

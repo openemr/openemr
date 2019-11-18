@@ -360,6 +360,8 @@ z-index:10000;
     color: #333;
     padding: 15px 10px;
     font-weight: 700;
+    transition: background-color 0.1s ease;
+    width: 100%;
 }
 .menuLabel:hover {
     background: #CCE3F8;
@@ -375,6 +377,7 @@ div.menuLabel:hover {
 .menuEntries li .menuLabel {
     display: block;
     padding: 10px 20px;
+    float: none;
 }
 .menuEntries li .menuLabel:hover {
     background-color: #CCE3F8;
@@ -458,4 +461,22 @@ div.menuLabel:hover {
 #menu_icon {
     margin: 12px 25px;
     cursor: pointer;
+}
+#patient_caret {
+    font-size: 2em;
+    margin-top: -5px;
+}
+@media (max-width: 768px) {
+    .mainFrames {
+        margin: 0;
+        padding-left: 1px;
+    }
+    #tabs_div > div :first-child {
+        width: 25px !important;
+    }
+    #framesDisplay > div
+    {
+        height: 100vh;
+        width: 100%;
+    }
 }
