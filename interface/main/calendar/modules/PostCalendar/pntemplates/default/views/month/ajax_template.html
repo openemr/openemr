@@ -41,16 +41,16 @@ $timeslotHeightUnit="px";
                 }
         }
     [-/php-]
-    ,'_blank', 650, 675);
+    ,'_blank', 780, 675);
  }
 
  function oldEvt(eventdate, eventid, pccattype) {
-  dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 650, 675);
+  dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 675);
  }
 
  function oldGroupEvt(eventdate, eventid, pccattype){
   top.restoreSession();
-  dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 650, 675);
+  dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 675);
  }
 
  function goPid(pid) {
@@ -364,7 +364,7 @@ echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-
 
 <div class="page-content-wrapper">
 <div class="container-fluid calsearch_body">
-<div id="bigCal">
+<div id="bigCal" style="overflow-x: auto;">
 [-php-]
 /* used in debugging
 foreach ($A_EVENTS as $date => $events) {
@@ -656,7 +656,6 @@ foreach ($providers as $provider) {
 </div>
 </form>
 </div>
-</body>
 
 <script language='JavaScript'>
 
@@ -762,5 +761,5 @@ foreach ($providers as $provider) {
     });
 </script>
 
-
+</body>
 </html>

@@ -304,7 +304,7 @@ if (typeof dlgclose !== "function") {
 *
 * @param {url} string Content location.
 * @param {String} winname If set becomes modal id and/or iframes name. Or, one is created/assigned(iframes).
-* @param {Number| String} width|modalSize(modal-xlg) For sizing: an number will be converted to a percentage of view port width.
+* @param {Number| String} width|modalSize(modal-xl) For sizing: an number will be converted to a percentage of view port width.
 * @param {Number} height Initial minimum height. For iframe auto resize starts at this height.
 * @param {boolean} forceNewWindow Force using a native window.
 * @param {String} title If exist then header with title is created otherwise no header and content only.
@@ -396,6 +396,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // what's a window without a name. important for stacking and opener.
     winname = (winname === "_blank" || !winname) ? dialogID() : winname;
 
+    // for small screens or request width is larger than viewport.
+    if (where.innerWidth <= 768) {
+        width = "modal-xl";
+    }
     // Convert dialog size to percentages and/or css class.
     var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl'];
     if (Math.abs(width) > 0) {
@@ -418,7 +422,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     } else if (mSize === 'modal-lg') {
         msSize = '<style>.modal-custom-' + winname + ' {width:75%;}</style>';
     } else if (mSize === 'modal-xl') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:96%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {width:92%;}</style>';
     }
     mSize = 'modal-custom-' + winname;
 

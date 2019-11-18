@@ -462,3 +462,21 @@ div.menuLabel:hover {
     margin: 12px 25px;
     cursor: pointer;
 }
+#patient_caret {
+    font-size: 2em;
+    margin-top: -5px;
+}
+@media (max-width: 768px) {
+    .mainFrames {
+        margin: 0;
+        padding-left: 1px;
+    }
+    #tabs_div > div :first-child {
+        width: 25px !important;
+    }
+    #framesDisplay > div
+    {
+        height: 100vh;
+        width: 100%;
+    }
+}
