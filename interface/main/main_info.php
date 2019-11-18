@@ -56,19 +56,25 @@ if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
     <title><?php echo xlt('Calendar'); ?></title>
     <style>
         iframe {
+            -webkit-overflow-scrolling:touch
             display: table;
             empty-cells: show;
             border-collapse: collapse;
             border: 0;
-            width: 100%;
+            width: 1px;
+            min-width: 100%;
             min-height: 100%;
-            height: 100vh;
+            height: 100%;
         }
         body {
+            overflow:hidden;
+            -webkit-overflow-scrolling:touch;
             margin: 0;
             padding: 0;
             min-width: 100%;
             min-height: 100%;
+            width: 100%;
+            height: 100vh;
         }
     </style>
 </head>
