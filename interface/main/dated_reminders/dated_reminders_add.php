@@ -99,7 +99,7 @@ if ($_POST) {
         $dueDate = DateToYYYYMMDD($_POST['dueDate']);
         $priority = intval($_POST['priority']);
         $message = $_POST['message'];
-        $fromID = $_SESSION['authId'];
+        $fromID = $_SESSION['authUserID'];
         $patID = $_POST['PatientID'];
         if (isset($_POST['sendSeperately']) and $_POST['sendSeperately']) {
             foreach ($sendTo as $st) {
@@ -333,9 +333,9 @@ if (isset($this_message['pid'])) {
                     <?php echo xlt('([ctrl] + click to select multiple recipients)'); ?></label>
                 <div class="col-xs-5">
                     <select style="width:100%" id="sendTo" name="sendTo[]" multiple="multiple">
-                        <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
+                        <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                             <?php //
-                            $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
+                            $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
                             for ($i=2; $uRow=sqlFetchArray($uSQL); $i++) {
                                 echo '<option value="' . attr($uRow['id']) . '">' . text($uRow['fname'] . ' ' . $uRow['mname'] . ' ' . $uRow['lname']) . '</option>';
                             }
@@ -430,7 +430,7 @@ if (isset($this_message['pid'])) {
     </form>
     <div class="col-xs-12">
     <?php
-        $_GET['sentBy'] = array($_SESSION['authId']);
+        $_GET['sentBy'] = array($_SESSION['authUserID']);
         $_GET['sd'] = oeFormatShortDate();
         $TempRemindersArray = logRemindersArray();
         $remindersArray = array();

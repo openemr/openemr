@@ -40,7 +40,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     <ul class="col-md-12">
         <?php
         $email_sender = $_POST['email_sender'];
-        $sent_by = $_SESSION["authId"];
+        $sent_by = $_SESSION['authUserID'];
 
         while ($row = sqlFetchArray($res)) {
             // prepare text for ***NAME*** tag

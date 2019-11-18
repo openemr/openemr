@@ -614,7 +614,7 @@ class Document extends ORDataObject
         if ($this->storagemethod == 1) {
             // Store it using CouchDB.
             $couch = new CouchDB();
-            $docname = $_SESSION['authId'] . $filename . $patient_id . $encounter_id . date("%Y-%m-%d H:i:s");
+            $docname = $_SESSION['authUserID'] . $filename . $patient_id . $encounter_id . date("%Y-%m-%d H:i:s");
             $docid = $couch->stringToId($docname);
             $json = json_encode(base64_encode($data));
             if ($has_thumbnail) {

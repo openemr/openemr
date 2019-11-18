@@ -33,7 +33,7 @@ class BaseHarness extends PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         $_SESSION['authUser']  = 'tester';
-        $_SESSION['authGroup'] = 'testgroup';
+        $_SESSION['authProvider'] = 'testgroup';
 
         $GLOBALS = array( 'enable_auditlog' => '0',
                           );
@@ -53,7 +53,7 @@ class BaseHarness extends PHPUnit_Framework_TestCase
         require_once "$srcdir/options.inc.php";
 
         $_SESSION['authUser']  = 'tester';
-        $_SESSION['authGroup'] = 'testgroup';
+        $_SESSION['authProvider'] = 'testgroup';
     }
 
     public static function tearDownAfterClass()

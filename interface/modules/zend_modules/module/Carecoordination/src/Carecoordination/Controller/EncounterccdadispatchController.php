@@ -85,7 +85,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
 
             if ($sent_by!= '') {
-                $_SESSION['authId'] = $sent_by;
+                $_SESSION['authUserID'] = $sent_by;
             }
 
             if (!$this->sections) {
@@ -136,7 +136,7 @@ class EncounterccdadispatchController extends AbstractActionController
 					xmlns:mif="urn:hl7-org:v3/mif">
 					<!--';
                     $content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
-                    $ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);
+                    $ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
                     try {
                         $event = isset($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                         $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';
@@ -176,7 +176,7 @@ class EncounterccdadispatchController extends AbstractActionController
 				xmlns:mif="urn:hl7-org:v3/mif">
 				<!--';
                 $content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
-                $ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);
+                $ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
                 try {
                     $event = isset($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                     $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';
@@ -281,7 +281,7 @@ class EncounterccdadispatchController extends AbstractActionController
         }
 
         if ($sent_by!= '') {
-            $_SESSION['authId'] = $sent_by;
+            $_SESSION['authUserID'] = $sent_by;
         }
 
         if (!$this->sections) {
@@ -337,7 +337,7 @@ class EncounterccdadispatchController extends AbstractActionController
 		xmlns:mif="urn:hl7-org:v3/mif">
 		<!--';
                 $content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
-                $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);
+                $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
                 if (!$view) {
                     if ($hie_hook) {
                         echo $content;
@@ -378,7 +378,7 @@ class EncounterccdadispatchController extends AbstractActionController
             xmlns:mif="urn:hl7-org:v3/mif">
             <!--';
             $content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
-            $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);
+            $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
             echo $content;
             die;
         }

@@ -19,7 +19,7 @@ use OpenEMR\Services\FacilityService;
 $facilityService = new FacilityService();
 
 //collect facility data
-$res = $facilityService->getFacilityForUserFormatted($_SESSION['authId']);
+$res = $facilityService->getFacilityForUserFormatted($_SESSION['authUserID']);
 
 //collect patient data
 $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name ".

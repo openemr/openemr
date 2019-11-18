@@ -222,7 +222,7 @@ if ($_POST['form_save']) {
                         "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                         " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                         " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
-                        array($_SESSION['authId'], $form_source, $amount, $form_pid, $form_method)
+                        array($_SESSION['authUserID'], $form_source, $amount, $form_pid, $form_method)
                     );
 
                     sqlBeginTrans();
@@ -230,7 +230,7 @@ if ($_POST['form_save']) {
                     $insrt_id=sqlInsert(
                         "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
                         " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        array($form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $_SESSION['authId'], $session_id, $amount)
+                        array($form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $_SESSION['authUserID'], $session_id, $amount)
                     );
                     sqlCommitTrans();
 

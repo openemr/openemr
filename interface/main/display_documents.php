@@ -182,7 +182,7 @@ $display_collapse_msg = "display:inline;";
 
 <div id='docdiv' <?php echo $display_div; ?>>
     <?php
-    $current_user = $_SESSION["authId"];
+    $current_user = $_SESSION['authUserID'];
     $date_filter = '';
         $query_array = array();
     if ($form_from_doc_date) {

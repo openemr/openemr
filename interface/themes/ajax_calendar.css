@@ -18,7 +18,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 
 .calsearch_body {
-    padding: 0px 2px;
+    padding: 0px 0px;
 }
 .sidebar-wrapper {
     margin-left: -30rem;
@@ -28,24 +28,10 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     transition: margin .25s ease-out;
 }
 .page-content-wrapper {
-    min-width: 100vw;
+    width: 100%;
 }
 #wrapper.toggled .sidebar-wrapper {
     margin-left: 0;
-}
-@media (min-width: 768px) {
-    .sidebar-wrapper {
-        margin-left: 0;
-    }
-
-    .page-content-wrapper {
-        min-width: 0;
-        width: 100%;
-    }
-
-    #wrapper.toggled .sidebar-wrapper {
-        margin-left: -30rem;
-    }
 }
 #functions {
     min-width: 20%;
@@ -56,7 +42,6 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .rtl #functions{
     float: right;
 }
-
 #topToolbarRight {
     float: right;
     width: 100%;
@@ -444,4 +429,21 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .pop-up img {
     width: 150px;
     margin: 10px;
+}
+@media (max-width: 768px) {
+    #prevday, #nextday, #prevweek, #nextweek, #prevmonth, #nextmonth {
+        font-size: 1.3em;
+    }
+}
+@media (min-width: 768px) {
+    .sidebar-wrapper {
+        margin-left: 0;
+    }
+    .page-content-wrapper {
+        min-width: 0;
+        width: 100%;
+    }
+    #wrapper.toggled .sidebar-wrapper {
+        margin-left: -30rem;
+    }
 }

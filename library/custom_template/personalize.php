@@ -20,12 +20,12 @@ use OpenEMR\Core\Header;
 
 function Delete_Rows($id)
 {
-    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($id, $_SESSION['authId']));
+    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($id, $_SESSION['authUserID']));
 }
 
 function Insert_Rows($id, $order = "")
 {
-    sqlStatement("REPLACE INTO template_users (tu_template_id,tu_user_id,tu_template_order) VALUES (?,?,?)", array($id, $_SESSION['authId'], $order));
+    sqlStatement("REPLACE INTO template_users (tu_template_id,tu_user_id,tu_template_order) VALUES (?,?,?)", array($id, $_SESSION['authUserID'], $order));
 }
 
 if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
@@ -33,7 +33,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     $personalized = $_REQUEST['personalized'];
     foreach ($topersonalized as $key => $value) {
         $arr = explode("|", $value);
-        $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authId']));
+        $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authUserID']));
         if (sqlNumRows($res)) {
             Delete_Rows($arr[0]);
             $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", array($arr[0]));
@@ -47,7 +47,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     foreach ($personalized as $key => $value) {
         $arr = explode("|", $value);
         if ($arr[1]) {
-            $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authId']));
+            $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authUserID']));
             Insert_Rows($arr[0]);
             $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", array($arr[0]));
             while ($row = sqlFetchArray($qry)) {
@@ -312,7 +312,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         <option value=''><?php echo htmlspecialchars(xl('Select a User'), ENT_QUOTES); ?></option>
                         <?php
                         $user_sql = "SELECT DISTINCT(tu.tu_user_id),u.fname,u.lname FROM template_users AS tu LEFT OUTER JOIN users AS u ON tu.tu_user_id=u.id WHERE tu.tu_user_id!=?";
-                        $user_res = sqlStatement($user_sql, array($_SESSION['authId']));
+                        $user_res = sqlStatement($user_sql, array($_SESSION['authUserID']));
                         while ($user_row = sqlFetchArray($user_res)) {
                             echo "<option value='" . htmlspecialchars($user_row['tu_user_id'], ENT_QUOTES) . "' ";
                             echo ($_REQUEST['filter_users'] == $user_row['tu_user_id']) ? 'selected' : '';
@@ -358,7 +358,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             <th><?php echo htmlspecialchars(xl('Available categories'), ENT_QUOTES); ?></th>
             <th>&nbsp;</th>
             <?php
-            $user = sqlQuery("SELECT * FROM users WHERE id=?", array($_SESSION['authId']));
+            $user = sqlQuery("SELECT * FROM users WHERE id=?", array($_SESSION['authUserID']));
             ?>
             <th><?php echo htmlspecialchars(xl('Categories for') . " " . $user['fname'] . " " . $user['lname'], ENT_QUOTES); ?></th>
         </tr>
@@ -369,8 +369,8 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                     <?php
                     $where = '';
                     $join = '';
-                    $arval = array($_SESSION['authId']);
-                    $arval1 = array($_REQUEST['filter_users'], $_SESSION['authId']);
+                    $arval = array($_SESSION['authUserID']);
+                    $arval1 = array($_REQUEST['filter_users'], $_SESSION['authUserID']);
                     if ($_REQUEST['filter_context']) {
                         $where .= " AND cl_list_id=?";
                         array_push($arval, $_REQUEST['filter_context']);
@@ -435,7 +435,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                                 tu.tu_user_id=? AND c.cl_list_type=3 AND cl_deleted=0 " .
                         $where .
                         "ORDER BY c.cl_list_item_long";
-                    $resTemplates = sqlStatement($sql, array($_SESSION['authId']));
+                    $resTemplates = sqlStatement($sql, array($_SESSION['authUserID']));
                     while ($rowTemplates = sqlFetchArray($resTemplates)) {
                         $cntxt = '';
                         if (!$_REQUEST['filter_context']) {

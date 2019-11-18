@@ -31,7 +31,7 @@ if ($_GET) {
 
     if (!$isAdmin) {
         if (empty($_GET['sentBy']) and empty($_GET['sentTo'])) {
-            $_GET['sentTo'] = array(intval($_SESSION['authId']));
+            $_GET['sentTo'] = array(intval($_SESSION['authUserID']));
         }
     }
 
@@ -130,7 +130,7 @@ if ($_GET) {
     <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
     <?php
       $allUsers = array();
-      $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
+      $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
     for ($i=0; $uRow=sqlFetchArray($uSQL); $i++) {
         $allUsers[] = $uRow;
     }
@@ -164,7 +164,7 @@ if ($_GET) {
                             <div class="col-xs-6">
                                 <label class="control-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
                                 <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
-                                    <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
+                                    <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
                                     if ($isAdmin) {
                                         foreach ($allUsers as $user) {
@@ -177,7 +177,7 @@ if ($_GET) {
                             <div class="col-xs-6">
                                 <label class="control-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
                                 <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
-                                    <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
+                                    <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
                                     if ($isAdmin) {
                                         foreach ($allUsers as $user) {

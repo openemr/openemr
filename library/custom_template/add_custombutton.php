@@ -36,7 +36,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
         if ($_POST['hidid' . $cnt]) {
             if (trim(formData('inshort' . $cnt)) == '' && trim(formdata('designation' . $cnt)) == '') {
                 sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_slno=?", array($_POST['hidid' . $cnt]));
-                sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($_POST['hidid' . $cnt], $_SESSION['authId']));
+                sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($_POST['hidid' . $cnt], $_SESSION['authUserID']));
             } else {
                 $sql = "UPDATE customlists SET cl_list_item_short=?,cl_list_item_long=?,cl_order=? WHERE cl_list_slno=?";
                 sqlStatement($sql, array($_POST['inshort' . $cnt], $_POST['designation' . $cnt], $_POST['level' . $cnt], $_POST['hidid' . $cnt]));
@@ -47,13 +47,13 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
                 $itemID = $rowID['maxID'] ? $rowID['maxID'] : 1;
                 $sql = "INSERT INTO customlists (cl_list_item_id,cl_list_type,cl_list_item_short,cl_list_item_long,cl_order) VALUES(?,?,?,?,?)";
                 $newid = sqlInsert($sql, array($itemID, 6, $_POST['inshort' . $cnt], $_POST['designation' . $cnt], $_POST['level' . $cnt]));
-                sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", array($_SESSION['authId'], $newid));
+                sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", array($_SESSION['authUserID'], $newid));
             }
         }
         if ($_POST['form_delete'] == 'Delete') {
             if ($_POST['chk' . $cnt]) {
                 sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_slno=?", array($_POST['chk' . $cnt]));
-                sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($_POST['chk' . $cnt], $_SESSION['authId']));
+                sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($_POST['chk' . $cnt], $_SESSION['authUserID']));
             }
         }
     }
@@ -114,7 +114,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
         <?php
         $i = 1;
         $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno=tu.tu_template_id
-                           WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_order", array($_SESSION['authId']));
+                           WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
         $sl = 1;
         $start = 1;
         while ($row = sqlFetchArray($res)) {

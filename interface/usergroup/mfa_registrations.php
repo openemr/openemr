@@ -40,7 +40,7 @@ function writeRow($method, $name, $allowEdit = false)
     echo "</td></tr>\n";
 }
 
-$userid = $_SESSION['authId'];
+$userid = $_SESSION['authUserID'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 $message = '';

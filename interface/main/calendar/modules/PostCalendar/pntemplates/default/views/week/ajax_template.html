@@ -45,16 +45,16 @@ $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-cir
                 }
         }
     [-/php-]
-   ,'_blank', 650, 675);
+   ,'_blank', 780, 675);
  }
 
  function oldEvt(eventdate, eventid, pccattype) {
-  dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 650, 675);
+  dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 675);
  }
 
  function oldGroupEvt(eventdate, eventid, pccattype){
   top.restoreSession();
-  dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 650, 675);
+  dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 675);
  }
 
  function goPid(pid) {
@@ -149,7 +149,7 @@ $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-cir
 
  //==================================
  //FACILITY FILTERING (CHEMED)
- $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+ $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
  if ( $_SESSION['pc_facility'] ) {
     $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
  } else {
@@ -341,7 +341,7 @@ while ($currdate <= $enddate) {
 if ($_SESSION['authorizeduser'] == 1) {
   $facilities = getFacilities();
 } else {
-  $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+  $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
  	if (count($facilities) == 1)
     $_SESSION['pc_facility'] = key($facilities);
 }
@@ -1015,5 +1015,5 @@ foreach ($providers as $provider) {
     });
 </script>
 
-
+</body>
 </html>

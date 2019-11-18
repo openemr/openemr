@@ -59,7 +59,7 @@ if ($GLOBALS['login_into_facility']) {
 
 // override the cookie if the user doesn't have access to that facility any more
 if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
-    $facilities = getUserFacilities($_SESSION['authId']);
+    $facilities = getUserFacilities($_SESSION['authUserID']);
     // use the first facility the user has access to, unless...
     $_SESSION['pc_facility'] = $facilities[0]['id'];
     // if the cookie is in the users' facilities, use that.

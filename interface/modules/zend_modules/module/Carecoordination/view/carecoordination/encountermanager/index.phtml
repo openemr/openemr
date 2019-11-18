@@ -298,7 +298,7 @@ foreach($this->status_details as $row_status){
                                         <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']);?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']);?>" <?php if($this->form_data['select_all'] ==1) echo "checked"; ?>>
                                 </td>
                                 <td style="padding: 5px;">
-                                        <a href="<?php echo $this->basePath();?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']);?>&view=1&recipient=self&param=<?php echo $_SESSION['authId'];?>" rel="noopener" target="_blank" style="text-decoration: none;">
+                                        <a href="<?php echo $this->basePath();?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']);?>&view=1&recipient=self&param=<?php echo $_SESSION['authUserID'];?>" rel="noopener" target="_blank" style="text-decoration: none;">
                                                 <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View CCDA');?>">
                                         </a>
                                 </td>

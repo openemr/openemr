@@ -42,7 +42,7 @@ if ($newPass!=$newPass2) {
 }
 
 $authUtilsUpdatePassword = new AuthUtils();
-$success = $authUtilsUpdatePassword->updatePassword($_SESSION['authId'], $_SESSION['authId'], $curPass, $newPass);
+$success = $authUtilsUpdatePassword->updatePassword($_SESSION['authUserID'], $_SESSION['authUserID'], $curPass, $newPass);
 if ($success) {
     echo "<div class='alert alert-success'>" . xlt("Password change successful") . "</div>";
 } else {

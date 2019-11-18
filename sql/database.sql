@@ -6723,6 +6723,8 @@ CREATE TABLE `users_secure` (
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `password_history1` varchar(255),
   `password_history2` varchar(255),
+  `password_history3` varchar(255),
+  `password_history4` varchar(255),
   `last_challenge_response` datetime DEFAULT NULL,
   `login_work_area` text,
   `login_fail_counter` INT(11) DEFAULT '0',

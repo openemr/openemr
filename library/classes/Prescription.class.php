@@ -172,7 +172,7 @@ class Prescription extends ORDataObject
             $this->_table = "prescriptions";
             $this->pharmacy = new Pharmacy();
             $this->pharmacist = new Person();
-            $this->provider = new Provider($_SESSION['authId']);
+            $this->provider = new Provider($_SESSION['authUserID']);
             $this->patient = new Patient();
             $this->start_date = date("Y-m-d");
             $this->date_added = date("Y-m-d");

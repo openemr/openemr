@@ -137,7 +137,7 @@ if ($exclude_policy != "") {
         $res[] = $row;
     }
     // Get the facilities information
-    $facilities     = getUserFacilities($_SESSION['authId']);
+    $facilities     = getUserFacilities($_SESSION['authUserID']);
 
     // Get the Providers information
     $providers      = EDI_270::getUsernames();
