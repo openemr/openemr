@@ -59,7 +59,7 @@ class FormVitals extends ORDataObject
             $id = "";
             $this->date = $this->get_date();
             $this->user = $_SESSION['authUser'];
-            $this->groupname = $_SESSION['authGroup'];
+            $this->groupname = $_SESSION['authProvider'];
         }
 
         $this->_table = "form_vitals";

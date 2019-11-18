@@ -184,6 +184,15 @@ class AuthUtils
             }
         } else {
             // standard authentication
+            // First, ensure the user hash is a valid hash
+            $hash_info = password_get_info($userSecure['password']);
+            if (empty($hash_info['algo'])) {
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
+                $this->clearFromMemory($password);
+                $this->preventTimingAttack();
+                return false;
+            }
+            // Second, authentication
             if (!AuthHash::passwordVerify($password, $userSecure['password'])) {
                 if ($this->loginAuth || $this->apiAuth) {
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
@@ -245,13 +254,11 @@ class AuthUtils
             }
 
             // Set up session environment
-            $_SESSION['authUser'] = $username;
-            $_SESSION['authPass'] = $hash;
-            $_SESSION['authGroup'] = $authGroup['name'];
-            $_SESSION['authUserID'] = $userInfo['id'];
-            $_SESSION['authProvider'] = $authGroup['name'];
-            $_SESSION['authId'] = $userInfo['id'];
-            $_SESSION['userauthorized'] = $userInfo['authorized'];
+            $_SESSION['authUser'] = $username;                     // username
+            $_SESSION['authPass'] = $hash;                         // user hash used to confirm session in authCheckSession()
+            $_SESSION['authUserID'] = $userInfo['id'];             // user id
+            $_SESSION['authProvider'] = $authGroup['name'];        // user group
+            $_SESSION['userauthorized'] = $userInfo['authorized']; // user authorized setting
             // Some users may be able to authorize without being providers:
             if ($userInfo['see_auth'] > '2') {
                 $_SESSION['userauthorized'] = '1';
@@ -291,7 +298,7 @@ class AuthUtils
             return false;
         }
 
-        $userSQL = "SELECT `password`, `password_history1`, `password_history2`" .
+        $userSQL = "SELECT `password`, `password_history1`, `password_history2`, `password_history3`, `password_history4`" .
             " FROM `users_secure`" .
             " WHERE `id` = ?";
         $userInfo = privQuery($userSQL, [$targetUser]);
@@ -328,33 +335,19 @@ class AuthUtils
                 return false;
             }
 
-            // If this is an administrator changing someone else's password, then check that they have the password right
+            // If this is an administrator changing someone else's password, then authenticate the administrator
             if (self::useActiveDirectory()) {
-                // Use case here is for when an administrator is adding a new user that will be using LDAP for authentication
-                // (note that in this case, a random password is prepared for the new user below that is stored in OpenEMR
-                //  and used only for session confirmations; the primary authentication for the new user will be done via
-                //  LDAP)
                 if (empty($_SESSION['authUser'])) {
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
                     return false;
                 }
-                $valid = $this->activeDirectoryValidation($_SESSION['authUser'], $currentPwd);
-                if (!$valid) {
+                if (!$this->activeDirectoryValidation($_SESSION['authUser'], $currentPwd)) {
                     $this->errorMessage = xl("Incorrect password!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
                     return false;
-                } else {
-                    $newPwd = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-                    if (empty($newPwd)) {
-                        // Something is seriously wrong with the random generator
-                        $this->clearFromMemory($currentPwd);
-                        $this->clearFromMemory($newPwd);
-                        error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
-                        die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-                    }
                 }
             } else {
                 $adminSQL = "SELECT `password`" .
@@ -379,15 +372,37 @@ class AuthUtils
         // End active user check (can now clear $currentPwd since no longer used)
         $this->clearFromMemory($currentPwd);
 
-        // Ensure new password is not blank (note that even for ldap a random password is created above)
+        // Use case here is for when an administrator is adding a new user that will be using LDAP for authentication
+        // (note that in this case, a random password is prepared for the new user below that is stored in OpenEMR
+        //  and used only for session confirmations; the primary authentication for the new user will be done via
+        //  LDAP)
+        $ldapDummyPassword = false;
+        if ($create && ($userInfo===false) && (!empty($new_username)) && (self::useActiveDirectory($new_username))) {
+            $ldapDummyPassword = true;
+            $newPwd = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+            if (empty($newPwd)) {
+                // Something is seriously wrong with the random generator
+                $this->clearFromMemory($newPwd);
+                error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
+                die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
+            }
+        }
+
+        // Ensure new password is not blank
         if (empty($newPwd)) {
             $this->errorMessage = xl("Empty Password Not Allowed");
             $this->clearFromMemory($newPwd);
             return false;
         }
 
+        // Ensure password is long enough, if this option is on (note LDAP skips this)
+        if ((!$ldapDummyPassword) && (!$this->testPasswordLength($newPwd))) {
+            $this->clearFromMemory($newPwd);
+            return false;
+        }
+
         // Ensure new password is strong enough, if this option is on (note LDAP skips this)
-        if (!$this->testPasswordStrength($newPwd)) {
+        if ((!$ldapDummyPassword) && (!$this->testPasswordStrength($newPwd))) {
             $this->clearFromMemory($newPwd);
             return false;
         }
@@ -442,12 +457,26 @@ class AuthUtils
                 return false;
             }
 
-            if ($GLOBALS['password_history']) {
+            if (($GLOBALS['password_history'] != 0) && (check_integer($GLOBALS['password_history']))) {
                 // password reuse disallowed
-                if ((AuthHash::passwordVerify($newPwd, $userInfo['password'])) ||
-                    (AuthHash::passwordVerify($newPwd, $userInfo['password_history1'])) ||
-                    (AuthHash::passwordVerify($newPwd, $userInfo['password_history2']))) {
-                    $this->errorMessage = xl("Reuse of three previous passwords not allowed!");
+                $pass_reuse_fail = false;
+                if (($GLOBALS['password_history'] > 0) && (AuthHash::passwordVerify($newPwd, $userInfo['password']))) {
+                    $pass_reuse_fail = true;
+                }
+                if (($GLOBALS['password_history'] > 1) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history1']))) {
+                    $pass_reuse_fail = true;
+                }
+                if (($GLOBALS['password_history'] > 2) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history2']))) {
+                    $pass_reuse_fail = true;
+                }
+                if (($GLOBALS['password_history'] > 3) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history3']))) {
+                    $pass_reuse_fail = true;
+                }
+                if (($GLOBALS['password_history'] > 4) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history4']))) {
+                    $pass_reuse_fail = true;
+                }
+                if ($pass_reuse_fail) {
+                    $this->errorMessage = xl("Reuse of previous passwords not allowed!");
                     $this->clearFromMemory($newPwd);
                     return false;
                 }
@@ -467,11 +496,15 @@ class AuthUtils
             $updateSQL .= " SET `last_update_password` = NOW()";
             $updateSQL .= ", `password` = ?";
             array_push($updateParams, $newHash);
-            if ($GLOBALS['password_history']) {
+            if ($GLOBALS['password_history'] != 0) {
                 $updateSQL.=", `password_history1` = ?";
                 array_push($updateParams, $userInfo['password']);
                 $updateSQL.=", `password_history2` = ?";
                 array_push($updateParams, $userInfo['password_history1']);
+                $updateSQL.=", `password_history3` = ?";
+                array_push($updateParams, $userInfo['password_history2']);
+                $updateSQL.=", `password_history4` = ?";
+                array_push($updateParams, $userInfo['password_history3']);
             }
 
             $updateSQL .= " WHERE `id` = ?";
@@ -510,13 +543,13 @@ class AuthUtils
     // This function is static since requires no class specific defines
     public static function authCheckSession()
     {
-        if (isset($_SESSION['authId'])) {
+        if ((!empty($_SESSION['authUserID'])) && (!empty($_SESSION['authUser'])) && (!empty($_SESSION['authPass']))) {
             $authDB = privQuery("SELECT `users`.`username`, `users_secure`.`password`" .
                 " FROM `users`, `users_secure`" .
                 " WHERE `users`.`id` = ? ".
                 " AND `users`.`id` = `users_secure`.`id` ".
                 " AND BINARY `users`.`username` = `users_secure`.`username`" .
-                " AND `users`.`active` = 1", [$_SESSION['authId']]);
+                " AND `users`.`active` = 1", [$_SESSION['authUserID']]);
             if ((!empty($authDB)) &&
                 (!empty($authDB['username'])) &&
                 (!empty($authDB['password'])) &&
@@ -615,19 +648,32 @@ class AuthUtils
     }
 
     /**
-     * Does the new password meet the security requirements?
+     * Does the new password meet the length requirements?
      *
      * @param type $pwd     the password to test - passed by reference to prevent storage of pass in memory
-     * @return boolean      is the password good enough?
+     * @return boolean      is the password long enough?
+     */
+    private function testPasswordLength(&$pwd)
+    {
+        if (($GLOBALS['gbl_minimum_password_length'] != 0) && (check_integer($GLOBALS['gbl_minimum_password_length']))) {
+            if (strlen($pwd) < $GLOBALS['gbl_minimum_password_length']) {
+                $this->errorMessage = xl("Password too short. Minimum characters required" . ": " . $GLOBALS['gbl_minimum_password_length']);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Does the new password meet the strength requirements?
+     *
+     * @param type $pwd     the password to test - passed by reference to prevent storage of pass in memory
+     * @return boolean      is the password strong enough?
      */
     private function testPasswordStrength(&$pwd)
     {
         if ($GLOBALS['secure_password']) {
-            if (strlen($pwd)<8) {
-                $this->errorMessage = xl("Password too short. Minimum 8 characters required.");
-                return false;
-            }
-
             $features=0;
             $reg_security=array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
             foreach ($reg_security as $expr) {
@@ -636,8 +682,8 @@ class AuthUtils
                 }
             }
 
-            if ($features<3) {
-                $this->errorMessage = xl("Password does not meet minimum requirements and should contain at least three of the four following items: A number, a lowercase letter, an uppercase letter, a special character (Not a letter or number).");
+            if ($features < 4) {
+                $this->errorMessage = xl("Password does not meet minimum requirements and should contain at least each of the following items: A number, a lowercase letter, an uppercase letter, a special character (not a letter or number).");
                 return false;
             }
         }
@@ -652,14 +698,14 @@ class AuthUtils
             return true;
         }
         $query = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
-        if ((!empty($query)) && (!empty($query['last_update_password']))) {
+        if ((!empty($query)) && (!empty($query['last_update_password'])) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
             $current_date = date("Y-m-d");
             $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . ($GLOBALS['password_expiration_days'] + $GLOBALS['password_grace_time']) . " days"));
             if (strtotime($current_date) > strtotime($expiredPlusGraceTime)) {
                 return false;
             }
         } else {
-            error_log("OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table");
+            error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
         }
         return true;
     }

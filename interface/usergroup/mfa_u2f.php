@@ -24,7 +24,7 @@ $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
 $appId = $scheme . $_SERVER['HTTP_HOST'];
 $u2f = new u2flib_server\U2F($appId);
 
-$userid = $_SESSION['authId'];
+$userid = $_SESSION['authUserID'];
 $action = $_REQUEST['action'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];

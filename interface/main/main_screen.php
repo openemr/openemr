@@ -128,7 +128,7 @@ if (isset($_POST['new_login_session_management'])) {
     $res1 = sqlStatement(
         "SELECT a.name, a.method, a.var1 FROM login_mfa_registrations AS a " .
         "WHERE a.user_id = ? AND (a.method = 'TOTP' OR a.method = 'U2F') ORDER BY a.name",
-        array($_SESSION['authId'])
+        array($_SESSION['authUserID'])
     );
 
     $registrationAttempt = false;
@@ -156,7 +156,7 @@ if (isset($_POST['new_login_session_management'])) {
             $appId = $scheme . $_SERVER['HTTP_HOST'];
             $u2f = new u2flib_server\U2F($appId);
         }
-        $userid = $_SESSION['authId'];
+        $userid = $_SESSION['authUserID'];
         $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
         if ($form_response) {
             // TOTP METHOD enabled if TOTP is visible in post request
@@ -167,7 +167,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 $res1 = sqlQuery(
                     "SELECT a.var1 FROM login_mfa_registrations AS a WHERE a.user_id = ? AND a.method = 'TOTP'",
-                    array($_SESSION['authId'])
+                    array($_SESSION['authUserID'])
                 );
                 $registrationSecret = false;
                 if (!empty($res1['var1'])) {
@@ -207,7 +207,7 @@ if (isset($_POST['new_login_session_management'])) {
                     // Keep track of when challenges were last answered correctly.
                     privStatement(
                         "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                        array($_SESSION['authId'])
+                        array($_SESSION['authUserID'])
                     );
                 } else {
                     $errormsg = xl("The code you entered was not valid");
@@ -237,7 +237,7 @@ if (isset($_POST['new_login_session_management'])) {
                     // Keep track of when challenges were last answered correctly.
                     sqlStatement(
                         "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                        array($_SESSION['authId'])
+                        array($_SESSION['authUserID'])
                     );
                 } catch (u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
@@ -389,7 +389,7 @@ if ($GLOBALS['login_into_facility']) {
 
 // Fetch the password expiration date
 $is_expired=false;
-if ($GLOBALS['password_expiration_days'] != 0) {
+if (($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
     $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
     $current_date = date('Y-m-d');
     if (!empty($result['last_update_password'])) {
@@ -399,11 +399,11 @@ if ($GLOBALS['password_expiration_days'] != 0) {
         $pwd_last_update = $current_date;
     }
 
-    // Display the password expiration message (starting from 7 days before the password gets expired)
-    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . ($GLOBALS['password_expiration_days'] - 7) . ' days'));
+    // Display the password expiration message (will show during the grace time)
+    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . $GLOBALS['password_expiration_days'] . ' days'));
 
     if (empty(strtotime($pwd_alert_date))) {
-        error_log("OpenEMR ERROR: there is a problem with recording of last_update_password entry in users_secure table");
+        error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
     } else if (strtotime($current_date) >= strtotime($pwd_alert_date)) {
         $is_expired = true;
     }

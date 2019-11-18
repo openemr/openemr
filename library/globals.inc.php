@@ -1903,27 +1903,61 @@ $GLOBALS_METADATA = array(
         'secure_password' => array(
             xl('Require Strong Passwords'),
             'bool',                           // data type
-            '0',                              // default
-            xl('Strong password means at least 8 characters, and at least three of: a number, a lowercase letter, an uppercase letter, a special character.')
+            '1',                              // default
+            xl('Strong password means at least one of each: a number, a lowercase letter, an uppercase letter, a special character.')
         ),
+
+        'gbl_minimum_password_length' => array(
+            xl('Minimum Password Length'),
+            array(
+                '0' => xl('No Minimum'),
+                '4' => '4',
+                '5' => '5',
+                '6' => '6',
+                '7' => '7',
+                '8' => '8',
+                '9' => '9',
+                '10' => '10',
+                '11' => '11',
+                '12' => '12',
+                '13' => '13',
+                '14' => '14',
+                '15' => '15',
+                '16' => '16',
+                '17' => '17',
+                '18' => '18',
+                '19' => '19',
+                '20' => '20',
+            ),
+            '9',                              // default
+            xl('Minimum length of password.')
+        ),
+
         'password_history' => array(
             xl('Require Unique Passwords'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Means none of last three passwords are allowed when changing a password.')
+            array(
+                '0' => xl('No'),
+                '1' => '1',
+                '2' => '2',
+                '3' => '3',
+                '4' => '4',
+                '5' => '5',
+            ),
+            '5',                              // default
+            xl('Set to the number of prior passwords that are not allowed to use when changing a password.')
         ),
 
         'password_expiration_days' => array(
             xl('Default Password Expiration Days'),
             'num',                            // data type
-            '0',                              // default
+            '180',                            // default
             xl('Default password expiration period in days. 0 means this feature is disabled.')
         ),
 
         'password_grace_time' => array(
             xl('Password Expiration Grace Period'),
             'num',                            // data type
-            '0',                              // default
+            '30',                             // default
             xl('Period in days where a user may login with an expired password.')
         ),
 
@@ -2027,8 +2061,8 @@ $GLOBALS_METADATA = array(
             array(
                 'DEFAULT' => xl('PHP Default'),
                 'BCRYPT' => xl('Bcrypt'),
-                'ARGON2I' => xl('Argon2I'),
-                'ARGON2ID' => xl('Argon2ID'),
+                'ARGON2I' => xl('Argon2I') . ' (PHP 7.3 or greater)',
+                'ARGON2ID' => xl('Argon2ID') . ' (PHP 7.3 or greater)',
             ),
             'DEFAULT',                // default
             xl('Hashing algorithm for authentication. Suggest PHP Default unless you know what you are doing.')
@@ -2144,8 +2178,8 @@ $GLOBALS_METADATA = array(
             array(
                 'DEFAULT' => xl('PHP Default'),
                 'BCRYPT' => xl('Bcrypt'),
-                'ARGON2I' => xl('Argon2I'),
-                'ARGON2ID' => xl('Argon2ID'),
+                'ARGON2I' => xl('Argon2I') . ' (PHP 7.3 or greater)',
+                'ARGON2ID' => xl('Argon2ID') . ' (PHP 7.3 or greater)',
             ),
             'DEFAULT',                // default
             xl('Hashing algorithm for token. Suggest PHP Default unless you know what you are doing.')

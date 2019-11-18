@@ -561,7 +561,7 @@ while ($gfrow = sqlFetchArray($gfres)) {
     //  1. The patient is not deceased
     //  2. The birthday is today (or in the past depending on global selection)
     //  3. The notification has not been turned off (or shown depending on global selection) for this year
-    $birthdayAlert = new BirthdayReminder($pid, $_SESSION['authId']);
+    $birthdayAlert = new BirthdayReminder($pid, $_SESSION['authUserID']);
     if ($birthdayAlert->isDisplayBirthdayAlert()) {
         ?>
     // show the active reminder modal
@@ -686,7 +686,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none;' onclick='top.restoreSession()'></a>
 
-        <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authId']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
+        <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authUserID']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
 
         $thisauth = acl_check('patients', 'demo');

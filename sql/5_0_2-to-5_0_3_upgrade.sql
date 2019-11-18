@@ -372,3 +372,13 @@ ALTER TABLE `users_secure` DROP COLUMN `salt_history2`;
 #IfColumn api_token token_auth_salt
 ALTER TABLE `api_token` DROP COLUMN `token_auth_salt`;
 #EndIf
+
+#IfMissingColumn users_secure password_history3
+ALTER TABLE `users_secure` ADD `password_history3` varchar(255);
+#EndIf
+
+#IfMissingColumn users_secure password_history4
+ALTER TABLE `users_secure` ADD `password_history4` varchar(255);
+#EndIf
+
+UPDATE `globals` SET `gl_value`=3 WHERE `gl_name`='password_history' AND `gl_value`=1;

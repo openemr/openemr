@@ -1372,7 +1372,7 @@ class BillingUtilities
             "NOW(), ?, ?, ?, ?, ?, ?, ?, ?,  1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         return sqlInsert($sql, array($encounter_id, $code_type, $code, $code_text, $pid, $authorized,
-            $_SESSION['authId'], $_SESSION['authProvider'], $billed, $provider, $modifier, $units, $fee,
+            $_SESSION['authUserID'], $_SESSION['authProvider'], $billed, $provider, $modifier, $units, $fee,
             $ndc_info, $justify, $notecodes, $pricelevel, $revenue_code));
     }
 

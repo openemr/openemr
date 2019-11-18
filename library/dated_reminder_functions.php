@@ -55,7 +55,7 @@ function GetPortalAlertCounts()
 function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authId'];
+        $userID = $_SESSION['authUserID'];
     }
 
     global $hasAlerts;
@@ -126,7 +126,7 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
 function GetDueReminderCount($days_to_show, $today, $userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authId'];
+        $userID = $_SESSION['authUserID'];
     }
 
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)
@@ -156,7 +156,7 @@ function GetDueReminderCount($days_to_show, $today, $userID = false)
 function GetAllReminderCount($userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authId'];
+        $userID = $_SESSION['authUserID'];
     }
 
 // ----- sql statement for getting uncompleted reminders
@@ -240,7 +240,7 @@ function getRemindersHTML($today, $reminders = array())
 function setReminderAsProcessed($rID, $userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authId'];
+        $userID = $_SESSION['authUserID'];
     }
 
     if (is_numeric($rID) and $rID > 0) {
@@ -269,7 +269,7 @@ function setReminderAsProcessed($rID, $userID = false)
 function getReminderById($mID, $userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authId'];
+        $userID = $_SESSION['authUserID'];
     }
 
     $rdrSQL = sqlStatement("SELECT * FROM `dated_reminders` dr 

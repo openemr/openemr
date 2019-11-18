@@ -37,7 +37,7 @@ if ($_REQUEST['url']) {
 
 // Get user preferences, for this user
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=?) ORDER BY id,ZONE_ORDER,ordering";
-$result = sqlStatement($query, array($_SESSION['authId']));
+$result = sqlStatement($query, array($_SESSION['authUserID']));
 while ($prefs= sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
     $$LOCATION = text($prefs['GOVALUE']);

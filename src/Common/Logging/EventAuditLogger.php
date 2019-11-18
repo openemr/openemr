@@ -743,7 +743,7 @@ MSG;
             return;
         }
 
-        $group = isset($_SESSION['authGroup']) ?  $_SESSION['authGroup'] : "";
+        $group = isset($_SESSION['authProvider']) ?  $_SESSION['authProvider'] : "";
         $comments = $statement;
         $success = (int)($outcome !== false);
         $checksum = ($outcome !== false) ? $this->sql_checksum_of_modified_row($statement) : '';
@@ -910,7 +910,7 @@ MSG;
     public function auditSQLAuditTamper($enable)
     {
         $user =  isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "";
-        $group = isset($_SESSION['authGroup']) ?  $_SESSION['authGroup'] : "";
+        $group = isset($_SESSION['authProvider']) ?  $_SESSION['authProvider'] : "";
         $pid = 0;
         $checksum = "";
         $success = 1;

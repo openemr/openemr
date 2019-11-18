@@ -1464,7 +1464,7 @@ $classpati='';
         <label for="facility"><?php echo xlt('Facility'); ?>:</label>
         <select class="form-control" name="facility" id="facility">
             <?php
-            $facils = getUserFacilities($_SESSION['authId']);
+            $facils = getUserFacilities($_SESSION['authUserID']);
             $qsql = sqlStatement("SELECT id, name FROM facility WHERE service_location != 0");
             while ($facrow = sqlFetchArray($qsql)) {
                 if ($_SESSION['authorizedUser'] || in_array($facrow, $facils)) {

@@ -286,7 +286,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
     app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
         .',' . json_encode($userQuery['fname'])
         .',' . json_encode($userQuery['lname'])
-        .',' . json_encode($_SESSION['authGroup']); ?>));
+        .',' . json_encode($_SESSION['authProvider']); ?>));
 
 </script>
 <script>

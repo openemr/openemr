@@ -125,7 +125,7 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
             "VALUES (?, ?, ?, ?, ?, ?, ?);";
         $enc_id = generate_id();
         $sqlBindArray = array();
-        $user = (is_null($pc_aid)) ? $_SESSION["authId"] : $pc_aid;
+        $user = (is_null($pc_aid)) ? $_SESSION['authUserID'] : $pc_aid;
         array_push($sqlBindArray, $group_encounter_date, $participantData['comment'], $pid, $enc_id, get_groups_cat_id(), $user, $gid);
         $form_id = sqlInsert($insert_encounter_sql, $sqlBindArray);
 
