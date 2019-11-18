@@ -498,7 +498,7 @@ function authorized_clicked() {
                         <th><?php echo xlt('MFA'); ?></th>
                         <?php
                         $checkPassExp = false;
-                        if (($GLOBALS['password_expiration_days'] != 0) && (preg_match('/[0-9]/', $GLOBALS['password_expiration_days'])) && (preg_match('/[0-9]/', $GLOBALS['password_grace_time']))) {
+                        if (($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
                             $checkPassExp = true;
                             echo '<th>' . xlt('Password Expiration') . '</th>';
                         }

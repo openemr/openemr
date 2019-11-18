@@ -389,7 +389,7 @@ if ($GLOBALS['login_into_facility']) {
 
 // Fetch the password expiration date
 $is_expired=false;
-if (($GLOBALS['password_expiration_days'] != 0) && (preg_match('/[0-9]/', $GLOBALS['password_expiration_days']))) {
+if (($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
     $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
     $current_date = date('Y-m-d');
     if (!empty($result['last_update_password'])) {

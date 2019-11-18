@@ -457,7 +457,7 @@ class AuthUtils
                 return false;
             }
 
-            if (($GLOBALS['password_history'] != 0) && (preg_match('/[0-9]/', $GLOBALS['password_history']))) {
+            if (($GLOBALS['password_history'] != 0) && (check_integer($GLOBALS['password_history']))) {
                 // password reuse disallowed
                 $pass_reuse_fail = false;
                 if (($GLOBALS['password_history'] > 0) && (AuthHash::passwordVerify($newPwd, $userInfo['password']))) {
@@ -655,7 +655,7 @@ class AuthUtils
      */
     private function testPasswordLength(&$pwd)
     {
-        if (($GLOBALS['gbl_minimum_password_length'] != 0) && (preg_match('/[0-9]/', $GLOBALS['gbl_minimum_password_length']))) {
+        if (($GLOBALS['gbl_minimum_password_length'] != 0) && (check_integer($GLOBALS['gbl_minimum_password_length']))) {
             if (strlen($pwd) < $GLOBALS['gbl_minimum_password_length']) {
                 $this->errorMessage = xl("Password too short. Minimum characters required" . ": " . $GLOBALS['gbl_minimum_password_length']);
                 return false;
@@ -698,7 +698,7 @@ class AuthUtils
             return true;
         }
         $query = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
-        if ((!empty($query)) && (!empty($query['last_update_password'])) && (preg_match('/[0-9]/', $GLOBALS['password_expiration_days'])) && (preg_match('/[0-9]/', $GLOBALS['password_grace_time']))) {
+        if ((!empty($query)) && (!empty($query['last_update_password'])) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
             $current_date = date("Y-m-d");
             $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . ($GLOBALS['password_expiration_days'] + $GLOBALS['password_grace_time']) . " days"));
             if (strtotime($current_date) > strtotime($expiredPlusGraceTime)) {

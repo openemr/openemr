@@ -102,13 +102,13 @@ class AuthHash
             }
             // Set up Argon2 options
             $temp_array = [];
-            if (($GLOBALS['gbl_'.$this->mode.'_argon_hash_memory_cost'] != "DEFAULT") && preg_match('/[0-9]/', $GLOBALS['gbl_'.$this->mode.'_argon_hash_memory_cost'])) {
+            if (($GLOBALS['gbl_'.$this->mode.'_argon_hash_memory_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_'.$this->mode.'_argon_hash_memory_cost']))) {
                 $temp_array['memory_cost'] = $GLOBALS['gbl_'.$this->mode.'_argon_hash_memory_cost'];
             }
-            if (($GLOBALS['gbl_'.$this->mode.'_argon_hash_time_cost'] != "DEFAULT") && preg_match('/[0-9]/', $GLOBALS['gbl_'.$this->mode.'_argon_hash_time_cost'])) {
+            if (($GLOBALS['gbl_'.$this->mode.'_argon_hash_time_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_'.$this->mode.'_argon_hash_time_cost']))) {
                 $temp_array['time_cost'] = $GLOBALS['gbl_'.$this->mode.'_argon_hash_time_cost'];
             }
-            if (($GLOBALS['gbl_'.$this->mode.'_argon_hash_thread_cost'] != "DEFAULT") && preg_match('/[0-9]/', $GLOBALS['gbl_'.$this->mode.'_argon_hash_thread_cost'])) {
+            if (($GLOBALS['gbl_'.$this->mode.'_argon_hash_thread_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_'.$this->mode.'_argon_hash_thread_cost']))) {
                 $temp_array['threads'] = $GLOBALS['gbl_'.$this->mode.'_argon_hash_thread_cost'];
             }
             if (!empty($temp_array)) {
@@ -117,7 +117,7 @@ class AuthHash
         } else if ($this->algo == "BCRYPT") {
             // Bcrypt - Using bcrypt and set up bcrypt options
             $this->algo_constant = PASSWORD_BCRYPT;
-            if (($GLOBALS['gbl_'.$this->mode.'_bcrypt_hash_cost'] != "DEFAULT") && preg_match('/[0-9]/', $GLOBALS['gbl_'.$this->mode.'_bcrypt_hash_cost'])) {
+            if (($GLOBALS['gbl_'.$this->mode.'_bcrypt_hash_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_'.$this->mode.'_bcrypt_hash_cost']))) {
                 $this->options = ['cost'=>$GLOBALS['gbl_'.$this->mode.'_bcrypt_hash_cost']];
             }
         } else {
