@@ -551,7 +551,10 @@ function authorized_clicked() {
                                 <td align='left'><span>" .text($isMfa) . "</td>";
                             if ($checkPassExp) {
                                 echo '<td>';
-                                if (strtotime($current_date) > strtotime($grace_time)) {
+                                if (AuthUtils::useActiveDirectory($iter["username"])) {
+                                    // LDAP bypasses expired password mechanism
+                                    echo '<div class="alert alert-success" role="alert">' . xlt('Not Applicable') . '</div>';
+                                } else if (strtotime($current_date) > strtotime($grace_time)) {
                                     echo '<div class="alert alert-danger" role="alert">' . xlt('Expired') . '</div>';
                                 } else if (strtotime($current_date) > strtotime($pwd_expires)) {
                                     echo '<div class="alert alert-warning" role="alert">' . xlt('Grace Period') . '</div>';
