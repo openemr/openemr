@@ -878,7 +878,7 @@ content: '';
   }
   body.fixed > .wrapper,
   body.fixed .sidebar-offcanvas {
-    margin-top: 100px!important;
+    /*margin-top: 100px!important;*/
   }
 }
 /*
