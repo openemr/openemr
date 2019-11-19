@@ -25,7 +25,6 @@ $incoming_site_id = '';
 
 if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
     isset($_POST['clearPass']) && isset($_POST['new_login_session_management'])) {
-    $clearPass=$_POST['clearPass'];
     // set the language
     if (!empty($_POST['languageChoice'])) {
         $_SESSION['language_choice'] = $_POST['languageChoice'];
@@ -36,7 +35,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
     $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
 
-    if (!(new AuthUtils('login'))->confirmUserPassword($_POST['authUser'], $clearPass)) {
+    if (!(new AuthUtils('login'))->confirmUserPassword($_POST['authUser'], $_POST['clearPass'])) {
         $_SESSION['loginfailure'] = 1;
         authLoginScreen();
     }
@@ -58,20 +57,23 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
             require_once("{$GLOBALS['srcdir']}/patient.inc");
         }
     } else {
-        EventAuditLogger::instance()->newEvent("login", $_POST['authUser'], '', 0, "insufficient data sent");
-        authLoginScreen();
+        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "authCheckSession() check failed, so force logout!");
+        authCloseSession();
+        authLoginScreen(true);
     }
 }
 
 if (!isset($_SESSION["last_update"])) {
-    authLoginScreen();
+    EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "last_update not set, so force logout");
+    authCloseSession();
+    authLoginScreen(true);
 } else {
      //if page has not been updated in a given period of time, we call login screen
      //--Note can't perform nice logout if skip_timeout_reset is set since these are called
      //via ajax scripts where this output is not getting sent to browser.
      //--Note DAEMON_FLAG is ok because it is run from a frame in the browser.
     if (((time() - $_SESSION["last_update"]) > $timeout) && empty($_REQUEST['skip_timeout_reset'])) {
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout");
+        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
         authCloseSession();
         authLoginScreen(true);
     } else {
