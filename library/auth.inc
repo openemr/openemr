@@ -13,8 +13,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-//----------THINGS WE ALWAYS DO
-
 // added for the phpGACL group check -- JRM
 require_once("{$GLOBALS['srcdir']}/acl.inc");
 
@@ -25,7 +23,8 @@ $incoming_site_id = '';
 
 if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
     isset($_POST['clearPass']) && isset($_POST['new_login_session_management'])) {
-    $clearPass=$_POST['clearPass'];
+    // Attempt login
+
     // set the language
     if (!empty($_POST['languageChoice'])) {
         $_SESSION['language_choice'] = $_POST['languageChoice'];
@@ -36,45 +35,56 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
     $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
 
-    if (!(new AuthUtils('login'))->confirmUserPassword($_POST['authUser'], $clearPass)) {
+    if (!(new AuthUtils('login'))->confirmUserPassword($_POST['authUser'], $_POST['clearPass'])) {
+        // login attempt failed
         $_SESSION['loginfailure'] = 1;
         authLoginScreen();
     }
 
+    // login attempt success
     $_SESSION['loginfailure'] = null;
     unset($_SESSION['loginfailure']);
-    //store the very first initial timestamp for timeout errors
+
+    // store the very first initial timestamp for timeout errors
     $_SESSION["last_update"] = time();
 } else if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
-    //If session has timed out / been destroyed, logout record for null user/provider will be invalid.
+    // Logout
+    // If session has timed out / been destroyed, logout record for null user/provider will be invalid.
     if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {
         EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
     }
     authCloseSession();
     authLoginScreen(true);
 } else {
+    // Check if session is valid (already logged in user)
     if (AuthUtils::authCheckSession()) {
+        // Session is valid
         if (isset($_SESSION['pid']) && empty($GLOBALS['DAEMON_FLAG'])) {
             require_once("{$GLOBALS['srcdir']}/patient.inc");
         }
     } else {
-        EventAuditLogger::instance()->newEvent("login", $_POST['authUser'], '', 0, "insufficient data sent");
-        authLoginScreen();
+        // Session is not valid (this should only happen if a user's password is changed via another session while the user is logged in)
+        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "authCheckSession() check failed, so force logout");
+        authCloseSession();
+        authLoginScreen(true);
     }
 }
 
+// Ensure user has not timed out, if applicable
 if (!isset($_SESSION["last_update"])) {
-    authLoginScreen();
+    // This should never happen
+    EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "last_update not set, so force logout");
+    error_log("OpenEMR ERROR: last_update not set, so forced logout");
+    authCloseSession();
+    authLoginScreen(true);
 } else {
-     //if page has not been updated in a given period of time, we call login screen
-     //--Note can't perform nice logout if skip_timeout_reset is set since these are called
-     //via ajax scripts where this output is not getting sent to browser.
-     //--Note DAEMON_FLAG is ok because it is run from a frame in the browser.
     if (((time() - $_SESSION["last_update"]) > $timeout) && empty($_REQUEST['skip_timeout_reset'])) {
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout");
+        // User has timed out.
+        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
         authCloseSession();
         authLoginScreen(true);
     } else {
+        // User not timed out. Reset the timer, if applicable.
         // Have a mechanism to skip the timeout reset mechanism if a skip_timeout_reset parameter exists. This
         //  can be used by scripts that continually request information from the server; for example the Messages
         //  and Reminders automated intermittent requests that happen in the Messages Center script and in
