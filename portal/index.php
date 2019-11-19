@@ -233,174 +233,141 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             return pass;
         }
     </script>
-    <style>
-        .table > tbody > tr > td {
-            border-top: 0px;
-        }
-    </style>
 </head>
-<body class="container">
-    <br><br>
+<body class="login container">
     <div id="wrapper" class="container-fluid text-center">
-        <div class="row">
-            <div class="col-xs-12">
                 <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {
                     $_SESSION['password_update'] = 1;
                     ?>
-                    <div class="row">
                         <h2 class="title"><?php echo xlt('Please Enter New Credentials'); ?></h2>
                         <form class="form" action="get_patient_info.php" method="POST" onsubmit="return process_new_pass()">
                             <input style="display:none" type="text" name="dummyuname" />
                             <input style="display:none" type="password" name="dummypass" />
-                            <table class="table table-condensed" style="border-bottom:0px;width:100%">
-                                <tr>
-                                    <td width="35%"><strong><?php echo xlt('Account Name'); ?><strong></td>
-                                    <td><input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none"
-                                            value="<?php echo attr($_SESSION['portal_username']); ?>" /></td>
-                                </tr>
-                                <tr>
-                                    <td><strong><?php echo xlt('New User Name'); ?><strong></td>
-                                    <td><input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none"
-                                            title="<?php echo xla('Please enter a username of 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>"
-                                            placeholder="<?php echo xla('Must be 12 to 80 characters'); ?>" pattern=".{12,80}"
-                                            value="<?php echo attr($_SESSION['portal_login_username']); ?>" onblur="checkUserName()" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong><?php echo !$_SESSION['onetime'] ? xlt('Current Password') : ''; ?><strong></td>
-                                    <td>
-                                        <input class="form-control" name="pass" id="pass" <?php echo $_SESSION['onetime'] ? 'type="hidden" ' : 'type="password" '; ?>
-                                            autocomplete="none" value="<?php echo attr($_SESSION['onetime']);
-                                            $_SESSION['password_update'] = $_SESSION['onetime'] ? 2 : 1;
-                                            unset($_SESSION['onetime']); ?>" required />
-                                    </td>
-                                </tr>
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label" for="uname"><?php echo xlt('Account Name'); ?></label>
+                                    <div class="col-md-10">
+                                        <input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none" value="<?php echo attr($_SESSION['portal_username']); ?>" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label" for="login_uname"><?php echo xlt('New User Name'); ?></label>
+                                    <div class="col-md-10">
+                                        <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be 12 to 80 characters'); ?>" pattern=".{12,80}" value="<?php echo attr($_SESSION['portal_login_username']); ?>" onblur="checkUserName()" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label" for="pass"><?php echo !$_SESSION['onetime'] ? xlt('Current Password') : ''; ?></label>
+                                    <div class="col-md-10">
+                                        <input class="form-control" name="pass" id="pass" <?php echo $_SESSION['onetime'] ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime']); $_SESSION['password_update'] = $_SESSION['onetime'] ? 2 : 1; unset($_SESSION['onetime']); ?>" required />
+                                    </div>
+                                </div>
                                 <?php if ($_SESSION['pin']) { ?>
-                                    <tr>
-                                        <td><strong><?php echo xlt('One Time PIN'); ?><strong></td>
-                                        <td>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="token_pin"><?php echo xlt('One Time PIN'); ?></label>
+                                        <div class="col-md-10">
                                             <input class="form-control" name="token_pin" id="token_pin" type="password" autocomplete="none" value="" required pattern=".{6,20}" />
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </div>
                                 <?php } ?>
-                                <tr>
-                                    <td><strong><?php echo xlt('New Password'); ?><strong></td>
-                                    <td>
-                                        <input class="form-control" name="pass_new" id="pass_new" type="password" required
-                                            placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong><?php echo xlt('Confirm New Password'); ?><strong></td>
-                                    <td>
+                                <div class="form-group inline">
+                                    <label class="col-md-2 control-label" for="pass_new"><?php echo xlt('New Password'); ?></label>
+                                    <div class="col-md-10">
+                                        <input class="form-control" name="pass_new" id="pass_new" type="password" required placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
+                                    </div>
+                                </div>
+                                <div class="form-group inline">
+                                    <label class="col-md-2 control-label" for="pass_new_confirm"><?php echo xlt('Confirm New Password'); ?></label>
+                                    <div class="col-md-10">
                                         <input class="form-control" name="pass_new_confirm" id="pass_new_confirm" type="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                                 <?php if ($GLOBALS['enforce_signin_email']) { ?>
-                                    <tr>
-                                        <td><strong><?php echo xlt('Confirm Email Address'); ?><strong></td>
-                                        <td>
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label" for="passaddon"><?php echo xlt('Confirm Email Address'); ?></label>
+                                        <div class="col-md-10">
                                             <input class="form-control" name="passaddon" id="passaddon" required placeholder="<?php echo xla('Current on record trusted email'); ?>" type="email" autocomplete="none" value="" />
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </div>
                                 <?php } ?>
-                                <tr>  </tr>
-                            </table>
-                            <div class="button-group">
-                                <input class="btn btn-primary pull-right" type="submit" value="<?php echo xla('Log In'); ?>" />
-                                <input class="btn pull-right" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
+                            </div>
+                            <div class="btn-group pull-right">
+                                <input class="btn" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
+                                <input class="btn btn-primary" type="submit" value="<?php echo xla('Log In'); ?>" />
                             </div>
                         </form>
-                    </div>
                 <?php } elseif (isset($_GET['requestNew'])) { ?>
-                    <div class="row  text-center">
-                        <div class="text-center">
                         <form class="form-inline" id="resetPass" action="#" method="post">
-                            <div>
-                                <div class="col-xs-12 text-center">
-                                    <fieldset>
-                                        <legend class='bg-primary'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
-                                        <div class="well">
-                                            <div class="row">
-                                                <div class="form-group inline">
-                                                    <label class="control-label" for="fname"><?php echo xlt('First{{Name}}') ?></label>
-                                                    <div class="controls inline-inputs">
-                                                        <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group inline">
-                                                    <label class="control-label" for="lname"><?php echo xlt('Last Name') ?></label>
-                                                    <div class="controls inline-inputs">
-                                                        <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Enter Last'); ?>">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group inline">
-                                                    <label class="control-label" for="dob"><?php echo xlt('Birth Date') ?></label>
-                                                    <div class="controls inline-inputs">
-                                                        <div class="input-group">
-                                                            <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
-                                                        </div>
-                                                    </div>
-                                                </div>
+                            <div class="text-center">
+                                <fieldset>
+                                    <legend class='bg-primary'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
+                                    <div class="well">
+                                        <div class="form-group inline">
+                                            <label class="control-label" for="fname"><?php echo xlt('First Name') ?></label>
+                                            <div class="controls inline-inputs">
+                                                <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>" />
                                             </div>
-                                            <div class="row">
-                                                <div class="form-group">
-                                                    <label class="control-label" for="emailInput"><?php echo xlt('Enter E-Mail Address') ?></label>
-                                                    <div class="controls inline-inputs">
-                                                        <input id="emailInput" type="email" class="form-control" style="width: 100%" required
-                                                            placeholder="<?php echo xla('Current trusted email address on record.'); ?>" maxlength="100">
-                                                    </div>
+                                        </div>
+                                        <div class="form-group inline">
+                                            <label class="control-label" for="lname"><?php echo xlt('Last Name') ?></label>
+                                            <div class="controls inline-inputs">
+                                                <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Enter Last'); ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group inline">
+                                            <label class="control-label" for="dob"><?php echo xlt('Birth Date') ?></label>
+                                            <div class="controls inline-inputs">
+                                                <div class="input-group">
+                                                    <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
                                                 </div>
                                             </div>
                                         </div>
-                                        <button id="submitRequest" class="btn btn-primary nextBtn pull-right" type="submit"><?php echo xlt('Verify') ?></button>
-                                        <input class="btn pull-right" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
-                                    </fieldset>
-                                </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="emailInput"><?php echo xlt('Enter E-Mail Address') ?></label>
+                                            <div class="controls inline-inputs">
+                                                <input id="emailInput" type="email" class="form-control" style="width: 100%" required placeholder="<?php echo xla('Current trusted email address on record.'); ?>" maxlength="100" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button id="submitRequest" class="btn btn-primary nextBtn pull-right" type="submit"><?php echo xlt('Verify') ?></button>
+                                    <input class="btn pull-right" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
+                                </fieldset>
                             </div>
                         </form>
-                    </div>
-                    </div>
                 <?php } else {
                     ?> <!-- Main logon -->
-                <div class="row  text-center">
-                    <img class="hidden-xs" style="width:35%" src='<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png' />
-                    <form class="form-inline text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
-                        <div>
-                            <div class="col-xs-12 text-center">
+                    <img class="img-responsive center-block login-image" src='<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png' />
+                    <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
                                 <fieldset>
                                     <legend class="bg-primary"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
                                     <div class="well">
-                                        <div class="row">
-                                            <div class="col-xs-12">
-                                                <div class="form-group inline">
-                                                    <label class="control-label" for="uname"><?php echo xlt('Username') ?></label>
-                                                    <div class="controls inline-inputs">
-                                                        <input type="text" class="form-control" name="uname" id="uname" type="text" autocomplete="none" required>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group inline">
-                                                    <label class="control-label" for="pass"><?php echo xlt('Password') ?></label>
-                                                    <div class="controls inline-inputs">
-                                                        <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none">
-                                                    </div>
+                                        <div class="form-inline">
+                                            <div class="form-group">
+                                                <label class="control-label" for="uname"><?php echo xlt('Username') ?></label>
+                                                <div class="controls inline-inputs">
+                                                    <input type="text" class="form-control" name="uname" id="uname" type="text" autocomplete="none" required />
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row">
-                                            <?php if ($GLOBALS['enforce_signin_email']) { ?>
-                                                <div class="col-xs-12 form-group">
-                                                    <label class="control-label" for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
-                                                    <div class="controls inline-inputs">
-                                                        <input class="form-control" style="width: 100%" name="passaddon" id="passaddon" placeholder="<?php echo xla('Current on file trusted email'); ?>" type="email" autocomplete="none" />
-                                                    </div>
+                                            <div class="form-group">
+                                                <label class="control-label" for="pass"><?php echo xlt('Password') ?></label>
+                                                <div class="controls inline-inputs">
+                                                    <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
                                                 </div>
-                                            <?php } ?>
+                                            </div>
+                                        <?php if ($GLOBALS['enforce_signin_email']) { ?>
+                                            <div class="form-group">
+                                                <label class="control-label" for="passaddon"><?php echo xlt('On File E-Mail Address') ?></label>
+                                                <div class="controls inline-inputs">
+                                                    <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
+                                                </div>
+                                            </div>
+                                        <?php } ?>
                                         </div>
                                         <?php if ($GLOBALS['language_menu_login']) { ?>
                                             <?php if (count($result3) != 1) { ?>
-                                                <div class="form-group row">
-                                                    <label for="selLanguage"><?php echo xlt('Language'); ?></label>
+                                                <div class="clearfix"></div>
+                                                <div class="form-group form-group-sm">
+                                                    <label class="control-label" for="selLanguage"><?php echo xlt('Language'); ?></label>
                                                     <select class="form-control" id="selLanguage" name="languageChoice">
                                                         <?php
                                                         echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
@@ -428,27 +395,25 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                             <?php }
                                         } ?>
                                     </div>
-                                    <div class="col-xs-12">
-                                        <?php if ($GLOBALS['portal_onsite_two_register']) { ?>
-                                            <button class="btn btn-default pull-left" onclick="location.replace('./account/register.php')"><?php echo xlt('Register'); ?></button>
-                                        <?php } ?>
-                                        <?php if ($GLOBALS['portal_two_pass_reset'] && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                                            <button class="btn btn-danger" onclick="location.replace('./index.php?requestNew=1')" style="margin-left:10px"><?php echo xlt('Reset Credentials'); ?></button>
-                                        <?php } ?>
-                                        <button class="btn btn-success pull-right" type="submit"><?php echo xlt('Log In'); ?></button>
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <?php if ($GLOBALS['portal_onsite_two_register']) { ?>
+                                                <button class="btn btn-default pull-left" onclick="location.replace('./account/register.php')"><?php echo xlt('Register'); ?></button>
+                                            <?php } ?>
+                                            <?php if ($GLOBALS['portal_two_pass_reset'] && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
+                                                <button class="btn btn-danger" onclick="location.replace('./index.php?requestNew=1')" style="margin-left:10px"><?php echo xlt('Reset Credentials'); ?></button>
+                                            <?php } ?>
+                                                <button class="btn btn-success pull-right" type="submit"><?php echo xlt('Log In'); ?></button>
+                                        </div>
                                     </div>
-                                </fieldset>
-                            </div>
-                        </div>
+                                    </fieldset>
                         <?php if (!(empty($hiddenLanguageField))) {
                             echo $hiddenLanguageField;
                         } ?>
                     </form>
-                </div>
-            </div>
+            
         </div><!-- div wrapper -->
         <?php } ?> <!--  logon wrapper -->
-    </div><!-- container -->
 
     <script type="text/javascript">
         $(function () {
