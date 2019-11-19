@@ -16,6 +16,7 @@
 /* Include our required headers */
 require_once('../globals.php');
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -387,9 +388,9 @@ if ($GLOBALS['login_into_facility']) {
     }
 }
 
-// Fetch the password expiration date
+// Fetch the password expiration date (note LDAP skips this)
 $is_expired=false;
-if (($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
+if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
     $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
     $current_date = date('Y-m-d');
     if (!empty($result['last_update_password'])) {

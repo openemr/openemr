@@ -14,8 +14,14 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+
+if (AuthUtils::useActiveDirectory()) {
+    // this user should never of been directed to this screen
+    die(xlt('Not Applicable'));
+}
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -54,7 +60,7 @@ if (strtotime($current_date) > strtotime($pwd_expires)) {
     </div>
     <div class="row">
         <div class="col-sm-12">
-            <a href="../usergroup/user_info.php" class="btn btn-default btn-transmit" onclick="top.restoreSession()"><?php echo text("Change Password");?></a>
+            <a href="../usergroup/user_info.php" class="btn btn-default btn-transmit" onclick="top.restoreSession()"><?php echo xlt("Change Password");?></a>
         </div>
     </div>
 </div>
