@@ -46,7 +46,7 @@ if ($action == 'set_lang') {
             echo "0";
             exit;
         }
-        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where BINARY portal_login_username = ? Or BINARY portal_username = ?", array($tmp, $tmp));
+        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_login_username = ? Or portal_username = ?", array($tmp, $tmp));
         if ($auth === false) {
             echo "1";
             exit;
