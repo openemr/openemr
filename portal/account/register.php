@@ -166,9 +166,9 @@ if ($GLOBALS['language_menu_login']) {
                         profile.find('input[name=allowPatientPortal]').val(['YES']);
                         // need these for validation.
                         profile.find('select#providerid option:contains("Unassigned")').val('');
-                        profile.find('select#providerid').attr('require', true);
+                        profile.find('select#providerid').attr('required', true);
                         profile.find('select#sex option:contains("Unassigned")').val('');
-                        profile.find('select#sex').attr('require', true);
+                        profile.find('select#sex').attr('required', true);
 
                         var pid = profile.find('input#pid').val();
                         if (pid < 1) { // form pid set in promise
@@ -258,7 +258,7 @@ if ($GLOBALS['language_menu_login']) {
 
             $('#inscompany').on('change', function () {
                 if ($('#inscompany').val().toUpperCase() === 'SELF') {
-                    $("#insuranceForm input").removeAttr("require");
+                    $("#insuranceForm input").removeAttr("required");
                     let message = <?php echo xlj('You have chosen to be self insured or currently do not have insurance. Click next to continue registration.'); ?>;
                     alert(message);
                 }
@@ -430,7 +430,7 @@ if ($GLOBALS['language_menu_login']) {
                                     <div class="form-group inline">
                                         <label class="control-label" for="fname"><?php echo xlt('First{{Name}}') ?></label>
                                         <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="fname" require placeholder="<?php echo xla('First Name'); ?>">
+                                            <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>">
                                         </div>
                                     </div>
                                     <div class="form-group inline">
@@ -442,7 +442,7 @@ if ($GLOBALS['language_menu_login']) {
                                     <div class="form-group inline">
                                         <label class="control-label" for="lname"><?php echo xlt('Last Name') ?></label>
                                         <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="lname" require placeholder="<?php echo xla('Enter Last'); ?>">
+                                            <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Enter Last'); ?>">
                                         </div>
                                     </div>
                                 </div>
@@ -451,14 +451,14 @@ if ($GLOBALS['language_menu_login']) {
                                 <label class="control-label" for="dob"><?php echo xlt('Birth Date') ?></label>
                                 <div class="controls inline-inputs">
                                     <div class="input-group">
-                                        <input id="dob" type="text" require class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
+                                        <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group">
                                     <label for="emailInput"><?php echo xlt('Enter E-Mail Address') ?></label>
                                 <div>
-                                    <input id="emailInput" type="email" class="form-control" require
+                                    <input id="emailInput" type="email" class="form-control" required
                                         placeholder="<?php echo xla('Enter email address to receive registration.'); ?>" maxlength="100">
                                 </div>
                             </div>
@@ -496,25 +496,25 @@ if ($GLOBALS['language_menu_login']) {
                             <div class="form-group inline">
                                 <label class="control-label" for="provider"><?php echo xlt('Insurance Company') ?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="provider" id="inscompany" require placeholder="<?php echo xla('Enter Self if None'); ?>">
+                                    <input type="text" class="form-control" name="provider" id="inscompany" required placeholder="<?php echo xla('Enter Self if None'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Plan Name') ?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="plan_name" require placeholder="<?php echo xla('require'); ?>">
+                                    <input type="text" class="form-control" name="plan_name" required placeholder="<?php echo xla('Required'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Policy Number') ?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="policy_number" require placeholder="<?php echo xla('require'); ?>">
+                                    <input type="text" class="form-control" name="policy_number" required placeholder="<?php echo xla('Required'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
                                 <label class="control-label" for=""><?php echo xlt('Group Number') ?></label>
                                 <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="group_number" require placeholder="<?php echo xla('require'); ?>">
+                                    <input type="text" class="form-control" name="group_number" required placeholder="<?php echo xla('Required'); ?>">
                                 </div>
                             </div>
                             <div class="form-group inline">
