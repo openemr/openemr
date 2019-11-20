@@ -210,7 +210,7 @@ class AuthUtils
         if ($this->loginAuth || $this->apiAuth) {
             // Utilize this during logins (and not during standard password checks within openemr such as esign)
             if ($this->authHashAuth->passwordNeedsRehash($userSecure['password'])) {
-                // Hash needs updating, so create a new hash, and replace the old one (this will ensure always using most modern hashing)
+                // Hash needs updating, so create a new hash, and replace the old one
                 $newHash = $this->rehashPassword($username, $password);
                 // store the rehash
                 privStatement("UPDATE `users_secure` SET `password` = ? WHERE `id` = ?", [$newHash, $userSecure['id']]);
