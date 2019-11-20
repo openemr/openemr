@@ -16,6 +16,7 @@
 
 // Lets keep our controller classes with the routes.
 //
+use OpenEMR\Events\RestApiExtend\RestApiExtendEvent;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\RestControllers\ProductRegistrationRestController;
@@ -327,6 +328,10 @@ RestConfig::$ROUTE_MAP = array(
     },
 
 );
+
+$restApiExtendEvent = new RestApiExtendEvent(RestConfig::$ROUTE_MAP);
+$restApiExtendEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiExtendEvent::EVENT_HANDLE, $restApiExtendEvent, 10);
+RestConfig::$ROUTE_MAP = $restApiExtendEvent->route_map_extended;
 
 use OpenEMR\RestControllers\FhirPatientRestController;
 use OpenEMR\RestControllers\FhirEncounterRestController;
