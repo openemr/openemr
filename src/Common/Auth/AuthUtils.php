@@ -188,7 +188,7 @@ class AuthUtils
             //  (note need to preg_match for \$2a\$05\$ for backward compatibility since
             //   password_get_info() call can not identify older bcrypt hashes)
             $hash_info = password_get_info($userSecure['password']);
-            if (empty($hash_info['algo']) && !preg_match('/^\$2a\$05\$/', $userSecure['password'])) {
+            if (empty($hash_info['algo']) && empty(preg_match('/^\$2a\$05\$/', $userSecure['password']))) {
                 EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
                 $this->clearFromMemory($password);
                 $this->preventTimingAttack();

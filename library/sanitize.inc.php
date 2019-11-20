@@ -69,7 +69,7 @@ function convert_very_strict_label($label)
 // Check integer
 function check_integer($value)
 {
-    return (!preg_match('/[^0-9]/', $value));
+    return (empty(preg_match('/[^0-9]/', $value)));
 }
 
 //Basename functionality for nonenglish languages (without this, basename function omits nonenglish characters).
