@@ -38,7 +38,7 @@
     "run-sequence": "^2.2.1"
   },
   "dependencies": {
-    "angular": "1.5.8",
+    "angular": "1.7.9",
     "angular-sanitize": "1.5.8",
     "angular-summernote": "0.8.1",
     "anythingslider": "https://github.com/CSS-Tricks/AnythingSlider/archive/v1.9.4.tar.gz",
