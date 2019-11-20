@@ -185,8 +185,10 @@ class AuthUtils
         } else {
             // standard authentication
             // First, ensure the user hash is a valid hash
+            //  (note need to preg_match for \$2a\$05\$ for backward compatibility since
+            //   password_get_info() call can not identify older bcrypt hashes)
             $hash_info = password_get_info($userSecure['password']);
-            if (empty($hash_info['algo'])) {
+            if (empty($hash_info['algo']) && !preg_match('/^\$2a\$05\$/', $userSecure['password'])) {
                 EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
                 $this->clearFromMemory($password);
                 $this->preventTimingAttack();
@@ -208,7 +210,7 @@ class AuthUtils
         if ($this->loginAuth || $this->apiAuth) {
             // Utilize this during logins (and not during standard password checks within openemr such as esign)
             if ($this->authHashAuth->passwordNeedsRehash($userSecure['password'])) {
-                // Hash needs updating, so create a new hash, and replace the old one (this will ensure always using most modern hashing)
+                // Hash needs updating, so create a new hash, and replace the old one
                 $newHash = $this->rehashPassword($username, $password);
                 // store the rehash
                 privStatement("UPDATE `users_secure` SET `password` = ? WHERE `id` = ?", [$newHash, $userSecure['id']]);
