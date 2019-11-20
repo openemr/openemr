@@ -16,7 +16,7 @@
 //setting the session & other config options
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+require_once dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php";
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //don't require standard openemr authorization in globals.php
@@ -26,8 +26,8 @@ $ignoreAuth = 1;
 $landingpage = "index.php?site=" . urlencode($_GET['site']);
 
 //includes
-require_once('../interface/globals.php');
-require_once(dirname(__FILE__) . "/lib/appsql.class.php");
+require_once '../interface/globals.php';
+require_once dirname(__FILE__) . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -137,6 +137,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
 <html>
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <?php
     Header::setupHeader(['no_main-theme', 'datetime-picker']);
     ?>
@@ -259,7 +260,9 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 <div class="form-group">
                                     <label class="col-md-2 control-label" for="pass"><?php echo !$_SESSION['onetime'] ? xlt('Current Password') : ''; ?></label>
                                     <div class="col-md-10">
-                                        <input class="form-control" name="pass" id="pass" <?php echo $_SESSION['onetime'] ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime']); $_SESSION['password_update'] = $_SESSION['onetime'] ? 2 : 1; unset($_SESSION['onetime']); ?>" required />
+                                        <input class="form-control" name="pass" id="pass" <?php echo $_SESSION['onetime'] ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime']);
+                                        $_SESSION['password_update'] = $_SESSION['onetime'] ? 2 : 1;
+                                        unset($_SESSION['onetime']); ?>" required />
                                     </div>
                                 </div>
                                 <?php if ($_SESSION['pin']) { ?>
@@ -329,8 +332,8 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                             </div>
                                         </div>
                                     </div>
+                                    <input class="btn pull-left" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
                                     <button id="submitRequest" class="btn btn-primary nextBtn pull-right" type="submit"><?php echo xlt('Verify') ?></button>
-                                    <input class="btn pull-right" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
                                 </fieldset>
                             </div>
                         </form>
@@ -413,7 +416,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                     </form>
             
         </div><!-- div wrapper -->
-        <?php } ?> <!--  logon wrapper -->
+                <?php } ?> <!--  logon wrapper -->
 
     <script type="text/javascript">
         $(function () {
@@ -428,7 +431,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php include $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             });
             $(document.body).on('hidden.bs.modal', function () {
                 callServer('cleanup');

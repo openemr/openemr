@@ -4,9 +4,30 @@ body {
     margin-top: 20px;
 }
 
-.iContainer {
-    height: 62vh;
-    width: 100%;
+.embedded-content {
+    width: 100% !important;
+    border: none;
+}
+
+.reg-email {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#selLanguage {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 1024px) {
+    .reg-email {
+        width: 100%;
+    }
+    #selLanguage {
+        width: 100%;
+    }
 }
 
 .stepwiz-step p {
@@ -21,6 +42,7 @@ body {
     display: table;
     width: 100%;
     position: relative;
+    margin-top: 20px;
 }
 
 .stepwiz-step button[disabled] {
