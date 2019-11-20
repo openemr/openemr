@@ -73,8 +73,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
 // Ensure user has not timed out, if applicable
 // Have a mechanism to skip the timeout and timeout reset mechanisms if a skip_timeout_reset parameter exists. This
 //  can be used by scripts that continually request information from the server; for example the Messages
-//  and Reminders automated intermittent requests that happen in the Messages Center script and in
-//  the left navigation menu script.
+//  and Reminders automated intermittent requests.
 if (!isset($_SESSION["last_update"])) {
     // This should never happen
     EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "last_update not set, so force logout");

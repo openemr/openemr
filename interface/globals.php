@@ -468,7 +468,6 @@ if (!empty($glrow)) {
     $GLOBALS['translate_form_titles'] = true;
     $GLOBALS['translate_document_categories'] = true;
     $GLOBALS['translate_appt_categories'] = true;
-
     $GLOBALS['timeout'] = 7200;
     $openemr_name = 'OpenEMR';
     $css_header = "$web_root/public/themes/style_default.css";
