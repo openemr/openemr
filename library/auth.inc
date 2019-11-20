@@ -71,6 +71,9 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
 }
 
 // Ensure user has not timed out, if applicable
+// Have a mechanism to skip the timeout and timeout reset mechanisms if a skip_timeout_reset parameter exists. This
+//  can be used by scripts that continually request information from the server; for example the Messages
+//  and Reminders automated intermittent requests.
 if (!isset($_SESSION["last_update"])) {
     // This should never happen
     EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "last_update not set, so force logout");
@@ -78,17 +81,13 @@ if (!isset($_SESSION["last_update"])) {
     authCloseSession();
     authLoginScreen(true);
 } else {
-    if (((time() - $_SESSION["last_update"]) > $timeout) && empty($_REQUEST['skip_timeout_reset'])) {
+    if (((time() - $_SESSION["last_update"]) > $GLOBALS['timeout']) && empty($_REQUEST['skip_timeout_reset'])) {
         // User has timed out.
         EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
         authCloseSession();
         authLoginScreen(true);
     } else {
         // User not timed out. Reset the timer, if applicable.
-        // Have a mechanism to skip the timeout reset mechanism if a skip_timeout_reset parameter exists. This
-        //  can be used by scripts that continually request information from the server; for example the Messages
-        //  and Reminders automated intermittent requests that happen in the Messages Center script and in
-        //  the left navigation menu script.
         if (empty($GLOBALS['DAEMON_FLAG']) && empty($_REQUEST['skip_timeout_reset'])) {
             $_SESSION["last_update"] = time();
         }

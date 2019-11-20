@@ -11,7 +11,6 @@
  * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
  */
 
-$special_timeout = 3600;
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
