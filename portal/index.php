@@ -431,7 +431,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php include $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             });
             $(document.body).on('hidden.bs.modal', function () {
                 callServer('cleanup');
