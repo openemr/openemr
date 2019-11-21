@@ -16,7 +16,7 @@
 
 // Lets keep our controller classes with the routes.
 //
-use OpenEMR\Events\RestApiExtend\RestApiExtendEvent;
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\RestControllers\ProductRegistrationRestController;
@@ -329,10 +329,6 @@ RestConfig::$ROUTE_MAP = array(
 
 );
 
-$restApiExtendEvent = new RestApiExtendEvent(RestConfig::$ROUTE_MAP);
-$restApiExtendEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiExtendEvent::EVENT_HANDLE, $restApiExtendEvent, 10);
-RestConfig::$ROUTE_MAP = $restApiExtendEvent->route_map_extended;
-
 use OpenEMR\RestControllers\FhirPatientRestController;
 use OpenEMR\RestControllers\FhirEncounterRestController;
 
@@ -358,3 +354,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirEncounterRestController())->getOne($eid);
     },
 );
+
+$restApiCreateEvent = new RestApiCreateEvent(RestConfig::$ROUTE_MAP, RestConfig::$FHIR_ROUTE_MAP);
+$restApiCreateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiCreateEvent::EVENT_HANDLE, $restApiCreateEvent, 10);
+RestConfig::$ROUTE_MAP = $restApiCreateEvent->getRouteMap();
+RestConfig::$FHIR_ROUTE_MAP = $restApiCreateEvent->getFHIRRouteMap();

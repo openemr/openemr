@@ -6,9 +6,9 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace RestApiEventHook;
+namespace RestApiEventHookExample;
 
-use OpenEMR\Events\RestApiExtend\RestApiExtendEvent;
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use \RestConfig;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Zend\ModuleManager\ModuleManager;
@@ -56,28 +56,42 @@ class Module
         $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
 
         // listen for view events for routes in zend_modules
-        $oemrDispatcher->addListener(RestApiExtendEvent::EVENT_HANDLE, [$this, 'addRestAPIRouteToMap']);
+        $oemrDispatcher->addListener(RestApiCreateEvent::EVENT_HANDLE, [$this, 'addRestAPIRouteToMap']);
     }
 
     /*
      * A function that adds new routes to a route map array
      * instead some_section need use a real name of section name
+     * Examples to tests/api/InternalApiTest.php:
+     * echo HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, '/api/some_route', "GET", 'direct-json');
+     * echo "<br/>";
+     * echo HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, '/api/some_route/1', "GET", 'direct-json');
      * */
-    public function addRestAPIRouteToMap($m){
-        $extend_api = [
-                        "GET /api/some_route" => function (){
-                            RestConfig::authorization_check("some_section", "users");
-                            return (new SomeClassWithSomeLogics())->getAll();
+    public function addRestAPIRouteToMap($m)
+    {
+        $extend_route_map = [
+                        "GET /api/some_route" => function () {
+                            //RestConfig::authorization_check("some_section", "users");
+                            return ["1","2","3"];
                         },
-                        "GET /api/some_route/:rid" => function ($rid){
-                            RestConfig::authorization_check("some_section", "users");
-                            return (new SomeClassWithSomeLogics())->getByRouteId($rid);
+                        "GET /api/some_route/:rid" => function ($rid) {
+                            //RestConfig::authorization_check("some_section", "users");
+                            return [$rid];
                         }
                       ];
 
-        foreach ($extend_api as $route => $action){
-            $m->route_map_extended[$route] = $action;
+        $extend_fhir_route_map = [];
+
+        if (count($extend_route_map) > 0) {
+            foreach ($extend_route_map as $route => $action) {
+                $m->addToRouteMap($route, $action);
+            }
         }
 
+        if (count($extend_fhir_route_map) > 0) {
+            foreach ($extend_fhir_route_map as $route => $action) {
+                $m->addToFHIRRouteMap($route, $action);
+            }
+        }
     }
 }
