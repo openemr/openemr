@@ -1,0 +1,7 @@
+{
+    "name": "matrix-co-il/open-emr-restapi-extend-event-hook",
+    "description": "Extend OpenEMR RestAPI functionality ",
+    "type": "library",
+    "license": "GPL3",
+    "require": {}
+}
