@@ -46,14 +46,22 @@ if ($this->trow) {
 </script>
 <?php if (attr($this->register)) {?>
 <style>
-.form-group.inline.dynhide {
-    display:none;
+    .form-group.inline.dynhide {
+        display: none;
     }
-body{
-    padding-top: 0px;padding-bottom: 5px;
-    background: #fff !important;
-}
+
+    body {
+        padding-top: 0px;
+        padding-bottom: 5px;
+        background: #fff !important;
+    }
 </style>
+<script>
+    // Fixes iFrame in Patient Registratiion
+    setInterval(function() {
+        window.top.postMessage(document.body.scrollHeight, "*");
+    }, 500); 
+</script>
 <?php }?>
 <body>
 <div class="container-fluid">

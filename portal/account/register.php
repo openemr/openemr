@@ -137,7 +137,14 @@ if ($GLOBALS['language_menu_login']) {
 
             allNextBtn.click(function () {
                 var profile = $("#profileFrame").contents();
-
+                
+                // Fix for iFrame height
+                window.addEventListener('message', function(e) {
+                    var scroll_height = e.data;
+                    document.getElementById('profileFrame').style.height = scroll_height + 'px'; 
+                }, false);
+                
+                
                 /* // test data
                 profile.find("input#street").val("123 Some St.");
                 profile.find("input#city").val("Brandon");
@@ -368,6 +375,7 @@ if ($GLOBALS['language_menu_login']) {
 </head>
 <body class="skin-blue">
     <div class="container">
+        <h1 class="text-center"><?php echo xlt('Account Registration'); ?></h1>
         <div class="stepwiz">
             <div class="stepwiz-row setup-panel">
                 <div class="stepwiz-step">
@@ -389,65 +397,61 @@ if ($GLOBALS['language_menu_login']) {
             </div>
         </div>
         <!-- // Start Forms // -->
-        <form class="form-inline" id="startForm" role="form" action="" method="post" onsubmit="">
-            <div class="row setup-content" id="step-1">
-                <div class="col-xs-12 text-center">
-                    <fieldset>
-                        <legend class='bg-primary'><?php echo xlt('Contact') ?></legend>
-                        <div class="well">
-                            <?php if ($GLOBALS['language_menu_login']) { ?>
-                                <?php if (count($result3) != 1) { ?>
-                                    <div class="form-group row">
-                                        <label for="selLanguage"><?php echo xlt('Language'); ?></label>
-                                        <select class="form-control" id="selLanguage" name="languageChoice">
-                                            <?php
-                                            echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
-                                                text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
-                                            foreach ($result3 as $iter) {
-                                                if ($GLOBALS['language_menu_showall']) {
+        <form id="startForm" role="form" action="" method="post" onsubmit="">
+            <div class="text-center setup-content" id="step-1">
+                <fieldset>
+                    <legend class='bg-primary'><?php echo xlt('Contact Information') ?></legend>
+                    <div class="well">
+                        <?php if ($GLOBALS['language_menu_login']) { ?>
+                            <?php if (count($result3) != 1) { ?>
+                                <div class="form-group">
+                                    <label class="control-label" for="selLanguage"><?php echo xlt('Language'); ?></label>
+                                    <select class="form-control" id="selLanguage" name="languageChoice">
+                                        <?php
+                                        echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
+                                            text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
+                                        foreach ($result3 as $iter) {
+                                            if ($GLOBALS['language_menu_showall']) {
+                                                if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                                    continue; // skip the dummy language
+                                                }
+                                                echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                                    text($iter['trans_lang_description']) . "</option>\n";
+                                            } else {
+                                                if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
                                                     if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                                         continue; // skip the dummy language
                                                     }
                                                     echo "<option value='" . attr($iter['lang_id']) . "'>" .
                                                         text($iter['trans_lang_description']) . "</option>\n";
-                                                } else {
-                                                    if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
-                                                        if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                                            continue; // skip the dummy language
-                                                        }
-                                                        echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                                            text($iter['trans_lang_description']) . "</option>\n";
-                                                    }
                                                 }
                                             }
-                                            ?>
-                                        </select>
-                                    </div>
-                                <?php }
-                            } ?>
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <div class="form-group inline">
-                                        <label class="control-label" for="fname"><?php echo xlt('First') ?></label>
-                                        <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>">
-                                        </div>
-                                    </div>
-                                    <div class="form-group inline">
-                                        <label class="control-label" for="mname"><?php echo xlt('Middle') ?></label>
-                                        <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="mname" placeholder="<?php echo xla('Full or Initial'); ?>">
-                                        </div>
-                                    </div>
-                                    <div class="form-group inline">
-                                        <label class="control-label" for="lname"><?php echo xlt('Last Name') ?></label>
-                                        <div class="controls inline-inputs">
-                                            <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Enter Last'); ?>">
-                                        </div>
-                                    </div>
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            <?php }
+                        } ?>
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <label class="control-label" for="fname"><?php echo xlt('First Name') ?></label>
+                                <div class="controls inline-inputs">
+                                    <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>" />
                                 </div>
                             </div>
-                            <div class="form-group inline">
+                            <div class="form-group">
+                                <label class="control-label" for="mname"><?php echo xlt('Middle Name') ?></label>
+                                <div class="controls inline-inputs">
+                                    <input type="text" class="form-control" id="mname" placeholder="<?php echo xla('Full or Initial'); ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="lname"><?php echo xlt('Last Name') ?></label>
+                                <div class="controls inline-inputs">
+                                    <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Enter Last'); ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="control-label" for="dob"><?php echo xlt('Birth Date') ?></label>
                                 <div class="controls inline-inputs">
                                     <div class="input-group">
@@ -455,106 +459,93 @@ if ($GLOBALS['language_menu_login']) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                    <label for="emailInput"><?php echo xlt('Enter E-Mail Address') ?></label>
-                                <div>
-                                    <input id="emailInput" type="email" class="form-control" required
-                                        placeholder="<?php echo xla('Enter email address to receive registration.'); ?>" maxlength="100">
-                                </div>
-                            </div>
                         </div>
+                        <div class="form-group">
+                            <label class="control-label" for="emailInput"><?php echo xlt('Enter E-Mail Address') ?></label>
+                            <input id="emailInput" type="email" class="reg-email form-control" required placeholder="<?php echo xla('Enter email address to receive registration.'); ?>" maxlength="100" />
+                        </div>
+                    </div>
 
-                        <button class="btn btn-primary nextBtn btn-sm pull-right" type="button"><?php echo xlt('Next') ?></button>
-                    </fieldset>
-                </div>
+                    <button class="btn btn-primary nextBtn pull-right" type="button"><?php echo xlt('Next') ?></button>
+                </fieldset>
             </div>
         </form>
         <!-- Profile Form -->
         <form class="form-inline" id="profileForm" role="form" action="account.php" method="post">
-            <div class="row setup-content" id="step-2" style="display: none">
-                <div class="col-xs-12 text-center">
-                    <fieldset>
-                        <legend class='bg-primary'><?php echo xlt('Profile') ?></legend>
-                        <div class="well">
-                            <div class="iContainer embed-responsive embed-responsive-16by9">
-                                <iframe width="100%" height="100%" class="embed-responsive-item" src="../patient/patientdata?pid=0&register=true" id="profileFrame" name="demo"></iframe>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary prevBtn btn-sm pull-left" type="button"><?php echo xlt('Previous') ?></button>
-                        <button class="btn btn-primary btn-sm pull-right" type="button" id="profileNext"><?php echo xlt('Next') ?></button>
-                    </fieldset>
-                </div>
+            <div class="text-center setup-content" id="step-2" style="display: none">
+                <fieldset>
+                    <legend class='bg-primary'><?php echo xlt('Profile') ?></legend>
+                    <div class="well">
+                        <iframe class="embedded-content" src="../patient/patientdata?pid=0&register=true" id="profileFrame" name="Profile Info"></iframe>
+                    </div>
+                    <button class="btn btn-primary prevBtn pull-left" type="button"><?php echo xlt('Previous') ?></button>
+                    <button class="btn btn-primary pull-right" type="button" id="profileNext"><?php echo xlt('Next') ?></button>
+                </fieldset>
             </div>
         </form>
         <!-- Insurance Form -->
         <form class="form-inline" id="insuranceForm" role="form" action="" method="post">
-            <div class="row setup-content" id="step-3" style="display: none">
-                <div class="col-xs-12 text-center">
-                    <fieldset>
-                        <legend class='bg-primary'><?php echo xlt('Insurance') ?></legend>
-                        <div class="well">
-                            <div class="form-group inline">
-                                <label class="control-label" for="provider"><?php echo xlt('Insurance Company') ?></label>
-                                <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="provider" id="inscompany" required placeholder="<?php echo xla('Enter Self if None'); ?>">
-                                </div>
-                            </div>
-                            <div class="form-group inline">
-                                <label class="control-label" for=""><?php echo xlt('Plan Name') ?></label>
-                                <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="plan_name" required placeholder="<?php echo xla('Required'); ?>">
-                                </div>
-                            </div>
-                            <div class="form-group inline">
-                                <label class="control-label" for=""><?php echo xlt('Policy Number') ?></label>
-                                <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="policy_number" required placeholder="<?php echo xla('Required'); ?>">
-                                </div>
-                            </div>
-                            <div class="form-group inline">
-                                <label class="control-label" for=""><?php echo xlt('Group Number') ?></label>
-                                <div class="controls inline-inputs">
-                                    <input type="text" class="form-control" name="group_number" required placeholder="<?php echo xla('Required'); ?>">
-                                </div>
-                            </div>
-                            <div class="form-group inline">
-                                <label class="control-label" for=""><?php echo xlt('Policy Begin Date') ?></label>
-                                <div class="controls inline-inputs">
-                                    <input type="text" class="form-control datepicker" name="date" placeholder="<?php echo xla('Policy effective date'); ?>">
-                                </div>
-                            </div>
-                            <div class="form-group inline">
-                                <label class="control-label" for=""><?php echo xlt('Co-Payment') ?></label>
-                                <div class="controls inline-inputs">
-                                    <input type="number" class="form-control" name="copay" placeholder="<?php echo xla('Plan copay if known'); ?>">
-                                </div>
+            <div class="text-center setup-content" id="step-3" style="display: none">
+                <fieldset>
+                    <legend class='bg-primary'><?php echo xlt('Insurance') ?></legend>
+                    <div class="well">
+                        <div class="form-group inline">
+                            <label class="control-label" for="provider"><?php echo xlt('Insurance Company') ?></label>
+                            <div class="controls inline-inputs">
+                                <input type="text" class="form-control" name="provider" id="inscompany" required placeholder="<?php echo xla('Enter Self if None'); ?>">
                             </div>
                         </div>
-                        <button class="btn btn-primary prevBtn btn-sm pull-left" type="button"><?php echo xlt('Previous') ?></button>
-                        <button class="btn btn-primary nextBtn btn-sm pull-right" type="button"><?php echo xlt('Next') ?></button>
-                    </fieldset>
-                </div>
+                        <div class="form-group inline">
+                            <label class="control-label" for=""><?php echo xlt('Plan Name') ?></label>
+                            <div class="controls inline-inputs">
+                                <input type="text" class="form-control" name="plan_name" required placeholder="<?php echo xla('required'); ?>">
+                            </div>
+                        </div>
+                        <div class="form-group inline">
+                            <label class="control-label" for=""><?php echo xlt('Policy Number') ?></label>
+                            <div class="controls inline-inputs">
+                                <input type="text" class="form-control" name="policy_number" required placeholder="<?php echo xla('required'); ?>">
+                            </div>
+                        </div>
+                        <div class="form-group inline">
+                            <label class="control-label" for=""><?php echo xlt('Group Number') ?></label>
+                            <div class="controls inline-inputs">
+                                <input type="text" class="form-control" name="group_number" required placeholder="<?php echo xla('required'); ?>">
+                            </div>
+                        </div>
+                        <div class="form-group inline">
+                            <label class="control-label" for=""><?php echo xlt('Policy Begin Date') ?></label>
+                            <div class="controls inline-inputs">
+                                <input type="text" class="form-control datepicker" name="date" placeholder="<?php echo xla('Policy effective date'); ?>">
+                            </div>
+                        </div>
+                        <div class="form-group inline">
+                            <label class="control-label" for=""><?php echo xlt('Co-Payment') ?></label>
+                            <div class="controls inline-inputs">
+                                <input type="number" class="form-control" name="copay" placeholder="<?php echo xla('Plan copay if known'); ?>">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary prevBtn btn-sm pull-left" type="button"><?php echo xlt('Previous') ?></button>
+                    <button class="btn btn-primary nextBtn btn-sm pull-right" type="button"><?php echo xlt('Next') ?></button>
+                </fieldset>
             </div>
         </form>
         <!-- End Insurance. Next what we've been striving towards..the end-->
-        <div class="row setup-content" id="step-4" style="display: none">
-            <div class="col-xs-12 text-center">
-                <div class="col-md-12">
-                    <fieldset>
-                        <legend class='bg-success'><?php echo xlt('Register') ?></legend>
-                        <div class="well" style="text-align: center">
-                            <h4 class='bg-success'><?php echo xlt("All set. Click Send Request below to finish registration") ?></h4>
-                            <hr>
-                            <p>
-                                <?php echo xlt("An e-mail with your new account credentials will be sent to the e-mail address supplied earlier. You may still review or edit any part of your information by using the top step buttons to go to the appropriate panels. Note to be sure you have given your correct e-mail address. If after receiving credentials and you have trouble with access to the portal, please contact administration.") ?>
-                            </p>
-                        </div>
-                        <button class="btn btn-primary prevBtn btn-sm pull-left" type="button"><?php echo xlt('Previous') ?></button>
-                        <hr>
-                        <button class="btn btn-success btn-sm pull-right" type="button" id="submitPatient"><?php echo xlt('Send Request') ?></button>
-                    </fieldset>
+        <div class="text-center setup-content" id="step-4" style="display: none">
+            <fieldset>
+                <legend class='bg-success'><?php echo xlt('Register') ?></legend>
+                <div class="well">
+                    <h4 class='bg-success'><?php echo xlt("All set. Click Send Request below to finish registration.") ?></h4>
+                    <hr>
+                    <p>
+                        <?php echo xlt("An e-mail with your new account credentials will be sent to the e-mail address supplied earlier. You may still review or edit any part of your information by using the top step buttons to go to the appropriate panels. Note to be sure you have given your correct e-mail address. If after receiving credentials and you have trouble with access to the portal, please contact administration.") ?>
+                    </p>
                 </div>
-            </div>
+                <hr />
+                <button class="btn btn-primary prevBtn pull-left" type="button"><?php echo xlt('Previous') ?></button>
+                <button class="btn btn-success pull-right" type="button" id="submitPatient"><?php echo xlt('Send Request') ?></button>
+            </fieldset>
         </div>
     </div>
 </body>
