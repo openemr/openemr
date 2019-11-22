@@ -23,6 +23,9 @@ assets:
         link: css/bootstrap.min.css
         autoload: true
         allowNoLoad: true # could also just edit Header.php to remove this check (unnecessary?)
+        rtl:
+            basePath: %assets_static_relative%/bootstrap-v4-rtl/dist/
+            link: css/bootstrap-rtl.css
     bootstrap-sidebar:
         basePath: %assets_static_relative%/bootstrap-sidebar/dist/
         script: js/sidebar.js
