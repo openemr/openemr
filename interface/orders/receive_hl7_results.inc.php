@@ -751,8 +751,6 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $mdm_docname = rhl7Text($a[12]);
         } else if ($a[0] == 'NTE' && ($context == 'ORC' || $context == 'TXA')) {
             // Is this ever used?
-        } else if ($a[0] == 'NTE' && ($context == 'PID')) {
-            // this is used but might be invalid hl7
         } else if ('OBR' == $a[0] && 'ORU' == $msgtype) {
             $context = $a[0];
             $arep = array();
@@ -1140,6 +1138,16 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
         } else if ('TQ1' == $a[0] && 'ORU' == $msgtype) { // Add code here for any other segment types that may be present.
             // Ensoftek: Get data from SPM segment for specimen. Comes in with MU2 samples, but can be ignored.
             // Ignore and do nothing.
+        } else if ('NTE' == $a[0] && 'PID' == $context) {
+            // will get orderid on save.
+            $amain[0]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
+        } else if ('ZPS' == $a[0] && 'ORU' == $msgtype) {
+            //global $ares;
+            $performingOrganization = parseZPS($a);
+            if (!empty($performingOrganization)) {
+                $alast = count($amain) - 1;
+                $amain[$alast]['res'][0]['facility'] .= $performingOrganization . $commentdelim;
+            }
         } else {
             return rhl7LogMsg(xl('Segment name') . " '${a[0]}' " . xl('is misplaced or unknown'));
         }
