@@ -69,20 +69,22 @@ function rhl7FlushMain(&$amain, $commentdelim = "\n")
 {
     foreach ($amain as $arr) {
         $procedure_report_id = rhl7InsertRow($arr['rep'], 'procedure_report');
-        foreach ($arr['res'] as $ares) {
-            $ares['procedure_report_id'] = $procedure_report_id;
-            // obxkey was used to identify parent results but is not stored.
-            unset($ares['obxkey']);
-            // If TX result is not over 10 characters, move it from comments to result field.
-            if ($ares['result'] === '' && $ares['result_data_type'] == 'L') {
-                $i = strpos($ares['comments'], $commentdelim);
-                if ($i && $i <= 10) {
-                    $ares['result'  ] = substr($ares['comments'], 0, $i);
-                    $ares['comments'] = substr($ares['comments'], $i);
+        if (!empty($arr['res'])) {
+            foreach ($arr['res'] as $ares) {
+                $ares['procedure_report_id'] = $procedure_report_id;
+                // obxkey was used to identify parent results but is not stored.
+                unset($ares['obxkey']);
+                // If TX result is not over 10 characters, move it from comments to result field.
+                if ($ares['result'] === '' && $ares['result_data_type'] == 'L') {
+                    $i = strpos($ares['comments'], $commentdelim);
+                    if ($i && $i <= 10) {
+                        $ares['result'] = substr($ares['comments'], 0, $i);
+                        $ares['comments'] = substr($ares['comments'], $i);
+                    }
                 }
-            }
 
-            rhl7InsertRow($ares, 'procedure_result');
+                rhl7InsertRow($ares, 'procedure_result');
+            }
         }
     }
 }
