@@ -751,6 +751,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $mdm_docname = rhl7Text($a[12]);
         } else if ($a[0] == 'NTE' && ($context == 'ORC' || $context == 'TXA')) {
             // Is this ever used?
+        } else if ($a[0] == 'NTE' && ($context == 'PID')) {
+            // this is used but might be invalid hl7
         } else if ('OBR' == $a[0] && 'ORU' == $msgtype) {
             $context = $a[0];
             $arep = array();
