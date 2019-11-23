@@ -69,20 +69,22 @@ function rhl7FlushMain(&$amain, $commentdelim = "\n")
 {
     foreach ($amain as $arr) {
         $procedure_report_id = rhl7InsertRow($arr['rep'], 'procedure_report');
-        foreach ($arr['res'] as $ares) {
-            $ares['procedure_report_id'] = $procedure_report_id;
-            // obxkey was used to identify parent results but is not stored.
-            unset($ares['obxkey']);
-            // If TX result is not over 10 characters, move it from comments to result field.
-            if ($ares['result'] === '' && $ares['result_data_type'] == 'L') {
-                $i = strpos($ares['comments'], $commentdelim);
-                if ($i && $i <= 10) {
-                    $ares['result'  ] = substr($ares['comments'], 0, $i);
-                    $ares['comments'] = substr($ares['comments'], $i);
+        if (!empty($arr['res'])) {
+            foreach ($arr['res'] as $ares) {
+                $ares['procedure_report_id'] = $procedure_report_id;
+                // obxkey was used to identify parent results but is not stored.
+                unset($ares['obxkey']);
+                // If TX result is not over 10 characters, move it from comments to result field.
+                if ($ares['result'] === '' && $ares['result_data_type'] == 'L') {
+                    $i = strpos($ares['comments'], $commentdelim);
+                    if ($i && $i <= 10) {
+                        $ares['result'] = substr($ares['comments'], 0, $i);
+                        $ares['comments'] = substr($ares['comments'], $i);
+                    }
                 }
-            }
 
-            rhl7InsertRow($ares, 'procedure_result');
+                rhl7InsertRow($ares, 'procedure_result');
+            }
         }
     }
 }
@@ -1138,6 +1140,16 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
         } else if ('TQ1' == $a[0] && 'ORU' == $msgtype) { // Add code here for any other segment types that may be present.
             // Ensoftek: Get data from SPM segment for specimen. Comes in with MU2 samples, but can be ignored.
             // Ignore and do nothing.
+        } else if ('NTE' == $a[0] && 'PID' == $context) {
+            // will get orderid on save.
+            $amain[0]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
+        } else if ('ZPS' == $a[0] && 'ORU' == $msgtype) {
+            //global $ares;
+            $performingOrganization = parseZPS($a);
+            if (!empty($performingOrganization)) {
+                $alast = count($amain) - 1;
+                $amain[$alast]['res'][0]['facility'] .= $performingOrganization . $commentdelim;
+            }
         } else {
             return rhl7LogMsg(xl('Segment name') . " '${a[0]}' " . xl('is misplaced or unknown'));
         }
