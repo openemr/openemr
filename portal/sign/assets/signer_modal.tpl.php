@@ -48,7 +48,7 @@ $modal = <<<MODAL
 $vars
 <div id='openSignModal' class='modal fade' role='dialog' tabindex='-1'>
 <div class='modal-dialog modal-lg'><div class='modal-content'><div class='modal-header'>
-<button type='button' class='close pull-right' data-dismiss='modal'>X</button><div class='input-group'>
+<button type='button' class='close float-right' data-dismiss='modal'>X</button><div class='input-group'>
 <span class='input-group-addon' data-action='show'><em> $msg1 <br>$msg2.</em></span>
 <img class='signature form-control' data-action='place' data-type='patient-signature' id='signatureModal' alt='Signature On File' src=''>
 <h4 id='labelName'></h4></div></div><div class='modal-body signature-pad-body'><ul class='sigNav'><label style='display: none;'>

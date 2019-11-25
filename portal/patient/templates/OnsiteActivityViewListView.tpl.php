@@ -31,7 +31,7 @@
 <h3>
     <i class="icon-th-list"></i><?php echo xlt('Onsite Patient Activities')?>
     <span id="loader" class="loader progress progress-striped active"><span class="progress-bar"></span></span>
-    <div class="col-sm-3 col-md-3 pull-right">
+    <div class="col-sm-3 col-md-3 float-right">
         <form class="navbar-form" role="search">
         <div class="input-group">
             <input type="text" class="form-control" placeholder="<?php echo xla('Search'); ?>" name="srch-term" id="srch-term">

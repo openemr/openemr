@@ -28,11 +28,11 @@ if (!isset($_SESSION['portal_init'])) {
     $_SESSION['portal_init'] = true;
 }
 
-$whereto = 'profilepanel';
+$whereto = 'profilecard';
 if (isset($_SESSION['whereto'])) {
     $whereto = $_SESSION['whereto'];
 }
-//$whereto = 'paymentpanel';
+//$whereto = 'paymentcard';
 
  $user = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : 'portal user';
  $result = getPatientData($pid);
@@ -104,7 +104,7 @@ $(function () {
     var gowhere = '#' + <?php echo js_escape($whereto); ?>;
     $(gowhere).collapse('show');
 
-    var $doHides = $('#panelgroup');
+    var $doHides = $('#cardgroup');
     $doHides.on('show.bs.collapse', '.collapse', function () {
         $doHides.find('.collapse.in').collapse('hide');
     });
@@ -162,52 +162,52 @@ function changeCredentials(e) {
     <!-- Right side column. Contains content of the page -->
     <aside class="right-side">
         <!-- Main content -->
-        <section class="container-fluid content panel-group" id="panelgroup">
+        <section class="container-fluid content card-group" id="cardgroup">
         <div id="popwait" class="alert alert-warning" style="font-size:18px"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
             <div class="row collapse" id="lists">
                 <div class="col-sm-6">
-                    <div class="panel panel-primary">
-                        <header class="panel-heading"><?php echo xlt('Medications'); ?> </header>
-                        <div id="medicationlist" class="panel-body"></div>
+                    <div class="card">
+                        <header class="card-header"><?php echo xlt('Medications'); ?> </header>
+                        <div id="medicationlist" class="card-body"></div>
 
-                        <div class="panel-footer"></div>
+                        <div class="card-footer"></div>
                     </div>
-                    <div class="panel panel-primary">
-                        <header class="panel-heading"><?php echo xlt('Medications Allergy List'); ?>  </header>
-                        <div id="allergylist" class="panel-body"></div>
+                    <div class="card">
+                        <header class="card-header"><?php echo xlt('Medications Allergy List'); ?>  </header>
+                        <div id="allergylist" class="card-body"></div>
 
-                        <div class="panel-footer"></div>
+                        <div class="card-footer"></div>
                     </div>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
-                    <div class="panel panel-primary">
-                        <header class="panel-heading"><?php echo xlt('Issues List'); ?></header>
-                        <div id="problemslist" class="panel-body"></div>
+                    <div class="card">
+                        <header class="card-header"><?php echo xlt('Issues List'); ?></header>
+                        <div id="problemslist" class="card-body"></div>
 
-                        <div class="panel-footer"></div>
+                        <div class="card-footer"></div>
                     </div>
-                    <div class="panel panel-primary">
-                        <header class="panel-heading"><?php echo xlt('Amendment List'); ?> </header>
-                        <div id="amendmentslist" class="panel-body"></div>
+                    <div class="card">
+                        <header class="card-header"><?php echo xlt('Amendment List'); ?> </header>
+                        <div id="amendmentslist" class="card-body"></div>
 
-                        <div class="panel-footer"></div>
+                        <div class="card-footer"></div>
                     </div>
                 </div><!-- /.col -->
                     <div class="col-sm-12">
-                        <div class="panel panel-primary">
-                            <header class="panel-heading"><?php echo xlt('Lab Results'); ?>  </header>
-                            <div id="labresults" class="panel-body"></div>
-                            <div class="panel-footer"></div>
-                        </div><!-- /.panel -->
+                        <div class="card">
+                            <header class="card-header"><?php echo xlt('Lab Results'); ?>  </header>
+                            <div id="labresults" class="card-body"></div>
+                            <div class="card-footer"></div>
+                        </div><!-- /.card -->
                     </div><!-- /.col -->
 
             </div><!-- /.lists -->
             <?php if ($GLOBALS['allow_portal_appointments']) { ?>
             <div class="row">
                 <div class="col-sm-6">
-                    <div class="panel panel-primary collapse" id="appointmentpanel">
-                        <header class="panel-heading"><?php echo xlt('Appointments'); ?>  </header>
-                        <div id="appointmentslist" class="panel-body">
+                    <div class="card collapse" id="appointmentcard">
+                        <header class="card-header"><?php echo xlt('Appointments'); ?>  </header>
+                        <div id="appointmentslist" class="card-body">
                         <?php
                             $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
                                 "e.pc_startTime, e.pc_hometext, e.pc_apptstatus, u.fname, u.lname, u.mname, " .
@@ -266,22 +266,22 @@ function changeCredentials(e) {
                         ?>
                             <div style='margin: 5px 0 5px'>
                                 <a href='#' onclick="editAppointment('add',<?php echo attr_js($pid); ?>)">
-                                    <button class='btn btn-primary pull-right'><?php echo xlt('Schedule New Appointment'); ?></button>
+                                    <button class='btn btn-primary float-right'><?php echo xlt('Schedule New Appointment'); ?></button>
                                 </a>
                             </div>
                         </div>
-                        <div class="panel-footer"></div>
-                    </div><!-- /.panel -->
+                        <div class="card-footer"></div>
+                    </div><!-- /.card -->
                 </div><!-- /.col -->
             </div><!-- /.row -->
             <?php } ?>
             <?php if ($GLOBALS['portal_two_payments']) { ?>
             <div class="row">
                <div class="col-sm-12">
-                    <div class="panel panel-primary collapse" id="paymentpanel">
-                        <header class="panel-heading"> <?php echo xlt('Payments'); ?> </header>
-                        <div id="payment" class="panel-body"></div>
-                        <div class="panel-footer">
+                    <div class="card collapse" id="paymentcard">
+                        <header class="card-header"> <?php echo xlt('Payments'); ?> </header>
+                        <div id="payment" class="card-body"></div>
+                        <div class="card-footer">
                         </div>
                     </div>
                 </div> <!--/.col  -->
@@ -290,9 +290,9 @@ function changeCredentials(e) {
             <?php if ($GLOBALS['allow_portal_chat']) { ?>
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="panel panel-primary collapse" style="padding-top:0;padding-bottom:0;" id="messagespanel">
-                        <!-- <header class="panel-heading"><?php //echo xlt('Secure Chat'); ?>  </header>-->
-                        <div id="messages" class="panel-body" style="height:calc(100vh - 120px);overflow:auto;padding:0 0 0 0;" >
+                    <div class="card collapse" style="padding-top:0;padding-bottom:0;" id="messagescard">
+                        <header class="card-header"><?php echo xlt('Secure Chat'); ?>  </header>
+                        <div id="messages" class="card-body" style="height:calc(100vh - 120px);overflow:auto;padding:0 0 0 0;" >
                              <iframe src="./messaging/secure_chat.php" width="100%" height="100%"></iframe>
                         </div>
                     </div>
@@ -301,26 +301,26 @@ function changeCredentials(e) {
             <?php } ?>
             <div class="row">
                 <div class="col-sm-8">
-                    <div class="panel panel-primary collapse" id="reportpanel">
-                        <header class="panel-heading"><?php echo xlt('Reports'); ?>  </header>
-                        <div id="reports" class="panel-body"></div>
-                        <div class="panel-footer"></div>
+                    <div class="card collapse" id="reportcard">
+                        <header class="card-header"><?php echo xlt('Reports'); ?>  </header>
+                        <div id="reports" class="card-body"></div>
+                        <div class="card-footer"></div>
                     </div>
                 </div>
                 <!-- /.col -->
                 <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                 <div class="col-sm-6">
-                    <div class="panel panel-primary collapse" id="downloadpanel">
-                        <header class="panel-heading"> <?php echo xlt('Download Documents'); ?> </header>
-                        <div id="docsdownload" class="panel-body">
+                    <div class="card collapse" id="downloadcard">
+                        <header class="card-header"> <?php echo xlt('Download Documents'); ?> </header>
+                        <div id="docsdownload" class="card-body">
                             <div>
                                 <span class="text"><?php echo xlt('Download all patient documents');?></span>
                                 <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
                                 <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
                                 </form>
                             </div>
-                        </div><!-- /.panel-body -->
-                        <div class="panel-footer"></div>
+                        </div><!-- /.card-body -->
+                        <div class="card-footer"></div>
                     </div>
                 </div><!-- /.col -->
                 <?php } ?>
@@ -328,24 +328,20 @@ function changeCredentials(e) {
             <?php if ($GLOBALS['portal_two_ledger']) { ?>
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="panel panel-primary collapse" id="ledgerpanel">
-                        <header class="panel-heading"><?php echo xlt('Ledger');?> </header>
-                        <div id="patledger" class="panel-body"></div>
-                        <div class="panel-footer">
+                    <div class="card collapse" id="ledgercard">
+                        <header class="card-header"><?php echo xlt('Ledger');?> </header>
+                        <div id="patledger" class="card-body"></div>
+                        <div class="card-footer">
                           <iframe src="./report/pat_ledger.php" width="100%" height="475" scrolling="yes"></iframe>
                         </div>
                     </div>
                 </div><!-- /.col -->
             </div>
             <?php } ?>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="panel panel-primary collapse" id="profilepanel">
-                        <header class="panel-heading"><?php echo xlt('Profile'); ?></header>
-                        <div id="profilereport" class="panel-body"></div>
-                    <div class="panel-footer"></div>
-                    </div>
-              </div>
+            <div class="card collapse" id="profilecard">
+                <header class="card-header"><?php echo xlt('Profile'); ?></header>
+                <div id="profilereport" class="card-body"></div>
+            <div class="card-footer"></div>
             </div>
 
         </section>

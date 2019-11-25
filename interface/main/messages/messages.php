@@ -173,9 +173,9 @@ if (!empty($_REQUEST['go'])) { ?>
     //original message.php stuff
     
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
          $help_icon = '';
     }
@@ -470,7 +470,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     <?php
                                                     if ($task=="addnew" || $result['pid']==0) {
                                                         echo "<label class='control-label oe-empty-label' for='clear_patients'></label>";
-                                                        echo '<button type="button" id="clear_patients"  class="btn btn-default btn-undo pull-left flip" value="' . xla('Clear') .'">' . xlt("Clear") . '</button>';
+                                                        echo '<button type="button" id="clear_patients"  class="btn btn-default btn-undo float-left flip" value="' . xla('Clear') .'">' . xlt("Clear") . '</button>';
                                                     } ?>
                                                 </div>
                                             </div>
@@ -520,7 +520,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 </div>
                                                 <div class="col-xs-6 col-sm-2">
                                                     <label class="control-label oe-empty-label" for="users"></label>
-                                                    <button type="button" name="clear_user" id="clear_user" class="btn btn-default btn-undo pull-left flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
+                                                    <button type="button" name="clear_user" id="clear_user" class="btn btn-default btn-undo float-left flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
                                                 </div>
                                             </div>
                                         <div class='col-xs-12 oe-margin-t-3'>

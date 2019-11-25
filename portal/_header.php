@@ -49,65 +49,47 @@ use OpenEMR\Core\Header;
     if ($GLOBALS['gateway_mode_production']) {
         $script = "https://js.authorize.net/v1/Accept.js"; // Production script
     } ?>
-    <script type="text/javascript" src=<?php echo $script; ?> charset="utf-8"></script>
+    <script type="text/javascript" src="<?php echo $script; ?>" charset="utf-8"></script>
 <?php } ?>
 </head>
 <body class="skin-blue fixed">
     <header class="header">
-        <a href="home.php" class="logo hidden-xs"><img src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/></a>
-        <nav class="navbar navbar-static-top" role="navigation">
+        <a href="home.php" class="logo"><img src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/></a>
+        <nav class="navbar navbar-expand-md sticky-top text-dark" role="navigation">
             <!-- Sidebar toggle button-->
-            <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas"
-                role="button"> <span class="sr-only"><?php echo xlt('Toggle navigation'); ?></span> <span
-                class="icon-bar"></span> <span class="icon-bar"></span> <span
-                class="icon-bar"></span>
-            </a>
-            <div class="navbar-right">
-                <ul class="nav navbar-nav">
-                    <li class="dropdown messages-menu"><a href="#"
-                        class="dropdown-toggle" data-toggle="dropdown"> <i
-                            class="fa fa-envelope"></i> <span class="label label-success"> <?php echo text($newcnt); ?></span>
-                    </a>
-                        <ul class="dropdown-menu">
-                            <li class="header"><?php echo xlt('You have'); ?> <?php echo text($newcnt); ?> <?php echo xlt('new messages'); ?></li>
-                            <li>
-                                <!-- inner menu: contains the actual data -->
-                                <ul class="menu">
-                                <?php
-                                foreach ($msgs as $i) {
-                                    if ($i['message_status']=='New') {
-                                        echo "<li><a href='" . $GLOBALS['web_root'] . "/portal/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
-                                    }
-                                }
-                                ?>
-                                </ul>
-                            </li>
-                            <li class="footer"><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><?php echo xlt('See All Messages'); ?></a></li>
-                        </ul></li>
+            <button class="navbar-toggler" type="button" data-toggle="offcanvas" data-target="#pillCollapse" aria-controls="pillCollapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <ul class="nav navbar-nav">
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" id="newmsgs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> <i class="fa fa-envelope"></i> <span class="badge badge-pill badge-success"><?php echo text($newcnt); ?></span></a>
+                    <div class="dropdown-menu" aria-labelledby="newmsgs">
+                        <h6 class="dropdown-header"><?php echo xlt('You have'); ?> <?php echo text($newcnt); ?> <?php echo xlt('new messages'); ?></h6>
+                        <!-- inner menu: contains the actual data -->
+                        <?php
+                        foreach ($msgs as $i) {
+                            if ($i['message_status']=='New') {
+                                echo "<div><a class='dropdown-item' href='" . $GLOBALS['web_root'] . "/portal/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></div>";
+                            }
+                        }
+                        ?>
+                        <div><a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><?php echo xlt('See All Messages'); ?></a></div>
+                    </div></li>
 
-                    <li class="dropdown user user-menu"><a href="#"
-                        class="dropdown-toggle" data-toggle="dropdown"> <i
-                            class="fa fa-user"></i> <span><?php echo text($result['fname']." ".$result['lname']); ?>
-                                <i class="caret"></i></span></a>
-                        <ul class="dropdown-menu dropdown-custom dropdown-menu-right">
-                            <li class="dropdown-header text-center"><?php echo xlt('Account'); ?></li>
-                            <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"> <i class="fa fa-envelope-o fa-fw pull-right"></i>
-                                    <span class="badge badge-danger pull-right"> <?php echo text($msgcnt); ?></span> <?php echo xlt('Messages'); ?></a></li>
-                            <li class="divider"></li>
-                            <li>
-                            <?php if ($GLOBALS['allow_portal_chat']) { ?>
-                                <a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
-                                <?php } ?>
-                                <a href="javascript:changeCredentials(event)"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Change Credentials'); ?></a></li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" id="profiletab" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-user"></i> <span><?php echo text($result['fname']." ".$result['lname']); ?> <i class="caret"></i></span></a>
+                    <div class="dropdown-menu" aria-labelledby="profiletab">
+                        <div class="dropdown-header text-center"><?php echo xlt('Account'); ?></div>
+                        <div><a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"> <i class="fa fa-envelope-o fa-fw"></i> <?php echo xlt('Messages'); ?> <span class="badge badge-pill badge-danger"><?php echo text($msgcnt); ?></span></a></div>
+                        <div class="dropdown-divider"></div>
+                        <?php if ($GLOBALS['allow_portal_chat']) { ?>
+                            <div><a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw"></i><?php echo xlt('Chat'); ?></a></div>
+                        <?php } ?>
+                        <div><a class="dropdown-item" href="javascript:changeCredentials(event)"> <i class="fa fa-cog fa-fw"></i> <?php echo xlt('Change Credentials'); ?></a></div>
+                        <div class="dropdown-divider"></div>
 
-                            <li class="divider"></li>
-
-                            <li><a href="logout.php"><i class="fa fa-ban fa-fw pull-right"></i>
-                                    <?php echo xlt('Logout'); ?></a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+                        <div><a class="dropdown-item" href="logout.php"><i class="fa fa-ban fa-fw"></i> <?php echo xlt('Logout'); ?></a></div>
+                    </div>
+                </li>
+            </ul>
         </nav>
     </header>
     <div class="wrapper row-offcanvas row-offcanvas-left">
@@ -117,73 +99,65 @@ use OpenEMR\Core\Header;
             <section class="sidebar">
                 <!-- Sidebar user panel -->
                 <div class="user-panel">
-                    <div class="pull-left image">
+                    <div class="float-left image">
                         <i class="fa fa-user"></i>
                     </div>
-                    <div class="pull-left info">
+                    <div class="float-left info">
                         <p><?php echo xlt('Welcome') . ' ' . text($result['fname']." ".$result['lname']); ?></p>
                         <a href="#"><i class="fa fa-circle text-success"></i> <?php echo xlt('Online'); ?></a>
                     </div>
                 </div>
-                <ul class="nav nav-pills nav-stacked" style='font-color:#fff;'><!-- css class was sidebar-menu -->
-                    <li data-toggle="pill"><a href="#profilepanel" data-toggle="collapse"
-                        data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt('Profile'); ?></span>
+                <ul class="nav nav-pills flex-column" id="pillCollapse" style='font-color:#fff;'><!-- css class was sidebar-menu -->
+                    <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#profilepanel" data-toggle="collapse" data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt('Profile'); ?></span>
                     </a></li>
-                    <li data-toggle="pill"><a href="#lists" data-toggle="collapse"
-                        data-parent="#panelgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
+                    <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#panelgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
                     </a></li>
-                    <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"> <i class="fa fa-gavel"></i>
-                            <span><?php echo xlt('Patient Documents'); ?></span>
-                    </a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"> <i class="fa fa-gavel"></i><span><?php echo xlt('Patient Documents'); ?></span></a></li>
                     <?php if ($GLOBALS['allow_portal_appointments']) { ?>
-                        <li data-toggle="pill"><a href="#appointmentpanel" data-toggle="collapse"
+                        <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#appointmentpanel" data-toggle="collapse"
                             data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>
                     </a></li>
                     <?php } ?>
                     <?php if ($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments']) { ?>
-                        <li class="dropdown accounting-menu"><a href="#"
-                            class="dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-book"></i> <span><?php echo xlt('Accountings'); ?></span></a>
-                            <ul class="dropdown-menu">
+                        <li class="nav-item dropdown accounting-menu"><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-book"></i> <span><?php echo xlt('Accountings'); ?></span></a>
+                            <div class="dropdown-menu">
                                 <?php if ($GLOBALS['portal_two_ledger']) { ?>
-                                    <li data-toggle="pill"><a href="#ledgerpanel" data-toggle="collapse"
-                                        data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Ledger'); ?></span>
-                                    </a></li>
+                                    <span data-toggle="pill"><a class="dropdown-item" href="#ledgerpanel" data-toggle="collapse" data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Ledger'); ?></span></a></span>
                                 <?php } ?>
                                 <?php if ($GLOBALS['portal_two_payments']) { ?>
-                                    <li data-toggle="pill"><a href="#paymentpanel" data-toggle="collapse"
-                                        data-parent="#panelgroup"> <i class="fa fa-credit-card"></i> <span><?php echo xlt('Make Payment'); ?></span>
-                                    </a></li>
+                                    <span data-toggle="pill"><a class="dropdown-item" href="#paymentpanel" data-toggle="collapse" data-parent="#panelgroup"> <i class="fa fa-credit-card"></i> <span><?php echo xlt('Make Payment'); ?></span></a></span>
                                 <?php } ?>
-                             </ul>
+                             </div>
                         </li>
                     <?php } ?>
-                    <li class="dropdown reporting-menu"><a href="#"
-                        class="dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-calendar"></i> <span><?php echo xlt('Reports'); ?></span></a>
-                        <ul class="dropdown-menu">
+                    <li class="nav-item dropdown reporting-menu"><a href="#"
+                        class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-calendar"></i> <span><?php echo xlt('Reports'); ?></span></a>
+                        <div class="dropdown-menu">
                             <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) { ?>
-                                <li><a id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun">
-                                    <i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
+                                <a class="dropdown-item" id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun">
+                                    <i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a>
                             <?php } ?>
                             <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
-                                <li data-toggle="pill"><a href="#reportpanel" data-toggle="collapse"
-                                    data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></li>
+							<span data-toggle="pill"><a class="dropdown-item" href="#reportpanel" data-toggle="collapse"
+                                    data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></span>
 
-                                <li data-toggle="pill"><a href="#downloadpanel" data-toggle="collapse"
-                                    data-parent="#panelgroup"> <i class="fa fa-download"></i> <span><?php echo xlt('Download Lab Documents'); ?></span></a></li>
+                                <span data-toggle="pill"><a class="dropdown-item" href="#downloadpanel" data-toggle="collapse"
+                                    data-parent="#panelgroup"> <i class="fa fa-download"></i> <span><?php echo xlt('Download Lab Documents'); ?></span></a></span>
                             <?php } ?>
-                        </ul></li>
-                    <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fa fa-envelope" aria-hidden="true"></i>
+                        </div>
+					</li>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fa fa-envelope" aria-hidden="true"></i>
                             <span><?php echo xlt('Secure Messaging'); ?></span>
                     </a></li>
                     <?php if ($GLOBALS['allow_portal_chat']) { ?>
-                        <li data-toggle="pill"><a href="#messagespanel" data-toggle="collapse"
+                        <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#messagespanel" data-toggle="collapse"
                             data-parent="#panelgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>
                     </a></li>
                     <?php } ?>
-                    <li data-toggle="pill"><a href="#openSignModal" data-toggle="modal" data-type="patient-signature"> <i
+                    <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#openSignModal" data-toggle="modal" data-type="patient-signature"> <i
                             class="fa fa-sign-in"></i><span><?php echo xlt('Signature on File'); ?></span>
                     </a></li>
-                    <li><a href="logout.php"><i class="fa fa-ban fa-fw"></i> <span><?php echo xlt('Logout'); ?></span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="logout.php"><i class="fa fa-ban fa-fw"></i> <span><?php echo xlt('Logout'); ?></span></a></li>
                 </ul>
             </section>
             <!-- /.sidebar -->

@@ -2560,7 +2560,7 @@ class Display extends base
                     <input type="hidden" name="go" id="go" value="addRecall">
                     <input type="hidden" name="action" id="go" value="addRecall">
                     <div class="col-sm-6 text-right form-group form-group-sm">
-                        <div class="divTableBody pull-right">
+                        <div class="divTableBody float-right">
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Name'); ?></div>
                                 <div class="divTableCell recall_name">

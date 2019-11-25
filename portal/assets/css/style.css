@@ -3125,19 +3125,19 @@ body > .header .logo .icon {
     border-left-width: 0;
 }
 
-.nav-tabs-custom > .nav-tabs.pull-right {
+.nav-tabs-custom > .nav-tabs.float-right {
     float: none !important;
 }
 
-.nav-tabs-custom > .nav-tabs.pull-right > li {
+.nav-tabs-custom > .nav-tabs.float-right > li {
     float: right;
 }
 
-.nav-tabs-custom > .nav-tabs.pull-right > li:first-of-type {
+.nav-tabs-custom > .nav-tabs.float-right > li:first-of-type {
     margin-right: 0px;
 }
 
-.nav-tabs-custom > .nav-tabs.pull-right > li:first-of-type.active > a {
+.nav-tabs-custom > .nav-tabs.float-right > li:first-of-type.active > a {
     border-left-width: 1px;
     border-right-width: 0px;
 }

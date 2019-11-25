@@ -994,16 +994,16 @@ background:#fff;
                         <div class="clearfix">
                             <a class="btn btn-sm btn-primary ml10" href=""
                                 data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
-                            <a class="btn btn-sm btn-success pull-left ml10" href="./../patient/provider" ng-show="!isPortal"><?php echo xlt('Home'); ?></a>
-                            <a class="btn btn-sm btn-success pull-left ml10" href="./../home.php" ng-show="isFullScreen"><?php echo xlt('Home'); ?></a>
+                            <a class="btn btn-sm btn-success float-left ml10" href="./../patient/provider" ng-show="!isPortal"><?php echo xlt('Home'); ?></a>
+                            <a class="btn btn-sm btn-success float-left ml10" href="./../home.php" ng-show="isFullScreen"><?php echo xlt('Home'); ?></a>
                         </div>
                     </div>
                     <div class="panel-body">
                         <div class="direct-chat-messages">
                             <div class="direct-chat-msg" ng-repeat="message in messages" ng-if="historyFromId < message.id" ng-class="{'right':!message.me}">
                                 <div class="direct-chat-info clearfix">
-                                    <span class="direct-chat-name" ng-class="{'pull-left':message.me,'pull-right':!message.me}">{{message.username }}</span>
-                                    <span class="direct-chat-timestamp " ng-class="{'pull-left':!message.me,'pull-right':message.me}">{{message.date }}</span>
+                                    <span class="direct-chat-name" ng-class="{'float-left':message.me,'float-right':!message.me}">{{message.username }}</span>
+                                    <span class="direct-chat-timestamp " ng-class="{'float-left':!message.me,'float-right':message.me}">{{message.date }}</span>
                                 </div>
                                 <i class="direct-chat-img glyphicon glyphicon-hand-left"
                                    style="cursor: pointer;font-size:24px" ng-show="!message.me"

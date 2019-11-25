@@ -463,7 +463,7 @@ function authorized_clicked() {
                 <a href="usergroup_admin_add.php" class="medium_modal btn btn-default btn-add"><?php echo xlt('Add User'); ?></a>
                 <a href="facility_user.php" class="btn btn-default btn-show"><?php echo xlt('View Facility Specific User Information'); ?></a>
             </div>
-            <form name='userlist' method='post' style="display: inline;" class="form-inline" class="pull-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
+            <form name='userlist' method='post' style="display: inline;" class="form-inline" class="float-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="checkbox">
                     <label for="form_inactive">

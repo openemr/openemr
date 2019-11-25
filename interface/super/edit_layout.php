@@ -1358,7 +1358,7 @@ if ($lastgroup) {
     echo "<li>" . xlt("Please see http://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic") . "</li>";
 ?>
    </ul>
-   <button class='btn btn-xs btn-success pull-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss')?></button>
+   <button class='btn btn-xs btn-success float-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss')?></button>
   </div>
 </section></div></div>
 <?php

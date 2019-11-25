@@ -60,7 +60,7 @@
                             <ul class="nav navbar-nav">
                                 <!-- reserved -->
                                 </ul>
-                            <ul class="nav pull-right navbar-nav">
+                            <ul class="nav float-right navbar-nav">
                                 <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-lock"></i> <?php echo xlt('Login'); ?> <i class="caret"></i></a>
                                 <ul class="dropdown-menu">

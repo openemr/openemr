@@ -445,7 +445,7 @@ if ($_REQUEST['dispensed']) {
                 ?>
                     <div id="RXID_<?php echo attr($row['id']); ?>"
                          style="position:relative;text-align:center;margin: 10 auto;">
-                        <i class="pull-right fa fa-close"
+                        <i class="float-right fa fa-close"
                            onclick="delete_me('<?php echo attr(addslashes($row['id'])); ?>');"
                            title="<?php echo xla('Remove this Prescription from the list of RXs dispensed'); ?>"></i>
                         <table style="margin:2px auto;width:490px;">

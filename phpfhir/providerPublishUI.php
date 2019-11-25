@@ -128,7 +128,7 @@ echo "<script>var pid='" . attr($pid) . "'</script>";
             </div>
         </div>
     </div>
-    <footer class="pull-left footer">
+    <footer class="float-left footer">
         <p class="col-md-12">
         <hr class="divider">
         </p>

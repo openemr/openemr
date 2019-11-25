@@ -78,7 +78,7 @@ if (isset($_POST['lognext']) && $_POST['lognext']) {
     <table>
         <tr>
             <td width='470px'>
-                <div class="btn-group pull-left" role="group">
+                <div class="btn-group float-left" role="group">
                     <a id='refresh_button' href='#' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
                         <?php echo xlt('Refresh'); ?>
                     </a>
