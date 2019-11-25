@@ -263,7 +263,7 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
     <fieldset>
         <legend><?php echo xlt('Current Criteria'); ?></legend>
         <div class="form-group col-xs-12">
-            <label for="final_this_page_criteria" class="col-xs-12"><?php echo xlt('Criteria'); ?>  <?php echo xlt('Set To'); ?>: <i class="fa fa-times-circle fa-2x text-danger pull-right" style="margin-top:-7px" aria-hidden="true" onclick="removeOptionSelected()" title="<?php echo xla('Click here to delete the selection'); ?>"></i></label>
+            <label for="final_this_page_criteria" class="col-xs-12"><?php echo xlt('Criteria'); ?>  <?php echo xlt('Set To'); ?>: <i class="fa fa-times-circle fa-2x text-danger float-right" style="margin-top:-7px" aria-hidden="true" onclick="removeOptionSelected()" title="<?php echo xla('Click here to delete the selection'); ?>"></i></label>
             <select name='final_this_page_criteria[]' id='final_this_page_criteria' size='8' class='text col-xs-12'  title='Criteria' multiple="multiple" >
                 <?php
                 if ($_REQUEST['final_this_page_criteria']) {

@@ -449,7 +449,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <!-- start    QP_HPI_Build -->
                       <div id="QP_HPI" name="QP_HPI" class="QP_class left">
                         <div id="HPI_text_list" name="HPI_text_list">
-                          <span class="closeButton fa fa-close pull-right z100" id="BUTTON_TEXTD_HPI" name="BUTTON_TEXTD_HPI" value="1"></span>
+                          <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_HPI" name="BUTTON_TEXTD_HPI" value="1"></span>
                           <b><?php echo xlt('HPI Elements'); ?>:</b> <br />
                           <div id="tabs_wrapper" >
                             <div id="tabs_container">
@@ -728,7 +728,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <a class="nodisplay left_PMSFH_tab" id="right-panel-link" href="#right-panel">
                         <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/PMSFHx.png">
                       </a>
-                      <span class="fa fa-close pull-right closeButton" id="BUTTON_TEXTD_PMH" name="BUTTON_TEXTD_PMH" value="1"></span>
+                      <span class="fa fa-close float-right closeButton" id="BUTTON_TEXTD_PMH" name="BUTTON_TEXTD_PMH" value="1"></span>
                         <?php display_draw_section("PMH", $encounter, $pid); ?>
                       <div id="QP_PMH" name="QP_PMH" class="QP_class" style="max-height:100%">
                         <?php echo display_PRIOR_section("PMSFH", $id, $id, $pid); ?>
@@ -2065,7 +2065,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="QP_EXT" name="QP_EXT" class="QP_class">
                               <input type="hidden" id="EXT_prefix" name="EXT_prefix" value="<?php echo attr($EXT_prefix); ?>">
 
-                              <span class="closeButton fa fa-close pull-right z100" id="BUTTON_TEXTD_EXT" name="BUTTON_TEXTD_EXT" value="1"></span>
+                              <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_EXT" name="BUTTON_TEXTD_EXT" value="1"></span>
                               <div class="qp10">
                                   <span class="eye_button eye_button_selected" id="EXT_prefix_off" name="EXT_prefix_off" onclick="$('#EXT_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?></span>
                                   <span class="eye_button" id="EXT_defaults" name="EXT_defaults"><?php echo xlt('Defaults'); ?></span>
@@ -2176,7 +2176,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <br />
                               <span id="dil_listbox_title"><?php echo xlt('Dilation'); ?>:</span>
 
-                                <input type="text" class="pull-right" title="<?php echo xla('Dilation Time'); ?>" id="DIL_MEDS" name="DIL_MEDS" value="<?php
+                                <input type="text" class="float-right" title="<?php echo xla('Dilation Time'); ?>" id="DIL_MEDS" name="DIL_MEDS" value="<?php
                                 if ($DIL_MEDS) {
                                     echo attr($DIL_MEDS); }
                                 ?>" placeholder="Time"/>
@@ -2317,7 +2317,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div class="QP_block borderShadow text_clinical " >
                             <?php echo $QP_ANTSEG = display_QP("ANTSEG", $provider_id); ?>
                           </div>
-                          <span class="closeButton fa fa-close pull-right z100" id="BUTTON_TEXTD_ANTSEG" name="BUTTON_TEXTD_ANTSEG"></span>
+                          <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_ANTSEG" name="BUTTON_TEXTD_ANTSEG"></span>
                       </div>
                   </div>
                 </div>
@@ -2483,7 +2483,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div class="QP_block borderShadow text_clinical" >
                         <?php echo $QP_RETINA = display_QP("RETINA", $provider_id); ?>
                       </div>
-                      <span class="closeButton fa fa-close pull-right z100" id="BUTTON_TEXTD_RETINA" name="BUTTON_TEXTD_RETINA" value="1"></span>
+                      <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_RETINA" name="BUTTON_TEXTD_RETINA" value="1"></span>
                     </div>
                   </div>
                 </div>
@@ -3283,7 +3283,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <span class="eye_button" id="NEURO_value_40" name="NEURO_value"  onclick="$('#NEURO_value').val('40').trigger('change');">40</span>
                         </div>
                       </div>
-                      <span class="closeButton fa fa-close pull-right z100" id="BUTTON_TEXTD_NEURO" name="BUTTON_TEXTD_NEURO" value="1"></span>
+                      <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_NEURO" name="BUTTON_TEXTD_NEURO" value="1"></span>
                     </div>
                   </div>
                 </div>
@@ -3348,7 +3348,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="IP_P_1">
                                 <?php echo $selector = priors_select("IMPPLAN", $id, $id, $pid); ?>
                           </div>
-                          <span class="closeButton fa fa-close pull-right z100" id="BUTTON_TEXTD_IMPPLAN" name="BUTTON_TEXTD_IMPPLAN" value="1"></span>
+                          <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_IMPPLAN" name="BUTTON_TEXTD_IMPPLAN" value="1"></span>
                           <br />
                             <?php
                               /*
@@ -3398,7 +3398,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                             foreach ($PMSFH[0]['POH'] as $k => $v) {
                                                 $insert_code='';
                                                 if ($v['diagnosis'] >'') {
-                                                    $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
+                                                    $insert_code = "<code class='float-right diagnosis'>".$v['diagnosis']."</code>";
                                                 }
 
                                                 $k = xla($k);
@@ -3410,7 +3410,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                             foreach ($PMSFH[0]['POS'] as $k => $v) {
                                                 $insert_code='';
                                                 if ($v['diagnosis'] >'') {
-                                                    $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
+                                                    $insert_code = "<code class='float-right diagnosis'>".$v['diagnosis']."</code>";
                                                 }
 
                                                 $k = xla($k);
@@ -3423,7 +3423,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 foreach ($PMSFH[0]['medical_problem'] as $k => $v) {
                                                     $insert_code = '';
                                                     if ($v['diagnosis'] > '') {
-                                                        $insert_code = "<code class='pull-right diagnosis'>" . $v['diagnosis'] . "</code>";
+                                                        $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
                                                     }
 
                                                     $k = xla($k);
@@ -3550,7 +3550,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   <span class="modifier" name="visit_modifier" id="visit_mod_57" value="57" title="<?php echo xla('Modifier 57: Indicates an Evaluation and Management (E/M) service resulted in the initial decision to perform surgery either the day before a major surgery (90 day global) or the day of a major surgery.'); ?>">57</span>
                                               </td>
                                               <td>
-                                                  <span id="visit_justification" class="pull-right text-center" style="padding:7px 2px;"></span>
+                                                  <span id="visit_justification" class="float-right text-center" style="padding:7px 2px;"></span>
                                               </td>
                                           </tr>
 

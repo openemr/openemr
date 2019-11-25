@@ -300,7 +300,7 @@ WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_o
                                 </td>
                             </tr>
                         </table>
-                        <span class="pull-right">
+                        <span class="float-right">
                             <a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="css_button"><span><?php echo xlt('SAVE'); ?></span></a>
                         </span>
                     </form>

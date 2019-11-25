@@ -1104,7 +1104,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             if ($GLOBALS['enable_oa']) {
                                                 echo "<form method='post' action='./demographics.php'>\n";
                                                 echo "<div class='col col-sm-12'>";
-                                                echo "<button class='btn btn-success btn-xs btn-transmit pull-right' name='status_update' value='true'>" .
+                                                echo "<button class='btn btn-success btn-xs btn-transmit float-right' name='status_update' value='true'>" .
                                                     xlt("Update Status") . "</button>";
                                                 echo "</div><br>\n";
                                                 if ($_POST['status_update'] === 'true') {

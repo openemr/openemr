@@ -46,7 +46,7 @@ $N = 7;
 .insurance .table .text {
     color: red;
 }
-.demographics .groupname.bold{
+.demographics .groupname.bold {
     font-size:18px;
     color: blue;
 }
@@ -69,7 +69,7 @@ $N = 7;
 }
 
 
-.demographics .panel-heading {
+.demographics .card-header {
     padding: 5px 8px;
     background: #337ab7;
     color: white;
@@ -78,58 +78,52 @@ $N = 7;
 <body>
 
 <div class='demographics table-responsive' id='DEM'>
-    <div class="col-sm-9">
 
-        <?php
-                    $result1 = getPatientData($pid);
-                    $result2 = getEmployerData($pid);
-        ?>
-        <div class="panel panel-primary" >
-                <header class="panel-heading"><?php echo xlt('Profile Demographics'); ?>
-                <?php if ($pending) {
-                    echo '<button type="button" id="editDems" class="btn btn-danger btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Pending Review') . '</button>';
-                } else {
-                    echo '<button type="button" id="editDems" class="btn btn-success btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Revise') . '</button>';
-                }
-                ?>
-                </header>
-                <div class="panel-body " id="dempanel">
-                    <table class='table table-responsive table-condensed'>
-        <?php
-                    display_layout_rows('DEM', $result1, $result2);
-        ?>
-                    </table>
-                </div>
-                <div class="panel-footer"></div>
+    <?php
+                $result1 = getPatientData($pid);
+                $result2 = getEmployerData($pid);
+    ?>
+    <div class="card">
+            <header class="card-header"><?php echo xlt('Profile Demographics'); ?>
+            <?php if ($pending) {
+                echo '<button type="button" id="editDems" class="btn btn-danger btn-sm float-right" style="color:white;font-size:14px">' . xlt('Pending Review') . '</button>';
+            } else {
+                echo '<button type="button" id="editDems" class="btn btn-success btn-sm float-right" style="color:white;font-size:14px">' . xlt('Revise') . '</button>';
+            }
+            ?>
+            </header>
+            <div class="card-body" id="dempanel">
+                <table class='table table-responsive table-condensed'>
+    <?php
+                display_layout_rows('DEM', $result1, $result2);
+    ?>
+                </table>
             </div>
+            <div class="card-footer"></div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class='insurance table-condensed table-responsive'>
-                <div class="panel panel-primary">
-                    <header class="panel-heading"><?php echo xlt('Primary Insurance');?></header>
-                    <div class="panel-body">
-        <?php
-                    printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-        ?>
-                    </div>
-                </div>
-                <div class="panel panel-primary">
-                    <header class="panel-heading"><?php echo xlt('Secondary Insurance');?></header>
-                    <div class="panel-body">
-        <?php
-                    printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-        ?></div>
-                </div>
-                <div class="panel panel-primary">
-                    <header class="panel-heading"><?php echo xlt('Tertiary Insurance');?></header>
-                    <div class="panel-body">
-        <?php
-                    printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
-        ?></div>
-                </div>
+    <div class='insurance table-condensed table-responsive'>
+        <div class="card">
+            <header class="card-header"><?php echo xlt('Primary Insurance');?></header>
+            <div class="card-body">
+<?php
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
+?>
             </div>
+        </div>
+        <div class="card">
+            <header class="card-header"><?php echo xlt('Secondary Insurance');?></header>
+            <div class="card-body">
+<?php
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
+?></div>
+        </div>
+        <div class="card">
+            <header class="card-header"><?php echo xlt('Tertiary Insurance');?></header>
+            <div class="card-body">
+<?php
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
+?></div>
         </div>
     </div>
     <div>

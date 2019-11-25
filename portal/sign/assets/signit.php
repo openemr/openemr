@@ -39,7 +39,7 @@ use OpenEMR\Core\Header;
 </head>
 <body class="container">
 <div class="signer-banners row">
-    <div class="well well-lg">
+    <div class="jumbotron">
         <h3 class="text-center"><?php echo xlt("Welcome to OpenEMR Signature Kiosk.") ?></h3>
         <h4 class="text-center"><?php echo xlt("A component of the Patient Portal.") ?></h4>
         <p class="text-center"><?php echo xlt("Once a request is received a dialog will come into view. Simply sign in the box and Authorize as your digital signature.") ?></p>

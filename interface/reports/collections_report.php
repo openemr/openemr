@@ -1350,7 +1350,7 @@ if (!$_POST['form_csvexport']) {
         ?>
 
   <div style='float;margin-top:5px'>
-    <div class="btn-group pull-left" role="group">
+    <div class="btn-group float-left" role="group">
     <a href='javascript:;' class='btn btn-default btn-save'  onclick='checkAll(true)'><?php echo xlt('Select All'); ?></a>
     <a href='javascript:;' class='btn btn-default btn-cancel'  onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></a>
     <a href='javascript:;' class='btn btn-default btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>

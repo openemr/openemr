@@ -1210,7 +1210,7 @@ function build_DX_list(obj) {
         $.each(obj.Clinical, function(key, value) {
                diagnosis='';
                if (obj.Clinical[key][0].diagnosis > '') { //so we are just showing this first item of each Dx (Eg bilateral, x4 pterygium, only first shows up)
-               diagnosis = "<code class='pull-right ICD_CODE'>"+obj.Clinical[key][0].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+obj.Clinical[key][0].code+"</code>";
                }
                out += "<li class='ui-widget-content'><span name='DX_Clinical_"+key+"' id='DX_Clinical_"+key+"'>"+obj.Clinical[key][0].title+"</span> "+diagnosis+"</li> ";
                });
@@ -1220,14 +1220,14 @@ function build_DX_list(obj) {
         $.each(obj.PMSFH['POH'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['POH'][key].diagnosis > '' ) {
-               diagnosis = "<code class='pull-right ICD_CODE'>"+obj.PMSFH['POH'][key].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['POH'][key].code+"</code>";
                }
                out += "<li class='ui-widget-content'><span name='DX_POH_"+key+"' id='DX_POH_"+key+"'>"+obj.PMSFH['POH'][key].title+"</span> "+diagnosis+"</li>";
                });
         $.each(obj.PMSFH['POS'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['POS'][key].diagnosis > '' ) {
-               diagnosis = "<code class='pull-right ICD_CODE'>"+obj.PMSFH['POS'][key].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['POS'][key].code+"</code>";
                }
                out += "<li class='ui-widget-content'><span name='DX_POS_"+key+"' id='DX_POS_"+key+"'>"+obj.PMSFH['POS'][key].title+"</span> "+diagnosis+"</li>";
                });
@@ -1236,7 +1236,7 @@ function build_DX_list(obj) {
         $.each(obj.PMSFH['PMH'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['PMH'][key].diagnosis > '') {
-               diagnosis = "<code class='pull-right ICD_CODE'>"+obj.PMSFH['PMH'][key].code+"</code>";
+               diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['PMH'][key].code+"</code>";
                }
                out += "<li class='ui-widget-content'><span name='DX_PMH_"+key+"' id='DX_PMH_"+key+"'>"+obj.PMSFH['PMH'][key].title+"</span>"+diagnosis+"</li> ";
                });
@@ -1389,13 +1389,13 @@ function build_IMPPLAN(items,nodisplay) {
                var title2 = value.title.replace(/(\')/g, '');
                contents_here = "<span class='bold' contenteditable title='<?php echo xla('Click to edit'); ?>' id='IMPRESSION_"+index+"'>" +
                value.title +"</span>"+
-               "<span contenteditable class='pull-right' onclick='sel_diagnosis("+index+",\""+title2+"\");' title='"+value.codetext+"' id='CODE_"+index+"'>"+
+               "<span contenteditable class='float-right' onclick='sel_diagnosis("+index+",\""+title2+"\");' title='"+value.codetext+"' id='CODE_"+index+"'>"+
                value.code + "</span>&nbsp;"+
                "<br /><textarea id='PLAN_"+index+"' name='PLAN_"+index+
                "' style='width:100%;max-width:100%;height:auto;min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
                value.plan +"</textarea><br /></li>";
                $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" class="IMPPLAN_class">'+
-                                         '<i class="pull-right fa fa-close" id="BUTTON_IMPPLAN_'+index+'"></i>'+
+                                         '<i class="float-right fa fa-close" id="BUTTON_IMPPLAN_'+index+'"></i>'+
                                          contents_here+'</div>');
                $('#BUTTON_IMPPLAN_'+index).on('click', function() {//delete/close icon
                                                  var item = this.id.match(/BUTTON_IMPPLAN_(.*)/)[1];

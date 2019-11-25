@@ -34,7 +34,7 @@ $this->display('_Header.tpl.php');
     <div class='well'>
     <div class="jumbotron">
         <h1>
-            <?php echo xlt('Onsite Portal'); ?><i class="fa fa-user-md pull-right" style="font-size:60px;color:red"></i>
+            <?php echo xlt('Onsite Portal'); ?><i class="fa fa-user-md float-right" style="font-size:60px;color:red"></i>
         </h1>
         <a class="btn btn-primary btn-lg" data-toggle="modal"
             data-target="#formdialog" href="#"><?php echo xlt('Tell me more'); ?> »</a>

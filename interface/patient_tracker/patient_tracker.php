@@ -466,7 +466,7 @@ if (!$_REQUEST['flb_table']) {
                     echo $statuses_output;
                     ?>
                 </span>
-                <span id="pull_kiosk_right" class="pull-right">
+                <span id="pull_kiosk_right" class="float-right">
                   <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
 
                   <label for='setting_new_window' id='settings'>

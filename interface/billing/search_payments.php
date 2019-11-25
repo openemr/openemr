@@ -694,7 +694,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <iframe src="" id="targetiframe1" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>
                         </div>
                         <div class="modal-footer" style="margin-top:0px;">
-                           <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
+                           <button class="btn btn-link btn-cancel float-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
                         </div>
                     </div>
                 </div>

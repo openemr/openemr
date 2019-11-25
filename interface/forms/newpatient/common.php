@@ -190,9 +190,9 @@ if ($viewmode) {
 
 
 if ($GLOBALS['enable_help'] == 1) {
-    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
 } elseif ($GLOBALS['enable_help'] == 2) {
-    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
 } elseif ($GLOBALS['enable_help'] == 0) {
      $help_icon = '';
 }
@@ -469,7 +469,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div class="form-group clearfix">
                                     <div class="col-sm-6 col-lg-offset-3">
                                             <div class="col-sm-12">
-                                                <div class="col-sm-12 pull-left" style="padding-bottom:5px">
+                                                <div class="col-sm-12 float-left" style="padding-bottom:5px">
                                                     <div class="btn-group" role="group">
                                                         <?php if (acl_check('patients', 'med', '', 'write')) { ?>
                                                        <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit enc_issue"
@@ -477,7 +477,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                         <?php } ?>
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-12 pull-left">
+                                                <div class="col-sm-12 float-left">
                                                     <select multiple name='issues[]' class='col-sm-12'
                                                             title='<?php echo xla('Hold down [Ctrl] for multiple selections or to unselect'); ?>' size='6'>
                                                         <?php

@@ -163,9 +163,7 @@ if (count($emr_app)) {
             <div class="row">
                 <div class="col-sm-12">
                     <div>
-                        <div class="center-block" style="max-width:400px">
-                            <img class="img-fluid img-responsive center-block" src="<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png" />
-                        </div>
+                        <img class="img-fluid mx-auto d-block" style="max-width:400px" src="<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png" />
 
                         <input type='hidden' name='new_login_session_management' value='1' />
 
@@ -257,7 +255,7 @@ if (count($emr_app)) {
                 <?php endif; ?>
                 <div class="col-sm-<?php echo $loginFormColumnCount;?>">
                     <div class="row">
-                        <div class="center-block login-title-label">
+                        <div class="mx-auto d-block login-title-label">
                             <?php if ($GLOBALS['show_label_login']) : ?>
                                 <?php echo text($openemr_name); ?>
                             <?php endif; ?>
@@ -267,20 +265,20 @@ if (count($emr_app)) {
                         $t1 = $GLOBALS['tiny_logo_1'];
                         $t2 = $GLOBALS['tiny_logo_2'];
                         if ($t1 && !$t2) : ?>
-                            <div class="col-sm-12 center-block">
+                            <div class="col-sm-12 mx-auto d-block">
                                 <?php echo $tinylogocode1; ?>
                             </div>
                             <?php
                         endif;
                         if ($t2 && !$t1) : ?>
-                            <div class="col-sm-12 center-block">
+                            <div class="col-sm-12 mx-auto d-block">
                                 <?php echo $tinylogocode2; ?>
                             </div>
                             <?php
                         endif;
                         if ($t1 && $t2) : ?>
-                            <div class="col-sm-6 center-block"><?php echo $tinylogocode1;?></div>
-                            <div class="col-sm-6 center-block"><?php echo $tinylogocode2;?></div>
+                            <div class="col-sm-6 mx-auto d-block"><?php echo $tinylogocode1;?></div>
+                            <div class="col-sm-6 mx-auto d-block"><?php echo $tinylogocode2;?></div>
                             <?php
                         endif;
                         ?>
@@ -339,7 +337,7 @@ if (count($emr_app)) {
                             </div>
                         </div>
                     <?php endif; // End facilities menu block ?>
-                    <div class="form-group pull-right">
+                    <div class="form-group oe-pull-away">
                         <button type="submit" class="btn btn-default btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
                     </div>
                 </div>

@@ -294,7 +294,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                     </div>
                                 <?php } ?>
                             </div>
-                            <div class="btn-group pull-right">
+                            <div class="btn-group float-right">
                                 <input class="btn" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
                                 <input class="btn btn-primary" type="submit" value="<?php echo xla('Log In'); ?>" />
                             </div>
@@ -304,7 +304,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                             <div class="text-center">
                                 <fieldset>
                                     <legend class='bg-primary'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
-                                    <div class="well">
+                                    <div class="jumbotron">
                                         <div class="form-group inline">
                                             <label class="control-label" for="fname"><?php echo xlt('First Name') ?></label>
                                             <div class="controls inline-inputs">
@@ -332,8 +332,8 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                             </div>
                                         </div>
                                     </div>
-                                    <input class="btn pull-left" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
-                                    <button id="submitRequest" class="btn btn-primary nextBtn pull-right" type="submit"><?php echo xlt('Verify') ?></button>
+                                    <input class="btn float-left" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
+                                    <button id="submitRequest" class="btn btn-primary nextBtn float-right" type="submit"><?php echo xlt('Verify') ?></button>
                                 </fieldset>
                             </div>
                         </form>
@@ -343,7 +343,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                     <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
                                 <fieldset>
                                     <legend class="bg-primary"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
-                                    <div class="well">
+                                    <div class="jumbotron">
                                         <div class="form-inline">
                                             <div class="form-group">
                                                 <label class="control-label" for="uname"><?php echo xlt('Username') ?></label>
@@ -399,14 +399,14 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                         } ?>
                                     </div>
                                     <div class="row">
-                                        <div class="col-xs-12">
+                                        <div class="col-12">
                                             <?php if ($GLOBALS['portal_onsite_two_register']) { ?>
-                                                <button class="btn btn-default pull-left" onclick="location.replace('./account/register.php')"><?php echo xlt('Register'); ?></button>
+                                                <button class="btn btn-light float-left" onclick="location.replace('./account/register.php')"><?php echo xlt('Register'); ?></button>
                                             <?php } ?>
                                             <?php if ($GLOBALS['portal_two_pass_reset'] && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
                                                 <button class="btn btn-danger" onclick="location.replace('./index.php?requestNew=1')" style="margin-left:10px"><?php echo xlt('Reset Credentials'); ?></button>
                                             <?php } ?>
-                                                <button class="btn btn-success pull-right" type="submit"><?php echo xlt('Log In'); ?></button>
+                                                <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
                                         </div>
                                     </div>
                                     </fieldset>
