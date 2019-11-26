@@ -33,7 +33,7 @@ use OpenEMR\Core\Header;
 <body class="body_top" >
   <main class="container">
     <div class="row">
-      <div class="col-md-6 col-md-offset-3">
+      <div class="col-md-6 offset-md-3">
         <h3><?php echo xlt("Steps for uploading CCR XML");?></h3>
         <ol class="list-group">
           <li class="list-group-item"><?php echo xlt('For an existing patient, go to Patient Summary->Documents. For a new patient, go to Miscellanous->New Documents').'.'; ?></li>

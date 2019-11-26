@@ -36,7 +36,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
         return $s;
     }
     // container is div in form.
-    $s .= "<table class='table table-condensed bg-light qoe-table'>";
+    $s .= "<table class='table table-sm bg-light qoe-table'>";
 
   // Get all the questions for the given procedure order type.
     $qres = sqlStatement("SELECT " .

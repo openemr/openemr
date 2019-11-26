@@ -44,7 +44,7 @@
 </h3>
     <!-- underscore template for the collection -->
     <script type="text/template" id="onsiteActivityViewCollectionTemplate">
-        <table class="collection table table-condensed table-bordered table-hover">
+        <table class="collection table table-sm table-bordered table-hover">
         <thead>
             <tr>
                 <th id="header_Date"><?php echo xlt('Date')?><% if (actpage.orderBy == 'Date') { %> <i class='icon-arrow-<%= actpage.orderDesc ? 'up' : 'down' %>' /><% } %></th>

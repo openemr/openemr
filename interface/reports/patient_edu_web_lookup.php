@@ -93,7 +93,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
                         </div>
                     </div>
                     <div class="form-group">
-                        <div class='col-sm-offset-2 col-sm-10'>
+                        <div class='offset-sm-2 col-sm-10'>
                             <div class="btn-group" role="group">
                                 <button type='submit' class='btn btn-secondary btn-search'><?php echo xlt("Submit"); ?></button>
                             </div>

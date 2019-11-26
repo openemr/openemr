@@ -98,7 +98,7 @@ class OemrUI
             $expandable_icon = $arrexpandIcon[0];
             $heading = "<h2>$heading $expandable_icon $action_icon $help_icon</h2>";
         } else {
-            $heading = "<h2>" . xlt("Please supply a heading") . " <i class='fa fa-smile-o' aria-hidden='true'></i></h2>";
+            $heading = "<h2>" . xlt("Please supply a heading") . " <i class='fa fa-oe-smile-o' aria-hidden='true'></i></h2>";
         }
         return $heading;
     }
@@ -168,19 +168,19 @@ class OemrUI
         switch ($action) {
             case "reset":
                 $action_title = ($action_title) ? $action_title : xl("Reset");
-                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-undo fa-2x small' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
+                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-undo fa-oe-sm' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
                 break;
             case "conceal":
                 $action_title = xl("Click to Hide"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-2x small fa-eye-slash' title='" . attr($action_title) . "'></i>";
+                $action_icon = "<i id='show_hide' class='fa fa-oe-sm fa-eye-slash' title='" . attr($action_title) . "'></i>";
                 break;
             case "reveal":
                 $action_title = xl("Click to Show"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-2x small fa-eye' title='" . attr($action_title) . "'></i>";
+                $action_icon = "<i id='show_hide' class='fa fa-oe-sm fa-eye' title='" . attr($action_title) . "'></i>";
                 break;
             case "search":
                 $action_title = xl("Click to show search"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-search-plus fa-2x small' title='" . attr($action_title) . "'></i>";
+                $action_icon = "<i id='show_hide' class='fa fa-search-plus fa-oe-sm' title='" . attr($action_title) . "'></i>";
                 break;
             case "link":
                 if (strpos($action_href, 'http') !== false) {
@@ -189,7 +189,7 @@ class OemrUI
                     $target = '_self';
                 }
                 $action_title = ($action_title) ? $action_title : xl("Click to go to page");
-                $action_icon = "<a href='" . attr($action_href) . "' target = '" .attr($target)."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-external-link fa-2x small' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
+                $action_icon = "<a href='" . attr($action_href) . "' target = '" .attr($target)."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-external-link fa-oe-sm' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
                 break;
             case "back":
                 $action_title = ($action_title) ? $action_title : xl("Go Back");
@@ -198,7 +198,7 @@ class OemrUI
                 } elseif ($_SESSION ['language_direction'] == 'rtl') {
                     $arrow_direction = 'fa-arrow-circle-right';
                 }
-                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa " . attr($arrow_direction) . " fa-2x small' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
+                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa " . attr($arrow_direction) . " fa-oe-sm' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
                 break;
             default:
                 $action_icon = '';

@@ -27,7 +27,7 @@
     <!--------- ERRORS ----------->
     <?php if ($deletion_try == 1 && $deletion_response['success'] == 0) :?>
         <div class="row">
-            <div class="col-md-6 col-md-offset-3">
+            <div class="col-md-6 offset-md-3">
                 <div class="alert alert-danger text-center">
                     <p class="failed_message"><?php echo xlt($deletion_response['message']);?></p>
                 </div>

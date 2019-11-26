@@ -148,8 +148,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 // text or PDF.
                 dlgopen('', 'ValidateShowBatch', 875, 500, false, '', {
                     buttons: [
-                        {text: '<?php echo xlt("Logs"); ?>', close: false, style: 'default btn-xs', click: showLog},
-                        {text: '<i class="fa fa-thumbs-up"></i>&nbsp;<?php echo xlt("Close"); ?>', close: true, style: 'default btn-xs'}
+                        {text: '<?php echo xlt("Logs"); ?>', close: false, style: 'default btn-sm', click: showLog},
+                        {text: '<i class="fa fa-thumbs-up"></i>&nbsp;<?php echo xlt("Close"); ?>', close: true, style: 'default btn-sm'}
                     ],
                     //onClosed: 'SubmitTheScreen', // future and/or example of onClosed.
                     sizeHeight: 'full'
@@ -516,7 +516,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         border-top: none !important;
     }
     .form-control {
-        font-family: "FontAwesome"
+        font-family: "FontAwesome";
     }
     ul > li {
         line-height: 1.86em;
@@ -928,7 +928,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
             ?>
             <div class="table-responsive">
-                <table class="table table-condensed">
+                <table class="table table-sm">
                     <?php
                     $divnos = 0;
                     if ($ret = BillingReport::getBillsBetween("%")) {
@@ -1104,18 +1104,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <?php
                                 $lhtml .= "<div class='button-group'>";
                                 // Not sure why the next section seems to do nothing except post "To Encounter" button 2/17/09 JCH
-                                $lhtml .= "<a class=\"btn btn-xs btn-secondary\" role=\"button\" " . "href=\"javascript:
+                                $lhtml .= "<a class=\"btn btn-sm btn-secondary\" role=\"button\" " . "href=\"javascript:
                                 window.toencounter(" . attr_js($iter['enc_pid']) . "," . attr_js($name['pubpid']) . "," . attr_js($ptname) . "," . attr_js($iter['enc_encounter']) . "," . attr_js(oeFormatShortDate($raw_encounter_date)) . "," . attr_js(" ".xl('DOB').": ".oeFormatShortDate($name['DOB_YMD'])." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])) . ");
                                 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['enc_pid']) . "],EncounterDateArray[" . attr($iter['enc_pid']) . "], CalendarCategoryArray[" . attr($iter['enc_pid']) . "]);
                                 top.setEncounter(" . attr_js($iter['enc_encounter']) . ");
                             \">" . xlt('Encounter') . " " . text(oeFormatShortDate($raw_encounter_date)) . "</a>";
 
                                 // Changed "To xxx" buttons to allow room for encounter date display 2/17/09 JCH
-                                $lhtml .= "<a class=\"btn btn-xs btn-secondary\" role=\"button\" " . "href=\"javascript:window.topatient(" . attr_js($iter['enc_pid']) . "," . attr_js($name['pubpid']) . "," . attr_js($ptname) . "," . attr_js($iter['enc_encounter']) . "," . attr_js(oeFormatShortDate($raw_encounter_date)) . "," . attr_js(" ".xl('DOB').": ".oeFormatShortDate($name['DOB_YMD'])." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])) . ");
+                                $lhtml .= "<a class=\"btn btn-sm btn-secondary\" role=\"button\" " . "href=\"javascript:window.topatient(" . attr_js($iter['enc_pid']) . "," . attr_js($name['pubpid']) . "," . attr_js($ptname) . "," . attr_js($iter['enc_encounter']) . "," . attr_js(oeFormatShortDate($raw_encounter_date)) . "," . attr_js(" ".xl('DOB').": ".oeFormatShortDate($name['DOB_YMD'])." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])) . ");
                         top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['enc_pid']) . "],EncounterDateArray[" . attr($iter['enc_pid']) . "], CalendarCategoryArray[" . attr($iter['enc_pid']) . "])\">" . xlt('Patient') . "</a>";
                                 $is_edited = $iter['mboid'] ? 'btn-success' : 'btn-secondary';
                                 $title = $iter['mboid'] ? xlt("This claim has HCFA 1500 miscellaneous billing options") : xlt("Click to add HCFA 1500 miscellaneous billing options");
-                                $lhtml .= "<a class='btn btn-xs $is_edited' role='button' title='" . attr($title) . "' onclick='popMBO(" . attr_js($iter['enc_pid']) . "," . attr_js($iter['enc_encounter']) . "," . attr_js($iter['mboid']) . "); return false;'>" . xlt('MBO ') . "</a>";
+                                $lhtml .= "<a class='btn btn-sm $is_edited' role='button' title='" . attr($title) . "' onclick='popMBO(" . attr_js($iter['enc_pid']) . "," . attr_js($iter['enc_encounter']) . "," . attr_js($iter['mboid']) . "); return false;'>" . xlt('MBO ') . "</a>";
                                 if ($ub04_support && isset($iter['billed'])) {
                                     $c = sqlQuery(
                                         "SELECT submitted_claim AS status FROM claims WHERE " .
@@ -1129,7 +1129,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     );
                                     $is_edited = $c['status'] ? 'btn-success' : 'btn-warning';
                                     $bname = $c['status'] ? xl('Reviewed') : xl('Review UB04');
-                                    $lhtml .= "<a class='btn btn-xs $is_edited' role='button' onclick='popUB04(" . attr_js($iter['enc_pid']) . "," . attr_js($iter['enc_encounter']) . "); return false;'>" . text($bname) . "</a>";
+                                    $lhtml .= "<a class='btn btn-sm $is_edited' role='button' onclick='popUB04(" . attr_js($iter['enc_pid']) . "," . attr_js($iter['enc_encounter']) . "); return false;'>" . text($bname) . "</a>";
                                 }
                                 $lhtml .= "</div>";
                                 $divnos = $divnos + 1;

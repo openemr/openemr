@@ -65,7 +65,7 @@ switch ($search_any_type) {
                 <?php echo xlt("None{{Patient}}"); ?>
                 <!-- /ko -->
                 <!-- ko if: patient -->
-                    <a class="btn btn-xs btn-link" href="#" data-bind="click:clearPatient"
+                    <a class="btn btn-sm btn-link" href="#" data-bind="click:clearPatient"
                        title="<?php echo xla("Clear") ?>">
                         <i class="fa fa-times"></i>
                     </a>
@@ -92,11 +92,11 @@ switch ($search_any_type) {
         <span class="patientDataColumn">
         <!-- ko if: patient -->
             <!-- ko with: patient -->
-            <a class="btn btn-xs btn-link" data-bind="click: clickEncounterList" href="#"
+            <a class="btn btn-sm btn-link" data-bind="click: clickEncounterList" href="#"
                title="<?php echo xla("Visit History"); ?>">
                 <i class="fa fa-refresh"></i>
             </a>
-            <a class="btn btn-xs btn-link" data-bind="click: clickNewEncounter" href="#"
+            <a class="btn btn-sm btn-link" data-bind="click: clickNewEncounter" href="#"
                title="<?php echo xla("New Encounter"); ?>">
                 <i class="fa fa-plus"></i>
             </a>

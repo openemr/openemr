@@ -823,7 +823,7 @@ fieldset {
                 <br>
                 <div class="col-12">
                 <div class = "table-responsive">
-                <table class="table-condensed" id="TableDistributePortion" >
+                <table class="table-sm" id="TableDistributePortion" >
                 <thead bgcolor="#DDDDDD" class="text">
                     <td class="left top" >&nbsp;</td>
                     <td class="left top" ><?php echo xlt('Patient Name'); ?></td>

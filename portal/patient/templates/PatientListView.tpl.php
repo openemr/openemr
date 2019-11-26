@@ -74,7 +74,7 @@ if ($this->trow) {
 <?php echo xlt('Any changes here will be reviewed by provider staff before commiting to chart. The following apply'); ?>:<br>
 <?php echo xlt('Change any item available and when ready click Send for review. The changes will be flagged and staff notified to review changes before commiting them to chart. During the time period before changes are reviewed the Revised button will show Pending and profile data is still available for changes. When accessing profile in pending state all previous edits will appear in Blue and current chart values in Red. You may revert any edit to chart value by clicking that red item (or vica versa) but remember that when you click Send for Review then items that populate the field items are the ones that are sent. Revert Edits button changes everything back to chart values and you may make changes from there. So to recap: Items in BLUE are patient edits with items in RED being original values before any edits.'); ?>
 </p>
-        <button class="btn btn-primary btn-xs" type="button"  id='dismissHelp'><?php echo xlt('Dismiss'); ?></button>
+        <button class="btn btn-primary btn-sm" type="button"  id='dismissHelp'><?php echo xlt('Dismiss'); ?></button>
         </div>
         <form class="form-inline" onsubmit="return false;">
             <fieldset>

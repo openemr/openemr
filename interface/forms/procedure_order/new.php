@@ -380,7 +380,7 @@ function addProcLine(flag = false) {
     let i = 0;
     for (; f['form_proc_type[' + i + ']']; ++i) ;
     // build new item html.. a hidden html block to clone may be better here.
-    let cell = "<table class='table table-condensed proc-table'><tr><td onclick='deleteRow(event)' class='itemDelete'><i class='fa fa-remove'></i></td>" +
+    let cell = "<table class='table table-sm proc-table'><tr><td onclick='deleteRow(event)' class='itemDelete'><i class='fa fa-remove'></i></td>" +
         "<td class='procedure-div'><input type='hidden' name='form_proc_order_title[" + i + "]' value='" + prc_name + "'>" +
         "<input type='text' class='form-control' name='form_proc_type_desc[" + i + "]' onclick='sel_proc_type(" + i + ")' " +
         "onfocus='this.blur()' title='<?php echo xla('Click to select the desired procedure'); ?>' style='cursor:pointer;cursor:hand' readonly /> " +
@@ -651,7 +651,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <div class="col-md-12 procedure-order-container table-responsive">
                         <div class="form-group">
                             <?php $procedure_order_type = getListOptions('order_type', array('option_id', 'title')); ?>
-                            <label for="procedure_type_names" class="control-label col-sm-2 col-sm-offset-3"><?php echo xlt('Procedure Type'); ?></label>
+                            <label for="procedure_type_names" class="control-label col-sm-2 offset-sm-3"><?php echo xlt('Procedure Type'); ?></label>
                             <div class="col-sm-3">
                                 <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
                                     <?php foreach ($procedure_order_type as $ordered_types) { ?>
@@ -710,7 +710,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $ptid = $oprow['procedure_type_id'];
                             }
                             ?>
-                            <table class="table table-condensed proc-table" id="procedures_item_<?php echo (string) attr($i) ?>">
+                            <table class="table table-sm proc-table" id="procedures_item_<?php echo (string) attr($i) ?>">
                                 <?php if ($i < 1) { ?>
                                     <thead>
                                     <tr>

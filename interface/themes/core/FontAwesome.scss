@@ -1,11 +1,19 @@
 /**
  * Global uses of the font awesome library
- * TODO fix pathing for all uses
+ * TODO: Update to FontAwesome 5
  */
 
 @font-face {
     font-family: "FontAwesome";
     src: url("/public/assets/font-awesome/fonts/fontawesome-webfont.ttf") format("truetype");
+}
+
+/* fix for H2 Tags */
+.fa-oe-sm {
+    font-size: 1.3rem !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    color: #777 !important;
 }
 
 .css_button[href*="deleter"]:before, input[type="button"][href*="deleter"] [type="submit"]:before, button[href*="deleter"]:before {

@@ -119,7 +119,7 @@ if (isset($_GET['patients'])) {
         </form>
     </div>
 
-    <table id="results-table" class="table table-condensed">
+    <table id="results-table" class="table table-sm">
         <thead id="searchResultsHeader" class="head">
         <tr>
             <th class="srName"><?php echo xlt('Name'); ?></th>

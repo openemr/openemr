@@ -36,7 +36,7 @@
                 <select data-bind="value: searchType, options: diag_code_types, optionsText: 'key'"></select>
             </span>
         </span>
-        <table class="table table-condensed">
+        <table class="table table-sm">
             <thead>
                 <tr>
                     <th class='sort' data-bind="event: {click: sort_justify}" title="<?php echo xla('Click to sort') ?>">#</th>

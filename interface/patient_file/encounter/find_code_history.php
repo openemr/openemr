@@ -194,7 +194,7 @@ function get_history_codes($pid)
                         echo "<li>" . xlt("The legacy code finder is still available for codes not found in this finder or code list editing.") . "</li>";
                         ?>
                     </ul>
-                    <button class='btn btn-xs btn-success float-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss') ?></button>
+                    <button class='btn btn-sm btn-success float-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss') ?></button>
                 </div>
             </section>
         </div>
@@ -202,7 +202,7 @@ function get_history_codes($pid)
     </div>
     <div class="container-fluid">
         <div style="margin-top:45px;">
-            <table class="table table-condensed table-hover" id="historyTable">
+            <table class="table table-sm table-hover" id="historyTable">
                 <thead>
                 <tr>
                     <th><?php echo xlt('Origin'); ?></th>
@@ -220,7 +220,7 @@ function get_history_codes($pid)
                     $code[1] = text($code[1]);
                     echo "<tr>\n" .
                         "<td>" . $pc['origin'] . "</td>\n" .
-                        "<td><button class='btn btn-xs btn-secondary' onclick='rtnCode(this)' " .
+                        "<td><button class='btn btn-sm btn-secondary' onclick='rtnCode(this)' " .
                         " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u style='color:red;'>" . $code[1] . "</u></button></td>\n" .
                         "<td>" . text($pc['desc']) . "</td>\n" .
                         "<td>" . text($pc['procedure']) . "</td>\n" .

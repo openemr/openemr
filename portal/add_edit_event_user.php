@@ -640,7 +640,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
 ?>
 </script>
 <body class="skin-blue">
-<div class="well">
+<div class="jumbotron">
     <form class="form-inline" method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
         <input type="hidden" name="form_action" id="form_action" value="">
         <input type='hidden' name='form_title' id='form_title' value='<?php echo $row['pc_catid'] ? attr($row['pc_title']) : xla("Office Visit"); ?>' />

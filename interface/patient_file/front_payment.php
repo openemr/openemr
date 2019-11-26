@@ -958,7 +958,7 @@ function make_insurance() {
                     <fieldset>
                     <legend><?php echo xlt('Payment'); ?></legend>
                         <div class="col-12 oe-custom-line">
-                            <div class="col-3 col-lg-offset-3">
+                            <div class="col-3 offset-lg-3">
                                 <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                             </div>
                             <div class="col-3">
@@ -977,7 +977,7 @@ function make_insurance() {
                             </div>
                         </div>
                         <div class="col-12 oe-custom-line">
-                            <div class="col-3 col-lg-offset-3">
+                            <div class="col-3 offset-lg-3">
                                 <label class="control-label" for="check_number"><?php echo xlt('Check/Ref Number'); ?>:</label>
                             </div>
                             <div class="col-3">
@@ -986,7 +986,7 @@ function make_insurance() {
                             </div>
                         </div>
                         <div class="col-12 oe-custom-line">
-                            <div class="col-3 col-lg-offset-3">
+                            <div class="col-3 offset-lg-3">
                                 <label class="control-label" for="form_discount"><?php echo xla('Patient Coverage'); ?>:</label>
                             </div>
                             <div class="col-6">
@@ -1001,7 +1001,7 @@ function make_insurance() {
                             </div>
                         </div>
                         <div class="col-12 oe-custom-line">
-                            <div class="col-3 col-lg-offset-3">
+                            <div class="col-3 offset-lg-3">
                                 <label class="control-label" for=""><?php echo xlt('Payment against'); ?>:</label>
                             </div>
                             <div class="col-6">
@@ -1025,7 +1025,7 @@ function make_insurance() {
                         </div>
                         <div class="col-12 oe-custom-line">
                             <div id="table_display_prepayment" style="display:none">
-                                <div class="col-3 col-lg-offset-3">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_prepayment"><?php echo xlt('Pre Payment'); ?>:</label>
                                 </div>
                                 <div class="col-3">

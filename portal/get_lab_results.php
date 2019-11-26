@@ -42,7 +42,7 @@ $res = sqlStatement("SELECT $selects " .
 
 if (sqlNumRows($res)>0) {
     ?>
-    <table class="table table-striped table-condensed table-bordered">
+    <table class="table table-striped table-sm table-bordered">
         <tr class="header">
         <th><?php echo xlt('Order Date'); ?></th>
         <th><?php echo xlt('Order Name'); ?></th>

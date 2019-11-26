@@ -44,7 +44,7 @@ $returnurl = 'encounter_top.php';
                     <fieldset>
                         <legend><?php echo xlt('Dictation')?></legend>
                         <div class="form-group">
-                            <div class="col-sm-10 col-sm-offset-1">
+                            <div class="col-sm-10 offset-sm-1">
                                 <textarea name="dictation" class="form-control" cols="80" rows="15" ></textarea>
                             </div>
                         </div>
@@ -52,13 +52,13 @@ $returnurl = 'encounter_top.php';
                     <fieldset>
                         <legend><?php echo xlt('Additional Notes'); ?></legend>
                         <div class="form-group">
-                            <div class="col-sm-10 col-sm-offset-1">
+                            <div class="col-sm-10 offset-sm-1">
                                 <textarea name="additional_notes" class="form-control" cols="80" rows="5" ></textarea>
                             </div>
                         </div>
                     </fieldset>
                     <div class="form-group clearfix">
-                        <div class="col-sm-12 col-sm-offset-1 position-override">
+                        <div class="col-sm-12 offset-sm-1 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
                                 <button type='submit' onclick='top.restoreSession()' class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>

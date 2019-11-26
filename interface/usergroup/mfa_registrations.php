@@ -168,7 +168,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <div>
                         <fieldset>
                             <legend><?php echo xlt('Select/Add New Authentication Method for') . " " . $user_full_name; ?></legend>
-                            <div class='col-sm-4 col-sm-offset-4'>
+                            <div class='col-sm-4 offset-sm-4'>
                                 <select name='form_add' onchange='addclick(this)'class='col-sm-12'>
                                     <option value=''><?php echo xlt('Add New...'); ?></option>
                                     <option value='U2F'><?php echo xlt('U2F USB Device'); ?></option>

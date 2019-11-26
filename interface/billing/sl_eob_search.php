@@ -1037,7 +1037,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                     "matching encounters in OpenEMR. ";
                             }
                             ?>
-                        <table class="table table-striped table-condensed">
+                        <table class="table table-striped table-sm">
                             <thead>
                             <tr>
                                 <th class="id dehead"><?php echo xlt('id'); ?></th>

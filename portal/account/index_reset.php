@@ -146,7 +146,7 @@ if (isset($_POST['submit'])) {
             <input style="display:none" type="text" name="dummyuname" />
             <input style="display:none" type="password" name="dummypassword" />
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken("portal_index_reset")); ?>" />
-            <table class="table table-condensed" style="border-bottom:0px;width:100%">
+            <table class="table table-sm" style="border-bottom:0px;width:100%">
                 <tr>
                     <td width="35%"><strong><?php echo xlt('Account Name'); ?><strong></td>
                     <td><input class="form-control" name="uname" id="uname" type="text" readonly

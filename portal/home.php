@@ -32,7 +32,6 @@ $whereto = 'profilecard';
 if (isset($_SESSION['whereto'])) {
     $whereto = $_SESSION['whereto'];
 }
-//$whereto = 'paymentcard';
 
  $user = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : 'portal user';
  $result = getPatientData($pid);
@@ -54,9 +53,8 @@ echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($user) . 
 var webroot_url = webRoot;
 
 $(function () {
-
-    $("#profilereport").load("./get_profile.php", {}, function () {
-        $("table").addClass("table  table-responsive");
+    $("#profilereport").load("get_profile.php", {}, function () {
+        $("table").addClass("table table-responsive");
         $(".demographics td").removeClass("label");
         $(".demographics td").addClass("bold");
         $(".insurance table").addClass("table-sm table-striped");

@@ -127,7 +127,7 @@ if (isset($_GET['typeid'])) {
     }
     ?>'>
         <div class="row">
-            <div class="col-sm-8 col-sm-offset-2">
+            <div class="col-sm-8 offset-sm-2">
                 <div class="input-group">
                     <input type="hidden" name='isfav' value='<?php echo attr($_REQUEST['ordLookup']); ?>'>
                     <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>'
@@ -144,7 +144,7 @@ if (isset($_GET['typeid'])) {
         </div>
         <?php if ($_REQUEST['bn_search'] || $_REQUEST['bn_grpsearch']) { ?>
             <div class="table-responsive">
-                <table class="table table-striped table-condensed">
+                <table class="table table-striped table-sm">
                     <thead>
                     <th><?php echo xlt('Code'); ?></th>
                     <th><?php echo xlt('Description'); ?></th>

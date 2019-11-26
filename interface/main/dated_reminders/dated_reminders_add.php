@@ -347,7 +347,7 @@ if (isset($this_message['pid'])) {
                 </div>
             </div>
             <div class="form-group">
-                <div class="checkbox col-5 col-xs-offset-3">
+                <div class="checkbox col-5 offset-3">
                     <label>
                         <input type="checkbox" name="sendSeperately" id="sendSeperately" title="<?php echo xla('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" >  <i id="select-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i> <?php echo xlt('Each recipient must set their own messages as completed.') ?>
                     </label>

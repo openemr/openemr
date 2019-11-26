@@ -226,7 +226,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
 <style>
 @media print {
     #templatecontent {
-        width: 1220px
+        width: 1220px;
     }
 }
 hr {
@@ -248,34 +248,34 @@ body {
 <script type="text/template" id="onsiteDocumentModelTemplate">
 <div class="container-fluid">
     <aside class="col-lg-2 col-sm-2 col-2 container-fluid" id="sidebar-pills">
-        <ul class="nav nav-pills  nav-stacked" id="sidebar">
-            <li data-toggle="pill" class="bg-info"><a id="signTemplate" href="#openSignModal"
-                data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><span><?php echo xlt('Signature');?></span></a></li>
-            <li data-toggle="pill" class="bg-info"><a id="saveTemplate" href="#"><span"><?php echo xlt('Save');?></span></a></li>
-            <li data-toggle="pill" class="bg-info"><a id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><span"><?php echo xlt('Print');?></span></a></li>
-            <li data-toggle="pill" class="bg-info"><a id="submitTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
-            <li data-toggle="pill" class="bg-info"><a id="sendTemplate"  href="#"><span"><?php echo xlt('Send for Review');?></span></a></li>
-            <li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xlt('Chart to Category') . ' ' . text($catname);?></span></a></li>
-            <li data-toggle="pill" class="bg-info"><a id="downloadTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
+        <ul class="nav nav-pills flex-column" id="sidebar">
+            <li data-toggle="pill" class="nav-item bg-info text-white"><a class="nav-link" id="signTemplate" href="#openSignModal"
+                data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature');?></a></li>
+            <li data-toggle="pill" class="nav-item bg-info text-white"><a class="nav-link" id="saveTemplate" href="#"><?php echo xlt('Save');?></a></li>
+            <li data-toggle="pill" class="nav-item bg-info text-white"><a class="nav-link" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print');?></a></li>
+            <li data-toggle="pill" class="nav-item bg-info text-white"><a class="nav-link" id="submitTemplate" href="#"><?php echo xlt('Download');?></a></li>
+            <li data-toggle="pill" class="nav-item bg-info text-white"><a class="nav-link" id="sendTemplate" href="#"><?php echo xlt('Send for Review');?></a></li>
+            <li data-toggle="pill" class="nav-item bg-info text-white"><a class="nav-link" id="chartTemplate" href="#"><?php echo xlt('Chart to Category') . ' ' . text($catname);?></a></li>
+            <li data-toggle="pill" class="nav-item bg-info text-white"><a class="nav-link" id="downloadTemplate" href="#"><?php echo xlt('Download');?></a></li>
             <?php if (!$is_module) { ?>
-                <li data-toggle="pill" class="bg-warning">
-                    <a id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home'); ?></a>
+                <li data-toggle="pill" class="nav-item bg-warning">
+                    <a class="nav-link" id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home'); ?></a>
                 </li>
             <?php } else { ?>
-                <li data-toggle="pill" class="bg-warning">
-                    <a id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
+                <li data-toggle="pill" class="nav-item bg-warning">
+                    <a class="nav-link" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
                 </li>
             <?php } ?>
         </ul>
     </aside>
     <div class="col-md-8 col-10 col-10">
         <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
-        <div class="panel panel-primary" id="docpanel">
-            <header class="panel-heading" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>
+        <div class="card bg-primary text-white" id="docpanel">
+            <header class="card-header" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>
             <div id="loader" style="display:none;"></div>
             <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST" >
                 <div id="loader" style="display:none;"></div>
-                <div id="templatediv" class="panel-body" style="margin:0 auto; background:white">
+                <div id="templatediv" class="card-body" style="margin:0 auto; background:white">
                     <div id="templatecontent" class="template-body" style="margin:0 auto; background:white;padding:0 20px 0 20px"></div>
                 </div>
                 <input type="hidden" name="content" id="content" value="">
@@ -284,7 +284,7 @@ body {
                 <input type="hidden" name="handler" id="handler" value="download">
                 <input type="hidden" name="status" id="status" value="Open">
              </form>
-            <div class="panel-footer">
+            <div class="card-footer">
 <!-- delete button is a separate form to prevent enter key from triggering a delete-->
 <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
     <fieldset>
@@ -328,7 +328,7 @@ body {
             <div id="collectionAlert"></div>
         </nav>
         <div class="container-fluid">
-        <table class="collection table table-condensed table-hover">
+        <table class="collection table table-sm table-hover">
         <thead>
             <tr class='bg-primary' style='cursor:pointer'>
                 <th id="header_Id"><?php echo xlt('Doc Id');?><% if (page.orderBy == 'Id') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>

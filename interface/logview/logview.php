@@ -254,14 +254,14 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
             </div>
             <div class="row form-check">
                 <?php $check_sum = isset($_GET['check_sum']) ? $_GET['check_sum'] : ''; ?>
-                <div class="col-sm-offset-1">
+                <div class="offset-sm-1">
                     <input type="checkbox" class="form-check-input" name="check_sum" id="check_sum" <?php echo ($check_sum == 'on') ? "checked" : ""; ?>>
                     <input type="hidden" name="event" value="<?php echo attr($event); ?>">
                     <label class="form-check-label" for="check_sum"><?php echo xlt('Include Checksum'); ?></label>
                 </div>
             </div>
             <div class="row form-group">
-                <div class="btn-group col-sm-offset-1" role="group">
+                <div class="btn-group offset-sm-1" role="group">
                     <a href="javascript:document.theform.submit();" class="btn btn-secondary btn-save"><?php echo xlt('Submit'); ?></a>
                     <button type="button" id="valid_button" class="btn btn-secondary btn-transmit" onclick="validatelog();" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla("Processing..."); ?>"><?php echo xlt('Validate'); ?></button>
                 </div>

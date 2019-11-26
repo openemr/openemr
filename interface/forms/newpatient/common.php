@@ -447,7 +447,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <fieldset>
                         <legend><?php echo xlt('Reason for Visit')?></legend>
                             <div class="form-group">
-                                <div class="col-sm-10 col-sm-offset-1">
+                                <div class="col-sm-10 offset-sm-1">
                                     <textarea name="reason" id="reason" class="form-control" cols="80" rows="4" ><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
                                 </div>
                             </div>
@@ -467,7 +467,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <legend><?php echo xlt('Link/Add Issues (Injuries/Medical/Allergy) to Current Visit')?></legend>
                             <div id = "visit-issues">
                                 <div class="form-group clearfix">
-                                    <div class="col-sm-6 col-lg-offset-3">
+                                    <div class="col-sm-6 offset-lg-3">
                                             <div class="col-sm-12">
                                                 <div class="col-sm-12 float-left" style="padding-bottom:5px">
                                                     <div class="btn-group" role="group">

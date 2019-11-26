@@ -19,7 +19,7 @@ use OpenEMR\Core\Header;
 <head>
 <meta charset="UTF-8">
 <title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Home'); ?></title>
-<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
 <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
@@ -107,25 +107,26 @@ use OpenEMR\Core\Header;
                         <a href="#"><i class="fa fa-circle text-success"></i> <?php echo xlt('Online'); ?></a>
                     </div>
                 </div>
-                <ul class="nav nav-pills flex-column" id="pillCollapse" style='font-color:#fff;'><!-- css class was sidebar-menu -->
-                    <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#profilepanel" data-toggle="collapse" data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt('Profile'); ?></span>
+                <ul class="nav nav-pills flex-column text-dark" id="pillCollapse">
+                    <!-- css class was sidebar-menu -->
+                    <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt('Profile'); ?></span>
                     </a></li>
-                    <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#panelgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
+                    <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
                     </a></li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"> <i class="fa fa-gavel"></i><span><?php echo xlt('Patient Documents'); ?></span></a></li>
                     <?php if ($GLOBALS['allow_portal_appointments']) { ?>
-                        <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#appointmentpanel" data-toggle="collapse"
-                            data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>
+                        <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#appointmentcard" data-toggle="collapse"
+                            data-parent="#cardgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>
                     </a></li>
                     <?php } ?>
                     <?php if ($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments']) { ?>
                         <li class="nav-item dropdown accounting-menu"><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-book"></i> <span><?php echo xlt('Accountings'); ?></span></a>
                             <div class="dropdown-menu">
                                 <?php if ($GLOBALS['portal_two_ledger']) { ?>
-                                    <span data-toggle="pill"><a class="dropdown-item" href="#ledgerpanel" data-toggle="collapse" data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Ledger'); ?></span></a></span>
+                                    <span data-toggle="pill"><a class="dropdown-item" href="#ledgercard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Ledger'); ?></span></a></span>
                                 <?php } ?>
                                 <?php if ($GLOBALS['portal_two_payments']) { ?>
-                                    <span data-toggle="pill"><a class="dropdown-item" href="#paymentpanel" data-toggle="collapse" data-parent="#panelgroup"> <i class="fa fa-credit-card"></i> <span><?php echo xlt('Make Payment'); ?></span></a></span>
+                                    <span data-toggle="pill"><a class="dropdown-item" href="#paymentcard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-credit-card"></i> <span><?php echo xlt('Make Payment'); ?></span></a></span>
                                 <?php } ?>
                              </div>
                         </li>
@@ -138,11 +139,11 @@ use OpenEMR\Core\Header;
                                     <i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a>
                             <?php } ?>
                             <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
-                            <span data-toggle="pill"><a class="dropdown-item" href="#reportpanel" data-toggle="collapse"
-                                    data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></span>
+                            <span data-toggle="pill"><a class="dropdown-item" href="#reportcard" data-toggle="collapse"
+                                    data-parent="#cardgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></span>
 
-                                <span data-toggle="pill"><a class="dropdown-item" href="#downloadpanel" data-toggle="collapse"
-                                    data-parent="#panelgroup"> <i class="fa fa-download"></i> <span><?php echo xlt('Download Lab Documents'); ?></span></a></span>
+                                <span data-toggle="pill"><a class="dropdown-item" href="#downloadcard" data-toggle="collapse"
+                                    data-parent="#cardgroup"> <i class="fa fa-download"></i> <span><?php echo xlt('Download Lab Documents'); ?></span></a></span>
                             <?php } ?>
                         </div>
                     </li>
@@ -150,8 +151,8 @@ use OpenEMR\Core\Header;
                             <span><?php echo xlt('Secure Messaging'); ?></span>
                     </a></li>
                     <?php if ($GLOBALS['allow_portal_chat']) { ?>
-                        <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#messagespanel" data-toggle="collapse"
-                            data-parent="#panelgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>
+                        <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#messagescard" data-toggle="collapse"
+                            data-parent="#cardgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>
                     </a></li>
                     <?php } ?>
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#openSignModal" data-toggle="modal" data-type="patient-signature"> <i

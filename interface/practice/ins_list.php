@@ -113,7 +113,7 @@ td { font-size:10pt; }
 <form method='post' name='theform'>
 <center>
 
-<table class="table table-condensed" border='0' width='100%'>
+<table class="table table-sm" border='0' width='100%'>
  <tr>
   <td><b><?php echo xlt('Name');?></b>&nbsp;</td>
   <td><b><?php echo xlt('Attn');?></b>&nbsp;</td>

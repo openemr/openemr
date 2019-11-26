@@ -1057,7 +1057,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 <td><input class="form-control" type='text' name='form_prepayment' style=''/></td>
             </tr>
         </table>
-        <table id="table_display" style="width: 100%; background: #eee;" class="table table-condensed table-striped table-bordered">
+        <table id="table_display" style="width: 100%; background: #eee;" class="table table-sm table-striped table-bordered">
             <thead>
             </thead>
             <tbody>

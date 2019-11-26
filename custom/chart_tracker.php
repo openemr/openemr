@@ -192,7 +192,7 @@ if (!empty($row)) {
                 </div>
             </div>
         <div class="form-group">
-            <div class="col-sm-offset-3 col-sm-9">
+            <div class="offset-sm-3 col-sm-9">
                     <button type='submit' class='btn btn-secondary btn-save' name='form_save'><?php echo xlt("Save"); ?></button>
             </div>
         </div>
@@ -211,7 +211,7 @@ if (!empty($row)) {
                 </div>
             </div>
             <div class="form-group">
-            <div class='col-sm-offset-3 col-sm-9'>
+            <div class='offset-sm-3 col-sm-9'>
                 <button type='submit' class='btn btn-secondary btn-search' name='form_lookup'><?php echo xlt("Look Up"); ?></button>
             </div>
         </div>

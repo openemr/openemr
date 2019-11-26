@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -93,7 +93,7 @@ $N = 7;
             ?>
             </header>
             <div class="card-body" id="dempanel">
-                <table class='table table-responsive table-condensed'>
+                <table class='table table-responsive table-sm'>
     <?php
                 display_layout_rows('DEM', $result1, $result2);
     ?>
@@ -102,7 +102,7 @@ $N = 7;
             <div class="card-footer"></div>
         </div>
     </div>
-    <div class='insurance table-condensed table-responsive'>
+    <div class='insurance table-sm table-responsive'>
         <div class="card">
             <header class="card-header"><?php echo xlt('Primary Insurance');?></header>
             <div class="card-body">
