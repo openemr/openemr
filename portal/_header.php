@@ -138,14 +138,14 @@ use OpenEMR\Core\Header;
                                     <i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a>
                             <?php } ?>
                             <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
-							<span data-toggle="pill"><a class="dropdown-item" href="#reportpanel" data-toggle="collapse"
+                            <span data-toggle="pill"><a class="dropdown-item" href="#reportpanel" data-toggle="collapse"
                                     data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></span>
 
                                 <span data-toggle="pill"><a class="dropdown-item" href="#downloadpanel" data-toggle="collapse"
                                     data-parent="#panelgroup"> <i class="fa fa-download"></i> <span><?php echo xlt('Download Lab Documents'); ?></span></a></span>
                             <?php } ?>
                         </div>
-					</li>
+                    </li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fa fa-envelope" aria-hidden="true"></i>
                             <span><?php echo xlt('Secure Messaging'); ?></span>
                     </a></li>
