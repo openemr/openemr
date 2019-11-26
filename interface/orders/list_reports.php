@@ -276,7 +276,7 @@ $(function () {
             echo "</p>\n";
         }
 
-        echo "<table  class='table table-condensed' style='margin-bottom: 0;'>\n";
+        echo "<table  class='table table-sm' style='margin-bottom: 0;'>\n";
         echo " <tr class='head'>\n";
         echo "  <th>" . xlt('Delete') . "</th>\n";
         echo "  <th>" . xlt('Lab/File') . "</th>\n";
@@ -368,7 +368,7 @@ $(function () {
             </td>
         </tr>
     </table>
-    <table class="table table-bordered table-condensed table-striped table-hover">
+    <table class="table table-bordered table-sm table-striped table-hover">
         <thead>
         <tr class='head'>
             <th colspan='2'><?php echo xlt('Patient'); ?></th>

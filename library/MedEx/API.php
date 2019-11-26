@@ -1659,7 +1659,7 @@ class Display extends base
                     <form action="#" name="save_prefs" id="save_prefs">
                             <div class="row">
                                 <input type="hidden" name="go" id="go" value="Preferences">
-                                <div class="col-sm-5 div-center col-sm-offset-1" id="daform2">
+                                <div class="col-sm-5 div-center offset-sm-1" id="daform2">
                                     <div class="divTable2">
                                         <div class="divTableBody prefs">
                                             <div class="divTableRow">
@@ -1967,7 +1967,7 @@ class Display extends base
                                     </div>
                                     <div class="col-sm-<?php echo $col_width; ?>">
                                       <div style="margin: 0 auto;" class="input-append">
-                                        <table class="table-hover table-condensed" style="margin:0 auto;">
+                                        <table class="table-hover table-sm" style="margin:0 auto;">
                                           <tr><td class="text-right" style="vertical-align:bottom;">
                                             <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
                                             <input id="form_from_date" name="form_from_date"
@@ -2906,18 +2906,18 @@ class Setup extends Base
         if ($stage =='1') {
             ?>
             <div class="row">
-            <div class="col-sm-10 text-center col-xs-offset-1">
+            <div class="col-sm-10 text-center offset-1">
                 <div id="setup_1">
                     <div class="title">MedEx</div>
                     <div class="row showReminders ">
-                        <div class="col-sm-10 text-center col-xs-offset-1">
+                        <div class="col-sm-10 text-center offset-1">
                             <em>
                                 <?php echo xlt('Using technology to improve productivity'); ?>.
                             </em>
                         </div>
                     </div>
                     <div class="row showReminders ">
-                        <div class="col-sm-5 col-xs-offset-1 text-center">
+                        <div class="col-sm-5 offset-1 text-center">
                             <h3 class="title"><?php echo xlt('Targets'); ?>:</h3>
                             <ul class="text-left" style="margin-left:125px;">
                                 <li> <?php echo xlt('Appointment Reminders'); ?></li>
@@ -2926,7 +2926,7 @@ class Setup extends Base
                                 <li> <?php echo xlt('Patient Surveys'); ?></li>
                             </ul>
                         </div>
-                        <div class="col-sm-4 col-xs-offset-1 text-center">
+                        <div class="col-sm-4 offset-1 text-center">
                             <h3 class="title"><?php echo xlt('Channels'); ?>:</h3>
                             <ul class="text-left" style="margin-left:75px;">
                                 <li> <?php echo xlt('SMS Messages'); ?></li>
@@ -2950,11 +2950,11 @@ class Setup extends Base
             ?>
             <div class="row">
             <form name="medex_start" id="medex_start">
-                <div class="col-sm-10 col-sm-offset-1 text-center">
+                <div class="col-sm-10 offset-sm-1 text-center">
                     <div id="setup_1" class="showReminders borderShadow">
                         <div class="title row fa"><?php echo xlt('Register'); ?>: MedEx Bank</div>
                         <div class="row showReminders">
-                            <div class="fa col-sm-10 col-sm-offset-1 text-center">
+                            <div class="fa col-sm-10 offset-sm-1 text-center">
                                 <div class="divTable4" id="answer" name="answer">
                                     <div class="divTableBody">
                                         <div class="divTableRow">

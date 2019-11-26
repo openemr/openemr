@@ -3851,14 +3851,14 @@ only screen and (min-device-pixel-ratio: 1.5) {
     margin-left: 10px;
 }
 
-.panel {
+.card {
     border: none;
     /*box-shadow: none;*/
     -webkit-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.05);
     box-shadow: 0 1px 0px rgba(0, 0, 0, 0.05);
 }
 
-.panel-heading {
+.card-header {
     border-bottom: 1px solid #eee;
     background-color: #FAFAFA;
 }
@@ -4269,7 +4269,7 @@ ul.task-list {
     font-size: 60px;
 }
 
-.panel-item .degree {
+.card-item .degree {
     font-size: 60px;
 }
 
@@ -4348,7 +4348,7 @@ ul.online-users {
     font-size: x-small;
 }
 
-.panel > .online-users .list-group-item {
+.card > .online-users .list-group-item {
     border-width: 0px 0;
     padding: 0px 15px;
 }
@@ -4507,7 +4507,7 @@ ul.online-users {
     height: 12px;
 }
 
-.panel-heading .nav {
+.card-header .nav {
     border: medium none;
     font-size: 13px;
     margin: -10px -15px -15px;
@@ -4525,26 +4525,26 @@ ul.online-users {
     border-bottom: none;
 }
 
-.panel-heading .nav > li > a,
-.panel-heading .nav > li.active > a,
-.panel-heading .nav > li.active > a:hover,
-.panel-heading .nav > li.active > a:focus {
+.card-header .nav > li > a,
+.card-header .nav > li.active > a,
+.card-header .nav > li.active > a:hover,
+.card-header .nav > li.active > a:focus {
     border-width: 0;
     border-radius: 0;
 }
 
-.panel-heading .nav > li > a {
+.card-header .nav > li > a {
     color: #898989;
 }
 
-.panel-heading .nav > li.active > a,
-.panel-heading .nav > li > a:hover {
+.card-header .nav > li.active > a,
+.card-header .nav > li > a:hover {
     color: #27c24c;
     background: #fff;
 }
 
-.panel-heading .nav > li:first-child.active > a,
-.panel-heading .nav > li:first-child > a:hover {
+.card-header .nav > li:first-child.active > a,
+.card-header .nav > li:first-child > a:hover {
     border-radius: 0px 0 0 0;
     -webkit-border-radius: 0px 0 0 0;
     /*border: 1px solid #eee;*/
@@ -4554,19 +4554,19 @@ ul.online-users {
     height: 48px;
 }
 
-.panel-heading.tab-right .nav > li:first-child.active > a,
-.tab-right.panel-heading .nav > li:first-child > a:hover {
+.card-header.tab-right .nav > li:first-child.active > a,
+.tab-right.card-header .nav > li:first-child > a:hover {
     border-radius: 0;
     -webkit-border-radius: 0;
 }
 
-.panel-heading.tab-right .nav > li:last-child.active > a,
-.tab-right.panel-heading .nav > li:last-child > a:hover {
+.card-header.tab-right .nav > li:last-child.active > a,
+.tab-right.card-header .nav > li:last-child > a:hover {
     border-radius: 0 4px 0 0;
     -webkit-border-radius: 0 4px 0 0;
 }
 
-.panel-heading.tab-right .nav-tabs > li > a {
+.card-header.tab-right .nav-tabs > li > a {
     margin-left: 1px;
     margin-right: 0px;
 }
@@ -4587,7 +4587,7 @@ ul.online-users {
     font-size: 14px;
 }
 
-.general .panel-body {
+.general .card-body {
     /*border: 1px solid #eee;*/
     margin-left: -1px;
 }
@@ -4614,7 +4614,7 @@ ul.online-users {
     background-color: #f05050;
 }
 
-#accordion .panel {
+#accordion .card {
     /*border: 1px solid #E4E4E4;*/
     border-radius: 0px;
     -webkit-border-radius: 0px;
@@ -4638,7 +4638,7 @@ ul.online-users {
 
 }
 
-.panel-profile .profile {
+.card-profile .profile {
     margin: 5px 15px 5px 5px;
     border-radius: 50%;
     -webkit-box-shadow: 0 0 0 5px #f7f7f7, 0 0 10px 0 rgba(0, 0, 0, 0.2);
@@ -4646,17 +4646,17 @@ ul.online-users {
     box-shadow: 0 0 0 5px #f7f7f7, 0 0 10px 0 rgba(0, 0, 0, 0.2);
 }
 
-.panel-profile li.list-group-item {
+.card-profile li.list-group-item {
     border: 1px solid #efefef;
     line-height: 30px;
 }
 
-.panel-profile li.list-group-item:hover {
+.card-profile li.list-group-item:hover {
     background-color: #fafafa;
     color: #4f4f4f;
 }
 
-.panel-profile li i {
+.card-profile li i {
     margin-right: 5px;
 }
 
@@ -4700,7 +4700,7 @@ ul.online-users {
     white-space: nowrap;
 }
 
-.panel .panel-heading {
+.card .card-header {
     padding: 10px 15px;
     text-transform: uppercase;
 }
@@ -4778,7 +4778,7 @@ ul.online-users {
     margin-bottom: 10px;
 }
 
-.panel-box {
+.card-box {
     display: table;
     table-layout: fixed;
     width: 100%;
@@ -4787,7 +4787,7 @@ ul.online-users {
     border: none;
 }
 
-.panel-box .panel-item {
+.card-box .card-item {
     display: table-cell;
     padding: 30px;
     width: 1%;
@@ -4795,7 +4795,7 @@ ul.online-users {
     border-radius: 0;
 }
 
-.panel-box .panel-left {
+.card-box .card-left {
     -moz-border-radius-topleft: 4px;
     -webkit-border-top-left-radius: 4px;
     border-top-left-radius: 4px;
@@ -4804,7 +4804,7 @@ ul.online-users {
     border-bottom-left-radius: 4px;
 }
 
-.panel-box .panel-right {
+.card-box .card-right {
     -moz-border-radius-topright: 4px;
     -webkit-border-top-right-radius: 4px;
     border-top-right-radius: 4px;

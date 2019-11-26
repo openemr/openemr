@@ -41,7 +41,7 @@
      let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid);
      dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
          buttons: [
-             {text: btnClose, close: true, style: 'default btn-xs'}
+             {text: btnClose, close: true, style: 'default btn-sm'}
          ]
      });
      return false;
@@ -127,8 +127,8 @@ function ImgProcedure() {literal}{{/literal}
             <div style="margin-bottom: 6px;padding-bottom: 6px;border-bottom:3px solid gray;">
             <h4>{$file->get_url_web()|text}
               <div class="btn-group btn-toggle">
-                <button class="btn btn-xs btn-secondary properties">{xlt t='Properties'}</button>
-                <button class="btn btn-xs btn-primary active">{xlt t='Contents'}</button>
+                <button class="btn btn-sm btn-secondary properties">{xlt t='Properties'}</button>
+                <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
               </div>
             <span style="float:right;">
             <script>var file = {$file->get_url()|js_escape};</script>

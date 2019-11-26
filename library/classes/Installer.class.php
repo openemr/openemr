@@ -941,7 +941,7 @@ FDIV;
                         <div class="row">
                             <div class="col-sm-12">
                                 <h4>Current Theme:</h4>
-                                <div class="col-sm-4 col-sm-offset-4 checkboxgroup">
+                                <div class="col-sm-4 offset-sm-4 checkboxgroup">
                                     <label for="nothing"><img  id="current_theme" src="{$theme_file_path}" width="100%"></label>
                                     <p id="current_theme_title"style="margin:0">{$theme_title}</p>
                                 </div>
@@ -965,7 +965,7 @@ DSTD;
         $display_selected_theme_div = <<<DSTD
                         <div class="row">
                             <div class="col-sm-12">
-                                <div class="col-sm-4 col-sm-offset-4 checkboxgroup">
+                                <div class="col-sm-4 offset-sm-4 checkboxgroup">
                                     <label for="nothing"><img  id="current_theme" src="{$theme_file_path}" width="75%"></label>
                                     <p id="current_theme_title"style="margin:0">{$theme_title}</p>
                                 </div>

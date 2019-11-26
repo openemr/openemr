@@ -1358,7 +1358,7 @@ if ($lastgroup) {
     echo "<li>" . xlt("Please see http://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic") . "</li>";
 ?>
    </ul>
-   <button class='btn btn-xs btn-success float-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss')?></button>
+   <button class='btn btn-sm btn-success float-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss')?></button>
   </div>
 </section></div></div>
 <?php
@@ -1419,7 +1419,7 @@ while ($row = sqlFetchArray($res)) {
         echo "</div>";
         $firstgroup = false;
         ?>
-  <table class='table table-condensed table-striped'>
+  <table class='table table-sm table-striped'>
   <thead>
    <tr class='head'>
     <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
@@ -1488,7 +1488,7 @@ while ($row = sqlFetchArray($res)) {
 <?php echo xlt('Parent'); ?>:
 <?php echo genGroupSelector('newgroupparent', $layout_id); ?>
 <br>
-<table class='table table-condensed table-striped' style="border-collapse: collapse; margin-top: 5px;">
+<table class='table table-sm table-striped' style="border-collapse: collapse; margin-top: 5px;">
 <thead>
  <tr class='head'>
   <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
@@ -1571,7 +1571,7 @@ foreach ($datatypes as $key => $value) {
 <!-- template DIV that appears when user chooses to add a new field to a group -->
 <div id="fielddetail" class="fielddetail" style="display: none; visibility: hidden">
 <input type="hidden" name="newfieldgroupid" id="newfieldgroupid" value="">
-<table class="table table-condensed" style="border-collapse: collapse;">
+<table class="table table-sm" style="border-collapse: collapse;">
  <thead>
   <tr class='head'>
    <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>

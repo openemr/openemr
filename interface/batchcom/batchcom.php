@@ -178,7 +178,7 @@ if ($_POST['form_action']=='process') {
 <body class="body_top container">
 <header class="row">
     <?php require_once("batch_navigation.php");?>
-    <h1 class="col-md-6 col-md-offset-3 text-center">
+    <h1 class="col-md-6 offset-md-3 text-center">
         <?php echo xlt('Batch Communication Tool')?>
     </h1>
 </header>
@@ -254,7 +254,7 @@ if ($_POST['form_action']=='process') {
             </div>
         </div>
         <div class="email row form-group">
-            <div class="col-md-6 col-md-offset-3 well">
+            <div class="col-md-6 offset-md-3 well">
                 <div class="col-md-6">
                     <label for="email_sender"><?php echo xlt('Email Sender'); ?>:</label>
                     <input class="form-control" type="text" name="email_sender" placeholder="your@email.email">

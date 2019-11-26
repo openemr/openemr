@@ -945,18 +945,18 @@ textarea{
 <body onload="adjustForm();">
 <div class="container" id="formContainer">
 <?php if ($isAuthorized !== true) {?>
-<h3 class='formhide'><em><?php echo xlt('Claim Edit') ?> </em><button class="btn btn-xs btn-warning" onclick="myZoom()" ><?php echo xlt('Zoom'); ?></button></h3>
+<h3 class='formhide'><em><?php echo xlt('Claim Edit') ?> </em><button class="btn btn-sm btn-warning" onclick="myZoom()" ><?php echo xlt('Zoom'); ?></button></h3>
 <div class="navbar-fixed-top formhide" id='menu'>
     <?php if ($pid && $encounter) {?>
-    <button class="btn btn-xs btn-success" onclick="disposeSave('form')" title=<?php echo xla("Save for printing with form") ?>><?php echo xlt('Pdf With Form'); ?></button>
-    <button class="btn btn-xs btn-success" onclick="disposeSave('noform')" title=<?php echo xla("Save for printing to a pre printed sheet"); ?>><?php echo xlt('Pdf Without Form'); ?></button>
-    <button class="btn btn-xs btn-success" onclick="postClaim('batch_save')" title=<?php echo xla("Save claim for batch processing"); ?>><?php echo xlt('Save Claim'); ?></button>
+    <button class="btn btn-sm btn-success" onclick="disposeSave('form')" title=<?php echo xla("Save for printing with form") ?>><?php echo xlt('Pdf With Form'); ?></button>
+    <button class="btn btn-sm btn-success" onclick="disposeSave('noform')" title=<?php echo xla("Save for printing to a pre printed sheet"); ?>><?php echo xlt('Pdf Without Form'); ?></button>
+    <button class="btn btn-sm btn-success" onclick="postClaim('batch_save')" title=<?php echo xla("Save claim for batch processing"); ?>><?php echo xlt('Save Claim'); ?></button>
     <?php } else {?>
-    <button class="btn btn-xs btn-success" onclick="postClaim('payer_save')"><?php echo xlt('Save Payer'); ?></button>
+    <button class="btn btn-sm btn-success" onclick="postClaim('payer_save')"><?php echo xlt('Save Payer'); ?></button>
     <?php } ?>
-    <button class="btn btn-xs btn-danger" onclick="resetClaim()" title=<?php echo xla("Reset claim form to Fee Sheet Version"); ?>><?php echo xlt('Reset Version'); ?></button>
-    <button class="btn btn-info btn-xs" type="button" onclick="window.scrollTo(0, 0);$('#formhelp').toggle()"><?php echo xlt('Help'); ?></button>
-    <button class="btn btn-xs btn-danger" onclick="cleanUp()"><?php echo xlt('Return'); ?></button>
+    <button class="btn btn-sm btn-danger" onclick="resetClaim()" title=<?php echo xla("Reset claim form to Fee Sheet Version"); ?>><?php echo xlt('Reset Version'); ?></button>
+    <button class="btn btn-info btn-sm" type="button" onclick="window.scrollTo(0, 0);$('#formhelp').toggle()"><?php echo xlt('Help'); ?></button>
+    <button class="btn btn-sm btn-danger" onclick="cleanUp()"><?php echo xlt('Return'); ?></button>
 </div>
 <div id='formhelp' class='well' style='display:none; text-align:center; width: auto; margin: 5px auto;'>
     <h4>Help</h4>
@@ -969,7 +969,7 @@ textarea{
         * <?php echo xlt('Save button saves claim and marks reviewed'); ?><br>
         * <?php echo xlt('Return button simply returns, then refreshes billing manager'); ?><br><br>
     </div>
-   <button class="btn btn-primary btn-xs" type="button" onclick="$('#formhelp').toggle()"><?php echo xlt('Dismiss Help'); ?></button>
+   <button class="btn btn-primary btn-sm" type="button" onclick="$('#formhelp').toggle()"><?php echo xlt('Dismiss Help'); ?></button>
 </div>
 <?php } ?>
 <div id="p1" class="pageArea" style="overflow: hidden; position: relative; width: 934px; height: 1210px;">

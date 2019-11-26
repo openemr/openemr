@@ -55,7 +55,7 @@
                                     <input type="hidden" id="pid" name="pid" value="<?php echo !is_null($participant_data) ? attr($participant_data['pid']): ''?>">
                                     <div class="col-md-12">
                                         <div class="row">
-                                            <div class="col-md-offset-1 col-md-5">
+                                            <div class="offset-md-1 col-md-5">
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <span class="bold"><?php echo xlt("Participant's name"); ?>:</span>
@@ -77,7 +77,7 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-offset-1 col-md-2">
+                                            <div class="offset-md-1 col-md-2">
                                                 <span class="bold"><?php echo xlt('Comment'); ?>:</span>
                                             </div>
                                             <div class="col-md-8">
@@ -85,7 +85,7 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-offset-4 col-md-4 text-center">
+                                            <div class="offset-md-4 col-md-4 text-center">
                                                 <?php if ($edit) :?>
                                                 <input type="submit" name="save_new" value="<?php echo xla('Adding a participant'); ?>">
                                                 <input id="cancelAddParticipant" type="button" value="<?php echo xla('Cancel'); ?>">
@@ -94,7 +94,7 @@
                                         </div>
                                         <?php if (isset($message)) : ?>
                                         <div class="row">
-                                            <div class="col-md-offset-2 col-md-8">
+                                            <div class="offset-md-2 col-md-8">
                                                 <p class="<?php echo $addStatus == 'failed' ? 'groups-error-msg' : 'groups-success-msg' ?>"><?php echo text($message)?></p>
                                             </div>
                                         </div>

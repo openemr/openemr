@@ -34,7 +34,7 @@
                     <?php echo xlt("None{{Therapy Group}}");?>
                 <!-- /ko -->
                 <!-- ko if: therapy_group -->
-                    <a class="btn btn-xs btn-link" href="#" data-bind="click:clearTherapyGroup" title="<?php echo xla("Clear") ?>">
+                    <a class="btn btn-sm btn-link" href="#" data-bind="click:clearTherapyGroup" title="<?php echo xla("Clear") ?>">
                         <i class="fa fa-times"></i>
                     </a>
                 <!-- /ko -->
@@ -43,7 +43,7 @@
         <span class="patientDataColumn">
         <!-- ko if: therapy_group -->
         <!-- ko with: therapy_group -->
-            <a class="btn btn-xs btn-link" data-bind="click: clickNewGroupEncounter" href="#" title="<?php echo xla("New Encounter");?>">
+            <a class="btn btn-sm btn-link" data-bind="click: clickNewGroupEncounter" href="#" title="<?php echo xla("New Encounter");?>">
                 <i class="fa fa-plus"></i>
             </a>
             <div class="patientCurrentEncounter">

@@ -287,7 +287,7 @@ while ($row = sqlFetchArray($peres)) {
 
  <tr>
   <td align='center' valign='top' style="padding: 0 0 0 5px;">
-   <table class="table table-condensed">
+   <table class="table table-sm">
     <tr class='head'>
      <td colspan='3' align='center'>
       <input type='radio' name='form_key' value='p' onclick='clearall()' checked />
@@ -313,7 +313,7 @@ while ($row = sqlFetchArray($pres)) {
    </table>
   </td>
   <td align='center' valign='top' style="padding: 0 5px 0 0;">
-   <table class="table table-condensed">
+   <table class="table table-sm">
     <tr class='head'>
      <td colspan='2' align='center'>
       <input type='radio' name='form_key' value='e' onclick='clearall()' />

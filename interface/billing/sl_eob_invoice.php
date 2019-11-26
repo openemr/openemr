@@ -588,7 +588,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
             <fieldset>
                 <legend><?php echo xlt('Invoice Details'); ?></legend>
                 <div class="table-responsive">
-                    <table class="table table-condensed">
+                    <table class="table table-sm">
                         <thead>
                         <tr>
                             <th><?php echo xlt('Code') ?></th>

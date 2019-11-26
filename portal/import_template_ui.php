@@ -78,11 +78,11 @@ function getTemplateList($dir)
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
 <?php } ?>
 <link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.bundle.min.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
 <link  href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote/dist/summernote.css" rel="stylesheet" type="text/css" />
 <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote/dist/summernote.js"></script>
@@ -214,7 +214,7 @@ foreach ($dirlist as $file) {
     $t =  $file['pathname'];
     echo "<tr>";
     echo '<td><button id="tedit' . attr($t) . '" class="btn btn-sm btn-primary" onclick="tedit(' . attr_js($t) . ')" type="button">' . text($file['name']) . '</button>
- 		<button id="tdelete' . attr($t) . '" class="btn btn-xs btn-danger" onclick="tdelete(' . attr_js($t) . ')" type="button">' . xlt("Delete") . '</button></td>';
+ 		<button id="tdelete' . attr($t) . '" class="btn btn-sm btn-danger" onclick="tdelete(' . attr_js($t) . ')" type="button">' . xlt("Delete") . '</button></td>';
     echo "<td>" . text($file['size']) . "</td>";
     echo "<td>" . text(date('r', $file['lastmod'])) . "</td>";
     echo "</tr>";
@@ -250,8 +250,8 @@ $(function(){
                 <div class="edittpl" id="templatecontent"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>
-                <button type="button" class="btn btn-success btn-xs" data-dismiss="modal" onclick="tsave()"><?php echo xlt('Save'); ?></button>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>
+                <button type="button" class="btn btn-success btn-sm" data-dismiss="modal" onclick="tsave()"><?php echo xlt('Save'); ?></button>
             </div>
         </div>
     </div>

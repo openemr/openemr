@@ -1128,7 +1128,7 @@ function writeITLine($it_array)
     </div>
 </nav>
 
-<table class="table table-striped table-condensed" style="margin-top:55px;">
+<table class="table table-striped table-sm" style="margin-top:55px;">
     <thead>
     <tr>
         <?php if ($list_id == 'feesheet') : ?>

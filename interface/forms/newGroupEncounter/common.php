@@ -352,7 +352,7 @@ $help_icon = '';
                 <fieldset>
                     <legend><?php echo xlt('Reason for Visit')?></legend>
                     <div class="form-group">
-                        <div class="col-sm-10 col-sm-offset-1">
+                        <div class="col-sm-10 offset-sm-1">
                             <textarea name="reason" id="reason" class="form-control" cols="80" rows="4" ><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
                         </div>
                     </div>

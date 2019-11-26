@@ -108,7 +108,7 @@
                     <input type="text" id="group_number" name="group_number" value="{$ins->get_group_number()|attr}" onKeyDown="PreventIt(event)">
                 </div>
             </div>
-            <div class="btn-group col-sm-offset-2">
+            <div class="btn-group offset-sm-2">
                 {if $ins->get_id() eq ""}
                     <a href="javascript:submit_insurancenumbers_add();" class="btn btn-secondary btn-save" onclick="top.restoreSession()">
                         {xlt t='Save'}

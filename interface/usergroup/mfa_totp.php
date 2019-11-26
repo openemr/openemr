@@ -118,7 +118,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                                 </div>
                                             <?php } ?>
                                             <p><?php echo xlt('In order to register your device, please provide your OpenEMR login password'); ?></p>
-                                            <div class="col-sm-4 col-sm-offset-4">
+                                            <div class="col-sm-4 offset-sm-4">
                                                 <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password'); ?>:" >
                                             </div>
                                         </div>
@@ -186,7 +186,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                             <img src="<?php echo attr($qr); ?>" class="img-responsive center-block" style="height:200px !Important"/>
                                             <br>
                                             <p><?php echo xlt('Example authenticator apps include'); ?></p>:
-                                            <div class="col-sm-4 col-sm-offset-4">
+                                            <div class="col-sm-4 offset-sm-4">
                                                 <ul>
                                                     <li><?php echo xlt('Google Auth'); ?>
                                                         (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8" target="_blank" rel="noopener">

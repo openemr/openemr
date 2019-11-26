@@ -166,7 +166,7 @@ if (isset($_POST['drR'])) {
                             <div class="col-12 pre-scrollable oe-margin-t-10">
                             <fieldset>
                             <legend>'.xla('Dated Reminders').'</legend>
-                           <table class="table-condensed">
+                           <table class="table-sm">
                             </tr>
                                 <td class="drHide drTD">';
 

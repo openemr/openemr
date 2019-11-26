@@ -234,14 +234,14 @@ function generate_receipt($patient_id, $encounter = 0)
                     ?>
             </div>
             <div class= "row">
-                <div class= 'col-6 col-lg-offset-2'>
+                <div class= 'col-6 offset-lg-2'>
                     <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) ?><br>
                     <?php echo text($patdata['street']) ?><br>
                     <?php echo text($patdata['city']) . ', ' . text($patdata['state']) . ' ' . text($patdata['postal_code']) ?><br>
                 </div>
             </div>
             <div class= "row ">
-                <div class= 'col-6 col-lg-offset-3'>
+                <div class= 'col-6 offset-lg-3'>
                     <table class="table">
                         <thead>
                             <tr>
@@ -1019,7 +1019,7 @@ function generate_receipt($patient_id, $encounter = 0)
                         <fieldset>
                             <legend><?php echo xlt('Collect Payment'); ?></legend>
                             <div class="col-12 oe-custom-line">
-                                <div class="col-3 col-lg-offset-3">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_discount"><?php echo $GLOBALS['discount_by_money'] ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
                                 </div>
                                 <div class="col-3">
@@ -1027,7 +1027,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                 </div>
                             </div>
                             <div class="col-12 oe-custom-line">
-                                <div class="col-3 col-lg-offset-3">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                                 </div>
                                 <div class="col-3">
@@ -1046,7 +1046,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                 </div>
                             </div>
                             <div class="col-12 oe-custom-line">
-                                <div class="col-3 col-lg-offset-3">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_source"><?php echo xlt('Check/Reference Number'); ?>:</label>
                                 </div>
                                 <div class="col-3">
@@ -1054,7 +1054,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                 </div>
                             </div>
                             <div class="col-12 oe-custom-line">
-                                <div class="col-3 col-lg-offset-3">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_amount"><?php echo xlt('Amount Paid'); ?>:</label>
                                 </div>
                                 <div class="col-3">
@@ -1062,7 +1062,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                 </div>
                             </div>
                             <div class="col-12 oe-custom-line">
-                                <div class="col-3 col-lg-offset-3">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_date"><?php echo xlt('Posting Date'); ?>:</label>
                                 </div>
                                 <div class="col-3">
@@ -1076,7 +1076,7 @@ function generate_receipt($patient_id, $encounter = 0)
                             if (!empty($irnumber)) {
                                 ?>
                             <div class="col-12 oe-custom-line">
-                                <div class="col-3 col-lg-offset-3">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_tentative"><?php echo xlt('Tentative Invoice Ref No'); ?>:</label>
                                 </div>
                                 <div class="col-3">
@@ -1088,7 +1088,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                 // reference number mask, ask for the refno.
                                 ?>
                             <div class="col-12 oe-custom-line">
-                                <div class="col-3 col-lg-offset-3">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_irnumber"><?php echo xlt('Invoice Reference Number'); ?>:</label>
                                 </div>
                                 <div class="col-3">

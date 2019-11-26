@@ -316,7 +316,7 @@ if ($_REQUEST['startdate'] && preg_match(
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 <!-- for the pop up calendar -->
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.bundle.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script>
@@ -399,13 +399,12 @@ function setappt(year,mon,mday,hours,minutes) {
     <?php echo xlt('Start date:'); ?>
 
    <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate); ?>'
-    title='yyyy-mm-dd starting date for search'/>
+    title='yyyy-mm-dd starting date for search' />
 
     <?php echo xlt('for'); ?>
-   <input type='text' name='searchdays' size='3' value='<?php echo attr($searchdays); ?>'
-    title='Number of days to search from the start date' />
+   <input type='text' name='searchdays' size='3' value='<?php echo attr($searchdays); ?>' title='Number of days to search from the start date' />
     <?php echo xlt('days'); ?>&nbsp;
-   <input type='submit' value='<?php echo xla('Search'); ?>'>
+   <input type='submit' value='<?php echo xla('Search'); ?>' />
 </div>
 
 <?php if (!empty($slots)) : ?>
@@ -496,7 +495,7 @@ function setappt(year,mon,mday,hours,minutes) {
 </form>
 </body>
 
-<script language='JavaScript'>
+<script language='text/javascript'>
 
 // jQuery stuff to make the page a little easier to use
 $(function(){

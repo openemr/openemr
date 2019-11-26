@@ -1459,7 +1459,7 @@ STP6BOT;
                         $installer->displaySelectedThemeDiv();
                         $theme_form = <<<TMF
                         <div class='row'>
-                        <div class="col-sm-4 col-sm-offset-4">
+                        <div class="col-sm-4 offset-sm-4">
                             <form method='post'>
                                 <input type='hidden' name='state' value='8'>
                                 <input type='hidden' name='site' value='$site_id'>

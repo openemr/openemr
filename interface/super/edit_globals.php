@@ -874,13 +874,13 @@ $(window).on('resize', function() {
     if (winWidth > 1024) {
         if (!userMode) {
             $('.row  .control-label, .row  .oe-input').removeClass('col-sm-6');
-            $('.row  .control-label').addClass('col-sm-4 col-sm-offset-1');
+            $('.row  .control-label').addClass('col-sm-4 offset-sm-1');
             $('.row  .oe-input').addClass('col-sm-4');
         }
     } else {
         if (!userMode) {
             $('.row  .control-label, .row  .oe-input').addClass('col-sm-6');
-            $('.row  .control-label').removeClass('col-sm-4 col-sm-offset-1');
+            $('.row  .control-label').removeClass('col-sm-4 offset-sm-1');
             $('.row  .oe-input').removeClass('col-sm-4');
         }
     }
