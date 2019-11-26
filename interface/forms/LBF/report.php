@@ -65,7 +65,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
         // Hi Rod content width issue in Encounter Summary - epsdky
         // Also had it not wordwrap nation notes which breaks it since it splits
         //  html tags apart - brady
-        if ($no_wrap || ($frow['data_type'] == 34)) {
+        if ($no_wrap || ($frow['data_type'] == 34 || $frow['data_type'] == 25)) {
             $arr[$field_id] = $currvalue;
         } else {
             $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
