@@ -209,7 +209,7 @@ $check_res = $formid ? $check_res : array();
                             foreach ($check_res as $key => $obj) { ?>
                                 <div class = "tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
                                     <div class="form-group">
-                                        <div class="forms col-xs-2">
+                                        <div class="forms col-2">
                                             <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
                                             <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                             <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
@@ -217,7 +217,7 @@ $check_res = $formid ? $check_res : array();
                                             <input type="hidden" id="code_type_<?php echo attr($key) + 1; ?>" name="code_type[]" class="code_type" value="<?php echo attr($obj["code_type"]); ?>">
                                             <input type="hidden" id="table_code_<?php echo attr($key) + 1; ?>" name="table_code[]" class="table_code" value="<?php echo attr($obj["table_code"]); ?>">
                                         </div>
-                                        <div class="forms col-xs-2">
+                                        <div class="forms col-2">
                                             <?php
                                             if ($obj["code"] == '21612-7' || $obj["code"] == '8661-1') {
                                                 $style = 'display: block;';
@@ -234,7 +234,7 @@ $check_res = $formid ? $check_res : array();
                                                 <option value="261QU0200X" <?php echo ($obj["code"] == 'SS003' && $obj["ob_value"] == '261QU0200X') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Urgent Care'); ?></option>
                                             </select>
                                         </div>
-                                        <div class="forms col-xs-2">
+                                        <div class="forms col-2">
                                             <?php
                                             if (!$obj["ob_unit"] || ($obj["code"] == 'SS003') || $obj["code"] == '8661-1') {
                                                 $style = 'display: none;' ;
@@ -251,15 +251,15 @@ $check_res = $formid ? $check_res : array();
                                                 <option value="a" <?php echo ($obj["code"] == '21612-7' && $obj["ob_unit"] == 'a') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Year'); ?></option>
                                             </select>
                                         </div>
-                                        <div class=" forms col-xs-3">
+                                        <div class=" forms col-3">
                                             <label for="comments_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Comments'); ?>:</label>
                                             <textarea name="comments[]" id="comments_<?php echo attr($key) + 1; ?>" class="form-control comments"  rows="3" ><?php echo text($obj["observation"]); ?></textarea>
                                         </div>
-                                        <div class="forms col-xs-2">
+                                        <div class="forms col-2">
                                             <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
                                             <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                                         </div>
-                                        <div class="forms col-xs-1 " style="padding-top:35px">
+                                        <div class="forms col-1 " style="padding-top:35px">
                                             <i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
                                             <i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
                                         </div>
@@ -271,7 +271,7 @@ $check_res = $formid ? $check_res : array();
                         } else { ?>
                             <div class="tb_row" id="tb_row_1">
                                 <div class="form-group">
-                                    <div class="forms col-xs-2">
+                                    <div class="forms col-2">
                                         <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
                                         <input type="text" id="code_1" name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                         <span id="displaytext_1" class="displaytext help-block"></span>
@@ -279,7 +279,7 @@ $check_res = $formid ? $check_res : array();
                                         <input type="hidden" id="code_type_1" name="code_type[]" class="code_type" value="<?php echo attr($obj["code_type"]); ?>">
                                         <input type="hidden" id="table_code_1" name="table_code[]" class="table_code" value="<?php echo attr($obj["table_code"]); ?>">
                                     </div>
-                                    <div class="forms col-xs-2">
+                                    <div class="forms col-2">
                                         <?php
                                         if ($obj["code"] == '21612-7' || $obj["code"] == '8661-1') {
                                             $style = 'display: block;';
@@ -296,7 +296,7 @@ $check_res = $formid ? $check_res : array();
                                             <option value="261QU0200X" <?php echo ($obj["code"] == 'SS003' && $obj["ob_value"] == '261QU0200X') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Urgent Care'); ?></option>
                                         </select>
                                     </div>
-                                    <div class="forms col-xs-2">
+                                    <div class="forms col-2">
                                         <?php
                                         if (!$obj["ob_unit"] || ($obj["code"] == 'SS003') || $obj["code"] == '8661-1') {
                                             $style = 'display: none;' ;
@@ -313,15 +313,15 @@ $check_res = $formid ? $check_res : array();
                                             <option value="a" <?php echo ($obj["code"] == '21612-7' && $obj["ob_unit"] == 'a') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Year'); ?></option>
                                         </select>
                                     </div>
-                                    <div class=" forms col-xs-3">
+                                    <div class=" forms col-3">
                                         <label for="comments_1" class="h5"><?php echo xlt('Comments'); ?>:</label>
                                         <textarea name="comments[]" id="comments_1" class="form-control comments"  rows="3" ><?php echo text($obj["observation"]); ?></textarea>
                                     </div>
-                                    <div class="forms col-xs-2">
+                                    <div class="forms col-2">
                                         <label for="code_date_1" class="h5"><?php echo xlt('Date'); ?>:</label>
                                         <input type='text' id="code_date_1" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                                     </div>
-                                    <div class="forms col-xs-1 " style="padding-top:35px">
+                                    <div class="forms col-1 " style="padding-top:35px">
                                         <i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
                                         <i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
                                     </div>
@@ -335,7 +335,7 @@ $check_res = $formid ? $check_res : array();
                      <div class="form-group clearfix">
                         <div class="col-sm-12 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                                <button type="submit" onclick='top.restoreSession()' class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
+                                <button type="submit" onclick='top.restoreSession()' class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
                                 <input type="hidden" id="clickId" value="">
                             </div>

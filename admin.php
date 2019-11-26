@@ -233,7 +233,7 @@ function sqlQuery($statement, $link)
                         </div>
                         <div class="modal-footer" style="margin-top:0px;">
                            <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">Close</button>
-                           <!--<button class="btn btn-default btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
+                           <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
                         </div>
                     </div>
                 </div>

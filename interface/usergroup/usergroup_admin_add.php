@@ -198,7 +198,7 @@ function authorized_clicked() {
 <table><tr><td>
 <span class="title"><?php echo xlt('Add User'); ?></span>&nbsp;</td>
 <td>
-<a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick="return submitform()">
+<a class="btn btn-secondary btn-save" name='form_save' id='form_save' href='#' onclick="return submitform()">
     <span><?php echo xlt('Save'); ?></span></a>
 <a class="btn btn-link btn-cancel" id='cancel' href='#'>
     <span><?php echo xlt('Cancel');?></span>

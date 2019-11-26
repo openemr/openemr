@@ -733,8 +733,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                     <legend>
                         &nbsp;<?php echo xlt('Post Item'); ?><i id="payment-info-do-not-remove"> </i>
                     </legend>
-                    <div class="col-xs-12 oe-custom-line">
-                        <div class="col-xs-3">
+                    <div class="col-12 oe-custom-line">
+                        <div class="col-3">
                             <label class="control-label" for="form_payer_id"> <?php echo xlt('Payer'); ?>:</label>
                             <?php
                             $insurancei = getInsuranceProviders();
@@ -750,20 +750,20 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             echo "   </select>\n";
                             ?>
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-2">
                             <label class="control-label" for="form_source"><?php echo xlt('Source'); ?>:</label>
                             <input type='text' name='form_source' id='form_source' class='form-control'
                                    value='<?php echo attr($_REQUEST['form_source']); ?>'
                                    title='<?php echo xla("A check number or claim number to identify the payment"); ?>'>
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-2">
                             <label class="control-label" for="form_paydate"><?php echo xlt('Pay Date'); ?>:</label>
                             <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker'
                                    value='<?php echo attr($_REQUEST['form_paydate']); ?>'
                                    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
                                    title='<?php echo xla("Date of payment yyyy-mm-dd"); ?>'>
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-2">
                             <label class="control-label oe-large"
                                    for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                             <label class="control-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>
@@ -774,13 +774,13 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
                                    title='<?php echo xla("Date of bank deposit yyyy-mm-dd"); ?>'>
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-2">
                             <label class="control-label" for="form_amount"><?php echo xlt('Amount'); ?>:</label>
                             <input type='text' name='form_amount' id='form_amount' class='form-control'
                                    value='<?php echo attr($_REQUEST['form_amount']); ?>'
                                    title='<?php echo xla("Paid amount that you will allocate"); ?>'>
                         </div>
-                        <div class="col-xs-1">
+                        <div class="col-1">
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
 
                             <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
@@ -812,27 +812,27 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         <input type="hidden" id="hid2" value="<?php echo xla('ERA Upload'); ?>">
                         <input type="hidden" id="hid3" value="<?php echo xla('Select Method'); ?>">
                     </legend>
-                    <div class="col-xs-12 .oe-custom-line oe-show-hide" id='inv-search'>
-                        <div class="col-xs-3">
+                    <div class="col-12 .oe-custom-line oe-show-hide" id='inv-search'>
+                        <div class="col-3">
                             <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
                             <input type='text' name='form_name' id='form_name' class='form-control'
                                    value='<?php echo attr($_REQUEST['form_name']); ?>'
                                    title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>'
                                    placeholder='<?php echo xla('Last name, First name'); ?>'>
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-2">
                             <label class="control-label" for="form_pid"><?php echo xlt('Chart ID'); ?>:</label>
                             <input type='text' name='form_pid' id='form_pid' class='form-control'
                                    value='<?php echo attr($_REQUEST['form_pid']); ?>'
                                    title='<?php echo xla("Patient chart ID"); ?>'>
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-2">
                             <label class="control-label" for="form_encounter"><?php echo xlt('Encounter'); ?>:</label>
                             <input type='text' name='form_encounter' id='form_encounter' class='form-control'
                                    value='<?php echo attr($_REQUEST['form_encounter']); ?>'
                                    title='<?php echo xla("Encounter number"); ?>'>
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-2">
                             <label class="control-label oe-large"
                                    for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
                             <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>
@@ -841,14 +841,14 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                    value='<?php echo attr($_REQUEST['form_date']); ?>'
                                    title='<?php echo xla("Date of service mm/dd/yyyy"); ?>'>
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-2">
                             <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>
                                 :</label>
                             <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker'
                                    value='<?php echo attr($_REQUEST['form_to_date']); ?>'
                                    title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>'>
                         </div>
-                        <div class="col-xs-1" style="padding-right:0px">
+                        <div class="col-1" style="padding-right:0px">
                             <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
                             <select name='form_category' id='form_category' class='form-control'>
                                 <?php
@@ -863,11 +863,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             </select>
                         </div>
                     </div>
-                    <div class="col-xs-12 .oe-custom-line oe-show-hide" id='era-upld'>
+                    <div class="col-12 .oe-custom-line oe-show-hide" id='era-upld'>
                         <div class="form-group col-xs9 oe-file-div">
                             <div class="input-group">
                                 <label class="input-group-btn">
-                        <span class="btn btn-default">Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;">
+                        <span class="btn btn-secondary">Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;">
                             <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
                         </span>
                                 </label>
@@ -882,10 +882,10 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 <div class="form-group clearfix">
                     <div class="col-sm-12 position-override oe-show-hide" id="search-btn">
                         <div class="btn-group" role="group">
-                            <button type='submit' class="btn btn-default btn-search oe-show-hide" name='form_search'
+                            <button type='submit' class="btn btn-secondary btn-search oe-show-hide" name='form_search'
                                     id="btn-inv-search"
                                     value='<?php echo xla("Search"); ?>'><?php echo xlt("Search"); ?></button>
-                            <button type='submit' class="btn btn-default btn-save oe-show-hide" name='form_search'
+                            <button type='submit' class="btn btn-secondary btn-save oe-show-hide" name='form_search'
                                     id="btn-era-upld"
                                     value='<?php echo xla("Upload"); ?>'><?php echo xlt("Upload"); ?></button>
                         </div>
@@ -1185,32 +1185,32 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         <div class="btn-group" role="group">
                             <?php
                             if ($eracount) { ?>
-                                <button type="button" class="btn btn-default btn-save" name="Submit"
+                                <button type="button" class="btn btn-secondary btn-save" name="Submit"
                                         onclick='processERA()' value="<?php echo xla('Process ERA File'); ?>">
                                     <?php echo xlt('Process ERA File'); ?></button>
                                 <?php
                             } else { ?>
-                                <button type="button" class="btn btn-default btn-save" name="Submit1"
+                                <button type="button" class="btn btn-secondary btn-save" name="Submit1"
                                         onclick='checkAll(true)'><?php echo xlt('Select All'); ?></button>
-                                <button type="button" class="btn btn-default btn-undo" name="Submit2"
+                                <button type="button" class="btn btn-secondary btn-undo" name="Submit2"
                                         onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></button>
                                 <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
-                                    <button type="submit" class="btn btn-default btn-print" name='form_print'
+                                    <button type="submit" class="btn btn-secondary btn-print" name='form_print'
                                             value="<?php echo xla('Print Selected Statements'); ?>">
                                         <?php echo xlt('Print Selected Statements'); ?></button>
-                                    <button type="submit" class="btn btn-default btn-download" name='form_download'
+                                    <button type="submit" class="btn btn-secondary btn-download" name='form_download'
                                             value="<?php echo xla('Download Selected Statements'); ?>">
                                         <?php echo xlt('Download Selected Statements'); ?></button>
                                 <?php } ?>
-                                <button type="submit" class="btn btn-default btn-download" name='form_pdf'
+                                <button type="submit" class="btn btn-secondary btn-download" name='form_pdf'
                                         value="<?php echo xla('PDF Download Selected Statements'); ?>">
                                     <?php echo xlt('PDF Download Selected Statements'); ?></button>
-                                <button type="submit" class="btn btn-default btn-mail" name='form_download'
+                                <button type="submit" class="btn btn-secondary btn-mail" name='form_download'
                                         value="<?php echo xla('Email Selected Statements'); ?>">
                                     <?php echo xlt('Email Selected Statements'); ?></button>
                                 <?php
                                 if ($is_portal) { ?>
-                                    <button type="submit" class="btn btn-default btn-save" name='form_portalnotify'
+                                    <button type="submit" class="btn btn-secondary btn-save" name='form_portalnotify'
                                             value="<?php echo xla('Notify via Patient Portal'); ?>">
                                         <?php echo xlt('Notify via Patient Portal'); ?></button>
                                     <?php

@@ -665,9 +665,9 @@ closedir($dh);
 </table>
 
 <div class="btn-group" role="group">
-    <button type='button' class='addtemplate btn btn-default btn-save'><?php echo xlt('Save as New'); ?></button>
-    <button type='button' class='btn btn-default btn-save' name='savetemplate' id="savetemplate"><?php echo xlt('Save Changes'); ?></button>
-    <button type='button' class='btn btn-default btn-transmit' name='form_generate' id="form_generate"><?php echo xlt('Generate Letter'); ?></button>
+    <button type='button' class='addtemplate btn btn-secondary btn-save'><?php echo xlt('Save as New'); ?></button>
+    <button type='button' class='btn btn-secondary btn-save' name='savetemplate' id="savetemplate"><?php echo xlt('Save Changes'); ?></button>
+    <button type='button' class='btn btn-secondary btn-transmit' name='form_generate' id="form_generate"><?php echo xlt('Generate Letter'); ?></button>
 </div>
 
 </center>
@@ -677,7 +677,7 @@ closedir($dh);
     <span class='control-label'><?php echo xlt('Template Name'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
     <br>
     <div class="btn-group" role="group">
-        <button type="button" class="savenewtemplate btn btn-default btn-save"><?php echo xlt('Save new template'); ?></button>
+        <button type="button" class="savenewtemplate btn btn-secondary btn-save"><?php echo xlt('Save new template'); ?></button>
         <button type="button" class="cancelnewtemplate btn btn-link btn-cancel"><?php echo xlt('Cancel'); ?></button>
     </div>
 </div>

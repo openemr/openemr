@@ -34,14 +34,14 @@ $obj = formFetch("form_dictation", $_GET["id"]);
 ?>
 <div class="container">
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <div class="page-header">
                 <h2><?php echo xlt("Dictation"); ?></h2>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <form method=post action="<?php echo $rootdir?>/forms/dictation/save.php?mode=update&id=<?php echo attr_url($_GET["id"]);?>" name="my_form">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <fieldset>
@@ -63,7 +63,7 @@ $obj = formFetch("form_dictation", $_GET["id"]);
                 <div class="form-group clearfix">
                     <div class="col-sm-12 col-sm-offset-1 position-override">
                         <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                            <button type='submit' onclick='top.restoreSession()' class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
+                            <button type='submit' onclick='top.restoreSession()' class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
                             <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
                         </div>
                     </div>

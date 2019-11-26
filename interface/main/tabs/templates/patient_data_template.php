@@ -81,7 +81,7 @@ switch ($search_any_type) {
                         <input type="text" id="anySearchBox" class="<?php echo $any_search_class ?>" name="anySearchBox"
                                placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
                         <button type="button" id="search_globals"
-                                class="btn btn-default btn-search btn-search1 <?php echo $search_globals_class ?>"
+                                class="btn btn-secondary btn-search btn-search1 <?php echo $search_globals_class ?>"
                                 title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>'
                                 data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}">
                         </button>
@@ -115,7 +115,7 @@ switch ($search_any_type) {
             <!-- ko if: encounterArray().length > 0 -->
             <br>
             <div class="btn-group dropdown">
-                <button class="btn btn-default btn-sm dropdown-toggle"
+                <button class="btn btn-secondary btn-sm dropdown-toggle"
                         type="button" id="pastEncounters"
                         data-toggle="dropdown"
                         aria-haspopup="true"
@@ -146,7 +146,7 @@ switch ($search_any_type) {
         <!-- ko with: user -->
         <!-- ko if:messages() -->
         <span class="messagesColumn">
-                <a class="btn btn-default" href="#" data-bind="click: viewMessages"
+                <a class="btn btn-secondary" href="#" data-bind="click: viewMessages"
                    title="<?php echo xla("View Messages"); ?>">
                     <i class="fa fa-envelope"></i>&nbsp;<span class="label label-danger" style="display:inline"
                                                               data-bind="text: messages()"></span>
@@ -155,7 +155,7 @@ switch ($search_any_type) {
         <!-- /ko -->
         <!-- ko if: portal() -->
         <div class="messagesColumn btn-group dropdown">
-            <button class="btn btn-default btn-md dropdown-toggle"
+            <button class="btn btn-secondary btn-md dropdown-toggle"
                     type="button" id="portalMsgAlerts"
                     data-toggle="dropdown"
                     aria-haspopup="true"

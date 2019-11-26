@@ -36,7 +36,7 @@
         <div class="input-group">
             <input type="text" class="form-control" placeholder="<?php echo xla('Search'); ?>" name="srch-term" id="srch-term">
             <div class="input-group-btn">
-                <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                <button class="btn btn-secondary" type="submit"><i class="glyphicon glyphicon-search"></i></button>
             </div>
         </div>
         </form>

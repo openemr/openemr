@@ -467,7 +467,7 @@ if ($patient) {
 }
 ?> <?php echo xlt('and all subordinate data? This action will be logged'); ?>!</p>
 <div class="btn-group">
-    <a href="#" onclick="submit_form()" class="btn btn-lg btn-save btn-default"><?php echo xlt('Yes, Delete and Log'); ?></a>
+    <a href="#" onclick="submit_form()" class="btn btn-lg btn-save btn-secondary"><?php echo xlt('Yes, Delete and Log'); ?></a>
     <a href='#' class="btn btn-lg btn-link btn-cancel" onclick="popup_close();"><?php echo xlt('No, Cancel');?></a>
 </div>
 <input type='hidden' name='form_submit' value='Yes, Delete and Log'/>

@@ -100,7 +100,7 @@ $row = sqlQuery("select fname, lname " .
 <body class="body_top">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <h2><?php echo xlt('Change Status for'). " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
             </div>
         </div>
@@ -116,7 +116,7 @@ $row = sqlQuery("select fname, lname " .
             </div>
             <div class="position-override">
                 <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                    <a href='javascript:;' class='btn btn-default btn-save' onclick='document.getElementById("form_note").submit();'><?php echo xlt('Save')?></a>
+                    <a href='javascript:;' class='btn btn-secondary btn-save' onclick='document.getElementById("form_note").submit();'><?php echo xlt('Save')?></a>
                     <a href='javascript:;' class='btn btn-link btn-cancel oe-opt-btn-separate-left' onclick="dlgclose();" ><?php echo xlt('Cancel'); ?></a>
                 </div>
             </div>

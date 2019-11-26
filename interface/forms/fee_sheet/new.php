@@ -1015,10 +1015,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                 <div class="col-lg-4 col-sm-12 clearfix">
                                     <div class="form-group clearfix">
-                                    <div class="col-xs-8">
+                                    <div class="col-8">
                                     <input type='text' class="form-control" name='search_term' value=''>
                                     </div>
-                                    <div class="col-xs-1">
+                                    <div class="col-1">
                                     <input type='submit'  name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;'>
 
                                     </div>
@@ -1068,7 +1068,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <?php } // end encounter not billed ?>
                     <fieldset>
                         <legend><?php echo xlt("Selected Fee Sheet Codes and Charges for Current Encounter")?></legend>
-                        <div class='col-xs-12 '>
+                        <div class='col-12 '>
 
                             <table  class = "table" name='copay_review' id='copay_review' >
                                 <tr>
@@ -1082,7 +1082,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </tr>
                             </table>
                         </div>
-                        <div class='col-xs-12 text-center table-responsive'>
+                        <div class='col-12 text-center table-responsive'>
                             <table name='selected_codes' id='selected_codes' class="table" cellspacing='5'>
                                 <tr>
                                     <td class='billcell'><b><?php echo xlt('Type');?></b></td>
@@ -1418,7 +1418,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     </fieldset>
                     <fieldset>
                         <legend><?php echo xlt("Select Providers"); ?></legend>
-                        <div class='col-xs-12'>
+                        <div class='col-12'>
                             <div class="form-group col-lg-6 col-sm-12">
                                 <label class="control-label col-lg-4 col-sm-3 text-left"><?php echo  xlt('Rendering'); ?></label>
                                 <?php
@@ -1456,34 +1456,34 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <div class="form-group">
                         <div class="col-sm-12 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                                <button type='button' class='btn btn-default btn-calendar' onclick='newEvt()'><?php echo xlt('New Appointment');?></button>
+                                <button type='button' class='btn btn-secondary btn-calendar' onclick='newEvt()'><?php echo xlt('New Appointment');?></button>
                                 <?php if (!$isBilled) { // visit is not yet billed ?>
-                                    <button type='submit' name='bn_refresh' class='btn btn-default btn-refresh' value='<?php echo xla('Refresh');?>' onclick='return this.clicked = true;'><?php echo xlt('Refresh');?></button>
-                                    <button type='submit' name='bn_save' class='btn btn-default btn-save' value='<?php echo xla('Save');?>'
+                                    <button type='submit' name='bn_refresh' class='btn btn-secondary btn-refresh' value='<?php echo xla('Refresh');?>' onclick='return this.clicked = true;'><?php echo xlt('Refresh');?></button>
+                                    <button type='submit' name='bn_save' class='btn btn-secondary btn-save' value='<?php echo xla('Save');?>'
                                     <?php
                                     if ($rapid_data_entry) {
                                         echo " style='background-color:#cc0000';color:#ffffff'";
                                     } ?>><?php echo xla('Save');?></button>
-                                    <button type='submit' name='bn_save_stay' class='btn btn-default btn-save' value='<?php echo xla('Save Current'); ?>'><?php echo xlt('Save Current'); ?></button>
+                                    <button type='submit' name='bn_save_stay' class='btn btn-secondary btn-save' value='<?php echo xla('Save Current'); ?>'><?php echo xlt('Save Current'); ?></button>
                                     <?php if ($GLOBALS['ippf_specific']) { // start ippf-only stuff ?>
                                         <?php if ($fs->hasCharges) { // unbilled with charges ?>
-                                                <button type='submit' name='bn_save_close' class='btn btn-default btn-save' value='<?php echo xla('Save and Checkout'); ?>'><?php echo xlt('Save and Checkout'); ?></button>
+                                                <button type='submit' name='bn_save_close' class='btn btn-secondary btn-save' value='<?php echo xla('Save and Checkout'); ?>'><?php echo xlt('Save and Checkout'); ?></button>
                                         <?php } else { // unbilled with no charges ?>
-                                                <button type='submit' name='bn_save_close' class='btn btn-default btn-save'value='<?php echo xla('Save and Close'); ?>'><?php echo xlt('Save and Close'); ?></button>
+                                                <button type='submit' name='bn_save_close' class='btn btn-secondary btn-save'value='<?php echo xla('Save and Close'); ?>'><?php echo xlt('Save and Close'); ?></button>
                                         <?php } // end no charges ?>
                                     <?php } // end ippf-only ?>
                                 <?php } else { // visit is billed ?>
                                     <?php if ($fs->hasCharges) { // billed with charges ?>
-                                        <button type='button' class='btn btn-default btn-show'
+                                        <button type='button' class='btn btn-secondary btn-show'
                                             onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php
                                             echo "&ptid=" . attr_url($fs->pid) . "&enc=" . attr_url($fs->encounter); ?>'" value='<?php echo xla('Show Receipt'); ?>'><?php echo xlt('Show Receipt'); ?></button>
-                                        <button type='submit' class='btn btn-default btn-undo' name='bn_reopen' onclick='return this.clicked = 2;' value='<?php echo xla('Void Checkout and Re-Open'); ?>'>
+                                        <button type='submit' class='btn btn-secondary btn-undo' name='bn_reopen' onclick='return this.clicked = 2;' value='<?php echo xla('Void Checkout and Re-Open'); ?>'>
                                             <?php echo xlt('Void Checkout and Re-Open'); ?></button>
                                     <?php } else { ?>
-                                        <button type='submit' class='btn btn-default btn-undo' name='bn_reopen' onclick='return this.clicked = true;' value='<?php echo xla('Re-Open Visit'); ?>'>
+                                        <button type='submit' class='btn btn-secondary btn-undo' name='bn_reopen' onclick='return this.clicked = true;' value='<?php echo xla('Re-Open Visit'); ?>'>
                                             <?php echo xlt('Re-Open Visit'); ?></button>
                                     <?php } // end billed without charges ?>
-                                    <button type='submit' class='btn btn-default btn-add' name='bn_addmore' onclick='return this.clicked = true;' value='<?php echo xla('Add More Items'); ?>'>
+                                    <button type='submit' class='btn btn-secondary btn-add' name='bn_addmore' onclick='return this.clicked = true;' value='<?php echo xla('Add More Items'); ?>'>
                                         <?php echo xlt('Add More Items'); ?></button>
                                 <?php } // end billed ?>
                                     <button type='button' class='btn btn-link btn-cancel btn-separate-left' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">

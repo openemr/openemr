@@ -97,7 +97,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("Select an appropriate ICD/CPT code. This helps search for education material to give to the patient for that particular problem");?>.
 
                 <p><?php echo xlt("To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click Save");?>.
-                <button type="button" class="btn btn-default btn-sm btn-save oe-inline oe-no-float"><?php echo xlt("Save");?></button>
+                <button type="button" class="btn btn-secondary btn-sm btn-save oe-inline oe-no-float"><?php echo xlt("Save");?></button>
 
                 <p><?php echo xlt("Hold down Ctrl button to select multiple issues");?>.
 

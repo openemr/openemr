@@ -427,7 +427,7 @@ form {
 </table>
 <?php endif; ?>
 
-<script language='JavaScript'>
+<script language='text/javascript'>
 
 // jQuery stuff to make the page a little easier to use
 

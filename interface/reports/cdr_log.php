@@ -122,7 +122,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-            <a id='search_button' href='#' class='btn btn-default btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
+            <a id='search_button' href='#' class='btn btn-secondary btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
                             <?php echo xlt('Search'); ?>
             </a>
           </div>

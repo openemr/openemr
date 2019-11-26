@@ -117,13 +117,13 @@ input[type=checkbox]:checked+label {
 	color: #000;
 }
 
-.btn-default.active {
+.btn-secondary.active {
 	background-color: #fdfdfd;
 	border-color: #ff0080;
 	color: #000;
 }
 
-.btn-default.checked {
+.btn-secondary.checked {
 	background-color: #fdfdfd;
 	border-color: #ff0080;
 	color: #000;
@@ -146,7 +146,7 @@ input[type=checkbox]:checked+label {
 	background-color: white !important;
 }
 
-/* .col-xs-2 {
+/* .col-2 {
 	min-width: 0;
 	width: 12%;
 	display: inline;

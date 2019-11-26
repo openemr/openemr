@@ -202,7 +202,7 @@ foreach ($ppt as $pt) {
 }
 
 echo "</select></div>";
-echo '<button type="submit" class="btn btn-default">' . xlt('Refresh') . '</button>';
+echo '<button type="submit" class="btn btn-secondary">' . xlt('Refresh') . '</button>';
 echo '</form></div>';
 $dirlist = getTemplateList($tdir);
 echo "<table  class='table table-striped table-bordered'>";

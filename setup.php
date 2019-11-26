@@ -124,7 +124,7 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
         <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
         <link rel="stylesheet" href="public/assets/jquery-ui/jquery-ui.css" type="text/css">
         <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
-        <script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
         <link rel="shortcut icon" href="public/images/favicon.ico" />
         <script type="text/javascript" src="public/assets/jquery-ui/jquery-ui.js"></script>
@@ -234,7 +234,7 @@ if (file_exists($OE_SITE_DIR)) {
 <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
 <link rel="stylesheet" href="public/assets/jquery-ui/jquery-ui.css" type="text/css">
 <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="public/assets/jquery-ui/jquery-ui.js"></script>
 <link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
@@ -482,7 +482,7 @@ STP2TOP;
                             <fieldset>
                         <legend name="form_legend" id="form_legend" class='oe-setup-legend'>MySQL Server Details<i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip" aria-hidden="true"></i></legend>
                         <div class="row">
-                            <div class="col-xs-12 ">
+                            <div class="col-12 ">
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -534,7 +534,7 @@ STP2TOP;
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12 ">
+                            <div class="col-12 ">
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -588,7 +588,7 @@ STP2TBLTOP1;
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12 ">
+                            <div class="col-12 ">
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -749,7 +749,7 @@ STP2TBLTOP2;
                             ksort($siteslist);
                             $source_site_top = <<<SOURCESITETOP
                         <div class="row">
-                            <div class="col-xs-12 ">
+                            <div class="col-12 ">
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -823,7 +823,7 @@ SOURCESITEBOT;
                     <fieldset class='noclone'>
                         <legend name="form_legend" id="form_legend" class='oe-setup-legend'>OpenEMR Initial User Details<i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip" aria-hidden="true"></i></legend>
                         <div class="row">
-                            <div class="col-xs-12 ">
+                            <div class="col-12 ">
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -872,7 +872,7 @@ SOURCESITEBOT;
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12 ">
+                            <div class="col-12 ">
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -911,7 +911,7 @@ SOURCESITEBOT;
                         <legend name="form_legend" id="form_legend" class='oe-setup-legend text-danger'>Enable 2 Factor Authentication for Initial User (more secure - optional) <i id="2fa-section" class="fa fa-info-circle oe-text-black oe-superscript 2fa-section-tooltip" aria-hidden="true"></i></legend>
                        
                         <div class="row">
-                            <div class="col-xs-12 ">
+                            <div class="col-12 ">
                                 <div class="col-sm-3">
                                     <div class="clearfix form-group">
                                         <div class="label-div">

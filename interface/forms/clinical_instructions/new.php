@@ -51,7 +51,7 @@ $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array(
                     <div class="form-group clearfix">
                         <div class="col-sm-12 col-sm-offset-1 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                                <button type='submit' onclick='top.restoreSession()' class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
+                                <button type='submit' onclick='top.restoreSession()' class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
                             </div>
                         </div>

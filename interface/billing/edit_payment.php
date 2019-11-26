@@ -821,7 +821,7 @@ fieldset {
                     <input id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr(round($RemainderJS, 2)); ?>">
                 <br>
                 <br>
-                <div class="col-xs-12">
+                <div class="col-12">
                 <div class = "table-responsive">
                 <table class="table-condensed" id="TableDistributePortion" >
                 <thead bgcolor="#DDDDDD" class="text">
@@ -1086,8 +1086,8 @@ fieldset {
                 <div class="col-sm-12 text-left position-override">
                 <br>
                     <div class="btn-group" role="group">
-                        <a class="btn btn-default btn-save" href="#" onclick="javascript:return ModifyPayments();"><span><?php echo xlt('Modify Payments');?></span></a>
-                        <a class="btn btn-default btn-save" href="#" onclick="javascript:return FinishPayments();"><span><?php echo xlt('Finish Payments');?></span></a>
+                        <a class="btn btn-secondary btn-save" href="#" onclick="javascript:return ModifyPayments();"><span><?php echo xlt('Modify Payments');?></span></a>
+                        <a class="btn btn-secondary btn-save" href="#" onclick="javascript:return FinishPayments();"><span><?php echo xlt('Finish Payments');?></span></a>
                     </div>
                 </div>
             </div>

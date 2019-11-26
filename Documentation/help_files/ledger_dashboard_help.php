@@ -31,7 +31,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Click on the Ledger menu item in the navigation bar to to enter the Patient Ledger page");?>.
                     
                     <p><?php echo xlt("Select a date range and click Submit");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Submit"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Submit"); ?></button>
                     
                     <p><?php echo xlt("Financial transactions corresponding to the date range, if any, will be listed in the table");?>.
                     

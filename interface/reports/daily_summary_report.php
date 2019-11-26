@@ -124,10 +124,10 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                     <td>
                                         <div class="text-center">
                                             <div class="btn-group" role="group">
-                                                <a href='#' class='btn btn-default btn-save' onclick='return submitForm();'>
+                                                <a href='#' class='btn btn-secondary btn-save' onclick='return submitForm();'>
                                                     <?php echo xlt('Submit'); ?>
                                                 </a>
-                                                <a href='' class="btn btn-default btn-refresh" id='new0' onClick=" top.restoreSession(); window.location = window.location.href;">
+                                                <a href='' class="btn btn-secondary btn-refresh" id='new0' onClick=" top.restoreSession(); window.location = window.location.href;">
                                                     <?php echo xlt('Reset'); ?>
                                                 </a>
                                             </div>

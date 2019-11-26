@@ -159,11 +159,11 @@ if (isset($_POST['drR'])) {
         <?php
           // initialize html string
           $pdHTML = '<div class="container">
-                            <div class="drHide col-xs-12">'.
-                                '<a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="btn btn-default btn-show" href="#"><span>'.xlt('View Log').'</span></a>&nbsp;'
-                                .'<a onclick="openAddScreen(0)" class="btn btn-default btn-add" href="#"><span>'.xlt('Create A Dated Reminder').'</span></a>
+                            <div class="drHide col-12">'.
+                                '<a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="btn btn-secondary btn-show" href="#"><span>'.xlt('View Log').'</span></a>&nbsp;'
+                                .'<a onclick="openAddScreen(0)" class="btn btn-secondary btn-add" href="#"><span>'.xlt('Create A Dated Reminder').'</span></a>
                             </div>
-                            <div class="col-xs-12 pre-scrollable oe-margin-t-10">
+                            <div class="col-12 pre-scrollable oe-margin-t-10">
                             <fieldset>
                             <legend>'.xla('Dated Reminders').'</legend>
                            <table class="table-condensed">

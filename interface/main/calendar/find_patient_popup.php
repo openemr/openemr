@@ -118,7 +118,7 @@ if (isset($_GET["res"])) {
 ?>
 <!-- ViSolve: Verify the noresult parameter -->
 
-<script language="JavaScript">
+<script language="text/javascript">
 
  function selpid(pid, lname, fname, dob) {
   if (opener.closed || ! opener.setpatient)
@@ -186,7 +186,7 @@ if (isset($_GET["res"])) {
 <?php endif; ?>
 
 <?php if (isset($result)) : ?>
-<table class="table table-condensed">
+<table class="table table-sm">
 <thead id="searchResultsHeader" class="head">
  <tr>
   <th class="srName"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></th>

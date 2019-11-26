@@ -247,7 +247,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 </div>
 <br>
 
-<!-- <button data-target="#reportdialog" data-toggle="modal" class="btn btn-default">
+<!-- <button data-target="#reportdialog" data-toggle="modal" class="btn btn-secondary">
     <?php //echo xla('Generate Report'); ?></button> -->
 <input type="button" class="generateCCR" value="<?php echo xla('Generate Report'); ?>" />
 <!-- <input type="button" class="generateCCR_download_h" value="<?php echo xl('Download')." (Hybrid)"; ?>" /> -->

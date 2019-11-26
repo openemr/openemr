@@ -552,7 +552,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Procedure Order Id ') . (($formid) ? text($formid) : 'New Order')?></legend>
-                    <div class="col-xs-12">
+                    <div class="col-12">
                         <div class="form-group">
                             <label for="provider_id" class="control-label col-sm-3 oe-text-to-right"><?php echo xlt('Ordering Provider'); ?></label>
                             <div class="col-sm-2">
@@ -770,9 +770,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="form-group clearfix">
                     <div class="col-sm-12 text-left position-override">
                         <div class="btn-group btn-group-pinch" role="group">
-                            <button type="button" class="btn btn-default btn-add" onclick="addProcLine()"><?php echo xlt('Add Procedure'); ?></button>
-                            <button type="submit" class="btn btn-default btn-save" name='bn_save' value="save" onclick='transmitting = false;'><?php echo xlt('Save'); ?></button>
-                            <button type="submit" class="btn btn-default btn-transmit" name='bn_xmit' value="transmit" onclick='transmitting = true;'><?php echo xlt('Save and Transmit'); ?></button>
+                            <button type="button" class="btn btn-secondary btn-add" onclick="addProcLine()"><?php echo xlt('Add Procedure'); ?></button>
+                            <button type="submit" class="btn btn-secondary btn-save" name='bn_save' value="save" onclick='transmitting = false;'><?php echo xlt('Save'); ?></button>
+                            <button type="submit" class="btn btn-secondary btn-transmit" name='bn_xmit' value="transmit" onclick='transmitting = true;'><?php echo xlt('Save and Transmit'); ?></button>
                             <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel'); ?></button>
                         </div>
                     </div>

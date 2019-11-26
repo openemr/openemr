@@ -148,12 +148,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </table>
                             </div>
                             <br>
-                            <button type="button" class="generateCCR btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+                            <button type="button" class="generateCCR btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
                             <!--<input type="button" class="generateCCR_raw" value="<?php echo xlt('Raw Report'); ?>" /> -->
-                            <button type="button" class="generateCCR_download_p btn btn-default btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
+                            <button type="button" class="generateCCR_download_p btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
                             <?php
                             if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
-                                <button type="button" class="viewCCR_send_dialog btn btn-default btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
+                                <button type="button" class="viewCCR_send_dialog btn btn-secondary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
                                 <br>
                                 <div id="ccr_send_dialog" style="display:none" >
                                 <br>
@@ -163,7 +163,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             <span class='bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
                                             <input type="text" size="64" name="ccr_send_to" id="ccr_send_to" value="">
                                             <input type="hidden" name="ccr_sent_by" id="ccr_sent_by" value="user">
-                                            <button type="button" class="viewCCR_transmit btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send CCR'); ?>" ><?php echo xlt('Send CCR'); ?></button>
+                                            <button type="button" class="viewCCR_transmit btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send CCR'); ?>" ><?php echo xlt('Send CCR'); ?></button>
                                             <div id="ccr_send_result" style="display:none" >
                                                 <span class="text" id="ccr_send_message"></span>
                                             </div>
@@ -184,11 +184,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <span class='text'>(<?php echo xlt('Pop ups need to be enabled to see these reports'); ?>)</span>
                         <br/>
                         <br/>
-                        <button type="button" class="viewCCD btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
-                        <button type="button" class="viewCCD_download btn btn-default btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
+                        <button type="button" class="viewCCD btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+                        <button type="button" class="viewCCD_download btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
                         <?php
                         if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
-                            <button type="button" class="viewCCD_send_dialog btn btn-default btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
+                            <button type="button" class="viewCCD_send_dialog btn btn-secondary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
                             <br>
                             <div id="ccd_send_dialog" style="display:none" >
                             <br>
@@ -198,7 +198,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             <span class='bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
                                             <input type="text" size="64" name="ccd_send_to" id="ccd_send_to" value="">
                                             <input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user">
-                                            <button type="button" class="viewCCD_transmit btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send CCD'); ?>" ><?php echo xlt('Send CCD'); ?></button>
+                                            <button type="button" class="viewCCD_transmit btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send CCD'); ?>" ><?php echo xlt('Send CCD'); ?></button>
                                             <div id="ccd_send_result" style="display:none" >
                                                 <span class="text" id="ccd_send_message"></span>
                                             </div>
@@ -226,9 +226,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <a class="link_submit" href="full_report.php" onclick="top.restoreSession()">
             [<?php echo xlt('View Comprehensive Patient Report'); ?>]</a>
             -->
-            <a class="link_submit btn btn-default btn-sm btn-save" href="#" onclick="return checkAll(true)"><?php echo xla('Check All'); ?></a>
+            <a class="link_submit btn btn-secondary btn-sm btn-save" href="#" onclick="return checkAll(true)"><?php echo xla('Check All'); ?></a>
 
-            <a class="link_submit btn btn-default btn-sm btn-undo" href="#" onclick="return checkAll(false)"><?php echo xla('Clear All'); ?></a>
+            <a class="link_submit btn btn-secondary btn-sm btn-undo" href="#" onclick="return checkAll(false)"><?php echo xla('Clear All'); ?></a>
             <p>
 
             <table class="includes">
@@ -267,10 +267,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </tr>
             </table>
             <br>
-            <button type="button" class="genreport btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
-            <button type="button" class="genpdfrep btn btn-default btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
+            <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+            <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
                 <?php if ($cmsportal) { ?>
-            <button type="button" class="genportal btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
+            <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
             <?php } ?>
             <?php
             if ($oefax) {
@@ -466,10 +466,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     </td>
                 </tr>
             </table>
-            <button type="button" class="genreport btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
-            <button type="button" class="genpdfrep btn btn-default btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
+            <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+            <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
             <?php if ($cmsportal) { ?>
-            <button type="button" class="genportal btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
+            <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
             <?php } ?>
 
             <!-- Procedure Orders -->
@@ -517,8 +517,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
                 ?>
             </table>
-            <button type="button" class="genreport btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
-            <button type="button" class="genpdfrep btn btn-default btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
+            <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+            <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
             <hr/>
             <div>
                 <span class="bold oe-report-section-header"><?php echo xlt('Documents'); ?>:</span><br>
@@ -547,11 +547,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
                     ?>
                 </ul>
-                <button type="button" class="genreport btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
-                <button type="button" class="genpdfrep btn btn-default btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
+                <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+                <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
                 <?php
                 if ($cmsportal) { ?>
-                    <button type="button" class="genportal btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
+                    <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
                     <?php
                 } ?>
             </div>

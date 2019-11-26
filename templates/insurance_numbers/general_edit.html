@@ -46,7 +46,7 @@
 
         <tr> <td style="border-style:none;" colspan="5">
             <a href="{$CURRENT_ACTION}action=edit&id=&provider_id={$provider->get_id()|attr_url}&showform=true"
-                class="btn btn-default btn-add" onclick="top.restoreSession()">
+                class="btn btn-secondary btn-add" onclick="top.restoreSession()">
                 <span>{xlt t='Add New'}
             </a>
         </td> </tr>
@@ -110,11 +110,11 @@
             </div>
             <div class="btn-group col-sm-offset-2">
                 {if $ins->get_id() eq ""}
-                    <a href="javascript:submit_insurancenumbers_add();" class="btn btn-default btn-save" onclick="top.restoreSession()">
+                    <a href="javascript:submit_insurancenumbers_add();" class="btn btn-secondary btn-save" onclick="top.restoreSession()">
                         {xlt t='Save'}
                     </a>
                 {else}
-                    <a href="javascript:submit_insurancenumbers_update();" class="btn btn-default btn-save" onclick="top.restoreSession()">
+                    <a href="javascript:submit_insurancenumbers_update();" class="btn btn-secondary btn-save" onclick="top.restoreSession()">
                         {xlt t='Save'}
                     </a>
                 {/if}

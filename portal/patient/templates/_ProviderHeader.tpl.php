@@ -50,7 +50,7 @@
         <div class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                     <div class="navbar-header"><a class="navbar-brand" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/provider"><?php echo xlt('Home'); ?></a>
-                        <a class="navbar-toggle btn-default" data-toggle="collapse" data-target=".navbar-collapse">
+                        <a class="navbar-toggle btn-secondary" data-toggle="collapse" data-target=".navbar-collapse">
                             <span class="glyphicon glyphicon-bar"></span>
                             <span class="glyphicon glyphicon-bar"></span>
                             <span class="glyphicon glyphicon-bar"></span>

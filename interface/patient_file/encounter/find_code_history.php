@@ -220,7 +220,7 @@ function get_history_codes($pid)
                     $code[1] = text($code[1]);
                     echo "<tr>\n" .
                         "<td>" . $pc['origin'] . "</td>\n" .
-                        "<td><button class='btn btn-xs btn-default' onclick='rtnCode(this)' " .
+                        "<td><button class='btn btn-xs btn-secondary' onclick='rtnCode(this)' " .
                         " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u style='color:red;'>" . $code[1] . "</u></button></td>\n" .
                         "<td>" . text($pc['desc']) . "</td>\n" .
                         "<td>" . text($pc['procedure']) . "</td>\n" .

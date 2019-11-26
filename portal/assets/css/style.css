@@ -1548,7 +1548,7 @@ body > .header .logo .icon {
     clear: both;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li.user-footer .btn-default {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-footer .btn-secondary {
     color: #666666;
 }
 
@@ -2143,7 +2143,7 @@ body > .header .logo .icon {
     padding-bottom: 0px !important;
 }
 
-.box.box-solid > .box-header .btn.btn-default {
+.box.box-solid > .box-header .btn.btn-secondary {
     background: transparent;
 }
 
@@ -2609,7 +2609,7 @@ body > .header .logo .icon {
     border: 1px solid transparent;
 }
 
-.btn.btn-default {
+.btn.btn-secondary {
     background-color: #fafafa;
     color: #666;
     border-color: #ddd;
@@ -2621,9 +2621,9 @@ body > .header .logo .icon {
     transition: all .3s ease;
 }
 
-.btn.btn-default:hover,
-.btn.btn-default:active,
-.btn.btn-default.hover {
+.btn.btn-secondary:hover,
+.btn.btn-secondary:active,
+.btn.btn-secondary.hover {
     background-color: #f4f4f4 !important;
     -webkit-transition: all .3s ease;
     -moz-transition: all .3s ease;
@@ -2632,7 +2632,7 @@ body > .header .logo .icon {
     transition: all .3s ease;
 }
 
-.btn.btn-default.btn-flat {
+.btn.btn-secondary.btn-flat {
     border-bottom-color: #d9dadc;
     -webkit-transition: all .3s ease;
     -moz-transition: all .3s ease;

@@ -270,11 +270,11 @@ $provider  = trim($_POST['form_provider']);
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-            <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); top.restoreSession(); $("#theform").submit();'>
+            <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); top.restoreSession(); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
             </a>
             <?php if ($_POST['form_refresh']) { ?>
-              <a href='#' class='btn btn-default btn-print' id='printbutton'>
+              <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                 <?php echo xlt('Print'); ?>
               </a>
             <?php } ?>

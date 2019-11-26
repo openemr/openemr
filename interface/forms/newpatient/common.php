@@ -522,7 +522,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                     <div class="form-group clearfix">
                         <div class="col-sm-12 text-left position-override">
-                            <button type="button" class="btn btn-default btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
+                            <button type="button" class="btn btn-secondary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
                             <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
                                 <button type="button" class="btn btn-link btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
                             <?php } else { // not $viewmode ?>

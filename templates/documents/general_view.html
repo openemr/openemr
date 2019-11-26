@@ -127,7 +127,7 @@ function ImgProcedure() {literal}{{/literal}
             <div style="margin-bottom: 6px;padding-bottom: 6px;border-bottom:3px solid gray;">
             <h4>{$file->get_url_web()|text}
               <div class="btn-group btn-toggle">
-                <button class="btn btn-xs btn-default properties">{xlt t='Properties'}</button>
+                <button class="btn btn-xs btn-secondary properties">{xlt t='Properties'}</button>
                 <button class="btn btn-xs btn-primary active">{xlt t='Contents'}</button>
               </div>
             <span style="float:right;">
@@ -349,7 +349,7 @@ $('.btn-toggle').click(function() {
         $(this).find('.btn').toggleClass('btn-primary');
     }
 
-    $(this).find('.btn').toggleClass('btn-default');
+    $(this).find('.btn').toggleClass('btn-secondary');
     var show_prop = ($(this).find('.properties.active').length > 0 ? 'block':'none');
     $("#DocProperties").css('display', show_prop);
 });

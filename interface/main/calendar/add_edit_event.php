@@ -1326,7 +1326,7 @@ function find_available(extra) {
     .row {
         margin: auto;
     }
-    .well-sm {
+    .jumbotron-sm {
         margin: 0px 0px 5px 0px;
         padding: 5px 0px 5px 5px;
     }
@@ -1487,7 +1487,7 @@ $classpati='';
 </div>
 <?php
 if ($_GET['prov'] != true && $_GET['group'] != true) { ?>
-    <div class="row well well-sm" id="patient_details">
+    <div class="row jumbotron jumbotron-sm" id="patient_details">
         <div class="form-group ">
             <label for="form_patient"><?php echo xlt('Patient'); ?>:</label>
             <input class='form-control' type='text' name='form_patient' id="form_patient" style='cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>'  />
@@ -1666,71 +1666,69 @@ function isRegularRepeat($repeat)
     repeating mechanism is being used, and load settings accordingly.
     */
 ?>
-<div class="well well-sm">
+<div class="jumbotron jumbotron-sm">
 <div class="row">
-    <div class="row">
+    <div class="form-group">
         <div class="form-group">
-            <div class="form-group">
-                <label for="rballday1" class="" id='tdallday1'><?php echo xlt('All day event'); ?></label>
-                <input type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'<?php echo ($thisduration == 1440) ? " checked" : ""; ?>/>
-            </div>
-            <div class="form-group">
-                <label><?php echo xlt('Date'); ?>:</label>
-                <input class="form-control datepicker" type='text' size='10' name='form_date' id='form_date'
-                    value='<?php echo attr(oeFormatShortDate($date)) ?>'
-                    title='<?php echo xla('event date or starting date'); ?>'
-                    onchange='dateChanged()' />
-            </div>
-            <span>
-            <label for="rballday2" class="" id='tdallday2'><?php echo xlt('Time'); ?></label>
-            <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'<?php echo ($thisduration != 1440) ? " checked " : ""; ?>/>
-        </span>
-            <span id="tdallday3">
-                <input class='form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>'
-                    title='<?php echo xla('Event start time'); ?>' />
-                <input class='form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>'
-                    title='<?php echo xla('Event start time'); ?>' />
-                <select class='form-control' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
-                    <option value='1'><?php echo xlt('AM'); ?></option>
-                    <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
-                </select>
-        <label id='tdallday4'><?php echo xlt('duration'); ?></label>
-        <input class="form-control" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>'
-            title='<?php echo xla('Event duration in minutes'); ?>' /><?php echo xlt('minutes'); ?>
-            </span>
+            <label for="rballday1" class="" id='tdallday1'><?php echo xlt('All day event'); ?></label>
+            <input type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'<?php echo ($thisduration == 1440) ? " checked" : ""; ?>/>
         </div>
+        <div class="form-group">
+            <label><?php echo xlt('Date'); ?>:</label>
+            <input class="form-control datepicker" type='text' size='10' name='form_date' id='form_date'
+                value='<?php echo attr(oeFormatShortDate($date)) ?>'
+                title='<?php echo xla('event date or starting date'); ?>'
+                onchange='dateChanged()' />
+        </div>
+        <span>
+        <label for="rballday2" class="" id='tdallday2'><?php echo xlt('Time'); ?></label>
+        <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'<?php echo ($thisduration != 1440) ? " checked " : ""; ?>/>
+    </span>
+        <span id="tdallday3">
+            <input class='form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>'
+                title='<?php echo xla('Event start time'); ?>' />
+            <input class='form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>'
+                title='<?php echo xla('Event start time'); ?>' />
+            <select class='form-control' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
+                <option value='1'><?php echo xlt('AM'); ?></option>
+                <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
+            </select>
+    <label id='tdallday4'><?php echo xlt('duration'); ?></label>
+    <input class="form-control" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>'
+        title='<?php echo xla('Event duration in minutes'); ?>' /><?php echo xlt('minutes'); ?>
+        </span>
     </div>
-    <div class="form-group ">
-        <label id='tdrepeat1'><?php echo xlt('Repeats'); ?></label>
-        <input type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)'
-            value='1'<?php echo (isRegularRepeat($repeats)) ? " checked" : "";?>/>
-        <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate'
-            value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
-        <select class='form-control input-sm'  name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
-        <?php
-        foreach (array(1 => xl('every'), 2 => xl('2nd{{every}}'), 3 => xl('3rd{{every}}'), 4 => xl('4th{{every}}'), 5 => xl('5th{{every}}'), 6 => xl('6th{{every}}')) as $key => $value) {
-            echo "<option value='" . attr($key) . "'";
-            if ($key == $repeatfreq && isRegularRepeat($repeats)) {
-                echo " selected";
-            }
-            echo ">" . text($value) . "</option>\n";
+</div>
+<div class="form-group ">
+    <label id='tdrepeat1'><?php echo xlt('Repeats'); ?></label>
+    <input type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)'
+        value='1'<?php echo (isRegularRepeat($repeats)) ? " checked" : "";?>/>
+    <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate'
+        value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
+    <select class='form-control input-sm'  name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
+    <?php
+    foreach (array(1 => xl('every'), 2 => xl('2nd{{every}}'), 3 => xl('3rd{{every}}'), 4 => xl('4th{{every}}'), 5 => xl('5th{{every}}'), 6 => xl('6th{{every}}')) as $key => $value) {
+        echo "<option value='" . attr($key) . "'";
+        if ($key == $repeatfreq && isRegularRepeat($repeats)) {
+            echo " selected";
         }
-        ?>
-        </select>
-        <select class='form-control input-sm'  name='form_repeat_type'>
-        <?php
-        // See common.api.php for these. Options 5 and 6 will be dynamically filled in
-        // when the start date is set.
-        foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'), 5 => '?', 6 => '?') as $key => $value) {
-            echo "<option value='" . attr($key) . "'";
-            if ($key == $repeattype && isRegularRepeat($repeats)) {
-                echo " selected";
-            }
-            echo ">" . text($value) . "</option>\n";
+        echo ">" . text($value) . "</option>\n";
+    }
+    ?>
+    </select>
+    <select class='form-control input-sm'  name='form_repeat_type'>
+    <?php
+    // See common.api.php for these. Options 5 and 6 will be dynamically filled in
+    // when the start date is set.
+    foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'), 5 => '?', 6 => '?') as $key => $value) {
+        echo "<option value='" . attr($key) . "'";
+        if ($key == $repeattype && isRegularRepeat($repeats)) {
+            echo " selected";
         }
-        ?>
-        </select>
-    </div>
+        echo ">" . text($value) . "</option>\n";
+    }
+    ?>
+    </select>
 </div>
 <!-- Days of Week -->
 <div class="row" id="days_every_week_row">

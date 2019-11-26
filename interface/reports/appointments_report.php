@@ -314,17 +314,17 @@ function fetch_reminders($pid, $appt_date)
                 <td>
                     <div class="text-center">
                         <div class="btn-group" role="group">
-                            <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                                 <?php echo xlt('Submit'); ?>
                             </a>
                             <?php if ($_POST['form_refresh'] || $_POST['form_orderby']) { ?>
-                                <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                     <?php echo xlt('Print'); ?>
                                 </a>
-                                <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2", "_blank").opener = null' onsubmit='return top.restoreSession()'>
+                                <a href='#' class='btn btn-secondary btn-transmit' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2", "_blank").opener = null' onsubmit='return top.restoreSession()'>
                                     <?php echo xlt('Superbills'); ?>
                                 </a>
-                                <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/addr_appt_label.php", "_blank").opener = null' onsubmit='return top.restoreSession()'>
+                                <a href='#' class='btn btn-secondary btn-transmit' onclick='window.open("../patient_file/addr_appt_label.php", "_blank").opener = null' onsubmit='return top.restoreSession()'>
                                     <?php echo xlt('Address Labels'); ?>
                                 </a>
                             <?php } ?>

@@ -62,7 +62,7 @@ require_once("../../interface/globals.php");
                 <div class="col-sm-12">
                     <h4 class="oe-help-heading"><?php echo xlt("Medical Problems"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                     <p><?php echo xlt("Click on Add to bring up the Add/Edit Issue pop-up page");?>.
-                    <button type="button" class="btn btn-default btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
 
                     <p><?php echo xlt("The Type would be Problem indicating a medical problem");?>.
 
@@ -113,7 +113,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Leave Destination blank");?>.
 
                     <p><?php echo xlt("Click Save to save this problem");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
 
                     <p><?php echo xlt("The saved Medical Problem will now be listed as a single line in the main Issues page under Medical Problems");?>.
 
@@ -156,7 +156,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Depending on whether or not NewCrop eRx module is enabled the method of entry will vary");?>.
 
                     <p><?php echo xlt("In the default installation click on Add to bring up the Add/Edit Issue pop-up page");?>.
-                    <button type="button" class="btn btn-default btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
 
                     <p><?php echo xlt("The Type would be Allergy");?>.
 
@@ -181,7 +181,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Referred By, Outcome and Destination can be left blank");?>.
 
                     <p><?php echo xlt("Click Save");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
 
                     <p><?php echo xlt("If you have NewCrop eRx module enabled then the allergies have to be entered on the NewCrop MedEntry page");?>.
 
@@ -206,14 +206,14 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Depending on whether or not NewCrop eRx module is enabled the method of entry will vary");?>.
 
                     <p><?php echo xlt("In the default installation click on Add to bring up the Add/Edit Issue pop-up page");?>.
-                    <button type="button" class="btn btn-default btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
 
                     <p><?php echo xlt("The Type would be Medication");?>.
 
                     <p><?php echo xlt("Fill in the details in a fashion similar to that used for allergies");?>.
 
                     <p><?php echo xlt("Click Save");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
 
                     <p><?php echo xlt("If you have NewCrop eRx module enabled then the allergies have to be entered on the NewCrop MedEntry page");?>.
 
@@ -232,7 +232,7 @@ require_once("../../interface/globals.php");
                 <div class="col-sm-12">
                     <h4 class="oe-help-heading"><?php echo xlt("Surgeries"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                     <p><?php echo xlt("Click on Add to bring up the Add/Edit Issue pop-up page");?>.
-                    <button type="button" class="btn btn-default btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
 
                     <p><?php echo xlt("The Type would be Surgery");?>.
 
@@ -245,21 +245,21 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("The rest may be left blank if so preferred");?>.
 
                     <p><?php echo xlt("Click Save");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
                 </div>
             </div>
             <div class= "row" id="section5">
                 <div class="col-sm-12">
                     <h4 class="oe-help-heading"><?php echo xlt("Dental Issues"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                     <p><?php echo xlt("Click on Add to bring up the Add/Edit Issue pop-up page");?>.
-                    <button type="button" class="btn btn-default btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
 
                     <p><?php echo xlt("The Type would be Dental Issues");?>.
 
                     <p><?php echo xlt("Fill in the necessary details in a fashion similar to that for Medical Problems");?>.
 
                     <p><?php echo xlt("Click Save");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
 
                     <p><?php echo xlt("More information about Issues can be found here");?>.
                     <a href="https://www.open-emr.org/wiki/index.php/Issues_&_Immunizations" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>

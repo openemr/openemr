@@ -691,7 +691,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             }
         } else {
             //if no buttons defined by user, add a standard close button.
-            oFoot.append('<button class="closeBtn btn btn-default" data-dismiss=modal type=button><i class="fa fa-times-circle"></i></button>');
+            oFoot.append('<button class="closeBtn btn btn-secondary" data-dismiss=modal type=button><i class="fa fa-times-circle"></i></button>');
         }
 
         return oFoot; // jquery object of modal footer.

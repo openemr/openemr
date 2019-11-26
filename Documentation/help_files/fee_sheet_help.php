@@ -40,7 +40,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("The default fee sheet can be modified and customized to make it more useful.");?>
 
                 <p><?php echo xlt("A followup appointment can also be scheduled right from the fee sheet.");?>
-                <button type="button" class="btn btn-default btn-sm btn-calendar oe-no-float"><?php echo xlt("New Appointment");?></button>
+                <button type="button" class="btn btn-secondary btn-sm btn-calendar oe-no-float"><?php echo xlt("New Appointment");?></button>
 
                 <p><?php echo xlt("The default fee sheet is divided into several sections and is designed to be filled from top to bottom with the save button at the very end.");?>
 
@@ -127,8 +127,8 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("In addition there are 2 checkboxes"); ?>.
                 <ul>
                     <li><?php echo xlt("Auth"); ?> - <?php echo xlt("Authorize or not as needed"); ?>.</li>
-                    <li><?php echo xlt("Delete"); ?> - <?php echo xlt("Lets you delete a line or row. Hit 'Refresh' and the line will have a strikethrough across it"); ?>. <button type="button" class="btn btn-default btn-sm btn-refresh oe-no-float"><?php echo xlt("Refresh");?></button></li>
-                    <li><?php echo xlt("To fully delete hit 'Save'"); ?>. <button type="button" class="btn btn-default btn-sm btn-save oe-no-float"><?php echo xlt("Save");?></button></li>
+                    <li><?php echo xlt("Delete"); ?> - <?php echo xlt("Lets you delete a line or row. Hit 'Refresh' and the line will have a strikethrough across it"); ?>. <button type="button" class="btn btn-secondary btn-sm btn-refresh oe-no-float"><?php echo xlt("Refresh");?></button></li>
+                    <li><?php echo xlt("To fully delete hit 'Save'"); ?>. <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float"><?php echo xlt("Save");?></button></li>
                 </ul>
 
                 <p><?php echo xlt("To add a copay click the 'Add Copay' button"); ?>.
@@ -209,7 +209,7 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("Open a spreadsheet in openoffice/LibreOffice create 5 columns - three for E/M / CPT codes and two for the ICD code categories"); ?>.
 
-                <p><?php echo xlt("Alternatively download a sample spreadsheet by clicking on the Download button"); ?>. &nbsp <a href="../../interface/forms/fee_sheet/fee_sheet_customization.ods" class= "btn btn-default btn-sm btn-download oe-no-float" download="Fee Sheet Customization" rel="noopener" target="_blank"> <?php echo xlt("Download"); ?></a>
+                <p><?php echo xlt("Alternatively download a sample spreadsheet by clicking on the Download button"); ?>. &nbsp <a href="../../interface/forms/fee_sheet/fee_sheet_customization.ods" class= "btn btn-secondary btn-sm btn-download oe-no-float" download="Fee Sheet Customization" rel="noopener" target="_blank"> <?php echo xlt("Download"); ?></a>
 
                 <p><?php echo xlt("Fill in the CPT codes using the displayed format. The common E/M codes are already filled in, add more as needed"); ?>.
 

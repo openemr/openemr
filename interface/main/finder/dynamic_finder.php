@@ -198,7 +198,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
         <div class="row">
             <div class="col-sm-12">
                 <?php if (acl_check('patients', 'demo', '', array('write','addonly'))) { ?>
-                    <button id="create_patient_btn1" class="btn btn-default btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
+                    <button id="create_patient_btn1" class="btn btn-secondary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
                 <?php } ?>
             </div>
             </div>

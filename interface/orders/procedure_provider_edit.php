@@ -154,7 +154,7 @@ function invalue($name)
                     <fieldset>
                         <legend name="form_legend" id="form_legend"><?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true"></i></legend>
                         <div class="row">
-                            <div class="col-xs-12 ">
+                            <div class="col-12 ">
                                 <div class="col-sm-6">
                                     <div class="clearfix">
                                         <div class="label-div">
@@ -195,7 +195,7 @@ function invalue($name)
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label class="control-label" for="form_DorP"><?php echo xlt('Usage'); ?>:</label> <a href="#usage_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -228,7 +228,7 @@ function invalue($name)
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label class="control-label" for="form_send_app_id"><?php echo xlt('Sender IDs'); ?>:</label> <a href="#sender_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -259,7 +259,7 @@ function invalue($name)
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label class="control-label" for="form_recv_app_id"><?php echo xlt('Receiver IDs'); ?>:</label> <a href="#receiver_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -289,7 +289,7 @@ function invalue($name)
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label class="control-label" for="form_protocol"><?php echo xlt('Protocol'); ?>:</label> <a href="#protocol_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -343,7 +343,7 @@ function invalue($name)
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label class="control-label" for="form_login"><?php echo xlt('Login'); ?>:</label> <a href="#login_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -369,7 +369,7 @@ function invalue($name)
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label class="control-label" for="form_remote_host"><?php echo xlt('Remote Host'); ?>:</label> <a href="#remote_host_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -387,7 +387,7 @@ function invalue($name)
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label class="control-label" for="form_orders_path"><?php echo xlt('Orders Path'); ?>:</label> <a href="#orders_path_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -405,7 +405,7 @@ function invalue($name)
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label class="control-label" for="form_results_path"><?php echo xlt('Results Path'); ?>:</label> <a href="#results_path_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -423,7 +423,7 @@ function invalue($name)
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label class="control-label" for="form_notes"><?php echo xlt('Notes'); ?>:</label> <a href="#notes_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -444,10 +444,10 @@ function invalue($name)
                     <div class="form-group clearfix" id="button-container">
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group btn-group-pinch" role="group">
-                                <button type='submit' name='form_save'  class="btn btn-default btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
+                                <button type='submit' name='form_save'  class="btn btn-secondary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
                                 <?php if ($ppid) { ?>
-                                    <button type='submit' name='form_delete'  class="btn btn-default btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
+                                    <button type='submit' name='form_delete'  class="btn btn-secondary btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
                                 <?php } ?>
                             </div>
                         </div>
