@@ -109,10 +109,10 @@ $sortby = isset($_GET['sortby']) ? $_GET['sortby'] : '';
 $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
 ?>
 
-<div class="row col-xs-12">
+<div class="row col-12">
     <div class="well col-lg-11">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <h3 class="text-center"><?php echo xlt('Main Log'); ?></h3>
             </div>
         </div>
@@ -262,8 +262,8 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
             </div>
             <div class="row form-group">
                 <div class="btn-group col-sm-offset-1" role="group">
-                    <a href="javascript:document.theform.submit();" class="btn btn-default btn-save"><?php echo xlt('Submit'); ?></a>
-                    <button type="button" id="valid_button" class="btn btn-default btn-transmit" onclick="validatelog();" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla("Processing..."); ?>"><?php echo xlt('Validate'); ?></button>
+                    <a href="javascript:document.theform.submit();" class="btn btn-secondary btn-save"><?php echo xlt('Submit'); ?></a>
+                    <button type="button" id="valid_button" class="btn btn-secondary btn-transmit" onclick="validatelog();" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla("Processing..."); ?>"><?php echo xlt('Validate'); ?></button>
                 </div>
             </div>
         </form>
@@ -427,7 +427,7 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
     </div>
     <div class="well col-lg-1">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <h3 class="text-center"><?php echo xlt('Other Logs'); ?></h3>
             </div>
             <p>

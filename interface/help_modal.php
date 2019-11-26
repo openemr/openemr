@@ -37,7 +37,7 @@ $help_modal = <<<HELP
                 </div>
                 <div class="modal-footer" style="margin-top:0px;">
                    <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">$close</button>
-                   <!--<button class="btn btn-default btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">$print</button>-->
+                   <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">$print</button>-->
                 </div>
             </div>
         </div>

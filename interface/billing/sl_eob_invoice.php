@@ -446,15 +446,15 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
             <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
             <fieldset>
                 <legend><?php echo xlt('Invoice Actions'); ?></legend>
-                <div class="col-xs-12 oe-custom-line">
-                    <div class="col-xs-3">
+                <div class="col-12 oe-custom-line">
+                    <div class="col-3">
                         <label class="control-label" for="form_name"><?php echo xlt('Patient'); ?>:</label>
                         <input type="text" class="form-control" class="form-control" class="form-control" id='form_name'
                                name='form_name'
                                value="<?php echo attr($ferow['fname']) . ' ' . attr($ferow['mname']) . ' ' . attr($ferow['lname']); ?>"
                                disabled>
                     </div>
-                    <div class="col-xs-3">
+                    <div class="col-3">
                         <label class="control-label" for="form_provider"><?php echo xlt('Provider'); ?>:</label>
                         <?php
                         $tmp = sqlQuery("SELECT fname, mname, lname " .
@@ -468,18 +468,18 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <input type="text" class="form-control" class="form-control" id='form_provider'
                                name='form_provider' value="<?php echo attr($provider); ?>" disabled>
                     </div>
-                    <div class="col-xs-2">
+                    <div class="col-2">
                         <label class="control-label" for="form_invoice"><?php echo xlt('Invoice'); ?>:</label>
                         <input type="text" class="form-control" class="form-control" id='form_provider'
                                name='form_provider' value='<?php echo attr($patient_id) . "." . attr($encounter_id); ?>'
                                disabled>
                     </div>
-                    <div class="col-xs-2">
+                    <div class="col-2">
                         <label class="control-label" for="svc_date"><?php echo xlt('Svc Date'); ?>:</label>
                         <input type="text" class="form-control" class="form-control" id='svc_date' name='form_provider'
                                value='<?php echo attr($svcdate); ?>' disabled>
                     </div>
-                    <div class="col-xs-2">
+                    <div class="col-2">
                         <label class="control-label" for="insurance_name"><?php echo xlt('Insurance'); ?>:</label>
                         <?php
                         for ($i = 1; $i <= 3; ++$i) {
@@ -494,28 +494,28 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                   readonly><?php echo attr($insurance); ?></textarea>
                     </div>
                 </div>
-                <div class="col-xs-12 oe-custom-line">
-                    <div class="col-xs-3">
+                <div class="col-12 oe-custom-line">
+                    <div class="col-3">
                         <label class="control-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>
                             :</label>
                         <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control"
                                value='<?php echo attr((0 + $ferow['stmt_count'])); ?>'/>
                     </div>
-                    <div class="col-xs-2">
+                    <div class="col-2">
                         <label class="control-label" for="form_last_bill"><?php echo xlt('Last Bill Date'); ?>
                         :</label>
                         <input type='text' name="form_last_bill" id='form_last_bill' class="form-control"
                                value ='<?php echo attr($billdate); ?>' disabled/>
                     </div>
-                    <div class="col-xs-3">
+                    <div class="col-3">
                         <label class="control-label" for="form_reference"><?php echo xlt('Check/EOB No.'); ?>:</label>
                         <input type='text' name='form_reference' id='form_reference' class="form-control" value=''/>
                     </div>
-                    <div class="col-xs-2">
+                    <div class="col-2">
                         <label class="control-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
                         <input type='text' name='form_check_date' class='form-control datepicker' value=''/>
                     </div>
-                    <div class="col-xs-2">
+                    <div class="col-2">
                         <label class="control-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                         <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value=''/>
                         <input type='hidden' name='form_payer_id' value=''/>
@@ -525,8 +525,8 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <input type='hidden' name='form_pay_total' value=''/>
                     </div>
                 </div>
-                <div class="col-xs-12 oe-custom-line">
-                    <div class="col-xs-4">
+                <div class="col-12 oe-custom-line">
+                    <div class="col-4">
                         <label class="control-label" for="type_code"><?php echo xlt('Now posting for'); ?>:</label>
                         <div style="padding-left:15px">
                             <?php
@@ -554,7 +554,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             <input name='form_eobs' type='hidden' value='<?php echo attr($arrow['shipvia']) ?>'/>
                         </div>
                     </div>
-                    <div class="col-xs-4">
+                    <div class="col-4">
                         <label class="control-label" for=""><?php echo xlt('Done with'); ?>:</label>
                         <div style="padding-left:15px">
                             <?php
@@ -573,7 +573,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             ?>
                         </div>
                     </div>
-                    <div class="col-xs-4">
+                    <div class="col-4">
                         <label class="control-label" for=""><?php echo xlt('Secondary billing'); ?>:</label>
                         <div style="padding-left:15px">
                             <label class="checkbox-inline">
@@ -737,15 +737,15 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
             <div class="form-group clearfix">
                 <div class="col-sm-12 text-left position-override" id="search-btn">
                     <div class="btn-group" role="group">
-                        <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save-stay"
+                        <button type='submit' class="btn btn-secondary btn-save" name='form_save' id="btn-save-stay"
                             onclick="this.value='1';"><?php echo xlt("Save Current"); ?></button>
-                        <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save"
+                        <button type='submit' class="btn btn-secondary btn-save" name='form_save' id="btn-save"
                             onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
                         <button type='button' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel'
                             id="btn-cancel" onclick='doClose()'><?php echo xlt("Close"); ?></button>
                     </div>
                     <?php if ($from_posting) { ?>
-                        <button type='button' class="btn btn-default btn-view float-right" name='form_goto' id="btn-goto"
+                        <button type='button' class="btn btn-secondary btn-view float-right" name='form_goto' id="btn-goto"
                             onclick="goEncounterSummary(<?php echo attr_js($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
                     <?php } ?>
                 </div>

@@ -526,12 +526,12 @@ function getAuthPortalUsers()
                 <!--inbox toolbar-->
                 <div class="row" ng-show="!isMessageSelected()">
                     <div class="col-12">
-                        <a class="btn btn-default btn-lg" data-toggle="tooltip"
+                        <a class="btn btn-secondary btn-lg" data-toggle="tooltip"
                             title="Refresh" id="refreshInbox" href="javascript:;"
                             onclick='window.location.replace("./messages.php")'> <span
                             class="fa fa-refresh fa-lg"></span>
                         </a>
-                        <button class="btn btn-default btn-lg"
+                        <button class="btn btn-secondary btn-lg"
                             title="<?php echo xla("New Note"); ?>" data-mode="add"
                             data-toggle="modal" data-target="#modalCompose">
                             <span class="fa fa-edit fa-lg"></span>
@@ -706,11 +706,11 @@ function getAuthPortalUsers()
                     <span class="text-muted"><b>{{(itemsPerPage * currentPage) + 1}}</b>~<b>{{(itemsPerPage
                             * currentPage) + pagedItems[currentPage].length}}</b> of <b>{{items.length}}</b></span>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-default btn-lg"
+                        <button type="button" class="btn btn-secondary btn-lg"
                             ng-class="{disabled: currentPage == 0}" ng-click="prevPage()">
                             <span class="glyphicon glyphicon-chevron-left"></span>
                         </button>
-                        <button type="button" class="btn btn-default btn-lg"
+                        <button type="button" class="btn btn-secondary btn-lg"
                             ng-class="{disabled: currentPage == pagedItems.length - 1}"
                             ng-click="nextPage()">
                             <span class="glyphicon glyphicon-chevron-right"></span>
@@ -795,7 +795,7 @@ function getAuthPortalUsers()
                                         name='inputBody' ng-value='compose.inputBody' /> <input
                                         type='hidden' name='pid' ng-value='compose.pid' />
                                     <div class='modal-footer'>
-                                        <button type="button" class="btn btn-default"
+                                        <button type="button" class="btn btn-secondary"
                                             data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                                         <button type="submit" id="submit" name="submit"
                                             class="btn btn-primary float-right" value="messages.php"><?php echo xlt('Send'); ?> <i

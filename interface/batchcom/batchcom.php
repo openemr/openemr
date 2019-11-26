@@ -275,7 +275,7 @@ if ($_POST['form_action']=='process') {
         <div class="row">
             <div class="col-md-12 form-group">
                 <input type="hidden" name="form_action" value="process">
-                <button type="submit" name="submit" class="btn btn-default btn-save">
+                <button type="submit" name="submit" class="btn btn-secondary btn-save">
                     <?php echo xla("Process"); ?>
                 </button>
             </div>

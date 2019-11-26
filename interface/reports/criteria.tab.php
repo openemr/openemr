@@ -61,13 +61,13 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
 }
 //------------------------------------------------------------------------------
 ?>
-<div class="form-group col-xs-8">
+<div class="form-group col-8">
     <fieldset>
         <legend><?php echo xlt('Choose Criteria'); ?></legend>
-        <div class="form-group col-xs-6">
+        <div class="form-group col-6">
           <label for="choose_this_page_criteria"><?php echo xlt('Select list'); ?>:</label>
 
-            <select name="choose_this_page_criteria" id="choose_this_page_criteria" title="Choose Criteria" class="text col-xs-12" onChange="CriteriaVisible()" size='8' >
+            <select name="choose_this_page_criteria" id="choose_this_page_criteria" title="Choose Criteria" class="text col-12" onChange="CriteriaVisible()" size='8' >
                 <?php
                 for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaKey); $ThisPageSearchCriteriaIndex++) {
                     $optionValue = $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex];
@@ -85,8 +85,8 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
             $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='datetime') {
                 $DateNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
                 ?>
-                <div class="form-group col-xs-6" id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
-                    <div class= "col-xs-12">
+                <div class="form-group col-6" id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
+                    <div class= "col-12">
                         <label for="choose_this_page_criteria"><?php echo text($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]); ?></label>
                         <?php echo generate_select_list(
                             "date_master_criteria_$DateNamePart",
@@ -103,7 +103,7 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                         );
                         ?>
                     </div>
-                    <div class= "col-xs-12">
+                    <div class= "col-12">
                         <label class="control-label" for="master_from_date_<?php echo attr($DateNamePart); ?>'"><?php echo xlt('From'); ?>:</label>
                         <input type='text'
                                 name='master_from_date_<?php echo attr($DateNamePart); ?>'
@@ -117,7 +117,7 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                                 ' = ',<?php echo attr_js('master_from_date_'.$DateNamePart); ?>,<?php echo attr_js('master_to_date_'.$DateNamePart); ?>,
                                 <?php echo attr_js($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]); ?>)" />
                     </div>
-                    <div class= "col-xs-12">
+                    <div class= "col-12">
                         <label class="control-label" for="check_date"><?php echo xlt('To{{Range}}'); ?>:</label>
                         <input type='text'
                                 name='master_to_date_<?php echo attr($DateNamePart); ?>'
@@ -140,8 +140,8 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                 $array_query_drop_down = BillingReport::BuildArrayForReport($ThisPageSearchCriteriaQueryDropDownMaster[$ThisPageSearchCriteriaQueryDropDown[$ThisPageSearchCriteriaIndex]]);
                 $QueryDropDownNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
                 ?>
-                <div class="form-group col-xs-6" id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
-                    <div class= "col-xs-12">
+                <div class="form-group col-6" id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
+                    <div class= "col-12">
                         <label class="control-label" for="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>"><?php echo text($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]); ?>:</label>
                         <select  name="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>"
                         id="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>" onchange="appendOptionRadioCriteria(
@@ -172,8 +172,8 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
             if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='include') {
                 $IncludeNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
                 ?>
-                <div class="form-group col-xs-6" id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
-                    <div class= "col-xs-12">
+                <div class="form-group col-6" id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
+                    <div class= "col-12">
                         <label class="control-label" for=""><?php echo text($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]); ?>:</label>
                         <div <?php //Don't Use class =  'form-control'?>>
                             <?php $FunctionName = $ThisPageSearchCriteriaIncludeMaster[$ThisPageSearchCriteriaInclude[$ThisPageSearchCriteriaIndex]];
@@ -195,8 +195,8 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                     $TextSeperator=' like ';
                 }
                 ?>
-                <div class="form-group col-xs-6" id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
-                    <div class= "col-xs-12">
+                <div class="form-group col-6" id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
+                    <div class= "col-12">
                         <label class="control-label" for="text_master_<?php echo attr($TextNamePart);?>"><?php echo text($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]); ?>:</label>
                         <input type="text"  name="text_master_<?php echo attr($TextNamePart);?>"
                           id="text_master_<?php echo attr($TextNamePart);?>" value="<?php echo attr($_REQUEST["text_master_$TextNamePart"]) ?>"
@@ -216,8 +216,8 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
             if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio' ||
                 $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like') {
                 ?>
-                <div class="form-group col-xs-6" id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
-                    <div class= "col-xs-12">
+                <div class="form-group col-6" id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
+                    <div class= "col-12">
                         <label class="control-label" for="radio_<?php echo attr($RadioNamePart) ?>"><?php echo text($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]); ?>:</label>
                         <?php
                         if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio') {
@@ -259,12 +259,12 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
         ?>
     </fieldset>
 </div>
-<div class="form-group col-xs-4">
+<div class="form-group col-4">
     <fieldset>
         <legend><?php echo xlt('Current Criteria'); ?></legend>
-        <div class="form-group col-xs-12">
-            <label for="final_this_page_criteria" class="col-xs-12"><?php echo xlt('Criteria'); ?>  <?php echo xlt('Set To'); ?>: <i class="fa fa-times-circle fa-2x text-danger float-right" style="margin-top:-7px" aria-hidden="true" onclick="removeOptionSelected()" title="<?php echo xla('Click here to delete the selection'); ?>"></i></label>
-            <select name='final_this_page_criteria[]' id='final_this_page_criteria' size='8' class='text col-xs-12'  title='Criteria' multiple="multiple" >
+        <div class="form-group col-12">
+            <label for="final_this_page_criteria" class="col-12"><?php echo xlt('Criteria'); ?>  <?php echo xlt('Set To'); ?>: <i class="fa fa-times-circle fa-2x text-danger float-right" style="margin-top:-7px" aria-hidden="true" onclick="removeOptionSelected()" title="<?php echo xla('Click here to delete the selection'); ?>"></i></label>
+            <select name='final_this_page_criteria[]' id='final_this_page_criteria' size='8' class='text col-12'  title='Criteria' multiple="multiple" >
                 <?php
                 if ($_REQUEST['final_this_page_criteria']) {
                     for ($final_this_page_criteria_index=0; $final_this_page_criteria_index<sizeof($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {

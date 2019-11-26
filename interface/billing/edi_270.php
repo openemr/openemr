@@ -412,15 +412,15 @@ if ($exclude_policy != "") {
                                     <td>
                                         <div class="text-center">
                                             <div class="btn-group" role="group">
-                                                <a href='#' class='btn btn-default btn-refresh' onclick='validate_policy(); $("#theform").submit();'>
+                                                <a href='#' class='btn btn-secondary btn-refresh' onclick='validate_policy(); $("#theform").submit();'>
                                                     <?php echo xlt('Refresh'); ?>
                                                 </a>
-                                                <a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch(false);'>
+                                                <a href='#' class='btn btn-secondary btn-transmit' onclick='return validate_batch(false);'>
                                                     <?php echo xlt('Create batch'); ?>
                                                     <input type='hidden' name='form_savefile' id='form_savefile' value=''></input>
 
                                                     <?php if ($GLOBALS['enable_oa']) {
-                                                        echo "<a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch(true);'>" . xlt('Request Eligibility') . "</a>\n";
+                                                        echo "<a href='#' class='btn btn-secondary btn-transmit' onclick='return validate_batch(true);'>" . xlt('Request Eligibility') . "</a>\n";
                                                     }
                                                     ?>
                                                     <input type='hidden' name='form_xmit' id='form_xmit' value=''></input>

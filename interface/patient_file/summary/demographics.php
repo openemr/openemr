@@ -270,7 +270,7 @@ function editScripts(url) {
             {text: <?php echo xlj('Add'); ?>, close: false,  id: 'addButton', class: 'btn-primary btn-sm', click: AddScript},
             {text: <?php echo xlj('Clear'); ?>, close: false,id: 'clearButton', style: 'display:none;', class: 'btn-primary btn-sm', click: AddScript},
             {text: <?php echo xlj('Back'); ?>, close: false, id: 'backButton', style: 'display:none;', class: 'btn-primary btn-sm', click: ListScripts},
-            {text: <?php echo xlj('Done'); ?>, close: true, id: 'doneButton', class: 'btn-default btn-sm'}
+            {text: <?php echo xlj('Done'); ?>, close: true, id: 'doneButton', class: 'btn-secondary btn-sm'}
         ],
         onClosed: 'refreshme',
         allowResize: true,

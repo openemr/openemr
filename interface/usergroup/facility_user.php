@@ -104,16 +104,16 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
 
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-title">
                     <h2><?php echo xlt('Facility Specific User Information'); ?></h2>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="btn-group">
-                    <a href="usergroup_admin.php" class="btn btn-default btn-back" onclick="top.restoreSession()"><?php echo xlt('Back to Users'); ?></a>
+                    <a href="usergroup_admin.php" class="btn btn-secondary btn-back" onclick="top.restoreSession()"><?php echo xlt('Back to Users'); ?></a>
                 </div>
             </div>
         </div>

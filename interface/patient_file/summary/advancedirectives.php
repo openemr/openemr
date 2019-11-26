@@ -74,14 +74,14 @@ use OpenEMR\Core\Header;
 <body class="body_top">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h3><?php echo xlt('Advance Directives'); ?></h3>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <form action='advancedirectives.php' method='post' onsubmit='return validate(this)'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="form-group">
@@ -94,7 +94,7 @@ use OpenEMR\Core\Header;
                     </div>
                     <div class="form-group">
                         <div class="btn-group" role="group">
-                            <button type="submit" id="create" class="btn btn-default btn-save"><?php echo xla('Save'); ?></button>
+                            <button type="submit" id="create" class="btn btn-secondary btn-save"><?php echo xla('Save'); ?></button>
                             <button type="button" id="cancel" class="btn btn-link btn-cancel"><?php echo xla('Cancel'); ?></button>
                         </div>
                     </div>
@@ -103,7 +103,7 @@ use OpenEMR\Core\Header;
         </div>
         <hr>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <?php
                 $query = "SELECT id FROM categories WHERE name='Advance Directive'";
                 $myrow2 = sqlQuery($query);

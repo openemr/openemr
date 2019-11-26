@@ -247,7 +247,7 @@ body {
 </style>
 <script type="text/template" id="onsiteDocumentModelTemplate">
 <div class="container-fluid">
-    <aside class="col-lg-2 col-sm-2 col-xs-2 container-fluid" id="sidebar-pills">
+    <aside class="col-lg-2 col-sm-2 col-2 container-fluid" id="sidebar-pills">
         <ul class="nav nav-pills  nav-stacked" id="sidebar">
             <li data-toggle="pill" class="bg-info"><a id="signTemplate" href="#openSignModal"
                 data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><span><?php echo xlt('Signature');?></span></a></li>
@@ -268,7 +268,7 @@ body {
             <?php } ?>
         </ul>
     </aside>
-    <div class="col-md-8 col-xs-10 col-xs-10">
+    <div class="col-md-8 col-10 col-10">
         <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
         <div class="panel panel-primary" id="docpanel">
             <header class="panel-heading" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>

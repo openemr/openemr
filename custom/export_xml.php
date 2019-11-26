@@ -281,15 +281,15 @@ if ($rowed['id']) {
 <body class="body_top">
   <div class="container">
      <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
            <div class="form-group"></div>
            <div class="form-group">
               <textarea name="export_data" class="form-control" rows="18" readonly><?php echo text($out) ?></textarea>
            </div>
            <div class="form-group">
-              <div class="col-xs-12 text-right">
+              <div class="col-12 text-right">
                  <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default btn-cancel" onclick="window.close()"><?php echo xlt("Close"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-cancel" onclick="window.close()"><?php echo xlt("Close"); ?></button>
                  </div>
               </div>
            </div>

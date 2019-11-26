@@ -50,20 +50,20 @@ if (isset($_POST["mode"])) {
                     <br>
                     <fieldset>
                     <legend class=""><?php echo xlt('Distribute')?></legend>
-                    <div class="col-xs-12" style="padding-bottom:5px">
-                        <div class="col-xs-3">
+                    <div class="col-12" style="padding-bottom:5px">
+                        <div class="col-3">
                             <label class="control-label" for="patient_name"><?php echo xlt('Patient'); ?>:</label>
                             <input id="hidden_ajax_patient_close_value" type="hidden" value="<?php echo $Message=='' ? attr($NameNew) : '' ;?>">
                             <!--<input autocomplete="off" class="form-control" type="text" id='patient_name' name='patient_name' onkeydown="PreventIt(event)" value="<?php echo $Message=='' ? attr($NameNew) : '' ;?>">-->
                             <input name='patient_code'  class="form-control"   id='patient_code' class="text"  onKeyDown="PreventIt(event)" value="<?php echo $Message=='' ? attr($NameNew) : '' ;?>"  autocomplete="off" />
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-2">
                             <label class="control-label" for="patient_name"><?php echo xlt('Patient Id'); ?>:</label>
                             <div class="form-control" name="patient_name" id="patient_name"" >
                                 <?php echo ($Message=='') ? text($hidden_patient_code) : '' ;?>
                             </div>
                         </div>
-                        <div class="col-xs-7">
+                        <div class="col-7">
                             <label class="control-label" for="type_code"><?php echo xlt('Select'); ?>:</label>
                             <div>
                                 <label class="radio-inline">
@@ -92,7 +92,7 @@ if (isset($_POST["mode"])) {
                 $PreviousPID=0;
                 if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     ?>
-                <div class="col-xs-12">
+                <div class="col-12">
                 <div class = "table-responsive">
                 <table class="table-condensed"   id="TableDistributePortion">
                   <thead class="" bgcolor="#dddddd">

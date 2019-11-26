@@ -250,9 +250,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         let dModal = "<div class='modal fade' id='confirmDialog' aria-hidden='true'><div class='modal-dialog'><div class='modal-content'>" +
             "<div class='modal-header'><h4 class='modal-title'>"+mConfirm+"</h4></div><div class='modal-body'>" +
             "<label>"+Message+"</label></div><div class='modal-footer'>" +
-            "<button type='button' class='btn btn-default btn-clear' data-dismiss='modal'>"+mClear+"</button>" +
-            "<button type='button' class='btn btn-default btn-validate' data-dismiss='modal'>"+mVal+"</button>" +
-            "<button type='button' class='btn btn-default btn-continue' data-dismiss='modal'>"+mCont+"</button>" +
+            "<button type='button' class='btn btn-secondary btn-clear' data-dismiss='modal'>"+mClear+"</button>" +
+            "<button type='button' class='btn btn-secondary btn-validate' data-dismiss='modal'>"+mVal+"</button>" +
+            "<button type='button' class='btn btn-secondary btn-continue' data-dismiss='modal'>"+mCont+"</button>" +
             "<a class='btn btn-danger' data-dismiss='modal'>"+mCancel+"</a>" +
             "</div></div></div></div>";
 
@@ -563,7 +563,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <form name='the_form' method='post' action='billing_report.php' onsubmit='return top.restoreSession()' style="display:inline">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type='hidden' name='mode' value='change'>
-            <div class="col-xs-9">
+            <div class="col-9">
                 <!-- ============================================================================================================================================= -->
                 <!-- Criteria section Starts -->
                 <!-- ============================================================================================================================================= -->
@@ -691,10 +691,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 ?>
 
             </div>
-            <div class="form-group col-xs-3 hideaway">
+            <div class="form-group col-3 hideaway">
                 <fieldset>
                     <legend><?php echo xlt('Select Action'); ?></legend>
-                    <div class="form-group col-xs-12">
+                    <div class="form-group col-12">
                         <div class='text'>
                             <ul>
                                 <li><a class="link_submit" href="#"
@@ -827,10 +827,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </ul>
                         </div>
                     <?php } ?>
-                    <button class="btn btn-default btn-download" data-open-popup="true" name="bn_mark"
+                    <button class="btn btn-secondary btn-download" data-open-popup="true" name="bn_mark"
                             title="<?php echo xla('Post to accounting and mark as billed') ?>"
                             type="submit"><?php echo xla('Mark as Cleared') ?></button>
-                    <button class="btn btn-default btn-undo" data-open-popup="true" name="bn_reopen"
+                    <button class="btn btn-secondary btn-undo" data-open-popup="true" name="bn_reopen"
                             title="<?php echo xla('Mark as not billed') ?>"
                             type="submit"><?php echo xlt('Re-Open') ?></button>
                 </div>
@@ -1104,16 +1104,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <?php
                                 $lhtml .= "<div class='button-group'>";
                                 // Not sure why the next section seems to do nothing except post "To Encounter" button 2/17/09 JCH
-                                $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:
+                                $lhtml .= "<a class=\"btn btn-xs btn-secondary\" role=\"button\" " . "href=\"javascript:
                                 window.toencounter(" . attr_js($iter['enc_pid']) . "," . attr_js($name['pubpid']) . "," . attr_js($ptname) . "," . attr_js($iter['enc_encounter']) . "," . attr_js(oeFormatShortDate($raw_encounter_date)) . "," . attr_js(" ".xl('DOB').": ".oeFormatShortDate($name['DOB_YMD'])." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])) . ");
                                 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['enc_pid']) . "],EncounterDateArray[" . attr($iter['enc_pid']) . "], CalendarCategoryArray[" . attr($iter['enc_pid']) . "]);
                                 top.setEncounter(" . attr_js($iter['enc_encounter']) . ");
                             \">" . xlt('Encounter') . " " . text(oeFormatShortDate($raw_encounter_date)) . "</a>";
 
                                 // Changed "To xxx" buttons to allow room for encounter date display 2/17/09 JCH
-                                $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.topatient(" . attr_js($iter['enc_pid']) . "," . attr_js($name['pubpid']) . "," . attr_js($ptname) . "," . attr_js($iter['enc_encounter']) . "," . attr_js(oeFormatShortDate($raw_encounter_date)) . "," . attr_js(" ".xl('DOB').": ".oeFormatShortDate($name['DOB_YMD'])." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])) . ");
+                                $lhtml .= "<a class=\"btn btn-xs btn-secondary\" role=\"button\" " . "href=\"javascript:window.topatient(" . attr_js($iter['enc_pid']) . "," . attr_js($name['pubpid']) . "," . attr_js($ptname) . "," . attr_js($iter['enc_encounter']) . "," . attr_js(oeFormatShortDate($raw_encounter_date)) . "," . attr_js(" ".xl('DOB').": ".oeFormatShortDate($name['DOB_YMD'])." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])) . ");
                         top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['enc_pid']) . "],EncounterDateArray[" . attr($iter['enc_pid']) . "], CalendarCategoryArray[" . attr($iter['enc_pid']) . "])\">" . xlt('Patient') . "</a>";
-                                $is_edited = $iter['mboid'] ? 'btn-success' : 'btn-default';
+                                $is_edited = $iter['mboid'] ? 'btn-success' : 'btn-secondary';
                                 $title = $iter['mboid'] ? xlt("This claim has HCFA 1500 miscellaneous billing options") : xlt("Click to add HCFA 1500 miscellaneous billing options");
                                 $lhtml .= "<a class='btn btn-xs $is_edited' role='button' title='" . attr($title) . "' onclick='popMBO(" . attr_js($iter['enc_pid']) . "," . attr_js($iter['enc_encounter']) . "," . attr_js($iter['mboid']) . "); return false;'>" . xlt('MBO ') . "</a>";
                                 if ($ub04_support && isset($iter['billed'])) {

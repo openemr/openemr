@@ -114,9 +114,9 @@ require_once("../../interface/globals.php");
 
                     <p><?php echo xlt("There are three options available when you create a Continuity of Care Record (CCR)");?>:
                         <ul>
-                            <li><?php echo xlt("Generate Report - that opens the CCR in a separate tab on the browser"); ?> <button type="button" class="btn btn-default btn-sm btn-save oe-no-float"><?php echo xlt("Generate Report"); ?></button></li>
-                            <li><?php echo xlt("Download - the created CCR is downloaded as a pdf file to the downloads from the browser"); ?> <button type="button" class="btn btn-default btn-sm btn-download oe-no-float"><?php echo xlt("Download"); ?></button></li>
-                            <li><?php echo xlt("Transmit - securely transmit the CCR using phiMail Direct Messaging"); ?> <button type="button" class="btn btn-default btn-sm btn-transmit oe-no-float"><?php echo xlt("Transmit"); ?></button></li>
+                            <li><?php echo xlt("Generate Report - that opens the CCR in a separate tab on the browser"); ?> <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float"><?php echo xlt("Generate Report"); ?></button></li>
+                            <li><?php echo xlt("Download - the created CCR is downloaded as a pdf file to the downloads from the browser"); ?> <button type="button" class="btn btn-secondary btn-sm btn-download oe-no-float"><?php echo xlt("Download"); ?></button></li>
+                            <li><?php echo xlt("Transmit - securely transmit the CCR using phiMail Direct Messaging"); ?> <button type="button" class="btn btn-secondary btn-sm btn-transmit oe-no-float"><?php echo xlt("Transmit"); ?></button></li>
                         </ul>
 
                     <p><?php echo xlt("Clicking the Transmit button will open up a text box where the Direct address of the recipient needs to be entered");?>.
@@ -194,9 +194,9 @@ require_once("../../interface/globals.php");
 
                     <p><?php echo xlt("There are three options available when you create a Continuity of Care Document (CCD)");?>:
                         <ul>
-                            <li><?php echo xlt("Generate Report - that opens the CCD in a separate tab on the browser"); ?> <button type="button" class="btn btn-default btn-sm btn-save oe-no-float"><?php echo xlt("Generate Report"); ?></button></li>
-                            <li><?php echo xlt("Download - the created CCD is downloaded as a pdf file to the downloads from the browser"); ?> <button type="button" class="btn btn-default btn-sm btn-download oe-no-float"><?php echo xlt("Download"); ?></button></li>
-                            <li><?php echo xlt("Transmit - securely transmit the CCD using phiMail Direct Messaging"); ?> <button type="button" class="btn btn-default btn-sm btn-transmit oe-no-float"><?php echo xlt("Transmit"); ?></button></li>
+                            <li><?php echo xlt("Generate Report - that opens the CCD in a separate tab on the browser"); ?> <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float"><?php echo xlt("Generate Report"); ?></button></li>
+                            <li><?php echo xlt("Download - the created CCD is downloaded as a pdf file to the downloads from the browser"); ?> <button type="button" class="btn btn-secondary btn-sm btn-download oe-no-float"><?php echo xlt("Download"); ?></button></li>
+                            <li><?php echo xlt("Transmit - securely transmit the CCD using phiMail Direct Messaging"); ?> <button type="button" class="btn btn-secondary btn-sm btn-transmit oe-no-float"><?php echo xlt("Transmit"); ?></button></li>
                         </ul>
 
                     <p><?php echo xlt("Clicking the Transmit button will open up a text box where the Direct address of the recipient needs to be entered");?>.
@@ -216,8 +216,8 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("By default only Demographics and Billing information is selected");?>.
 
                     <p><?php echo xlt("There are two buttons that enable you to Check or Clear all available check-boxes");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float"><?php echo xlt("Check All"); ?></button>
-                    <button type="button" class="btn btn-default btn-sm btn-undo oe-no-float"><?php echo xlt("Clear All"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float"><?php echo xlt("Check All"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-undo oe-no-float"><?php echo xlt("Clear All"); ?></button>
 
                     <p><?php echo xlt("Alternatively you could clear all selections and select only the items that you want to be a part of the report");?>.
 
@@ -225,8 +225,8 @@ require_once("../../interface/globals.php");
 
                     <p><?php echo xlt("There are two options for the records that will be created");?>:
                         <ul>
-                            <li><?php echo xlt("Generate Report that creates a report and displays it in a separate tab on the browser "); ?> <button type="button" class="btn btn-default btn-sm btn-save oe-no-float"><?php echo xlt("Generate Report"); ?></button></li>
-                            <li><?php echo xlt("Download report as a pdf file into the browser's download folder"); ?> <button type="button" class="btn btn-default btn-sm btn-download oe-no-float"><?php echo xlt("Download PDF"); ?></button></li>
+                            <li><?php echo xlt("Generate Report that creates a report and displays it in a separate tab on the browser "); ?> <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float"><?php echo xlt("Generate Report"); ?></button></li>
+                            <li><?php echo xlt("Download report as a pdf file into the browser's download folder"); ?> <button type="button" class="btn btn-secondary btn-sm btn-download oe-no-float"><?php echo xlt("Download PDF"); ?></button></li>
                         </ul>
 
                     <p><?php echo xlt("When the generated report is displayed in a separate tab there is an option that lets you view a Printable Version that can be printed");?>.
@@ -278,7 +278,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("If you do not select at least one of these, OpenEMR will operate in a receive-only mode");?>.
 
                     <p><?php echo xlt("Click the Save button");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
 
                     <p><?php echo xlt("To receive error notifications from the Direct Messaging service a valid Notification Email Address needs to be entered for the user named in Administration > Globals > Connectors > phiMail notification user");?>.
 
@@ -289,11 +289,11 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("At present only Continuity of Care Record (CCR) Continuity of Care Document (CCD) can be sent using phiMail");?>.
 
                     <p><?php echo xlt("Click the Transmit button to reveal the Direct address box");?>.
-                    <button type="button" class="btn btn-default btn-transmit btn-sm oe-no-float"><?php echo xlt("Transmit"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-transmit btn-sm oe-no-float"><?php echo xlt("Transmit"); ?></button>
 
                     <p><?php echo xlt("Enter the Direct address and click Send CCR/Send CCD as the case may be");?>.
-                    <button type="button" class="btn btn-default btn-send-msg btn-sm oe-no-float"><?php echo xlt("Send CCR"); ?></button>
-                    <button type="button" class="btn btn-default btn-send-msg btn-sm oe-no-float"><?php echo xlt("Send CCD"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-send-msg btn-sm oe-no-float"><?php echo xlt("Send CCR"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-send-msg btn-sm oe-no-float"><?php echo xlt("Send CCD"); ?></button>
 
                     <p><strong><?php echo xlt("RECEIVING A MESSAGE"); ?> :</strong>
 

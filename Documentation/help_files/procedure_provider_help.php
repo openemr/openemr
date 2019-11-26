@@ -92,10 +92,10 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Check the CPOE (Computerized Provider Order Entry) check-box");?>.
 
                     <p><?php echo xlt("For manual lab entry you can give the organization any name  - e.g Local Lab and click Save");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
 
                     <p><?php echo xlt("If you are using Electronic lab entry then fill in the required details and click Save");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
 
                     <p><?php echo xlt("If you are using multiple labs enter the details for each one of them");?>.
 
@@ -104,7 +104,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("These entries will be used to define the Providers in the Procedures module");?>.
 
                     <p><?php echo xlt("Go to Procedures > Providers and click on the Add New button");?>.
-                    <button type="button" class="btn btn-default btn-add btn-sm oe-no-float"><?php echo xlt("Add New"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-add btn-sm oe-no-float"><?php echo xlt("Add New"); ?></button>
 
                     <p><?php echo xlt("The Enter Provider Details pop-up will be visible");?>.
 
@@ -115,7 +115,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Select the name of the entity from the Name drop-down box");?>.
 
                     <p><?php echo xlt("Fill in the required details especially for the external facilities and click Save");?>.
-                    <button type="button" class="btn btn-default btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
 
                     <p><?php echo xlt("Add all needed providers in a similar manner");?>.
                 </div>

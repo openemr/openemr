@@ -1232,7 +1232,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         </table>
         <?php
         if (isset($ccdata["cardHolderName"])) {
-            echo '<div class="col-xs-5"><div class="panel panel-default height">';
+            echo '<div class="col-5"><div class="panel panel-default height">';
             if (!isset($_SESSION['authUserID'])) {
                 echo '<div class="panel-heading">' . xlt("Payment Information") .
                     '<span style="color:#cc0000"><em> ' . xlt("Pending Auth since") . ': </em>' . text($edata["date"]) . '</span></div>';
@@ -1242,7 +1242,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                     ' <button type="button" class="btn btn-warning btn-sm" onclick="getAuth()">' . xlt("Authorize") . '</button></div>';
             }
         } else {
-            echo '<div style="display:none" class="col-xs-6"><div class="panel panel-default height">' .
+            echo '<div style="display:none" class="col-6"><div class="panel panel-default height">' .
                 '<div class="panel-heading">' . xlt("Payment Information") . ' </div>';
         }
         ?>
@@ -1440,7 +1440,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 <!-- Body  -->
                 <div class="modal-footer">
                     <div class="button-group">
-                        <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                         <?php
                         if ($GLOBALS['payment_gateway'] == 'InHouse') { ?>
                             <button id="paySubmit" class="btn btn-primary"><?php echo xlt('Send Payment'); ?></button>

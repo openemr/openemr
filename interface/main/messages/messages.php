@@ -292,21 +292,21 @@ if (!empty($_REQUEST['go'])) { ?>
                                     <?php if ($active == "all") { ?>
                                 <span><strong><?php echo xlt('All Messages'); ?></strong></span>
                                     <?php } else { ?>
-                                <a href="messages.php" class="link btn btn-default"
+                                <a href="messages.php" class="link btn btn-secondary"
                                    onclick="top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
                                     <?php } ?>
                                     |
                                     <?php if ($active == '1') { ?>
                                 <span><strong><?php echo xlt('Active Messages'); ?></strong></span>
                                     <?php } else { ?>
-                                <a href="messages.php?form_active=1" class="link btn btn-default"
+                                <a href="messages.php?form_active=1" class="link btn btn-secondary"
                                    onclick="top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
                                     <?php } ?>
                                     |
                                     <?php if ($active == '0') { ?>
                                 <span><strong><?php echo xlt('Inactive Messages'); ?></strong></span>
                                     <?php } else { ?>
-                                <a href="messages.php?form_inactive=1" class="link btn btn-default"
+                                <a href="messages.php?form_inactive=1" class="link btn btn-secondary"
                                    onclick="top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
                                     <?php } ?>
                             <?php } ?>
@@ -414,9 +414,9 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <fieldset>
                                 <legend><?php echo text($message_legend); ?></legend>
                                     <div class="row">
-                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line col-lg-offset-1">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line offset-lg-1">
                                             <div class="row">
-                                                <div class="col-xs-3 col-sm-3">
+                                                <div class="col-3 col-sm-3">
                                                     <label class="control-label" for="form_note_type"><?php echo xlt('Type'); ?>:</label>
                                                     <?php
                                                     if ($title == "") {
@@ -426,7 +426,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     generate_form_field(array('data_type' => 1, 'field_id' => 'note_type', 'list_id' => 'note_type', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $title);
                                                     ?>
                                                 </div>
-                                                <div class="col-xs-3 col-sm-3">
+                                                <div class="col-3 col-sm-3">
                                                     <label class="control-label" for="form_message_status"><?php echo xlt('Status'); ?>:</label>
                                                     <?php
                                                     if ($form_message_status == "") {
@@ -434,7 +434,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     }
                                                     generate_form_field(array('data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_message_status); ?>
                                                 </div>
-                                                <div class="col-xs-4">
+                                                <div class="col-4">
                                                     <label class="control-label" for="form_patient">
                                                         <?php
                                                         if ($task != "addnew" && $result['pid'] != 0) { ?>
@@ -466,32 +466,32 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     <input type='text'  id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " .$background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly/>
                                                     <input type='hidden' class="form-control" name='reply_to' id='reply_to' value='<?php echo attr($reply_to); ?>'/>
                                                 </div>
-                                                <div class="col-xs-2">
+                                                <div class="col-2">
                                                     <?php
                                                     if ($task=="addnew" || $result['pid']==0) {
                                                         echo "<label class='control-label oe-empty-label' for='clear_patients'></label>";
-                                                        echo '<button type="button" id="clear_patients"  class="btn btn-default btn-undo float-left flip" value="' . xla('Clear') .'">' . xlt("Clear") . '</button>';
+                                                        echo '<button type="button" id="clear_patients"  class="btn btn-secondary btn-undo float-left flip" value="' . xla('Clear') .'">' . xlt("Clear") . '</button>';
                                                     } ?>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line col-lg-offset-1">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line offset-lg-1">
                                             <div class="row">
                                                 <?php if ($GLOBALS['messages_due_date']) { ?>
-                                                <div class="col-xs-6 col-sm-2">
+                                                <div class="col-6 col-sm-2">
                                                     <label class="control-label" for="form_note_type"><?php echo xlt('Due date'); ?>:</label>
                                                     <?php generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
                                                 </div>
                                                 <?php } ?>
-                                                <div class="col-xs-6 col-sm-4">
+                                                <div class="col-6 col-sm-4">
                                                     <label class="control-label" for="assigned_to_text"><?php echo xlt('To{{Destination}}'); ?>:</label>
                                                     <input type='text' name='assigned_to_text' class='form-control oe-cursor-stop' id='assigned_to_text' readonly='readonly'
                                                         value='' placeholder='<?php echo xla("SELECT Users FROM The Dropdown LIST"); ?>'>
                                                     <input type='hidden' name='assigned_to' id='assigned_to'>
                                                 </div>
-                                                <div class="col-xs-6 col-sm-4">
+                                                <div class="col-6 col-sm-4">
                                                     <label class="control-label oe-empty-label" for="users"></label>
                                                     <select name='users' id='users' class='form-control' onchange='addtolist(this);'>
                                                         <?php
@@ -518,12 +518,12 @@ if (!empty($_REQUEST['go'])) { ?>
                                                         ?>
                                                     </select>
                                                 </div>
-                                                <div class="col-xs-6 col-sm-2">
+                                                <div class="col-6 col-sm-2">
                                                     <label class="control-label oe-empty-label" for="users"></label>
-                                                    <button type="button" name="clear_user" id="clear_user" class="btn btn-default btn-undo float-left flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
+                                                    <button type="button" name="clear_user" id="clear_user" class="btn btn-secondary btn-undo float-left flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
                                                 </div>
                                             </div>
-                                        <div class='col-xs-12 oe-margin-t-3'>
+                                        <div class='col-12 oe-margin-t-3'>
                                         <?php
                                         if ($noteid) {
                                             // Get the related document IDs if any.
@@ -576,7 +576,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     </div>
                                     </div>
                                     <div class="row">
-                                        <div class='col-xs-12'>
+                                        <div class='col-12'>
                                             <?php
 
                                             if ($noteid) {
@@ -590,18 +590,18 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <textarea name='note' id='note' class='form-control oe-margin-t-3'
                                                       style='margin-left:-1px !important; background-color:white; color: gray; border:1px solid #999; padding: 5px; height:100px!important;'><?php echo nl2br(text($note)); ?></textarea>
                                         </div>
-                                        <div class="col-xs-12 position-override oe-margin-t-10">
+                                        <div class="col-12 position-override oe-margin-t-10">
                                             <?php if ($noteid) { ?>
                                                 <!-- This is for displaying an existing note. -->
-                                                <button type="button" class="btn btn-default btn-send-msg" id="newnote"
+                                                <button type="button" class="btn btn-secondary btn-send-msg" id="newnote"
                                                         value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
-                                                <button type="button" class="btn btn-default btn-print" id="printnote"
+                                                <button type="button" class="btn btn-secondary btn-print" id="printnote"
                                                         value="<?php echo xla('Print message'); ?>"><?php echo xlt('Print message'); ?></button>
                                                 <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel"
                                                         value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
                                             <?php } else { ?>
                                                 <!-- This is for displaying a new note. -->
-                                                <button type="button" class="btn btn-default btn-send-msg" id="newnote"
+                                                <button type="button" class="btn btn-secondary btn-send-msg" id="newnote"
                                                         value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
                                                 <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel"
                                                         value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
@@ -742,8 +742,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                             </form>
                                             <div class='row oe-margin-t-10'>
                                                 
-                                                <div class=\"col-xs-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-default btn-add\" onclick=\"top.restoreSession()\">" .
-                                                xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-default btn-delete\" onclick=\"top.restoreSession()\">" .
+                                                <div class=\"col-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-secondary btn-add\" onclick=\"top.restoreSession()\">" .
+                                                xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-secondary btn-delete\" onclick=\"top.restoreSession()\">" .
                                                 xlt('Delete') . "</a>
                                                 <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
                                                 </div>
@@ -831,10 +831,10 @@ if (!empty($_REQUEST['go'])) { ?>
                         <div class="dr_container">
                             <span class="title"><?php echo xlt('Recalls'); ?></span>
                             <br/><br/>
-                            <a class="btn btn-default btn-add"
+                            <a class="btn btn-secondary btn-add"
                                onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></a>
                             &nbsp;
-                            <a class="btn btn-default btn-transmit"
+                            <a class="btn btn-secondary btn-transmit"
                                onclick="goReminderRecall('Recalls');"><span><?php echo xlt('Recall Board'); ?></span></a>
                             &nbsp;
                         </div>

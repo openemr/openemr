@@ -532,7 +532,7 @@ if (!isset($phpgacl_location)) {
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div id='membership_edit'>
                     <span class="bold"><input id='membership_show' type='checkbox'><?php echo xlt('User Memberships'); ?></span> <i id='user-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                     <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
@@ -543,55 +543,55 @@ if (!isset($phpgacl_location)) {
                     <div style='margin-bottom:5px'>
                         <span class="bold" ><input id='acl_show' type='checkbox'><?php echo xlt('Groups and Access Controls'); ?></span> <i id='group-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                     </div>
-                    <a class='link_submit btn btn-default btn-add' href='no_javascript' id='none_acl_returns' style='display: none;' title='<?php echo xla('Add New Group'); ?>'><?php echo xlt('Add New Group'); ?></a>
-                    <a class='link_submit btn btn-default btn-cancel' href='no_javascript' id='none_acl_list' style='display: none;' title='<?php echo xla('Remove Group'); ?>'><?php echo xlt('Remove Group'); ?></a>
+                    <a class='link_submit btn btn-secondary btn-add' href='no_javascript' id='none_acl_returns' style='display: none;' title='<?php echo xla('Add New Group'); ?>'><?php echo xlt('Add New Group'); ?></a>
+                    <a class='link_submit btn btn-secondary btn-cancel' href='no_javascript' id='none_acl_list' style='display: none;' title='<?php echo xla('Remove Group'); ?>'><?php echo xlt('Remove Group'); ?></a>
                     <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
                     <div id='acl_error'></div>
                     <div id='div_acl_add_form' class='section' style='display: none;'>
                         <form action="no_javascript" class="clearfix" id="acl_add_form" method="post" name="acl_add_form">
                             <span class='bold'><?php echo xlt('New Group Information'); ?></span>  <i id='new-group-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                             <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
-                            <div class='col-xs-12'>
+                            <div class='col-12'>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <label class="control-label" for="title_field"><?php echo xlt('Title'); ?>:</label>
                                         <input id="title_field" type="text" class="form-control">
                                     </div>
-                                    <div class='col-xs-6'>
+                                    <div class='col-6'>
                                         <br><span class="alert" id="title_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <label class="control-label" for="id_field"><?php echo xlt('Identifier(one word)'); ?>:</label>
                                         <input id="id_field" type="text" class="form-control">
                                     </div>
-                                    <div class='col-xs-6'>
+                                    <div class='col-6'>
                                        <br><span class="alert" id="identifier_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <label class="control-label" for="return_field"><?php echo xlt('Return Value'); ?>:</label>
                                         <select id="return_field" class="form-control">
                                         </select>
                                     </div>
-                                    <div class='col-xs-6'>
+                                    <div class='col-6'>
                                         <br><span class="alert" id="return_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <label class="control-label" for="desc_field"><?php echo xlt('Description'); ?>:</label>
                                         <input id="desc_field" type="text" class="form-control">
                                     </div>
-                                    <div class='col-xs-6'>
+                                    <div class='col-6'>
                                         <br><span class="alert" id="description_error"></span>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-12" style="padding:15px 18px">
-                                        <button type="submit" class="button_acl_add btn btn-default" id="button_acl_add_submit" title='<?php echo xla('Add Group'); ?>'><?php echo xlt('Add Group'); ?></button>
+                                    <div class="col-12" style="padding:15px 18px">
+                                        <button type="submit" class="button_acl_add btn btn-secondary" id="button_acl_add_submit" title='<?php echo xla('Add Group'); ?>'><?php echo xlt('Add Group'); ?></button>
                                         <button type="reset" class="button_acl_add btn btn-link" id="button_acl_add_clear" title='<?php echo xla('Clear'); ?>'><?php echo xlt('Clear'); ?></button>
                                         <button type="reset" class="button_acl_add btn btn-link btn-cancel oe-opt-btn-separate-left" id="button_acl_add_cancel" title='<?php echo xla('Cancel'); ?>'><?php echo xlt('Cancel'); ?></button>
                                     </div>
@@ -605,36 +605,36 @@ if (!isset($phpgacl_location)) {
                                 <span class='bold'><?php echo xlt('Remove Group Form'); ?></span>   <i id='remove-group-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                                 <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
                             </div>
-                            <div class='col-xs-12'>
+                            <div class='col-12'>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <label class="control-label" for="acl_field"><?php echo xlt('Group'); ?>:</label>
                                         <select id="acl_field" class='form-control'>
                                         </select>
                                     </div>
-                                    <div class='col-xs-6'>
+                                    <div class='col-6'>
                                         <br><span class="alert" id="aclTitle_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
-                                    <div class='col-xs-12'>
+                                    <div class='col-12'>
                                         <br>
                                         <span class='text'><?php echo xlt('Do you really want to delete this group'); ?>?</span>
                                     </div>
                                 </div>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <br>
                                         <input type="radio" name="acl_remove_confirm" value="yes"><span class='text'><?php echo xlt('Yes'); ?></span>
                                         <input type="radio" name="acl_remove_confirm" value="no" checked><span class='text'><?php echo xlt('No'); ?></span>
                                     </div>
-                                    <div class='col-xs-6'>
+                                    <div class='col-6'>
                                         <br><span class="alert" id="remove_confirm_error"></span>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-12" style="padding:15px 18px">
-                                        <button type="submit" class="button_acl_remove btn btn-default" id="button_acl_remove_delete" title='<?php echo xla('Delete Group'); ?>'><?php echo xlt('Delete Group'); ?></button>
+                                    <div class="col-12" style="padding:15px 18px">
+                                        <button type="submit" class="button_acl_remove btn btn-secondary" id="button_acl_remove_delete" title='<?php echo xla('Delete Group'); ?>'><?php echo xlt('Delete Group'); ?></button>
                                         <button type="reset" class="button_acl_remove btn btn-link btn-cancel oe-opt-btn-separate-left" id="button_acl_remove_cancel" title='<?php echo xla('Cancel'); ?>'><?php echo xlt('Cancel'); ?></button>
                                     </div>
                                 </div>

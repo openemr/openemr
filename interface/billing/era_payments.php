@@ -285,11 +285,11 @@ if ($_FILES['form_erafile']['size']) {
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
-                        <div class="col-xs-12 oe-custom-line">
+                        <div class="col-12 oe-custom-line">
                             <div class="form-group col-xs9 oe-file-div">
                                 <div class="input-group">
                                     <label class="input-group-btn">
-                                        <span class="btn btn-default">
+                                        <span class="btn btn-secondary">
                                             <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" >
                                             <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
                                         </span>
@@ -298,28 +298,28 @@ if ($_FILES['form_erafile']['size']) {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-12 oe-custom-line">
-                            <div class="form-group col-xs-3">
+                        <div class="col-12 oe-custom-line">
+                            <div class="form-group col-3">
                                 <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
                                 <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($check_date); ?>">
                             </div>
-                            <div class="form-group col-xs-3">
+                            <div class="form-group col-3">
                                 <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
                                 <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($post_to_date); ?>">
                             </div>
-                            <div class="form-group col-xs-3 clearfix">
+                            <div class="form-group col-3 clearfix">
                                 <label class="control-label" for="form_without"><?php echo xlt('Select'); ?>:</label>
                                 <label class="checkbox">
                                     <input name='form_without'  id='form_without' type='checkbox' value='1'> <span class="oe-ckbox-label"><?php echo xlt('Without Update'); ?></span>
                                 </label>
                             </div>
-                            <div class="form-group col-xs-3">
+                            <div class="form-group col-3">
                                 <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                                 <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($deposit_date); ?>">
                             </div>
                         </div>
-                        <div class="col-xs-12 oe-custom-line">
-                            <div class="form-group col-xs-6">
+                        <div class="col-12 oe-custom-line">
+                            <div class="form-group col-6">
                                 <label class="control-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
                                 <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($type_code); ?>">
                                 <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo attr($type_code); ?>"><br>
@@ -329,7 +329,7 @@ if ($_FILES['form_erafile']['size']) {
                                     <div id="ajax_div_insurance" style="display:none;"></div>
                                 </div>
                             </div>
-                            <div class="form-group col-xs-3">
+                            <div class="form-group col-3">
                                 <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Insurance ID'); ?>:</label>
                                 <div class="form-control" id="div_insurance_or_patient" >
                                     <?php echo text($hidden_type_code); ?>
@@ -342,7 +342,7 @@ if ($_FILES['form_erafile']['size']) {
                     <div class="form-group clearfix">
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group" role="group">
-                                <a class="btn btn-default btn-save" href="#" onclick="javascript:return Validate();"><span><?php echo xlt('Process ERA File');?></span></a>
+                                <a class="btn btn-secondary btn-save" href="#" onclick="javascript:return Validate();"><span><?php echo xlt('Process ERA File');?></span></a>
                             </div>
                         </div>
                     </div>

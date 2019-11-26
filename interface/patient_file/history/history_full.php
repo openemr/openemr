@@ -236,7 +236,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <?php
             $result = getHistoryData($pid);
             if (!is_array($result)) {
@@ -256,7 +256,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <input type='hidden' name='mode' value='save'>
 
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
+                    <button type="submit" class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
                     <a href="history.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
                         <?php echo xlt('Cancel'); ?>
                     </a>

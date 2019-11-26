@@ -136,9 +136,9 @@ if ($_POST['form_csvexport']) {
  <tr>
   <td>
    <div class="btn-group" role="group">
-    <button type='submit' class='btn btn-default btn-refresh' name='form_refresh'><?php echo xlt('Refresh'); ?></button>
-    <button type='submit' class='btn btn-default btn-transmit' name='form_csvexport'><?php echo xlt('Export to CSV'); ?></button>
-    <button type='button' class='btn btn-default btn-print' id='printbutton'><?php echo xlt('Print'); ?></button>
+    <button type='submit' class='btn btn-secondary btn-refresh' name='form_refresh'><?php echo xlt('Refresh'); ?></button>
+    <button type='submit' class='btn btn-secondary btn-transmit' name='form_csvexport'><?php echo xlt('Export to CSV'); ?></button>
+    <button type='button' class='btn btn-secondary btn-print' id='printbutton'><?php echo xlt('Print'); ?></button>
    </div>
   </td>
  </tr>

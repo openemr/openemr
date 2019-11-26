@@ -124,10 +124,10 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-            <a href='#' id='search_button' class='btn btn-default btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
+            <a href='#' id='search_button' class='btn btn-secondary btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
                 <?php echo xlt('Search'); ?>
             </a>
-            <a href='#' id='refresh_button' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+            <a href='#' id='refresh_button' class='btn btn-secondary btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
                 <?php echo xlt('Refresh'); ?>
             </a>
           </div>

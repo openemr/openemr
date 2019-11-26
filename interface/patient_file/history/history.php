@@ -118,7 +118,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="row">
             <div class="col-sm-12">
                 <div class="btn-group">
-                    <a href="history_full.php" class="btn btn-default btn-edit" onclick="top.restoreSession()">
+                    <a href="history_full.php" class="btn btn-secondary btn-edit" onclick="top.restoreSession()">
                         <?php echo xlt("Edit");?>
                     </a>
                 </div>

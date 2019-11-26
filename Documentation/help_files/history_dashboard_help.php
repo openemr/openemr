@@ -47,7 +47,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Other - lists items not covered in the above sections");?>.
 
                     <p><?php echo xlt("Users with appropriate privileges can edit these items by clicking on the Edit button");?>.
-                    <button type="button" class="btn btn-default btn-edit btn-sm oe-no-float"><?php echo xlt("Edit"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-edit btn-sm oe-no-float"><?php echo xlt("Edit"); ?></button>
 
                     <p><?php echo xlt("The default form can be customized by editing it in Administration > Layouts");?>.
 

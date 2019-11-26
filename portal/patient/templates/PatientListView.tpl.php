@@ -378,27 +378,27 @@ if ($this->trow) {
                 <div class="form-group inline" id="hipaaMailInputContainer">
                     <label class="control-label" for="hipaaMail"><?php echo xlt('Allow Postal Mail')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaMail0" name="hipaaMail" type="radio" value="NO"<% if (item.get('hipaaMail')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaMail1" name="hipaaMail" type="radio" value="YES"<% if (item.get('hipaaMail')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaMail2" name="hipaaMail" type="radio" value=""<% if (item.get('hipaaMail')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaMail0" name="hipaaMail" type="radio" value="NO"<% if (item.get('hipaaMail')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaMail1" name="hipaaMail" type="radio" value="YES"<% if (item.get('hipaaMail')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaMail2" name="hipaaMail" type="radio" value=""<% if (item.get('hipaaMail')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 <div class="form-group inline" id="hipaaVoiceInputContainer">
                     <label class="control-label" for="hipaaVoice"><?php echo xlt('Allow Voice Call')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaVoice0" name="hipaaVoice" type="radio" value="NO"<% if (item.get('hipaaVoice')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaVoice1" name="hipaaVoice" type="radio" value="YES"<% if (item.get('hipaaVoice')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaVoice2" name="hipaaVoice" type="radio" value=""<% if (item.get('hipaaVoice')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaVoice0" name="hipaaVoice" type="radio" value="NO"<% if (item.get('hipaaVoice')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaVoice1" name="hipaaVoice" type="radio" value="YES"<% if (item.get('hipaaVoice')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaVoice2" name="hipaaVoice" type="radio" value=""<% if (item.get('hipaaVoice')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 <div class="form-group inline" id="hipaaNoticeInputContainer">
                     <label class="control-label" for="hipaaNotice"><?php echo xlt('Allow Notice')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaNotice0" name="hipaaNotice" type="radio" value="NO"<% if (item.get('hipaaNotice')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaNotice1" name="hipaaNotice" type="radio" value="YES"<% if (item.get('hipaaNotice')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaNotice2" name="hipaaNotice" type="radio" value=""<% if (item.get('hipaaNotice')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaNotice0" name="hipaaNotice" type="radio" value="NO"<% if (item.get('hipaaNotice')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaNotice1" name="hipaaNotice" type="radio" value="YES"<% if (item.get('hipaaNotice')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaNotice2" name="hipaaNotice" type="radio" value=""<% if (item.get('hipaaNotice')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>
@@ -412,54 +412,54 @@ if ($this->trow) {
                 <div class="form-group inline" id="hipaaAllowsmsInputContainer">
                     <label class="control-label" for="hipaaAllowsms"><?php echo xlt('Allow SMS')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowsms0" name="hipaaAllowsms" type="radio" value="NO"<% if (item.get('hipaaAllowsms')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowsms1" name="hipaaAllowsms" type="radio" value="YES"<% if (item.get('hipaaAllowsms')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowsms2" name="hipaaAllowsms" type="radio" value=""<% if (item.get('hipaaAllowsms')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowsms0" name="hipaaAllowsms" type="radio" value="NO"<% if (item.get('hipaaAllowsms')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowsms1" name="hipaaAllowsms" type="radio" value="YES"<% if (item.get('hipaaAllowsms')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowsms2" name="hipaaAllowsms" type="radio" value=""<% if (item.get('hipaaAllowsms')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 <div class="form-group inline" id="hipaaAllowemailInputContainer">
                     <label class="control-label" for="hipaaAllowemail"><?php echo xlt('Allow Email')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowemail0" name="hipaaAllowemail" type="radio" value="NO"<% if (item.get('hipaaAllowemail')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowemail1" name="hipaaAllowemail" type="radio" value="YES"<% if (item.get('hipaaAllowemail')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowemail2" name="hipaaAllowemail" type="radio" value=""<% if (item.get('hipaaAllowemail')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowemail0" name="hipaaAllowemail" type="radio" value="NO"<% if (item.get('hipaaAllowemail')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowemail1" name="hipaaAllowemail" type="radio" value="YES"<% if (item.get('hipaaAllowemail')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="hipaaAllowemail2" name="hipaaAllowemail" type="radio" value=""<% if (item.get('hipaaAllowemail')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 <div class="form-group inline" id="allowImmRegUseInputContainer">
                     <label class="control-label" for="allowImmRegUse"><?php echo xlt('Allow Immunization Registry Use')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowImmRegUse0" name="allowImmRegUse" type="radio" value="NO"<% if (item.get('allowImmRegUse')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowImmRegUse1" name="allowImmRegUse" type="radio" value="YES"<% if (item.get('allowImmRegUse')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowImmRegUse2" name="allowImmRegUse" type="radio" value=""<% if (item.get('allowImmRegUse')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmRegUse0" name="allowImmRegUse" type="radio" value="NO"<% if (item.get('allowImmRegUse')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmRegUse1" name="allowImmRegUse" type="radio" value="YES"<% if (item.get('allowImmRegUse')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmRegUse2" name="allowImmRegUse" type="radio" value=""<% if (item.get('allowImmRegUse')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 <div class="form-group inline" id="allowImmInfoShareInputContainer">
                     <label class="control-label" for="allowImmInfoShare"><?php echo xlt('Allow Immunization Info Share')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowImmInfoShare0" name="allowImmInfoShare" type="radio" value="NO"<% if (item.get('allowImmInfoShare')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowImmInfoShare1" name="allowImmInfoShare" type="radio" value="YES"<% if (item.get('allowImmInfoShare')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowImmInfoShare2" name="allowImmInfoShare" type="radio" value=""<% if (item.get('allowImmInfoShare')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmInfoShare0" name="allowImmInfoShare" type="radio" value="NO"<% if (item.get('allowImmInfoShare')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmInfoShare1" name="allowImmInfoShare" type="radio" value="YES"<% if (item.get('allowImmInfoShare')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowImmInfoShare2" name="allowImmInfoShare" type="radio" value=""<% if (item.get('allowImmInfoShare')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 <div class="form-group inline" id="allowHealthInfoExInputContainer">
                     <label class="control-label" for="allowHealthInfoEx"><?php echo xlt('Allow Health Info Exchange')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowHealthInfoEx0" name="allowHealthInfoEx" type="radio" value="NO"<% if (item.get('allowHealthInfoEx')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowHealthInfoEx1" name="allowHealthInfoEx" type="radio" value="YES"<% if (item.get('allowHealthInfoEx')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowHealthInfoEx2" name="allowHealthInfoEx" type="radio" value=""<% if (item.get('allowHealthInfoEx')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowHealthInfoEx0" name="allowHealthInfoEx" type="radio" value="NO"<% if (item.get('allowHealthInfoEx')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowHealthInfoEx1" name="allowHealthInfoEx" type="radio" value="YES"<% if (item.get('allowHealthInfoEx')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowHealthInfoEx2" name="allowHealthInfoEx" type="radio" value=""<% if (item.get('allowHealthInfoEx')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>
                 <div class="form-group inline" id="allowPatientPortalInputContainer">
                     <label class="control-label" for="allowPatientPortal"><?php echo xlt('Allow Patient Portal')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input disabled id="allowPatientPortal0" name="allowPatientPortal" type="radio" value="NO"<% if (item.get('allowPatientPortal')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input disabled id="allowPatientPortal1" name="allowPatientPortal" type="radio" value="YES"<% if (item.get('allowPatientPortal')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input disabled id="allowPatientPortal2" name="allowPatientPortal" type="radio" value=""<% if (item.get('allowPatientPortal')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input disabled id="allowPatientPortal0" name="allowPatientPortal" type="radio" value="NO"<% if (item.get('allowPatientPortal')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input disabled id="allowPatientPortal1" name="allowPatientPortal" type="radio" value="YES"<% if (item.get('allowPatientPortal')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input disabled id="allowPatientPortal2" name="allowPatientPortal" type="radio" value=""<% if (item.get('allowPatientPortal')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>
@@ -625,9 +625,9 @@ if ($this->trow) {
                <!-- <div class="form-group inline" id="allowPatientPortalInputContainer">
                     <label class="control-label" for="allowPatientPortal"><?php //echo xlt('Allow Patient Portal')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowPatientPortal0" name="allowPatientPortal" type="radio" value="NO"<% if (item.get('allowPatientPortal')=="NO") { %> checked="checked"<% } %>><?php //echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowPatientPortal1" name="allowPatientPortal" type="radio" value="YES"<% if (item.get('allowPatientPortal')=="YES") { %> checked="checked"<% } %>><?php //echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="allowPatientPortal2" name="allowPatientPortal" type="radio" value=""<% if (item.get('allowPatientPortal')=="") { %> checked="checked"<% } %>><?php //echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowPatientPortal0" name="allowPatientPortal" type="radio" value="NO"<% if (item.get('allowPatientPortal')=="NO") { %> checked="checked"<% } %>><?php //echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowPatientPortal1" name="allowPatientPortal" type="radio" value="YES"<% if (item.get('allowPatientPortal')=="YES") { %> checked="checked"<% } %>><?php //echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="allowPatientPortal2" name="allowPatientPortal" type="radio" value=""<% if (item.get('allowPatientPortal')=="") { %> checked="checked"<% } %>><?php //echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>
@@ -673,9 +673,9 @@ if ($this->trow) {
                 <div class="form-group inline" id="completedAdInputContainer">
                     <label class="control-label" for="completedAd"><?php //echo xlt('Completed Ad')?></label>
                     <div class="controls inline-inputs">
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="completedAd0" name="completedAd" type="radio" value="NO"<% if (item.get('completedAd')=="NO") { %> checked="checked"<% } %>><?php //echo xlt('NO'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="completedAd1" name="completedAd" type="radio" value="YES"<% if (item.get('completedAd')=="YES") { %> checked="checked"<% } %>><?php //echo xlt('YES'); ?></label>
-                            <label class="btn btn-default btn-gradient btn-sm"><input id="completedAd2" name="completedAd" type="radio" value=""<% if (item.get('completedAd')=="") { %> checked="checked"<% } %>><?php //echo xlt('Unassigned'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="completedAd0" name="completedAd" type="radio" value="NO"<% if (item.get('completedAd')=="NO") { %> checked="checked"<% } %>><?php //echo xlt('NO'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="completedAd1" name="completedAd" type="radio" value="YES"<% if (item.get('completedAd')=="YES") { %> checked="checked"<% } %>><?php //echo xlt('YES'); ?></label>
+                            <label class="btn btn-secondary btn-gradient btn-sm"><input id="completedAd2" name="completedAd" type="radio" value=""<% if (item.get('completedAd')=="") { %> checked="checked"<% } %>><?php //echo xlt('Unassigned'); ?></label>
                         <span class="help-inline"></span>
                     </div>
                 </div>

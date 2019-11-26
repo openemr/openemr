@@ -68,7 +68,7 @@ echo "<script>var pid='" . attr($pid) . "'</script>";
                 <div class="form-group">
                     <input type="text" name="q" class="form-control" placeholder="<?php echo xla('Search'); ?>">
                 </div>
-                <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+                <button type="submit" class="btn btn-secondary"><i class="glyphicon glyphicon-search"></i></button>
             </form>
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown ">

@@ -615,11 +615,11 @@ if ($_POST['form_csvexport']) {
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").val(""); $("#theform").submit();'>
+                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").val(""); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
                         <?php if ($_POST['form_refresh']) { ?>
-                        <a href='#' class='btn btn-default btn-print' onclick='window.print()'>
+                        <a href='#' class='btn btn-secondary btn-print' onclick='window.print()'>
                                 <?php echo xlt('Print'); ?>
                         </a>
                         <?php } ?>
@@ -1351,12 +1351,12 @@ if (!$_POST['form_csvexport']) {
 
   <div style='float;margin-top:5px'>
     <div class="btn-group float-left" role="group">
-    <a href='javascript:;' class='btn btn-default btn-save'  onclick='checkAll(true)'><?php echo xlt('Select All'); ?></a>
-    <a href='javascript:;' class='btn btn-default btn-cancel'  onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></a>
-    <a href='javascript:;' class='btn btn-default btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+    <a href='javascript:;' class='btn btn-secondary btn-save'  onclick='checkAll(true)'><?php echo xlt('Select All'); ?></a>
+    <a href='javascript:;' class='btn btn-secondary btn-cancel'  onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></a>
+    <a href='javascript:;' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
         <?php echo xlt('Export Selected as CSV'); ?>
     </a>
-    <a href='javascript:;' class='btn btn-default btn-transmit' onclick='$("#form_export").attr("value","true"); $("#form_csvexport").val(""); $("#theform").submit();'>
+    <a href='javascript:;' class='btn btn-secondary btn-transmit' onclick='$("#form_export").attr("value","true"); $("#form_csvexport").val(""); $("#theform").submit();'>
         <?php echo xlt('Export Selected to Collections'); ?>
     </a>
   </div>

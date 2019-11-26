@@ -209,14 +209,14 @@ if ($_POST['form_import']) {
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="form-group"></div>
                 <div class="form-group">
                     <textarea name='form_import_data' class='form-control' rows='10'></textarea>
                 </div>
                 <div class="form-group text-right">
                     <div class="btn-group" role="group">
-                        <button type='submit' class='btn btn-default btn-save' name='form_import' value='bn_import'>
+                        <button type='submit' class='btn btn-secondary btn-save' name='form_import' value='bn_import'>
                             <?php echo xlt('Import'); ?>
                         </button>
                         <button type="button" class="btn btn-link btn-cancel" onclick="window.close()">

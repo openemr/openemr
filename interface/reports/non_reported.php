@@ -408,7 +408,7 @@ while ($crow = sqlFetchArray($cres)) {
         <td>
           <div class="text-center">
             <div class="btn-group" role="group">
-              <a href='#' class='btn btn-default btn-refresh'
+              <a href='#' class='btn btn-secondary btn-refresh'
                 onclick='
                   $("#form_refresh").attr("value","true");
                   $("#form_get_hl7").attr("value","false");
@@ -417,10 +417,10 @@ while ($crow = sqlFetchArray($cres)) {
                 <?php echo xlt('Refresh'); ?>
               </a>
                 <?php if ($_POST['form_refresh']) { ?>
-                <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                     <?php echo xlt('Print'); ?>
                 </a>
-                <a href='#' class='btn btn-default btn-transmit' onclick=
+                <a href='#' class='btn btn-secondary btn-transmit' onclick=
                   "if(confirm(<?php echo xlj('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>)) {
                     $('#form_get_hl7').attr('value','true');
                     $('#theform').submit();

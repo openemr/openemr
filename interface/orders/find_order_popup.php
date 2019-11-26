@@ -133,11 +133,11 @@ if (isset($_GET['typeid'])) {
                     <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>'
                         title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
                     <span class="input-group-btn">
-                        <button type="submit" class="btn btn-default btn-search" name='bn_search' value="true"><?php echo xlt('Search'); ?></button>
+                        <button type="submit" class="btn btn-secondary btn-search" name='bn_search' value="true"><?php echo xlt('Search'); ?></button>
                         <?php if (!isset($_REQUEST['addfav'])) { ?>
-                            <button type="submit" class="btn btn-default btn-search" name='bn_grpsearch' value="true"><?php echo xlt('Favorites'); ?></button>
+                            <button type="submit" class="btn btn-secondary btn-search" name='bn_grpsearch' value="true"><?php echo xlt('Favorites'); ?></button>
                         <?php } ?>
-                        <button type="button" class="btn btn-default btn-delete" onclick="selcode(0)"><?php echo xlt('Erase'); ?></button>
+                        <button type="button" class="btn btn-secondary btn-delete" onclick="selcode(0)"><?php echo xlt('Erase'); ?></button>
                     </span>
                 </div>
             </div>

@@ -154,7 +154,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <button class="btn btn-default btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
+                    <button class="btn btn-secondary btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
                 </div>
             </div>
         </form>

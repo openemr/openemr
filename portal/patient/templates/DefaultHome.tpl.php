@@ -59,8 +59,8 @@ $this->display('_Header.tpl.php');
             </h2>
             <p></p>
             <p>
-                <!-- <a class="btn btn-default" href="loginform">Sign In »</a> -->
-                <a class="btn btn-default" href="../index.php"><?php echo xlt('Sign In'); ?> »</a>
+                <!-- <a class="btn btn-secondary" href="loginform">Sign In »</a> -->
+                <a class="btn btn-secondary" href="../index.php"><?php echo xlt('Sign In'); ?> »</a>
             </p>
         </div>
 

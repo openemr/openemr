@@ -60,7 +60,7 @@ if (strtotime($current_date) > strtotime($pwd_expires)) {
     </div>
     <div class="row">
         <div class="col-sm-12">
-            <a href="../usergroup/user_info.php" class="btn btn-default btn-transmit" onclick="top.restoreSession()"><?php echo xlt("Change Password");?></a>
+            <a href="../usergroup/user_info.php" class="btn btn-secondary btn-transmit" onclick="top.restoreSession()"><?php echo xlt("Change Password");?></a>
         </div>
     </div>
 </div>

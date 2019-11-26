@@ -363,7 +363,7 @@ if (!$_REQUEST['flb_table']) {
                         </div>
                         <div class="col-sm-<?php echo attr($col_width); ?>">
                             <div style="margin: 0 auto;" class="input-append">
-                                <table class="table-hover table-condensed" style="margin:0 auto;">
+                                <table class="table-hover table-sm" style="margin:0 auto;">
                                     <?php
                                     if ($GLOBALS['ptkr_date_range'] == '1') {
                                         $type = 'date';
@@ -491,7 +491,7 @@ if (!$_REQUEST['flb_table']) {
 
                 <div class="col-sm-12 textclear" >
 
-                    <table class="table table-responsive table-condensed table-hover table-bordered">
+                    <table class="table table-responsive table-sm table-hover table-bordered">
                     <thead>
                     <tr bgcolor="#cccff" class="small bold  text-center">
                         <?php if ($GLOBALS['ptkr_show_pid']) { ?>

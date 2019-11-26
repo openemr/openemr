@@ -311,27 +311,27 @@ if (isset($this_message['pid'])) {
         <div style="text-align:center;" id="errorMessage"></div>
        </fieldset>
      <fieldset>
-     <div class="col-xs-12" style="margin-top:20px;">
+     <div class="col-12" style="margin-top:20px;">
         <div class="form-group">
-            <label class="control-label col-xs-3 text-right" for="patientName"><?php echo xlt('Link To Patient') ?>: <i id="link-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i></label>
-            <div class="col-xs-5">
+            <label class="control-label col-3 text-right" for="patientName"><?php echo xlt('Link To Patient') ?>: <i id="link-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i></label>
+            <div class="col-5">
                 <input type='text' id='patientName' name='patientName' class='form-control'
                        value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()'
                        title='<?php xla('Click to select patient'); ?>' readonly />
                 <input type="hidden" name="PatientID" id="PatientID" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" />
             </div>
-            <div class="col-xs-2">
-                <button type="button" class="btn btn-default btn-undo" <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient"><?php echo xlt('unlink patient') ?></button>
+            <div class="col-2">
+                <button type="button" class="btn btn-secondary btn-undo" <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient"><?php echo xlt('unlink patient') ?></button>
             </div>
         </div>
     </div>
     </fieldset>
     <fieldset>
-        <div class="col-xs-12" style="margin-top:20px;">
+        <div class="col-12" style="margin-top:20px;">
             <div class="form-group">
-                <label class="control-label col-xs-3 text-right" for="patientName"><?php echo xlt('Send to') ?> :  <br />
+                <label class="control-label col-3 text-right" for="patientName"><?php echo xlt('Send to') ?> :  <br />
                     <?php echo xlt('([ctrl] + click to select multiple recipients)'); ?></label>
-                <div class="col-xs-5">
+                <div class="col-5">
                     <select style="width:100%" id="sendTo" name="sendTo[]" multiple="multiple">
                         <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                             <?php //
@@ -342,12 +342,12 @@ if (isset($this_message['pid'])) {
                             ?>
                     </select>
                 </div>
-                <div class="col-xs-2">
-                    <a class="btn btn-default btn-save" style="cursor:pointer" onclick="selectAll();" ><span><?php echo xlt('Select all') ?></span></a>
+                <div class="col-2">
+                    <a class="btn btn-secondary btn-save" style="cursor:pointer" onclick="selectAll();" ><span><?php echo xlt('Select all') ?></span></a>
                 </div>
             </div>
             <div class="form-group">
-                <div class="checkbox col-xs-5 col-xs-offset-3">
+                <div class="checkbox col-5 col-xs-offset-3">
                     <label>
                         <input type="checkbox" name="sendSeperately" id="sendSeperately" title="<?php echo xla('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" >  <i id="select-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i> <?php echo xlt('Each recipient must set their own messages as completed.') ?>
                     </label>
@@ -356,17 +356,17 @@ if (isset($this_message['pid'])) {
         </div>
     </fieldset>
     <fieldset>
-        <div class="col-xs-12" style="margin-top:20px;">
+        <div class="col-12" style="margin-top:20px;">
             <div class="form-group">
-                <div class="col-xs-5">
+                <div class="col-5">
                     <label class="control-label" for="dueDate"><?php echo xlt('Due Date') ?>:</label>
                     <input type='text' class='datepicker form-control' name='dueDate' id="dueDate" value="<?php echo ($this_message['dueDate'] == '' ? oeFormatShortDate() : attr(oeFormatShortDate($this_message['dueDate']))); ?>" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                 </div>
-                <div class="col-xs-2">
+                <div class="col-2">
                 <label class="control-label" for="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
                 <div class="text-center"><?php echo xlt('OR') ?></div>
                 </div>
-                <div class="col-xs-5">
+                <div class="col-5">
                     <label class="control-label" for="timeSpan"><?php echo xlt('Select a Time Span') ?>:</label>
                     <select id="timeSpan" class="form-control">
                         <option value="__BLANK__"> -- <?php echo xlt('Select a Time Span') ?> -- </option>
@@ -383,11 +383,11 @@ if (isset($this_message['pid'])) {
         </div>
     </fieldset>
     <fieldset>
-        <div class="col-xs-12" style="margin-top:20px;">
-            <div class=" col-xs-4 text-right">
+        <div class="col-12" style="margin-top:20px;">
+            <div class=" col-4 text-right">
                 <label class="control-label" for=""><?php echo xlt('Priority') ?>:</label>
             </div>
-            <div class="col-xs-6">
+            <div class="col-6">
                 <label class="radio-inline"><input <?php echo ($this_message['message_priority'] == 3 ? 'checked="checked"' : '') ?>
                     type="radio" name="priority" id="priority_3" value='3'><strong><?php echo xlt('Low{{Priority}}') ?></strong>
                 </label>
@@ -401,9 +401,9 @@ if (isset($this_message['pid'])) {
         </div>
     </fieldset>
     <fieldset>
-        <div class="col-xs-12" style="margin-top:20px;">
+        <div class="col-12" style="margin-top:20px;">
             <div class="form-group">
-                 <div class="col-xs-12">
+                 <div class="col-12">
                 <label class="control-label text-right" for="message"><?php echo xlt('Type Your message here');?>:</label>
                 <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);"
                     onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);"
@@ -412,8 +412,8 @@ if (isset($this_message['pid'])) {
                 </div>
             </div>
             <div class="form-group">
-                <label class="control-label col-xs-6 text-right" for="countdown"><?php echo xlt('Characters Remaining') ?>:</label>
-                <div class="col-xs-2">
+                <label class="control-label col-6 text-right" for="countdown"><?php echo xlt('Characters Remaining') ?>:</label>
+                <div class="col-2">
                     <input class="form-control" readonly type="text" name="countdown" id="countdown" value="<?php echo attr($max_reminder_words); ?>">
                 </div>
             </div>
@@ -422,13 +422,13 @@ if (isset($this_message['pid'])) {
         <div class="form-group">
             <div class="col-sm-12 position-override">
                 <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                    <button type='submit' class='btn btn-default btn-send-msg' name="sendButton" id="sendButton" value="<?php echo xla('Send This Message');?>"  onclick='return this.clicked = true;'>
+                    <button type='submit' class='btn btn-secondary btn-send-msg' name="sendButton" id="sendButton" value="<?php echo xla('Send This Message');?>"  onclick='return this.clicked = true;'>
                             <?php echo xlt('Send This Message'); ?></button>
                 </div>
             </div>
         </div>
     </form>
-    <div class="col-xs-12">
+    <div class="col-12">
     <?php
         $_GET['sentBy'] = array($_SESSION['authUserID']);
         $_GET['sd'] = oeFormatShortDate();

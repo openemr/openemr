@@ -433,14 +433,14 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h2><?php echo xlt('Edit Current Patient');?></h2>
                 </div>
             </div>
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-default btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
+                    <button type="submit" class="btn btn-secondary btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
                         <?php echo xlt('Save'); ?>
                     </button>
                     <a class="btn btn-link btn-cancel" href="demographics.php" onclick="top.restoreSession()">

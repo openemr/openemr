@@ -411,11 +411,11 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                         <td>
                             <div class="text-center">
                                 <div class="btn-group" role="group">
-                                    <a href='#' class='btn btn-default btn-save' onclick='submitForm();'>
+                                    <a href='#' class='btn btn-secondary btn-save' onclick='submitForm();'>
                                         <?php echo xlt('Submit'); ?>
                                     </a>
                                     <?php if ($_POST['form_refresh']) { ?>
-                                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                             <?php echo xlt('Print'); ?>
                                         </a>
                                     <?php } ?>

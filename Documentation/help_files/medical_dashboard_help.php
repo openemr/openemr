@@ -47,8 +47,8 @@ require_once("../../interface/globals.php");
                     <p><strong><?php echo xlt("E-PRESCRIBING"); ?> :</strong>
                         
                     <p><?php echo xlt("If NewCrop eRx - the electronic prescription module, is enabled the NewCrop MedEntry and NewCrop Account Status buttons will be appear here");?>.
-                    <button type="button" class="btn btn-default btn-add btn-sm oe-no-float"><?php echo xlt("NewCrop MedEntry"); ?></button>
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("NewCrop Account Status"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-add btn-sm oe-no-float"><?php echo xlt("NewCrop MedEntry"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("NewCrop Account Status"); ?></button>
                     
                     <p><i class="fa fa-exclamation-triangle oe-text-red"  aria-hidden="true"></i> <strong><?php echo xlt("You will need Administrator privileges to setup the NewCrop service and has to be setup in conjunction with technical support from the NewCrop eRx service");?>.</strong>
                     
@@ -85,14 +85,14 @@ require_once("../../interface/globals.php");
                     <p><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo xlt("If the patient has not authorized patient portal then a Patient has not authorized the Patient Portal message will be shown here");?>.
                     
                     <p><?php echo xlt("To authorize the patient portal for the patient go to Dashboard > Demographics > Edit > Choices and select Yes in Allow Patient Portal drop-down box and Save");?>.
-                    <button type="button" class="btn btn-default btn-sm oe-no-float"><?php echo xlt("Edit"); ?></button>
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-sm oe-no-float"><?php echo xlt("Edit"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
                     
                     <p><?php echo xlt("If the Online Patient portal is enabled there will be either a button that says Create Online Portal Credentials provided the patient has given permission to access the online patient portal or a message that says Patient has not authorized the Patient Portal");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Create Online Portal Credentials"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Create Online Portal Credentials"); ?></button>
                                         
                     <p><?php echo xlt("If the Offsite Patient portal is enabled there will be either a button that says Create Offsite Portal Credentials provided the patient has given permission to access the online patient portal or a message that says Patient has not authorized the Patient Portal");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Create Offsite Portal Credentials"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Create Offsite Portal Credentials"); ?></button>
                     
                     <p><?php echo xlt("Clicking on the Create Online/Offsite Portal Credentials button will generate a username and password for the patient that has to be given to the patient");?>.
                                         
@@ -101,8 +101,8 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("The patient will have to change their credentials at the first login");?>.
                     
                     <p><?php echo xlt("If the Online/Offsite Portal Credentials has already been set the button will change to");?>
-                    <button type="button" class="btn btn-default btn-undo btn-sm oe-no-float"><?php echo xlt("Reset Online Portal Credentials"); ?></button>
-                    <button type="button" class="btn btn-default btn-undo btn-sm oe-no-float"><?php echo xlt("Reset Offsite Portal Credentials"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-undo btn-sm oe-no-float"><?php echo xlt("Reset Online Portal Credentials"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-undo btn-sm oe-no-float"><?php echo xlt("Reset Offsite Portal Credentials"); ?></button>
                         
                     <p><strong><?php echo xlt("DECEASED NOTIFICATION"); ?> :</strong>
                     

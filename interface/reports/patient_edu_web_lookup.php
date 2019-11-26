@@ -55,14 +55,14 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
 <body class="body_top" onload="document.forms[0].form_diagnosis.focus()">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h2><?php echo  xlt('Web Search'); ?> - <?php echo xlt('Patient Education Materials'); ?></h2>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <form method='post' action='patient_edu_web_lookup.php' id='theform' class='form-horizontal' onsubmit='return top.restoreSession()'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="form-group">
@@ -95,7 +95,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
                     <div class="form-group">
                         <div class='col-sm-offset-2 col-sm-10'>
                             <div class="btn-group" role="group">
-                                <button type='submit' class='btn btn-default btn-search'><?php echo xlt("Submit"); ?></button>
+                                <button type='submit' class='btn btn-secondary btn-search'><?php echo xlt("Submit"); ?></button>
                             </div>
                         </div>
                     </div>

@@ -137,7 +137,7 @@ if ($result) {
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <button class="btn btn-default btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
+                    <button class="btn btn-secondary btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
                 </div>
             </div>
 

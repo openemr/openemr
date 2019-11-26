@@ -34,8 +34,8 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("Upon entering the page there are two buttons visible below the navigation bar");?>.
                     <ul>
-                        <li><?php echo xlt("Create New Transaction"); ?> <button type="button" class="btn btn-default btn-sm btn-add oe-no-float"><?php echo xlt("Create New Transaction"); ?></button></li>
-                        <li><?php echo xlt("View/Print Blank Referral Form - that can be filled by hand"); ?>  <button type="button" class="btn btn-default btn-sm btn-print oe-no-float"><?php echo xlt("View/Print Blank Referral Form"); ?></button></li>
+                        <li><?php echo xlt("Create New Transaction"); ?> <button type="button" class="btn btn-secondary btn-sm btn-add oe-no-float"><?php echo xlt("Create New Transaction"); ?></button></li>
+                        <li><?php echo xlt("View/Print Blank Referral Form - that can be filled by hand"); ?>  <button type="button" class="btn btn-secondary btn-sm btn-print oe-no-float"><?php echo xlt("View/Print Blank Referral Form"); ?></button></li>
                     </ul>
                     
                     <p><?php echo xlt("Below this is a table that contains the existing transactions, if any, pertaining to the current patient");?>.

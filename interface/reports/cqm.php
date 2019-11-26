@@ -578,38 +578,38 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                 <div class="text-center">
           <div class="btn-group" role="group">
             <?php if (empty($report_id)) { ?>
-            <a href='#' id='submit_button' class='btn btn-default btn-save' onclick='runReport();'>
+            <a href='#' id='submit_button' class='btn btn-secondary btn-save' onclick='runReport();'>
                             <?php echo xlt('Submit'); ?>
             </a>
             <span id='status_span'></span>
             <div id='processing' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
                 <?php if ($type_report == "cqm") { ?>
-                          <a href='#' id='xmla_button' class='btn btn-default btn-transmit' onclick='return GenXml("false")'>
+                          <a href='#' id='xmla_button' class='btn btn-secondary btn-transmit' onclick='return GenXml("false")'>
                                 <?php echo xlt('Generate PQRI report (Method A) - 2011'); ?>
                           </a>
-              <a href='#' id='xmlb_button' class='btn btn-default btn-transmit' onclick='return GenXml("true")'>
+              <a href='#' id='xmlb_button' class='btn btn-secondary btn-transmit' onclick='return GenXml("true")'>
                     <?php echo xlt('Generate PQRI report (Method E) - 2011'); ?>
               </a>
             <?php } ?>
             <?php } ?>
             <?php if (!empty($report_id)) { ?>
-            <a href='#' class='btn btn-default btn-print' id='printbutton'>
+            <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                             <?php echo xlt('Print'); ?>
             </a>
                 <?php if ($type_report == "cqm_2014") { ?>
-              <a href='#' id="genQRDA" class='btn btn-default btn-transmit' onclick='return downloadQRDA()'>
+              <a href='#' id="genQRDA" class='btn btn-secondary btn-transmit' onclick='return downloadQRDA()'>
                     <?php echo xlt('Generate QRDA I – 2014'); ?>
               </a>
-              <a href='#' id="xmlc_button" class='btn btn-default btn-transmit' onclick='return GenXml("QRDA")'>
+              <a href='#' id="xmlc_button" class='btn btn-secondary btn-transmit' onclick='return GenXml("QRDA")'>
                     <?php echo xlt('Generate QRDA III - 2014'); ?>
               </a>
             <?php } ?>
                 <?php if ($back_link == "list") { ?>
-              <a href='report_results.php' class='btn btn-default btn-transmit' onclick='top.restoreSession()'>
+              <a href='report_results.php' class='btn btn-secondary btn-transmit' onclick='top.restoreSession()'>
                     <?php echo xlt("Return To Report Results"); ?>
               </a>
             <?php } else { ?>
-              <a href='#' class='btn btn-default btn-transmit' onclick='top.restoreSession(); $("#theform").submit();'>
+              <a href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#theform").submit();'>
                     <?php echo xlt("Start Another Report"); ?>
               </a>
             <?php } ?>

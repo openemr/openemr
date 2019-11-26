@@ -140,7 +140,7 @@ $row = sqlFetchArray($res);
                 </fieldset>
                 <div class="form-group">
                     <div class='col-sm-offset-2 col-sm-10'>
-                        <button type="Submit" class='btn btn-default btn-save'><?php echo xlt('Save Changes'); ?></button>
+                        <button type="Submit" class='btn btn-secondary btn-save'><?php echo xlt('Save Changes'); ?></button>
                     </div>
                 </div>
             </form>

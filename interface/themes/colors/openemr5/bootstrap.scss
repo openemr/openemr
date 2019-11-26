@@ -27,7 +27,7 @@ textarea.form-control {
 .table-striped>tbody>tr:nth-of-type(odd) {
     background-color: $white !important;
 }
-.btn-default {
+.btn-secondary {
     background: $darker !important;
     color: $white !important;
     /*border-color:$paler!important; $midpale*/
@@ -39,7 +39,7 @@ textarea.form-control {
     border-color: $darkest !important;
     border-radius: 2px !important;
 }
-.btn-default.active, .btn-default.focus, .btn-default:active, .btn-default:focus, .btn-default:hover, .open>.dropdown-toggle.btn-default {
+.btn-secondary.active, .btn-secondary.focus, .btn-secondary:active, .btn-secondary:focus, .btn-secondary:hover, .open>.dropdown-toggle.btn-secondary {
     border-color: $darkest !important;
     background: $darkest !important;
 }

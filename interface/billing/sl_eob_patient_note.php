@@ -66,11 +66,11 @@ if ($_POST['form_save']) {
     <div class = "row">
         <form method='post' action='sl_eob_patient_note.php?patient_id=<?php echo attr_url($patient_id); ?>'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <div class="col-xs-12" style="padding-bottom:5px">
+            <div class="col-12" style="padding-bottom:5px">
 
             </div>
-            <div class="col-xs-12" style="padding-bottom:5px">
-                <div class="col-xs-12">
+            <div class="col-12" style="padding-bottom:5px">
+                <div class="col-12">
                     <input type='text' name='form_note' class='form-control' value='<?php echo attr($row['billing_note']) ?>' placeholder ='<?php echo xla('Max 255 characters')?>' />
                 </div>
             </div>
@@ -78,7 +78,7 @@ if ($_POST['form_save']) {
             <div class="form-group clearfix">
                 <div class="col-sm-12 text-left position-override" id="search-btn">
                     <div class="btn-group" role="group">
-                        <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save" ><?php echo xlt("Save"); ?></button>
+                        <button type='submit' class="btn btn-secondary btn-save" name='form_save' id="btn-save" ><?php echo xlt("Save"); ?></button>
                         <button type='submit' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel' id="btn-cancel"  onclick='window.close();'><?php echo xlt("Cancel"); ?></button>
                     </div>
                 </div>

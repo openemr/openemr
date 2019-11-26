@@ -160,16 +160,16 @@ $(function(){
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
             <div class="page-header clearfix">
                 <h2 class="clearfix"><?php echo xlt("Facilities") ; ?></h2>
             </div>
-            <a href="facilities_add.php" class="addfac_modal btn btn-default btn-add"><span><?php echo xlt('Add Facility');?></span></a>
+            <a href="facilities_add.php" class="addfac_modal btn btn-secondary btn-add"><span><?php echo xlt('Add Facility');?></span></a>
             </div>
         </div>
         <br>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>

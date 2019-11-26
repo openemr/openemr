@@ -114,7 +114,7 @@ if ($_POST['bn_submit']) {
 <body class="body_top">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h3>
                         <?php
@@ -137,7 +137,7 @@ if ($_POST['bn_submit']) {
             </div>
         </div>
         <div class='row'>
-            <div class='col-xs-12'>
+            <div class='col-12'>
                 <form method='post' action='education.php' onsubmit='return top.restoreSession()'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <input type='hidden' name='type'     value='<?php echo attr($codetype); ?>' />
@@ -152,7 +152,7 @@ if ($_POST['bn_submit']) {
                     </div>
                     <div class='form-group'>
                         <div class='btn-group' role='group'>
-                            <button type='submit' class='btn btn-default btn-search' name='bn_submit' value='bn_submit'>
+                            <button type='submit' class='btn btn-secondary btn-search' name='bn_submit' value='bn_submit'>
                                 <?php echo xlt('Submit'); ?>
                             </button>
                             <button type='button' class='btn btn-link btn-cancel' onclick='window.close()'>

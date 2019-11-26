@@ -270,11 +270,11 @@ $communication = trim($_POST["communication"]);
                                 <td>
                                     <div class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a href='#' class='btn btn-default btn-save' onclick='submitForm();'>
+                                            <a href='#' class='btn btn-secondary btn-save' onclick='submitForm();'>
                                                 <?php echo xlt('Submit'); ?>
                                             </a>
                                             <?php if (isset($_POST['form_refresh'])) {?>
-                                                <a href='#' class='btn btn-default btn-print' onclick="printForm()">
+                                                <a href='#' class='btn btn-secondary btn-print' onclick="printForm()">
                                                     <?php echo xlt('Print'); ?>
                                                 </a>
                                             <?php }?>

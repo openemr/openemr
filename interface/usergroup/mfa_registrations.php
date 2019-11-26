@@ -31,10 +31,10 @@ function writeRow($method, $name, $allowEdit = false)
     echo text($name);
     echo "&nbsp;</td><td>";
     if ($allowEdit) {
-        echo "<button type='button' class='btn btn-default btn-search' onclick='editclick(" . attr_js($method) . ")'>" . xlt('View') . "</button> &nbsp";
+        echo "<button type='button' class='btn btn-secondary btn-search' onclick='editclick(" . attr_js($method) . ")'>" . xlt('View') . "</button> &nbsp";
     }
     if ($name) {
-        echo "<button type='button' class='btn btn-default btn-delete' onclick='delclick(" . attr_js($method) . ", " .
+        echo "<button type='button' class='btn btn-secondary btn-delete' onclick='delclick(" . attr_js($method) . ", " .
         attr_js($name) . ")'>" . xlt('Delete') . "</button>";
     }
     echo "</td></tr>\n";

@@ -16,14 +16,20 @@
     border: none;
     font-size: 0.7em;
 }
+
 .css_button_small span {
     display: block;
 }
+
 .css_button_small:hover {
     background: #1050b6;
     text-decoration: none;
 }
-.css_button, input[type="button"], input[type="submit"], button {
+
+.css_button,
+input[type="button"],
+input[type="submit"],
+button {
     background: #2672ec;
     color: #ffffff !important;
     display: block;
@@ -35,20 +41,32 @@
     text-decoration: none;
     padding: 5px 12px 5px;
     border: none;
+
     .css_button_small {
         font-size: 0.7em;
     }
 }
-.css_button span, input[type="button"] span, button span {
+
+.css_button span,
+input[type="button"] span,
+button span {
     display: inline;
 }
-.css_button[href*="deleter"], input[type="button"][href*="deleter"], button[href*="deleter"] {
+
+.css_button[href*="deleter"],
+input[type="button"][href*="deleter"],
+button[href*="deleter"] {
     background: red !important;
 }
-.css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
+
+.css_button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+button:hover {
     background: #1050b6;
     text-decoration: none;
 }
+
 .css_btn {
     background: #2672ec;
     color: #ffffff !important;
@@ -62,22 +80,28 @@
     padding: 5px 12px 5px;
     border: none;
 }
+
 .css_btn:hover {
     color: orangered;
 }
-.modal-footer>button {
+
+.modal-footer > button {
     float: none !important;
 }
-.btn-default {
+
+.btn-secondary {
     background: rgba(0, 0, 0, 0.05) !important;
     color: rgba(0, 0, 0, 0.87) !important;
 }
+
 .btn-link {
     color: #444 !important;
 }
+
 input[type="button"][style="background-color:#ffff55"] {
     background: #2672ec !important;
 }
+
 input[type="text"] {
     background: #ffffff;
     border: 1px solid #444444;

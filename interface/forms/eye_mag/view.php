@@ -1867,11 +1867,11 @@ if ($refresh and $refresh != 'fullscreen') {
               <!-- end of the refraction box -->
               <!-- start of the exam selection/middle menu row -->
               <div class="sections" name="mid_menu" id="mid_menu">
-                <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="btn btn-default"><i class="fa fa-newspaper-o"></i>&nbsp;<b><?php echo xlt('Defaults'); ?></b></span>
-                <span id="EXAM_TEXT" name="EXAM_TEXT" value="TEXT" class="btn btn-default"><i class="fa fa-hospital-o"></i>&nbsp;<b><?php echo xlt('Text'); ?></b></span>
-                <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="btn btn-default">
+                <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="btn btn-secondary"><i class="fa fa-newspaper-o"></i>&nbsp;<b><?php echo xlt('Defaults'); ?></b></span>
+                <span id="EXAM_TEXT" name="EXAM_TEXT" value="TEXT" class="btn btn-secondary"><i class="fa fa-hospital-o"></i>&nbsp;<b><?php echo xlt('Text'); ?></b></span>
+                <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="btn btn-secondary">
                   <i class="fa fa-paint-brush fa-sm"> </i>&nbsp;<b><?php echo xlt('Draw'); ?></b></span>
-                  <span id="EXAM_QP" name="EXAM_QP" title="<?php echo xla('Open the Quick Pick panels'); ?>" value="QP" class="btn btn-default">
+                  <span id="EXAM_QP" name="EXAM_QP" title="<?php echo xla('Open the Quick Pick panels'); ?>" value="QP" class="btn btn-secondary">
                     <i class="fa fa-database fa-sm"> </i>&nbsp;<b><?php echo xlt('Quick Picks'); ?></b>
                   </span>
                     <?php
@@ -1879,7 +1879,7 @@ if ($refresh and $refresh != 'fullscreen') {
                   // $output = priors_select("ALL",$id,$id,$pid);
                     ($output_priors =='') ? ($title = "There are no prior visits documented to display for this patient.") : ($title="Display old exam findings and copy forward if desired");?>
                   <span id="PRIORS_ALL_left_text" name="PRIORS_ALL_left_text"
-                  class="btn btn-default"><i class="fa fa-paste" title="<?php echo xla($title); ?>"></i>
+                  class="btn btn-secondary"><i class="fa fa-paste" title="<?php echo xla($title); ?>"></i>
                     <?php
                     if ($output_priors !='') {
                         echo $output_priors;

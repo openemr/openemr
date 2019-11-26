@@ -288,7 +288,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '              </fieldset>';
                 echo '                  <div class="form-group clearfix">';
                 echo '                      <div class="col-sm-12 text-left position-override">';
-                echo '                          <button type="submit" class="btn btn-default btn-save">' . xlt('Authenticate TOTP') . '</button>';
+                echo '                          <button type="submit" class="btn btn-secondary btn-save">' . xlt('Authenticate TOTP') . '</button>';
                 echo '                  </div>';
                 echo '              </div>';
                 echo '          </div>';
@@ -331,7 +331,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '              </fieldset>';
                 echo '                  <div class="form-group clearfix">';
                 echo '                      <div class="col-sm-12 text-left position-override">';
-                echo '                          <button type="button"  id="authutf" class="btn btn-default btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</button>';
+                echo '                          <button type="button"  id="authutf" class="btn btn-secondary btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</button>';
                 echo '                          <input type="hidden" name="form_requests" value="' . attr($requests) . '" />';
                 echo '                          <input type="hidden" name="form_response" value="" />';
                 generate_html_middle();

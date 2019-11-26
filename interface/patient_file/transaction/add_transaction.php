@@ -338,7 +338,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="row">
                 <div class="col-sm-12">
                     <div class="btn-group">
-                        <a href="#" class="btn btn-default btn-save" onclick="submitme();">
+                        <a href="#" class="btn btn-secondary btn-save" onclick="submitme();">
                             <?php echo xlt('Save'); ?>
                         </a>
                         <a href="transactions.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">

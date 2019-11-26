@@ -1083,7 +1083,7 @@ background:#fff;
                         <label class="radio"><?php echo xlt('Are you sure to clear chat history?'); ?></label>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-sm btn-default" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                         <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal" ng-click="clearHistory()"><?php echo xlt('Accept'); ?></button>
                     </div>
                 </form>

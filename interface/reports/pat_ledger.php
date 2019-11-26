@@ -598,17 +598,17 @@ if ($_REQUEST['form_csvexport']) {
                                         <td>
                                             <div class="text-center">
                                                 <div class="btn-group" role="group">
-                                                    <a href='#' class='btn btn-default btn-save' onclick="checkSubmit();" >
+                                                    <a href='#' class='btn btn-secondary btn-save' onclick="checkSubmit();" >
                                                     <?php echo xlt('Submit'); ?>
                                                     </a>
                                                     <?php
                                                     if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) { ?>
-                                                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                                         <?php echo xlt('Print Ledger'); ?>
                                                         </a>
                                                         <?php
                                                         if ($type_form == '1') { ?>
-                                                            <a href="../patient_file/summary/demographics.php" class="btn btn-default btn-transmit" onclick="top.restoreSession()">
+                                                            <a href="../patient_file/summary/demographics.php" class="btn btn-secondary btn-transmit" onclick="top.restoreSession()">
                                                             <?php echo xlt('Back To Patient');?>
                                                             </a>
                                                             <?php

@@ -79,7 +79,7 @@ require_once("../../interface/globals.php");
                     <p><strong><?php echo xlt("CREATE A TOP LEVEL ENTRY"); ?> :</strong>
 
                     <p><?php echo xlt("The first step would be to create a top level entry. Do so by clicking on Add Top Level button");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-add oe-no-float" ><?php echo xlt('Add Top Level');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-add oe-no-float" ><?php echo xlt('Add Top Level');?></button>
 
                     <p><?php echo xlt("It will bring up the Enter Details pop-up form");?>.
 
@@ -98,7 +98,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("If you leave it at the default of 0 then the top level entries that you make will be sorted alphabetically");?>.
 
                     <p><?php echo xlt("Click Save");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
 
                     <p><?php echo xlt("This item will be displayed on the page on a single line");?>.
 
@@ -189,7 +189,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Likewise Laterality is not relevant in this context and can be left Unassigned");?>.
 
                     <p><?php echo xlt("Click Save to save and close the pop-up");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
 
                     <p><?php echo xlt("Notice how the Top Group entry that was initially created called Serum Chemistry now has a blue + sign before its name indicating the presence of descendants or children to this entry");?>.
 
@@ -236,7 +236,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Click to select services to perform if this result is abnormal. This is optional");?>.
 
                     <p><?php echo xlt("Click Save to close the pop-up window");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
 
                     <p><?php echo xlt("Click Refresh and click on the blue + mark that precedes the name Serum Chemistry");?>.
 
@@ -255,7 +255,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("The Description should say Serum Uric Acid result");?>.
 
                     <p><?php echo xlt("Click Save to close the pop-up");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
 
                     <p><?php echo xlt("The Recommendation Tier is optional");?>.
 
@@ -291,7 +291,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("We will use this branch to hold all the 9 panels, here we will be just creating the order representing one panel, the Electrolyte Panel");?>.
 
                     <p><?php echo xlt("Fill in the details for the Organ/Disease Panel as before and click Save to close the pop-up");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
 
                     <p><?php echo xlt("If you Click the blue + sign on Serum Chemistry you will see a new line called Organ/Disease Panel with a Category of Sub Group");?>.
 
@@ -314,8 +314,8 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Use Blood or Serum as Specimen Type");?>.
 
                     <p><?php echo xlt("Click Save and then Refresh");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
-                    <button type="button" class="btn btn-default btn-sm btn-refresh oe-no-float" ><?php echo xlt('Refresh');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-refresh oe-no-float" ><?php echo xlt('Refresh');?></button>
 
                     <p><?php echo xlt("If you drill down to the Electrolyte Panel line you should see it have a Category of Order and be highlighted in yellow indicating that it is a search-able and valid order and has a Tier value of 3");?>.
 
@@ -332,7 +332,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Default Units and Range as appropriate");?>.
 
                     <p><?php echo xlt("Leave the Followup Services blank and click Save");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
 
                     <p><?php echo xlt("If you drill down to the Electrolyte Panel line and click on the + sign in the Name column you should see Sodium listed underneath it with a Category value of Result with a Tier value of 4");?>.
 
@@ -389,7 +389,7 @@ require_once("../../interface/globals.php");
                     <p><strong><?php echo xlt("CREATE A TOP LEVEL CUSTOM GROUP"); ?> :</strong>
 
                     <p><?php echo xlt("Start by clicking on Add Top Level to bring up the Enter Details pop-up box in the Add Mode");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-add oe-no-float" ><?php echo xlt('Add Top Level');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-add oe-no-float" ><?php echo xlt('Add Top Level');?></button>
 
                     <p><?php echo xlt("Select Custom Favorite Group from the Procedure Tier drop-down box");?>.
 
@@ -400,7 +400,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Unlike the regular Groups that were created earlier, each Custom Favorite Group has an Identifying Code that has to be unique. As this is our custom group and not a lab recognized panel we will give it our arbitrary unique Identifying Code - CFGWWT001");?>.
 
                     <p><?php echo xlt("Click Save to create a new line with a Name of Well Womans Tests preceded by a vertical line indicating that it has no descendants or children");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
 
                     <p><?php echo xlt("The Category column will be Custom Top Group and will be highlighted in pink");?>.
 
@@ -453,7 +453,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Select Blood in the Specimen Type drop-down box");?>.
 
                     <p><?php echo xlt("Click Save");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
 
                     <p><?php echo xlt("If configured correctly the Name column should say Blood Glucose with a vertical bar before it indicating no descendants or children, the Category column should say Custom Order and both Name and Category columns will be highlighted in pink indicating a custom grouped order");?>.
 
@@ -472,7 +472,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Select Discrete Result from the Procedure Tier");?>.
 
                     <p><?php echo xlt("Enter the details as follows Name - Blood Glucose, Description - Fasting Glucose result, Sequence - 1, Identifying Code - any unique value - WWT01R, Default Units - mg/dL, Default Range - 70-100, leave Followup Services blank and click Save");?>.
-                    <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
 
                     <p><?php echo xlt("If all the details were entered correctly you will see Blood Glucose in the Name column with a vertical bar before it indicating that it has no descendants or children, Result in the Category column, WWT01R in the Code column, the Tier column value should be 3 and the Description column should say Fasting Glucose result");?>.
 
@@ -539,7 +539,7 @@ require_once("../../interface/globals.php");
 
                     <p><?php echo xlt("Open a spreadsheet and type in the various groups, procedure orders and discrete results, arrange according to need");?>.
 
-                    <p><?php echo xlt("Alternatively download a sample spreadsheet by clicking on the Download button"); ?>. &nbsp <a href="../../interface/orders/configure_orders_worksheet.ods" class= "btn btn-default btn-sm btn-download oe-no-float" download="Configure Orders Worksheet" rel="noopener" target="_blank"> <?php echo xlt("Download"); ?></a>
+                    <p><?php echo xlt("Alternatively download a sample spreadsheet by clicking on the Download button"); ?>. &nbsp <a href="../../interface/orders/configure_orders_worksheet.ods" class= "btn btn-secondary btn-sm btn-download oe-no-float" download="Configure Orders Worksheet" rel="noopener" target="_blank"> <?php echo xlt("Download"); ?></a>
 
                     <p><?php echo xlt("Ensure that Identifying Codes are unique");?>.
 

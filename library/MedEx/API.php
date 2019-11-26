@@ -1986,8 +1986,8 @@ class Display extends base
 
                                           <tr>
                                             <td class="text-center" colspan="2">
-                                                <button class="btn btn-default btn-filter" style="float:none;" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
-                                                <button class="btn btn-default btn-add" onclick="goReminderRecall('addRecall');return false;"><span><?php echo xlt('New Recall'); ?></span></>
+                                                <button class="btn btn-secondary btn-filter" style="float:none;" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
+                                                <button class="btn btn-secondary btn-add" onclick="goReminderRecall('addRecall');return false;"><span><?php echo xlt('New Recall'); ?></span></>
                                             </td>
                                           </tr>
                                         </table>
@@ -2717,7 +2717,7 @@ class Display extends base
                     </form>
                 </div>
                 <div class="row-fluid text-center">
-                    <button class="btn btn-default btn-add" style="float:none;" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new"><?php echo xlt('Add Recall'); ?></button>
+                    <button class="btn btn-secondary btn-add" style="float:none;" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new"><?php echo xlt('Add Recall'); ?></button>
                     <p>
                         <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
                     </p>
@@ -3022,8 +3022,8 @@ class Setup extends Base
                                             </p>
                                           </div>
                                           <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                                            <button type="button" class="btn btn-default" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn btn-secondary" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
                                           </div>
                                         </div>
 

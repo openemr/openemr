@@ -315,8 +315,8 @@ if ($popup && $_POST['form_save']) {
                     }
                     ?>'>
                     <div class="btn-group">
-                        <button type="button" name="form_search" class="btn btn-default btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
-                        <button type="button" class="btn btn-default btn-add" name='add_node_btn' id='add_node_button'  onclick='handleNode(0,"","")'><?php echo xlt('Add Top Level');?></button>
+                        <button type="button" name="form_search" class="btn btn-secondary btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
+                        <button type="button" class="btn btn-secondary btn-add" name='add_node_btn' id='add_node_button'  onclick='handleNode(0,"","")'><?php echo xlt('Add Top Level');?></button>
                     </div>
                     <br>
                     <br>
@@ -341,7 +341,7 @@ if ($popup && $_POST['form_save']) {
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group btn-group-pinch" role="group">
                                 <?php if ($popup) { ?>
-                                    <button type="submit" class="btn btn-default btn-save" name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save');?></button>
+                                    <button type="submit" class="btn btn-secondary btn-save" name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save');?></button>
                                     <button class="btn btn-link btn-cancel btn-separate-left" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
                                 <?php } ?>
                             </div>
