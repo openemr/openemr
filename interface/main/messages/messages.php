@@ -11,7 +11,7 @@
  * @author Ray Magauran magauran@medfetch.com
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
  * @copyright Copyright (c) 2017 MedEXBank.com
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -283,7 +283,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         ?>
                         <div class="oe-margin-b-20">
                             <span class="title"><?php echo text($messages); ?></span>
-                            <a class='more' href=<?php echo $lnkvar; ?></a>
+                            <a class='more' href=<?php echo $lnkvar; ?>></a>
                         </div>
                         <div class="oe-margin-b-10">
                             <?php
