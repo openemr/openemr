@@ -895,10 +895,10 @@ MSG;
      *
      * @param $enable
      */
-    public function auditSQLAuditTamper($enable)
+    public function auditSQLAuditTamper($setting, $enable)
     {
-        $user =  isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "";
-        $group = isset($_SESSION['authProvider']) ?  $_SESSION['authProvider'] : "";
+        $user =  $_SESSION['authUser'] ?? "";
+        $group = $_SESSION['authProvider'] ?? "";
         $pid = 0;
         $checksum = "";
         $success = 1;
@@ -907,10 +907,18 @@ MSG;
 
         $adodb = $GLOBALS['adodb']['db'];
 
-        if ($enable == "1") {
-            $comments = "Audit Logging Enabled.";
+        if ($setting == 'enable_auditlog') {
+            $comments = "Audit Logging";
+        } else if ($setting == 'gbl_force_log_breakglass') {
+            $comments = "Force Breakglass Logging";
         } else {
-            $comments = "Audit Logging Disabled.";
+            $comments = $setting;
+        }
+
+        if ($enable == "1") {
+            $comments .= " Enabled.";
+        } else {
+            $comments .= " Disabled.";
         }
 
         $SSL_CLIENT_S_DN_CN=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : '';
