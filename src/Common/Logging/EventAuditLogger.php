@@ -205,7 +205,7 @@ MSG;
             $patient_id=0;
         }
 
-        $this->send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
+        $this->sendAtnaAuditMsg($user, $groupname, $event, $patient_id, $success, $comments);
     }
 
     /******************
@@ -377,7 +377,7 @@ MSG;
      * @param  $statement
      * @return string
      */
-    private function sql_checksum_of_modified_row($statement)
+    private function sqlChecksumOfModifiedRow($statement)
     {
         $table = "";
         $rid = "";
@@ -594,7 +594,7 @@ MSG;
      * @param  $comments
      * @return string
      */
-    private function create_rfc3881_msg($user, $group, $event, $patient_id, $outcome, $comments)
+    private function createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments)
     {
         $eventActionCode = $this->determineRFC3881EventActionCode($event);
         $eventIdDisplayName = $this->determineRFC3881EventIdDisplayName($event);
@@ -635,7 +635,7 @@ MSG;
      * @param  $cafile
      * @return bool|resource
      */
-    private function create_tls_conn($host, $port, $localcert, $cafile)
+    private function createTlsConn($host, $port, $localcert, $cafile)
     {
         $sslopts = array();
         if ($cafile !== null && $cafile != "") {
@@ -682,7 +682,7 @@ MSG;
      * @param $outcome
      * @param $comments
      */
-    public function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comments)
+    public function sendAtnaAuditMsg($user, $group, $event, $patient_id, $outcome, $comments)
     {
         /* If no ATNA repository server is configured, return */
         if (empty($GLOBALS['atna_audit_host']) || empty($GLOBALS['enable_atna_audit'])) {
@@ -693,9 +693,9 @@ MSG;
         $port = $GLOBALS['atna_audit_port'];
         $localcert = $GLOBALS['atna_audit_localcert'];
         $cacert = $GLOBALS['atna_audit_cacert'];
-        $conn = $this->create_tls_conn($host, $port, $localcert, $cacert);
+        $conn = $this->createTlsConn($host, $port, $localcert, $cacert);
         if ($conn !== false) {
-            $msg = $this->create_rfc3881_msg($user, $group, $event, $patient_id, $outcome, $comments);
+            $msg = $this->createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments);
             fwrite($conn, $msg);
             fclose($conn);
         }
@@ -713,6 +713,7 @@ MSG;
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
+
         // Set up crypto object that will be used by this singleton class for for encryption/decryption (if not set up already)
         if (!isset($this->cryptoGen)) {
             $this->cryptoGen = new CryptoGen();
@@ -722,31 +723,39 @@ MSG;
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
         if (!isset($GLOBALS['enable_auditlog']) || !($GLOBALS['enable_auditlog'])) {
-            if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass"))) {
+            if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
 
         $statement = trim($statement);
 
-        /**
-         * Don't audit SQL statements done to the audit log,
-         * or we'll have an infinite loop.
-         * Skip SELECT count() statements.
-         * Skip the SELECT made by the authCheckSession() function.
-         */
         if ((stripos($statement, "insert into log") !== false)  // avoid infinite loop
-            || (stripos($statement, "FROM log ") !== false)        // avoid infinite loop
-            || (stripos($statement, "SELECT count(") === 0)        // Skip SELECT count() statements.
-            || (stripos($statement, "select username, password from users") === 0) // Skip the SELECT made by the authCheckSession() function.
+            || (stripos($statement, "FROM log ") !== false)     // avoid infinite loop
+            || (strpos($statement, "sequences") !== false)      // Don't log sequences - to avoid the affect due to GenID calls
+            || (stripos($statement, "SELECT count(") === 0)     // Skip SELECT count() statements.
         ) {
             return;
         }
 
-        $group = isset($_SESSION['authProvider']) ?  $_SESSION['authProvider'] : "";
+        /* Determine the query type (select, update, insert, delete) */
+        $querytype = "select";
+        $querytypes = array("select", "update", "insert", "delete","replace");
+        foreach ($querytypes as $qtype) {
+            if (stripos($statement, $qtype) === 0) {
+                $querytype = $qtype;
+                break;
+            }
+        }
+
+        /* If query events are not enabled, don't log them. Exception for "emergency" users. */
+        if (($querytype == "select") && !(array_key_exists('audit_events_query', $GLOBALS) && $GLOBALS['audit_events_query'])) {
+            if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
+                return;
+            }
+        }
+
         $comments = $statement;
-        $success = (int)($outcome !== false);
-        $checksum = ($outcome !== false) ? $this->sql_checksum_of_modified_row($statement) : '';
 
         if (is_array($binds)) {
             // Need to include the binded variable elements in the logging
@@ -761,24 +770,9 @@ MSG;
             }
         }
 
-        // ViSolve : Don't log sequences - to avoid the affect due to GenID calls
-        if (strpos($comments, "sequences") !== false) {
-            return;
-        }
-
-        /* Determine the query type (select, update, insert, delete) */
-        $querytype = "select";
-        $querytypes = array("select", "update", "insert", "delete","replace");
-        foreach ($querytypes as $qtype) {
-            if (stripos($statement, $qtype) === 0) {
-                $querytype = $qtype;
-            }
-        }
-
         /* Determine the audit event based on the database tables */
         $event = "other";
         $category = "other";
-
 
         /* When searching for table names, truncate the SQL statement,
          * removing any WHERE, SET, or VALUE clauses.
@@ -829,7 +823,6 @@ MSG;
             }
         }
 
-
         /* If the event is a patient-record, then note the patient id */
         $pid = 0;
         if ($event == "patient-record") {
@@ -838,15 +831,8 @@ MSG;
             }
         }
 
-        /* If query events are not enabled, don't log them */
-        if (($querytype == "select") && !(array_key_exists('audit_events_query', $GLOBALS) && $GLOBALS['audit_events_query'])) {
-            if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass"))) {
-                return;
-            }
-        }
-
         if (!($GLOBALS["audit_events_${event}"])) {
-            if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass"))) {
+            if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -858,14 +844,16 @@ MSG;
          */
         $adodb = $GLOBALS['adodb']['db'];
 
-
-
         $encrypt_comment = 'No';
         //July 1, 2014: Ensoftek: Check and encrypt audit logging
         if (array_key_exists('enable_auditlog_encryption', $GLOBALS) && $GLOBALS["enable_auditlog_encryption"]) {
             $comments =  $this->cryptoGen->encryptStandard($comments);
             $encrypt_comment = 'Yes';
         }
+
+        $group = $_SESSION['authProvider'] ?? "";
+        $success = (int)($outcome !== false);
+        $checksum = ($outcome !== false) ? $this->sqlChecksumOfModifiedRow($statement) : '';
 
         $current_datetime = date("Y-m-d H:i:s");
         $SSL_CLIENT_S_DN_CN = $_SERVER['SSL_CLIENT_S_DN_CN'] ?? '';
@@ -898,7 +886,7 @@ MSG;
             $adodb->qstr($checksumGenerate) .", '3')";
         sqlInsertClean_audit($encryptLogQry);
 
-        $this->send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);
+        $this->sendAtnaAuditMsg($user, $group, $event, $pid, $success, $comments);
     }
 
     /**
@@ -907,10 +895,10 @@ MSG;
      *
      * @param $enable
      */
-    public function auditSQLAuditTamper($enable)
+    public function auditSQLAuditTamper($setting, $enable)
     {
-        $user =  isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "";
-        $group = isset($_SESSION['authProvider']) ?  $_SESSION['authProvider'] : "";
+        $user =  $_SESSION['authUser'] ?? "";
+        $group = $_SESSION['authProvider'] ?? "";
         $pid = 0;
         $checksum = "";
         $success = 1;
@@ -919,10 +907,18 @@ MSG;
 
         $adodb = $GLOBALS['adodb']['db'];
 
-        if ($enable == "1") {
-            $comments = "Audit Logging Enabled.";
+        if ($setting == 'enable_auditlog') {
+            $comments = "Audit Logging";
+        } else if ($setting == 'gbl_force_log_breakglass') {
+            $comments = "Force Breakglass Logging";
         } else {
-            $comments = "Audit Logging Disabled.";
+            $comments = $setting;
+        }
+
+        if ($enable == "1") {
+            $comments .= " Enabled.";
+        } else {
+            $comments .= " Disabled.";
         }
 
         $SSL_CLIENT_S_DN_CN=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : '';
@@ -938,7 +934,7 @@ MSG;
             $adodb->qstr($SSL_CLIENT_S_DN_CN) .")";
 
         sqlInsertClean_audit($sql);
-        $this->send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);
+        $this->sendAtnaAuditMsg($user, $group, $event, $pid, $success, $comments);
     }
 
     /**
@@ -1086,5 +1082,41 @@ MSG;
         }
 
         return $event;
+    }
+
+    // Goal of this function is to increase performance in logging engine to check
+    //  if a user is a breakglass user (in this case, will log all activities if the
+    //  setting is turned on in Administration->Logging->'Audit all Emergency User Queries').
+    private function isBreakglassUser($user)
+    {
+        // return false if $user is empty
+        if (empty($user)) {
+            return false;
+        }
+
+        // Return the breakglass user flag if it exists already (it is cached by this singleton class to speed the logging engine up)
+        if (isset($this->breakglassUser)) {
+            return $this->breakglassUser;
+        }
+
+        // see if current user is in the breakglass group
+        //  note we are bypassing gacl standard api to improve performance
+        $queryUser = sqlQueryNoLog(
+            "SELECT `gacl_aro`.`value`
+            FROM `gacl_aro`, `gacl_groups_aro_map`, `gacl_aro_groups`
+            WHERE `gacl_aro`.`id` = `gacl_groups_aro_map`.`aro_id`
+            AND `gacl_groups_aro_map`.`group_id` = `gacl_aro_groups`.`id`
+            AND `gacl_aro_groups`.`value` = 'breakglass'
+            AND BINARY `gacl_aro`.`value` = ?",
+            [$user]
+        );
+        if (empty($queryUser)) {
+            // user is not in breakglass group
+            $this->breakglassUser = false;
+        } else {
+            // user is in breakglass group
+            $this->breakglassUser = true;
+        }
+        return $this->breakglassUser;
     }
 }

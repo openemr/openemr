@@ -225,6 +225,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
   // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
   // Check the current status of Audit Logging
     $auditLogStatusFieldOld = $GLOBALS['enable_auditlog'];
+    $forceBreakglassLogStatusFieldOld = $GLOBALS['gbl_force_log_breakglass'];
 
   /*
    * Compare form values with old database values.
@@ -305,12 +306,17 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     checkCreateCDB();
     checkBackgroundServices();
 
-  // July 1, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
-  // If Audit Logging status has changed, log it.
-    $auditLogStatusNew = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'enable_auditlog'");
+    // July 1, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
+    // If Audit Logging status has changed, log it.
+    $auditLogStatusNew = sqlQuery("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'enable_auditlog'");
     $auditLogStatusFieldNew = $auditLogStatusNew['gl_value'];
     if ($auditLogStatusFieldOld != $auditLogStatusFieldNew) {
-        EventAuditLogger::instance()->auditSQLAuditTamper($auditLogStatusFieldNew);
+        EventAuditLogger::instance()->auditSQLAuditTamper('enable_auditlog', $auditLogStatusFieldNew);
+    }
+    $forceBreakglassLogStatusNew = sqlQuery("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'gbl_force_log_breakglass'");
+    $forceBreakglassLogStatusFieldNew = $forceBreakglassLogStatusNew['gl_value'];
+    if ($forceBreakglassLogStatusFieldOld != $forceBreakglassLogStatusFieldNew) {
+        EventAuditLogger::instance()->auditSQLAuditTamper('gbl_force_log_breakglass', $forceBreakglassLogStatusFieldNew);
     }
 
     echo "<script type='text/javascript'>";

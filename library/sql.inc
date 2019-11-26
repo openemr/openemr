@@ -45,14 +45,14 @@ $GLOBALS['dbh'] = $database->_connectionID;
 
 // Modified 5/2009 by BM for UTF-8 project ---------
 if (!$disable_utf8_flag) {
-    $success_flag = $database->Execute("SET NAMES 'utf8'");
+    $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8'");
     if (!$success_flag) {
         error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
     }
 }
 
 // Turn off STRICT SQL
-$sql_strict_set_success = $database->Execute("SET sql_mode = ''");
+$sql_strict_set_success = $database->ExecuteNoLog("SET sql_mode = ''");
 if (!$sql_strict_set_success) {
     error_log("Unable to set strict sql setting: " . errorLogEscape(getSqlLastError()), 0);
 }
