@@ -68,10 +68,10 @@ $(document).ready(function(){
     /************ List-box modification functions ***********/
     /********************************************************/
 
-    $("#newlistitem").keypress(function(evt) { if (evt.keyCode == 13) { SaveNewListItem(this, evt); return false; }});
-    $(".addtolist").click(function(evt) { AddToList(this, evt); });
-    $("#newlistitem_submit").click(function(evt) { SaveNewListItem(this, evt); });
-    $("#newlistitem_cancel").click(function(evt) { CancelAddToList(this, evt); });
+    $("#newlistitem").on("keypress", function(evt) { if (evt.keyCode == 13) { SaveNewListItem(this, evt); return false; }});
+    $(".addtolist").on("click", function(evt) { AddToList(this, evt); });
+    $("#newlistitem_submit").on("click", function(evt) { SaveNewListItem(this, evt); });
+    $("#newlistitem_cancel").on("click", function(evt) { CancelAddToList(this, evt); });
 
     // display the 'new list item' DIV at the mouse position
     var AddToList = function(btnObj, e) {

@@ -19,6 +19,8 @@
 require_once("../../interface/globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Core\Header;
+
 // Ensure script doesn't time out
 set_time_limit(0);
 
@@ -34,12 +36,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 <html>
 <head>
 <title><?php echo xlt('External Data Loads'); ?></title>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'/>
-<link rel='stylesheet' href='<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes-1-10-4/themes/ui-lightness/jquery-ui.min.css'; ?>' type='text/css'/>
-
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-7-2/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-1-10-4/ui/minified/jquery-ui.min.js'; ?>"></script>
+<?php Header::setupHeader(['jquery-ui', 'jquery-ui-lightness']); ?>
 <script>
 
 var db_list = [ "ICD9", "ICD10", "RXNORM", "SNOMED", "CQM_VALUESET"];
@@ -48,11 +45,11 @@ var accOpts = {
     heightStyle: "content",
     //add change event callback
     activate: function(e, ui) {
-        var parm = 'db=' + $(ui.newPanel).attr('id');
-        var inst_dets_id = '#' + $(ui.newPanel).attr('id') + "_install_details";
-        var stg_dets_id = '#' + $(ui.newPanel).attr('id') + "_stage_details";
-        var inst_load_id = '#' + $(ui.newPanel).attr('id') + "_inst_loading";
-        var stg_load_id = '#' + $(ui.newPanel).attr('id') + "_stg_loading";
+        var parm = 'db=' + $(ui.newPanel).prop('id');
+        var inst_dets_id = '#' + $(ui.newPanel).prop('id') + "_install_details";
+        var stg_dets_id = '#' + $(ui.newPanel).prop('id') + "_stage_details";
+        var inst_load_id = '#' + $(ui.newPanel).prop('id') + "_inst_loading";
+        var stg_load_id = '#' + $(ui.newPanel).prop('id') + "_stg_loading";
         top.restoreSession()
         $(inst_load_id).show();
         $(stg_load_id).show();
@@ -71,16 +68,16 @@ var accOpts = {
             success: function(data) {
                 $(stg_load_id).hide();
                 $(stg_dets_id).html(data);
-                $("#" + $(ui.newPanel).attr('id') + "_instrmsg").hover(
+                $("#" + $(ui.newPanel).prop('id') + "_instrmsg").hover(
                     function() {
-                    var dlg = "#" + $(ui.newPanel).attr('id') + "_dialog";
+                    var dlg = "#" + $(ui.newPanel).prop('id') + "_dialog";
                 $(dlg).dialog('open');
-                $(dlg).load($(ui.newPanel).attr('id').toLowerCase() + '_howto.php');
+                $(dlg).load($(ui.newPanel).prop('id').toLowerCase() + '_howto.php');
                     },
                     function() {
                     }
                 );
-                $("#" + $(ui.newPanel).attr('id') + "_unsupportedmsg").hover(
+                $("#" + $(ui.newPanel).prop('id') + "_unsupportedmsg").hover(
                     function() {
                     $(this).append('<div class="tooltip"><p><?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?></p></div>');
                     },
@@ -88,29 +85,29 @@ var accOpts = {
                     $("div.tooltip").remove();
                     }
                 );
-                $("#" + $(ui.newPanel).attr('id') + "_dirmsg").hover(
+                $("#" + $(ui.newPanel).prop('id') + "_dirmsg").hover(
                     function() {
-                    $(this).append('<div class="tooltip"><p><?php echo xla("Please create the following directory before proceeding"); ?>' + ': contrib/' + $(ui.newPanel).attr('id').toLowerCase() + '</p></div>');
+                    $(this).append('<div class="tooltip"><p><?php echo xla("Please create the following directory before proceeding"); ?>' + ': contrib/' + $(ui.newPanel).prop('id').toLowerCase() + '</p></div>');
                     },
                     function() {
                     $("div.tooltip").remove();
                     }
                 );
-                $("#" + $(ui.newPanel).attr('id') + "_msg").hover(
+                $("#" + $(ui.newPanel).prop('id') + "_msg").hover(
                     function() {
-                    $(this).append('<div class="tooltip"><p><?php echo xla("Please place your install files in following directory"); ?>' + ': contrib/' + $(ui.newPanel).attr('id').toLowerCase() + '</p></div>');
+                    $(this).append('<div class="tooltip"><p><?php echo xla("Please place your install files in following directory"); ?>' + ': contrib/' + $(ui.newPanel).prop('id').toLowerCase() + '</p></div>');
                     },
                     function() {
                     $("div.tooltip").remove();
                     }
                 );
-                $("#" + $(ui.newPanel).attr('id') + "_install_button").click(function(e){
-                    $(this).attr("disabled", "disabled");
-                    var stg_load_id = '#' + $(ui.newPanel).attr('id') + "_stg_loading";
+                $("#" + $(ui.newPanel).prop('id') + "_install_button").click(function(e){
+                    $(this).prop("disabled", "disabled");
+                    var stg_load_id = '#' + $(ui.newPanel).prop('id') + "_stg_loading";
                     $(stg_load_id).show();
                     var thisInterval;
-                            var parm = 'db=' + $(ui.newPanel).attr('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version') + '&rf=' + $(this).attr('rf');
-                    var stg_dets_id = '#' + $(ui.newPanel).attr('id') + "_stage_details";
+                            var parm = 'db=' + $(ui.newPanel).prop('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).prop('file_checksum') + '&file_revision_date=' + $(this).prop('file_revision_date') + '&version=' + $(this).prop('version') + '&rf=' + $(this).prop('rf');
+                    var stg_dets_id = '#' + $(ui.newPanel).prop('id') + "_stage_details";
                     $activeAccordionSection = $("#accordion").accordion('option', 'active');
 
                     $.ajax({
@@ -118,7 +115,7 @@ var accOpts = {
                         data: parm,
                                 cache: false,
                         success: function(data) {
-                        var stg_load_id = '#' + $(ui.newPanel).attr('id') + "_stg_loading";
+                        var stg_load_id = '#' + $(ui.newPanel).prop('id') + "_stg_loading";
                         $(stg_load_id).hide();
                         var $dialog=$('<div class=stg id="response_dialog"></div>').dialog({
                                 buttons: { "Close": function() { $(this).dialog("close"); } },
