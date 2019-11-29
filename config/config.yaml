@@ -47,6 +47,9 @@ assets:
     jquery-ui:
         basePath: %assets_static_relative%/jquery-ui/
         script: jquery-ui.min.js
+    jquery-ui-theme:
+        basePath: %assets_static_relative%/jquery-ui/
+        link: jquery-ui.theme.css
     jquery-ui-base:
         basePath: %assets_static_relative%/jquery-ui-themes/themes/base/
         link: jquery-ui.min.css
@@ -71,6 +74,12 @@ assets:
     jquery-ui-excite-bike-1-11-4:
         basePath: %assets_static_relative%/jquery-ui-themes-1-11-4/themes/excite-bike/
         link: jquery-ui.css # should this be the minified file?
+    datatables:
+        basePath: %assets_static_relative%/datatables.net/js/
+        script: jquery.dataTables.js
+    datatables-jqui-theme:
+        basePath: %assets_static_relative%/datatables.net-jqui/css/
+        link: dataTables.jqueryui.css
     fontawesome:
         basePath: %assets_static_relative%/font-awesome/css/
         link: font-awesome.min.css

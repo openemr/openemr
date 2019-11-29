@@ -81,7 +81,7 @@ function validateUsingPageRules($fileNamePath)
             echo('//Use validation script js Validations-');
             echo("\r\n");
 
-            echo('$(' . js_escape("#".$key) . ').submit(function(event){');
+            echo('$(' . js_escape("#".$key) . ').on("submit", function(event){');
             echo("\r\n");
 
             echo("\r\n");

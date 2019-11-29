@@ -7,7 +7,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,6 +18,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$include_root/drugs/drugs.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -62,8 +63,9 @@ $res = sqlStatement("SELECT d.*, SUM(di.on_hand) AS on_hand " .
 
 <head>
 
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php echo xlt('Inventory List'); ?></title>
+
+<?php Header::setupHeader(['report-helper']); ?>
 
 <style>
 /* specifically include & exclude from printing */
@@ -91,10 +93,6 @@ table.mymaintable td, table.mymaintable th {
  padding: 1pt 4pt 1pt 4pt;
 }
 </style>
-
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

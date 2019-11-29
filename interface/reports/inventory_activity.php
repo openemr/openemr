@@ -15,7 +15,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,6 +25,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -37,11 +38,6 @@ $product_first = (!empty($_POST['form_by']) && $_POST['form_by'] == 'w') ? 0 : 1
 
 $last_warehouse_id = '~';
 $last_product_id = 0;
-
-function esc4Export($str)
-{
-    return str_replace('"', '\\"', $str);
-}
 
 // Get ending inventory for the report's end date.
 // Optionally restricts by product ID and/or warehouse ID.
@@ -129,20 +125,20 @@ function thisLineItem(
                 // Export:
                 if (! $_POST['form_details']) {
                     if ($product_first) {
-                        echo '"'  . esc4Export($product)   . '"';
-                        echo ',"' . esc4Export($warehouse) . '"';
+                        echo csvEscape($product);
+                        echo ',' . csvEscape($warehouse);
                     } else {
-                        echo '"'  . esc4Export($warehouse) . '"';
-                        echo ',"' . esc4Export($product)   . '"';
+                        echo csvEscape($warehouse);
+                        echo ',' . csvEscape($product);
                     }
 
-                    echo ',"' . ($secei - $secqtys[0] - $secqtys[1] - $secqtys[2] - $secqtys[3] - $secqtys[4]) . '"'; // start inventory
-                    echo ',"' . $secqtys[0] . '"'; // sales
-                    echo ',"' . $secqtys[1] . '"'; // distributions
-                    echo ',"' . $secqtys[2] . '"'; // purchases
-                    echo ',"' . $secqtys[3] . '"'; // transfers
-                    echo ',"' . $secqtys[4] . '"'; // adjustments
-                    echo ',"' . $secei      . '"'; // end inventory
+                    echo ',' . csvEscape($secei - $secqtys[0] - $secqtys[1] - $secqtys[2] - $secqtys[3] - $secqtys[4]); // start inventory
+                    echo ',' . csvEscape($secqtys[0]); // sales
+                    echo ',' . csvEscape($secqtys[1]); // distributions
+                    echo ',' . csvEscape($secqtys[2]); // purchases
+                    echo ',' . csvEscape($secqtys[3]); // transfers
+                    echo ',' . csvEscape($secqtys[4]); // adjustments
+                    echo ',' . csvEscape($secei); // end inventory
                     echo "\n";
                 }
             } else {
@@ -269,20 +265,20 @@ function thisLineItem(
     if ($_POST['form_details'] && $product_id && ($qtys[0] + $qtys[1] + $qtys[2] + $qtys[3] + $qtys[4])) {
         if ($form_action == 'export') {
             if ($product_first) {
-                echo '"'  . esc4Export($product)  . '"';
-                echo ',"' . esc4Export($warehouse) . '"';
+                echo csvEscape($product);
+                echo ',' . csvEscape($warehouse);
             } else {
-                echo '"'  . esc4Export($warehouse) . '"';
-                echo ',"' . esc4Export($product)   . '"';
+                echo csvEscape($warehouse);
+                echo ',' . csvEscape($product);
             }
 
-            echo ',"' . oeFormatShortDate($transdate) . '"';
-            echo ',"' . esc4Export($invnumber) . '"';
-            echo ',"' . $qtys[0]             . '"'; // sales
-            echo ',"' . $qtys[1]             . '"'; // distributions
-            echo ',"' . $qtys[2]             . '"'; // purchases
-            echo ',"' . $qtys[3]             . '"'; // transfers
-            echo ',"' . $qtys[4]             . '"'; // adjustments
+            echo ',' . csvEscape(oeFormatShortDate($transdate));
+            echo ',' . csvEscape($invnumber);
+            echo ',' . csvEscape($qtys[0]); // sales
+            echo ',' . csvEscape($qtys[1]); // distributions
+            echo ',' . csvEscape($qtys[2]); // purchases
+            echo ',' . csvEscape($qtys[3]); // transfers
+            echo ',' . csvEscape($qtys[4]); // adjustments
             echo "\n";
         } else {
             ?>
@@ -364,29 +360,29 @@ if ($form_action == 'export') {
     header("Content-Description: File Transfer");
   // CSV headers:
     if ($product_first) {
-        echo '"' . esc4export(xl('Product')) . '",';
-        echo '"' . esc4export(xl('Warehouse')) . '",';
+        echo csvEscape(xl('Product')) . ',';
+        echo csvEscape(xl('Warehouse')) . ',';
     } else {
-        echo '"' . esc4export(xl('Warehouse')) . '",';
-        echo '"' . esc4export(xl('Product')) . '",';
+        echo csvEscape(xl('Warehouse')) . ',';
+        echo csvEscape(xl('Product')) . ',';
     }
 
     if ($_POST['form_details']) {
-        echo '"' . esc4export(xl('Date')) . '",';
-        echo '"' . esc4export(xl('Invoice')) . '",';
-        echo '"' . esc4export(xl('Sales')) . '",';
-        echo '"' . esc4export(xl('Distributions')) . '",';
-        echo '"' . esc4export(xl('Purchases')) . '",';
-        echo '"' . esc4export(xl('Transfers')) . '",';
-        echo '"' . esc4export(xl('Adjustments')) . '"' . "\n";
+        echo csvEscape(xl('Date')) . ',';
+        echo csvEscape(xl('Invoice')) . ',';
+        echo csvEscape(xl('Sales')) . ',';
+        echo csvEscape(xl('Distributions')) . ',';
+        echo csvEscape(xl('Purchases')) . ',';
+        echo csvEscape(xl('Transfers')) . ',';
+        echo csvEscape(xl('Adjustments')) . "\n";
     } else {
-        echo '"' . esc4export(xl('Start')) . '",';
-        echo '"' . esc4export(xl('Sales')) . '",';
-        echo '"' . esc4export(xl('Distributions')) . '",';
-        echo '"' . esc4export(xl('Purchases')) . '",';
-        echo '"' . esc4export(xl('Transfers')) . '",';
-        echo '"' . esc4export(xl('Adjustments')) . '",';
-        echo '"' . esc4export(xl('End')) . '"' . "\n";
+        echo csvEscape(xl('Start')) . ',';
+        echo csvEscape(xl('Sales')) . ',';
+        echo csvEscape(xl('Distributions')) . ',';
+        echo csvEscape(xl('Purchases')) . ',';
+        echo csvEscape(xl('Transfers')) . ',';
+        echo csvEscape(xl('Adjustments')) . ',';
+        echo csvEscape(xl('End')) . "\n";
     }
 } else { // end export
     ?>
@@ -394,8 +390,7 @@ if ($form_action == 'export') {
 <head>
 <title><?php echo xlt('Inventory Activity'); ?></title>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+    <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
 <style type="text/css">
  /* specifically include & exclude from printing */
@@ -420,12 +415,6 @@ table.mymaintable td, table.mymaintable th {
  padding: 1pt 4pt 1pt 4pt;
 }
 </style>
-
-
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language='JavaScript'>
 

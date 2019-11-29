@@ -34,10 +34,10 @@ class BaseController extends AbstractActionController
      */
     protected $jsFiles = array(
         //jquery
-        '/jquery-1-9-1/jquery.min.js',
+        '/jquery/dist/jquery.min.js',
         //bootstrap
         '/bootstrap/dist/js/bootstrap.min.js',
-        '/jquery-validation/dist/jquery.validate.min.js',
+        '/jquery-validation/jquery.validate.min.js',
 
     );
 

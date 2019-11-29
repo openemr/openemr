@@ -324,7 +324,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // seldom will this get used as more of U.I is moved to Bootstrap
     // but better to continue than stop because of a dependency...
     //
-    let jqurl = top.webroot_url + '/public/assets/jquery-1-9-1/jquery.min.js';
+    let jqurl = top.webroot_url + '/public/assets/jquery/dist/jquery.min.js';
     if (typeof jQuery === 'undefined') {
         includeScript(jqurl, false, 'script'); // true is async
     }
