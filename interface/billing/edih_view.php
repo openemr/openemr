@@ -15,6 +15,7 @@
 require_once(dirname(__FILE__) . '/../globals.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 //
 if (!acl_check('acct', 'eob')) {
@@ -29,15 +30,10 @@ if (!acl_check('acct', 'eob')) {
 <head>
     <title><?php echo xlt("edi history"); ?></title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <!-- jQuery-ui and datatables -->
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-themes-1-10-4/themes/sunny/jquery-ui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui/css/dataTables.jqueryui.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-jqui/css/scroller.jqueryui.css" />
 
-    <!-- edi_history css -->
+    <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'datetime-picker', 'datatables', 'datatables-jqui', 'datatables-jqui-theme', 'datatables-scroller', 'datatables-scroller-jqui-theme', 'jquery-ui', 'jquery-ui-sunny']); ?>
+
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
-
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 </head>
 <!-- style for OpenEMR color -->
@@ -301,13 +297,6 @@ if (!acl_check('acct', 'eob')) {
 </div>
 <!-- End tabs section -->
 <!--  -->
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-10-2/jquery.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/minified/jquery-ui.min.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net/js/jquery.dataTables.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui/js/dataTables.jqueryui.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller/js/dataTables.scroller.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="<?php echo $web_root?>/library/textformat.js"></script>
 
 <!-- end DataTables js Begin local js -->
 <script type="text/javascript">
@@ -522,7 +511,7 @@ jQuery-UI dialog
 /* **** if files have been uploaded **** */
     var upld_ct = 0;
 /* ***** list files selected in the multifile upload input **** */
-    jQuery('#uplmulti').change( function(){
+    jQuery('#uplmulti').on('change', function(){
         // clear uploaded files list, since new selected files list is coming
         jQuery('#fileupl2').html('');
         jQuery('#fileupl2').removeClass('flist');
@@ -796,7 +785,7 @@ jQuery-UI dialog
         return false;
     });
     //
-    jQuery('#x12file').change( function(){
+    jQuery('#x12file').on('change', function(){
         // clear file display
         jQuery('#x12rsp').html('');
         jQuery('#x12filesbmt').prop('disabled', false);

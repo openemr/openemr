@@ -82,7 +82,6 @@
   },
   "napa": {
     "bootstrap-sidebar": "https://github.com/asyraf9/bootstrap-sidebar/archive/v0.2.2.tar.gz",
-    "jquery-1-10-2": "https://github.com/jquery/jquery/archive/1.10.2.tar.gz",
     "jquery-creditcardvalidator": "https://github.com/PawelDecowski/jquery-creditcardvalidator/archive/v1.1.0.tar.gz",
     "jquery-panelslider": "https://github.com/eduardomb/jquery-panelslider/archive/0.1.1.tar.gz",
     "jquery-ui-1-10-4": "https://jqueryui.com/resources/download/jquery-ui-1.10.4.zip",
