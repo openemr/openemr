@@ -71,12 +71,6 @@ assets:
     jquery-ui-excite-bike:
         basePath: %assets_static_relative%/jquery-ui-themes/themes/excite-bike/
         link: jquery-ui.min.css
-    jquery-ui-lightness-1-10-4:
-        basePath: %assets_static_relative%/jquery-ui-themes-1-10-4/themes/ui-lightness/
-        link: jquery-ui.min.css
-    jquery-ui-excite-bike-1-11-4:
-        basePath: %assets_static_relative%/jquery-ui-themes-1-11-4/themes/excite-bike/
-        link: jquery-ui.css # should this be the minified file?
     datatables:
         basePath: %assets_static_relative%/datatables.net/js/
         script: jquery.dataTables.js
