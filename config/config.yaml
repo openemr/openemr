@@ -140,8 +140,8 @@ assets:
     moment:
         basePath: %assets_static_relative%/moment/
         script: moment.js # should this be the minified file?
-    pure:
-        basePath: %assets_static_relative%/pure/0.5.0/
+    purecss:
+        basePath: %assets_static_relative%/purecss/
         link: pure-min.css
     angular:
         basePath: %assets_static_relative%/angular/
@@ -152,18 +152,6 @@ assets:
     angular-summernote:
         basePath: %assets_static_relative%/angular-summernote/dist/
         script: angular-summernote.js # should this be the minified file?
-    anythingslider:
-        basePath: %assets_static_relative%/anythingslider/
-        script: js/jquery.anythingslider.fx.js # should optional plugins be their own key?
-        script: js/jquery.anythingslider.video.js # should optional plugins be their own key?
-        script: js/jquery.easing.1.2.js # should optional extensions be their own key?
-        script: js/jquery.anythingslider.min.js
-        # link: css/anythingslider.css
-        link: css/theme-metallic.css
-        link: css/theme-minimalist-round.css
-        link: css/theme-minimalist-square.css
-        link: css/theme-construction.css
-        link: css/theme-cs-portfolio.css
     backbone:
         basePath: %assets_static_relative%/backbone/
         script: backbone-min.js

@@ -230,21 +230,22 @@ function getAuthPortalUsers()
                 }
             })
             $http.post('handle_note.php', $.param({'task':'massdelete','notejson':JSON.stringify(itemToDelete)}))
-            .success(function(data, status, headers, config) {
+            .then(function successCallback(response) {
                 $window.location.reload();
-            }).error(function(data, status, headers, config) {
-                alert(data);
+            }, function errorCallback(response) {
+                alert(response.data);
             });
             return false;
         };
 
         $scope.deleteMessage = function (id){
             $http.post('handle_note.php', $.param( {'task':'delete','noteid':id} ))
-            .success(function(data, status, headers, config) {
+            .then(function successCallback(response) {
                 return true;
-            }).error(function(data, status, headers, config) {
-                alert(data);
+            }, function errorCallback(response) {
+                alert(response.data);
             });
+
         };
 
         $scope.isMessageSelected = function () {
@@ -289,11 +290,11 @@ function getAuthPortalUsers()
         $scope.readMessage = function (idx) {
             if( $scope.items[idx].message_status == 'New'){ // mark mail read else ignore
                 $http.post('handle_note.php', $.param({'task':'setread','noteid':$scope.items[idx].id}))
-                .success(function(data, status, headers, config) {
+                .then(function successCallback(response) {
                     $scope.items[idx].message_status = 'Read';
                     $scope.selected.message_status = 'Read';
-                }).error(function(data, status, headers, config) {
-                    alert(data);
+                }, function errorCallback(response) {
+                    alert(response.data);
                 });
             }
             idx = $filter('getById')($scope.allItems,this.item.id);
@@ -323,50 +324,50 @@ function getAuthPortalUsers()
 
         $scope.getInbox = function () {
             $http.post('handle_note.php', $.param({'task':'getinbox','owner':$scope.cUserId}))
-            .success(function(data, status, headers, config) {
-                if(data){
-                  $scope.inboxItems = angular.copy(data);
+            .then(function successCallback(response) {
+                if(response.data){
+                    $scope.inboxItems = angular.copy(response.data);
                 }
-                else alert(data);
-            }).error(function(data, status, headers, config) {
-                alert(data);
+                else alert(response.data);
+            }, function errorCallback(response) {
+                alert(response.data);
             });
         };
 
         $scope.getAllMessages = function () {
             $http.post('handle_note.php', $.param({'task':'getall','owner':$scope.cUserId}))
-            .success(function(data, status, headers, config) {
-                if(data){
-                  $scope.allItems = angular.copy(data);
+            .then(function successCallback(response) {
+                if(response.data){
+                    $scope.allItems = angular.copy(response.data);
                 }
-                else alert(data);
-            }).error(function(data, status, headers, config) {
-                alert(data);
+                else alert(response.data);
+            }, function errorCallback(response) {
+                alert(response.data);
             });
         };
 
         $scope.getDeletedMessages = function () {
             $http.post('handle_note.php', $.param({'task':'getdeleted','owner':$scope.cUserId}))
-            .success(function(data, status, headers, config) {
-                if(data){
-                  $scope.deletedItems = [];
-                  $scope.deletedItems = angular.copy(data);
+            .then(function successCallback(response) {
+                if(response.data){
+                    $scope.deletedItems = [];
+                    $scope.deletedItems = angular.copy(response.data);
                 }
-                else alert(data);
-            }).error(function(data, status, headers, config) {
-                alert(data);
+                else alert(response.data);
+            }, function errorCallback(response) {
+                alert(response.data);
             });
         };
 
         $scope.getSentMessages = function () {
             $http.post('handle_note.php', $.param({'task':'getsent','owner':$scope.cUserId}))
-            .success(function(data, status, headers, config) {
+            .then(function successCallback(response) {
                 $scope.sentItems = [];
-                $scope.sentItems = angular.copy(data);
-            }).error(function(data, status, headers, config) {
-                alert(data);
+                $scope.sentItems = angular.copy(response.data);
+            }, function errorCallback(response) {
+                alert(response.data);
             });
-        }
+        };
 
         $scope.submitForm = function(compose){
             $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
