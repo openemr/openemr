@@ -676,8 +676,9 @@ $msgApp = new Controller();
                 url: $scope.urlSaveMessage,
                 data: data,
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-            }).success(function(data) {
+            }).then(function successCallback(response) {
                 $scope.listMessages(true);
+            }, function errorCallback(response) {
             });
         };
 
@@ -718,9 +719,9 @@ $msgApp = new Controller();
         };
 
         $scope.listMessages = function(wasListingForMySubmission) {
-            return $http.post($scope.urlListMessages, {}).success(function(data) {
+            return $http.post($scope.urlListMessages, {}).then(function successCallback(response) {
                 $scope.messages = [];
-                angular.forEach(data, function(message) {
+                angular.forEach(response.data, function(message) {
                     message.message = $scope.replaceShortcodes(message.message);
                     $scope.messages.push(message);
                 });
@@ -733,15 +734,16 @@ $msgApp = new Controller();
                 }
                 $scope.lastMessageId = lastMessageId;
                 if($scope.pusers === ''){ // refresh current in chat list.
-                   angular.forEach($filter('unique')($scope.messages,'sender_id'), function(m,k){
-                   var flg = false;
-                   angular.forEach($scope.pusers, function(id) {
-                           if(id === m.sender_id){ flg = true; }
-                       });
-                      if(!flg) $scope.pusers.push(m.sender_id);
-                   });
-               }
+                    angular.forEach($filter('unique')($scope.messages,'sender_id'), function(m,k){
+                        var flg = false;
+                        angular.forEach($scope.pusers, function(id) {
+                            if(id === m.sender_id){ flg = true; }
+                        });
+                        if(!flg) $scope.pusers.push(m.sender_id);
+                    });
+                }
                 $scope.getOnlines();
+            }, function errorCallback(response) {
             });
         };
 
@@ -759,21 +761,23 @@ $msgApp = new Controller();
 
         $scope.getAuthUsers = function() {
             $scope.chatusers = [];
-            return $http.post($scope.urlGetAuthUsers, {}).success(function(data) {
-                $scope.chatusers = data;
+            return $http.post($scope.urlGetAuthUsers, {}).then(function successCallback(response) {
+                $scope.chatusers = response.data;
+            }, function errorCallback(response) {
             });
         };
 
         $scope.pingServer = function(msgItem) {
-            return $http.post($scope.urlListOnlines+'&username='+$scope.user, {}).success(function(data) {
-                $scope.online = data;
+            return $http.post($scope.urlListOnlines+'&username='+$scope.user, {}).then(function successCallback(response) {
+                $scope.online = response.data;
+            }, function errorCallback(response) {
             });
-
         };
 
         $scope.getOnlines = function() {
-            return $http.post($scope.urlListOnlines+'&username=currentol', {}).success(function(data) {
-                $scope.onlines = data;
+            return $http.post($scope.urlListOnlines+'&username=currentol', {}).then(function successCallback(response) {
+                $scope.onlines = response.data;
+            }, function errorCallback(response) {
             });
         };
 

@@ -40,7 +40,7 @@ if ($showit=='ext') {
 
     <?php Header::setupHeader(['jquery-ui', 'jquery-ui-excite-bike']); ?>
 
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/purecss/pure-min.css">
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
     <script>

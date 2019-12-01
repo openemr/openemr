@@ -164,7 +164,7 @@ if (!$_REQUEST['flb_table']) {
 <head>
     <title><?php echo xlt('Flow Board'); ?></title>
 
-    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-cupertino', 'opener', 'pure']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-cupertino', 'opener', 'purecss']); ?>
 
     <script type="text/javascript">
         <?php require_once "$srcdir/restoreSession.php"; ?>

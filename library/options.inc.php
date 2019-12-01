@@ -3955,8 +3955,8 @@ function lbf_canvas_head($small = true)
 {
     $s = <<<EOD
 <link  href="{$GLOBALS['assets_static_relative']}/literallycanvas/css/literallycanvas.css" rel="stylesheet" />
-<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/build/react-with-addons.min.js"></script>
-<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/build/react-dom.min.js"></script>
+<script src="{$GLOBALS['assets_static_relative']}/react/build/react-with-addons.min.js"></script>
+<script src="{$GLOBALS['assets_static_relative']}/react/build/react-dom.min.js"></script>
 <script src="{$GLOBALS['assets_static_relative']}/literallycanvas/js/literallycanvas.min.js"></script>
 EOD;
     if ($small) {
