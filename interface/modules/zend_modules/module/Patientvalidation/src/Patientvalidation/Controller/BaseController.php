@@ -34,7 +34,7 @@ class BaseController extends AbstractActionController
      */
     protected $jsFiles = array(
         //jquery
-        '/jquery-1-9-1/jquery.min.js',
+        '/jquery/dist/jquery.min.js',
         //bootstrap
         '/bootstrap/dist/js/bootstrap.min.js',
 
@@ -83,7 +83,7 @@ class BaseController extends AbstractActionController
         }
 
 
-                $this->cssFiles[] = '/datatables.net-bs/css/dataTables.bootstrap.min.css';
+                $this->cssFiles[] = '/datatables.net-bs/css/dataTables.bootstrap.css';
 
 
         return $this->cssFiles;

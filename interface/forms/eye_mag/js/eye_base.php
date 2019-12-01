@@ -12,11 +12,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    include_once("../../../globals.php");
-    include_once("$srcdir/acl.inc");
-    include_once("$srcdir/api.inc");
-    include_once("$srcdir/forms.inc");
-    include_once("$srcdir/patient.inc");
+    require_once("../../../globals.php");
+    require_once("$srcdir/acl.inc");
+    require_once("$srcdir/api.inc");
+    require_once("$srcdir/forms.inc");
+    require_once("$srcdir/patient.inc");
 
     $providerID = $_REQUEST['providerID'];
 
@@ -1397,7 +1397,7 @@ function build_IMPPLAN(items,nodisplay) {
                $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" class="IMPPLAN_class">'+
                                          '<i class="pull-right fa fa-close" id="BUTTON_IMPPLAN_'+index+'"></i>'+
                                          contents_here+'</div>');
-               $('#BUTTON_IMPPLAN_'+index).click(function() {//delete/close icon
+               $('#BUTTON_IMPPLAN_'+index).on('click', function() {//delete/close icon
                                                  var item = this.id.match(/BUTTON_IMPPLAN_(.*)/)[1];
                                                  obj.IMPPLAN_items.splice(item,1);
                                                  build_IMPPLAN(obj.IMPPLAN_items);
@@ -1428,7 +1428,7 @@ function build_IMPPLAN(items,nodisplay) {
 
             // The IMPRESSION DXs are "contenteditable" spans.
             // If the user changes the words in an IMPRESSION Diagnosis area, store it.
-        $('[id^=IMPRESSION_]').blur(function(e) {
+        $('[id^=IMPRESSION_]').on('blur', function(e) {
                                     e.preventDefault();
                                     var item = this.id.match(/IMPRESSION_(.*)/)[1];
                                     var content = this.innerText || this.innerHTML;
@@ -1446,7 +1446,7 @@ function build_IMPPLAN(items,nodisplay) {
                                     //$(this).css('background-color','#F0F8FF');
                                     return false;
                                     });
-        $('[id^=CODE_]').blur(function() {
+        $('[id^=CODE_]').on('blur', function() {
                               var item = this.id.match(/CODE_(.*)/)[1];
                               var new_code = this.innerText || this.innerHTML;
                               obj.IMPPLAN_items[item].code =  new_code;
@@ -1456,7 +1456,7 @@ function build_IMPPLAN(items,nodisplay) {
                               store_IMPPLAN(obj.IMPPLAN_items);
                             });
 
-        $('[id^=PLAN_]').change(function() {
+        $('[id^=PLAN_]').on('change', function() {
                                 var item = this.id.match(/PLAN_(.*)/)[1];
                                 obj.IMPPLAN_items[item].plan =  $(this).val();
                                 store_IMPPLAN(obj.IMPPLAN_items,'1');
@@ -2226,7 +2226,7 @@ $(function() {
 
 
                   //on checking TESTS, show modifiers and justifier fields
-                  $(".TESTS").click(function() {
+                  $(".TESTS").on("click", function() {
                     var test_id = this.id;
                     if  ($(this).is(':checked')) {
                       $("#"+test_id+"_justmods").removeClass('nodisplay');
@@ -2240,7 +2240,7 @@ $(function() {
 
                   });
                   $('[title]').tooltip();
-                  $('#form_PCP,#form_rDOC').change(function() {
+                  $('#form_PCP,#form_rDOC').on('change', function() {
                                                    update_DOCS();
                                                    });
 
@@ -2252,7 +2252,7 @@ $(function() {
                         $this.attr('title', '');
                     });
                   }
-                  $('#tooltips_toggle,#tooltips_status').click(function() {
+                  $('#tooltips_toggle,#tooltips_status').on('click', function() {
                                                                if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('On'); ?>") {
                                                                $('#PREFS_TOOLTIPS').val('<?php echo xla('Off'); ?>');
                                                                $("#tooltips_status").html('<?php echo xla('are off'); ?>');
@@ -2271,39 +2271,39 @@ $(function() {
                                                                }
                                                                update_PREFS();
                                                                });
-                  $('#toggle_drugs').click(function(){
+                  $('#toggle_drugs').on('click', function(){
                                            $('.hideme_drugs').toggleClass('nodisplay');
                                            $(this).find('i').toggleClass('fa-toggle-down fa-toggle-up')
                                            return false;
                                            });
-                  $('#toggle_VFs').click(function(){
+                  $('#toggle_VFs').on('click', function(){
                                          $('.hideme_VFs').toggleClass('nodisplay');
                                          $(this).find('i').toggleClass('fa-toggle-down fa-toggle-up')
                                          return false;
                                          });
-                  $('#toggle_OCTs').click(function(){
+                  $('#toggle_OCTs').on('click', function(){
                                           $('.hideme_OCTs').toggleClass('nodisplay');
                                           $(this).find('i').toggleClass('fa-toggle-down fa-toggle-up')
                                           return false;
                                           });
-                  $('#toggle_cups').click(function(){
+                  $('#toggle_cups').on('click', function(){
                                           $('.hideme_cups').toggleClass('nodisplay');
                                           $(this).find('i').toggleClass('fa-toggle-down fa-toggle-up')
                                           return false;
                                           });
-                  $('#toggle_gonios').click(function(){
+                  $('#toggle_gonios').on('click', function(){
                                             $('.hideme_gonios').toggleClass('nodisplay');
                                             $(this).find('i').toggleClass('fa-toggle-down fa-toggle-up')
                                             return false;
                                             });
-                  $('.close').click(function(){
+                  $('.close').on('click', function(){
                                     $('#GFS_accordion .hide').slideUp();
                                     });
-                  $('#ODIOPTARGET').change(function() {
+                  $('#ODIOPTARGET').on('change', function() {
                                            $('#OSIOPTARGET').val($('#ODIOPTARGET').val());
                                            refresh_GFS();
                                            });
-                  $('#ODIOPAP,#OSIOPAP,#ODIOPTARGET,#ODIOPTPN,#OSIOPTPN,#OSIOPTARGET').change(function() {
+                  $('#ODIOPAP,#OSIOPAP,#ODIOPTARGET,#ODIOPTPN,#OSIOPTPN,#OSIOPTARGET').on('change', function() {
                                                              //this is failing if there is no config_by_day variable.
                                                              refresh_GFS();
                                                              });
@@ -2315,7 +2315,7 @@ $(function() {
                     $(".kb_off").removeClass('nodisplay');
                   }
 
-                  $("[name$='_kb']").click(function() {
+                  $("[name$='_kb']").on('click', function() {
                                            $('.kb').toggleClass('nodisplay');
                                            $('.kb_off').toggleClass('nodisplay');
                                            if ($('#PREFS_EXAM').val() == 'DRAW') {
@@ -2329,10 +2329,10 @@ $(function() {
                                            }
                                            update_PREFS();
                                            });
-                  $('.ke').mouseover(function() {
+                  $('.ke').on('mouseover', function() {
                                      $(this).toggleClass('yellow');
                                      });
-                  $('.ke').mouseout(function() {
+                  $('.ke').on('mouseout', function() {
                                     $(this).toggleClass('yellow');
                                     });
                   $("[id$='_keyboard'],[id$='_keyboard_left']").on('keydown', function(e) {
@@ -2416,13 +2416,13 @@ $(function() {
 
                                                                    }
                                                                    });
-                  $("[id^='sketch_tools_']").click(function() {
+                  $("[id^='sketch_tools_']").on('click', function() {
                                                    var zone = this.id.match(/sketch_tools_(.*)_/)[1];
                                                    $("[id^='sketch_tools_"+zone+"']").css("height","30px");
                                                    $(this).css("height","50px");
                                                    $("#sketch_tool_"+zone+"_color").css("background-color",$("#selColor_"+zone).val());
                                                    });
-                  $("[id^='sketch_sizes_']").click(function() {
+                  $("[id^='sketch_sizes_']").on('click', function() {
                                                    var zone = this.id.match(/sketch_sizes_(.*)_/)[1];
                                                    $("[id^='sketch_sizes_"+zone+"']").css("background","").css("border-bottom","");
                                                    $(this).css("border-bottom","2pt solid black");
@@ -2432,7 +2432,7 @@ $(function() {
                   $(".tab_content").addClass('nodisplay');
                   $("#tab1_CC_text").removeClass('nodisplay');
                   $("#tab1_HPI_text").removeClass('nodisplay');
-                  $("[id$='_CC'],[id$='_HPI_tab']").click(function() {
+                  $("[id$='_CC'],[id$='_HPI_tab']").on('click', function() {
                                                           //  First remove class "active" from currently active tabs
                                                           $("[id$='_CC']").removeClass('active');
                                                           $("[id$='_HPI_tab']").removeClass('active');
@@ -2455,7 +2455,7 @@ $(function() {
                   $("#refraction_width").css("width","8.5in");
                   $(".Draw_class").addClass('nodisplay');
                   $(".PRIORS_class").addClass('nodisplay');
-                  $(window).resize(function() {
+                  $(window).on("resize", function() {
                                    if (window.innerWidth >'900') {
                                    $("#refraction_width").css("width","900px");
                                    $("#LayerVision2").css("padding","4px");
@@ -2590,15 +2590,15 @@ $(function() {
                   }
                   }
 
-                  $(".chronic_HPI,.count_HPI").blur(function() {
+                  $(".chronic_HPI,.count_HPI").on("blur", function() {
                                                     check_exam_detail();
                                                     });
                   // Dilation status
-                  $("#DIL_RISKS").change(function(o) {
+                  $("#DIL_RISKS").on('change', function(o) {
                                          ($(this).is(':checked')) ? ($(".DIL_RISKS").removeClass("nodisplay")) : ($(".DIL_RISKS").addClass("nodisplay"));
                                          check_exam_detail();
                                          });
-                  $(".dil_drug").change(function(o) {
+                  $(".dil_drug").on('change', function(o) {
                                         if ($(this).is(':checked')) {
                                             $("#DIL_RISKS").prop("checked","checked");
                                             check_exam_detail();
@@ -2607,18 +2607,18 @@ $(function() {
                                         }});
 
                   //neurosens exam = stereopsis + strab||NPC||NPA||etc
-                  $(".neurosens,.neurosens2").blur(function() {
+                  $(".neurosens,.neurosens2").on("blur", function() {
                                                    check_CPT_92060();
                                                    });
 
                   //  functions to improve flow of refraction input
-                  $("input[name$='PRISM'],input[class^='prism']").blur(function() {
+                  $("input[name$='PRISM'],input[class^='prism']").on("blur", function() {
                                                                        //make it all caps
                                                                        var str = $(this).val();
                                                                        str = str.toUpperCase();
                                                                        $(this).val(str);
                                                                        });
-                  $('input[class^="sphere"],input[name$="SPH"]').blur(function() {
+                  $('input[class^="sphere"],input[name$="SPH"]').on("blur", function() {
                                                                       var mid = $(this).val();
                                                                       if (mid.match(/PLANO/i)) {
                                                                       $(this).val('PLANO');
@@ -2656,7 +2656,7 @@ $(function() {
                                                                       $(this).val(mid);
                                                                       });
 
-                  $("input[class^='presbyopia'],input[name$='ADD'],#ODADD_1,#ODADD_2,#OSADD_1,#OSADD_2").blur(function() {
+                  $("input[class^='presbyopia'],input[name$='ADD'],#ODADD_1,#ODADD_2,#OSADD_1,#OSADD_2").on("blur", function() {
                                                                                                               var add = $(this).val();
                                                                                                               add = add.replace(/=/g,"+");
                                                                                                               //if add is one digit, eg. 2, make it +2.00
@@ -2704,7 +2704,7 @@ $(function() {
                                                                                                               if (this.id=="CTLODADD") $('#CTLOSADD').val(add);
                                                                                                               });
 
-                  $("input[class^='axis'],input[name$='AXIS']").blur(function() {
+                  $("input[class^='axis'],input[name$='AXIS']").on("blur", function() {
                                                                      // Make this a 3 digit leading zeros number.
                                                                      // we are not translating text to numbers, just numbers to
                                                                      // a 3 digit format with leading zeroes as needed.
@@ -2737,7 +2737,7 @@ $(function() {
                                                                      //the devices.
                                                                      $(this).val(axis);
                                                                      });
-                  $("input[class^='cylinder'],input[name$='CYL']").blur(function() {
+                  $("input[class^='cylinder'],input[name$='CYL']").on("blur", function() {
                                                                         var mid = $(this).val();
                                                                         var group = this.name.replace("CYL", "SPH");;
                                                                         var sphere = $("#"+group).val();
@@ -2817,14 +2817,14 @@ $(function() {
                                                        $("#"+menuitem).css("background-color", "#C9DBF2");
                                                        }
                                                        );
-                  $("[class='dropdown-toggle']").click(function() {
+                  $("[class='dropdown-toggle']").on('click', function() {
                                                        $("#menustate").val('1');
                                                        var menuitem = this.id.match(/(.*)/)[1];
                                                        $("#"+menuitem).css("background-color", "#1C5ECF");
                                                        $("#"+menuitem).css("color","#fff"); /*#262626;*/
                                                        $("#"+menuitem).css("text-decoration","none");
                                                        });
-                  $("#right-panel-link, #close-panel-bt,#right-panel-link_2").click(function() {
+                  $("#right-panel-link, #close-panel-bt,#right-panel-link_2").on('click', function() {
                                                                                     if ($("#PREFS_PANEL_RIGHT").val() =='1') {
                                                                                     $("#PREFS_PANEL_RIGHT").val('0');
                                                                                     } else {
@@ -2832,7 +2832,7 @@ $(function() {
                                                                                     }
                                                                                     update_PREFS();
                                                                                     });
-                  $("[name^='menu_']").click(function() {
+                  $("[name^='menu_']").on('click', function() {
                                              $("[name^='menu_']").removeClass('active');
                                              var menuitem = this.id.match(/menu_(.*)/)[1];
                                              $(this).addClass('active');
@@ -2975,20 +2975,20 @@ $("body").on("click","[name^='old_canvas']", function() {
                                $("#PRIORS_"+ new_section +"_left_text").addClass('nodisplay');
                                $("#QP_" + new_section).removeClass('nodisplay');
                                });
-                  $("#pupils,#vision_tab,[name='CTL'],[name^='more_'],#ACTTRIGGER").mouseover(function() {
+                  $("#pupils,#vision_tab,[name='CTL'],[name^='more_'],#ACTTRIGGER").on("mouseover", function() {
                                                                                               $(this).toggleClass('buttonRefraction_selected').toggleClass('underline').css( 'cursor', 'pointer' );
                                                                                               });
-                  $("#pupils,#vision_tab,[name='CTL']").mouseout(function() {
+                  $("#pupils,#vision_tab,[name='CTL']").on("mouseout", function() {
                                                                  $(this).toggleClass('buttonRefraction_selected').toggleClass('underline');
                                                                  });
-                  $("#pupils").click(function(){
+                  $("#pupils").on("click", function(){
                                      if ($("#dim_pupils_panel").hasClass("nodisplay")) {
                                         $("#dim_pupils_panel").removeClass('nodisplay');
                                       } else {
                                         $("#dim_pupils_panel").fadeToggle();
                                       }
                                      });
-                  $("#vision_tab").click(function(){
+                  $("#vision_tab").on("click", function(){
                                          $("#REFRACTION_sections").toggleClass('nodisplay');
                                          ($("#PREFS_VA").val() =='1') ? ($("#PREFS_VA").val('0')) : $("#PREFS_VA").val('1');
                                          });
@@ -3000,7 +3000,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $("#WNEAROSAXIS").addClass('nodisplay');
                   $("#WNEAROSCYL").addClass('nodisplay');
                   $("#WNEAROSPRISM").addClass('nodisplay');
-                  $("#Single").click(function(){
+                  $("#Single").on("click", function(){
                                      $("#WNEARODAXIS").addClass('nodisplay');
                                      $("#WNEARODCYL").addClass('nodisplay');
                                      $("#WNEARODPRISM").addClass('nodisplay');
@@ -3011,7 +3011,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                      $("#WNEAROSPRISM").addClass('nodisplay');
                                      $(".WSPACER").removeClass('nodisplay');
                                      });
-                  $("#Bifocal").click(function(){
+                  $("#Bifocal").on("click", function(){
                                       $(".WSPACER").addClass('nodisplay');
                                       $(".WNEAR").removeClass('nodisplay');
                                       $(".WMid").addClass('nodisplay');
@@ -3026,7 +3026,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                       $("#WODADD2").removeClass('nodisplay');
                                       $("#WOSADD2").removeClass('nodisplay');
                                       });
-                  $("#Trifocal").click(function(){
+                  $("#Trifocal").on("click", function(){
                                        $(".WSPACER").addClass('nodisplay');
                                        $(".WNEAR").removeClass('nodisplay');
                                        $(".WMid").removeClass('nodisplay');
@@ -3041,7 +3041,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                        $("#WODADD2").removeClass('nodisplay');
                                        $("#WOSADD2").removeClass('nodisplay');
                                        });
-                  $("#Progressive").click(function(){
+                  $("#Progressive").on("click", function(){
                                           $(".WSPACER").addClass('nodisplay');
                                           $(".WNEAR").removeClass('nodisplay');
                                           $(".WMid").addClass('nodisplay');
@@ -3056,7 +3056,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                           $("#WODADD2").removeClass('nodisplay');
                                           $("#WOSADD2").removeClass('nodisplay');
                                           });
-                  $("[name=W_width_display]").click(function() {
+                  $("[name=W_width_display]").on("click", function() {
                                                     if ($("#PREFS_W_width").val() !="1") {
                                                     $("#PREFS_W_width").val('1');
                                                     //make each display W wide
@@ -3080,7 +3080,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                     $("[name=W_wide]").addClass('nodisplay');
                     $("[name=W_wide2]").addClass('nodisplay');
                   }
-                  $("#Amsler-Normal").change(function() {
+                  $("#Amsler-Normal").on("change", function() {
                                              if ($(this).is(':checked')) {
                                              var number1 = document.getElementById("AmslerOD").src.match(/(Amsler_\d)/)[1];
                                              document.getElementById("AmslerOD").src = document.getElementById("AmslerOD").src.replace(number1,"Amsler_0");
@@ -3094,7 +3094,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              return;
                                              }
                                              });
-                  $("#PUPIL_NORMAL").change(function() {
+                  $("#PUPIL_NORMAL").on("change", function() {
                                             if ($(this).is(':checked')) {
                                             $("#ODPUPILSIZE1").val('3.0');
                                             $("#OSPUPILSIZE1").val('3.0');
@@ -3108,7 +3108,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             return;
                                             }
                                             });
-                  $("[name$='PUPILREACTIVITY']").change(function() {
+                  $("[name$='PUPILREACTIVITY']").on("change", function() {
                                                         var react = $(this).val();
                                                         if (react.match(/^\d{1}$/)) {
                                                         react = "+"+react;
@@ -3116,13 +3116,13 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                         $(this).val(react);
                                                         });
 
-                  $("[name^='EXAM']").mouseover(function(){
+                  $("[name^='EXAM']").on("mouseover", function(){
                                                 $(this).toggleClass("borderShadow2").css( 'cursor', 'pointer' );
                                                 });
-                  $("[name^='EXAM']").mouseout(function(){
+                  $("[name^='EXAM']").on("mouseout", function(){
                                                $(this).toggleClass("borderShadow2");
                                                });
-                  $("#AmslerOD, #AmslerOS").click(function() {
+                  $("#AmslerOD, #AmslerOS").on("click", function() {
                                                   if ($('#chart_status').val() !="on") return;
                                                   var number1 = this.src.match(/Amsler_(\d)/)[1];
                                                   var number2 = +number1 +1;
@@ -3144,10 +3144,10 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   var title = "#"+$(this).attr("id")+"_tag";
                                                   });
 
-                  $("#AmslerOD, #AmslerOS").mouseout(function() {
+                  $("#AmslerOD, #AmslerOS").on("mouseout", function() {
                                                      submit_form("eye_mag");
                                                      });
-                  $("[name^='ODVF'],[name^='OSVF']").click(function() {
+                  $("[name^='ODVF'],[name^='OSVF']").on("click", function() {
                                                            if ($(this).is(':checked') == true) {
                                                            $("#FieldsNormal").prop('checked', false);
                                                            $(this).val('1');
@@ -3157,7 +3157,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                            }
                                                            submit_form("eye_mag");
                                                            });
-                  $("#FieldsNormal").click(function() {
+                  $("#FieldsNormal").on("click", function() {
                                            if ($(this).is(':checked')) {
                                            $("#ODVF1").removeAttr('checked');
                                            $("#ODVF2").removeAttr('checked');
@@ -3169,7 +3169,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                            $("#OSVF4").removeAttr('checked');
                                            }
                                            });
-                  $("[id^='EXT_prefix']").change(function() {
+                  $("[id^='EXT_prefix']").on("change", function() {
                                                  var newValue =$('#EXT_prefix').val();
                                                  newValue = newValue.replace('+', '');
                                                  if (newValue =="off") {$(this).val('');}
@@ -3183,7 +3183,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  $("#EXT_prefix_"+ newValue).addClass("eye_button_selected");
                                                  }
                                                  });
-                  $("#ANTSEG_prefix").change(function() {
+                  $("#ANTSEG_prefix").on("change", function() {
                                              var newValue = $(this).val().replace('+', '');
                                              if ($(this).value =="off") {$(this).val('');}
                                              if (newValue =="clear") {
@@ -3196,7 +3196,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              $("#ANTSEG_prefix_"+ newValue).addClass("eye_button_selected");
                                              }
                                              });
-                  $("#RETINA_prefix").change(function() {
+                  $("#RETINA_prefix").on("change", function() {
                                              var newValue = $("#RETINA_prefix").val().replace('+', '');
                                              if ($(this).value =="off") {$(this).val('');}
                                              if (newValue =="clear") {
@@ -3209,7 +3209,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              $("#RETINA_prefix_"+ newValue).addClass("eye_button_selected");
                                              }
                                              });
-                  $("#NEURO_ACT_zone").change(function() {
+                  $("#NEURO_ACT_zone").on("change", function() {
                                               var newValue = $(this).val();
                                               $("[name^='NEURO_ACT_zone']").removeClass('eye_button_selected');
                                               $("#NEURO_ACT_zone_"+ newValue).addClass("eye_button_selected");
@@ -3217,16 +3217,16 @@ $("body").on("click","[name^='old_canvas']", function() {
                                               update_PREFS;
                                               $("#ACT_tab_"+newValue).trigger('click');
                                               });
-                  $("#NEURO_side").change(function() {
+                  $("#NEURO_side").on("change", function() {
                                           var newValue = $(this).val();
                                           $("[name^='NEURO_side']").removeClass('eye_button_selected');
                                           $("#NEURO_side_"+ newValue).addClass("eye_button_selected");
                                           });
-                  $('.ACT').focus(function() {
+                  $('.ACT').on('focus', function() {
                                   var id = this.id.match(/ACT(\d*)/);
                                   $('#NEURO_field').val(''+id[1]).trigger('change');
                                   });
-                  $("#NEURO_field").change(function() {
+                  $("#NEURO_field").on("change", function() {
                                            var newValue = $(this).val();
                                            $("[name^='NEURO_field']").removeClass('eye_button_selected');
                                            $("#NEURO_field_"+ newValue).addClass("eye_button_selected");
@@ -3240,12 +3240,12 @@ $("body").on("click","[name^='old_canvas']", function() {
                                            var zone = $("#NEURO_ACT_zone").val();
                                            $("#ACT"+newValue+zone).css("background-color","yellow");
                                            });
-                  $("[name^='NEURO_ACT_strab']").click(function() {
+                  $("[name^='NEURO_ACT_strab']").on("click", function() {
                                                        var newValue = $(this).val();
                                                        $("[name^='NEURO_ACT_strab']").removeClass('eye_button_selected');
                                                        $(this).addClass("eye_button_selected");
                                                        });
-                  $("#NEURO_value").change(function() {
+                  $("#NEURO_value").on("change", function() {
                                            var newValue = $(this).val();
                                            $("[name^='NEURO_value']").removeClass('eye_button_selected');
                                            $("#NEURO_value_"+ newValue).addClass("eye_button_selected");
@@ -3256,21 +3256,21 @@ $("body").on("click","[name^='old_canvas']", function() {
                                            $("[name^='NEURO_side']").removeClass('eye_button_selected');
                                            }
                                            });
-                  $("#NEURO_RECORD").mouseover(function() {
+                  $("#NEURO_RECORD").on("mouseover", function() {
                                                $("#NEURO_RECORD").addClass('borderShadow2').css( 'cursor', 'pointer' );
                                                });
-                  $("#NEURO_RECORD").mouseout(function() {
+                  $("#NEURO_RECORD").on("mouseout", function() {
                                               $("#NEURO_RECORD").removeClass('borderShadow2');
                                               });
-                  $("#NEURO_RECORD").mousedown(function() {
+                  $("#NEURO_RECORD").on("mousedown", function() {
                                                $("#NEURO_RECORD").removeClass('borderShadow2');
                                                $(this).toggleClass('button_over');
                                                });
-                  $("#NEURO_RECORD").mouseup(function() {
+                  $("#NEURO_RECORD").on("mouseup", function() {
                                              $("#NEURO_RECORD").removeClass('borderShadow2');
                                              $(this).toggleClass('button_over');
                                              });
-                  $("#NEURO_RECORD").click(function() {
+                  $("#NEURO_RECORD").on("click", function() {
                                            //find out the field we are updating
                                            var number = $("#NEURO_field").val();
                                            var zone = $("#NEURO_ACT_zone").val();
@@ -3281,13 +3281,13 @@ $("body").on("click","[name^='old_canvas']", function() {
 
                                            });
 
-                  $("#LayerMood,#LayerVision, #LayerTension, #LayerMotility, #LayerAmsler, #LayerFields, #LayerPupils,#dim_pupils_panel,#PRIORS_ALL_left_text").mouseover(function(){
+                  $("#LayerMood,#LayerVision, #LayerTension, #LayerMotility, #LayerAmsler, #LayerFields, #LayerPupils,#dim_pupils_panel,#PRIORS_ALL_left_text").on("mouseover", function(){
                                                                                                                                                                           $(this).addClass("borderShadow2");
                                                                                                                                                                           });
-                  $("#LayerMood,#LayerVision, #LayerTension, #LayerMotility, #LayerAmsler, #LayerFields, #LayerPupils,#dim_pupils_panel,#PRIORS_ALL_left_text").mouseout(function(){
+                  $("#LayerMood,#LayerVision, #LayerTension, #LayerMotility, #LayerAmsler, #LayerFields, #LayerPupils,#dim_pupils_panel,#PRIORS_ALL_left_text").on("mouseout", function(){
                                                                                                                                                                          $(this).removeClass("borderShadow2");
                                                                                                                                                                          });
-                  $("[id$='_lightswitch']").click(function() {
+                  $("[id$='_lightswitch']").on("click", function() {
                                                   var section = "#"+this.id.match(/(.*)_lightswitch$/)[1];
                                                   var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
                                                   var elem = document.getElementById("PREFS_"+section2);
@@ -3319,7 +3319,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   update_PREFS();
                                                   });
 
-                  $('[id$=_lightswitch]').mouseover(function() {
+                  $('[id$=_lightswitch]').on("mouseover", function() {
                                                     $(this).addClass('buttonRefraction_selected').css( 'cursor', 'pointer' );
 
                                                     var section = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
@@ -3329,7 +3329,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     $("#LayerVision").addClass("borderShadow2");
                                                     }
                                                     });
-                  $('[id$=_lightswitch]').mouseout(function() {
+                  $('[id$=_lightswitch]').on('mouseout', function() {
                                                    var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
                                                    var elem = document.getElementById("PREFS_"+section2);
 
@@ -3367,26 +3367,26 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                                      }
                                                                      });
 
-                  $("input[name$='_copy']").blur(function() {
+                  $("input[name$='_copy']").on("blur", function() {
                                                  var hereValue = $(this).val();
                                                  var newValue = $(this).attr('name').replace('_copy', '');
                                                  $("#" + newValue).val(hereValue).css("background-color","#F0F8FF");;
                                                  $("#" + newValue + "_copy_brd").val(hereValue).css("background-color","#F0F8FF");;
                                                  });
-                  $("input[name$='_copy_brd']").change(function() {
+                  $("input[name$='_copy_brd']").on("change", function() {
                                                        var hereValue = $(this).val();
                                                        var newValue = $(this).attr('name').replace('_copy_brd', '');
                                                        $("#" + newValue).val(hereValue).css("background-color","#F0F8FF");;
                                                        $("#" + newValue + "_copy").val(hereValue).css("background-color","#F0F8FF");;
                                                        });
-                  $("[name^='more_']").mouseout(function() {
+                  $("[name^='more_']").on("mouseout", function() {
                                                 $(this).toggleClass('buttonRefraction_selected').toggleClass('underline');
                                                 });
-                  $("[name^='more_']").click(function() {
+                  $("[name^='more_']").on("click", function() {
                                              $("#Visions_A").toggleClass('nodisplay');
                                              $("#Visions_B").toggleClass('nodisplay');
                                              });
-                  $("#EXAM_defaults").click(function() {
+                  $("#EXAM_defaults").on("click", function() {
                                             <?php
                                             // This query is specific to the provider.
                                             $query  = "select seq from list_options where option_id=?";
@@ -3440,7 +3440,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             submit_form("eye_mag");
                                             });
 
-                  $("#EXT_defaults").click(function() {
+                  $("#EXT_defaults").on("click", function() {
                                             <?php
                                             foreach ($EXT as $item => $value) {
                                                 echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
@@ -3450,7 +3450,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                            submit_form("eye_mag");
                                            });
 
-                  $("#ANTSEG_defaults").click(function() {
+                  $("#ANTSEG_defaults").on("click", function() {
                                                 <?php
                                                 foreach ($ANTSEG as $item => $value) {
                                                     echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
@@ -3459,7 +3459,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 ?>
                                               submit_form("eye_mag");
                                               });
-                  $("#RETINA_defaults").click(function() {
+                  $("#RETINA_defaults").on("click", function() {
                                                 <?php
                                                 foreach ($RETINA as $item => $value) {
                                                     echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
@@ -3468,7 +3468,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 ?>
                                               submit_form("eye_mag");
                                               });
-                  $("#NEURO_defaults").click(function() {
+                  $("#NEURO_defaults").on("click", function() {
                                                 <?php
                                                 foreach ($NEURO as $item => $value) {
                                                     echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
@@ -3479,7 +3479,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              });
 
 
-                  $("#MOTILITYNORMAL").click(function() {
+                  $("#MOTILITYNORMAL").on("click", function() {
                                              $("#MOTILITY_RS").val('0');
                                              $("#MOTILITY_RI").val('0');
                                              $("#MOTILITY_RR").val('0');
@@ -3520,7 +3520,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                              submit_form('eye_mag');
                                              });
 
-                  $("[name^='MOTILITY_']").click(function()  {
+                  $("[name^='MOTILITY_']").on("click", function()  {
                                                  $("#MOTILITYNORMAL").removeAttr('checked');
 
                                                  if (this.id.match(/(MOTILITY_([A-Z]{4}))_(.)/)) {
@@ -3571,7 +3571,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  submit_form('3');
                                                  });
 
-                  $("[name^='Close_']").click(function()  {
+                  $("[name^='Close_']").on("click", function()  {
                                               var section = this.id.match(/Close_(.*)$/)[1];
                                               if (this.id.match(/Close_W_(.*)$/) != null) {
                                               var W_section = this.id.match(/Close_W_(.*)$/)[1];
@@ -3598,7 +3598,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                               });
 
 
-                  $("#EXAM_DRAW, #BUTTON_DRAW_menu, #PANEL_DRAW").click(function() {
+                  $("#EXAM_DRAW, #BUTTON_DRAW_menu, #PANEL_DRAW").on("click", function() {
                                                                         if ($("#PREFS_CLINICAL").value !='0') {
                                                                         show_right();
                                                                         $("#PREFS_CLINICAL").val('0');
@@ -3613,7 +3613,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                                         }
                                                                         show_DRAW();
                                                                         });
-                  $("#EXAM_QP,#PANEL_QP").click(function() {
+                  $("#EXAM_QP,#PANEL_QP").on("click", function() {
                                                 if ($("#PREFS_CLINICAL").value !='0') {
                                                 $("#PREFS_CLINICAL").val('0');
                                                 update_PREFS();
@@ -3630,7 +3630,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 scrollTo("EXT_left");
                                                 });
 
-                  $("#EXAM_TEXT,#PANEL_TEXT").click(function() {
+                  $("#EXAM_TEXT,#PANEL_TEXT").on("click", function() {
 
                                                     // also hide QP, DRAWs, and PRIORS
 
@@ -3649,7 +3649,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     $("#EXAM_TEXT").addClass('button_selected');
                                                     scrollTo("EXT_left");
                                                     });
-                  $("[id^='BUTTON_TEXT_']").click(function() {
+                  $("[id^='BUTTON_TEXT_']").on("click", function() {
                                                   var zone = this.id.match(/BUTTON_TEXT_(.*)/)[1];
                                                   if (zone != "menu") {
                                                   $("#"+zone+"_right").addClass('nodisplay');
@@ -3660,7 +3660,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   show_TEXT();
                                                   scrollTo("EXT_left");
                                                   });
-                  $("[id^='BUTTON_TEXTD_']").click(function() {
+                  $("[id^='BUTTON_TEXTD_']").on("click", function() {
                                                    var zone = this.id.match(/BUTTON_TEXTD_(.*)/)[1];
                                                    if (zone != "menu") {
                                                      if ((zone =="PMH") || (zone == "HPI")) {
@@ -3694,14 +3694,14 @@ $("body").on("click","[name^='old_canvas']", function() {
                   } else {
                   $("#ANTSEG_prefix").val('off').trigger('change');
                   }
-                  $("[name^='ACT_tab_']").mouseover(function() {
+                  $("[name^='ACT_tab_']").on("mouseover", function() {
                                                     $(this).toggleClass('underline').css( 'cursor', 'pointer' );
                                                     });
-                  $("[name^='ACT_tab_']").mouseout(function() {
+                  $("[name^='ACT_tab_']").on("mouseout", function() {
                                                    $(this).toggleClass('underline');
                                                    });
 
-                  $("[name^='ACT_tab_']").click(function()  {
+                  $("[name^='ACT_tab_']").on("click", function()  {
                                                 var section = this.id.match(/ACT_tab_(.*)/)[1];
                                                 $("[name^='ACT_']").addClass('nodisplay');
                                                 $("[name^='ACT_tab_']").removeClass('nodisplay').removeClass('ACT_selected').addClass('ACT_deselected');
@@ -3714,7 +3714,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 $("#NEURO_ACT_zone").val(section);
                                                 update_PREFS();
                                                 });
-                  $("#ACTTRIGGER").mouseout(function() {
+                  $("#ACTTRIGGER").on("mouseout", function() {
                                             $("#ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
                                             });
                   if ($("#PREFS_ACT_VIEW").val() == '1') {
@@ -3725,7 +3725,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   var show = $("#PREFS_ACT_SHOW").val();
                   $("#ACT_tab_"+show).trigger('click');
                   }
-                  $("#ACTTRIGGER").click(function() {
+                  $("#ACTTRIGGER").on("click", function() {
                                          $("#ACTMAIN").toggleClass('nodisplay').toggleClass('ACT_TEXT');
                                          $("#NPCNPA").toggleClass('nodisplay');
                                          $("#ACTNORMAL_CHECK").toggleClass('nodisplay');
@@ -3739,42 +3739,42 @@ $("body").on("click","[name^='old_canvas']", function() {
                                          $("#ACT_tab_"+show).trigger('click');
                                          update_PREFS();
                                          });
-                  $("#NEURO_COLOR").click(function() {
+                  $("#NEURO_COLOR").on("click", function() {
                                           $("#ODCOLOR").val("11/11");
                                           $("#OSCOLOR").val("11/11");
                                           submit_form("eye_mag");
                                           });
 
-                  $("#NEURO_COINS").click(function() {
+                  $("#NEURO_COINS").on("click", function() {
                                           $("#ODCOINS").val("1.00");
                                           //leave currency symbol out unless it is an openEMR defined option
                                           $("#OSCOINS").val("1.00");
                                           submit_form("eye_mag");
                                           });
 
-                  $("#NEURO_REDDESAT").click(function() {
+                  $("#NEURO_REDDESAT").on("click", function() {
                                              $("#ODREDDESAT").val("100");
                                              $("#OSREDDESAT").val("100");
                                              submit_form("eye_mag");
                                              });
 
-                  $("[id^='myCanvas_']").mouseout(function() {
+                  $("[id^='myCanvas_']").on("mouseout", function() {
                                                   var zone = this.id.match(/myCanvas_(.*)/)[1];
                                                   submit_canvas(zone);
                                                   });
-                  $("[id^='Undo_']").click(function() {
+                  $("[id^='Undo_']").on("click", function() {
                                            var zone = this.id.match(/Undo_Canvas_(.*)/)[1];
                                            submit_canvas(zone);
                                            });
-                  $("[id^='Redo_']").click(function() {
+                  $("[id^='Redo_']").on("click", function() {
                                            var zone = this.id.match(/Redo_Canvas_(.*)/)[1];
                                            submit_canvas(zone);
                                            });
-                  $("[id^='Clear_']").click(function() {
+                  $("[id^='Clear_']").on("click", function() {
                                             var zone = this.id.match(/Clear_Canvas_(.*)/)[1];
                                             submit_canvas(zone);
                                             });
-                  $("[id^='Blank_']").click(function() {
+                  $("[id^='Blank_']").on("click", function() {
 
                                            var zone = this.id.match(/Blank_Canvas_(.*)/)[1];
                                            $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.png");
@@ -3782,7 +3782,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                            drawImage(zone);
                                            });
 
-                  $("#COPY_SECTION").change(function() {
+                  $("#COPY_SECTION").on("change", function() {
                                             var start = $("#COPY_SECTION").val();
                                             if (start =='') return;
                                             var value = start.match(/(\w*)-(\w*)/);
@@ -3872,7 +3872,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                    }
                                                    }});
                                             });
-                  $("[id^='BUTTON_DRAW_']").click(function() {
+                  $("[id^='BUTTON_DRAW_']").on("click", function() {
                                                   var zone =this.id.match(/BUTTON_DRAW_(.*)$/)[1];
                                                   if (zone =="ALL") {
                                                   } else {
@@ -3891,7 +3891,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   update_PREFS();
                                                   }
                                                   });
-                  $("[id^='BUTTON_QP_']").click(function() {
+                  $("[id^='BUTTON_QP_']").on("click", function() {
                                                 var zone = this.id.match(/BUTTON_QP_(.*)$/)[1].replace(/_\d*/,'');
                                                 if (zone =='IMPPLAN2') {
                                                   $('#IMP_start_acc').slideDown();
@@ -3979,7 +3979,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                    codetype:  obj.PMSFH['POH'][value]['codetype']
                    */
 
-                  $('#make_new_IMP').click(function() {
+                  $('#make_new_IMP').on("click", function() {
                                            var issue='';
                                            if (IMP_order.length ==0) rebuild_IMP($( "#build_DX_list" ));
                                            if (obj.IMPPLAN_items ==null) obj.IMPPLAN_items = [];
@@ -4035,7 +4035,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                            });
 
 
-                  $('.building_blocks > dt ').click(function() {
+                  $('.building_blocks > dt ').on('click', function() {
                                                             if ( $(this).next().css('display') !== 'block' ) {
                                                                 allPanels.slideUp();
                                                                 $(this).next().slideDown();
@@ -4044,14 +4044,14 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                             }
                                                           });
                   $('#IMP_start_acc').slideDown();
-                  $('[id^=inc_]').click(function() {
+                  $('[id^=inc_]').on('click', function() {
                                         build_DX_list(obj);
                                         });
 
-                  $('#active_flag').click(function() { check_lock('1'); });
-                  $('#active_icon').click(function() { check_lock('1'); });
+                  $('#active_flag').on('click', function() { check_lock('1'); });
+                  $('#active_icon').on('click', function() { check_lock('1'); });
 
-                  $("input,textarea,text,checkbox").change(function(){
+                  $("input,textarea,text,checkbox").on("change", function(){
                                                            $(this).css("background-color","#F0F8FF");
                                                            if (this.name.match(/IOP/)) { color_IOP(this); }
                                                            if ( ($(this).id != 'IMP') &&
@@ -4063,7 +4063,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                                 $("#IMP_start_acc").slideDown();
                                                            }
                                                          });
-                $("[name='CANVAS_selector']").change(function(){
+                $("[name='CANVAS_selector']").on("change", function(){
                     //we are going to display an old image from a previous encounter
                     zone = this.id.match(/CANVAS_(.*)/)[1];
                     if (this.value != 'current') {
@@ -4078,7 +4078,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                 });
 
 
-                  $('#IMP').blur(function() {
+                  $('#IMP').on("blur", function() {
                                  //add this DX to the obj.IMPPLAN_items array
                                  //take the first line as the impression and the rest as the plan
                                  var total_imp = $('#IMP').val();
@@ -4123,7 +4123,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                  build_IMPPLAN(obj.IMPPLAN_items,'1');
                                  store_IMPPLAN(obj.IMPPLAN_items);
                             });
-                  $('#Add_Glasses').click(function() {
+                  $('#Add_Glasses').on('click', function() {
                                           for (i=2; i <6; i++) { //come on, 5 current rx glasses should be enough...
                                           if ($('#W_'+i).val() != '1') {
                                           $('#W_'+i).val('1');
@@ -4133,22 +4133,22 @@ $("body").on("click","[name^='old_canvas']", function() {
                                           }
                                           }
                                           });
-                  $("[name='reverseme']").click(function() {
+                  $("[name='reverseme']").on('click', function() {
                                                 var target = this.id;
                                                 reverse_cylinder(target);
                                                 });
 
-                  $('#code_me_now').click(function(event) {
+                  $('#code_me_now').on('click', function(event) {
                                           event.preventDefault();
                                           build_CODING_list();
                                           CODING_to_feesheet(CODING_items);
                                           });
                   $( ".widget a" ).button();
 
-                  $( "button" ).button().click(function( event ) {
+                  $( "button" ).button().on('click', function( event ) {
                          event.preventDefault();
                          });
-                  $('#visit_codes').change(function() {
+                  $('#visit_codes').on('change', function() {
                                            var data_all = $(this).val();
                                            var data = data_all.match(/^(.*)\|(.*)\|/);
                                            visit_code = data[2];
@@ -4233,7 +4233,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         update_PREFS();
                     });
                     show_by_setting();
-                  $("input,textarea,text").focus(function(){
+                  $("input,textarea,text").on("focus", function(){
                                                  $(this).css("background-color","#ffff99");
                                                  });
                   //This listener no longer works in tabs because of the new tab wrapper.

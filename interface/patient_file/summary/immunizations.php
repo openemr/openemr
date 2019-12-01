@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +16,7 @@ require_once("$srcdir/immunization_helper.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 if (isset($_GET['mode'])) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -322,17 +323,8 @@ function saveImmunizationObservationResults($id, $immunizationdata)
 <html>
 <head>
 
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/jquery-ui.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<?php Header::setupHeader(['no_bootstrap', 'datetime-picker', 'jquery-ui', 'jquery-ui-base']); ?>
 
-<!-- page styles -->
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/base/jquery-ui.css" type="text/css" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 <style>
 .highlight {
   color: green;
@@ -842,9 +834,9 @@ var tr_count = $('#tr_count').val();
 
 $(function(){
     <?php if (!($useCVX)) { ?>
-      $("#save").click(function() { SaveForm(); });
+      $("#save").on("click", function() { SaveForm(); });
     <?php } else { ?>
-      $("#save").click(function() {
+      $("#save").on("click", function() {
         if (validate_cvx()) {
           SaveForm();
         }
@@ -853,22 +845,22 @@ $(function(){
         }
       });
     <?php } ?>
-    $("#print").click(function() { PrintForm("pdf"); });
-    $("#printHtml").click(function() { PrintForm("html"); });
-    $(".immrow").click(function() { EditImm(this); });
-    $(".error").click(function(event) { ErrorImm(this); event.stopPropagation(); });
-    $(".delete").click(function(event) { DeleteImm(this); event.stopPropagation(); });
+    $("#print").on("click", function() { PrintForm("pdf"); });
+    $("#printHtml").on("click", function() { PrintForm("html"); });
+    $(".immrow").on("click", function() { EditImm(this); });
+    $(".error").on("click", function(event) { ErrorImm(this); event.stopPropagation(); });
+    $(".delete").on("click", function(event) { DeleteImm(this); event.stopPropagation(); });
 
-    $(".immrow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".immrow").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".immrow").on("mouseover", function() { $(this).toggleClass("highlight"); });
+    $(".immrow").on("mouseout", function() { $(this).toggleClass("highlight"); });
 
-    $("#administered_by_id").change(function() { $("#administered_by").val($("#administered_by_id :selected").text()); });
+    $("#administered_by_id").on("change", function() { $("#administered_by").val($("#administered_by_id :selected").text()); });
 
-    $("#form_immunization_id").change( function() {
+    $("#form_immunization_id").on("change", function() {
         if ( $(this).val() != "" ) {
             $("#cvx_code").val( "" );
             $("#cvx_description").text( "" );
-            $("#cvx_code").change();
+            $("#cvx_code").trigger("change");
         }
     });
 
@@ -945,7 +937,7 @@ function set_related(codetype, code, selector, codedesc) {
             if(f.name != 'cvx_vac_type_code[]'){
     $("#cvx_description").text( codedesc );
     $("#form_immunization_id").attr( "value", "" );
-    $("#form_immunization_id").change();
+    $("#form_immunization_id").trigger("change");
             }else{
                 id_arr = f.id.split('cvx_code');
                 counter = id_arr[1];
@@ -990,7 +982,7 @@ function del_related(s) {
     e.value = '';
     $("#cvx_description").text('');
     $("#form_immunization_id").attr("value", "");
-    $("#form_immunization_id").change();
+    $("#form_immunization_id").trigger("change");
 }
 
 // This invokes the find-code popup.
@@ -1036,7 +1028,7 @@ function selectCriteria(id,value)
                     $.each(thedata,function(i,item) {
                         target.append($('<option />').val(item.option_id).text(item.title));
                     });
-                    $('#observation_criteria_value_'+key+' option[value=""]').attr('selected','selected');
+                    $('#observation_criteria_value_'+key+' option[value=""]').prop('selected', true);
                 },
                 error:function(){
                   alert("ajax error");
@@ -1157,7 +1149,7 @@ function addNewRow()
             $.each(thedata,function(i,item) {
                 target.append($('<option></option>').val(item.option_id).text(item.title));
             });
-            $('#observation_criteria_'+new_tr_count+' option[value=""]').attr('selected','selected');
+            $('#observation_criteria_'+new_tr_count+' option[value=""]').prop('selected', true);
         },
         error:function(){
           alert("ajax error");

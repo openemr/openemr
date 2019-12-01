@@ -7,7 +7,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +16,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -45,9 +46,8 @@ function invalue($name)
 <html>
 <head>
 <title><?php echo $userid ? xlt('Edit Entry') : xlt('Add New Entry') ?></title>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
+
+    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'opener']); ?>
 
 <style>
 td { font-size:10pt; }
@@ -85,7 +85,7 @@ td { font-size:10pt; }
       $('#cpoe_span').css('display','inline');
   } else {
        $('#cpoe_span').css('display','none');
-       $('#form_cpoe').removeAttr('checked');
+       $('#form_cpoe').prop('checked', false);
   }
   if (type_options_js[a] == 3) {
    // Company centric:

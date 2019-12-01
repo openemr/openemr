@@ -16,7 +16,7 @@
  */
 ?>
 
-<link type="text/css" rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes-1-10-4/themes/ui-lightness/jquery-ui.min.css'; ?>" />
+<link type="text/css" rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes/themes/ui-lightness/jquery-ui.min.css'; ?>" />
 <link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/common.css') ?>" />
 <link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/ui.multiselect.css') ?>" />
 <link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/plans_config.css') ?>" />

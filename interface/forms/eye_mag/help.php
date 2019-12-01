@@ -13,10 +13,12 @@
 
 
 
-include_once("../../globals.php");
-include_once("$srcdir/acl.inc");
-include_once("$srcdir/lists.inc");
-include_once("$srcdir/api.inc");
+require_once("../../globals.php");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/lists.inc");
+require_once("$srcdir/api.inc");
+
+use OpenEMR\Core\Header;
 
 $form_folder = "eye_mag";
 $showit    = $_REQUEST['zone'];
@@ -30,25 +32,17 @@ if ($showit=='ext') {
 ?>
 <html>
     <head>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-themes-1-10-4/themes/ui-lightness/jquery-ui.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
-
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
-
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Eye Exam Help">
     <meta name="author" content="openEMR: ophthalmology help">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- jQuery library -->
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-1-10-2/jquery.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.js"></script>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-themes-1-11-4/themes/excite-bike/jquery-ui.css">
-    <!-- Latest compiled JavaScript -->
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-excite-bike']); ?>
+
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
+    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
+
     <script>
      $(function() {
         $("[id^='accordion_']" ).accordion({
@@ -62,7 +56,7 @@ if ($showit=='ext') {
         $("[name^='accordion_']").hide();
         $("#accordion_<?php echo attr($showit); ?>_group").show()
         $("#<?php echo attr($showit); ?>_button").css("color","red");
-        $("[id$='_button'],[id$='_button2']").click(function() {
+        $("[id$='_button'],[id$='_button2']").on("click", function() {
             var zone = this.id.match(/(.*)_button/)[1];
             $("[id$='_button']").css("color","black");
             $("#"+zone+"_button").css("color","red");
@@ -72,7 +66,7 @@ if ($showit=='ext') {
 
         });
 
-        $("[id^='accordion_']").click(function() {
+        $("[id^='accordion_']").on("click", function() {
             var active_panel = $(this).accordion( "option", "active" );
             $("[id^='accordion_']").accordion({
                 active: active_panel

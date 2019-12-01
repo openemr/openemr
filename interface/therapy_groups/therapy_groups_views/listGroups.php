@@ -194,13 +194,13 @@
         });
 
         /* Hide/Show filters */
-        $("#show_filters").click(function () {
+        $("#show_filters").on("click", function () {
             $('#filters').show();
             $("#hide_filters").show();
             $("#show_filters").hide();
 
         });
-        $("#hide_filters").click(function () {
+        $("#hide_filters").on("click", function () {
             $('#filters').hide();
             $("#hide_filters").hide();
             $("#show_filters").show();
@@ -215,38 +215,38 @@
 
 
         /* ---- Datetimepickers ---- */
-        $('#group_from_start_date_filter').change( function() {
+        $('#group_from_start_date_filter').on("change", function() {
             table.draw();
         } );
-        $('#group_to_start_date_filter').change( function() {
+        $('#group_to_start_date_filter').on("change", function() {
             table.draw();
         } );
 
-        $('#group_from_end_date_filter').change( function() {
+        $('#group_from_end_date_filter').on("change", function() {
             table.draw();
         } );
-        $('#group_to_end_date_filter').change( function() {
+        $('#group_to_end_date_filter').on("change", function() {
             table.draw();
         } );
 
         /* --- Text inputs --- */
-        $('#group_name_filter').keyup( function() {
+        $('#group_name_filter').on("keyup", function() {
             table.draw();
         } );
-        $('#group_id_filter').keyup( function() {
+        $('#group_id_filter').on("keyup", function() {
             table.draw();
         } );
 
         /* ---- Select Boxes ---- */
-        $('#group_type_filter').change(function () {
+        $('#group_type_filter').on("change", function () {
             table.columns( 2 ).search( this.value ).draw();
         } );
 
-        $('#group_status_filter').change( function() {
+        $('#group_status_filter').on("change", function() {
             table.draw();
         } );
 
-        $('#counselors_filter').change( function() {
+        $('#counselors_filter').on("change", function() {
             table.columns( 6 ).search( this.value ).draw();
         } );
 
@@ -254,7 +254,7 @@
 
 
         /* --------- Reset Filters ------ */
-        $('#clear_filters').click(function(){
+        $('#clear_filters').on("click", function(){
             top.restoreSession();
             location.reload();
         });

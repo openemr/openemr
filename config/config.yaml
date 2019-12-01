@@ -47,6 +47,9 @@ assets:
     jquery-ui:
         basePath: %assets_static_relative%/jquery-ui/
         script: jquery-ui.min.js
+    jquery-ui-theme:
+        basePath: %assets_static_relative%/jquery-ui/
+        link: jquery-ui.theme.css
     jquery-ui-base:
         basePath: %assets_static_relative%/jquery-ui-themes/themes/base/
         link: jquery-ui.min.css
@@ -65,12 +68,24 @@ assets:
     jquery-ui-lightness:
         basePath: %assets_static_relative%/jquery-ui-themes/themes/ui-lightness/
         link: jquery-ui.min.css
-    jquery-ui-lightness-1-10-4:
-        basePath: %assets_static_relative%/jquery-ui-themes-1-10-4/themes/ui-lightness/
+    jquery-ui-excite-bike:
+        basePath: %assets_static_relative%/jquery-ui-themes/themes/excite-bike/
         link: jquery-ui.min.css
-    jquery-ui-excite-bike-1-11-4:
-        basePath: %assets_static_relative%/jquery-ui-themes-1-11-4/themes/excite-bike/
-        link: jquery-ui.css # should this be the minified file?
+    datatables:
+        basePath: %assets_static_relative%/datatables.net/js/
+        script: jquery.dataTables.js
+    datatables-jqui:
+        basePath: %assets_static_relative%/datatables.net-jqui/js/
+        script: dataTables.jqueryui.js
+    datatables-jqui-theme:
+        basePath: %assets_static_relative%/datatables.net-jqui/css/
+        link: dataTables.jqueryui.css
+    datatables-scroller:
+        basePath: %assets_static_relative%/datatables.net-scroller/js/
+        script: dataTables.scroller.js
+    datatables-scroller-jqui-theme:
+        basePath: %assets_static_relative%/datatables.net-scroller-jqui/css/
+        link: scroller.jqueryui.css
     fontawesome:
         basePath: %assets_static_relative%/font-awesome/css/
         link: font-awesome.min.css

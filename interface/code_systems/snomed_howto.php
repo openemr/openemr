@@ -30,9 +30,9 @@ require_once("../../interface/globals.php");
 <?php echo xlt("Steps to install the Snomed database"); ?>:
 <ol>
 <li><?php echo xlt("The first step is to download the SNOMED CT release. Access to SNOMED CT is provided by IHTSDO and their member countries. For more information see") .
-" <a href='http://www.ihtsdo.org/snomed-ct/get-snomed-ct'>http://www.ihtsdo.org/snomed-ct/get-snomed-ct</a>."; ?> 
+" <a href='https://www.snomed.org/snomed-ct/get-snomed' target='_blank' rel='noopener'>https://www.snomed.org/snomed-ct/get-snomed</a>."; ?>
 </li>
-<li><?php echo xlt("Place the downloaded Snomed database zip file into the following directory"); ?>: contrib/snomed 
+<li><?php echo xlt("Place the downloaded Snomed database zip file into the following directory"); ?>: contrib/snomed
 </li>
 <li><?php echo xlt("Return to this page and you will be able to complete the Snomed installation process by clicking on the SNOMED section header"); ?>
 </li>
