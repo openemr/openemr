@@ -305,7 +305,7 @@ $form_to_date   = fixDate($_REQUEST['form_to_date'], date('Y-m-d')); ?>
 <html>
 <head>
 
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker']); ?>
+    <?php Header::setupHeader(['datetime-picker']); ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">

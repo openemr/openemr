@@ -387,6 +387,6 @@ class ApplicationTable
             $patient_id = 0;
         }
 
-        EventAuditLogger::instance()->send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
+        EventAuditLogger::instance()->sendAtnaAuditMsg($user, $groupname, $event, $patient_id, $success, $comments);
     }
 }// app query class

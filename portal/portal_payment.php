@@ -1232,21 +1232,21 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         </table>
         <?php
         if (isset($ccdata["cardHolderName"])) {
-            echo '<div class="col-5"><div class="panel panel-default height">';
+            echo '<div class="col-5"><div class="card panel-default height">';
             if (!isset($_SESSION['authUserID'])) {
-                echo '<div class="panel-heading">' . xlt("Payment Information") .
+                echo '<div class="card-heading">' . xlt("Payment Information") .
                     '<span style="color:#cc0000"><em> ' . xlt("Pending Auth since") . ': </em>' . text($edata["date"]) . '</span></div>';
             } else {
-                echo '<div class="panel-heading">' . xlt("Audit Payment") .
+                echo '<div class="card-heading">' . xlt("Audit Payment") .
                     '<span style="color:#cc0000"><em> ' . xlt("Pending since") . ': </em>' . text($edata["date"]) . '</span>' .
                     ' <button type="button" class="btn btn-warning btn-sm" onclick="getAuth()">' . xlt("Authorize") . '</button></div>';
             }
         } else {
-            echo '<div style="display:none" class="col-6"><div class="panel panel-default height">' .
-                '<div class="panel-heading">' . xlt("Payment Information") . ' </div>';
+            echo '<div style="display:none" class="col-6"><div class="card panel-default height">' .
+                '<div class="card-heading">' . xlt("Payment Information") . ' </div>';
         }
         ?>
-        <div class="panel-body">
+        <div class="card-body">
             <strong><?php echo xlt('Card Name'); ?>: </strong><span id="cn"><?php echo text($ccdata["cc_type"]) ?></span><br>
             <strong><?php echo xlt('Name on Card'); ?>: </strong><span id="nc"><?php echo text($ccdata["cardHolderName"]) ?></span>
             <strong><?php echo xlt('Card Holder Zip'); ?>: </strong><span id="czip"><?php echo text($ccdata["zip"]) ?></span><br>

@@ -173,13 +173,11 @@ class PatientMenuRole extends MenuRole
         $menu_restrictions = $this->getMenu();
         $li_id = 1;
         $str_top = <<<EOT
-        <nav class="navbar navbar-default navbar-color navbar-static-top patient-menu">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
-                </div>
+        <!--navbar-default is needed for color override in other themes-->
+        <nav class="navbar navbar-nav navbar-expand-md  navbar-light bg-light navbar-default navbar-fixed-top">
+            <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="myNavbar" >
-                    <ul class="nav navbar-nav">
+                    <ul class="navbar-nav mr-auto">
 EOT;
         echo $str_top. "\r\n";
         foreach ($menu_restrictions as $key => $value) {
@@ -191,24 +189,23 @@ EOT;
                 foreach ($value->children as $children_key => $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
                     $class = isset($children_value->class) ? $children_value->class : '';
-                    $list .= '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
-                    $list .= '<a class="oe-bold-black"  href="' . attr($link) . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
+                    $list .= '<li class="nav-item oe-bold-black ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
+                    $list .= '<a class="nav-link oe-bold-black"  href="' . attr($link) . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
                     $list .= '</li>';
                 }
                 $list .= '</ul>';
             } else {
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
                 $class = isset($value->class) ? $value->class : '';
-                $list = '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
-                $list .= '<a href="' . attr($link) . '" onclick="' . $value->on_click .'"> ' . text($value->label) . ' </a>';
+                $list = '<li class="nav-item oe-bold-black ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
+                $list .= '<a class="nav-link" href="' . attr($link) . '" onclick="' . $value->on_click .'"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
             }
             echo $list. "\r\n";
             $li_id++;
         }
         $str_bot = <<<EOB
-                    </ul>
-                </div>
+                </ul>
             </div>
         </nav>
 EOB;

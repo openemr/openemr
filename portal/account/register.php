@@ -93,7 +93,6 @@ if ($GLOBALS['language_menu_login']) {
 
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.bundle.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js"></script>
 
     <script>
         var newPid = 0;
@@ -101,12 +100,6 @@ if ($GLOBALS['language_menu_login']) {
         var provider = 0;
 
         $(function () {
-            /* // test data
-            $("#emailInput").val("me@me.com");
-            $("#fname").val("Jerry");
-            $("#lname").val("Padgett");
-            $("#dob").val("1919-03-03");
-            // ---------- */
             var navListItems = $('div.setup-panel div a'),
                 allWells = $('.setup-content'),
                 allNextBtn = $('.nextBtn'),
@@ -143,12 +136,6 @@ if ($GLOBALS['language_menu_login']) {
                     var scroll_height = e.data;
                     document.getElementById('profileFrame').style.height = scroll_height + 'px'; 
                 }, false);
-                
-                
-                /* // test data
-                profile.find("input#street").val("123 Some St.");
-                profile.find("input#city").val("Brandon");
-                //--------------------- */
 
                 var curStep = $(this).closest(".setup-content"),
                     curStepBtn = curStep.attr("id"),
@@ -348,13 +335,13 @@ if ($GLOBALS['language_menu_login']) {
                     } else {
                         // After error alert app exit to landing page.
                         // Existing user error. Error message is translated in account.lib.php.
-                        eModal.alert(rtn);
+                        dialog.alert(rtn);
                     }
                 } else if (action == 'do_signup') {
                     if (rtn.indexOf('ERROR') !== -1) {
                         message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
                         message += "<br><br>" + <?php echo xlj('Here is what we do know.'); ?> +": " + rtn + "<br>";
-                        eModal.alert(message);
+                        dialog.alert(message);
                         return false;
                     }
                     // For production. Here we're finished so do signup closing alert and then cleanup.
@@ -363,7 +350,7 @@ if ($GLOBALS['language_menu_login']) {
                     //alert(rtn); // sync alert.. rtn holds username and password for testing.
 
                     message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
-                    eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
+                    dialog.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
                     return false;
                 }
             }).fail(function (err) {

@@ -52,7 +52,7 @@
     -ms-flex-direction: column;
     flex-direction: column;
     font-size: 10px;
-    width: 100%;
+    width: 100vw;
     height: 100%;
     border: 1px solid #e8e8e8;
     background-color: #fff;
@@ -71,7 +71,6 @@
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    /*height: 100vh;*/
     width: 100%;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -173,24 +172,14 @@ body {
 }
 
 #openSignModal .modal-dialog {
-    min-width: 768px;
+    min-width: 760px;
     max-width: 900px;
+    min-height: 570px;
 }
 
 #openSignModal .modal-body {
     position: relative;
     padding: 0px;
-}
-
-#openSignModal .input-group .input-group-addon {
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-#openSignModal .input-group .form-control, .input-group-addon,
-.input-group-btn {
-    cursor: pointer;
-    border-radius: 5px;
 }
 
 .signature {
@@ -210,28 +199,3 @@ body {
     -webkit-user-select: none;
     -ms-user-select: none;
 }
-
-#openSignModal .close {
-    background: #ffffff !important;
-    opacity: .9;
-    color: #000000 !important;
-    line-height: 45px;
-    /*position: absolute;
-    left: -10px;
-    top: -15px;*/
-    width: 45px;
-    text-align: center;
-    text-decoration: none;
-    font-weight: bold;
-    -webkit-border-radius: 12px;
-    -moz-border-radius: 12px;
-    border-radius: 12px;
-    -moz-box-shadow: 1px 1px 3px #000;
-    -webkit-box-shadow: 1px 1px 3px #000;
-    box-shadow: 1px 1px 3px #000;
-}
-
-#openSignModal .close:hover {
-    background-color: #f0f0f0;
-}
-

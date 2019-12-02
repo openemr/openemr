@@ -38,7 +38,7 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
     </div>
 </div>
 <div class="container bg-info">
-    <div class='well'>
+    <div class='jumbletron jumbletron-sm'>
     <div class="jumbotron text-center">
         <h3>
             <?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md" style="font-size:60px;color:red"></i>
@@ -48,7 +48,7 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
             data-target="#formdialog" href="#"><?php echo xlt('Tell me more') ?> »</a></p>
     </div>
 </div>
-<div class='well'>
+<div class='jumbletron jumbletron-sm'>
     <div class="row">
         <div class="col-sm-3 col-md-3">
             <h4>

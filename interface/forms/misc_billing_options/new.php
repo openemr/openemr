@@ -19,7 +19,7 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc");
 require_once("date_qualifier_options.php");

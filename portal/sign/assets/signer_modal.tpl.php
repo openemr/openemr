@@ -24,8 +24,8 @@ $cuser = attr(isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "-patie
 $cpid = attr(isset($_SESSION['pid']) ? $_SESSION['pid'] : "0");
 $api_id = isset($_SESSION['api_csrf_token']) ? $_SESSION['api_csrf_token'] : ''; // portal doesn't do remote
 
-$msg1 = xlt('Show Current Signature On File');
-$msg2 = xlt('As appears on documents');
+$msg1 = xlt('Show Current');
+$msg2 = xlt('Cancel');
 $msg3 = xlt('Is Authorizing Signature');
 $msg4 = xlt('Sign Above');
 $msg5 = xlt('Clear');
@@ -47,20 +47,36 @@ $vars .= "<script>var apiToken=" . js_escape($api_id) . ";</script>\n";
 $modal = <<<MODAL
 $vars
 <div id='openSignModal' class='modal fade' role='dialog' tabindex='-1'>
-<div class='modal-dialog modal-lg'><div class='modal-content'><div class='modal-header'>
-<button type='button' class='close float-right' data-dismiss='modal'>X</button><div class='input-group'>
-<span class='input-group-addon' data-action='show'><em> $msg1 <br>$msg2.</em></span>
-<img class='signature form-control' data-action='place' data-type='patient-signature' id='signatureModal' alt='Signature On File' src=''>
-<h4 id='labelName'></h4></div></div><div class='modal-body signature-pad-body'><ul class='sigNav'><label style='display: none;'>
-<input style='display:none;' type='checkbox' id='isAdmin' name='isAdmin'/>$msg3</label></ul>
-<div class='row sigPad'><div class='panel'><div class='sign-body'><div id='signature-pad' class='signature-pad'>
-<div class='signature-pad--body'><canvas width='800' height="400"></canvas></div><div class='signature-pad--footer'><div class='description'>$msg4</div>
-<div class='signature-pad--actions'><div><button type='button' class='btn btn-primary btn-sm clear' data-action='clear'>$msg5</button>
-</div><div><button type='button' class='btn btn-primary btn-sm save' data-action='save_signature'>$msg6</button>
-<button type='button' class='btn btn-primary btn-sm send' data-action='send_signature'style='display:none'>$msg6</button>
-<input type='hidden' id='name'/><input type='hidden' id='user' value='$cuser' /><input type='hidden' id='pid' value='$cpid' /></div>
-</div></div></div></div></div></div></div></div></div></div>
-<i id='waitend' class='fa fa-refresh fa-spin' style='display: none;'></i>
+<div class='modal-dialog modal-fluid modal-lg'>
+<div class='modal-content'>
+<div class='modal-body signature-pad-body'><span class='sigNav'><label style='display: none;'>
+<input style='display:none;' type='checkbox' id='isAdmin' name='isAdmin' />$msg3</label></span>
+<div class='row sigPad'>
+<div class='sign-body'>
+<div id='signature-pad' class='signature-pad'>
+<div class='embed-responsive embed-responsive-4by3 border border-dark'>
+<canvas class="embed-responsive-item"></canvas>
+</div>
+<div class='signature-pad--footer'>
+<div class='description'>$msg4</div>
+<div class='button-group'>
+<div class='clearfix'>
+<button type='button' class='btn btn-primary btn-sm clear' data-action='clear'>$msg5</button>
+<button type='button' class='btn btn-link btn-sm' data-dismiss='modal'><span>$msg2</span></button>
+<button type='button' class='btn btn-primary btn-sm save' data-action='save_signature'>$msg6</button>
+<button class='btn btn-primary btn-sm' data-action='place' data-type='patient-signature' id='signatureModal'>$msg1</button>
+<button type='button' class='btn btn-primary btn-sm send' data-action='send_signature' style='display:none'>$msg6</button>
+<span><h6 id='labelName'></h6></span></div>
+<input type='hidden' id='name' /><input type='hidden' id='user' value='$cuser' /><input type='hidden' id='pid' value='$cpid' />
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 MODAL;
 
 echo js_escape($modal);

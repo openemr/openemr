@@ -10,7 +10,7 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 

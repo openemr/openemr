@@ -508,10 +508,10 @@ function getAuthPortalUsers()
     <div class="container" id='main' style="display: none">
         <div class='header logo'>
             <h2>
-                <i style='width: auto; height: auto;' class='glyphicon glyphicon-envelope'></i>  <?php echo xlt('Patient Secure Mail'); ?></h2>
+                <i style='width: auto; height: auto;' class='fa fa-envelope'></i>  <?php echo xlt('Patient Secure Mail'); ?></h2>
         </div>
         <div class="row" ng-controller="inboxCtrl">
-            <aside class="col-md-1" style='padding: 0 0; margin: 0 0; text-align: left;'>
+            <div class="col-md-1" style='padding: 0 0; margin: 0 0; text-align: left;'>
                 <ul class="nav nav-pills flex-column">
                     <li class="nav-item"><a class="nav-link active" href="javascript:;" ng-click="isInboxSelected()"><span class="badge float-right">{{inboxItems.length}}</span><?php echo xlt('Inbox'); ?></a></li>
                     <li class="nav-item"><a class="nav-link" href="javascript:;" ng-click="isSentSelected()"><span class="badge float-right">{{sentItems.length}}</span><?php echo xlt('Sent{{Mails}}'); ?></a></li>
@@ -521,7 +521,7 @@ function getAuthPortalUsers()
                     <li class="nav-item"><a class="nav-link bg-danger" href="<?php echo $GLOBALS['web_root']?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a></li>
                     <li class="nav-item"><a class="nav-link bg-danger" href="javascript:;" onclick='window.location.replace("<?php echo $GLOBALS['web_root']?>/portal/home.php")' ng-show="isPortal"><?php echo xlt('Exit'); ?></a></li>
                 </ul>
-            </aside>
+            </div>
             <div class="col-md-11">
                 <!--inbox toolbar-->
                 <div class="row" ng-show="!isMessageSelected()">
@@ -562,7 +562,7 @@ function getAuthPortalUsers()
                 </div>
                 <!--/row-->
                 <!--/inbox toolbar-->
-                <div class="panel panel-default inbox" id="inboxPanel">
+                <div class="card panel-default inbox" id="inboxPanel">
                     <!--message list-->
                     <div class="table-responsive" ng-show="!isMessageSelected()">
                         <table
@@ -697,7 +697,7 @@ function getAuthPortalUsers()
                     </div>
                 </div>
                 <!--/inbox panel-->
-                <div class="well well-s text-right">
+                <div class="jumbletron jumbletron-sm well-s text-right">
                     <em>Inbox last updated: <span id="lastUpdated">{{date |
                             date:'MM-dd-yyyy HH:mm:ss'}}</span></em>
                 </div>

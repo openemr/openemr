@@ -1112,7 +1112,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 } elseif ($loopid == '1000A') {
                     $loopid = '1000B';
                     $cls = 'rcv';
-                    $rcv_html .= "<tr class='" . attr() . "'><td><em>" . text($n101) . "</em></td><td colspan=3>" . text($n102) . " <em>" . text($n103) . "</em> " . text($n104) . "</td></tr>".PHP_EOL;
+                    $rcv_html .= "<tr class='" . attr($cls) . "'><td><em>" . text($n101) . "</em></td><td colspan=3>" . text($n102) . " <em>" . text($n103) . "</em> " . text($n104) . "</td></tr>".PHP_EOL;
                 }
 
                 //

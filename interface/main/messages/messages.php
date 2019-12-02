@@ -283,7 +283,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         ?>
                         <div class="oe-margin-b-20">
                             <span class="title"><?php echo text($messages); ?></span>
-                            <a class='more' href=<?php echo $lnkvar; ?></a>
+                            <a class='more' href=<?php echo $lnkvar; ?>></a>
                         </div>
                         <div class="oe-margin-b-10">
                             <?php

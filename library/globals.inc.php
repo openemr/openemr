@@ -2676,6 +2676,13 @@ $GLOBALS_METADATA = array(
             xl('Enable logging of CDR Engine Queries.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
         ),
 
+        'gbl_force_log_breakglass' => array(
+            xl('Audit all Emergency User Queries'),
+            'bool',                           // data type
+            '1',                              // default
+            xl('Force logging of all Emergency User (ie. breakglass) activities.')
+        ),
+
         'enable_atna_audit' => array(
             xl('Enable ATNA Auditing'),
             'bool',                           // data type

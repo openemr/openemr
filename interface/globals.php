@@ -300,7 +300,7 @@ $GLOBALS['ippf_specific'] = false;
 $GLOBALS['inhouse_pharmacy'] = false;
 $GLOBALS['sell_non_drug_products'] = 0;
 
-$glrow = sqlQuery("SHOW TABLES LIKE 'globals'");
+$glrow = sqlQueryNoLog("SHOW TABLES LIKE 'globals'");
 if (!empty($glrow)) {
   // Collect user specific settings from user_settings table.
   //
@@ -312,7 +312,7 @@ if (!empty($glrow)) {
         $temp_authuserid = $_SESSION['authUserID'];
     } else {
         if (!empty($_POST['authUser'])) {
-            $temp_sql_ret = sqlQuery("SELECT `id` FROM `users` WHERE BINARY `username` = ?", array($_POST['authUser']));
+            $temp_sql_ret = sqlQueryNoLog("SELECT `id` FROM `users` WHERE BINARY `username` = ?", array($_POST['authUser']));
             if (!empty($temp_sql_ret['id'])) {
               //Set the user id from the login variable
                 $temp_authuserid = $temp_sql_ret['id'];
@@ -321,7 +321,7 @@ if (!empty($glrow)) {
     }
 
     if (!empty($temp_authuserid)) {
-        $glres_user = sqlStatement(
+        $glres_user = sqlStatementNoLog(
             "SELECT `setting_label`, `setting_value` " .
             "FROM `user_settings` " .
             "WHERE `setting_user` = ? " .
@@ -339,7 +339,7 @@ if (!empty($glrow)) {
   // Some parameters require custom handling.
   //
     $GLOBALS['language_menu_show'] = array();
-    $glres = sqlStatement(
+    $glres = sqlStatementNoLog(
         "SELECT gl_name, gl_index, gl_value FROM globals " .
         "ORDER BY gl_name, gl_index"
     );
@@ -389,7 +389,7 @@ if (!empty($glrow)) {
             }
 
           // Synchronize MySQL time zone with PHP time zone.
-            sqlStatement("SET time_zone = ?", array((new DateTime())->format("P")));
+            sqlStatementNoLog("SET time_zone = ?", array((new DateTime())->format("P")));
         } else {
             $GLOBALS[$gl_name] = $gl_value;
         }
@@ -424,7 +424,7 @@ if (!empty($glrow)) {
         }
     } else {
         //$_SESSION['language_direction'] is not set, so will use the default language
-        $default_lang_id = sqlQuery('SELECT lang_id FROM lang_languages WHERE lang_description = ?', array($GLOBALS['language_default']));
+        $default_lang_id = sqlQueryNoLog('SELECT lang_id FROM lang_languages WHERE lang_description = ?', array($GLOBALS['language_default']));
 
         if (getLanguageDir($default_lang_id['lang_id']) === 'rtl' && !strpos($GLOBALS['css_header'], 'rtl')) {
 // @todo eliminate 1 SQL query
