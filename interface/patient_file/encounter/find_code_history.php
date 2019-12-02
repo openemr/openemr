@@ -178,11 +178,11 @@ function get_history_codes($pid)
                 title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
         </div>
         <div id="tips" class="tips">
-            <section class="panel panel-default">
-                <header class="panel-heading panel-heading-sm">
-                    <h4 class="panel-title"><?php echo xlt('Usage Tips') ?></h4>
+            <section class="card panel-default">
+                <header class="card-heading card-heading-sm">
+                    <h4 class="card-title"><?php echo xlt('Usage Tips') ?></h4>
                 </header>
-                <div class="panel-body bg-warning">
+                <div class="card-body bg-warning">
                     <ul>
                         <?php
                         echo "<li>" . xlt("This dialog is generated from patient problem diagnoses and the accumulated diagnoses of all past procedures.") . "</li>";

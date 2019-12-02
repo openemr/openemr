@@ -429,7 +429,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="clearfix">
                         <div class="btn-group oe-margin-b-10">
-                            <button type='submit' class='btn btn-secondary btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
+                            <button type='submit' class='btn btn-default btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                         </div>
                         <div class="input-group col-sm-4 oe-pull-away">
                         <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
@@ -441,7 +441,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ?>
                           <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
                         <span class="input-group-btn">
-                            <button class="btn btn-secondary btn-search" type='submit' id='globals_form_search' name='form_search'><?php echo xlt('Search'); ?></button>
+                            <button class="btn btn-default btn-search" type='submit' id='globals_form_search' name='form_search'><?php echo xlt('Search'); ?></button>
                         </span>
                         </div><!-- /input-group -->
                     </div>
@@ -880,13 +880,13 @@ $(window).on('resize', function() {
     if (winWidth > 1024) {
         if (!userMode) {
             $('.row  .control-label, .row  .oe-input').removeClass('col-sm-6');
-            $('.row  .control-label').addClass('col-sm-4 offset-sm-1');
+            $('.row  .control-label').addClass('col-sm-4 col-sm-offset-1');
             $('.row  .oe-input').addClass('col-sm-4');
         }
     } else {
         if (!userMode) {
             $('.row  .control-label, .row  .oe-input').addClass('col-sm-6');
-            $('.row  .control-label').removeClass('col-sm-4 offset-sm-1');
+            $('.row  .control-label').removeClass('col-sm-4 col-sm-offset-1');
             $('.row  .oe-input').removeClass('col-sm-4');
         }
     }

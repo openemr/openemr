@@ -143,7 +143,6 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/js/jquery.gritter.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/css/jquery.gritter.css" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js"></script>
     <link rel="stylesheet" type="text/css" href="assets/css/base.css?v=<?php echo $v_js_includes; ?>" />
     <link rel="stylesheet" type="text/css" href="assets/css/register.css?v=<?php echo $v_js_includes; ?>" />
     <script type="text/javascript">
@@ -419,8 +418,15 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 <?php } ?> <!--  logon wrapper -->
 
     <script type="text/javascript">
-        $(function () {
+        var tab_mode = true;
+        var webroot_url = <?php echo js_escape($GLOBALS['web_root']) ?>;
+        function restoreSession(){
+            //dummy functions so the dlgopen function will work in the patient portal
+            return true;
+        }
+        var isPortal = 1;
 
+        $(function () {
             <?php // if something went wrong
             if (isset($_GET['requestNew'])) {
                 $_SESSION['register'] = true;
@@ -474,33 +480,32 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 'first': $("#fname").val(),
                 'email': $("#emailInput").val()
             };
-            if (action == 'do_signup') {
+            if (action === 'do_signup') {
                 data = {
                     'action': action,
                     'pid': value
                 };
-            } else if (action == 'notify_admin') {
+            } else if (action === 'notify_admin') {
                 data = {
                     'action': action,
                     'pid': value,
                     'provider': value2
                 };
-            } else if (action == 'cleanup') {
+            } else if (action === 'cleanup') {
                 data = {
                     'action': action
                 }
             }
-            ;
             $.ajax({
                 type: 'GET',
                 url: './account/account.php',
                 data: data
             }).done(function (rtn) {
-                if (action == "cleanup") {
+                if (action === "cleanup") {
                     window.location.href = "./index.php" // Goto landing page.
-                } else if (action == "userIsUnique") {
+                } else if (action === "userIsUnique") {
                     return rtn === '1' ? true : false;
-                } else if (action == "is_new") {
+                } else if (action === "is_new") {
                     if (parseInt(rtn) !== 0) {
                         var yes = confirm(<?php echo xlj("Account is validated. Send new credentials?") ?>);
                         if (!yes)
@@ -511,19 +516,22 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                         // After error alert app exit to landing page.
                         var message = <?php echo xlj('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record.') ?>;
                         message += "<br>" + <?php echo xlj('All search inputs are case sensitive and must match entries in your profile.'); ?>;
-                        eModal.alert(message);
+                        dialog.alert(message, <?php echo xlj("Alert") ?>)
+                            .then(function(result) {
+                                console.error('Reset failed to vaidate');
+                            });
                         return false;
                     }
-                } else if (action == 'do_signup') {
+                } else if (action === 'do_signup') {
                     if (rtn.indexOf('ERROR') !== -1) {
                         var message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
                         message += "<br><br>" + <?php echo xlj('Here is what we do know.'); ?> +": " + rtn + "<br>";
-                        eModal.alert(message);
+                        dialog.alert(message);
                         return false;
                     }
                     //alert(rtn); // sync alert.. rtn holds username and password for testing.
                     var message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
-                    eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
+                    dialog.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
                     return false;
                 }
             }).fail(function (err) {

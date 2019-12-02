@@ -126,9 +126,6 @@ assets:
     jscolor:
         basePath: %assets_static_relative%/jscolor/
         script: jscolor.js
-    emodal:
-        basePath: %assets_static_relative%/emodal/dist/
-        script: eModal.min.js
     esign:
         basePath: %webroot%/library/ESign/
         script: js/jquery.esign.js

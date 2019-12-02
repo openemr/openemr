@@ -29,7 +29,7 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once(dirname(__FILE__) ."/../../../library/acl.inc");
 require_once(dirname(__FILE__) ."/../../../library/api.inc");
 require_once(dirname(__FILE__) ."/../../../library/lists.inc");
@@ -44,7 +44,7 @@ $form_folder = "eye_mag";
 
 $facilityService = new FacilityService();
 
-require_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
+require_once(__DIR__ . "/../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 
 if ($_REQUEST['CHOICE']) {
     $choice = $_REQUEST['choice'];

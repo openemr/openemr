@@ -488,7 +488,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             <br />
                             Output:
                             <br /><br />
-                            <div class="output_EMR well-sm">
+                            <div class="output_EMR  card">
                                 <h4>Eye Exam</h4>
                                 <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_antseg_EMR.png" width="90%" alt="Shorthand Example: openEMR">
                             </div>

@@ -71,7 +71,7 @@ $cuser = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : $_SESSION[
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
     echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
-    Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'emodal']);
+    Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny']);
     ?>
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
@@ -246,9 +246,9 @@ body {
 }
 </style>
 <script type="text/template" id="onsiteDocumentModelTemplate">
-<div class="container-fluid">
-    <aside class="col-lg-2 col-sm-2 col-2 container-fluid" id="sidebar-pills">
-        <ul class="nav nav-pills flex-column" id="sidebar">
+<div class="row">
+    <aside class="col-lg-2 col-sm-2 col-2 fixed left" id="sidebar-pills">
+        <ul class="nav nav-pills navbar-nav mr-auto" id="sidebar">
             <li data-toggle="pill" class="nav-item bg-info text-white"><a class="nav-link" id="signTemplate" href="#openSignModal"
                 data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature');?></a></li>
             <li data-toggle="pill" class="nav-item bg-info text-white"><a class="nav-link" id="saveTemplate" href="#"><?php echo xlt('Save');?></a></li>
@@ -270,7 +270,7 @@ body {
     </aside>
     <div class="col-md-8 col-10 col-10">
         <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
-        <div class="card bg-primary text-white" id="docpanel">
+        <div class="card bg-primary" id="docpanel">
             <header class="card-header" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>
             <div id="loader" style="display:none;"></div>
             <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST" >
@@ -302,7 +302,8 @@ body {
 </form>
 </div>
 </div>
-    </div></div>
+    </div>
+</div>
 </div>
 </div>
 </script>

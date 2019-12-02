@@ -112,16 +112,15 @@ if (typeof isModule === 'undefined') {
 
 function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
     $('#alert_box').remove();
-    size = (size == 'lg') ? 'left:10%;width:80%;' : 'left:25%;width:50%;';
+    size = (size == 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';
     let style = "position:fixed;top:25%;" + size + " bottom:0;z-index:9999;";
     $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
-    let mHtml = '<div id="alertmsg" hidden class="alert alert-' + type + ' alert-dismissable">' +
+    let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
         '<button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true"></button>' +
-        '<h4 class="alert-heading text-center">Alert!</h4><hr>' +
+        '<h5 class="alert-heading text-center">Alert!</h5><hr>' +
         '<p>' + message + '</p>' +
         '</div>';
     $('#alert_box').append(mHtml);
-    $('#alertmsg').fadeIn(800);
     $('#alertmsg').on('closed.bs.alert', function () {
         clearTimeout(AlertMsg);
         $('#alert_box').remove();
@@ -131,7 +130,7 @@ function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
             $('#alert_box').remove();
         });
     }, timer);
-};
+}
 
 function getSignature(othis, isInit = false, returnSignature = false) {
     return new Promise(resolve => {
@@ -559,6 +558,8 @@ function initSignerApi() {
             /*throttle: 0,*/
             velocityFilterWeight: .2,
         };
+        var openPatientButton = document.querySelector("[data-type=patient-signature]");
+        var openAdminButton = document.querySelector("[data-type=admin-signature]");
         var placeSignatureButton = wrapper.querySelector("[data-action=place]");
         var showSignature = wrapper.querySelector("[data-action=show]");
         var saveSignature = wrapper.querySelector("[data-action=save_signature]");
@@ -576,6 +577,13 @@ function initSignerApi() {
                 els[i].style.top = (els[i].offsetTop - 20) + 'px';
                 els[i].setAttribute("data-offset", true);
             }
+        });
+
+        $(openPatientButton).on("click", function (e) {
+            $(wrapper).modal({backdrop: "static"});
+        });
+        $(openAdminButton).on("click", function (e) {
+            $(wrapper).modal({backdrop: "static"});
         });
 
         $("#openSignModal .close").on("click", function (e) {
@@ -614,7 +622,7 @@ function initSignerApi() {
             }
             let showElement = document.getElementById('signatureModal');
             $('#signatureModal').attr('src', signhere);
-            $(this).data('bs.modal').options.backdrop = 'static';
+            $("#openSignModal").modal({backdrop: false});
             $('html').css({
                 'overflow': 'hidden', 'padding-right': '15px'
             });
@@ -629,7 +637,7 @@ function initSignerApi() {
             signaturePad = new SignaturePad(canvas, canvasOptions);
             resizeCanvas();
         }).on('hide.bs.modal', function () {
-            if ((typeof $lastEl !== 'undefined' || !$lastEl) && !isRemoteAvail) {
+            if ((typeof $lastEl !== 'undefined' || !$lastEl) && typeof event === "undefined" && !isRemoteAvail) {
                 if (!signaturePad.isEmpty()) {
                     let dataURL = signaturePad.toDataURL();
                     placeSignature(dataURL, $lastEl);
@@ -717,6 +725,7 @@ function initSignerApi() {
             });
         });
 
+        if (showSignature !== null)
         showSignature.addEventListener("click", function (event) { // for modal view
             let showElement = document.getElementById('signatureModal');
             getSignature(showElement);

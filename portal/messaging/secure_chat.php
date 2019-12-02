@@ -989,8 +989,8 @@ background:#fff;
                 </label>
             </div>
             <div class="col-md-8 fixed-panel">
-                <div class="panel direct-chat direct-chat-warning">
-                    <div class="panel-heading">
+                <div class="card direct-chat direct-chat-warning">
+                    <div class="card-heading">
                         <div class="clearfix">
                             <a class="btn btn-sm btn-primary ml10" href=""
                                 data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
@@ -998,7 +998,7 @@ background:#fff;
                             <a class="btn btn-sm btn-success float-left ml10" href="./../home.php" ng-show="isFullScreen"><?php echo xlt('Home'); ?></a>
                         </div>
                     </div>
-                    <div class="panel-body">
+                    <div class="card-body">
                         <div class="direct-chat-messages">
                             <div class="direct-chat-msg" ng-repeat="message in messages" ng-if="historyFromId < message.id" ng-class="{'right':!message.me}">
                                 <div class="direct-chat-info clearfix">
@@ -1022,7 +1022,7 @@ background:#fff;
                                 </div>
                             </div>
                         </div>
-                        <div class="panel-footer box-footer-hide">
+                        <div class="card-footer box-footer-hide">
                             <form id='msgfrm' ng-submit="saveMessage()">
                                 <div class="input-group">
                                     <input type="text" placeholder="<?php echo xla('Type Message...'); ?>" id="msgedit" autofocus="autofocus"

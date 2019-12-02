@@ -1,10 +1,59 @@
 // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
-// Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
+// Copyright (C) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
+
+(function (define) {
+    define(['jquery'], function ($, root) {
+        let opts_default = {};
+        root = root || {};
+        root.alert = alert;
+        root.ajax = ajax;
+        root.closeAjax = closeAjax;
+
+        return root;
+
+        function ajax(data) {
+            let opts = {
+                buttons: data.buttons,
+                sizeHeight: data.sizeHeight || '',
+                type: data.type,
+                data: data.data,
+                url: data.url,
+                dataType: data.dataType || '' // xml/json/text etc.
+            };
+
+            let title = data.title;
+
+            return dlgopen('', '', data.size, 250, '', title, opts);
+        }
+
+        function alert(data, title) {
+            title = title ? title : 'Alert';
+            let alertTitle = '<i class="fa fa-warning alert-danger"></i>&nbsp;<span>' + title + '</span>';
+            return dlgopen('', '', 675, 250, '', alertTitle, {
+                buttons: [
+                    {text: '<i class="fa fa-thumbs-up">&nbsp;OK</i>', close: true, style: 'default'}
+                ],
+                type: 'Alert',
+                html: '<blockquote class="blockquote">' + data + '</blockquote>'
+            });
+        }
+
+        function closeAjax() {
+            dlgCloseAjax();
+        }
+    });
+}(typeof define == 'function' && define.amd ?
+    define :
+    function (args, mName) {
+        this.dialog = typeof module != 'undefined' && module.exports ?
+            mName(require(args[0], {}), module.exports) :
+            mName(window.$);
+    }));
 
 // open a new cascaded window
 function cascwin(url, winname, width, height, options) {
@@ -98,9 +147,7 @@ function my_del_related(s, elem, usetitle) {
 
 function dialogID() {
     function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
     }
 
     return s4() + s4() + s4() + s4() + s4() + +s4() + s4() + s4();
@@ -211,7 +258,7 @@ if (typeof alertMsg !== "function") {
                 '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-dismiss="alert">' +
                 xl.alert.gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
                 '<h4 class="alert-heading text-center">' + xl.alert.title + '!</h4><hr>' + '<p style="color:#000;">' + message + '</p>' +
-                '<button type="button" class="float-right btn btn-link" data-dismiss="alert">' + xl.alert.dismiss + '</button></br></div>';
+                '<button type="button" class="pull-right btn btn-link" data-dismiss="alert">' + xl.alert.dismiss + '</button></br></div>';
             $('#alert_box').append(mHtml);
             $('#alertmsg').fadeIn(800);
             $('#alertmsg').on('closed.bs.alert', function () {
@@ -231,6 +278,7 @@ if (typeof alertMsg !== "function") {
             console.log(error.message)
         });
     }
+
     const persistUserOption = function (option, value) {
         return $.ajax({
             url: top.webroot_url + "/library/ajax/user_settings.php",
@@ -250,7 +298,6 @@ if (typeof alertMsg !== "function") {
         });
     };
 }
-
 
 
 // Test if supporting dialog callbacks and close dependencies are in scope.
@@ -311,7 +358,7 @@ if (typeof dlgclose !== "function") {
 * @param {Object} opts Dialogs options.
 * @returns {Object} dialog object reference.
 * */
-function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
+const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
     // First things first...
     top.restoreSession();
     // A matter of Legacy
@@ -358,7 +405,6 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     });
 
     // onward
-
     var opts_defaults = {
         type: 'iframe', // POST, GET (ajax) or iframe
         async: true,
@@ -404,34 +450,34 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl'];
     if (Math.abs(width) > 0) {
         width = Math.abs(width);
-        mWidth = (width / where.innerWidth * 100).toFixed(4) + '%';
-        msSize = '<style>.modal-custom-' + winname + ' {width:' + mWidth + ';}</style>';
+        mWidth = (width / where.innerWidth * 100).toFixed(1) + '%';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:' + mWidth + ';}</style>';
         mSize = 'modal-custom' + winname;
     } else if (jQuery.inArray(width, sizeChoices) !== -1) {
         mSize = width; // is a modal class
     } else {
-        msSize = '<style>.modal-custom-' + winname + ' {width:35%;}</style>'; // standard B.S. modal default (modal-md)
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:35%;}</style>'; // standard B.S. modal default (modal-md)
     }
     // leave below for legacy
     if (mSize === 'modal-sm') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:25%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:25%;}</style>';
     } else if (mSize === 'modal-md') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:40%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:40%;}</style>';
     } else if (mSize === 'modal-mlg') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:55%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:55%;}</style>';
     } else if (mSize === 'modal-lg') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:75%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:75%;}</style>';
     } else if (mSize === 'modal-xl') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:92%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:92%;}</style>';
     }
     mSize = 'modal-custom-' + winname;
 
     // Initial responsive height.
     var vpht = where.innerHeight;
-    mHeight = height > 0 ? (height / vpht * 100).toFixed(4) + 'vh' : '';
+    mHeight = height > 0 ? (height / vpht * 100).toFixed(1) + 'vh' : '';
 
     // Build modal template. For now !title = !header and modal full height.
-    var mTitle = title > "" ? '<h4 class=modal-title>' + title + '</h4>' : '';
+    var mTitle = title > "" ? '<h5 class=modal-title>' + title + '</h5>' : '';
 
     var waitHtml =
         '<div class="loadProgress text-center">' +
@@ -439,44 +485,25 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         '</div>';
 
     var headerhtml =
-        ('<div class=modal-header><span type=button class="x close" data-dismiss=modal>' +
-            '<span aria-hidden=true>&times;</span>' +
-            '</span><h5 class=modal-title>%title%</h5></div>')
-            .replace('%title%', mTitle);
-
-    var frameHead =
-        ('<div><span class="close data-dismiss=modal aria-hidden="true">&times;</span></div>');
+        ('<div class=modal-header>%title%<button type=button class="close" data-dismiss=modal>' +
+            '&times;</button></div>').replace('%title%', mTitle);
 
     var frameHtml =
-        ('<iframe id="modalframe" class="embed-responsive-item modalIframe" name="%winname%" %url% frameborder=0></iframe>')
-            .replace('%winname%', winname)
-            .replace('%url%', fullURL ? 'src=' + fullURL : '');
+        ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>').replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
 
-    var embedded = 'embed-responsive embed-responsive-16by9';
-
-    var bodyStyles = (' style="margin:2px;padding:2px;height:%initHeight%;max-height:94vh;overflow-y:auto;"')
-        .replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '94vh');
+    var bodyStyles = (' style="overflow-y:auto;margin:2px;padding:2px;height:%initHeight%;max-height:92vh;"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
 
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
 
     var mhtml =
         ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sStyle%' +
-            '<style>.modal-backdrop{opacity:0; transition:opacity 1s;}.modal-backdrop.in{opacity:0.2;}</style>' +
+            '<style></style>' +
             '<div %dialogId% class="modal-dialog %szClass%" role="document">' +
             '<div class="modal-content">' +
             '%head%' + '%altclose%' + '%wait%' +
-            '<div class="modal-body %embedded%" %bodyStyles%>' +
-            '%body%' + '</div></div></div></div>')
-            .replace('%id%', winname)
-            .replace('%sStyle%', msSize ? msSize : '')
-            .replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '')
-            .replace('%szClass%', mSize ? mSize : '')
-            .replace('%head%', mTitle !== '' ? headerhtml : '')
-            .replace('%altclose%', mTitle === '' ? altClose : '')
-            .replace('%wait%', '') // maybe option later
-            .replace('%bodyStyles%', bodyStyles)
-            .replace('%embedded%', opts.type === 'iframe' ? embedded : '')
-            .replace('%body%', opts.type === 'iframe' ? frameHtml : '');
+            '<div class="modal-body" %bodyStyles%>' +
+            '%body%' + '</div></div></div></div>').replace('%id%', winname).replace('%sStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%szClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%wait%', '') // maybe option later
+        .replace('%bodyStyles%', bodyStyles).replace('%body%', opts.type === 'iframe' ? frameHtml : '');
 
     // Write modal template.
     //
@@ -492,7 +519,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     if (opts.buttons) {
         dlgContainer.find('.modal-content').append(buildFooter());
     }
-// Ajax setup
+    // Ajax setup
     if (opts.type === 'alert') {
         dlgContainer.find('.modal-body').html(opts.html);
     }
@@ -505,7 +532,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             dataType: opts.dataType || '' // xml/json/text etc.
         };
 
-        dialogAjax(params, dlgContainer);
+        dialogAjax(params, dlgContainer, opts);
     }
 
     // let opener array know about us.
@@ -513,103 +540,106 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // Write the completed template to calling document or 'where' window.
     where.jQuery("body").append(dlgContainer);
-
-    jQuery(function () {
-        // DOM Ready. Handle events and cleanup.
-        if (opts.type === 'iframe') {
-            var modalwin = where.jQuery('body').find("[name='" + winname + "']");
-            jQuery('div.modal-dialog', modalwin).css({'margin': '15px auto'});
-            modalwin.on('load', function (e) {
-                setTimeout(function () {
-                    if (opts.sizeHeight === 'auto') {
-                        SizeModaliFrame(e, height);
-                    } else if (opts.sizeHeight === 'fixed') {
-                        sizing(e, height);
-                    } else {
-                        sizing(e, height); // must be full height of container
-                    }
-                }, 500);
-            });
-        }
-
-        dlgContainer.on('show.bs.modal', function () {
-            if (opts.allowResize) {
-                jQuery('.modal-content', this).resizable({
-                    grid: [5, 5],
-                    animate: true,
-                    animateEasing: "swing",
-                    animateDuration: "fast",
-                    alsoResize: jQuery('div.modal-body', this)
-                })
-            }
-            if (opts.allowDrag) {
-                jQuery('.modal-dialog', this).draggable({
-                    iframeFix: true,
-                    cursor: false
+    return new Promise((resolve, reject) => {
+        jQuery(function () {
+            // DOM Ready. Handle events and cleanup.
+            if (opts.type === 'iframe') {
+                var modalwin = where.jQuery('body').find("[name='" + winname + "']");
+                jQuery('div.modal-dialog', modalwin).css({'margin': '15px auto'});
+                modalwin.on('load', function (e) {
+                    setTimeout(function () {
+                        if (opts.sizeHeight === 'auto') {
+                            SizeModaliFrame(e, height);
+                        } else if (opts.sizeHeight === 'fixed') {
+                            sizing(e, height);
+                        } else {
+                            sizing(e, height); // must be full height of container
+                        }
+                    }, 800);
                 });
             }
-        }).on('shown.bs.modal', function () {
-            // Remove waitHtml spinner/loader etc.
-            jQuery(this).parent().find('div.loadProgress')
-                .fadeOut(function () {
+
+            dlgContainer.on('show.bs.modal', function () {
+                if (opts.allowResize) {
+                    jQuery('.modal-content', this).resizable({
+                        grid: [5, 5],
+                        animate: true,
+                        //animateEasing: "swing",
+                        animateDuration: "fast",
+                        alsoResize: jQuery('div.modal-body', this)
+                    })
+                }
+                if (opts.allowDrag) {
+                    jQuery('.modal-dialog', this).draggable({
+                        iframeFix: true,
+                        cursor: false
+                    });
+                }
+            }).on('shown.bs.modal', function () {
+                // Remove waitHtml spinner/loader etc.
+                jQuery(this).parent().find('div.loadProgress').fadeOut(function () {
                     jQuery(this).remove();
                 });
-            dlgContainer.modal('handleUpdate'); // allow for scroll bar
-        }).on('hidden.bs.modal', function (e) {
-            // remove our dialog
-            jQuery(this).remove();
+                dlgContainer.modal('handleUpdate'); // allow for scroll bar
+            }).on('hidden.bs.modal', function (e) {
+                // remove our dialog
+                jQuery(this).remove();
 
-            // now we can run functions in our window.
-            if (opts.onClosed) {
-                console.log('Doing onClosed:[' + opts.onClosed + ']');
-                if (opts.onClosed === 'reload') {
-                    window.location.reload();
-                } else {
-                    window[opts.onClosed]();
+                // now we can run functions in our window.
+                if (opts.onClosed) {
+                    console.log('Doing onClosed:[' + opts.onClosed + ']');
+                    if (opts.onClosed === 'reload') {
+                        window.location.reload();
+                    } else {
+                        window[opts.onClosed]();
+                    }
                 }
-            }
-            if (opts.callBack.call) {
-                console.log('Doing callBack:[' + opts.callBack.call + '|' + opts.callBack.args + ']');
-                if (opts.callBack.call === 'reload') {
-                    window.location.reload();
-                } else {
-                    window[opts.callBack.call](opts.callBack.args);
+                if (opts.callBack.call) {
+                    console.log('Doing callBack:[' + opts.callBack.call + '|' + opts.callBack.args + ']');
+                    if (opts.callBack.call === 'reload') {
+                        window.location.reload();
+                    } else {
+                        window[opts.callBack.call](opts.callBack.args);
+                    }
                 }
-            }
 
-        }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal
+                resolve(true);
 
-        // define local dialog close() function. openers scope
-        window.dlgCloseAjax = function (calling, args) {
-            if (calling) {
+            }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal
+
+            // define local dialog close() function. openers scope
+            window.dlgCloseAjax = function (calling, args) {
+                if (calling) {
+                    opts.callBack = {call: calling, args: args};
+                }
+                dlgContainer.modal('hide'); // important to clean up in only one place, hide event....
+                return false;
+            };
+
+            // define local callback function. Set with opener or from opener, will exe on hide.
+            window.dlgSetCallBack = function (calling, args) {
                 opts.callBack = {call: calling, args: args};
-            }
-            dlgContainer.modal('hide'); // important to clean up in only one place, hide event....
-            return false;
-        };
+                return false;
+            };
 
-        // define local callback function. Set with opener or from opener, will exe on hide.
-        window.dlgSetCallBack = function (calling, args) {
-            opts.callBack = {call: calling, args: args};
-            return false;
-        };
+            // in residents dialog scope
+            where.setCallBack = function (calling, args) {
+                opts.callBack = {call: calling, args: args};
+                return true;
+            };
 
-        // in residents dialog scope
-        where.setCallBack = function (calling, args) {
-            opts.callBack = {call: calling, args: args};
-            return true;
-        };
+            where.getOpener = function () {
+                return where;
+            };
 
-        where.getOpener = function () {
-            return where;
-        };
+            // Return the dialog ref. looking towards deferring...
+            return dlgContainer;
 
-        // Return the dialog ref. looking towards deferring...
-        return dlgContainer;
+        }); // end events
+    });
 
-    }); // end events
-// Ajax call with promise
-    function dialogAjax(data, $dialog) {
+    // Ajax call with promise
+    function dialogAjax(data, $dialog, opts) {
         var params = {
             async: data.async,
             method: data.method || '',
@@ -622,13 +652,12 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             jQuery.extend(params, data);
         }
 
-        jQuery.ajax(params)
-            .done(aOkay)
-            .fail(oops);
+        jQuery.ajax(params).done(aOkay).fail(oops);
 
         return true;
 
         function aOkay(html) {
+            opts.ajax = true;
             $dialog.find('.modal-body').html(data.success ? data.success(html) : html);
 
             return true;
@@ -655,8 +684,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             for (var i = 0, k = opts.buttons.length; i < k; i++) {
                 var btnOp = opts.buttons[i];
                 if (typeof btnOp.class !== 'undefined') {
+                    btnOp.class = btnOp.class.replace(/default/gi, 'secondary');
                     var btn = jQuery('<button>').addClass('btn ' + (btnOp.class || 'btn-primary'));
                 } else { // legacy
+                    btnOp.style = btnOp.style.replace(/default/gi, 'secondary');
                     var btn = jQuery('<button>').addClass('btn btn-' + (btnOp.style || 'primary'));
                     btnOp.style = "";
                 }

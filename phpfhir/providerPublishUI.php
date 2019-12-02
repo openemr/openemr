@@ -120,11 +120,11 @@ echo "<script>var pid='" . attr($pid) . "'</script>";
     </div>
 
     <div class="col-md-10 content">
-        <div class="panel panel-default">
-            <div class="panel-heading">
+        <div class="card panel-default">
+            <div class="card-heading">
                 <?php echo xlt('Dashboard'); ?>
             </div>
-            <div id="dashboard" class="panel-body">
+            <div id="dashboard" class="card-body">
             </div>
         </div>
     </div>

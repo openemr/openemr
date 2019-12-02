@@ -1338,11 +1338,11 @@ if ($lastgroup) {
 <input type='button' value='<?php echo xla('New Layout'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <?php } ?>
 
-<div id="tips" class="container tips"><section class="panel panel-primary">
-  <header class="panel-heading">
-   <h3 class="panel-title"><?php echo xlt('Usage Tips') ?></h3>
+<div id="tips" class="container tips"><section class="card bg-primary">
+  <header class="card-heading">
+   <h3 class="card-title"><?php echo xlt('Usage Tips') ?></h3>
   </header>
-  <div class="panel-body">
+  <div class="card-body">
    <ul>
 <?php
     echo "<li>" . xlt("Clicking Options will present a multiselection drop menu to add behaviors to the selected data type. Typing after pull down activates allows search in options.") . "</li>";

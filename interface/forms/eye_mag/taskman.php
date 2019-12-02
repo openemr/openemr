@@ -35,7 +35,7 @@ if (php_sapi_name() === 'cli') {
     $ignoreAuth=1;
 }
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
