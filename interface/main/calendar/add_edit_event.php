@@ -1326,7 +1326,7 @@ function find_available(extra) {
     .row {
         margin: auto;
     }
-    .jumbotron-sm {
+    .jumbotron-fluid {
         margin: 0px 0px 5px 0px;
         padding: 5px 0px 5px 5px;
     }
@@ -1487,7 +1487,7 @@ $classpati='';
 </div>
 <?php
 if ($_GET['prov'] != true && $_GET['group'] != true) { ?>
-    <div class="row jumbotron jumbotron-sm" id="patient_details">
+    <div class="row jumbotron jumbotron-fluid" id="patient_details">
         <div class="form-group ">
             <label for="form_patient"><?php echo xlt('Patient'); ?>:</label>
             <input class='form-control' type='text' name='form_patient' id="form_patient" style='cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>'  />
@@ -1666,7 +1666,7 @@ function isRegularRepeat($repeat)
     repeating mechanism is being used, and load settings accordingly.
     */
 ?>
-<div class="jumbotron jumbotron-sm">
+<div class="jumbotron jumbotron-fluid">
 <div class="row">
     <div class="form-group">
         <div class="form-group">

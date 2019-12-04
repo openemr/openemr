@@ -100,7 +100,7 @@ if (!empty($_POST['form_submit'])) {
 
     $target_pid = intval($_POST['form_target_pid']);
     $source_pid = intval($_POST['form_source_pid']);
-    echo "<div class='jumbletron jumbletron-sm'>";
+    echo "<div class='jumbotron jumbotron-fluid'>";
     if ($target_pid == $source_pid) {
         die(xlt('Target and source pid may not be the same!'));
     }
@@ -269,7 +269,7 @@ if (!empty($_POST['form_submit'])) {
 <p><input type='submit' name='form_submit' value='<?php echo xla('Merge'); ?>' /></p>
 </div>
 </form>
-<div class="jumbletron jumbletron-sm ">
+<div class="jumbotron jumbotron-fluid ">
     <p><strong><?php echo xlt('This utility is experimental.  Back up your database and documents before using it!'); ?></strong></p>
 
 <?php if (!$PRODUCTION) { ?>

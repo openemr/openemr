@@ -110,7 +110,7 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
 ?>
 
 <div class="row col-12">
-    <div class="jumbletron jumbletron-sm col-lg-11">
+    <div class="jumbotron jumbotron-fluid col-lg-11">
         <div class="row">
             <div class="col-12">
                 <h3 class="text-center"><?php echo xlt('Main Log'); ?></h3>
@@ -425,7 +425,7 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
     <?php } ?>
 
     </div>
-    <div class="jumbletron jumbletron-sm col-lg-1">
+    <div class="jumbotron jumbotron-fluid col-lg-1">
         <div class="row">
             <div class="col-12">
                 <h3 class="text-center"><?php echo xlt('Other Logs'); ?></h3>

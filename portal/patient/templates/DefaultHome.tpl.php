@@ -31,7 +31,7 @@ $this->display('_Header.tpl.php');
     </div>
 </div>
 <div class="container">
-    <div class='jumbletron jumbletron-sm'>
+    <div class='jumbotron jumbotron-fluid'>
     <div class="jumbotron">
         <h1>
             <?php echo xlt('Onsite Portal'); ?><i class="fa fa-user-md float-right" style="font-size:60px;color:red"></i>
@@ -40,7 +40,7 @@ $this->display('_Header.tpl.php');
             data-target="#formdialog" href="#"><?php echo xlt('Tell me more'); ?> »</a>
     </div>
 </div>
-<div class='jumbletron jumbletron-sm'>
+<div class='jumbotron jumbotron-fluid'>
     <div class="row">
         <div class="col-sm-3 col-md-3">
             <h2>

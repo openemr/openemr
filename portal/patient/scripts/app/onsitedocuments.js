@@ -18,7 +18,7 @@ var page = {
     isInitialized: false,
     isInitializing: false,
     isSaved: true,
-    fetchParams: { filter: '', orderBy: '', orderDesc: '', page: 1,patientId: cpid,recid: recid },
+    fetchParams: { filter: '', orderBy: '', orderDesc: '', page: 1, patientId: cpid, recid: recid },
     fetchInProgress: false,
     dialogIsOpen: false,
     isLocked: false,
@@ -194,10 +194,9 @@ var page = {
                 page.updateModel();
             });
 
-            $('#sidebar').affix({
-                offset: {
-                    top: $('navbar').height()
-                }
+            $('.sidebar-expand button').on('click', function () {
+                $(this).toggleClass("flip-y");
+                $('.nav-sidebar').toggleClass("active");
             });
 
             $("#sendTemplate").on('click', function (e) {
@@ -338,7 +337,7 @@ var page = {
                         $("#submitTemplate").hide();
                         $("#sendTemplate").hide();
                         page.onsiteDocument.set('fullDocument',templateHtml);
-                        if(isPortal) {
+                        if (isPortal) {
                             $('#adminSignature').css('cursor', 'default');
                             $('#adminSignature').off();
                         }
