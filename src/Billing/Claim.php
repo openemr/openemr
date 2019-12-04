@@ -54,8 +54,12 @@ class Claim
     {
         $zip = $this->x12Clean($zip);
         // this will take out dashes and pad with trailing 9s if not 9 digits
-        return str_pad(preg_replace('/[^0-9]/', '', $zip), 9, 9,
-            STR_PAD_RIGHT);
+        return str_pad(
+            preg_replace('/[^0-9]/', '', $zip),
+            9,
+            9,
+            STR_PAD_RIGHT
+        );
     }
 
     // Make sure dates have no formatting and zero filled becomes blank
