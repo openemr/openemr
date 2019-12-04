@@ -56,7 +56,7 @@ class Claim
         if (strlen($zip) == 5) {
             return $zip . "9999";
         } else {
-            return $zip;
+            return str_pad(preg_replace('/[^0-9]/', '', $zip), 9, 9, STR_PAD_RIGHT);
         }
     }
 
