@@ -88,6 +88,7 @@ echo "<br><br>";
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 
 require_once(dirname(__FILE__) . "/../../_rest_config.php");
+require_once(dirname(__FILE__) . "/../../_rest_routes.inc.php");
 $gbl = RestConfig::GetInstance();
 $gbl::setNotRestCall();
 // below will return as json

@@ -77,6 +77,8 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 
 require_once("./../interface/globals.php");
 require_once("./../library/acl.inc");
+// Include our routes and init routes global
+require_once("./../_rest_routes.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 

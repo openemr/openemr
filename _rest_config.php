@@ -219,6 +219,4 @@ class RestConfig
     }
 }
 
-// Include our routes and init routes global
-//
-require_once(dirname(__FILE__) . "/_rest_routes.inc.php");
+

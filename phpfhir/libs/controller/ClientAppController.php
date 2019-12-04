@@ -13,6 +13,7 @@
 
 require_once("oeDispatcher.php");
 require_once(dirname(__FILE__) . "/../../../_rest_config.php");
+require_once(dirname(__FILE__) . "/../../../_rest_routes.inc.php");
 
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\oeHttp;
