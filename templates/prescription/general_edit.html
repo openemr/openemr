@@ -177,7 +177,7 @@ select{
             <input class="input-sm" type="input" size="35" name="drug" id="drug" value="{$prescription->drug|attr}"/>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
             ({xlt t='click here to search'})</a>
-            <div class="well well-sm" id="hiddendiv" style="display:none">&nbsp;</div>
+            <div class="jumbotron jumbotron-fluid" id="hiddendiv" style="display:none">&nbsp;</div>
   </td>
 </tr>
 {if $DRUG_ARRAY_VALUES}
