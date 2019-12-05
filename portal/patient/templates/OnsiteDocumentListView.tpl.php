@@ -222,28 +222,12 @@ function restoreDocumentEdits() {
         width: 1220px;
     }
 }
-
-/*hr {
-    margin-top: 2px;
-    margin-bottom: 2px;
-    border: 0;
-    border-top: 2px solid #eee;
-}
-.h4, .h5, .h6, h4, h5, h6 {
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
-body {
-    margin-top: 10px;
-    overflow-y: scroll;
-    touch-action: auto;
-}*/
 </style>
 <script type="text/template" id="onsiteDocumentModelTemplate">
 <div class="container-fluid">
 <div class="row">
-    <nav class="nav-sidebar bg-light">
-        <div class="sidebar-expand d-md-none"><i class="fa fa-angle-right"></i></button>
+    <nav class="nav-sidebar sidebar-h-40 bg-light">
+        <div class="sidebar-expand d-md-none"><button type="button"><i class="fa fa-angle-right"></i></button>
         </div>
         <div class="sidebar-header d-none d-md-block">
             <h4><?php echo xla('Actions') ?></h4>
@@ -251,21 +235,21 @@ body {
         </div>
         <div class="sidebar-content d-none d-md-block">
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a class="nav-link id=" signTemplate" href="#openSignModal"
+                <li class="nav-item"><a class="nav-link text-primary" id="signTemplate" href="#openSignModal"
                     data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
-                <li class="nav-item"><a class="nav-link" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
-                <li class="nav-item"><a class="nav-link" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
-                <li class="nav-item"><a class="nav-link" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
-                <li class="nav-item"><a class="nav-link" id="sendTemplate" href="#"><?php echo xlt('Send for Review'); ?></a></li>
-                <li class="nav-item"><a class="nav-link" id="chartTemplate" href="#"><?php echo xlt('Chart to Category') . ' ' . text($catname); ?></a></li>
-                <li class="nav-item"><a class="nav-link" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
+                <li class="nav-item"><a class="nav-link text-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
+                <li class="nav-item"><a class="nav-link text-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
+                <li class="nav-item"><a class="nav-link text-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
+                <li class="nav-item"><a class="nav-link text-primary" id="sendTemplate" href="#"><?php echo xlt('Send for Review'); ?></a></li>
+                <li class="nav-item"><a class="nav-link text-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to Category') . ' ' . text($catname); ?></a></li>
+                <li class="nav-item"><a class="nav-link text-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                 <?php if (!$is_module) { ?>
                     <li class="nav-item">
-                        <a class="btn btn-outline-danger" id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home'); ?></a>
+                        <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
                     </li>
                 <?php } else { ?>
                     <li class="">
-                        <a class="btn btn-outline-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
+                        <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
                     </li>
                 <?php } ?>
             </ul>
@@ -322,7 +306,7 @@ body {
             <?php require_once(dirname(__FILE__) . '/../../lib/template_menu.php'); ?>
             <?php if (!$is_module) { ?>
                 <li class="nav-item">
-                    <a class="btn btn-outline-danger" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Exit'); ?></a>
+                    <a class="btn btn-outline-danger" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
                 </li>
             <?php } else { ?>
                 <li class="nav-item">
@@ -368,25 +352,6 @@ body {
     </div>
 </div>
 </script>
-<!-- modal edit dialog -->
-<div class="modal fade" id="onsiteDocumentDetailDialog" tabindex="-1">
-<div class="modal-dialog modal-xl">
-    <div class="modal-content">
-        <div class="modal-header"><a class="close" data-dismiss="modal">×</a>
-            <h3><i class="icon-edit"></i> <?php echo xlt('Edit Document'); ?>
-                <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
-            </h3>
-        </div>
-        <div class="modal-body">
-            <div id="modelAlert"></div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
-            <button id="saveOnsiteDocumentButton" class="btn btn-primary"><?php echo xlt('Save Changes'); ?></button>
-        </div>
-    </div>
-</div>
-</div>
 <!-- processed templates go here.-->
 <div id="onsiteDocumentModelContainer" class="modelContainer"></div>
 <div id="onsiteDocumentCollectionContainer" class="collectionContainer"></div>
@@ -394,6 +359,6 @@ body {
 $this->display('_Footer.tpl.php');
 ?>
 
-    </div> <!--body -->
-    </div><!--html -->
+</div> <!--body -->
+</div><!--html -->
 
