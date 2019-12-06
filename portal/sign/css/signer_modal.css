@@ -12,6 +12,18 @@ html,
 body {
     touch-action: none;
 }
+/* override width to give user some space */
+@media (min-width: 576px) {
+    .model-dialog {
+        max-width: 98% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 98% !important;
+    }
+}
 
 .signature-pad-body {
     position: relative;

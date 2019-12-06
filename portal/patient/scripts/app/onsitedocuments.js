@@ -348,7 +348,8 @@ var page = {
         }
         let cdate = page.onsiteDocument.get('createDate');
         let s = page.onsiteDocument.get('denialReason');
-        $('#docPanelHeader').append(' : ' + dn + ' Dated: '+cdate+' Status: ' + s);
+        let displayDn = dn.replace(/_/g, ' ').replace(/.tpl/gi, '');
+        $('#docPanelHeader').append(' : ' + displayDn + ' Dated: '+cdate+' Status: ' + s);
     },
     /**
      * show the doc for editing

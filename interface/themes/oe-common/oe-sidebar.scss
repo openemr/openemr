@@ -1,19 +1,40 @@
-/* author sjpadgett to be built upon */
-html,
-body-notop {
+/**
+ *  Sidebar
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+.body-notop {
     overflow-x: hidden !important;
     -webkit-font-smoothing: antialiased;
-    /*min-height: 100%;*/
-    background: #f1f2f7;
-
 }
-body-topnav {
-    padding-top: 50px;
+
+.body-notop .nav-sidebar {
+    margin-top: 1.1rem;
+    max-height: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.body-topnav {
+    overflow-x: hidden !important;
+    -webkit-font-smoothing: antialiased;
+    padding-top: 50px
+}
+
+.body-topnav .nav-sidebar {
+    top: unset;
+    bottom: unset;
+    left: unset
 }
 /* if not a grid then main available */
 main {
     margin-left: 225px;
-    /* Should match width of .nav-sidebar. */
     padding: 1rem 15px;
     width: 100%
 }
@@ -59,11 +80,9 @@ main {
 
 .nav-sidebar {
     position: fixed;
-    margin-top: 1.1rem;
-    max-height: 100%;
-    /* Should match width of main margin-left*/
+    height: 100%;
     width: 225px;
-    top: 0px;
+    top: 0;
     bottom: 0;
     left: 0;
     z-index: 1000;
@@ -71,23 +90,23 @@ main {
     overflow-y: auto;
     border-right: 1px solid #eee;
     white-space: nowrap;
-    transition: all 0.5s ease;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
+    transition: all .5s ease;
+    -webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -o-transition: all .5s ease
 }
 
 .sidebar-h-40 {
-    max-height: 40% !important;
+    max-height: 40% !important
 }
 
 .sidebar-h-60 {
-    max-height: 60% !important;
+    max-height: 60% !important
 }
 
 .sidebar-expand {
     display: inline-flex;
-    margin: 0 0 1rem 0;
+    margin: 0 0 1rem
 }
 
 .sidebar-expand button {
@@ -98,78 +117,83 @@ main {
     border-width: 0;
     border-color: rgba(255, 255, 255, .1);
     cursor: pointer;
-    transition: all 0.5s ease;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
+    transition: all .5s ease;
+    -webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -o-transition: all .5s ease
 }
 
 .sidebar-header {
-    padding: 0 1rem;
+    padding: 0 1rem
 }
 
-@media (max-width:767px) {
-    #nav-topbar .brand-container,
-    .nav-sidebar {
-        width: 30px;
+@media (max-width: 767px) {
+    #nav-topbar .brand-container, .nav-sidebar {
+        width: 30px
     }
-    #nav-topbar .brand-container.active,
-    .nav-sidebar.active {
+
+    .body-topnav .nav-sidebar {
+        width: 0;
+    }
+
+    #nav-topbar .brand-container.active, .nav-sidebar.active {
         width: 225px;
         min-width: 30px;
-        max-width: 225px;
+        max-width: 225px
     }
+
     .nav-sidebar.active .sidebar-content {
-        display: block !important;
+        display: block !important
     }
+
     main {
-        margin-left: 30px;
+        margin-left: 30px
     }
+
+    .main-full {
+        margin-left: 0
+    }
+
 }
-
-
-/*
- * Transforms
- */
 
 .rotate-90cw {
     transform: rotate(90deg);
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
+    -ms-transform: rotate(90deg)
 }
 
 .rotate-180cw {
     transform: rotate(180deg);
     -webkit-transform: rotate(180deg);
     -moz-transform: rotate(180deg);
-    -ms-transform: rotate(180deg);
+    -ms-transform: rotate(180deg)
 }
 
 .rotate-90ccw {
     transform: rotate(-90deg);
     -webkit-transform: rotate(-90deg);
     -moz-transform: rotate(-90deg);
-    -ms-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg)
 }
 
 .rotate-180ccw {
     transform: rotate(-180deg);
     -webkit-transform: rotate(-180deg);
     -moz-transform: rotate(-180deg);
-    -ms-transform: rotate(-180deg);
+    -ms-transform: rotate(-180deg)
 }
 
 .flip-y {
     transform: perspective(100px) rotateY(180deg);
     -webkit-transform: perspective(100px) rotateY(180deg);
     -moz-transform: perspective(100px) rotateY(180deg);
-    -ms-transform: perspective(100px) rotateY(180deg);
+    -ms-transform: perspective(100px) rotateY(180deg)
 }
 
 .flip-x {
     transform: perspective(100px) rotateX(180deg);
     -webkit-transform: perspective(100px) rotateX(180deg);
     -moz-transform: perspective(100px) rotateX(180deg);
-    -ms-transform: perspective(100px) rotateX(180deg);
+    -ms-transform: perspective(100px) rotateX(180deg)
 }
