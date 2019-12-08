@@ -164,7 +164,6 @@ function dialogID() {
 *
 * */
 function includeScript(url, async, type) {
-
     try {
         let rqit = new XMLHttpRequest();
         if (type === "link") {
@@ -193,7 +192,7 @@ function includeScript(url, async, type) {
             }
         }
 
-        throw new Error("Failed to get URL:" + url);
+        new Error("Failed to get URL:" + url);
 
     } catch (e) {
         throw e;
@@ -205,13 +204,13 @@ function includeScript(url, async, type) {
 function inDom(dependency, type, remove) {
     let el = type;
     let attr = type === 'script' ? 'src' : type === 'link' ? 'href' : 'none';
-    let all = document.getElementsByTagName(el)
+    let all = document.getElementsByTagName(el);
     for (let i = all.length; i > -1; i--) {
-        if (all[i] && all[i].getAttribute(attr) != null && all[i].getAttribute(attr).indexOf(dependency) != -1) {
+        if (all[i] && all[i].getAttribute(attr) !== null && all[i].getAttribute(attr).indexOf(dependency) !== -1) {
             if (remove) {
                 all[i].parentNode.removeChild(all[i]);
-                console.log("Removed from DOM: " + dependency)
-                return true
+                console.log("Removed from DOM: " + dependency);
+                return true;
             } else {
                 return true;
             }
@@ -254,13 +253,12 @@ if (typeof alertMsg !== "function") {
             let oSize = (size == 'lg') ? 'left:10%;width:80%;' : 'left:25%;width:50%;';
             let style = "position:fixed;top:25%;" + oSize + " bottom:0;z-index:9999;";
             $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
-            let mHtml = '<div id="alertmsg" hidden class="alert alert-' + type + ' alert-dismissable">' +
+            let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
                 '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-dismiss="alert">' +
                 xl.alert.gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
                 '<h4 class="alert-heading text-center">' + xl.alert.title + '!</h4><hr>' + '<p style="color:#000;">' + message + '</p>' +
                 '<button type="button" class="pull-right btn btn-link" data-dismiss="alert">' + xl.alert.dismiss + '</button></br></div>';
             $('#alert_box').append(mHtml);
-            $('#alertmsg').fadeIn(800);
             $('#alertmsg').on('closed.bs.alert', function () {
                 clearTimeout(AlertMsg);
                 $('#alert_box').remove();
@@ -290,7 +288,7 @@ if (typeof alertMsg !== "function") {
                 setting: value
             },
             beforeSend: function () {
-                top.restoreSession;
+                top.restoreSession();
             },
             error: function (jqxhr, status, errorThrown) {
                 console.log(errorThrown);
@@ -381,10 +379,9 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         let bscss = top.webroot_url + '/public/assets/bootstrap/dist/css/bootstrap.min.css';
         let bscssRtl = top.webroot_url + '/public/assets/bootstrap-rtl/dist/css/bootstrap-rtl.min.css';
         let bsurl = top.webroot_url + '/public/assets/bootstrap/dist/js/bootstrap.min.js';
-        let jqui = top.webroot_url + '/public/assets/jquery-ui/jquery-ui.min.js';
 
         let version = jQuery.fn.jquery.split(' ')[0].split('.');
-        if ((version[0] < 2 && version[1] < 9) || (version[0] == 1 && version[1] == 9 && version[2] < 1)) {
+        if ((version[0] < 2 && version[1] < 9) || (version[0] === 1 && version[1] === 9 && version[2] < 1)) {
             inDom('jquery-min', 'script', true);
             includeScript(jqurl, false, 'script');
             console.log('Replacing jQuery version:[ ' + version + ' ]');
@@ -398,9 +395,6 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         if (typeof jQuery.fn.modal === 'undefined') {
             if (!inDom('bootstrap.min.js', 'script', false))
                 includeScript(bsurl, false, 'script');
-        }
-        if (typeof jQuery.ui === 'undefined') {
-            includeScript(jqui, false, 'script');
         }
     });
 
@@ -417,8 +411,10 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         onClosed: false,
         callBack: false // use {call: 'functionName, args: args, args} if known or use dlgclose.
     };
-    if (!opts) var opts = {};
 
+    if (!opts) {
+        opts = {};
+    }
     opts = jQuery.extend({}, opts_defaults, opts);
     opts.type = opts.type ? opts.type.toLowerCase() : '';
 
@@ -427,7 +423,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
     where = opts.type === 'iframe' ? top : window;
 
     // get url straight...
-    var fullURL = "";
+    fullURL = "";
     if (opts.url) {
         url = opts.url;
     }
@@ -489,24 +485,34 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             '&times;</button></div>').replace('%title%', mTitle);
 
     var frameHtml =
-        ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>').replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
+        ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>')
+        .replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
 
-    var bodyStyles = (' style="overflow-y:auto;margin:2px;padding:2px;height:%initHeight%;max-height:92vh;"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
+    var bodyStyles = (' style="overflow-y:inherit;height:%initHeight%;max-height:92vh;"')
+        .replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
 
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
 
+    const position = { x: 0, y: 0 };
+
     var mhtml =
         ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sStyle%' +
-            '<style></style>' +
+            '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
             '<div %dialogId% class="modal-dialog %szClass%" role="document">' +
-            '<div class="modal-content">' +
-            '%head%' + '%altclose%' + '%wait%' +
-            '<div class="modal-body" %bodyStyles%>' +
-            '%body%' + '</div></div></div></div>').replace('%id%', winname).replace('%sStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%szClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%wait%', '') // maybe option later
-        .replace('%bodyStyles%', bodyStyles).replace('%body%', opts.type === 'iframe' ? frameHtml : '');
+            '<div class="modal-content %drag-resize%">' + '%head%' + '%altclose%' + '%wait%' +
+            '<div class="modal-body px-1" %bodyStyles%>' + '%body%' + '</div></div></div></div>')
+        .replace('%id%', winname)
+        .replace('%sStyle%', msSize ? msSize : '')
+        .replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '')
+        .replace('%szClass%', mSize ? mSize : '')
+        .replace('%head%', mTitle !== '' ? headerhtml : '')
+        .replace('%altclose%', mTitle === '' ? altClose : '')
+        .replace('%drag-resize%', (opts.allowDrag || opts.allowResize) ? 'drag-resize' : '')
+        .replace('%wait%', '')
+        .replace('%bodyStyles%', bodyStyles)
+        .replace('%body%', opts.type === 'iframe' ? frameHtml : '');
 
     // Write modal template.
-    //
     dlgContainer = where.jQuery(mhtml);
     dlgContainer.attr("name", winname);
 
@@ -560,21 +566,10 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             }
 
             dlgContainer.on('show.bs.modal', function () {
-                if (opts.allowResize) {
-                    jQuery('.modal-content', this).resizable({
-                        grid: [5, 5],
-                        animate: true,
-                        //animateEasing: "swing",
-                        animateDuration: "fast",
-                        alsoResize: jQuery('div.modal-body', this)
-                    })
+                if (opts.allowResize || opts.allowDrag) {
+                    initDragResize('.drag-resize', where.document);
                 }
-                if (opts.allowDrag) {
-                    jQuery('.modal-dialog', this).draggable({
-                        iframeFix: true,
-                        cursor: false
-                    });
-                }
+
             }).on('shown.bs.modal', function () {
                 // Remove waitHtml spinner/loader etc.
                 jQuery(this).parent().find('div.loadProgress').fadeOut(function () {
@@ -636,7 +631,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             return dlgContainer;
 
         }); // end events
-    });
+    }); /* promise */
 
     // Ajax call with promise
     function dialogAjax(data, $dialog, opts) {

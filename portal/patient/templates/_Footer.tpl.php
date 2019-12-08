@@ -2,9 +2,9 @@
 <div class="container">
     <hr>
     <footer>
-        <p class="muted">
-            <small><?php echo xlt('Onsite Patient Portal'); ?> GNU General Public License 3 Portal Rel v5.0.3 Copyright &copy; <?php echo date('Y'); ?> By
-                sjpadgett@gmail.com
+        <p class="muted text-sm-center">
+            <small><?php echo xlt('Patient Portal'); ?> v5.0.3 Copyright &copy; <?php echo date('Y'); ?> By
+                sjpadgett@gmail.com License GPLv3
             </small>
         </p>
     </footer>

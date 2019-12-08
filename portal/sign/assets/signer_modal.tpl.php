@@ -24,12 +24,12 @@ $cuser = attr(isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "-patie
 $cpid = attr(isset($_SESSION['pid']) ? $_SESSION['pid'] : "0");
 $api_id = isset($_SESSION['api_csrf_token']) ? $_SESSION['api_csrf_token'] : ''; // portal doesn't do remote
 
-$msg1 = xlt('Show Current');
+$msg1 = xlt('Use Current');
 $msg2 = xlt('Cancel');
 $msg3 = xlt('Is Authorizing Signature');
 $msg4 = xlt('Sign Above');
-$msg5 = xlt('Clear');
-$msg6 = xlt('Acknowledge Electronic Signature');
+$msg5 = xlt('Clear Canvas');
+$msg6 = xlt('Sign and Save');
 $msg7 = xlt('Signatory');
 $msg8 = xlt('Signatory did not sign or Signer was closed.');
 $msg9 = xlt('Waiting for Signature on Signer Pad');
@@ -46,36 +46,31 @@ $vars .= "<script>var apiToken=" . js_escape($api_id) . ";</script>\n";
 // short & sweet dynamic modal
 $modal = <<<MODAL
 $vars
-<div id='openSignModal' class='modal fade' role='dialog' tabindex='-1'>
-<div class='modal-dialog modal-fluid modal-lg'>
-<div class='modal-content'>
-<div class='modal-body signature-pad-body'><span class='sigNav'><label style='display: none;'>
-<input style='display:none;' type='checkbox' id='isAdmin' name='isAdmin' />$msg3</label></span>
-<div class='row sigPad'>
-<div class='sign-body'>
-<div id='signature-pad' class='signature-pad'>
-<div class='embed-responsive embed-responsive-4by3 border border-dark'>
-<canvas class="embed-responsive-item"></canvas>
-</div>
-<div class='signature-pad--footer'>
-<div class='description'>$msg4</div>
-<div class='button-group'>
-<div class='clearfix'>
-<button type='button' class='btn btn-primary btn-sm clear' data-action='clear'>$msg5</button>
-<button type='button' class='btn btn-link btn-sm' data-dismiss='modal'><span>$msg2</span></button>
-<button type='button' class='btn btn-primary btn-sm save' data-action='save_signature'>$msg6</button>
-<button class='btn btn-primary btn-sm' data-action='place' data-type='patient-signature' id='signatureModal'>$msg1</button>
-<button type='button' class='btn btn-primary btn-sm send' data-action='send_signature' style='display:none'>$msg6</button>
-<span><h6 id='labelName'></h6></span></div>
-<input type='hidden' id='name' /><input type='hidden' id='user' value='$cuser' /><input type='hidden' id='pid' value='$cpid' />
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
+<div id='openSignModal' class='modal fade' role='document' tabindex='-1'>
+    <div class='modal-dialog modal-xl'>
+        <div class='modal-content signature-pad'>
+            <div class='modal-body signature-pad-body'><span class='sigNav'><label style='display: none;'>
+                <input style='display:none;' type='checkbox' id='isAdmin' name='isAdmin' />$msg3</label></span>
+                <div class='row signature-pad-content'>
+                    <div class='embed-responsive embed-responsive-21by9 border border-dark'>
+                        <canvas class="canvas embed-responsive-item"></canvas>
+                    </div>
+                    <div class='signature-pad-footer text-dark'>
+                        <div class='description'>$msg4</div>
+                        <div class='button-group signature-pad-actions bg-light'>
+                                <button type='button' class='btn btn-secondary btn-sm clear' data-action='clear'>$msg5</button>
+                                <button type='button' class='btn btn-secondary btn-sm' data-action='place' data-type='patient-signature' id='signatureModal'>$msg1</button>
+                                <button type='button' class='btn btn-secondary btn-sm send' data-action='send_signature' style='display:none'>$msg6</button>
+                                <button type='button' class='btn btn-secondary btn-sm text-danger' data-dismiss='modal'><span>$msg2</span></button>
+                                <button type='button' class='btn btn-success btn-sm save' data-action='save_signature'>$msg6</button>
+                                <span><h6 id='labelName'></h6></span>
+                            <input type='hidden' id='name' /><input type='hidden' id='user' value='$cuser' /><input type='hidden' id='pid' value='$cpid' />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 MODAL;
 

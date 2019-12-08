@@ -64,6 +64,7 @@
     "i18next": "16.0.0",
     "i18next-browser-languagedetector": "2.0.0",
     "i18next-xhr-backend": "1.4.3",
+    "interactjs": "^1.7.2",
     "jquery": "3.1.1",
     "jquery-datetimepicker": "2.5.20",
     "jscolor": "EastDesire/jscolor",
@@ -80,7 +81,6 @@
     "validate.js": "0.12.0"
   },
   "napa": {
-    "bootstrap-sidebar": "https://github.com/asyraf9/bootstrap-sidebar/archive/v0.2.2.tar.gz",
     "jquery-creditcardvalidator": "https://github.com/PawelDecowski/jquery-creditcardvalidator/archive/v1.1.0.tar.gz",
     "jquery-panelslider": "https://github.com/eduardomb/jquery-panelslider/archive/0.1.1.tar.gz",
     "jquery-ui": "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip",
