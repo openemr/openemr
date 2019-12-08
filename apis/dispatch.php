@@ -15,6 +15,7 @@
 
 
 require_once("./../_rest_config.php");
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 
 $gbl = RestConfig::GetInstance();
 $base_path = $gbl::$ROOT_URL;
@@ -77,6 +78,12 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 
 require_once("./../interface/globals.php");
 require_once("./../library/acl.inc");
+
+//Extend API using RestApiCreateEvent
+$restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP);
+$restApiCreateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiCreateEvent::EVENT_HANDLE, $restApiCreateEvent, 10);
+$gbl::$ROUTE_MAP = $restApiCreateEvent->getRouteMap();
+$gbl::$FHIR_ROUTE_MAP = $restApiCreateEvent->getFHIRRouteMap();
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
