@@ -196,7 +196,7 @@ class Practice extends Base
             //for custom installs, insert custom apptstatus here that mean appt is not happening/changed
             if ($result2['pc_apptstatus'] =='*' ||  //confirmed
                 $result2['pc_apptstatus'] =='%' ||  //cancelled < 24hour
-                $result2['pc_apptstatus'] =='x' ) { //cancelled
+                $result2['pc_apptstatus'] =='x') { //cancelled
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
                 sqlQuery($sqlUPDATE, array($result2['pc_apptstatus'],$result2['msg_uid']));
                 $tell_MedEx['DELETE_MSG'][] = $result1['msg_pc_eid'];

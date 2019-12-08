@@ -23,7 +23,7 @@ class AMC_304c_Numerator implements AmcFilterIF
              (exist_database_item($patient->id, 'patient_data', 'sex', '', '', 'ge', 1)) &&
              (exist_database_item($patient->id, 'patient_data', 'race', '', '', 'ge', 1)) &&
              (exist_database_item($patient->id, 'patient_data', 'ethnicity', '', '', 'ge', 1)) &&
-             (exist_database_item($patient->id, 'patient_data', 'DOB', '', '', 'ge', 1)) ) {
+             (exist_database_item($patient->id, 'patient_data', 'DOB', '', '', 'ge', 1))) {
             return true;
         } else {
             return false;

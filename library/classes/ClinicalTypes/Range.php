@@ -23,7 +23,7 @@ class Range
     public function test($val)
     {
         if ($val > $this->lowerBound &&
-            $val < $this->upperBound ) {
+            $val < $this->upperBound) {
             return true;
         }
         

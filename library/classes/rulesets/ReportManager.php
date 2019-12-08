@@ -49,7 +49,7 @@ class ReportManager
         
         $results = array();
         if ($report instanceof RsReportIF &&
-            !$report instanceof RsUnimplementedIF ) {
+            !$report instanceof RsUnimplementedIF) {
             $report->execute();
             $results = $report->getResults();
         }

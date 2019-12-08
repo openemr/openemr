@@ -25,7 +25,7 @@ class AMC_302g_Denominator implements AmcFilterIF
         //  (basically needs an encounter within the report dates and needs to be 13 by the end report date)
         $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
         if ((Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
-             ($patient->calculateAgeOnDate($endDate) >= 13) ) {
+             ($patient->calculateAgeOnDate($endDate) >= 13)) {
             return true;
         } else {
             return false;

@@ -54,7 +54,7 @@ class NQF_0028_2014_Numerator implements CqmFilterIF
                     // TODO: how to check for the smoking cessation medication types (can also just be a smoking cessation order, ie. prescription)
                     if (!(empty($smoke_cess)) ||
                          Helper::checkMed(Medication::SMOKING_CESSATION, $patient, $beginMinus24Months, $date) ||
-                         Helper::checkMed(Medication::SMOKING_CESSATION_ORDER, $patient, $beginMinus24Months, $date) ) {
+                         Helper::checkMed(Medication::SMOKING_CESSATION_ORDER, $patient, $beginMinus24Months, $date)) {
                         return true;
                     }
                 } else if (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date)) {
