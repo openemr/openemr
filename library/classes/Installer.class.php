@@ -16,7 +16,6 @@
 
 class Installer
 {
-
     public function __construct($cgi_variables)
     {
         // Installation variables
@@ -1012,14 +1011,7 @@ DSTD;
                 })
             });
             // Jquery draggable
-            $('.modal-dialog').draggable({
-                    handle: ".modal-header, .modal-footer"
-            });
-           $( ".modal-content" ).resizable({
-                aspectRatio: true,
-                minHeight: 300,
-                minWidth: 300
-            });
+            $( ".modal-content" ).addClass('drag-resize');
         </script>
 SETHLP;
         echo $setup_help_modal  ."\r\n";

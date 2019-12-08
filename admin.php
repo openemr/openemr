@@ -251,14 +251,7 @@ function sqlQuery($statement, $link)
                 })
             });
             // Jquery draggable
-            $('.modal-dialog').draggable({
-                    handle: ".modal-header, .modal-footer"
-            });
-           $( ".modal-content" ).resizable({
-                aspectRatio: true,
-                minHeight: 300,
-                minWidth: 300
-            });
+            $( ".modal-content" ).addClass('drag-resize');
         </script>
 </body>
 </html>
