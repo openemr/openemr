@@ -303,22 +303,15 @@ if ($_REQUEST['startdate'] && preg_match(
             }
         }
     }
-    ?>
+    // Get Portal CSS
+    use OpenEMR\Core\Header;
+
+?>
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <title><?php echo xlt('Find Available Appointments'); ?></title>
-<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
-<?php } ?>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-<!-- for the pop up calendar -->
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.bundle.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-
+<?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'opener']); ?>
 <script>
 
 function setappt(year,mon,mday,hours,minutes) {
@@ -398,8 +391,7 @@ function setappt(year,mon,mday,hours,minutes) {
 
     <?php echo xlt('Start date:'); ?>
 
-   <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate); ?>'
-    title='yyyy-mm-dd starting date for search' />
+   <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate); ?>' title='yyyy-mm-dd starting date for search' />
 
     <?php echo xlt('for'); ?>
    <input type='text' name='searchdays' size='3' value='<?php echo attr($searchdays); ?>' title='Number of days to search from the start date' />
@@ -493,12 +485,11 @@ function setappt(year,mon,mday,hours,minutes) {
 <?php endif; ?>
 
 </form>
-</body>
 
-<script language='text/javascript'>
+<script type='text/javascript'>
 
 // jQuery stuff to make the page a little easier to use
-$(function(){
+$(function() {
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult a").mouseover(function () { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
@@ -514,5 +505,5 @@ $(function(){
 });
 
 </script>
-
+</body>
 </html>

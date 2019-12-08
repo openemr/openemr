@@ -487,9 +487,8 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             <br><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?>
             <br><?php echo text($frow['phone']) ?>
         <p>
-        <div style="text-align: center; margin: auto;">
-            <table border='0' cellspacing='8'
-                   style="text-align: center; margin: auto;">
+        <div class="text-center" style="margin: auto;">
+            <table border='0' cellspacing='8' class="text-center" style="margin: auto;">
                 <tr>
                     <td><?php echo xlt('Date'); ?>:</td>
                     <td><?php echo text(oeFormatSDFT(strtotime($payrow['dtime']))) ?></td>

@@ -41,6 +41,15 @@ assets:
         rtl:
             basePath: %webroot%/public/themes/
             link: rtl_%theme_tabs_layout%
+    patientportal-base:
+        basePath: %webroot%/public/themes/portal/
+        link: base.css
+    patientportal-registration:
+        basePath: %webroot%/public/themes/portal/
+        link: register.css
+    patientportal-style:
+        basePath: %webroot%/public/themes/portal/
+        link: style.css
     knockout:
         basePath: %assets_static_relative%/knockout/build/output/
         script: knockout-latest.js
@@ -71,6 +80,10 @@ assets:
     jquery-ui-excite-bike:
         basePath: %assets_static_relative%/jquery-ui-themes/themes/excite-bike/
         link: jquery-ui.min.css
+    jquery-gritter:
+        basePath: %assets_static_relative%/gritter/css/
+        link: jquery.gritter.css
+        script: jquery.gritter.min.js
     datatables:
         basePath: %assets_static_relative%/datatables.net/js/
         script: jquery.dataTables.js
@@ -171,6 +184,9 @@ assets:
         basePath: %assets_static_relative%/summernote/dist/
         script: summernote.js
         link: summernote.css
+    summernote-ext-nugget:
+        basePath: %assets_static_relative%/summernote-nugget/plugins/nugget/
+        script: summernote-ext-nugget.js
     shortcut:
         basePath: %assets_static_relative%/manual-added-package/shortcut.js-2-01-B/
         script: shortcut.js

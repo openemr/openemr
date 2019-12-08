@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * Copyright (C) 2011 Cassian LUP <cassi.lup@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or

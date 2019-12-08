@@ -139,12 +139,8 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <?php
-    Header::setupHeader(['no_main-theme', 'datetime-picker']);
+    Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-gritter', 'patientportal-base', 'patientportal-registration']);
     ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/js/jquery.gritter.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/css/jquery.gritter.css" />
-    <link rel="stylesheet" type="text/css" href="assets/css/base.css?v=<?php echo $v_js_includes; ?>" />
-    <link rel="stylesheet" type="text/css" href="assets/css/register.css?v=<?php echo $v_js_includes; ?>" />
     <script type="text/javascript">
         function checkUserName() {
             let vacct = document.getElementById('uname').value;

@@ -565,13 +565,16 @@ if ($userid) {
     $e2f = $pref_facility['facility_id'];
     $e2f_name = $pref_facility['facility'];
 }
+
+// Get Portal CSS
+use OpenEMR\Core\Header;
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-<title><?php echo $eid ? xlt("Edit Event") : xlt("Add New Event"); ?></title>
-<link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <title><?php echo $eid ? xlt("Edit Event") : xlt("Add New Event"); ?></title>
+    <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'opener']); ?>
 </head>
 <script>
 var durations = new Array();

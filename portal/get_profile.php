@@ -38,42 +38,45 @@ $N = 7;
 ?>
 
 <style>
-.insurance .table .bold {
-    font-weight: bold;
-    font-size: 14px;
-}
+    .insurance .table .bold {
+        font-weight: bold;
+        font-size: 14px;
+    }
 
-.insurance .table .text {
-    color: red;
-}
-.demographics .groupname.bold {
-    font-size:18px;
-    color: blue;
-}
-.demographics table .bold {
-    font-weight:normal;
-    font-size:16px;
-    color:green;
-    padding: 1px;
-    border-top: 0;
-}
-.demographics table .text {
-    font-weight: normal;
-    font-size: 15px;
-    color: red;
-}
+    .insurance .table .text {
+        color: red;
+    }
 
-.demographics .table td {
-    padding: 1px;
-    border-top: 0;
-}
+    .demographics .groupname.bold {
+        font-size: 18px;
+        color: blue;
+    }
+
+    .demographics table .bold {
+        font-weight: normal;
+        font-size: 16px;
+        color: green;
+        padding: 1px;
+        border-top: 0;
+    }
+
+    .demographics table .text {
+        font-weight: normal;
+        font-size: 15px;
+        color: red;
+    }
+
+    .demographics .table td {
+        padding: 1px;
+        border-top: 0;
+    }
 
 
-.demographics .card-header {
-    padding: 5px 8px;
-    background: #337ab7;
-    color: white;
-}
+    .demographics .card-header {
+        padding: 5px 8px;
+        background: #337ab7;
+        color: white;
+    }
 </style>
 <body>
 
@@ -86,9 +89,9 @@ $N = 7;
     <div class="card">
             <header class="card-header"><?php echo xlt('Profile Demographics'); ?>
             <?php if ($pending) {
-                echo '<button type="button" id="editDems" class="btn btn-danger btn-sm float-right" style="color:white;font-size:14px">' . xlt('Pending Review') . '</button>';
+                echo '<button type="button" id="editDems" class="btn btn-danger btn-sm float-right text-white" style="font-size:14px">' . xlt('Pending Review') . '</button>';
             } else {
-                echo '<button type="button" id="editDems" class="btn btn-success btn-sm float-right" style="color:white;font-size:14px">' . xlt('Revise') . '</button>';
+                echo '<button type="button" id="editDems" class="btn btn-success btn-sm float-right text-white" style="font-size:14px">' . xlt('Revise') . '</button>';
             }
             ?>
             </header>
