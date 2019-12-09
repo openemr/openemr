@@ -283,7 +283,8 @@ HELP;
         $jquery_draggable = <<<JQD
         <script>
         // Jquery draggable
-            $( ".modal-content" ).addClass('drag-resize');
+            $(".modal-dialog").addClass('drag-action');
+            $(".modal-content").addClass('resize-action');
             var helpTitle = $('#help-href').prop('title');
             $('#myModal').on('hidden.bs.modal', function (e) {
                 $('#help-href').prop('title', '');

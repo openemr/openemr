@@ -25,7 +25,7 @@ div.closeDlgIframe:before {
     height: 25px;
 }
 /* important for drag and resizing */
-.drag-resize {
+.drag-action, .resize-action, .drag-resize {
     touch-action: none;
     user-select: none;
 }

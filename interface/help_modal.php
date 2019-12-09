@@ -62,5 +62,6 @@ echo $help_modal;
     });
 
     // Jquery draggable
-    $( ".modal-content" ).addClass('drag-resize');
+    $(".modal-dialog").addClass('drag-action');
+    $(".modal-content").addClass('resize-action');
 </script>

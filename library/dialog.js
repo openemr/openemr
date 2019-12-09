@@ -47,6 +47,16 @@
             dlgCloseAjax();
         }
     });
+
+    if (typeof window.interact !== 'function') {
+        let utilfn = top.webroot_url + '/library/js/utility.js';
+        let load = async () => {
+            await includeScript(utilfn, false, 'script');
+        };
+        load().then(rtn => {
+            console.log('Utilities Unavailable! loading:[ ' + utilfn + ' ] For: [ ' + location + ' ]');
+        });
+    }
 }(typeof define == 'function' && define.amd ?
     define :
     function (args, mName) {
@@ -54,6 +64,7 @@
             mName(require(args[0], {}), module.exports) :
             mName(window.$);
     }));
+
 
 // open a new cascaded window
 function cascwin(url, winname, width, height, options) {
@@ -496,18 +507,19 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
     const position = { x: 0, y: 0 };
 
     var mhtml =
-        ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sStyle%' +
+        ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sizeStyle%' +
             '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
-            '<div %dialogId% class="modal-dialog %szClass%" role="document">' +
-            '<div class="modal-content %drag-resize%">' + '%head%' + '%altclose%' + '%wait%' +
+            '<div %dialogId% class="modal-dialog %drag-action% %sizeClass%" role="document">' +
+            '<div class="modal-content %resize-action%">' + '%head%' + '%altclose%' + '%wait%' +
             '<div class="modal-body px-1" %bodyStyles%>' + '%body%' + '</div></div></div></div>')
         .replace('%id%', winname)
-        .replace('%sStyle%', msSize ? msSize : '')
+        .replace('%sizeStyle%', msSize ? msSize : '')
         .replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '')
-        .replace('%szClass%', mSize ? mSize : '')
+        .replace('%sizeClass%', mSize ? mSize : '')
         .replace('%head%', mTitle !== '' ? headerhtml : '')
         .replace('%altclose%', mTitle === '' ? altClose : '')
-        .replace('%drag-resize%', (opts.allowDrag || opts.allowResize) ? 'drag-resize' : '')
+        .replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '')
+        .replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '')
         .replace('%wait%', '')
         .replace('%bodyStyles%', bodyStyles)
         .replace('%body%', opts.type === 'iframe' ? frameHtml : '');
@@ -546,6 +558,8 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
 
     // Write the completed template to calling document or 'where' window.
     where.jQuery("body").append(dlgContainer);
+
+    // We promised
     return new Promise((resolve, reject) => {
         jQuery(function () {
             // DOM Ready. Handle events and cleanup.
@@ -565,11 +579,11 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
                 });
             }
 
+            // events chain.
             dlgContainer.on('show.bs.modal', function () {
                 if (opts.allowResize || opts.allowDrag) {
-                    initDragResize('.drag-resize', where.document);
+                    initDragResize(document, where.document);
                 }
-
             }).on('shown.bs.modal', function () {
                 // Remove waitHtml spinner/loader etc.
                 jQuery(this).parent().find('div.loadProgress').fadeOut(function () {
@@ -579,7 +593,6 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             }).on('hidden.bs.modal', function (e) {
                 // remove our dialog
                 jQuery(this).remove();
-
                 // now we can run functions in our window.
                 if (opts.onClosed) {
                     console.log('Doing onClosed:[' + opts.onClosed + ']');
@@ -597,7 +610,10 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
                         window[opts.callBack.call](opts.callBack.args);
                     }
                 }
-
+                // We resolve on modal closing so we can run after action items.
+                // Todo: Move our closed and callback functions to new library function.
+                // then() continue promise chain back to calling script.
+                //
                 resolve(true);
 
             }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal

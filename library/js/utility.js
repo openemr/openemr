@@ -71,22 +71,23 @@ function includeDependency(url, async, type) {
 *
 */
 document.addEventListener('DOMContentLoaded', function () {
-    let isNeeded = document.querySelectorAll('.drag-resize').length;
-    if (isNeeded) {
-        initDragResize(".drag-resize");
+    let isNeeded = document.querySelectorAll('.drag-action').length;
+    let isNeededResize = document.querySelectorAll('.resize-action').length;
+    if (isNeeded || isNeededResize) {
+        initDragResize();
     }
 
 }, false);
 
 /*
-* function initDragResize(interactors = '.drag-resize', context = document)
+* @function initDragResize(dragContext, resizeContext)
 * @summary call this function from scripts you may want to provide a different
 *  context other than the page context of this utility
 *
 * @param {string} selector of element to apply drag.
 * @param {object} optional context of element. document is default.
 */
-function initDragResize(interactors = '.drag-resize', context = document) {
+function initDragResize(dragContext, resizeContext = document) {
     let isLoaded = typeof window.interact;
     if (isLoaded !== 'function') {
         let load = async () => {
@@ -94,19 +95,22 @@ function initDragResize(interactors = '.drag-resize', context = document) {
             await includeScript(interactfn, false, 'script');
         };
         load().then(rtn => {
-            initInteractors(".drag-resize", context);
+            initInteractors(dragContext, resizeContext);
         });
     }
 }
 
-/* function to init all page drag elements.*/
-function initInteractors(interactors = '.drag-resize', context = document) {
-    interact(interactors, {context: context}).draggable({
+/* function to init all page drag/resize elements.*/
+function initInteractors(dragContext = document, resizeContext = '') {
+    resizeContext = resizeContext ? resizeContext : dragContext;
+    /* Draggable */
+    interact(".drag-action", {context: dragContext}).draggable({
+        enabled: true,
         inertia: true,
         restrict: {
-            //restriction: "parent",
+            restriction: "parent",
             endOnly: true,
-            elementRect: {top: 1, left: 1, bottom: 1, right: 1}
+            elementRect: {top: 0, left: 0, bottom: 1, right: 1}
         },
         snap: {
             targets: [interact.createSnapGrid({x: 1, y: 1})],
@@ -117,18 +121,35 @@ function initInteractors(interactors = '.drag-resize', context = document) {
         maxPerElement: 2
     }).on('dragstart', function (event) {
         event.preventDefault();
-    }).on('dragmove', dragMoveListener).resizable({
+    }).on('dragmove', dragMoveListener);
+
+    /* Resizable */
+    interact(".resize-action", {context: resizeContext}).resizable({
+        enabled: true,
         preserveAspectRatio: false,
         edges: {
-            //left: '.resize-handle',
+            left: '.resize-s',
             right: true,
             bottom: true,
-            top: '.resize-handle'
-        }
+            top: '.resize-s'
+        },
+        inertia: {
+            resistance: 30,
+            minSpeed: 100,
+            endSpeed: 50
+        },
+        snap: {
+            targets: [
+                interact.createSnapGrid({
+                    x: 5, y: 5
+                })
+            ],
+            range: Infinity,
+            relativePoints: [{x: 0, y: 0}]
+        },
     }).on('resizestart', function (event) {
-        //console.info('resizestart = ', event);
+        event.preventDefault();
     }).on('resizemove', function (event) {
-        //console.info('resizemove = ', event);
         let target = event.target;
         let x = (parseFloat(target.getAttribute('data-x')) || 0);
         let y = (parseFloat(target.getAttribute('data-y')) || 0);

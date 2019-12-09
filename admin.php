@@ -251,7 +251,8 @@ function sqlQuery($statement, $link)
                 })
             });
             // Jquery draggable
-            $( ".modal-content" ).addClass('drag-resize');
+            $(".modal-dialog").addClass('drag-action');
+            $(".modal-content").addClass('resize-action');
         </script>
 </body>
 </html>
