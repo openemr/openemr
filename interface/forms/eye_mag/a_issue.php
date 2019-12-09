@@ -637,7 +637,7 @@ foreach (explode(',', $given) as $item) {
 
       <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
       <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery/dist/jquery.min.js"></script>
-      <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/js/bootstrap.min.js"></script>
+      <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
       <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui/jquery-ui.min.js"></script>
       <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
       <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>

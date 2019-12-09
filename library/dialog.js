@@ -377,8 +377,8 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         // Check for dependencies we will need.
         // webroot_url is a global defined in main_screen.php or main.php.
         let bscss = top.webroot_url + '/public/assets/bootstrap/dist/css/bootstrap.min.css';
-        let bscssRtl = top.webroot_url + '/public/assets/bootstrap-rtl/dist/css/bootstrap-rtl.min.css';
-        let bsurl = top.webroot_url + '/public/assets/bootstrap/dist/js/bootstrap.min.js';
+        let bscssRtl = top.webroot_url + '/public/assets/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
+        let bsurl = top.webroot_url + '/public/assets/bootstrap/dist/js/bootstrap.bundle.min.js';
 
         let version = jQuery.fn.jquery.split(' ')[0].split('.');
         if ((version[0] < 2 && version[1] < 9) || (version[0] === 1 && version[1] === 9 && version[2] < 1)) {
@@ -393,7 +393,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             }
         }
         if (typeof jQuery.fn.modal === 'undefined') {
-            if (!inDom('bootstrap.min.js', 'script', false))
+            if (!inDom('bootstrap.bundle.min.js', 'script', false))
                 includeScript(bsurl, false, 'script');
         }
     });

@@ -36,7 +36,7 @@ class BaseController extends AbstractActionController
         //jquery
         '/jquery/dist/jquery.min.js',
         //bootstrap
-        '/bootstrap/dist/js/bootstrap.min.js',
+        '/bootstrap/dist/js/bootstrap.bundle.min.js',
 
     );
 
@@ -79,7 +79,7 @@ class BaseController extends AbstractActionController
 
         //adding bootstrap rtl for rtl languages
         if ($_SESSION['language_direction'] == 'rtl') {
-            $this->cssFiles[] = '/bootstrap-rtl/dist/css/bootstrap-rtl.min.css';
+            $this->cssFiles[] = '/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
         }
 
 
