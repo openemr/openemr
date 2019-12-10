@@ -48,7 +48,7 @@
         }
     });
 
-    if (typeof window.interact !== 'function') {
+    if (typeof window.xl !== 'function') {
         let utilfn = top.webroot_url + '/library/js/utility.js';
         let load = async () => {
             await includeScript(utilfn, false, 'script');

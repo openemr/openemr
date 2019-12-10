@@ -26,6 +26,15 @@ assets:
         rtl:
             basePath: %assets_static_relative%/bootstrap-v4-rtl/dist/
             link: css/bootstrap-rtl.min.css
+    # keep utility and javaScript translations near top of load order.
+    i18next:
+        basePath: %assets_static_relative%/i18next/dist/umd/
+        script: i18next.min.js
+    utility:
+        basePath: %webroot%/library/js/
+        script: utility.js
+        autoload: true
+        allowNoLoad: true
     main-theme:
         alreadyBuilt: true
         link: %css_header%
@@ -177,16 +186,3 @@ assets:
     underscore:
         basePath: %assets_static_relative%/underscore
         script: underscore-min.js
-    userdebug:
-        basePath: %webroot%/library/js/
-        script: userDebug.js
-        autoload: true
-        allowNoLoad: true
-    i18next:
-        basePath: %assets_static_relative%/i18next/dist/umd/
-        script: i18next.min.js
-    utility:
-        basePath: %webroot%/library/js/
-        script: utility.js
-        autoload: true
-        allowNoLoad: true

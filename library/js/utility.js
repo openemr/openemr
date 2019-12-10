@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
 * @summary call this function from scripts you may want to provide a different
 *  context other than the page context of this utility
 *
-* @param {string} selector of element to apply drag.
+* @param {object} context of element to apply drag.
 * @param {object} optional context of element. document is default.
 */
 function initDragResize(dragContext, resizeContext = document) {
@@ -256,3 +256,54 @@ if (typeof persistUserOption !== "function") {
         });
     };
 }
+
+/**
+ * User Debugging Javascript Errors
+ * Turn on/off in Globals->Logging
+ *
+ * @package   OpenEMR Utilities
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ */
+
+if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDebug === '3')) {
+    window.onerror = function (msg, url, lineNo, columnNo, error) {
+        const is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+        const is_firefox = navigator.userAgent.indexOf('Firefox') > -1;
+        const is_safari = navigator.userAgent.indexOf("Safari") > -1;
+
+        var showDebugAlert = function (message) {
+            let errorMsg = [
+                'URL: ' + message.URL,
+                'Line: ' + message.Line + ' Column: ' + message.Column,
+                'Error object: ' + JSON.stringify(message.Error)
+            ].join("\n");
+
+            let msg = message.Message + "\n" + errorMsg;
+            console.error(xl('User Debug Error Catch'), message);
+            alert(msg);
+
+            return false;
+        };
+
+        let string = msg.toLowerCase();
+        let substring = xl("script error"); // translate to catch for language of browser.
+        if (string.indexOf(substring) > -1) {
+            let xlated = xl('Script Error: See Browser Console for Detail');
+            showDebugAlert(xlated);
+        } else {
+            let message = {
+                Message: msg,
+                URL: url,
+                Line: lineNo,
+                Column: columnNo,
+                Error: JSON.stringify(error)
+            };
+
+            showDebugAlert(message);
+        }
+
+        return false;
+    };
+}
+
