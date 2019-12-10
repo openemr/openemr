@@ -42,9 +42,9 @@ switch ($search_any_type) {
 
 ?>
 <script type="text/html" id="patient-data-template">
-    <div>
-        <span class="patientDataColumn">
-            <div class="patientInfo float-element">
+    <div class="d-flex flex-row flex-wrap">
+        <div class="flex-fill">
+            <div class="float-left m-1">
               <!-- ko if: patient -->
                   <div data-bind="with: patient" class="patientPicture">
                       <img data-bind="attr: {src: patient_picture}"
@@ -53,7 +53,7 @@ switch ($search_any_type) {
                   </div>
                 <!-- /ko -->
             </div>
-            <div class="patientInfo">
+            <div>
                 <?php echo xlt("Patient"); ?>:
                 <!-- ko if: patient -->
                     <a class="ptName" data-bind="click:refreshPatient,with: patient" href="#">
@@ -71,25 +71,14 @@ switch ($search_any_type) {
                     </a>
                 <!-- /ko -->
             </div>
-            <div class="patientInfo">
+            <div>
             <!-- ko if: patient -->
                 <span data-bind="text:patient().str_dob()"></span>
                 <!-- /ko -->
-                <div class="oe-expandable-search" id="div-search-globals">
-                <?php //adapted from https://codepen.io/brandonkennedy/pen/yGjsi ?>
-                    <form name="frm_search_globals">
-                        <input type="text" id="anySearchBox" class="<?php echo $any_search_class ?>" name="anySearchBox"
-                               placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
-                        <button type="button" id="search_globals"
-                                class="btn btn-secondary btn-search btn-search1 <?php echo $search_globals_class ?>"
-                                title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>'
-                                data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}">
-                        </button>
-                    </form>
-                </div>
+
             </div>
-        </span>
-        <span class="patientDataColumn">
+        </div>
+        <div class="flex-fill">
         <!-- ko if: patient -->
             <!-- ko with: patient -->
             <a class="btn btn-sm btn-link" data-bind="click: clickEncounterList" href="#"
@@ -140,27 +129,40 @@ switch ($search_any_type) {
             </div>
             <!-- /ko -->
             <!-- /ko -->
-            <!-- /ko -->
-        </span>
+            <!-- /ko --><!-- with patient -->
+        </div>
+        <div class="flex-column mr-2">
+            <span class="oe-expandable-search mr-auto" id="div-search-globals">
+                <?php //adapted from https://codepen.io/brandonkennedy/pen/yGjsi ?>
+                <form name="frm_search_globals">
+                    <input type="text" id="anySearchBox" class="<?php echo $any_search_class ?>" name="anySearchBox"
+                        placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
+                    <button type="button" id="search_globals"
+                        class="btn btn-secondary btn-search btn-search1 <?php echo $search_globals_class ?>"
+                        title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>'
+                        data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}">
+                    </button>
+                </form>
+            </span>
         <!-- ko if: user -->
         <!-- ko with: user -->
         <!-- ko if:messages() -->
-        <span class="messagesColumn">
-                <a class="btn btn-secondary" href="#" data-bind="click: viewMessages"
-                   title="<?php echo xla("View Messages"); ?>">
-                    <i class="fa fa-envelope"></i>&nbsp;<span class="label label-danger" style="display:inline"
-                                                              data-bind="text: messages()"></span>
-                </a>
-            </span>
-        <!-- /ko -->
+        <span>
+            <a class="btn btn-secondary" href="#" data-bind="click: viewMessages"
+               title="<?php echo xla("View Messages"); ?>">
+                <i class="fa fa-envelope"></i>&nbsp;<span class="label label-danger" style="display:inline"
+                                                          data-bind="text: messages()"></span>
+            </a>
+        </span>
+        <!-- /ko --><!-- messages -->
         <!-- ko if: portal() -->
-        <div class="messagesColumn btn-group dropdown">
+        <span class="btn-group dropdown">
             <button class="btn btn-secondary btn-md dropdown-toggle"
                     type="button" id="portalMsgAlerts"
                     data-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="true">
-                <?php echo xlt("Portal Alerts"); ?>&nbsp;
+                <?php echo xlt("Portal"); ?>&nbsp;
                 <span class="label label-danger" data-bind="text: portalAlerts()"></span>
                 <span class="caret"></span>
             </button>
@@ -195,10 +197,11 @@ switch ($search_any_type) {
                     </a>
                 </li>
             </ul>
+        </span>
+        <!-- /ko --><!-- portal alert -->
+        <!-- /ko --><!-- user -->
+        <!-- /ko --><!-- with user -->
         </div>
-        <!-- /ko -->
-        <!-- /ko -->
-        <!-- /ko -->
     </div>
     <!-- /ko -->
 </script>
