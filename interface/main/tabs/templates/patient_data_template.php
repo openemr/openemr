@@ -127,9 +127,9 @@ switch ($search_any_type) {
                     <!-- /ko -->
                 </ul>
             </div>
-            <!-- /ko -->
-            <!-- /ko -->
+            <!-- /ko --><!-- encounter -->
             <!-- /ko --><!-- with patient -->
+            <!-- /ko --><!-- patient -->
         </div>
         <div class="flex-column mr-2">
             <span class="oe-expandable-search mr-auto" id="div-search-globals">
@@ -199,9 +199,8 @@ switch ($search_any_type) {
             </ul>
         </span>
         <!-- /ko --><!-- portal alert -->
-        <!-- /ko --><!-- user -->
         <!-- /ko --><!-- with user -->
+        <!-- /ko --><!-- user -->
         </div>
     </div>
-    <!-- /ko -->
 </script>
