@@ -26,10 +26,6 @@ assets:
         rtl:
             basePath: %assets_static_relative%/bootstrap-v4-rtl/dist/
             link: css/bootstrap-rtl.min.css
-    bootstrap-sidebar:
-        basePath: %assets_static_relative%/bootstrap-sidebar/dist/
-        script: js/sidebar.js
-        link: css/sidebar.css
     main-theme:
         alreadyBuilt: true
         link: %css_header%
@@ -42,14 +38,14 @@ assets:
             basePath: %webroot%/public/themes/
             link: rtl_%theme_tabs_layout%
     patientportal-base:
-        basePath: %webroot%/public/themes/portal/
-        link: base.css
-    patientportal-registration:
-        basePath: %webroot%/public/themes/portal/
-        link: register.css
+        basePath: %webroot%/public/themes/
+        link: patientportal-base.css
+    patientportal-register:
+        basePath: %webroot%/public/themes/
+        link: patientportal-register.css
     patientportal-style:
-        basePath: %webroot%/public/themes/portal/
-        link: style.css
+        basePath: %webroot%/public/themes/
+        link: patientportal-style.css
     knockout:
         basePath: %assets_static_relative%/knockout/build/output/
         script: knockout-latest.js
@@ -81,9 +77,9 @@ assets:
         basePath: %assets_static_relative%/jquery-ui-themes/themes/excite-bike/
         link: jquery-ui.min.css
     jquery-gritter:
-        basePath: %assets_static_relative%/gritter/css/
-        link: jquery.gritter.css
-        script: jquery.gritter.min.js
+        basePath: %assets_static_relative%/gritter/
+        link: css/jquery.gritter.css
+        script: js/jquery.gritter.min.js
     datatables:
         basePath: %assets_static_relative%/datatables.net/js/
         script: jquery.dataTables.js

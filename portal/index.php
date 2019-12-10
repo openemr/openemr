@@ -139,7 +139,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <?php
-    Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-gritter', 'patientportal-base', 'patientportal-registration']);
+    Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-gritter', 'patientportal-base', 'patientportal-register']);
     ?>
     <script type="text/javascript">
         function checkUserName() {
@@ -409,7 +409,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                             echo $hiddenLanguageField;
                         } ?>
                     </form>
-            
+
         </div><!-- div wrapper -->
                 <?php } ?> <!--  logon wrapper -->
 

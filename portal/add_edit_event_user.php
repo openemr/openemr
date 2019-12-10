@@ -41,6 +41,8 @@ require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
 
+use OpenEMR\Core\Header;
+
 // Things that might be passed by our opener.
 //
 $eid = $_GET['eid'];         // only for existing events
@@ -565,10 +567,6 @@ if ($userid) {
     $e2f = $pref_facility['facility_id'];
     $e2f_name = $pref_facility['facility'];
 }
-
-// Get Portal CSS
-use OpenEMR\Core\Header;
-
 ?>
 <!DOCTYPE html>
 <html>

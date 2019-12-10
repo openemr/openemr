@@ -45,6 +45,8 @@ $ignoreAuth = 1;
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Core\Header;
+
 $input_catid = $_REQUEST['catid'];
 
  // Record an event into the slots array for a specified day.
@@ -303,9 +305,6 @@ if ($_REQUEST['startdate'] && preg_match(
             }
         }
     }
-    // Get Portal CSS
-    use OpenEMR\Core\Header;
-
 ?>
 <!DOCTYPE html>
 <html>

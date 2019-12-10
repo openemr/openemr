@@ -12,6 +12,9 @@
  */
 
 require_once("../interface/globals.php");
+
+use OpenEMR\Core\Header;
+
 $getdir = isset($_POST['sel_pt']) ? $_POST['sel_pt'] : 0;
 if ($getdir > 0) {
     $tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/' . convert_safe_file_dir_name($getdir) . '/';
@@ -67,8 +70,6 @@ function getTemplateList($dir)
     $d->close();
     return $retval;
 }
-
-use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
@@ -77,7 +78,7 @@ use OpenEMR\Core\Header;
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'summernote', 'dialog', 'summernote-ext-nugget', 'patientportal-style']); ?>
-    
+
 </head>
 <script>
 var currentEdit = "";
