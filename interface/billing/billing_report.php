@@ -704,127 +704,139 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col">
             <form class="form-inline" name='update_form' method='post' action='billing_process.php'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                    <a class="navbar-brand" href="#"></a>
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#billing-nav-detail" aria-controls="" aria-expanded="false" aria-label="Detail Actions">
+                <nav class="nav navbar-expand-md navbar-light bg-light">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#billing-nav-detail" aria-controls="" aria-expanded="false" aria-label="Actions">
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <!-- begin detail nav -->
-                    <div class="collapse navbar-collapse" id="billing-nav-detail" role="group">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-sm btn-link dropdown-toggle" data-toggle="dropdown"
-                                name="bn_x12_support"
-                                title=""><?php echo xla('X12 OPTIONS') ?>
-                                <span class="caret"></span></button>
+                    <div class="collapse navbar-collapse clearfix" id="billing-nav-detail" role="group">
+                        <div class="btn-group dropdown">
+                            <button type="button" class="btn nav-link btn-link dropdown-toggle" data-toggle="dropdown"
+                                name="bn_x12_support" title=""><?php echo xla('X12 OPTIONS') ?>
+                                <span class="caret"></span>
+                            </button>
                             <ul class="dropdown-menu" role="menu">
                                 <?php if (file_exists($EXPORT_INC)) { ?>
-                                    <li>
-                                        <button type="submit" data-open-popup="true" class="btn btn-sm btn-link btn-download"
+                                    <li class="nav-item">
+                                        <button type="submit" data-open-popup="true" class="btn nav-link btn-link btn-download"
                                             name="bn_external"
                                             title="<?php echo xla('Export to external billing system') ?>"
-                                            value="<?php echo xla("Export Billing") ?>"><?php echo xlt("Export Billing") ?></button>
+                                            value="<?php echo xla("Export Billing") ?>"><?php echo xlt("Export Billing") ?>
+                                        </button>
                                     </li>
-                                    <li>
-                                        <button type="submit" data-open-popup="true" class="btn btn-sm btn-link btn-download"
+                                    <li class="nav-item">
+                                        <button type="submit" data-open-popup="true" class="btn nav-link btn-link btn-download"
                                             name="bn_mark"
-                                            title="<?php echo xla('Mark as billed but skip billing') ?>"><?php echo xlt("Mark as Cleared") ?></button>
+                                            title="<?php echo xla('Mark as billed but skip billing') ?>"><?php echo xlt("Mark as Cleared") ?>
+                                        </button>
                                     </li>
                                 <?php } else { ?>
-                                    <li>
-                                        <button type="button" class="btn btn-sm btn-link btn-download" name="bn_x12" onclick="confirmActions(event, '1');"
-                                            title="<?php echo xla('Generate and download X12 batch') ?>"><?php echo xlt('Generate X12') ?></button>
+                                    <li class="nav-item">
+                                        <button type="button" class="btn nav-link btn-link btn-download" name="bn_x12" onclick="confirmActions(event, '1');"
+                                            title="<?php echo xla('Generate and download X12 batch') ?>"><?php echo xlt('Generate X12') ?>
+                                        </button>
                                     </li>
                                 <?php } ?>
                                 <?php if ($GLOBALS['ub04_support']) { ?>
-                                    <li>
-                                        <button type="submit" class="btn btn-sm btn-link btn-download" name="bn_ub04_x12"
-                                            title="<?php echo xla('Generate Institutional X12 837I') ?>"><?php echo xlt('Generate X12 837I') ?></button>
+                                    <li class="nav-item">
+                                        <button type="submit" class="btn nav-link btn-link btn-download" name="bn_ub04_x12"
+                                            title="<?php echo xla('Generate Institutional X12 837I') ?>"><?php echo xlt('Generate X12 837I') ?>
+                                        </button>
                                     </li>
                                 <?php } ?>
                                 <?php if ($GLOBALS['support_encounter_claims']) { ?>
-                                    <li>
-                                        <button type="submit" class="btn btn-sm btn-link btn-download" name="bn_x12_encounter" onclick="confirmActions(event, '1');"
-                                            title="<?php echo xla('Generate and download X12 encounter claim batch') ?>"><?php echo xlt('Generate X12 Encounter') ?></button>
+                                    <li class="nav-item">
+                                        <button type="submit" class="btn nav-link btn-link btn-download" name="bn_x12_encounter" onclick="confirmActions(event, '1');"
+                                            title="<?php echo xla('Generate and download X12 encounter claim batch') ?>"><?php echo xlt('Generate X12 Encounter') ?>
+                                        </button>
                                     </li>
                                 <?php } ?>
                             </ul>
                         </div>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-sm btn-link dropdown-toggle" data-toggle="dropdown"
+                        <div class="btn-group dropdown">
+                            <button type="button" class="btn nav-link btn-link dropdown-toggle" data-toggle="dropdown"
                                 name="bn_process_hcfa_support"
                                 title=""><?php echo xlt('HCFA FORM') ?>
-                                <span class="caret"></span></button>
+                                <span class="caret"></span>
+                            </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li>
-                                    <button type="button" class="btn btn-sm btn-link btn-download" name="bn_process_hcfa" onclick="confirmActions(event, '2');"
-                                        title="<?php echo xla('Generate and download CMS 1500 paper claims') ?>"><?php echo xlt('CMS 1500 PDF') ?></button>
+                                <li class="nav-item">
+                                    <button type="button" class="btn nav-link btn-link btn-download" name="bn_process_hcfa" onclick="confirmActions(event, '2');"
+                                        title="<?php echo xla('Generate and download CMS 1500 paper claims') ?>"><?php echo xlt('CMS 1500 PDF') ?>
+                                    </button>
                                 </li>
                                 <?php if ($GLOBALS['preprinted_cms_1500']) { ?>
-                                    <li>
-                                        <button type="button" class="btn btn-sm btn-link btn-download" onclick="confirmActions(event, '2');"
+                                    <li class="nav-item">
+                                        <button type="button" class="btn nav-link btn-link btn-download" onclick="confirmActions(event, '2');"
                                             name="bn_process_hcfa_form"
-                                            title="<?php echo xla('Generate and download CMS 1500 paper claims on Preprinted form') ?>"><?php echo xlt('CMS 1500 incl FORM') ?></button>
+                                            title="<?php echo xla('Generate and download CMS 1500 paper claims on Preprinted form') ?>"><?php echo xlt('CMS 1500 Form') ?>
+                                        </button>
                                     </li>
                                 <?php } ?>
-                                <li>
-                                    <button type="button" class="btn btn-sm btn-link btn-download" name="bn_hcfa_txt_file" onclick="confirmActions(event, '3');"
-                                        title="<?php echo xla('Making batch text files for uploading to Clearing House and will mark as billed') ?>"><?php echo xlt('CMS 1500 TEXT') ?></button>
+                                <li class="nav-item">
+                                    <button type="button" class="btn nav-link btn-link btn-download" name="bn_hcfa_txt_file" onclick="confirmActions(event, '3');"
+                                        title="<?php echo xla('Making batch text files for uploading to Clearing House and will mark as billed') ?>"><?php echo xlt('CMS 1500 TEXT') ?>
+                                    </button>
                                 </li>
                             </ul>
                         </div>
                         <?php if ($GLOBALS['ub04_support']) { ?>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-link dropdown-toggle" data-toggle="dropdown"
+                            <div class="btn-group dropdown">
+                                <button type="button" class="btn nav-link btn-link dropdown-toggle" data-toggle="dropdown"
                                     name="bn_process_ub04_support"
                                     title=""><?php echo xlt('UB04 FORM') ?>
-                                    <span class="caret"></span></button>
+                                    <span class="caret"></span>
+                                </button>
                                 <ul class="dropdown-menu" role="menu">
-                                    <li>
-                                        <button type="submit" class="btn btn-sm btn-link btn-download"
+                                    <li class="nav-item">
+                                        <button type="submit" class="btn nav-link btn-link btn-download"
                                             name="bn_process_ub04_form"
-                                            title="<?php echo xla('Generate and download UB-04 CMS1450 with form') ?>"><?php echo xlt('UB04 FORM PDF') ?></button>
+                                            title="<?php echo xla('Generate and download UB-04 CMS1450 with form') ?>"><?php echo xlt('UB04 FORM PDF') ?>
+                                        </button>
                                     </li>
-                                    <li>
-                                        <button type="submit" class="btn btn-sm btn-link btn-download" name="bn_process_ub04"
-                                            title="<?php echo xla('Generate and download UB-04 CMS1450') ?>"><?php echo xlt('UB04 TEXT PDF') ?></button>
+                                    <li class="nav-item">
+                                        <button type="submit" class="btn nav-link btn-link btn-download" name="bn_process_ub04"
+                                            title="<?php echo xla('Generate and download UB-04 CMS1450') ?>"><?php echo xlt('UB04 TEXT PDF') ?>
+                                        </button>
                                     </li>
                                 </ul>
                             </div>
                         <?php } ?>
-                        <button class="btn btn-sm btn-secondary btn-download" data-open-popup="true" name="bn_mark"
+                        <button class="btn nav-link btn-secondary btn-download" data-open-popup="true" name="bn_mark"
                             title="<?php echo xla('Post to accounting and mark as billed') ?>"
-                            type="submit"><?php echo xla('Mark as Cleared') ?></button>
-                        <button class="btn btn-sm btn-secondary btn-undo" data-open-popup="true" name="bn_reopen"
+                            type="submit"><?php echo xla('Mark as Cleared') ?>
+                        </button>
+                        <button class="btn nav-link btn-secondary btn-undo" data-open-popup="true" name="bn_reopen"
                             title="<?php echo xla('Mark as not billed') ?>"
-                            type="submit"><?php echo xlt('Re-Open') ?></button>
+                            type="submit"><?php echo xlt('Re-Open') ?>
+                        </button>
+                        <span class="input-group">
+                            <label for="left_margin"><?php echo xlt('CMS Margins Left'); ?>:</label>
+                            <input type='text' size='2' id='left_margin' name='left_margin'
+                                value='<?php echo attr($left_margin); ?>'
+                                title='<?php echo xla('HCFA left margin in points'); ?>' />
+                            <label for="top_margin"><?php echo xlt('Top'); ?>:</label>
+                            <input type='text' size='2' id='top_margin' name='top_margin'
+                                value='<?php echo attr($top_margin); ?>'
+                                title='<?php echo xla('HCFA top margin in points'); ?>' />
+                        </span>
+                        <?php if ($ub04_support) { ?>
+                            <span class="input-group">
+                                <label for="left_ubmargin"><?php echo xlt('UB04 Margins Left'); ?>:</label>
+                                <input type='text' size='2' id='left_ubmargin' name='left_ubmargin'
+                                    value='<?php echo attr($left_ubmargin); ?>'
+                                    title='<?php echo xla('UB04 left margin in points'); ?>' />
+                                <label for="top_ubmargin"><?php echo xlt('Top'); ?>:</label>
+                                <input type='text' size='2' id='top_ubmargin' name='top_ubmargin'
+                                    value='<?php echo attr($top_ubmargin); ?>'
+                                    title='<?php echo xla('UB04 top margin in points'); ?>' />
+                            </span>
+                        <?php } ?>
                     </div>
-                    <div class="input-group">
-                        <label for="left_margin"><?php echo xlt('CMS 1500 Margins Left'); ?>:</label>
-                        <input type='text' size='2' id='left_margin' name='left_margin'
-                            value='<?php echo attr($left_margin); ?>'
-                            title='<?php echo xla('HCFA left margin in points'); ?>' />
-                        <label for="top_margin"><?php echo xlt('Top'); ?>:</label>
-                        <input type='text' size='2' id='top_margin' name='top_margin'
-                            value='<?php echo attr($top_margin); ?>'
-                            title='<?php echo xla('HCFA top margin in points'); ?>' />
-                    </div>
-                    <?php if ($ub04_support) { ?>
-                        <div class="input-group">
-                            <label for="left_ubmargin"><?php echo xlt('UB04 Margins Left'); ?>:</label>
-                            <input type='text' size='2' id='left_ubmargin' name='left_ubmargin'
-                                value='<?php echo attr($left_ubmargin); ?>'
-                                title='<?php echo xla('UB04 left margin in points'); ?>' />
-                            <label for="top_ubmargin"><?php echo xlt('Top'); ?>:</label>
-                            <input type='text' size='2' id='top_ubmargin' name='top_ubmargin'
-                                value='<?php echo attr($top_ubmargin); ?>'
-                                title='<?php echo xla('UB04 top margin in points'); ?>' />
-                        </div>
-                    <?php } ?>
                 </nav>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <input name='mode' type='hidden' value="bill">
                 <input name='authorized' type='hidden' value="<?php echo attr($my_authorized); ?>">
                 <input name='unbilled' type='hidden' value="<?php echo attr($unbilled); ?>">
