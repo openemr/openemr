@@ -26,8 +26,23 @@ $portalsite = isset($_GET['portalsite']) ? $_GET['portalsite'] : $portalsite = "
 if ($portalsite != "off" && $portalsite != "on") {
     $portalsite = "off";
 }
-$trustedEmail = sqlQuery("SELECT email_direct FROM `patient_data` WHERE `pid`=?", array($pid));
-$row = sqlQuery("SELECT pd.*,pao.portal_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?", array($pid));
+$trustedEmail = sqlQueryNoLog("SELECT email_direct, email FROM `patient_data` WHERE `pid`=?", array($pid));
+$row = sqlQuery("SELECT pd.*,pao.portal_username, pao.portal_login_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?", array($pid));
+
+$trustedEmail['email_direct'] = !empty(trim($trustedEmail['email_direct'])) ? text(trim($trustedEmail['email_direct'])) : text(trim($trustedEmail['email']));
+$trustedUserName = $trustedEmail['email_direct'];
+// check for duplicate username
+$dup_check = sqlQueryNoLog("SELECT * FROM patient_access_" . escape_identifier($portalsite, array("on","off"), true) .
+    "site WHERE pid != ? AND portal_login_username = ?", array($pid, $trustedUserName));
+// make unique if needed
+if (!empty($dup_check)) {
+    if (strpos($trustedUserName, '@')) {
+        $trustedUserName = str_replace("@", "$pid@", $trustedUserName);
+    } else {
+        // account name will be used and is unique
+        $trustedUserName = '';
+    }
+}
 
 function validEmail($email)
 {
@@ -38,7 +53,7 @@ function validEmail($email)
     return false;
 }
 
-function messageCreate($uname, $pass, $site)
+function messageCreate($uname, $luname, $pass, $site)
 {
     global $trustedEmail;
 
@@ -63,9 +78,9 @@ function messageCreate($uname, $pass, $site)
             (!empty(trim($trustedEmail['email_direct'])) ? text(trim($trustedEmail['email_direct'])) : xlt("Is Required. Contact Provider."));
         $sub .= "<br><br>";
     }
-    $message .= xlt("User Name") . ": " .
-        text($uname) . "<br><br>" .
-        xlt("Password") . ": " .
+    $message .= xlt("Portal Account Name") . ": " . text($uname) . "<br><br><strong>" .
+        xlt("Login User Name") . ":</strong> " . text($luname) . "<br><strong>" .
+        xlt("Password") . ":</strong> " .
         text($pass) . "<br><br>" . $sub;
     return $message;
 }
@@ -84,6 +99,10 @@ function emailLogin($patient_id, $message)
     if (!(validEmail($GLOBALS['patient_reminder_sender_email']))) {
         return false;
     }
+    $message .= "<strong>" . xlt("You may be required to change your password during first login.") . "</strong><br>";
+    $message .= xlt("This is required for your security as well as ours.") . "<br>";
+    $message .= xlt("Afterwards however, you may change your portal credentials anytime from portal menu.") . ":<br><br>";
+    $message .= xlt("Thank you for allowing us to serve you.") . ":<br>";
 
     $mail = new MyMailer();
     $pt_name=$patientData['fname'].' '.$patientData['lname'];
@@ -128,7 +147,7 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
     $clear_pass=$_POST['pwd'];
 
     $res = sqlStatement("SELECT * FROM patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site WHERE pid=?", array($pid));
-    $query_parameters=array($_POST['uname'],$_POST['uname']);
+    $query_parameters=array($_POST['uname'],$_POST['login_uname']);
     if ($portalsite=='on') {
         // For onsite portal create a modern hash
         $hash = (new AuthHash('auth'))->passwordHash($clear_pass);
@@ -152,7 +171,7 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
     }
 
     // Create the message
-    $message = messageCreate($_POST['uname'], $clear_pass, $portalsite);
+    $message = messageCreate($_POST['uname'], $_POST['login_uname'], $clear_pass, $portalsite);
     // Email and display/print the message
     if (emailLogin($pid, $message)) {
         // email was sent
@@ -196,8 +215,13 @@ function transmit(){
     }
     ?>
         <tr class="text">
-            <td><strong><?php echo text(xl('User Name').':');?></strong></td>
+            <td><strong><?php echo text(xl('Account Name').':');?></strong></td>
             <td><input type="text" name="uname" value="<?php echo ($row['portal_username']) ? attr($row['portal_username']) : attr($row['fname'].$row['id']); ?>" size="10" readonly></td>
+        </tr>
+        <tr class="text">
+            <td><strong><?php echo text(xl('Login User Name').':');?></strong></td>
+            <td><input type="text" name="login_uname"
+                    value="<?php echo (!empty($trustedUserName) ? text($trustedUserName) : attr($row['portal_username'])); ?>" readonly></td>
         </tr>
         <tr class="text">
             <td><strong><?php echo text(xl('Password').':');?></strong></td>
@@ -210,7 +234,7 @@ function transmit(){
         <?php if ($GLOBALS['enforce_signin_email']) { ?>
         <tr class="text">
             <td><strong><?php echo xlt("Login Trusted Email") . ":" ?></strong></td>
-            <td><?php echo (!empty(trim($trustedEmail['email_direct'])) ? text(trim($trustedEmail['email_direct'])) : xlt("Is Required. Please Add in Contacts.")) ?></td>
+            <td><?php echo (!empty(trim($trustedEmail)) ? text($trustedEmail['email_direct']) : xlt("Is Required. Please Add in Contacts.")) ?></td>
         </tr>
         <?php } ?>
         <tr align="center"><td>&nbsp;</td><td><hr></td></tr>
