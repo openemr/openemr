@@ -1,8 +1,8 @@
 language: php
 php:
-  - '7.1'
   - '7.2'
   - '7.3'
+  - '7.4'
 before_install:
   - echo "extension=ldap.so" >>php --ini | grep "Loaded Configuration" | sed -e "s|.:\s||"``
 env:
@@ -10,9 +10,9 @@ env:
   - CI_JOB=lint_style
 matrix:
   exclude:
-    - php: '7.1'
-      env: CI_JOB=lint_style
     - php: '7.2'
+      env: CI_JOB=lint_style
+    - php: '7.3'
       env: CI_JOB=lint_style
 script:
   - bash ci/ci.sh --dir ./
