@@ -434,27 +434,27 @@ $codes = InvoiceSummary::ar_get_invoice_summary($patient_id, $encounter_id, true
 $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1", array($patient_id));
 ?>
 
-<div class="container">
+<div class="container-fluid">
     <div class="row">
         <div class="page-header">
             <h2><?php echo xlt('EOB Invoice'); ?></h2>
         </div>
     </div>
-    <div class="row">
-        <form action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
+    <div class="container">
+        <form class="form" action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
             <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
-            <fieldset>
+            <fieldset class="px-2">
                 <legend><?php echo xlt('Invoice Actions'); ?></legend>
-                <div class="col-12 oe-custom-line">
-                    <div class="col-3">
+                <div class="form-row">
+                    <div class="form-group col-lg">
                         <label class="control-label" for="form_name"><?php echo xlt('Patient'); ?>:</label>
-                        <input type="text" class="form-control" class="form-control" class="form-control" id='form_name'
+                        <input type="text" class="form-control" id='form_name'
                                name='form_name'
                                value="<?php echo attr($ferow['fname']) . ' ' . attr($ferow['mname']) . ' ' . attr($ferow['lname']); ?>"
                                disabled>
                     </div>
-                    <div class="col-3">
+                    <div class="form-group col-lg">
                         <label class="control-label" for="form_provider"><?php echo xlt('Provider'); ?>:</label>
                         <?php
                         $tmp = sqlQuery("SELECT fname, mname, lname " .
@@ -465,57 +465,55 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             "activity = 1 ORDER BY fee DESC, id ASC LIMIT 1", array($patient_id, $encounter_id));
                         $billdate = substr(($tmp['bill_date'] . "Not Billed"), 0, 10);
                         ?>
-                        <input type="text" class="form-control" class="form-control" id='form_provider'
+                        <input type="text" class="form-control" id='form_provider'
                                name='form_provider' value="<?php echo attr($provider); ?>" disabled>
                     </div>
-                    <div class="col-2">
+                    <div class="form-group col-lg">
                         <label class="control-label" for="form_invoice"><?php echo xlt('Invoice'); ?>:</label>
-                        <input type="text" class="form-control" class="form-control" id='form_provider'
+                        <input type="text" class="form-control" id='form_provider'
                                name='form_provider' value='<?php echo attr($patient_id) . "." . attr($encounter_id); ?>'
                                disabled>
                     </div>
-                    <div class="col-2">
+                    <div class="form-group col-lg">
                         <label class="control-label" for="svc_date"><?php echo xlt('Svc Date'); ?>:</label>
-                        <input type="text" class="form-control" class="form-control" id='svc_date' name='form_provider'
+                        <input type="text" class="form-control" id='svc_date' name='form_provider'
                                value='<?php echo attr($svcdate); ?>' disabled>
                     </div>
-                    <div class="col-2">
-                        <label class="control-label" for="insurance_name"><?php echo xlt('Insurance'); ?>:</label>
+                    <div class="card bg-light col-lg-4">
+                        <div class="card-title mx-auto"><?php echo xlt('Insurance'); ?></div>
                         <?php
                         for ($i = 1; $i <= 3; ++$i) {
                             $payerid = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
                             if ($payerid) {
                                 $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ?", array($payerid));
-                                $insurance .= "$i: " . $tmp['name'] . "\n";
+                                echo "$i: " . $tmp['name'] . "<br>";
                             }
                         }
                         ?>
-                        <textarea name="insurance_name" id="insurance_name" class="form-control" cols="5" rows="2"
-                                  readonly><?php echo attr($insurance); ?></textarea>
                     </div>
                 </div>
-                <div class="col-12 oe-custom-line">
-                    <div class="col-3">
+                <div class="form-row">
+                    <div class="form-group col-lg">
                         <label class="control-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>
                             :</label>
                         <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control"
                                value='<?php echo attr((0 + $ferow['stmt_count'])); ?>'/>
                     </div>
-                    <div class="col-2">
+                    <div class="form-group col-lg">
                         <label class="control-label" for="form_last_bill"><?php echo xlt('Last Bill Date'); ?>
                         :</label>
                         <input type='text' name="form_last_bill" id='form_last_bill' class="form-control"
                                value ='<?php echo attr($billdate); ?>' disabled/>
                     </div>
-                    <div class="col-3">
+                    <div class="form-group col-lg">
                         <label class="control-label" for="form_reference"><?php echo xlt('Check/EOB No.'); ?>:</label>
                         <input type='text' name='form_reference' id='form_reference' class="form-control" value=''/>
                     </div>
-                    <div class="col-2">
+                    <div class="form-group col-lg">
                         <label class="control-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
                         <input type='text' name='form_check_date' class='form-control datepicker' value=''/>
                     </div>
-                    <div class="col-2">
+                    <div class="form-group col-lg">
                         <label class="control-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                         <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value=''/>
                         <input type='hidden' name='form_payer_id' value=''/>
@@ -525,8 +523,8 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <input type='hidden' name='form_pay_total' value=''/>
                     </div>
                 </div>
-                <div class="col-12 oe-custom-line">
-                    <div class="col-4">
+                <div class="form-row">
+                    <div class="form-group col-lg">
                         <label class="control-label" for="type_code"><?php echo xlt('Now posting for'); ?>:</label>
                         <div style="padding-left:15px">
                             <?php
@@ -554,7 +552,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             <input name='form_eobs' type='hidden' value='<?php echo attr($arrow['shipvia']) ?>'/>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="form-group col-lg">
                         <label class="control-label" for=""><?php echo xlt('Done with'); ?>:</label>
                         <div style="padding-left:15px">
                             <?php
@@ -573,7 +571,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             ?>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="form-group col-lg">
                         <label class="control-label" for=""><?php echo xlt('Secondary billing'); ?>:</label>
                         <div style="padding-left:15px">
                             <label class="checkbox-inline">
@@ -585,6 +583,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                 </div>
 
             </fieldset>
+        </div>
             <fieldset>
                 <legend><?php echo xlt('Invoice Details'); ?></legend>
                 <div class="table-responsive">
@@ -640,8 +639,8 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                     <td class="detail"
                                         style="background:<?php echo $dispcode ? 'lightyellow' : ''; ?>"><?php echo text($dispcode);
                                         $dispcode = "" ?></td>
-                                    <td class="detail" class="detail"><?php echo text(bucks($tmpchg)); ?></td>
-                                    <td class="detail" class="detail">&nbsp;</td>
+                                    <td class="detail"><?php echo text(bucks($tmpchg)); ?></td>
+                                    <td class="detail">&nbsp;</td>
                                     <td class="detail">
                                         <?php
                                         if (isset($ddata['plv'])) {
@@ -733,8 +732,9 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </table>
                 </div>
             </fieldset>
+            </div>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-            <div class="form-group clearfix">
+            <div class="form-group col-lg clearfix">
                 <div class="col-sm-12 text-left position-override" id="search-btn">
                     <div class="btn-group" role="group">
                         <button type='submit' class="btn btn-secondary btn-save" name='form_save' id="btn-save-stay"

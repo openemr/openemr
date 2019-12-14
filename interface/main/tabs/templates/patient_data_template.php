@@ -44,7 +44,7 @@ switch ($search_any_type) {
 <script type="text/html" id="patient-data-template">
     <div class="d-flex flex-row flex-wrap">
         <div class="flex-fill">
-            <div class="float-left m-1">
+            <div class="float-left m-2">
               <!-- ko if: patient -->
                   <div data-bind="with: patient" class="patientPicture">
                       <img data-bind="attr: {src: patient_picture}"
@@ -131,7 +131,7 @@ switch ($search_any_type) {
             <!-- /ko --><!-- with patient -->
             <!-- /ko --><!-- patient -->
         </div>
-        <div class="flex-column mr-2">
+        <div class="flex-column mr-1">
             <span class="oe-expandable-search mr-auto" id="div-search-globals">
                 <?php //adapted from https://codepen.io/brandonkennedy/pen/yGjsi ?>
                 <form name="frm_search_globals">
@@ -146,15 +146,6 @@ switch ($search_any_type) {
             </span>
         <!-- ko if: user -->
         <!-- ko with: user -->
-        <!-- ko if:messages() -->
-        <span>
-            <a class="btn btn-secondary" href="#" data-bind="click: viewMessages"
-               title="<?php echo xla("View Messages"); ?>">
-                <i class="fa fa-envelope"></i>&nbsp;<span class="label label-danger" style="display:inline"
-                                                          data-bind="text: messages()"></span>
-            </a>
-        </span>
-        <!-- /ko --><!-- messages -->
         <!-- ko if: portal() -->
         <span class="btn-group dropdown">
             <button class="btn btn-secondary btn-md dropdown-toggle"
@@ -199,6 +190,15 @@ switch ($search_any_type) {
             </ul>
         </span>
         <!-- /ko --><!-- portal alert -->
+        <!-- ko if:messages() -->
+        <span>
+            <a class="btn btn-secondary" href="#" data-bind="click: viewMessages"
+                title="<?php echo xla("View Messages"); ?>">
+                <i class="fa fa-envelope"></i>&nbsp;<span class="label label-danger" style="display:inline"
+                    data-bind="text: messages()"></span>
+            </a>
+        </span>
+        <!-- /ko --><!-- messages -->
         <!-- /ko --><!-- with user -->
         <!-- /ko --><!-- user -->
         </div>
