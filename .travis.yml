@@ -8,6 +8,7 @@ before_install:
 env:
   - CI_JOB=lint_syntax
   - CI_JOB=lint_style
+  - CI_JOB=build_test
 matrix:
   exclude:
     - php: '7.2'
