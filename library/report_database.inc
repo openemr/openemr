@@ -151,7 +151,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
              ($key == "total_items") ||
              ($key == "date_report") ||
              ($key == "date_report_complete") ||
-             ($key == "bookmark") ) {
+             ($key == "bookmark")) {
                 continue;
             }
 

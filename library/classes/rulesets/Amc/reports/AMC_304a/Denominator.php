@@ -34,7 +34,7 @@ class AMC_304a_Denominator implements AmcFilterIF
         $check = sqlQuery($sql, array($patient->id,$beginDate,$endDate,$patient->id,$beginDate,$endDate));
         $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
         if ((Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
-            !(empty($check)) ) {
+            !(empty($check))) {
             return true;
         } else {
             return false;

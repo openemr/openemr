@@ -56,7 +56,7 @@ class NQF_0421_Numerator2 implements CqmFilterIF
             $number = sqlNumRows($res);
             if ($number >= 1 &&
                 ( Helper::check(ClinicalType::CARE_GOAL, CareGoal::FOLLOW_UP_PLAN_BMI_MGMT, $patient) ||
-                  Helper::check(ClinicalType::COMMUNICATION, Communication::DIET_CNSLT, $patient) ) ) {
+                  Helper::check(ClinicalType::COMMUNICATION, Communication::DIET_CNSLT, $patient) )) {
                 $return = true;
                 break;
             }

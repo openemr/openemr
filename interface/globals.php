@@ -410,7 +410,7 @@ if (!empty($glrow)) {
     $rtl_override = false;
     if (isset($_SESSION['language_direction'])) {
         if ($_SESSION['language_direction'] == 'rtl' &&
-        !strpos($GLOBALS['css_header'], 'rtl')  ) {
+        !strpos($GLOBALS['css_header'], 'rtl')) {
             // the $css_header_value is set above
             $rtl_override = true;
         }

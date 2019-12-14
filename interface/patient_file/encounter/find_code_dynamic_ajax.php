@@ -123,7 +123,7 @@ function feSearchSort($search = '', $column = 0, $reverse = false)
     $arr = array();
     foreach ($form_encounter_layout as $feitem) {
         if ($search && stripos($feitem['field_id'], $search) === false &&
-        stripos($feitem['title'], $search) === false ) {
+        stripos($feitem['title'], $search) === false) {
             continue;
         }
         $feitem['fld_length' ] = 20;

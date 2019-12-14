@@ -298,7 +298,7 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
             if (($row['pid'] == $reminder['pid']) &&
                ($row['category'] == $reminder['category']) &&
                ($row['item'] == $reminder['item']) &&
-               ($row['due_status'] == $reminder['due_status']) ) {
+               ($row['due_status'] == $reminder['due_status'])) {
                 // The sql reminder has been confirmed, so do not inactivate it
                 $inactivateFlag = false;
                 break;

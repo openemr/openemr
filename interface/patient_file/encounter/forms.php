@@ -541,7 +541,7 @@ $old_category = '';
 $encounterLocked = false;
 if ($esignApi->lockEncounters() &&
 isset($GLOBALS['encounter']) &&
-!empty($GLOBALS['encounter']) ) {
+!empty($GLOBALS['encounter'])) {
     $esign = $esignApi->createEncounterESign($GLOBALS['encounter']);
     if ($esign->isLocked()) {
         $encounterLocked = true;

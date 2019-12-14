@@ -26,7 +26,7 @@ class LabResult extends ClinicalType
         
         $range = new Range(Range::NEG_INF, Range::POS_INF);
         if (isset($options[self::OPTION_RANGE]) &&
-            is_a($options[self::OPTION_RANGE], 'Range') ) {
+            is_a($options[self::OPTION_RANGE], 'Range')) {
             $range = $options[self::OPTION_RANGE];
         }
         

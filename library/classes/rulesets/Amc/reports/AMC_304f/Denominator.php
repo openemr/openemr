@@ -28,7 +28,7 @@ class AMC_304f_Denominator implements AmcFilterIF
         $amccheck =  sqlQuery("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `date_created`>=? AND `date_created`<=?", array('provide_rec_pat_amc',$patient->id,$beginDate,$endDate));
         $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
         if ((Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
-             !(empty($amccheck)) ) {
+             !(empty($amccheck))) {
             return true;
         } else {
             return false;

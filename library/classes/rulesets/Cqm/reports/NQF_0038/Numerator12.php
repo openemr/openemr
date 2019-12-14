@@ -21,7 +21,7 @@ class NQF_0038_Numerator12 implements CqmFilterIF
                !Helper::checkAllergy(Allergy::POLYMYXIN, $patient, $patient->dob, $endDate) ) &&
             Immunizations::checkVzv($patient, $beginDate, $endDate) &&
             Immunizations::checkHepB($patient, $beginDate, $endDate) &&
-            Immunizations::checkPheumococcal($patient, $beginDate, $endDate) ) {
+            Immunizations::checkPheumococcal($patient, $beginDate, $endDate)) {
             return true;
         }
         
