@@ -53,11 +53,13 @@ class Claim
     public function x12Zip($zip)
     {
         $zip = $this->x12Clean($zip);
-        if (strlen($zip) == 5) {
-            return $zip . "9999";
-        } else {
-            return $zip;
-        }
+        // this will take out dashes and pad with trailing 9s if not 9 digits
+        return str_pad(
+            preg_replace('/[^0-9]/', '', $zip),
+            9,
+            9,
+            STR_PAD_RIGHT
+        );
     }
 
     // Make sure dates have no formatting and zero filled becomes blank

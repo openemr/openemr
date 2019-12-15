@@ -508,7 +508,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
   // Set ability to itemize report if this feature is turned on
     if (( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
        ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      ) ||
-       ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014" || $type == "amc_2014_stage1" || $type == "amc_2014_stage2") && ($GLOBALS['report_itemizing_amc'])      ) ) {
+       ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014" || $type == "amc_2014_stage1" || $type == "amc_2014_stage2") && ($GLOBALS['report_itemizing_amc'])      )) {
         $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;
     } else {
         $GLOBALS['report_itemizing_temp_flag_and_id'] = 0;
@@ -2130,7 +2130,7 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
 
     if ($history[$lifestyle] &&
        $history[$lifestyle] != '|0|' &&
-       $stringFlag ) {
+       $stringFlag) {
         return true;
     } else {
         return false;

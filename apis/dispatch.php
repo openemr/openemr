@@ -79,6 +79,14 @@ require_once("./../interface/globals.php");
 require_once("./../library/acl.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\HttpRestRouteHandler;
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+
+//Extend API using RestApiCreateEvent
+$restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP);
+$restApiCreateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiCreateEvent::EVENT_HANDLE, $restApiCreateEvent, 10);
+$gbl::$ROUTE_MAP = $restApiCreateEvent->getRouteMap();
+$gbl::$FHIR_ROUTE_MAP = $restApiCreateEvent->getFHIRRouteMap();
 
 if ($isLocalApi) {
     // need to check for csrf match when using api locally
@@ -121,8 +129,6 @@ if ($isLocalApi) {
     // Ensure that a local process does not hold up other processes
     session_write_close();
 }
-
-use OpenEMR\Common\Http\HttpRestRouteHandler;
 
 if (!$isLocalApi) {
     $gbl::authentication_check($resource);

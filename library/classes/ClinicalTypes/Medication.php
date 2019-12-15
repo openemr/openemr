@@ -84,10 +84,10 @@ class Medication extends ClinicalType
             }
             
             if (isset($options[self::OPTION_COUNT]) &&
-                count($rows) >= $options[self::OPTION_COUNT] ) {
+                count($rows) >= $options[self::OPTION_COUNT]) {
                 $return = true;
             } else if (!isset($options[self::OPTION_COUNT]) &&
-                count($rows) > 0 ) {
+                count($rows) > 0) {
                 $return = true;
             }
         }

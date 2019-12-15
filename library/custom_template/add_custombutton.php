@@ -162,30 +162,30 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
                                       size=1></td>
         </tr>
         <tr>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('sl' . $i + 1, ENT_QUOTES); ?>"
-                                      value="<?php echo htmlspecialchars($sl + 1, ENT_QUOTES); ?>" readonly=""
+            <td align='center'><input type='text' name="<?php echo htmlspecialchars('sl' . ($i + 1), ENT_QUOTES); ?>"
+                                      value="<?php echo htmlspecialchars(($sl + 1), ENT_QUOTES); ?>" readonly=""
                                       style="width:25px; background-color:#C9C9C9"/></td>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('inshort' . $i + 1, ENT_QUOTES); ?>"
+            <td align='center'><input type='text' name="<?php echo htmlspecialchars('inshort' . ($i + 1), ENT_QUOTES); ?>"
                                       size="10" value=""/></td>
             <td align='center'><input type='text'
-                                      name="<?php echo htmlspecialchars('designation' . $i + 1, ENT_QUOTES); ?>"
+                                      name="<?php echo htmlspecialchars('designation' . ($i + 1), ENT_QUOTES); ?>"
                                       value=""/></td>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('level' . $i + 1, ENT_QUOTES); ?>"
+            <td align='center'><input type='text' name="<?php echo htmlspecialchars('level' . ($i + 1), ENT_QUOTES); ?>"
                                       size=1></td>
         </tr>
         <tr>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('sl' . $i + 2, ENT_QUOTES); ?>"
-                                      value="<?php echo htmlspecialchars($sl + 2, ENT_QUOTES); ?>" readonly=""
+            <td align='center'><input type='text' name="<?php echo htmlspecialchars('sl' . ($i + 2), ENT_QUOTES); ?>"
+                                      value="<?php echo htmlspecialchars(($sl + 2), ENT_QUOTES); ?>" readonly=""
                                       style="width:25px; background-color:#C9C9C9"/></td>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('inshort' . $i + 2, ENT_QUOTES); ?>"
+            <td align='center'><input type='text' name="<?php echo htmlspecialchars('inshort' . ($i + 2), ENT_QUOTES); ?>"
                                       size="10" value=""/></td>
             <td align='center'><input type='text'
-                                      name="<?php echo htmlspecialchars('designation' . $i + 2, ENT_QUOTES); ?>"
+                                      name="<?php echo htmlspecialchars('designation' . ($i + 2), ENT_QUOTES); ?>"
                                       value=""/></td>
-            <td align='center'><input type='text' name="<?php echo htmlspecialchars('level' . $i + 2, ENT_QUOTES); ?>"
+            <td align='center'><input type='text' name="<?php echo htmlspecialchars('level' . ($i + 2), ENT_QUOTES); ?>"
                                       size=1></td>
         </tr>
-        <input type="hidden" name="count" value="<?php echo htmlspecialchars($i + 2, ENT_QUOTES); ?>">
+        <input type="hidden" name="count" value="<?php echo htmlspecialchars(($i + 2), ENT_QUOTES); ?>">
         <tr class="text">
             <td colspan="5" align="center">
                 <input type='submit' name='form_save' id='form_save'

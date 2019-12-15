@@ -167,7 +167,7 @@ class NumberToText
             $text .= " point";
             for ($i = 0; $i < strlen($decimal); $i++) {
                 // go through one number at a time
-                $text .= " ".$small[$decimal{$i}];
+                $text .= " ".$small[$decimal[$i]];
             }
         }
 

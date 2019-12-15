@@ -129,7 +129,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
                 "Date Time :". date("d M, Y  h:i:s")
                 ),
             $vBody
-        ) ) {
+        )) {
             echo "Message sent to " . text($to) . " OK.\n";
             $mstatus = true;
         } else {

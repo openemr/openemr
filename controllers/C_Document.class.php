@@ -148,7 +148,7 @@ class C_Document extends Controller
         $encrypted = $_POST['encrypted'];
         $passphrase = $_POST['passphrase'];
         if (!$GLOBALS['hide_document_encryption'] &&
-            $encrypted && $passphrase ) {
+            $encrypted && $passphrase) {
             $doDecryption = true;
         }
 
@@ -511,7 +511,7 @@ class C_Document extends Controller
         $doEncryption = false;
         if (!$GLOBALS['hide_document_encryption'] &&
             $encrypted == "true" &&
-            $passphrase ) {
+            $passphrase) {
             $doEncryption = true;
         }
 
@@ -1097,7 +1097,7 @@ class C_Document extends Controller
             $d = new Document($document_id);
             $file_name = $d->get_url_file();
             if ($docname != '' &&
-                 $docname != $file_name ) {
+                 $docname != $file_name) {
                 // Ready to rename - check for relocation
                 $old_url = $this->_check_relocation($d->get_url());
                 $new_url = $this->_check_relocation($d->get_url(), null, $docname);

@@ -41,7 +41,7 @@ class Form_Controller extends Abstract_Controller
         $form->showLock = false;
         if ($signable->isLocked() === false &&
             $GLOBALS['lock_esign_individual'] &&
-            $GLOBALS['esign_lock_toggle'] ) {
+            $GLOBALS['esign_lock_toggle']) {
             $form->showLock = true;
         }
 

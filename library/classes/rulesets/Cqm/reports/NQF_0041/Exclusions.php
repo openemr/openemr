@@ -26,7 +26,7 @@ class NQF_0041_Exclusions implements CqmFilterIF
                 Helper::checkMed(Medication::NO_INFLUENZA_PATIENT, $patient, $encDate, $encDate) ||
                 Helper::checkMed(Medication::NO_INFLUENZA_MEDICAL, $patient, $encDate, $encDate) ||
                 Helper::checkMed(Medication::NO_INFLUENZA_SYSTEM, $patient, $encDate, $encDate) ||
-                Helper::checkDiagActive(Diagnosis::INFLUENZA_IMMUN_CONTRADICT, $patient, $encDate, $encDate) ) {
+                Helper::checkDiagActive(Diagnosis::INFLUENZA_IMMUN_CONTRADICT, $patient, $encDate, $encDate)) {
                 return true;
             }
         }
