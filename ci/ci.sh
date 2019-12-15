@@ -35,6 +35,14 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
 
     case "$CI_JOB" in
 
+        "build_test")
+            echo "Checking build and tests"
+            cd $2
+            composer install
+            npm install
+            npm run build
+            composer dump-autoload -o
+            ;;
         "lint_syntax")
             echo "Checking for PHP syntax errors"
             cd $2
