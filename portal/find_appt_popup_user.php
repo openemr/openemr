@@ -305,7 +305,7 @@ if ($_REQUEST['startdate'] && preg_match(
             }
         }
     }
-?>
+    ?>
 <!DOCTYPE html>
 <html>
 <head>
