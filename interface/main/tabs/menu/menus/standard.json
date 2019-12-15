@@ -1772,6 +1772,18 @@
         "label": "Insurance",
         "icon": "fa-caret-right",
         "children": [
+            {
+                "label": "Distribution Detail",
+                "menu_id": "rep0",
+                "target": "rep",
+                "url": "/interface/reports/insurance.php",
+                "children": [],
+                "requirement": 0,
+                "acl_req": [
+                    "acct",
+                    "rep_a"
+                ]
+            },
           {
             "label": "Distribution",
             "menu_id": "rep0",

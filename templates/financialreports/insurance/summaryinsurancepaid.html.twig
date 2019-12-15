@@ -1,0 +1,63 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+
+    {#{ dump() }#}
+    <div class="container center">
+        <h3>Insurance Payments</h3>
+        <form class="form-inline">
+            <div class="form-group">
+                <label>From Date :</label>
+                <input type="text" size="10" value="" class="datepicker input-sm" name="fromDate"
+                       title="event date or starting date">
+            </div>
+            <div class="form-group">
+                <label>To Date:</label>
+                <input type="text" size="10" value="" class="datepicker input-sm" name="toDate"
+                       title="event date or starting date">
+            </div>
+        </form>
+
+        <div class="">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Payer</th>
+                        <th>Amount</th>
+                        <th>Payment Method</th>
+                        <th>Reference#</th>
+                        <th>Post to Date</th>
+                        <th>Deposit Date</th>
+                        <th>Patient</th>
+                        <th>Encounter</th>
+                        <th>Billed Amount</th>
+                        <th>Pay Amount</th>
+                        <th>Adj Amount</th>
+                        <th>Who</th>
+                        <th>Memo</th>
+                    </tr>
+                </thead>
+                {% for payment in payments %}
+
+                    <tr>
+                        <td>{{ payment.description }}</td>
+                        <td>{{ payment.pay_total }}</td>
+                        <td>{{ payment.payment_method }}</td>
+                        <td>{{ payment.reference }}</td>
+                        <td>{{ payment.post_to_date | date('Y-m-d') }}</td>
+                        <td>{{ payment.deposit_date | date('Y-m-d') }}</td>
+                        <td>{{ payment.pid }}</td>
+                        <td>{{ payment.encounter }}</td>
+                        <td>{{ payment.fee }}</td>
+                        <td>{{ payment.paidAmount }}</td>
+                        <td>{{ payment.Adjustments }}</td>
+                        <td>{{ payment.post_user }}</td>
+                        <td>{{ payment.memo }}</td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>{# --end of container div--  #}
+
+{% endblock %}
