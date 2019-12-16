@@ -59,4 +59,4 @@ while ($frow = sqlFetchArray($fres)) {
 
 updateHistoryData($pid, $newdata);
 
-include_once("history.php");
+header("Location: history.php");
