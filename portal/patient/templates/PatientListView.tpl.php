@@ -19,7 +19,7 @@ $this->assign('nav', 'patientdata');
  *  */
 $row = array();
 if ($this->trow) {
-$row = $this->trow;
+    $row = $this->trow;
 }
 
 echo "<script>var register='" . attr($this->register) . "';var recid='" . attr($this->recid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';</script>";
