@@ -7,8 +7,8 @@ before_install:
   - echo "extension=ldap.so" >>php --ini | grep "Loaded Configuration" | sed -e "s|.:\s||"``
 env:
   - CI_JOB=lint_syntax
-  - CI_JOB=lint_style
   - CI_JOB=build_test
+  - CI_JOB=lint_style
 matrix:
   exclude:
     - php: '7.2'
