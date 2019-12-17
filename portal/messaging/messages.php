@@ -16,7 +16,7 @@ require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $_SESSION['whereto'] = 'profilepanel';
+    $_SESSION['whereto'] = 'profilecard';
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");

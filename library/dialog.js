@@ -458,24 +458,24 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
     if (Math.abs(width) > 0) {
         width = Math.abs(width);
         mWidth = (width / where.innerWidth * 100).toFixed(1) + '%';
-        msSize = '<style>.modal-custom-' + winname + ' {max-width:' + mWidth + ';}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:' + mWidth + ' !important;}</style>';
         mSize = 'modal-custom' + winname;
     } else if (jQuery.inArray(width, sizeChoices) !== -1) {
         mSize = width; // is a modal class
     } else {
-        msSize = '<style>.modal-custom-' + winname + ' {max-width:35%;}</style>'; // standard B.S. modal default (modal-md)
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:35% !important;}</style>'; // standard B.S. modal default (modal-md)
     }
     // leave below for legacy
     if (mSize === 'modal-sm') {
-        msSize = '<style>.modal-custom-' + winname + ' {max-width:25%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:25% !important;}</style>';
     } else if (mSize === 'modal-md') {
-        msSize = '<style>.modal-custom-' + winname + ' {max-width:40%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:40% !important;}</style>';
     } else if (mSize === 'modal-mlg') {
-        msSize = '<style>.modal-custom-' + winname + ' {max-width:55%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:55% !important;}</style>';
     } else if (mSize === 'modal-lg') {
-        msSize = '<style>.modal-custom-' + winname + ' {max-width:75%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:75% !important;}</style>';
     } else if (mSize === 'modal-xl') {
-        msSize = '<style>.modal-custom-' + winname + ' {max-width:92%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:92% !important;}</style>';
     }
     mSize = 'modal-custom-' + winname;
 
@@ -499,7 +499,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>')
         .replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
 
-    var bodyStyles = (' style="overflow-y:inherit;height:%initHeight%;max-height:92vh;"')
+    var bodyStyles = (' style="overflow-y:auto;height:%initHeight%;max-height:92vh;"')
         .replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
 
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
@@ -768,7 +768,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         jQuery(e.currentTarget).parent('div.modal-body').css({'height': 0});
         viewPortHt = top.window.innerHeight || 0;
         //minSize = 100;
-        let frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight || 0) + 30;
+        let frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight || 0) + 40;
         frameContentHt = frameContentHt < minSize ? minSize : frameContentHt;
         frameContentHt = frameContentHt > viewPortHt ? viewPortHt : frameContentHt;
         let hasHeader = jQuery(e.currentTarget).parents('div.modal-content').find('div.modal-header').length;

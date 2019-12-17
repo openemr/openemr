@@ -46,7 +46,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 
 if (isset($_REQUEST['fullscreen'])) {
-    $_SESSION['whereto'] = 'messagespanel';
+    $_SESSION['whereto'] = 'messagescard';
     define('IS_FULLSCREEN', true);
 } else {
     define('IS_FULLSCREEN', false);

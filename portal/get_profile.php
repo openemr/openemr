@@ -71,12 +71,6 @@ $N = 7;
         border-top: 0;
     }
 
-
-    .demographics .card-header {
-        padding: 5px 8px;
-        background: #337ab7;
-        color: white;
-    }
 </style>
 <body>
 

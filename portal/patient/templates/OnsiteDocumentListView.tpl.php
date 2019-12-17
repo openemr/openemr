@@ -66,7 +66,7 @@ if ($is_dashboard) {
 echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
 ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
 echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";</script>";
-echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";</script>";
+echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
 // translations
 echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
 echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
@@ -147,9 +147,9 @@ function replaceTextInputs() {
 
 function replaceRadioValues() {
     $('.ynuGroup').each(function () {
-        var gid = $(this).data('id');
-        var grpid = $(this).prop('id');
-        var rv = $('input:radio[name="ynradio' + gid + '"]:checked').val();
+        let gid = $(this).data('id');
+        let grpid = $(this).prop('id');
+        let rv = $('input:radio[name="ynradio' + gid + '"]:checked').val();
         $(this).replaceWith(rv);
     });
 }
@@ -362,7 +362,6 @@ function restoreDocumentEdits() {
 <div id="onsiteDocumentModelContainer" class="modelContainer"></div>
 <div id="onsiteDocumentCollectionContainer" class="collectionContainer"></div>
 <?php
+// footer close body html
 $this->display('_Footer.tpl.php');
 ?>
-</div> <!--body -->
-</div><!--html -->

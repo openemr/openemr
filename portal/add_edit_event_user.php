@@ -486,7 +486,7 @@ if ($_POST['form_action'] != "") {
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($_POST['form_provider_ae']));
     $rtn = addPnote($_POST['form_pid'], $note, 1, 1, $title, $user['username'], '', 'New');
 
-    $_SESSION['whereto'] = 'appointmentpanel';
+    $_SESSION['whereto'] = 'appointmentcard';
     header('Location:./home.php#appointmentpanel');
     exit();
 }
@@ -575,7 +575,7 @@ if ($userid) {
     <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'opener']); ?>
 </head>
 <script>
-var durations = new Array();
+var durations = Array();
 <?php
 // Read the event categories, generate their options list, and get
 // the default event duration from them if this is a new event.
@@ -641,7 +641,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
 ?>
 </script>
 <body class="skin-blue">
-<div class="jumbotron">
+<div class="card">
     <form class="form-inline" method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
         <input type="hidden" name="form_action" id="form_action" value="">
         <input type='hidden' name='form_title' id='form_title' value='<?php echo $row['pc_catid'] ? attr($row['pc_title']) : xla("Office Visit"); ?>' />

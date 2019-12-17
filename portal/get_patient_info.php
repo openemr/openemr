@@ -108,12 +108,17 @@ if ($password_update === 2 && !empty($_SESSION['pin'])) {
         unset($_POST['token_pin']);
     }
 } else {
-    $lookup = $password_update === 1 ? $_POST['login_uname'] : $_POST['uname'];
     // normal login
     $sql = "SELECT " . implode(",", array(
             COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
         " WHERE " . COL_POR_LOGINUSER . "= ?";
-    $auth = privQuery($sql, array($lookup));
+    if ($password_update === 1) {
+        $sql = "SELECT " . implode(",", array(
+                COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
+            " WHERE " . COL_POR_USER . "= ?";
+    }
+
+    $auth = privQuery($sql, array($_POST['uname']));
 }
 if ($auth === false) {
     $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
