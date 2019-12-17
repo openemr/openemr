@@ -15,9 +15,8 @@ if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ] ; then
   exit 0
 fi
 
-if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
-
-    # collect the directory where global composer bin's are stored
+#takes list of files/folders to sniff as its only argument(s)
+function sniff {
     BIN_DIR=$HOME/.composer/vendor/bin
     if [ -d $HOME/$XDG_CONFIG_HOME/composer ]; then
         BIN_DIR="$HOME/$XDG_CONFIG_HOME/composer/vendor/bin"
@@ -25,24 +24,24 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
     if [ -d $HOME/.config/composer ]; then
         BIN_DIR="$HOME/.config/composer/vendor/bin"
     fi
+    composer global require "squizlabs/php_codesniffer=3.*"
+    cd $DIR
+    $BIN_DIR/phpcs -p -n --extensions=php,inc --report-width=120 $@
+}
+
+if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
+
+    DIR=$2
 
     case "$CI_JOB" in
 
         "build_test")
             echo "Checking build and tests"
             cd $2
-            # build openemr (mimick standard build steps for production package)
             composer install
             npm install
             npm run build
-            composer global require phing/phing
-            $BIN_DIR/phing vendor-clean
-            $BIN_DIR/phing assets-clean
-            composer global remove phing/phing
             composer dump-autoload -o
-            # run phpunit testing
-            composer global require "phpunit/phpunit=8.*"
-            $BIN_DIR/phpunit --testdox
             ;;
         "lint_syntax")
             echo "Checking for PHP syntax errors"
@@ -55,10 +54,15 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
             fi
             ;;
         "lint_style")
-            echo "Checking for PHP styling (PSR2) issues"
-            cd $2
-            composer global require "squizlabs/php_codesniffer=3.*"
-            $BIN_DIR/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
+            sniff . --standard=ci/phpcs.xml --report=full
+            ;;
+        "lint_style_new_commit")
+            MODIFIED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | tr "\n" " ")
+            sniff "$MODIFIED_FILES" --standard=ci/phpcs_strict.xml --report=full
+            ;;
+        "lint_style_staged")
+            MODIFIED_FILES=$(git diff --cached --name-only | tr "\n" " ")
+            sniff "$MODIFIED_FILES" --standard=ci/phpcs_strict.xml --report=full
             ;;
         *)
             echo "Error: not a valid CI_JOB"
