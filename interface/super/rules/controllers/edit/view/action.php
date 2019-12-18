@@ -12,8 +12,9 @@
  */
 
 ?>
-<?php $action = $viewBean->action; ?>
-<?php $rule = $viewBean->rule;  ?>
+<?php 
+    $action = $viewBean->action; 
+    $rule = $viewBean->rule;    ?>
 
 <script language="javascript" src="<?php js_src('edit.js') ?>"></script>
 <script language="javascript" src="<?php js_src('bucket.js') ?>"></script>
@@ -100,7 +101,8 @@
                           data-field="Item"
                           data-toggle='popover'
                           data-trigger="hover"
-                          data-placement="auto, right"
+                          data-placement="auto, top"
+                          container="body"
                           title='Action Link'
                           data-html="true"
                           data-content='A Passive Alert is displayed in the CR widget with the values of "Category:Item".
@@ -148,7 +150,7 @@
                     <button id="submit_action_<?php echo attr($action->groupId); ?>"
                             type="button"
                             class="btn btn-sm btn-primary"
-                            title='<?php echo xla('Save Action'); ?>'><i class="fa fa-save"></i>
+                            title='<?php echo xla('Save Goal'); ?>'> <i class="fa fa-save"></i>
                     </button>
                 </td>
             </tr>
@@ -164,8 +166,8 @@
         $("#change_category_action").trigger('click');
         $("#change_item_action").trigger('click');
         $("#edit_action_cancel").click(function () {
-            $("#show_actions_edit_"+<?php echo attr($action->groupId); ?>).hide();
-            $("#show_actions_"+<?php echo attr($action->groupId); ?>).show();
+            $("#show_actions_edit_<?php echo attr($action->groupId); ?>").hide();
+            $("#show_actions_<?php echo attr($action->groupId); ?>").show();
         });
         $("[id^='submit_action_']").click(function() {
             var group = this.id.match(/submit_action_(.*)/)[1];

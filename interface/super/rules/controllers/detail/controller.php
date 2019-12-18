@@ -24,6 +24,7 @@ class Controller_detail extends BaseController
             $rule = $this->getRuleManager()->getRule($ruleId);
         }
         $summary = _post("show");
+    
         if (is_null($rule)) {
             $this->redirect("index.php?action=browse!list");
         } elseif ($summary) {

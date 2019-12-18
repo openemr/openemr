@@ -1,10 +1,10 @@
-/* 
+/*
     Document   : rules
     Created on : Jan 19, 2011, 10:55:44 PM
     Author     : aron
 */
 
-/* 
+/*
  * browse rules
  */
 root {
@@ -137,7 +137,6 @@ input[type='text'].short {
     vertical-align: middle !important
 }
 .title {
-    margin-bottom: 1.5rem;
     width:75%;
     float: left;
     font-weight: bold;
@@ -146,7 +145,7 @@ input[type='text'].short {
     line-height: 1.5em;
     color: #18133a;
     border-bottom: 1.5pt solid #455832;
-    margin: 0 auto 10px;
+    margin: 0 auto 25px;
 
 }
 .title2 {
@@ -159,7 +158,21 @@ input[type='text'].short {
     line-height: 20px;
     color: #660000;
     border-bottom: 1pt solid #455832;
-
+}
+.title3 {
+    font-weight: 500;
+    padding: 10px 10px 3px;
+    text-transform: uppercase;
+    line-height: 20px;
+    color: #660000;
+    border-bottom: 1pt solid #455832;
+    text-align: center;
+}
+.title4 {
+    font-weight: 500;
+    padding: 40px 10px 3px;
+    line-height: 20px;
+    text-align: center;
 }
 
 .rule_text {
@@ -188,16 +201,6 @@ input[type='text'].short {
     padding-bottom:10px;
 }
 
-#help_summary, #help_filters, #help_intervals, #help_targets {
-    Xposition: relative;
-}
-
-.Xmodal {
-    position: fixed;
-    width: 100%;
-    margin: 0;
-    padding: 10px;
-}
 .modal
 {
     overflow: hidden;

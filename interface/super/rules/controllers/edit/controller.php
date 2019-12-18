@@ -97,8 +97,13 @@ class Controller_edit extends BaseController
                 $timeKey = $amtKey . "-timeunit";
 
                 $amt = _post($amtKey);
+                if (empty($amt)) {
+                    $amt ='1';
+                }
                 $timeUnit = TimeUnit::from(_post($timeKey));
-
+                if (empty($timeUnit)) {
+                    $timeUnit ='month';
+                }
                 if ($amt && $timeUnit) {
                     $detail = new ReminderIntervalDetail($type, $range, $amt, $timeUnit);
                     $intervals->addDetail($detail);

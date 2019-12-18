@@ -366,7 +366,7 @@
                                                 </button>
                                             </td>
                                             <td class="text-center"><?php echo( text($criteria->getTitle()) ); ?></td>
-                                            <td class="text-center"><?php echo( text($criteria->getRequirements()) ); ?></td>
+                                            <td class="text-center"><?php echo( $criteria->getRequirements() ); ?></td>
                                             <td class="text-center"><?php echo( text($criteria->getCharacteristics()) ); ?></td>
                                         </tr>
                                     <?php } ?>
@@ -524,9 +524,22 @@
                             </div>
                             <div class="col-4 inline row">
                                 <button type="button"
-                                        id="add_action_<?php echo xla($group->groupId); ?>"
                                         class="btn-sm btn-primary icon_2"
-                                        title='<?php echo xla('Add New Action'); ?>'><i class="fa fa-plus"></i>
+                                        data-toggle='popover'
+                                        data-trigger="hover"
+                                        data-placement="auto left"
+                                        data-html="true"
+                                        data-content="<span class='text-justify'>Having narrowed your target group of patients in <span class='bold'>Step 1</span>,
+                            now in <span class='bold'>Step 2</span> you need to look for an item.
+                            If present, an alert fires prompting you to do something, usually a Treatment Goal.
+                            Most CRs only need to reference one Treatment Goal.
+                            You can create multiple <span class='bold'>Step 2</span> criteria for a given group of patients identified in <span class='bold'>Step 1</span>.
+                            Remember each Treatment Goal is displayed separately in the Dashboard's CR widget
+                            and each can trigger a separate Active Alert.  Be wary of Alert Fatigue!
+                            If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts.
+                            Expert use only...</span>"
+                                        id="add_action_<?php echo (int)($group->groupId); ?>"
+                                        title='<?php echo xla('Add New Treatment Goal'); ?>'><i class="fa fa-plus"></i>
                                 </button>
                                 <button
                                         class="btn-sm btn-primary icon_1"
@@ -952,46 +965,69 @@
         </div>
     </div>
     <div id="help_intervals" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title title"><?php echo xlt('When does this CR becomes Active'); ?>:</h5>
+                    <h5 class="modal-title title"><?php echo xlt('When this Clinical Reminder is triggered'); ?>:</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
                 </div>
                 <div class="modal-body row">
                     <div class="col-12">
 
-                        <table class="table-100 tight">
+                        <table class="table-100 tight" cellpadding="2">
                             <thead>
                             <tr>
-                                <td class="text-center">
-                                    <span class="bold"><?php echo xlt('After this time has passed'); ?>: <i class="fa fa-plus"></i></span>
+                                <td class="title3">
+                                     <span data-toggle='popover'
+                                           data-trigger="hover"
+                                           data-placement="auto"
+                                           data-container="body"
+                                           data-html="true"
+                                           title='Alert Intervals'
+                                           data-content='There are three timing intervals:
+                                           <ol>
+                                                <li>CR is first triggered and extends until 2nd interval</li>
+                                                <li>Period from interval 2 until interval 3</li>
+                                                <li>Interval 3, time since CR began and beyond</li>
+                                            </ol>'><?php echo xlt('Intervals'); ?></span>
+
                                 </td>
-                                <td class="text-center">
-                                    <span class='bold'
-                                          data-toggle='popover'
+                                <td class="title3">
+                                    <span data-toggle='popover'
                                           data-trigger="hover"
                                           data-placement="auto"
-                                          title='Alert Begins'
-                                          data-content='Given a specific due date, an alert will fire this early before the due date.'>Active Alerts</span>
+                                          data-container="body"
+                                          title='Active Alerts'
+                                          data-content='Once triggered, these pop-op alerts begin firing until the first time interval is reached.'><?php echo xlt('Active Alert'); ?></span>
                                 </td>
-                                <td class="text-center">
-                                            <span class='bold'
-                                                  data-toggle='popover'
+                                <td class="title3">
+                                            <span data-toggle='popover'
                                                   data-trigger="hover"
                                                   data-placement="auto"
-                                                  title='Alert is Past Due'
-                                                  data-content='Each Clinical Reminder has a specific "due date".
-                                                  After a certain period of time has passed, the Clinical Reminder is considered late.
-                                                  Active alerts stop showing up altogether but Passive alerts (in the CR widget on the demographics page) are labelled "Past Due" after this time period.
-                                                  Patient Reminders that are past due can trigger a second follow-up e-mail if desired.
-                                                  This setting has no effect on Provider Alerts.'>Passive Alerts</span>
+                                                  title='Passive Alerts'
+                                                  data-container="body"
+
+                                                  data-content="Once triggered, this Passive Alert appears in the Dashboard's CR widget as 'Due soon'.
+                                                  After the first period of time has passed, the Clinical Reminder is considered 'Due'.
+                                                  The second period of time (which should be the same or longer than the first) marks the Alert as Past due.
+                                                  ">Passive Alert</span>
                                 </td>
                             </tr>
                             </thead>
                             <tbody class="text-center tight">
                             <tr>
+                                <td class="text-center"><br />
+                                    <span class="title4"><?php echo xlt('CR is triggered'); ?>:<br /><?php echo xlt('Timer begins');?></span>
+                                </td>
                                 <td>
+                                    <?php echo xlt('Begins firing'); ?>
+                                </td>
+                                <td>
+                                    <?php echo xlt('Appears in widget as Due soon'); ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td> <i class="fa fa-plus"></i>
                                     <input data-grp-tgt="clinical"
                                            type="text"
                                            id="clinical-pre"
@@ -1018,6 +1054,7 @@
                             </tr>
                             <tr>
                                 <td class="text-center tight">
+                                    <i class="fa fa-plus"></i>
                                     <input data-grp-tgt="clinical" type="text" id="clinical-post" value="<?php echo attr($timings['clinical']['pre']['amount']); ?>">
                                     <?php
                                         echo  generate_select_list(
@@ -1033,19 +1070,24 @@
                                     ?>
                                 </td>
                                 <td class="text-center">
-                                    N/A
+                                    --
                                 </td>
                                 <td class="text-center">
                                     Marked as <span class="red">Past Due</span> in CR widget
                                 </td>
                             </tr>
-                            <tr>
+                            <tr class="title4">
+                                <td>&nbsp;</td>
+                            
+                            </tr>
+                            <tr class="">
                                 <td></td>
-                                <td class="bold">Patient Reminders</td>
-                                <td class="bold">Provider Alerts</td>
+                                <td class="title3">Patient Reminders</td>
+                                <td class="title3">Provider Alerts</td>
                             </tr>
                             <tr>
                                 <td class="text-center tight" nowrap>
+                                    <i class="fa fa-plus"></i>
                                     <input data-grp-tgt="patient" type="text" id="patient-pre" value="<?php echo attr($timings['patient']['pre']['amount']); ?>">
                                     <?php
                                         
@@ -1079,26 +1121,28 @@
                             </tr>
                             <tr>
                                 <td class="text-center tight" nowrap>
-                                    <input data-grp-tgt="provider" type="text" id="provider-pre" value="<?php echo attr($timings['provider']['pre']['amount']); ?>">
-                                    <?php echo $timings['provider']['pre']['timeunit'];
+                                    <i class="fa fa-plus"></i>
+                                    <input data-grp-tgt="patient" type="text" id="patient-post" value="<?php echo attr($timings['patient']['post']['amount']); ?>">
+                                    <?php echo $timings['patient']['post']['timeunit'];
                                         echo  generate_select_list(
-                                            "provider",
+                                            "patient",
                                             "rule_reminder_intervals",
-                                            $timings['provider']['pre']['timeUnit']."",
-                                            "provider-pre-timeunit",
+                                            $timings['patient']['post']['timeUnit']."",
+                                            "patient-post-timeunit",
                                             '',
                                             'small',
                                             '',
-                                            "provider-pre-timeunit",
-                                            array( "data-grp-tgt" => "provider" ));
+                                            "patient-post-timeunit",
+                                            array( "data-grp-tgt" => "patient" ));
                                     ?>
 
 
                                 </td>
                                 <td class="text-center tight" nowrap>2nd reminder sent<br /> if still active
-                                    <input type="hidden" data-grp-tgt="provider" id="provider-post" value="<?php echo attr($timings['provider']['post']['amount'])?:'1'; ?>">
-                                    <input type="hidden" name="provider-post-timeunit" id="provider-post-timeunit"  data-grp-tgt="provider" value="day">
+                                    <input type="hidden" data-grp-tgt="patient" id="patient-post" value="<?php echo attr($timings['patient']['post']['amount'])?:'1'; ?>">
+                                    <input type="hidden" name="patient-post-timeunit" id="patient-post-timeunit"  data-grp-tgt="patient" value="<?php echo attr($timings['patient']['post']['amount'])?:'1'; ?>">
                                 </td>
+                                <td>--</td>
                             </tr>
                             </tbody>
                         </table>
@@ -1215,7 +1259,7 @@
                                     ?>
                                 </td>
                                 <td class="text-center">
-                                    N/A
+                                
                                 </td>
                                 <td class="text-center">
                                     Marked as <span class="red">Past Due</span> in CR widget
@@ -1261,25 +1305,25 @@
                             </tr>
                             <tr>
                                 <td class="text-center tight" nowrap>
-                                    <input data-grp-tgt="provider" type="text" id="provider-pre" value="<?php echo attr($timings['provider']['pre']['amount']); ?>">
-                                    <?php echo $timings['provider']['pre']['timeunit'];
+                                    <input data-grp-tgt="patient" type="text" id="patient-post" value="<?php echo attr($timings['patient']['post']['amount']); ?>">
+                                    <?php echo $timings['patient']['post']['timeunit'];
                                         echo  generate_select_list(
-                                            "provider",
+                                            "patient",
                                             "rule_reminder_intervals",
-                                            $timings['provider']['pre']['timeUnit']."",
-                                            "provider-pre-timeunit",
+                                            $timings['patient']['post']['timeUnit']."",
+                                            "patient-post-timeunit",
                                             '',
                                             'small',
                                             '',
-                                            "provider-pre-timeunit",
-                                            array( "data-grp-tgt" => "provider" ));
+                                            "patient-post-timeunit",
+                                            array( "data-grp-tgt" => "patient" ));
                                     ?>
 
 
                                 </td>
                                 <td class="text-center tight" nowrap>2nd reminder sent<br /> if still active
-                                    <input type="hidden" data-grp-tgt="provider" id="provider-post" value="<?php echo attr($timings['provider']['post']['amount'])?:'1'; ?>">
-                                    <input type="hidden" name="provider-post-timeunit" id="provider-post-timeunit"  data-grp-tgt="provider" value="day">
+                                    <input type="hidden" data-grp-tgt="patient" id="patient-post" value="<?php echo attr($timings['patient']['post']['amount'])?:'1'; ?>">
+                                    <input type="hidden" name="patient-post-timeunit" id="patient-post-timeunit"  data-grp-tgt="patient" value="day">
                                 </td>
                             </tr>
                             </tbody>
@@ -1333,13 +1377,6 @@
         $("#edit_summary").click(function () {
             $("#show_summary").hide();
             $("#show_summary_edit").show();
-        });
-        
-        $("[id$='_helpX']").click(function () {
-            var item = this.id.match(/show_(.*)_help/)[1];
-            alert(item);
-            $("#help_" + item).show();
-            //$(".in").css("opacity","0");
         });
         $("#save_summary").click(function () {
             top.restoreSession();
@@ -1411,7 +1448,15 @@
             });
             
         });
-        
+        <?php
+        if (empty($timings['clinical']['pre']['amount'])) { ?>
+        $("#clinical-pre").val('1');
+        $("#clinical-post").val('1');
+        $("#patient-pre").val('1');
+        $("#patient-pre").val('1');
+        $("#clinical-pre").trigger('change');
+        <?php } ?>
+    
         $("#add_filters").click(function () {
             top.restoreSession();
             var url = "index.php?action=edit!add_criteria&id=<?php echo attr_url($rule->id); ?>&criteriaType=filter";
@@ -1429,7 +1474,6 @@
         $("[id^='edit_filter_']").click(function() {
             top.restoreSession();
             var rf_uid = this.id.match(/edit_filter_(.*)/)[1];
-            alert(rf_uid);
             var url = "index.php?action=edit!filter&id=<?php echo attr_url($rule->id); ?>&rf_uid="+rf_uid;
             $.ajax({
                        type: 'POST',
